@@ -2,50 +2,49 @@ package model
 
 import (
 	_ "gorm.io/driver/sqlite"
-	"gorm.io/gorm"
-	"one-api/common"
-	"os"
-	"path"
 )
 
 type Channel struct {
-	Id              int    `json:"id"`
-	Filename        string `json:"filename" gorm:"index"`
-	Description     string `json:"description"`
-	Uploader        string `json:"uploader"  gorm:"index"`
-	UploaderId      int    `json:"uploader_id"  gorm:"index"`
-	Link            string `json:"link" gorm:"unique;index"`
-	UploadTime      string `json:"upload_time"`
-	DownloadCounter int    `json:"download_counter"`
+	Id     int    `json:"id"`
+	Type   int    `json:"type" gorm:"default:0"`
+	Key    string `json:"key"`
+	Status int    `json:"status" gorm:"default:1"`
 }
 
 func GetAllChannels(startIdx int, num int) ([]*Channel, error) {
-	var files []*Channel
+	var channels []*Channel
 	var err error
-	err = DB.Order("id desc").Limit(num).Offset(startIdx).Find(&files).Error
-	return files, err
+	err = DB.Order("id desc").Limit(num).Offset(startIdx).Find(&channels).Error
+	return channels, err
 }
 
-func SearchChannels(keyword string) (files []*Channel, err error) {
-	err = DB.Select([]string{"id", "filename", "description", "uploader", "uploader_id", "link", "upload_time", "download_counter"}).Where(
-		"filename LIKE ? or uploader LIKE ? or uploader_id = ?", keyword+"%", keyword+"%", keyword).Find(&files).Error
-	return files, err
+func SearchChannels(keyword string) (channels []*Channel, err error) {
+	err = DB.Select([]string{"id", "key"}, keyword, keyword).Find(&channels).Error
+	return channels, err
 }
 
-func (file *Channel) Insert() error {
+func GetChannelById(id int) (*Channel, error) {
+	channel := Channel{Id: id}
+	var err error = nil
+	err = DB.Select([]string{"id", "type"}).First(&channel, "id = ?", id).Error
+	return &channel, err
+}
+
+func (channel *Channel) Insert() error {
 	var err error
-	err = DB.Create(file).Error
+	err = DB.Create(channel).Error
+	return err
+}
+
+func (channel *Channel) Update() error {
+	var err error
+	err = DB.Model(channel).Updates(channel).Error
 	return err
 }
 
 // Delete Make sure link is valid! Because we will use os.Remove to delete it!
-func (file *Channel) Delete() error {
+func (channel *Channel) Delete() error {
 	var err error
-	err = DB.Delete(file).Error
-	err = os.Remove(path.Join(common.UploadPath, file.Link))
+	err = DB.Delete(channel).Error
 	return err
-}
-
-func UpdateDownloadCounter(link string) {
-	DB.Model(&Channel{}).Where("link = ?", link).UpdateColumn("download_counter", gorm.Expr("download_counter + 1"))
 }

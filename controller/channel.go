@@ -1,15 +1,11 @@
 package controller
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"one-api/common"
 	"one-api/model"
-	"path/filepath"
 	"strconv"
-	"strings"
-	"time"
 )
 
 func GetAllChannels(c *gin.Context) {
@@ -17,7 +13,7 @@ func GetAllChannels(c *gin.Context) {
 	if p < 0 {
 		p = 0
 	}
-	files, err := model.GetAllChannels(p*common.ItemsPerPage, common.ItemsPerPage)
+	channels, err := model.GetAllChannels(p*common.ItemsPerPage, common.ItemsPerPage)
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
@@ -28,14 +24,14 @@ func GetAllChannels(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"message": "",
-		"data":    files,
+		"data":    channels,
 	})
 	return
 }
 
 func SearchChannels(c *gin.Context) {
 	keyword := c.Query("keyword")
-	files, err := model.SearchChannels(keyword)
+	channels, err := model.SearchChannels(keyword)
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
@@ -46,13 +42,13 @@ func SearchChannels(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"message": "",
-		"data":    files,
+		"data":    channels,
 	})
 	return
 }
 
-func UploadFile(c *gin.Context) {
-	form, err := c.MultipartForm()
+func GetChannel(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
@@ -60,43 +56,39 @@ func UploadFile(c *gin.Context) {
 		})
 		return
 	}
-	uploadPath := common.UploadPath
-	description := c.PostForm("description")
-	if description == "" {
-		description = "无描述信息"
+	channel, err := model.GetChannelById(id)
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
 	}
-	uploader := c.GetString("username")
-	if uploader == "" {
-		uploader = "访客用户"
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "",
+		"data":    channel,
+	})
+	return
+}
+
+func AddChannel(c *gin.Context) {
+	channel := model.Channel{}
+	err := c.ShouldBindJSON(&channel)
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
 	}
-	uploaderId := c.GetInt("id")
-	currentTime := time.Now().Format("2006-01-02 15:04:05")
-	files := form.File["file"]
-	for _, file := range files {
-		filename := filepath.Base(file.Filename)
-		ext := filepath.Ext(filename)
-		link := common.GetUUID() + ext
-		savePath := filepath.Join(uploadPath, link) // both parts are checked, so this path should be safe to use
-		if err := c.SaveUploadedFile(file, savePath); err != nil {
-			c.JSON(http.StatusOK, gin.H{
-				"success": false,
-				"message": err.Error(),
-			})
-			return
-		}
-		// save to database
-		fileObj := &model.Channel{
-			Description: description,
-			Uploader:    uploader,
-			UploadTime:  currentTime,
-			UploaderId:  uploaderId,
-			Link:        link,
-			Filename:    filename,
-		}
-		err = fileObj.Insert()
-		if err != nil {
-			_ = fmt.Errorf(err.Error())
-		}
+	err = channel.Insert()
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
 	}
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
@@ -105,56 +97,45 @@ func UploadFile(c *gin.Context) {
 	return
 }
 
-func DeleteFile(c *gin.Context) {
-	fileIdStr := c.Param("id")
-	fileId, err := strconv.Atoi(fileIdStr)
-	if err != nil || fileId == 0 {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"success": false,
-			"message": "无效的参数",
-		})
-		return
-	}
-
-	fileObj := &model.Channel{
-		Id: fileId,
-	}
-	model.DB.Where("id = ?", fileId).First(&fileObj)
-	if fileObj.Link == "" {
-		c.JSON(http.StatusOK, gin.H{
-			"success": false,
-			"message": "文件不存在！",
-		})
-		return
-	}
-	err = fileObj.Delete()
+func DeleteChannel(c *gin.Context) {
+	id, _ := strconv.Atoi(c.Param("id"))
+	channel := model.Channel{Id: id}
+	err := channel.Delete()
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
-			"success": true,
+			"success": false,
 			"message": err.Error(),
 		})
 		return
-	} else {
-		message := "文件删除成功"
-		c.JSON(http.StatusOK, gin.H{
-			"success": true,
-			"message": message,
-		})
 	}
-
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "",
+	})
+	return
 }
 
-func DownloadFile(c *gin.Context) {
-	path := c.Param("file")
-	fullPath := filepath.Join(common.UploadPath, path)
-	if !strings.HasPrefix(fullPath, common.UploadPath) {
-		// We may being attacked!
-		c.Status(403)
+func UpdateChannel(c *gin.Context) {
+	channel := model.Channel{}
+	err := c.ShouldBindJSON(&channel)
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
 		return
 	}
-	c.File(fullPath)
-	// Update download counter
-	go func() {
-		model.UpdateDownloadCounter(path)
-	}()
+	err = channel.Update()
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "",
+	})
+	return
 }

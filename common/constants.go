@@ -83,3 +83,15 @@ const (
 	UserStatusEnabled  = 1 // don't use 0, 0 is the default value!
 	UserStatusDisabled = 2 // also don't use 0
 )
+
+const (
+	ChannelStatusUnknown  = 0
+	ChannelStatusEnabled  = 1 // don't use 0, 0 is the default value!
+	ChannelStatusDisabled = 2 // also don't use 0
+)
+
+const (
+	ChannelTypeUnknown = 0
+	ChannelTypeOpenAI  = 1
+	ChannelTypeAPI2D   = 2
+)
