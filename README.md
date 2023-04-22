@@ -1,16 +1,12 @@
-<p align="right">
-   <strong>中文</strong> | <a href="./README.en.md">English</a>
-</p>
-
 <p align="center">
   <a href="https://github.com/songquanpeng/one-api"><img src="https://raw.githubusercontent.com/songquanpeng/one-api/main/web/public/logo.png" width="150" height="150" alt="one-api logo"></a>
 </p>
 
 <div align="center">
 
-# Gin One API
+# One API
 
-_✨ 用于 Gin & React 项目的模板 ✨_
+_✨ All in one 的 OpenAI 接口，整合各种 API 访问方式，开箱即用✨_
 
 </div>
 
@@ -40,19 +36,23 @@ _✨ 用于 Gin & React 项目的模板 ✨_
 </p>
 
 ## 功能
-+ [x] 内置用户管理
-+ [x] 内置文件管理
-+ [x] [GitHub 开放授权](https://github.com/settings/applications/new)
-+ [x] 微信公众号授权（需要 [wechat-server](https://github.com/songquanpeng/wechat-server)）
-+ [x] 邮箱验证以及通过邮件进行密码重置
-+ [x] 请求频率限制
-+ [x] 静态文件缓存
-+ [x] 移动端适配
-+ [x] 基于令牌的鉴权
-+ [x] 使用 GitHub Actions 自动打包可执行文件与 Docker 镜像
-+ [x] Cloudflare Turnstile 用户校验
+1. 多种 API 访问方式：
+   + [ ] One API 服务端中继
+   + [ ] [API2D](https://api2d.com/r/197971)
+2. 聚合多种 API 访问方式，通过负载均衡的方式进行访问。
+3. 单个访问渠道支持设置多个 API Key，利用起来你的多个 API Key。
+4. 多种用户登录注册方式：
+   + 邮箱登录注册以及通过邮箱进行密码重置。
+   + [GitHub 开放授权](https://github.com/settings/applications/new)。
+   + 微信公众号授权（需要额外部署 [WeChat Server](https://github.com/songquanpeng/wechat-server)）。
+5. 支持用户管理。
 
 ## 部署
+### 基于 Docker 进行部署
+执行：`docker run -d --restart always -p 3000:3000 -v /home/ubuntu/data/one-api:/data -v /etc/ssl/certs:/etc/ssl/certs:ro justsong/one-api`
+
+数据将会保存在宿主机的 `/home/ubuntu/data/one-api` 目录。
+
 ### 手动部署
 1. 从 [GitHub Releases](https://github.com/songquanpeng/one-api/releases/latest) 下载可执行文件或者从源码编译：
    ```shell
@@ -68,11 +68,6 @@ _✨ 用于 Gin & React 项目的模板 ✨_
 3. 访问 [http://localhost:3000/](http://localhost:3000/) 并登录。初始账号用户名为 `root`，密码为 `123456`。
 
 更加详细的部署教程[参见此处](https://iamazing.cn/page/how-to-deploy-a-website)。
-
-### 基于 Docker 进行部署
-执行：`docker run -d --restart always -p 3000:3000 -v /home/ubuntu/data/one-api:/data -v /etc/ssl/certs:/etc/ssl/certs:ro justsong/one-api`
-
-数据将会保存在宿主机的 `/home/ubuntu/data/one-api` 目录。
 
 ## 配置
 系统本身开箱即用。
