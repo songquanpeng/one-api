@@ -1,12 +1,12 @@
 import React from 'react';
 import { Header, Segment } from 'semantic-ui-react';
-import FilesTable from '../../components/FilesTable';
+import ChannelsTable from '../../components/ChannelsTable';
 
 const File = () => (
   <>
     <Segment>
-      <Header as='h3'>管理文件</Header>
-      <FilesTable />
+      <Header as='h3'>管理渠道</Header>
+      <ChannelsTable />
     </Segment>
   </>
 );

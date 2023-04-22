@@ -14,7 +14,7 @@ import PasswordResetForm from './components/PasswordResetForm';
 import GitHubOAuth from './components/GitHubOAuth';
 import PasswordResetConfirm from './components/PasswordResetConfirm';
 import { UserContext } from './context/User';
-import File from './pages/File';
+import Channel from './pages/Channel';
 
 const Home = lazy(() => import('./pages/Home'));
 const About = lazy(() => import('./pages/About'));
@@ -65,10 +65,10 @@ function App() {
         }
       />
       <Route
-        path='/file'
+        path='/channel'
         element={
           <PrivateRoute>
-            <File />
+            <Channel />
           </PrivateRoute>
         }
       />

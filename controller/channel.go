@@ -12,12 +12,12 @@ import (
 	"time"
 )
 
-func GetAllFiles(c *gin.Context) {
+func GetAllChannels(c *gin.Context) {
 	p, _ := strconv.Atoi(c.Query("p"))
 	if p < 0 {
 		p = 0
 	}
-	files, err := model.GetAllFiles(p*common.ItemsPerPage, common.ItemsPerPage)
+	files, err := model.GetAllChannels(p*common.ItemsPerPage, common.ItemsPerPage)
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
@@ -33,9 +33,9 @@ func GetAllFiles(c *gin.Context) {
 	return
 }
 
-func SearchFiles(c *gin.Context) {
+func SearchChannels(c *gin.Context) {
 	keyword := c.Query("keyword")
-	files, err := model.SearchFiles(keyword)
+	files, err := model.SearchChannels(keyword)
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
@@ -85,7 +85,7 @@ func UploadFile(c *gin.Context) {
 			return
 		}
 		// save to database
-		fileObj := &model.File{
+		fileObj := &model.Channel{
 			Description: description,
 			Uploader:    uploader,
 			UploadTime:  currentTime,
@@ -116,7 +116,7 @@ func DeleteFile(c *gin.Context) {
 		return
 	}
 
-	fileObj := &model.File{
+	fileObj := &model.Channel{
 		Id: fileId,
 	}
 	model.DB.Where("id = ?", fileId).First(&fileObj)

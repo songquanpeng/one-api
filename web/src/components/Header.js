@@ -14,9 +14,9 @@ const headerButtons = [
     icon: 'home',
   },
   {
-    name: '文件',
-    to: '/file',
-    icon: 'file',
+    name: '渠道',
+    to: '/channel',
+    icon: 'sitemap',
     admin: true,
   },
   {

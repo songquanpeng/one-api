@@ -52,7 +52,7 @@ func InitDB() (err error) {
 	}
 	if err == nil {
 		DB = db
-		err := db.AutoMigrate(&File{})
+		err := db.AutoMigrate(&Channel{})
 		if err != nil {
 			return err
 		}
