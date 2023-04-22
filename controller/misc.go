@@ -3,10 +3,10 @@ package controller
 import (
 	"encoding/json"
 	"fmt"
-	"gin-template/common"
-	"gin-template/model"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"one-api/common"
+	"one-api/model"
 )
 
 func GetStatus(c *gin.Context) {

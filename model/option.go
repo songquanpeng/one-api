@@ -1,7 +1,7 @@
 package model
 
 import (
-	"gin-template/common"
+	"one-api/common"
 	"strconv"
 	"strings"
 )

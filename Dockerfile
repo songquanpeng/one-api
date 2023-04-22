@@ -16,7 +16,7 @@ WORKDIR /build
 COPY . .
 COPY --from=builder /build/build ./web/build
 RUN go mod download
-RUN go build -ldflags "-s -w -X 'gin-template/common.Version=$(cat VERSION)' -extldflags '-static'" -o gin-template
+RUN go build -ldflags "-s -w -X 'one-api/common.Version=$(cat VERSION)' -extldflags '-static'" -o one-api
 
 FROM alpine
 
@@ -25,7 +25,7 @@ RUN apk update \
     && apk add --no-cache ca-certificates tzdata \
     && update-ca-certificates 2>/dev/null || true
 ENV PORT=3000
-COPY --from=builder2 /build/gin-template /
+COPY --from=builder2 /build/one-api /
 EXPOSE 3000
 WORKDIR /data
-ENTRYPOINT ["/gin-template"]
+ENTRYPOINT ["/one-api"]

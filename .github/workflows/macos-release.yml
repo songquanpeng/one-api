@@ -30,11 +30,11 @@ jobs:
       - name: Build Backend
         run: |
           go mod download
-          go build -ldflags "-X 'gin-template/common.Version=$(git describe --tags)'" -o gin-template-macos
+          go build -ldflags "-X 'one-api/common.Version=$(git describe --tags)'" -o one-api-macos
       - name: Release
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
         with:
-          files: gin-template-macos
+          files: one-api-macos
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

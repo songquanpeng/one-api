@@ -2,16 +2,16 @@ package main
 
 import (
 	"embed"
-	"gin-template/common"
-	"gin-template/middleware"
-	"gin-template/model"
-	"gin-template/router"
 	"github.com/gin-contrib/gzip"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-contrib/sessions/redis"
 	"github.com/gin-gonic/gin"
 	"log"
+	"one-api/common"
+	"one-api/middleware"
+	"one-api/model"
+	"one-api/router"
 	"os"
 	"strconv"
 )

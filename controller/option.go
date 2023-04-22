@@ -2,10 +2,10 @@ package controller
 
 import (
 	"encoding/json"
-	"gin-template/common"
-	"gin-template/model"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"one-api/common"
+	"one-api/model"
 	"strings"
 )
 

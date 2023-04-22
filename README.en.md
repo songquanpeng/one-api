@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/songquanpeng/gin-template"><img src="https://raw.githubusercontent.com/songquanpeng/gin-template/main/web/public/logo.png" width="150" height="150" alt="gin-template logo"></a>
+  <a href="https://github.com/songquanpeng/one-api"><img src="https://raw.githubusercontent.com/songquanpeng/one-api/main/web/public/logo.png" width="150" height="150" alt="one-api logo"></a>
 </p>
 
 <div align="center">
@@ -15,28 +15,28 @@ _✨ Template for Gin & React projects ✨_
 </div>
 
 <p align="center">
-  <a href="https://raw.githubusercontent.com/songquanpeng/gin-template/main/LICENSE">
-    <img src="https://img.shields.io/github/license/songquanpeng/gin-template?color=brightgreen" alt="license">
+  <a href="https://raw.githubusercontent.com/songquanpeng/one-api/main/LICENSE">
+    <img src="https://img.shields.io/github/license/songquanpeng/one-api?color=brightgreen" alt="license">
   </a>
-  <a href="https://github.com/songquanpeng/gin-template/releases/latest">
-    <img src="https://img.shields.io/github/v/release/songquanpeng/gin-template?color=brightgreen&include_prereleases" alt="release">
+  <a href="https://github.com/songquanpeng/one-api/releases/latest">
+    <img src="https://img.shields.io/github/v/release/songquanpeng/one-api?color=brightgreen&include_prereleases" alt="release">
   </a>
-  <a href="https://github.com/songquanpeng/gin-template/releases/latest">
-    <img src="https://img.shields.io/github/downloads/songquanpeng/gin-template/total?color=brightgreen&include_prereleases" alt="release">
+  <a href="https://github.com/songquanpeng/one-api/releases/latest">
+    <img src="https://img.shields.io/github/downloads/songquanpeng/one-api/total?color=brightgreen&include_prereleases" alt="release">
   </a>
   <a href="https://goreportcard.com/report/github.com/songquanpeng/go-file">
-    <img src="https://goreportcard.com/badge/github.com/songquanpeng/gin-template" alt="GoReportCard">
+    <img src="https://goreportcard.com/badge/github.com/songquanpeng/one-api" alt="GoReportCard">
   </a>
 </p>
 
 <p align="center">
-  <a href="https://github.com/songquanpeng/gin-template/releases">Download</a>
+  <a href="https://github.com/songquanpeng/one-api/releases">Download</a>
   ·
-  <a href="https://github.com/songquanpeng/gin-template/blob/main/README.en.md#deployment">Tutorial</a>
+  <a href="https://github.com/songquanpeng/one-api/blob/main/README.en.md#deployment">Tutorial</a>
   ·
-  <a href="https://github.com/songquanpeng/gin-template/issues">Feedback</a>
+  <a href="https://github.com/songquanpeng/one-api/issues">Feedback</a>
   ·
-  <a href="https://gin-template.vercel.app/">Demo</a>
+  <a href="https://one-api.vercel.app/">Demo</a>
 </p>
 
 ## Features
@@ -54,23 +54,23 @@ _✨ Template for Gin & React projects ✨_
 
 ## Deployment
 ### Manual deployment
-1. Download built binary from [GitHub Releases](https://github.com/songquanpeng/gin-template/releases/latest) or build from source:
+1. Download built binary from [GitHub Releases](https://github.com/songquanpeng/one-api/releases/latest) or build from source:
    ```shell
-   git clone https://github.com/songquanpeng/gin-template.git
+   git clone https://github.com/songquanpeng/one-api.git
    go mod download
-   go build -ldflags "-s -w" -o gin-template
+   go build -ldflags "-s -w" -o one-api
    ````
 2. Run it:
    ```shell
-   chmod u+x gin-template
-   ./gin-template --port 3000 --log-dir ./logs
+   chmod u+x one-api
+   ./one-api --port 3000 --log-dir ./logs
    ```
 3. Visit [http://localhost:3000/](http://localhost:3000/) and login. The username for the initial account is `root` and the password is `123456`.
 
 ### Deploy with Docker
-Execute: `docker run -d --restart always -p 3000:3000 -v /home/ubuntu/data/gin-template:/data -v /etc/ssl/certs:/etc/ssl/certs:ro justsong/gin-template`
+Execute: `docker run -d --restart always -p 3000:3000 -v /home/ubuntu/data/one-api:/data -v /etc/ssl/certs:/etc/ssl/certs:ro justsong/one-api`
 
-Data will be saved in `/home/ubuntu/data/gin-template`.
+Data will be saved in `/home/ubuntu/data/one-api`.
 
 ## Configurations
 The system works out of the box.
@@ -85,7 +85,7 @@ After the system starts, use `root` user to log in to the system and do further 
 2. `SESSION_SECRET`: when set, a fixed session key will be used so that the logged-in users' cookie remains valid across system reboots.
    + Example: `SESSION_SECRET=random_string`
 3. `SQL_DSN`: when set, the target SQL database will be used instead of SQLite.
-   + Example: `SQL_DSN=root:123456@tcp(localhost:3306)/gin-template`
+   + Example: `SQL_DSN=root:123456@tcp(localhost:3306)/one-api`
 
 ### Command line Arguments
 1. `--port <port_number>`: specify the port number, the default value is `3000`.

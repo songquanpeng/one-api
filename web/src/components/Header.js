@@ -105,7 +105,7 @@ const Header = () => {
                 style={{ marginRight: '0.75em' }}
               />
               <div style={{ fontSize: '20px' }}>
-                <b>项目模板</b>
+                <b>One API</b>
               </div>
             </Menu.Item>
             <Menu.Menu position='right'>
@@ -159,7 +159,7 @@ const Header = () => {
           <Menu.Item as={Link} to='/' className={'hide-on-mobile'}>
             <img src='/logo.png' alt='logo' style={{ marginRight: '0.75em' }} />
             <div style={{ fontSize: '20px' }}>
-              <b>项目模板</b>
+              <b>One API</b>
             </div>
           </Menu.Item>
           {renderButtons(false)}

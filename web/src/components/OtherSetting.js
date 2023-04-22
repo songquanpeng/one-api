@@ -71,12 +71,12 @@ const OtherSetting = () => {
 
   const openGitHubRelease = () => {
     window.location =
-      'https://github.com/songquanpeng/gin-template/releases/latest';
+      'https://github.com/songquanpeng/one-api/releases/latest';
   };
 
   const checkUpdate = async () => {
     const res = await API.get(
-      'https://api.github.com/repos/songquanpeng/gin-template/releases/latest'
+      'https://api.github.com/repos/songquanpeng/one-api/releases/latest'
     );
     const { tag_name, body } = res.data;
     if (tag_name === process.env.REACT_APP_VERSION) {
