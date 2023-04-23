@@ -11,7 +11,7 @@ import (
 func Relay(c *gin.Context) {
 	channelType := c.GetInt("channel")
 	host := common.ChannelHosts[channelType]
-	req, err := http.NewRequest(c.Request.Method, fmt.Sprintf("%s/%s", host, c.Request.URL.String()), c.Request.Body)
+	req, err := http.NewRequest(c.Request.Method, fmt.Sprintf("%s%s", host, c.Request.URL.String()), c.Request.Body)
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"error": gin.H{
