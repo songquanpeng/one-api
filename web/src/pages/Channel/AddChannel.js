@@ -1,26 +1,27 @@
 import React, { useState } from 'react';
 import { Button, Form, Header, Segment } from 'semantic-ui-react';
 import { API, showError, showSuccess } from '../../helpers';
+import { CHANNEL_OPTIONS } from '../../constants';
 
 const AddChannel = () => {
   const originInputs = {
-    username: '',
-    display_name: '',
-    password: '',
+    name: '',
+    type: 1,
+    key: ''
   };
   const [inputs, setInputs] = useState(originInputs);
-  const { username, display_name, password } = inputs;
+  const { name, type, key } = inputs;
 
   const handleInputChange = (e, { name, value }) => {
     setInputs((inputs) => ({ ...inputs, [name]: value }));
   };
 
   const submit = async () => {
-    if (inputs.username === '' || inputs.password === '') return;
-    const res = await API.post(`/api/user/`, inputs);
+    if (inputs.name === '' || inputs.key === '') return;
+    const res = await API.post(`/api/channel/`, inputs);
     const { success, message } = res.data;
     if (success) {
-      showSuccess('用户账户创建成功！');
+      showSuccess('渠道创建成功！');
       setInputs(originInputs);
     } else {
       showError(message);
@@ -30,38 +31,37 @@ const AddChannel = () => {
   return (
     <>
       <Segment>
-        <Header as="h3">创建新用户账户</Header>
-        <Form autoComplete="off">
+        <Header as='h3'>创建新的渠道</Header>
+        <Form autoComplete='off'>
+          <Form.Field>
+            <Form.Select
+              label='类型'
+              name='type'
+              options={CHANNEL_OPTIONS}
+              value={inputs.type}
+              onChange={handleInputChange}
+            />
+          </Form.Field>
           <Form.Field>
             <Form.Input
-              label="用户名"
-              name="username"
-              placeholder={'请输入用户名'}
+              label='名称'
+              name='name'
+              placeholder={'请输入名称'}
               onChange={handleInputChange}
-              value={username}
-              autoComplete="off"
+              value={name}
+              autoComplete='off'
               required
             />
           </Form.Field>
           <Form.Field>
             <Form.Input
-              label="显示名称"
-              name="display_name"
-              placeholder={'请输入显示名称'}
+              label='密钥'
+              name='key'
+              placeholder={'请输入密钥'}
               onChange={handleInputChange}
-              value={display_name}
-              autoComplete="off"
-            />
-          </Form.Field>
-          <Form.Field>
-            <Form.Input
-              label="密码"
-              name="password"
-              type={'password'}
-              placeholder={'请输入密码'}
-              onChange={handleInputChange}
-              value={password}
-              autoComplete="off"
+              value={key}
+              // type='password'
+              autoComplete='off'
               required
             />
           </Form.Field>

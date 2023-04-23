@@ -91,7 +91,12 @@ const (
 )
 
 const (
-	ChannelTypeUnknown = 0
-	ChannelTypeOpenAI  = 1
-	ChannelTypeAPI2D   = 2
+	ChannelTypeUnknown   = 0
+	ChannelTypeOpenAI    = 1
+	ChannelTypeAPI2D     = 2
+	ChannelTypeAzure     = 3
+	ChannelTypeCloseAI   = 4
+	ChannelTypeOpenAISB  = 5
+	ChannelTypeOpenAIMax = 6
+	ChannelTypeOhMyGPT   = 7
 )

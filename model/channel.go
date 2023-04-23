@@ -9,7 +9,7 @@ type Channel struct {
 	Type         int    `json:"type" gorm:"default:0"`
 	Key          string `json:"key"`
 	Status       int    `json:"status" gorm:"default:1"`
-	Name         string `json:"name" gorm:"unique;index"`
+	Name         string `json:"name" gorm:"index"`
 	Weight       int    `json:"weight"`
 	CreatedTime  int64  `json:"created_time" gorm:"bigint"`
 	AccessedTime int64  `json:"accessed_time" gorm:"bigint"`

@@ -115,7 +115,7 @@ const TokensTable = () => {
       return;
     }
     setSearching(true);
-    const res = await API.get(`/api/token/search?keyword=${searchKeyword}/`);
+    const res = await API.get(`/api/token/search?keyword=${searchKeyword}`);
     const { success, message, data } = res.data;
     if (success) {
       setTokens(data);

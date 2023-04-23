@@ -1,40 +1,48 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Form, Label, Pagination, Table } from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
-import { API, showError, showSuccess } from '../helpers';
+import { API, copy, showError, showSuccess, timestamp2string } from '../helpers';
 
-import { ITEMS_PER_PAGE } from '../constants';
+import { CHANNEL_OPTIONS, ITEMS_PER_PAGE } from '../constants';
 
-function renderRole(role) {
-  switch (role) {
-    case 1:
-      return <Label>普通用户</Label>;
-    case 10:
-      return <Label color='yellow'>管理员</Label>;
-    case 100:
-      return <Label color='orange'>超级管理员</Label>;
-    default:
-      return <Label color='red'>未知身份</Label>;
+function renderTimestamp(timestamp) {
+  return (
+    <>
+      {timestamp2string(timestamp)}
+    </>
+  );
+}
+
+let type2label = undefined;
+
+function renderType(type) {
+  if (!type2label) {
+    type2label = new Map;
+    for (let i = 0; i < CHANNEL_OPTIONS.length; i++) {
+      type2label[CHANNEL_OPTIONS[i].value] = CHANNEL_OPTIONS[i];
+    }
+    type2label[0] = { value: 0, text: '未知类型', color: 'grey' };
   }
+  return <Label basic color={type2label[type].color}>{type2label[type].text}</Label>;
 }
 
 const ChannelsTable = () => {
-  const [users, setUsers] = useState([]);
+  const [channels, setChannels] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activePage, setActivePage] = useState(1);
   const [searchKeyword, setSearchKeyword] = useState('');
   const [searching, setSearching] = useState(false);
 
-  const loadUsers = async (startIdx) => {
-    const res = await API.get(`/api/user/?p=${startIdx}`);
+  const loadChannels = async (startIdx) => {
+    const res = await API.get(`/api/channel/?p=${startIdx}`);
     const { success, message, data } = res.data;
     if (success) {
       if (startIdx === 0) {
-        setUsers(data);
+        setChannels(data);
       } else {
-        let newUsers = users;
-        newUsers.push(...data);
-        setUsers(newUsers);
+        let newChannels = channels;
+        newChannels.push(...data);
+        setChannels(newChannels);
       }
     } else {
       showError(message);
@@ -44,55 +52,63 @@ const ChannelsTable = () => {
 
   const onPaginationChange = (e, { activePage }) => {
     (async () => {
-      if (activePage === Math.ceil(users.length / ITEMS_PER_PAGE) + 1) {
+      if (activePage === Math.ceil(channels.length / ITEMS_PER_PAGE) + 1) {
         // In this case we have to load more data and then append them.
-        await loadUsers(activePage - 1);
+        await loadChannels(activePage - 1);
       }
       setActivePage(activePage);
     })();
   };
 
   useEffect(() => {
-    loadUsers(0)
+    loadChannels(0)
       .then()
       .catch((reason) => {
         showError(reason);
       });
   }, []);
 
-  const manageUser = (username, action, idx) => {
-    (async () => {
-      const res = await API.post('/api/user/manage', {
-        username,
-        action,
-      });
-      const { success, message } = res.data;
-      if (success) {
-        showSuccess('操作成功完成！');
-        let user = res.data.data;
-        let newUsers = [...users];
-        let realIdx = (activePage - 1) * ITEMS_PER_PAGE + idx;
-        if (action === 'delete') {
-          newUsers[realIdx].deleted = true;
-        } else {
-          newUsers[realIdx].status = user.status;
-          newUsers[realIdx].role = user.role;
-        }
-        setUsers(newUsers);
+  const manageChannel = async (id, action, idx) => {
+    let data = { id };
+    let res;
+    switch (action) {
+      case 'delete':
+        res = await API.delete(`/api/channel/${id}/`);
+        break;
+      case 'enable':
+        data.status = 1;
+        res = await API.put('/api/channel/', data);
+        break;
+      case 'disable':
+        data.status = 2;
+        res = await API.put('/api/channel/', data);
+        break;
+    }
+    const { success, message } = res.data;
+    if (success) {
+      showSuccess('操作成功完成！');
+      let channel = res.data.data;
+      let newChannels = [...channels];
+      let realIdx = (activePage - 1) * ITEMS_PER_PAGE + idx;
+      if (action === 'delete') {
+        newChannels[realIdx].deleted = true;
       } else {
-        showError(message);
+        newChannels[realIdx].status = channel.status;
       }
-    })();
+      setChannels(newChannels);
+    } else {
+      showError(message);
+    }
   };
 
   const renderStatus = (status) => {
     switch (status) {
       case 1:
-        return <Label basic>已激活</Label>;
+        return <Label basic color='green'>已启用</Label>;
       case 2:
         return (
           <Label basic color='red'>
-            已封禁
+            已禁用
           </Label>
         );
       default:
@@ -104,18 +120,18 @@ const ChannelsTable = () => {
     }
   };
 
-  const searchUsers = async () => {
+  const searchChannels = async () => {
     if (searchKeyword === '') {
       // if keyword is blank, load files instead.
-      await loadUsers(0);
+      await loadChannels(0);
       setActivePage(1);
       return;
     }
     setSearching(true);
-    const res = await API.get(`/api/user/search?keyword=${searchKeyword}`);
+    const res = await API.get(`/api/channel/search?keyword=${searchKeyword}`);
     const { success, message, data } = res.data;
     if (success) {
-      setUsers(data);
+      setChannels(data);
       setActivePage(1);
     } else {
       showError(message);
@@ -127,28 +143,28 @@ const ChannelsTable = () => {
     setSearchKeyword(value.trim());
   };
 
-  const sortUser = (key) => {
-    if (users.length === 0) return;
+  const sortChannel = (key) => {
+    if (channels.length === 0) return;
     setLoading(true);
-    let sortedUsers = [...users];
-    sortedUsers.sort((a, b) => {
+    let sortedChannels = [...channels];
+    sortedChannels.sort((a, b) => {
       return ('' + a[key]).localeCompare(b[key]);
     });
-    if (sortedUsers[0].id === users[0].id) {
-      sortedUsers.reverse();
+    if (sortedChannels[0].id === channels[0].id) {
+      sortedChannels.reverse();
     }
-    setUsers(sortedUsers);
+    setChannels(sortedChannels);
     setLoading(false);
   };
 
   return (
     <>
-      <Form onSubmit={searchUsers}>
+      <Form onSubmit={searchChannels}>
         <Form.Input
           icon='search'
           fluid
           iconPosition='left'
-          placeholder='搜索用户的 ID，用户名，显示名称，以及邮箱地址 ...'
+          placeholder='搜索渠道的 ID 和名称 ...'
           value={searchKeyword}
           loading={searching}
           onChange={handleKeywordChange}
@@ -161,87 +177,78 @@ const ChannelsTable = () => {
             <Table.HeaderCell
               style={{ cursor: 'pointer' }}
               onClick={() => {
-                sortUser('username');
+                sortChannel('id');
               }}
             >
-              用户名
+              ID
             </Table.HeaderCell>
             <Table.HeaderCell
               style={{ cursor: 'pointer' }}
               onClick={() => {
-                sortUser('display_name');
+                sortChannel('name');
               }}
             >
-              显示名称
+              名称
             </Table.HeaderCell>
             <Table.HeaderCell
               style={{ cursor: 'pointer' }}
               onClick={() => {
-                sortUser('email');
+                sortChannel('type');
               }}
             >
-              邮箱地址
+              类型
             </Table.HeaderCell>
             <Table.HeaderCell
               style={{ cursor: 'pointer' }}
               onClick={() => {
-                sortUser('role');
-              }}
-            >
-              用户角色
-            </Table.HeaderCell>
-            <Table.HeaderCell
-              style={{ cursor: 'pointer' }}
-              onClick={() => {
-                sortUser('status');
+                sortChannel('status');
               }}
             >
               状态
+            </Table.HeaderCell>
+            <Table.HeaderCell
+              style={{ cursor: 'pointer' }}
+              onClick={() => {
+                sortChannel('created_time');
+              }}
+            >
+              创建时间
+            </Table.HeaderCell>
+            <Table.HeaderCell
+              style={{ cursor: 'pointer' }}
+              onClick={() => {
+                sortChannel('accessed_time');
+              }}
+            >
+              访问时间
             </Table.HeaderCell>
             <Table.HeaderCell>操作</Table.HeaderCell>
           </Table.Row>
         </Table.Header>
 
         <Table.Body>
-          {users
+          {channels
             .slice(
               (activePage - 1) * ITEMS_PER_PAGE,
               activePage * ITEMS_PER_PAGE
             )
-            .map((user, idx) => {
-              if (user.deleted) return <></>;
+            .map((channel, idx) => {
+              if (channel.deleted) return <></>;
               return (
-                <Table.Row key={user.id}>
-                  <Table.Cell>{user.username}</Table.Cell>
-                  <Table.Cell>{user.display_name}</Table.Cell>
-                  <Table.Cell>{user.email ? user.email : '无'}</Table.Cell>
-                  <Table.Cell>{renderRole(user.role)}</Table.Cell>
-                  <Table.Cell>{renderStatus(user.status)}</Table.Cell>
+                <Table.Row key={channel.id}>
+                  <Table.Cell>{channel.id}</Table.Cell>
+                  <Table.Cell>{channel.name ? channel.name : '无'}</Table.Cell>
+                  <Table.Cell>{renderType(channel.type)}</Table.Cell>
+                  <Table.Cell>{renderStatus(channel.status)}</Table.Cell>
+                  <Table.Cell>{renderTimestamp(channel.created_time)}</Table.Cell>
+                  <Table.Cell>{renderTimestamp(channel.accessed_time)}</Table.Cell>
                   <Table.Cell>
                     <div>
                       <Button
                         size={'small'}
-                        positive
-                        onClick={() => {
-                          manageUser(user.username, 'promote', idx);
-                        }}
-                      >
-                        提升
-                      </Button>
-                      <Button
-                        size={'small'}
-                        color={'yellow'}
-                        onClick={() => {
-                          manageUser(user.username, 'demote', idx);
-                        }}
-                      >
-                        降级
-                      </Button>
-                      <Button
-                        size={'small'}
                         negative
                         onClick={() => {
-                          manageUser(user.username, 'delete', idx);
+                          manageChannel(channel.id, 'delete', idx);
                         }}
                       >
                         删除
@@ -249,19 +256,19 @@ const ChannelsTable = () => {
                       <Button
                         size={'small'}
                         onClick={() => {
-                          manageUser(
-                            user.username,
-                            user.status === 1 ? 'disable' : 'enable',
+                          manageChannel(
+                            channel.id,
+                            channel.status === 1 ? 'disable' : 'enable',
                             idx
                           );
                         }}
                       >
-                        {user.status === 1 ? '禁用' : '启用'}
+                        {channel.status === 1 ? '禁用' : '启用'}
                       </Button>
                       <Button
                         size={'small'}
                         as={Link}
-                        to={'/user/edit/' + user.id}
+                        to={'/channel/edit/' + channel.id}
                       >
                         编辑
                       </Button>
@@ -275,8 +282,8 @@ const ChannelsTable = () => {
         <Table.Footer>
           <Table.Row>
             <Table.HeaderCell colSpan='6'>
-              <Button size='small' as={Link} to='/user/add' loading={loading}>
-                添加新的用户
+              <Button size='small' as={Link} to='/channel/add' loading={loading}>
+                添加新的渠道
               </Button>
               <Pagination
                 floated='right'
@@ -285,8 +292,8 @@ const ChannelsTable = () => {
                 size='small'
                 siblingRange={1}
                 totalPages={
-                  Math.ceil(users.length / ITEMS_PER_PAGE) +
-                  (users.length % ITEMS_PER_PAGE === 0 ? 1 : 0)
+                  Math.ceil(channels.length / ITEMS_PER_PAGE) +
+                  (channels.length % ITEMS_PER_PAGE === 0 ? 1 : 0)
                 }
               />
             </Table.HeaderCell>

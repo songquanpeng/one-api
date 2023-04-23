@@ -82,6 +82,8 @@ func AddChannel(c *gin.Context) {
 		})
 		return
 	}
+	channel.CreatedTime = common.GetTimestamp()
+	channel.AccessedTime = common.GetTimestamp()
 	err = channel.Insert()
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
@@ -136,6 +138,7 @@ func UpdateChannel(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"message": "",
+		"data":    channel,
 	})
 	return
 }
