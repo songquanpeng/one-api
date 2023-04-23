@@ -97,3 +97,41 @@ export function removeTrailingSlash(url) {
     return url;
   }
 }
+
+export function timestamp2string(timestamp) {
+  let date = new Date(timestamp * 1000);
+  let year = date.getFullYear().toString();
+  let month = (date.getMonth() + 1).toString();
+  let day = date.getDate().toString();
+  let hour = date.getHours().toString();
+  let minute = date.getMinutes().toString();
+  let second = date.getSeconds().toString();
+  if (month.length === 1) {
+    month = '0' + month;
+  }
+  if (day.length === 1) {
+    day = '0' + day;
+  }
+  if (hour.length === 1) {
+    hour = '0' + hour;
+  }
+  if (minute.length === 1) {
+    minute = '0' + minute;
+  }
+  if (second.length === 1) {
+    second = '0' + second;
+  }
+  return (
+    year +
+    '-' +
+    month +
+    '-' +
+    day +
+    ' ' +
+    hour +
+    ':' +
+    minute +
+    ':' +
+    second
+  );
+}

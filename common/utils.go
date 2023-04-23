@@ -10,6 +10,7 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
+	"time"
 )
 
 func OpenBrowser(url string) {
@@ -130,6 +131,10 @@ func GetUUID() string {
 	code := uuid.New().String()
 	code = strings.Replace(code, "-", "", -1)
 	return code
+}
+
+func GetTimestamp() int64 {
+	return time.Now().Unix()
 }
 
 func Max(a int, b int) int {

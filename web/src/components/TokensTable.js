@@ -1,40 +1,35 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Form, Label, Pagination, Table } from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
-import { API, showError, showSuccess } from '../helpers';
+import { API, copy, showError, showSuccess, timestamp2string } from '../helpers';
 
 import { ITEMS_PER_PAGE } from '../constants';
 
-function renderRole(role) {
-  switch (role) {
-    case 1:
-      return <Label>普通用户</Label>;
-    case 10:
-      return <Label color='yellow'>管理员</Label>;
-    case 100:
-      return <Label color='orange'>超级管理员</Label>;
-    default:
-      return <Label color='red'>未知身份</Label>;
-  }
+function renderTimestamp(timestamp) {
+  return (
+    <>
+      {timestamp2string(timestamp)}
+    </>
+  );
 }
 
 const TokensTable = () => {
-  const [users, setUsers] = useState([]);
+  const [tokens, setTokens] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activePage, setActivePage] = useState(1);
   const [searchKeyword, setSearchKeyword] = useState('');
   const [searching, setSearching] = useState(false);
 
-  const loadUsers = async (startIdx) => {
-    const res = await API.get(`/api/user/?p=${startIdx}`);
+  const loadTokens = async (startIdx) => {
+    const res = await API.get(`/api/token/?p=${startIdx}`);
     const { success, message, data } = res.data;
     if (success) {
       if (startIdx === 0) {
-        setUsers(data);
+        setTokens(data);
       } else {
-        let newUsers = users;
-        newUsers.push(...data);
-        setUsers(newUsers);
+        let newTokens = tokens;
+        newTokens.push(...data);
+        setTokens(newTokens);
       }
     } else {
       showError(message);
@@ -44,55 +39,63 @@ const TokensTable = () => {
 
   const onPaginationChange = (e, { activePage }) => {
     (async () => {
-      if (activePage === Math.ceil(users.length / ITEMS_PER_PAGE) + 1) {
+      if (activePage === Math.ceil(tokens.length / ITEMS_PER_PAGE) + 1) {
         // In this case we have to load more data and then append them.
-        await loadUsers(activePage - 1);
+        await loadTokens(activePage - 1);
       }
       setActivePage(activePage);
     })();
   };
 
   useEffect(() => {
-    loadUsers(0)
+    loadTokens(0)
       .then()
       .catch((reason) => {
         showError(reason);
       });
   }, []);
 
-  const manageUser = (username, action, idx) => {
-    (async () => {
-      const res = await API.post('/api/user/manage', {
-        username,
-        action,
-      });
-      const { success, message } = res.data;
-      if (success) {
-        showSuccess('操作成功完成！');
-        let user = res.data.data;
-        let newUsers = [...users];
-        let realIdx = (activePage - 1) * ITEMS_PER_PAGE + idx;
-        if (action === 'delete') {
-          newUsers[realIdx].deleted = true;
-        } else {
-          newUsers[realIdx].status = user.status;
-          newUsers[realIdx].role = user.role;
-        }
-        setUsers(newUsers);
+  const manageToken = async (id, action, idx) => {
+    let data = { id };
+    let res;
+    switch (action) {
+      case 'delete':
+        res = await API.delete(`/api/token/${id}/`);
+        break;
+      case 'enable':
+        data.status = 1;
+        res = await API.put('/api/token/', data);
+        break;
+      case 'disable':
+        data.status = 2;
+        res = await API.put('/api/token/', data);
+        break;
+    }
+    const { success, message } = res.data;
+    if (success) {
+      showSuccess('操作成功完成！');
+      let token = res.data.data;
+      let newTokens = [...tokens];
+      let realIdx = (activePage - 1) * ITEMS_PER_PAGE + idx;
+      if (action === 'delete') {
+        newTokens[realIdx].deleted = true;
       } else {
-        showError(message);
+        newTokens[realIdx].status = token.status;
       }
-    })();
+      setTokens(newTokens);
+    } else {
+      showError(message);
+    }
   };
 
   const renderStatus = (status) => {
     switch (status) {
       case 1:
-        return <Label basic>已激活</Label>;
+        return <Label basic color='green'>已启用</Label>;
       case 2:
         return (
           <Label basic color='red'>
-            已封禁
+            已禁用
           </Label>
         );
       default:
@@ -104,18 +107,18 @@ const TokensTable = () => {
     }
   };
 
-  const searchUsers = async () => {
+  const searchTokens = async () => {
     if (searchKeyword === '') {
       // if keyword is blank, load files instead.
-      await loadUsers(0);
+      await loadTokens(0);
       setActivePage(1);
       return;
     }
     setSearching(true);
-    const res = await API.get(`/api/user/search?keyword=${searchKeyword}`);
+    const res = await API.get(`/api/token/search?keyword=${searchKeyword}/`);
     const { success, message, data } = res.data;
     if (success) {
-      setUsers(data);
+      setTokens(data);
       setActivePage(1);
     } else {
       showError(message);
@@ -127,28 +130,28 @@ const TokensTable = () => {
     setSearchKeyword(value.trim());
   };
 
-  const sortUser = (key) => {
-    if (users.length === 0) return;
+  const sortToken = (key) => {
+    if (tokens.length === 0) return;
     setLoading(true);
-    let sortedUsers = [...users];
-    sortedUsers.sort((a, b) => {
+    let sortedTokens = [...tokens];
+    sortedTokens.sort((a, b) => {
       return ('' + a[key]).localeCompare(b[key]);
     });
-    if (sortedUsers[0].id === users[0].id) {
-      sortedUsers.reverse();
+    if (sortedTokens[0].id === tokens[0].id) {
+      sortedTokens.reverse();
     }
-    setUsers(sortedUsers);
+    setTokens(sortedTokens);
     setLoading(false);
   };
 
   return (
     <>
-      <Form onSubmit={searchUsers}>
+      <Form onSubmit={searchTokens}>
         <Form.Input
           icon='search'
           fluid
           iconPosition='left'
-          placeholder='搜索用户的 ID，用户名，显示名称，以及邮箱地址 ...'
+          placeholder='搜索令牌的 ID 和名称 ...'
           value={searchKeyword}
           loading={searching}
           onChange={handleKeywordChange}
@@ -161,87 +164,82 @@ const TokensTable = () => {
             <Table.HeaderCell
               style={{ cursor: 'pointer' }}
               onClick={() => {
-                sortUser('username');
+                sortToken('id');
               }}
             >
-              用户名
+              ID
             </Table.HeaderCell>
             <Table.HeaderCell
               style={{ cursor: 'pointer' }}
               onClick={() => {
-                sortUser('display_name');
+                sortToken('name');
               }}
             >
-              显示名称
+              名称
             </Table.HeaderCell>
             <Table.HeaderCell
               style={{ cursor: 'pointer' }}
               onClick={() => {
-                sortUser('email');
-              }}
-            >
-              邮箱地址
-            </Table.HeaderCell>
-            <Table.HeaderCell
-              style={{ cursor: 'pointer' }}
-              onClick={() => {
-                sortUser('role');
-              }}
-            >
-              用户角色
-            </Table.HeaderCell>
-            <Table.HeaderCell
-              style={{ cursor: 'pointer' }}
-              onClick={() => {
-                sortUser('status');
+                sortToken('status');
               }}
             >
               状态
+            </Table.HeaderCell>
+            <Table.HeaderCell
+              style={{ cursor: 'pointer' }}
+              onClick={() => {
+                sortToken('created_time');
+              }}
+            >
+              创建时间
+            </Table.HeaderCell>
+            <Table.HeaderCell
+              style={{ cursor: 'pointer' }}
+              onClick={() => {
+                sortToken('accessed_time');
+              }}
+            >
+              访问时间
             </Table.HeaderCell>
             <Table.HeaderCell>操作</Table.HeaderCell>
           </Table.Row>
         </Table.Header>
 
         <Table.Body>
-          {users
+          {tokens
             .slice(
               (activePage - 1) * ITEMS_PER_PAGE,
               activePage * ITEMS_PER_PAGE
             )
-            .map((user, idx) => {
-              if (user.deleted) return <></>;
+            .map((token, idx) => {
+              if (token.deleted) return <></>;
               return (
-                <Table.Row key={user.id}>
-                  <Table.Cell>{user.username}</Table.Cell>
-                  <Table.Cell>{user.display_name}</Table.Cell>
-                  <Table.Cell>{user.email ? user.email : '无'}</Table.Cell>
-                  <Table.Cell>{renderRole(user.role)}</Table.Cell>
-                  <Table.Cell>{renderStatus(user.status)}</Table.Cell>
+                <Table.Row key={token.id}>
+                  <Table.Cell>{token.id}</Table.Cell>
+                  <Table.Cell>{token.name ? token.name : '无'}</Table.Cell>
+                  <Table.Cell>{renderStatus(token.status)}</Table.Cell>
+                  <Table.Cell>{renderTimestamp(token.created_time)}</Table.Cell>
+                  <Table.Cell>{renderTimestamp(token.accessed_time)}</Table.Cell>
                   <Table.Cell>
                     <div>
                       <Button
                         size={'small'}
                         positive
-                        onClick={() => {
-                          manageUser(user.username, 'promote', idx);
+                        onClick={async () => {
+                          if (await copy(token.key)) {
+                            showSuccess('已复制到剪贴板！');
+                          } else {
+                            showError('复制失败！');
+                          }
                         }}
                       >
-                        提升
-                      </Button>
-                      <Button
-                        size={'small'}
-                        color={'yellow'}
-                        onClick={() => {
-                          manageUser(user.username, 'demote', idx);
-                        }}
-                      >
-                        降级
+                        复制
                       </Button>
                       <Button
                         size={'small'}
                         negative
                         onClick={() => {
-                          manageUser(user.username, 'delete', idx);
+                          manageToken(token.id, 'delete', idx);
                         }}
                       >
                         删除
@@ -249,19 +247,19 @@ const TokensTable = () => {
                       <Button
                         size={'small'}
                         onClick={() => {
-                          manageUser(
-                            user.username,
-                            user.status === 1 ? 'disable' : 'enable',
+                          manageToken(
+                            token.id,
+                            token.status === 1 ? 'disable' : 'enable',
                             idx
                           );
                         }}
                       >
-                        {user.status === 1 ? '禁用' : '启用'}
+                        {token.status === 1 ? '禁用' : '启用'}
                       </Button>
                       <Button
                         size={'small'}
                         as={Link}
-                        to={'/user/edit/' + user.id}
+                        to={'/token/edit/' + token.id}
                       >
                         编辑
                       </Button>
@@ -275,8 +273,8 @@ const TokensTable = () => {
         <Table.Footer>
           <Table.Row>
             <Table.HeaderCell colSpan='6'>
-              <Button size='small' as={Link} to='/user/add' loading={loading}>
-                添加新的用户
+              <Button size='small' as={Link} to='/token/add' loading={loading}>
+                添加新的令牌
               </Button>
               <Pagination
                 floated='right'
@@ -285,8 +283,8 @@ const TokensTable = () => {
                 size='small'
                 siblingRange={1}
                 totalPages={
-                  Math.ceil(users.length / ITEMS_PER_PAGE) +
-                  (users.length % ITEMS_PER_PAGE === 0 ? 1 : 0)
+                  Math.ceil(tokens.length / ITEMS_PER_PAGE) +
+                  (tokens.length % ITEMS_PER_PAGE === 0 ? 1 : 0)
                 }
               />
             </Table.HeaderCell>

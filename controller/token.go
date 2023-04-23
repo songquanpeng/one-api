@@ -51,6 +51,7 @@ func SearchTokens(c *gin.Context) {
 
 func GetToken(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
+	userId := c.GetInt("id")
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
@@ -58,7 +59,7 @@ func GetToken(c *gin.Context) {
 		})
 		return
 	}
-	token, err := model.GetTokenById(id)
+	token, err := model.GetTokenByIds(id, userId)
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
@@ -84,7 +85,21 @@ func AddToken(c *gin.Context) {
 		})
 		return
 	}
-	err = token.Insert()
+	if len(token.Name) == 0 || len(token.Name) > 20 {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": "令牌名称长度必须在1-20之间",
+		})
+		return
+	}
+	cleanToken := model.Token{
+		UserId:       c.GetInt("id"),
+		Name:         token.Name,
+		Key:          common.GetUUID(),
+		CreatedTime:  common.GetTimestamp(),
+		AccessedTime: common.GetTimestamp(),
+	}
+	err = cleanToken.Insert()
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
@@ -101,8 +116,8 @@ func AddToken(c *gin.Context) {
 
 func DeleteToken(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
-	token := model.Token{Id: id}
-	err := token.Delete()
+	userId := c.GetInt("id")
+	err := model.DeleteTokenById(id, userId)
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
@@ -118,6 +133,7 @@ func DeleteToken(c *gin.Context) {
 }
 
 func UpdateToken(c *gin.Context) {
+	userId := c.GetInt("id")
 	token := model.Token{}
 	err := c.ShouldBindJSON(&token)
 	if err != nil {
@@ -127,7 +143,17 @@ func UpdateToken(c *gin.Context) {
 		})
 		return
 	}
-	err = token.Update()
+	cleanToken, err := model.GetTokenByIds(token.Id, userId)
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+	cleanToken.Name = token.Name
+	cleanToken.Status = token.Status
+	err = cleanToken.Update()
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
@@ -138,6 +164,7 @@ func UpdateToken(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"message": "",
+		"data":    cleanToken,
 	})
 	return
 }

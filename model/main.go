@@ -56,6 +56,10 @@ func InitDB() (err error) {
 		if err != nil {
 			return err
 		}
+		err = db.AutoMigrate(&Token{})
+		if err != nil {
+			return err
+		}
 		err = db.AutoMigrate(&User{})
 		if err != nil {
 			return err

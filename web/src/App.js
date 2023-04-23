@@ -16,6 +16,10 @@ import PasswordResetConfirm from './components/PasswordResetConfirm';
 import { UserContext } from './context/User';
 import Channel from './pages/Channel';
 import Token from './pages/Token';
+import EditToken from './pages/Token/EditToken';
+import AddToken from './pages/Token/AddToken';
+import EditChannel from './pages/Channel/EditChannel';
+import AddChannel from './pages/Channel/AddChannel';
 
 const Home = lazy(() => import('./pages/Home'));
 const About = lazy(() => import('./pages/About'));
@@ -74,9 +78,41 @@ function App() {
         }
       />
       <Route
+        path='/channel/edit/:id'
+        element={
+          <Suspense fallback={<Loading></Loading>}>
+            <EditChannel />
+          </Suspense>
+        }
+      />
+      <Route
+        path='/channel/add'
+        element={
+          <Suspense fallback={<Loading></Loading>}>
+            <AddChannel />
+          </Suspense>
+        }
+      />
+      <Route
         path='/token'
         element={
           <Token />
+        }
+      />
+      <Route
+        path='/token/edit/:id'
+        element={
+          <Suspense fallback={<Loading></Loading>}>
+            <EditToken />
+          </Suspense>
+        }
+      />
+      <Route
+        path='/token/add'
+        element={
+          <Suspense fallback={<Loading></Loading>}>
+            <AddToken />
+          </Suspense>
         }
       />
       <Route
