@@ -10,8 +10,8 @@ import (
 
 func Relay(c *gin.Context) {
 	channelType := c.GetInt("channel")
-	host := common.ChannelHosts[channelType]
-	req, err := http.NewRequest(c.Request.Method, fmt.Sprintf("%s%s", host, c.Request.URL.String()), c.Request.Body)
+	baseURL := common.ChannelBaseURLs[channelType]
+	req, err := http.NewRequest(c.Request.Method, fmt.Sprintf("%s%s", baseURL, c.Request.URL.String()), c.Request.Body)
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"error": gin.H{
@@ -22,6 +22,9 @@ func Relay(c *gin.Context) {
 		return
 	}
 	req.Header = c.Request.Header.Clone()
+	// Fix HTTP Decompression failed
+	// https://github.com/stoplightio/prism/issues/1064#issuecomment-824682360
+	req.Header.Del("Accept-Encoding")
 	client := &http.Client{}
 
 	resp, err := client.Do(req)
@@ -38,8 +41,6 @@ func Relay(c *gin.Context) {
 		c.Writer.Header().Set(k, v[0])
 	}
 	_, err = io.Copy(c.Writer, resp.Body)
-	//body, err := io.ReadAll(resp.Body)
-	//_, err = c.Writer.Write(body)
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"error": gin.H{

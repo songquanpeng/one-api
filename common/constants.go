@@ -108,7 +108,7 @@ const (
 	ChannelTypeOhMyGPT   = 7
 )
 
-var ChannelHosts = []string{
+var ChannelBaseURLs = []string{
 	"",                            // 0
 	"https://api.openai.com",      // 1
 	"https://openai.api2d.net",    // 2
