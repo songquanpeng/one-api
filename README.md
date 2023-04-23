@@ -31,6 +31,10 @@ _✨ All in one 的 OpenAI 接口，整合各种 API 访问方式，开箱即用
   <a href="https://github.com/songquanpeng/one-api#部署">部署教程</a>
   ·
   <a href="https://github.com/songquanpeng/one-api/issues">意见反馈</a>
+  ·
+  <a href="https://github.com/songquanpeng/one-api#截图展示">截图展示</a>
+  ·
+  <a href="https://openai.justsong.cn/">在线演示</a>
 </p>
 
 ## 功能
@@ -94,3 +98,12 @@ _✨ All in one 的 OpenAI 接口，整合各种 API 访问方式，开箱即用
 2. `--log-dir <log_dir>`: 指定日志文件夹，如果没有设置，日志将不会被保存。
    + 例子：`--log-dir ./logs`
 3. `--version`: 打印系统版本号并退出。
+
+## 演示
+### 在线演示
+注意，该演示站不提供对外服务：
+https://openai.justsong.cn
+
+### 截图展示
+![channel](https://user-images.githubusercontent.com/39998050/233837954-ae6683aa-5c4f-429f-a949-6645a83c9490.png)
+![token](https://user-images.githubusercontent.com/39998050/233837971-dab488b7-6d96-43af-b640-a168e8d1c9bf.png)
