@@ -99,7 +99,9 @@ function App() {
       <Route
         path='/token'
         element={
-          <Token />
+          <PrivateRoute>
+            <Token />
+          </PrivateRoute>
         }
       />
       <Route
