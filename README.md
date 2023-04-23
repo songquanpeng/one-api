@@ -37,16 +37,16 @@ _✨ All in one 的 OpenAI 接口，整合各种 API 访问方式，开箱即用
 
 ## 功能
 1. 支持多种 API 访问渠道，欢迎 PR 或提 issue 添加更多渠道：
-   + [ ] One API 服务端中继
-   + [ ] [API2D](https://api2d.com/r/197971)
+   + [x] One API 服务端中继
+   + [x] [API2D](https://api2d.com/r/197971)
    + [ ] Azure OpenAI API
-   + [ ] [CloseAI](https://console.openai-asia.com)
-   + [ ] [OpenAI-SB](https://openai-sb.com)
-   + [ ] [OpenAI Max](https://openaimax.com)
-   + [ ] [OhMyGPT](https://www.ohmygpt.com)
-2. 支持通过负载均衡的方式访问多个渠道，访问失败自动切换。
+   + [x] [CloseAI](https://console.openai-asia.com)
+   + [x] [OpenAI-SB](https://openai-sb.com)
+   + [x] [OpenAI Max](https://openaimax.com)
+   + [x] [OhMyGPT](https://www.ohmygpt.com)
+2. 支持通过负载均衡的方式访问多个渠道。
 3. 支持单个访问渠道设置多个 API Key，利用起来你的多个 API Key。
-4. ~~支持 HTTP SSE~~。
+4. 支持 HTTP SSE。
 5. 多种用户登录注册方式：
    + 邮箱登录注册以及通过邮箱进行密码重置。
    + [GitHub 开放授权](https://github.com/settings/applications/new)。
