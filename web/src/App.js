@@ -14,6 +14,7 @@ import PasswordResetForm from './components/PasswordResetForm';
 import GitHubOAuth from './components/GitHubOAuth';
 import PasswordResetConfirm from './components/PasswordResetConfirm';
 import { UserContext } from './context/User';
+import { StatusContext } from './context/Status';
 import Channel from './pages/Channel';
 import Token from './pages/Token';
 import EditToken from './pages/Token/EditToken';
@@ -26,6 +27,7 @@ const About = lazy(() => import('./pages/About'));
 
 function App() {
   const [userState, userDispatch] = useContext(UserContext);
+  const [statusState, statusDispatch] = useContext(StatusContext);
 
   const loadUser = () => {
     let user = localStorage.getItem('user');
@@ -39,6 +41,7 @@ function App() {
     const { success, data } = res.data;
     if (success) {
       localStorage.setItem('status', JSON.stringify(data));
+      statusDispatch({ type: 'set', payload: data });
       localStorage.setItem('footer_html', data.footer_html);
       if (
         data.version !== process.env.REACT_APP_VERSION &&

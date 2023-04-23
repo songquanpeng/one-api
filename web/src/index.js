@@ -10,20 +10,22 @@ import './index.css';
 import { UserProvider } from './context/User';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
+import { StatusProvider } from './context/Status';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <UserProvider>
-      <BrowserRouter>
-        <Header />
-        <Container className={'main-content'}>
-          <App />
-        </Container>
-        <ToastContainer/>
-        <Footer />
-      </BrowserRouter>
-    </UserProvider>
+    <StatusProvider>
+      <UserProvider>
+        <BrowserRouter>
+          <Header />
+          <Container className={'main-content'}>
+            <App />
+          </Container>
+          <ToastContainer />
+          <Footer />
+        </BrowserRouter>
+      </UserProvider>
+    </StatusProvider>
   </React.StrictMode>
 );
