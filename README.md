@@ -84,6 +84,15 @@ _✨ All in one 的 OpenAI 接口，整合各种 API 访问方式，开箱即用
 
 等到系统启动后，使用 `root` 用户登录系统并做进一步的配置。
 
+## 使用方式
+在`渠道`页面中添加你的 API Key，之后在`令牌`页面中新增一个访问令牌。
+
+之后就可以使用你的令牌访问 One API 了，使用方式与 [OpenAI API](https://platform.openai.com/docs/api-reference/introduction) 一致。
+
+可以通过在令牌后面添加渠道 ID 的方式指定使用哪一个渠道处理本次请求，例如：`Authorization: Bearer ONE_API_KEY-CHANNEL_ID`。
+
+不加的话将会使用负载均衡的方式使用多个渠道。
+
 ### 环境变量
 1. `REDIS_CONN_STRING`：设置之后将使用 Redis 作为请求频率限制的存储，而非使用内存存储。
    + 例子：`REDIS_CONN_STRING=redis://default:redispw@localhost:49153`
