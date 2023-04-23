@@ -15,6 +15,7 @@ import GitHubOAuth from './components/GitHubOAuth';
 import PasswordResetConfirm from './components/PasswordResetConfirm';
 import { UserContext } from './context/User';
 import Channel from './pages/Channel';
+import Token from './pages/Token';
 
 const Home = lazy(() => import('./pages/Home'));
 const About = lazy(() => import('./pages/About'));
@@ -70,6 +71,12 @@ function App() {
           <PrivateRoute>
             <Channel />
           </PrivateRoute>
+        }
+      />
+      <Route
+        path='/token'
+        element={
+          <Token />
         }
       />
       <Route

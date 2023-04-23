@@ -33,7 +33,6 @@ func SetApiRouter(router *gin.Engine) {
 				selfRoute.GET("/self", controller.GetSelf)
 				selfRoute.PUT("/self", controller.UpdateSelf)
 				selfRoute.DELETE("/self", controller.DeleteSelf)
-				selfRoute.GET("/token", controller.GenerateToken)
 			}
 
 			adminRoute := userRoute.Group("/")
@@ -63,6 +62,16 @@ func SetApiRouter(router *gin.Engine) {
 			channelRoute.POST("/", controller.AddChannel)
 			channelRoute.PUT("/", controller.UpdateChannel)
 			channelRoute.DELETE("/:id", controller.DeleteChannel)
+		}
+		tokenRoute := apiRouter.Group("/token")
+		tokenRoute.Use(middleware.UserAuth())
+		{
+			tokenRoute.GET("/", controller.GetAllTokens)
+			tokenRoute.GET("/search", controller.SearchTokens)
+			tokenRoute.GET("/:id", controller.GetToken)
+			tokenRoute.POST("/", controller.AddToken)
+			tokenRoute.PUT("/", controller.UpdateToken)
+			tokenRoute.DELETE("/:id", controller.DeleteToken)
 		}
 	}
 }

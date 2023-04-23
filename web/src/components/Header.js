@@ -20,6 +20,11 @@ const headerButtons = [
     admin: true,
   },
   {
+    name: '令牌',
+    to: '/token',
+    icon: 'key',
+  },
+  {
     name: '用户',
     to: '/user',
     icon: 'user',

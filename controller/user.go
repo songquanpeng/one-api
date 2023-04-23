@@ -4,12 +4,10 @@ import (
 	"encoding/json"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 	"net/http"
 	"one-api/common"
 	"one-api/model"
 	"strconv"
-	"strings"
 )
 
 type LoginRequest struct {
@@ -241,43 +239,6 @@ func GetUser(c *gin.Context) {
 		"success": true,
 		"message": "",
 		"data":    user,
-	})
-	return
-}
-
-func GenerateToken(c *gin.Context) {
-	id := c.GetInt("id")
-	user, err := model.GetUserById(id, true)
-	if err != nil {
-		c.JSON(http.StatusOK, gin.H{
-			"success": false,
-			"message": err.Error(),
-		})
-		return
-	}
-	user.Token = uuid.New().String()
-	user.Token = strings.Replace(user.Token, "-", "", -1)
-
-	if model.DB.Where("token = ?", user.Token).First(user).RowsAffected != 0 {
-		c.JSON(http.StatusOK, gin.H{
-			"success": false,
-			"message": "请重试，系统生成的 UUID 竟然重复了！",
-		})
-		return
-	}
-
-	if err := user.Update(false); err != nil {
-		c.JSON(http.StatusOK, gin.H{
-			"success": false,
-			"message": err.Error(),
-		})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"success": true,
-		"message": "",
-		"data":    user.Token,
 	})
 	return
 }

@@ -15,11 +15,11 @@ type User struct {
 	DisplayName      string `json:"display_name" gorm:"index" validate:"max=20"`
 	Role             int    `json:"role" gorm:"type:int;default:1"`   // admin, common
 	Status           int    `json:"status" gorm:"type:int;default:1"` // enabled, disabled
-	Token            string `json:"token" gorm:"index"`
 	Email            string `json:"email" gorm:"index" validate:"max=50"`
 	GitHubId         string `json:"github_id" gorm:"column:github_id;index"`
 	WeChatId         string `json:"wechat_id" gorm:"column:wechat_id;index"`
 	VerificationCode string `json:"verification_code" gorm:"-:all"` // this field is only for Email verification, don't save it to database!
+	Balance          int    `json:"balance" gorm:"type:int;default:0"`
 }
 
 func GetMaxUserId() int {
@@ -29,12 +29,12 @@ func GetMaxUserId() int {
 }
 
 func GetAllUsers(startIdx int, num int) (users []*User, err error) {
-	err = DB.Order("id desc").Limit(num).Offset(startIdx).Select([]string{"id", "username", "display_name", "role", "status", "email"}).Find(&users).Error
+	err = DB.Order("id desc").Limit(num).Offset(startIdx).Omit("password").Find(&users).Error
 	return users, err
 }
 
 func SearchUsers(keyword string) (users []*User, err error) {
-	err = DB.Select([]string{"id", "username", "display_name", "role", "status", "email"}).Where("id = ? or username LIKE ? or email LIKE ? or display_name LIKE ?", keyword, keyword+"%", keyword+"%", keyword+"%").Find(&users).Error
+	err = DB.Omit("password").Where("id = ? or username LIKE ? or email LIKE ? or display_name LIKE ?", keyword, keyword+"%", keyword+"%", keyword+"%").Find(&users).Error
 	return users, err
 }
 
@@ -47,7 +47,7 @@ func GetUserById(id int, selectAll bool) (*User, error) {
 	if selectAll {
 		err = DB.First(&user, "id = ?", id).Error
 	} else {
-		err = DB.Select([]string{"id", "username", "display_name", "role", "status", "email", "wechat_id", "github_id"}).First(&user, "id = ?", id).Error
+		err = DB.Omit("password").First(&user, "id = ?", id).Error
 	}
 	return &user, err
 }

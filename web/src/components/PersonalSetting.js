@@ -34,17 +34,6 @@ const PersonalSetting = () => {
     setInputs((inputs) => ({ ...inputs, [name]: value }));
   };
 
-  const generateToken = async () => {
-    const res = await API.get('/api/user/token');
-    const { success, message, data } = res.data;
-    if (success) {
-      await copy(data);
-      showSuccess(`令牌已重置并已复制到剪贴板：${data}`);
-    } else {
-      showError(message);
-    }
-  };
-
   const bindWeChat = async () => {
     if (inputs.wechat_verification_code === '') return;
     const res = await API.get(
@@ -106,7 +95,6 @@ const PersonalSetting = () => {
       <Button as={Link} to={`/user/edit/`}>
         更新个人信息
       </Button>
-      <Button onClick={generateToken}>生成访问令牌</Button>
       <Divider />
       <Header as='h3'>账号绑定</Header>
       <Button
