@@ -12,6 +12,8 @@ var SystemName = "One API"
 var ServerAddress = "http://localhost:3000"
 var Footer = ""
 
+var UsingSQLite = false
+
 // Any options with "Secret", "Token" in its key won't be return by GetOptions
 
 var SessionSecret = uuid.New().String()
@@ -85,6 +87,11 @@ const (
 )
 
 const (
+	TokenStatusEnabled  = 1 // don't use 0, 0 is the default value!
+	TokenStatusDisabled = 2 // also don't use 0
+)
+
+const (
 	ChannelStatusUnknown  = 0
 	ChannelStatusEnabled  = 1 // don't use 0, 0 is the default value!
 	ChannelStatusDisabled = 2 // also don't use 0
@@ -100,3 +107,14 @@ const (
 	ChannelTypeOpenAIMax = 6
 	ChannelTypeOhMyGPT   = 7
 )
+
+var ChannelHosts = []string{
+	"",                            // 0
+	"https://api.openai.com",      // 1
+	"https://openai.api2d.net",    // 2
+	"",                            // 3
+	"https://api.openai-asia.com", // 4
+	"https://api.openai-sb.com",   // 5
+	"https://api.openaimax.com",   // 6
+	"https://api.ohmygpt.com",     // 7
+}

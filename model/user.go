@@ -3,7 +3,6 @@ package model
 import (
 	"errors"
 	"one-api/common"
-	"strings"
 )
 
 // User if you add sensitive fields, don't forget to clean them in setupLogin function.
@@ -146,18 +145,6 @@ func (user *User) FillUserByUsername() error {
 		return errors.New("username 为空！")
 	}
 	DB.Where(User{Username: user.Username}).First(user)
-	return nil
-}
-
-func ValidateUserToken(token string) (user *User) {
-	if token == "" {
-		return nil
-	}
-	token = strings.Replace(token, "Bearer ", "", 1)
-	user = &User{}
-	if DB.Where("token = ?", token).First(user).RowsAffected == 1 {
-		return user
-	}
 	return nil
 }
 

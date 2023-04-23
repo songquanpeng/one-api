@@ -45,6 +45,7 @@ func InitDB() (err error) {
 		})
 	} else {
 		// Use SQLite
+		common.UsingSQLite = true
 		db, err = gorm.Open(sqlite.Open(common.SQLitePath), &gorm.Config{
 			PrepareStmt: true, // precompile SQL
 		})

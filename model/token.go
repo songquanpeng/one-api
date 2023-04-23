@@ -3,12 +3,14 @@ package model
 import (
 	"errors"
 	_ "gorm.io/driver/sqlite"
+	"one-api/common"
+	"strings"
 )
 
 type Token struct {
 	Id           int    `json:"id"`
 	UserId       int    `json:"user_id"`
-	Key          string `json:"key"`
+	Key          string `json:"key" gorm:"uniqueIndex"`
 	Status       int    `json:"status" gorm:"default:1"`
 	Name         string `json:"name" gorm:"index" `
 	CreatedTime  int64  `json:"created_time" gorm:"bigint"`
@@ -25,6 +27,29 @@ func GetAllUserTokens(userId int, startIdx int, num int) ([]*Token, error) {
 func SearchUserTokens(userId int, keyword string) (tokens []*Token, err error) {
 	err = DB.Where("user_id = ?", userId).Where("id = ? or name LIKE ?", keyword, keyword+"%").Find(&tokens).Error
 	return tokens, err
+}
+
+func ValidateUserToken(key string) (token *Token, err error) {
+	if key == "" {
+		return nil, errors.New("未提供 token")
+	}
+	key = strings.Replace(key, "Bearer ", "", 1)
+	token = &Token{}
+	err = DB.Where("key = ?", key).First(token).Error
+	if err == nil {
+		if token.Status != common.TokenStatusEnabled {
+			return nil, errors.New("该 token 已被禁用")
+		}
+		go func() {
+			token.AccessedTime = common.GetTimestamp()
+			err := token.Update()
+			if err != nil {
+				common.SysError("更新 token 访问时间失败：" + err.Error())
+			}
+		}()
+		return token, nil
+	}
+	return nil, err
 }
 
 func GetTokenByIds(id int, userId int) (*Token, error) {
