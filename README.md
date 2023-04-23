@@ -31,8 +31,6 @@ _✨ All in one 的 OpenAI 接口，整合各种 API 访问方式，开箱即用
   <a href="https://github.com/songquanpeng/one-api#部署">部署教程</a>
   ·
   <a href="https://github.com/songquanpeng/one-api/issues">意见反馈</a>
-  ·
-  <a href="https://one-api.vercel.app/">在线演示</a>
 </p>
 
 ## 功能
