@@ -1,4 +1,6 @@
 name: Linux Release
+permissions:
+  contents: write
 
 on:
   push:
@@ -45,5 +47,7 @@ jobs:
           files: |
             one-api
             one-api-arm64
+          draft: true
+          generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
