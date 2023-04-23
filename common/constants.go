@@ -106,6 +106,7 @@ const (
 	ChannelTypeOpenAISB  = 5
 	ChannelTypeOpenAIMax = 6
 	ChannelTypeOhMyGPT   = 7
+	ChannelTypeCustom    = 8
 )
 
 var ChannelBaseURLs = []string{
@@ -117,4 +118,5 @@ var ChannelBaseURLs = []string{
 	"https://api.openai-sb.com",   // 5
 	"https://api.openaimax.com",   // 6
 	"https://api.ohmygpt.com",     // 7
+	"",                            // 8
 }

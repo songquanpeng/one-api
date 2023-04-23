@@ -7,7 +7,8 @@ const AddChannel = () => {
   const originInputs = {
     name: '',
     type: 1,
-    key: ''
+    key: '',
+    base_url: '',
   };
   const [inputs, setInputs] = useState(originInputs);
   const { name, type, key } = inputs;
@@ -18,6 +19,9 @@ const AddChannel = () => {
 
   const submit = async () => {
     if (inputs.name === '' || inputs.key === '') return;
+    if (inputs.base_url.endsWith('/')) {
+      inputs.base_url = inputs.base_url.slice(0, inputs.base_url.length - 1);
+    }
     const res = await API.post(`/api/channel/`, inputs);
     const { success, message } = res.data;
     if (success) {
@@ -42,6 +46,20 @@ const AddChannel = () => {
               onChange={handleInputChange}
             />
           </Form.Field>
+          {
+            type === 8 && (
+              <Form.Field>
+                <Form.Input
+                  label='Base URL'
+                  name='base_url'
+                  placeholder={'请输入自定义渠道的 Base URL'}
+                  onChange={handleInputChange}
+                  value={inputs.base_url}
+                  autoComplete='off'
+                />
+              </Form.Field>
+            )
+          }
           <Form.Field>
             <Form.Input
               label='名称'

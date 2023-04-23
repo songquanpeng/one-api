@@ -12,6 +12,7 @@ const EditChannel = () => {
     name: '',
     key: '',
     type: 1,
+    base_url: '',
   });
   const handleInputChange = (e, { name, value }) => {
     setInputs((inputs) => ({ ...inputs, [name]: value }));
@@ -33,6 +34,9 @@ const EditChannel = () => {
   }, []);
 
   const submit = async () => {
+    if (inputs.base_url.endsWith('/')) {
+      inputs.base_url = inputs.base_url.slice(0, inputs.base_url.length - 1);
+    }
     let res = await API.put(`/api/channel/`, { ...inputs, id: parseInt(channelId) });
     const { success, message } = res.data;
     if (success) {
@@ -56,6 +60,20 @@ const EditChannel = () => {
               onChange={handleInputChange}
             />
           </Form.Field>
+          {
+            inputs.type === 8 && (
+              <Form.Field>
+                <Form.Input
+                  label='Base URL'
+                  name='base_url'
+                  placeholder={'请输入新的自定义渠道的 Base URL'}
+                  onChange={handleInputChange}
+                  value={inputs.base_url}
+                  autoComplete='off'
+                />
+              </Form.Field>
+            )
+          }
           <Form.Field>
             <Form.Input
               label='名称'

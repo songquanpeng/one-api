@@ -14,6 +14,7 @@ type Channel struct {
 	Weight       int    `json:"weight"`
 	CreatedTime  int64  `json:"created_time" gorm:"bigint"`
 	AccessedTime int64  `json:"accessed_time" gorm:"bigint"`
+	BaseURL      string `json:"base_url" gorm:"column:base_url"`
 }
 
 func GetAllChannels(startIdx int, num int) ([]*Channel, error) {

@@ -11,6 +11,9 @@ import (
 func Relay(c *gin.Context) {
 	channelType := c.GetInt("channel")
 	baseURL := common.ChannelBaseURLs[channelType]
+	if channelType == common.ChannelTypeCustom {
+		baseURL = c.GetString("base_url")
+	}
 	req, err := http.NewRequest(c.Request.Method, fmt.Sprintf("%s%s", baseURL, c.Request.URL.String()), c.Request.Body)
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
