@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Form, Label, Pagination, Table } from 'semantic-ui-react';
+import { Button, Form, Label, Message, Pagination, Table } from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
 import { API, copy, showError, showSuccess, timestamp2string } from '../helpers';
 
@@ -11,6 +11,21 @@ function renderTimestamp(timestamp) {
       {timestamp2string(timestamp)}
     </>
   );
+}
+
+function renderStatus(status) {
+  switch (status) {
+    case 1:
+      return <Label basic color='green'>已启用</Label>;
+    case 2:
+      return <Label basic color='red'> 已禁用 </Label>;
+    case 3:
+      return <Label basic color='yellow'> 已过期 </Label>;
+    case 4:
+      return <Label basic color='grey'> 已耗尽 </Label>;
+    default:
+      return <Label basic color='black'> 未知状态 </Label>;
+  }
 }
 
 const TokensTable = () => {
@@ -85,25 +100,6 @@ const TokensTable = () => {
       setTokens(newTokens);
     } else {
       showError(message);
-    }
-  };
-
-  const renderStatus = (status) => {
-    switch (status) {
-      case 1:
-        return <Label basic color='green'>已启用</Label>;
-      case 2:
-        return (
-          <Label basic color='red'>
-            已禁用
-          </Label>
-        );
-      default:
-        return (
-          <Label basic color='grey'>
-            未知状态
-          </Label>
-        );
     }
   };
 
@@ -188,6 +184,14 @@ const TokensTable = () => {
             <Table.HeaderCell
               style={{ cursor: 'pointer' }}
               onClick={() => {
+                sortToken('remain_times');
+              }}
+            >
+              剩余次数
+            </Table.HeaderCell>
+            <Table.HeaderCell
+              style={{ cursor: 'pointer' }}
+              onClick={() => {
                 sortToken('created_time');
               }}
             >
@@ -200,6 +204,14 @@ const TokensTable = () => {
               }}
             >
               访问时间
+            </Table.HeaderCell>
+            <Table.HeaderCell
+              style={{ cursor: 'pointer' }}
+              onClick={() => {
+                sortToken('expired_time');
+              }}
+            >
+              过期时间
             </Table.HeaderCell>
             <Table.HeaderCell>操作</Table.HeaderCell>
           </Table.Row>
@@ -218,8 +230,10 @@ const TokensTable = () => {
                   <Table.Cell>{token.id}</Table.Cell>
                   <Table.Cell>{token.name ? token.name : '无'}</Table.Cell>
                   <Table.Cell>{renderStatus(token.status)}</Table.Cell>
+                  <Table.Cell>{token.remain_times === -1 ? "无限制" : token.remain_times}</Table.Cell>
                   <Table.Cell>{renderTimestamp(token.created_time)}</Table.Cell>
                   <Table.Cell>{renderTimestamp(token.accessed_time)}</Table.Cell>
+                  <Table.Cell>{token.expired_time === -1 ? "永不过期" : renderTimestamp(token.expired_time)}</Table.Cell>
                   <Table.Cell>
                     <div>
                       <Button
@@ -272,7 +286,7 @@ const TokensTable = () => {
 
         <Table.Footer>
           <Table.Row>
-            <Table.HeaderCell colSpan='6'>
+            <Table.HeaderCell colSpan='8'>
               <Button size='small' as={Link} to='/token/add' loading={loading}>
                 添加新的令牌
               </Button>

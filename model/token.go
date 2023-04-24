@@ -15,6 +15,8 @@ type Token struct {
 	Name         string `json:"name" gorm:"index" `
 	CreatedTime  int64  `json:"created_time" gorm:"bigint"`
 	AccessedTime int64  `json:"accessed_time" gorm:"bigint"`
+	ExpiredTime  int64  `json:"expired_time" gorm:"bigint;default:-1"` // -1 means never expired
+	RemainTimes  int    `json:"remain_times" gorm:"default:-1"`        // -1 means infinite times
 }
 
 func GetAllUserTokens(userId int, startIdx int, num int) ([]*Token, error) {
@@ -38,13 +40,27 @@ func ValidateUserToken(key string) (token *Token, err error) {
 	err = DB.Where("key = ?", key).First(token).Error
 	if err == nil {
 		if token.Status != common.TokenStatusEnabled {
-			return nil, errors.New("该 token 已被禁用")
+			return nil, errors.New("该 token 状态不可用")
+		}
+		if token.ExpiredTime != -1 && token.ExpiredTime < common.GetTimestamp() {
+			token.Status = common.TokenStatusExpired
+			err := token.SelectUpdate()
+			if err != nil {
+				common.SysError("更新 token 状态失败：" + err.Error())
+			}
+			return nil, errors.New("该 token 已过期")
 		}
 		go func() {
 			token.AccessedTime = common.GetTimestamp()
-			err := token.Update()
+			if token.RemainTimes > 0 {
+				token.RemainTimes--
+				if token.RemainTimes == 0 {
+					token.Status = common.TokenStatusExhausted
+				}
+			}
+			err := token.SelectUpdate()
 			if err != nil {
-				common.SysError("更新 token 访问时间失败：" + err.Error())
+				common.SysError("更新 token 失败：" + err.Error())
 			}
 		}()
 		return token, nil
@@ -72,6 +88,11 @@ func (token *Token) Update() error {
 	var err error
 	err = DB.Model(token).Updates(token).Error
 	return err
+}
+
+func (token *Token) SelectUpdate() error {
+	// This can update zero values
+	return DB.Model(token).Select("accessed_time", "remain_times", "status").Updates(token).Error
 }
 
 func (token *Token) Delete() error {

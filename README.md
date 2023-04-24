@@ -52,12 +52,13 @@ _✨ All in one 的 OpenAI 接口，整合各种 API 访问方式，开箱即用
    + [x] 自定义渠道
 2. 支持通过负载均衡的方式访问多个渠道。
 3. 支持单个访问渠道设置多个 API Key，利用起来你的多个 API Key。
-4. 支持 HTTP SSE。
-5. 多种用户登录注册方式：
+4. 支持设置令牌的过期时间和使用次数。
+5. 支持 HTTP SSE。
+6. 多种用户登录注册方式：
    + 邮箱登录注册以及通过邮箱进行密码重置。
    + [GitHub 开放授权](https://github.com/settings/applications/new)。
    + 微信公众号授权（需要额外部署 [WeChat Server](https://github.com/songquanpeng/wechat-server)）。
-6. 支持用户管理。
+7. 支持用户管理。
 
 ## 部署
 ### 基于 Docker 进行部署
