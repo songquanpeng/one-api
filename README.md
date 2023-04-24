@@ -71,9 +71,15 @@ _✨ All in one 的 OpenAI 接口，整合各种 API 访问方式，开箱即用
    git clone https://github.com/songquanpeng/one-api.git
    go mod download
    go build -ldflags "-s -w" -o one-api
+   
+   # 构建 Web 产物
+   cd web
+   npm install
+   npm run build
    ````
 2. 运行：
    ```shell
+   cd .. # 回到项目根目录 `one-api`
    chmod u+x one-api
    ./one-api --port 3000 --log-dir ./logs
    ```
