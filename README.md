@@ -70,13 +70,13 @@ _✨ All in one 的 OpenAI 接口，整合各种 API 访问方式，开箱即用
    ```shell
    git clone https://github.com/songquanpeng/one-api.git
    
-   # 先构建 Web 前端产物
+   # 构建前端
    cd one-api/web
    npm install
    npm run build
 
-   # 再构建 Go 后端
-   cd .. # 回到项目根目录 `one-api`
+   # 构建后端
+   cd ..
    go mod download
    go build -ldflags "-s -w" -o one-api
    ````
