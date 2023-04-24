@@ -17,6 +17,9 @@ _✨ All in one 的 OpenAI 接口，整合各种 API 访问方式，开箱即用
   <a href="https://github.com/songquanpeng/one-api/releases/latest">
     <img src="https://img.shields.io/github/v/release/songquanpeng/one-api?color=brightgreen&include_prereleases" alt="release">
   </a>
+  <a href="https://hub.docker.com/repository/docker/justsong/one-api">
+    <img src="https://img.shields.io/docker/pulls/justsong/one-api?color=brightgreen" alt="docker pull">
+  </a>
   <a href="https://github.com/songquanpeng/one-api/releases/latest">
     <img src="https://img.shields.io/github/downloads/songquanpeng/one-api/total?color=brightgreen&include_prereleases" alt="release">
   </a>
