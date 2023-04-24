@@ -69,17 +69,19 @@ _✨ All in one 的 OpenAI 接口，整合各种 API 访问方式，开箱即用
 1. 从 [GitHub Releases](https://github.com/songquanpeng/one-api/releases/latest) 下载可执行文件或者从源码编译：
    ```shell
    git clone https://github.com/songquanpeng/one-api.git
-   go mod download
-   go build -ldflags "-s -w" -o one-api
    
-   # 构建 Web 产物
-   cd web
+   # 先构建 Web 前端产物
+   cd one-api/web
    npm install
    npm run build
+
+   # 再构建 Go 后端
+   cd .. # 回到项目根目录 `one-api`
+   go mod download
+   go build -ldflags "-s -w" -o one-api
    ````
 2. 运行：
    ```shell
-   cd .. # 回到项目根目录 `one-api`
    chmod u+x one-api
    ./one-api --port 3000 --log-dir ./logs
    ```
