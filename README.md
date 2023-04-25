@@ -152,6 +152,7 @@ sudo service nginx restart
 2. `--log-dir <log_dir>`: 指定日志文件夹，如果没有设置，日志将不会被保存。
    + 例子：`--log-dir ./logs`
 3. `--version`: 打印系统版本号并退出。
+4. `--help`: 查看命令的使用帮助和参数说明。
 
 ## 演示
 ### 在线演示
