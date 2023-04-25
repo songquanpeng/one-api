@@ -28,6 +28,8 @@ func Relay(c *gin.Context) {
 	// Fix HTTP Decompression failed
 	// https://github.com/stoplightio/prism/issues/1064#issuecomment-824682360
 	req.Header.Del("Accept-Encoding")
+	// Fix http2: invalid Connection request header: ["upgrade"]
+	req.Header.Del("Upgrade")
 	client := &http.Client{}
 
 	resp, err := client.Do(req)
