@@ -86,7 +86,17 @@ server{
 }
 ```
 
-推荐使用 Let's Encrypt 配置 HTTPS。
+之后使用 Let's Encrypt 的 certbot 配置 HTTPS：
+```bash
+# Ubuntu 安装 certbot：
+sudo snap install --classic certbot
+sudo ln -s /snap/bin/certbot /usr/bin/certbot
+# 生成证书 & 修改 Nginx 配置
+sudo certbot --nginx
+# 根据指示进行操作
+# 重启 Nginx
+sudo service nginx restart
+```
 
 ### 手动部署
 1. 从 [GitHub Releases](https://github.com/songquanpeng/one-api/releases/latest) 下载可执行文件或者从源码编译：
