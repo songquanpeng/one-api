@@ -47,58 +47,60 @@ func Relay(c *gin.Context) {
 		return
 	}
 	defer resp.Body.Close()
-	scanner := bufio.NewScanner(resp.Body)
-	scanner.Split(func(data []byte, atEOF bool) (advance int, token []byte, err error) {
-		if atEOF && len(data) == 0 {
-			return 0, nil, nil
-		}
-
-		if i := strings.Index(string(data), "\n\n"); i >= 0 {
-			return i + 2, data[0:i], nil
-		}
-
-		if atEOF {
-			return len(data), data, nil
-		}
-
-		return 0, nil, nil
-	})
-	dataChan := make(chan string)
-	stopChan := make(chan bool)
-	go func() {
-		for scanner.Scan() {
-			data := scanner.Text()
-			dataChan <- data
-		}
-		stopChan <- true
-	}()
-	for k, v := range resp.Header {
-		c.Writer.Header().Set(k, v[0])
-	}
-	c.Writer.Header().Set("Content-Type", "text/event-stream")
-	c.Writer.Header().Set("Cache-Control", "no-cache")
-	c.Writer.Header().Set("Connection", "keep-alive")
-	c.Writer.WriteHeaderNow()
-	//w := c.Writer
-	//flusher, _ := w.(http.Flusher)
-	c.Stream(func(w io.Writer) bool {
-		select {
-		case data := <-dataChan:
-			suffix := ""
-			if strings.HasPrefix(data, "data: ") {
-				suffix = "\n\n"
+	isStream := resp.Header.Get("Content-Type") == "text/event-stream"
+	if isStream {
+		scanner := bufio.NewScanner(resp.Body)
+		scanner.Split(func(data []byte, atEOF bool) (advance int, token []byte, err error) {
+			if atEOF && len(data) == 0 {
+				return 0, nil, nil
 			}
-			_, err := fmt.Fprintf(w, "%s%s", data, suffix)
-			if err != nil {
+
+			if i := strings.Index(string(data), "\n\n"); i >= 0 {
+				return i + 2, data[0:i], nil
+			}
+
+			if atEOF {
+				return len(data), data, nil
+			}
+
+			return 0, nil, nil
+		})
+		dataChan := make(chan string)
+		stopChan := make(chan bool)
+		go func() {
+			for scanner.Scan() {
+				data := scanner.Text()
+				dataChan <- data
+			}
+			stopChan <- true
+		}()
+		c.Writer.Header().Set("Content-Type", "text/event-stream")
+		c.Writer.Header().Set("Cache-Control", "no-cache")
+		c.Writer.Header().Set("Connection", "keep-alive")
+		c.Writer.Header().Set("Transfer-Encoding", "chunked")
+		c.Stream(func(w io.Writer) bool {
+			select {
+			case data := <-dataChan:
+				c.Render(-1, common.CustomEvent{Data: data})
+				return true
+			case <-stopChan:
 				return false
 			}
-			flusher, _ := w.(http.Flusher)
-			flusher.Flush()
-			//fmt.Println(data)
-			return true
-		case <-stopChan:
-			return false
+		})
+		return
+	} else {
+		for k, v := range resp.Header {
+			c.Writer.Header().Set(k, v[0])
 		}
-	})
-	return
+		_, err = io.Copy(c.Writer, resp.Body)
+		if err != nil {
+			c.JSON(http.StatusOK, gin.H{
+				"error": gin.H{
+					"message": err.Error(),
+					"type":    "one_api_error",
+				},
+			})
+			return
+		}
+	}
 }

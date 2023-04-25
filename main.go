@@ -2,7 +2,6 @@ package main
 
 import (
 	"embed"
-	"github.com/gin-contrib/gzip"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-contrib/sessions/redis"
@@ -51,7 +50,8 @@ func main() {
 
 	// Initialize HTTP server
 	server := gin.Default()
-	server.Use(gzip.Gzip(gzip.DefaultCompression))
+	// This will cause SSE not to work!!!
+	//server.Use(gzip.Gzip(gzip.DefaultCompression))
 	server.Use(middleware.CORS())
 
 	// Initialize session store
