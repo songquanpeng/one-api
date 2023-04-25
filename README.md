@@ -72,12 +72,12 @@ _✨ All in one 的 OpenAI 接口，整合各种 API 访问方式，开箱即用
 Nginx 的参考配置：
 ```
 server{
-   server_name openai.justsong.cn;  // 请根据实际情况修改你的域名
+   server_name openai.justsong.cn;  # 请根据实际情况修改你的域名
    
    location / {
           client_max_body_size  64m;
           proxy_http_version 1.1;
-          proxy_pass http://localhost:3000;  // 请根据实际情况修改你的端口
+          proxy_pass http://localhost:3000;  # 请根据实际情况修改你的端口
           proxy_set_header Host $host;
           proxy_set_header X-Forwarded-For $remote_addr;
           proxy_cache_bypass $http_upgrade;
