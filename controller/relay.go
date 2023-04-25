@@ -2,7 +2,6 @@ package controller
 
 import (
 	"bufio"
-	"bytes"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"io"
@@ -76,23 +75,25 @@ func Relay(c *gin.Context) {
 	for k, v := range resp.Header {
 		c.Writer.Header().Set(k, v[0])
 	}
+	c.Writer.Header().Set("Content-Type", "text/event-stream")
+	c.Writer.Header().Set("Cache-Control", "no-cache")
+	c.Writer.Header().Set("Connection", "keep-alive")
+	c.Writer.WriteHeaderNow()
+	//w := c.Writer
+	//flusher, _ := w.(http.Flusher)
 	c.Stream(func(w io.Writer) bool {
 		select {
 		case data := <-dataChan:
-			//fmt.Println(data)
-			//c.Data(http.StatusOK, "text/event-stream", []byte(data))
-			//c.Render(-1, common.Event{Data: data})
-			//c.SSEvent("", data)
-			//w.Write([]byte(data))
-			//w.(http.Flusher).Flush()
-			//c.Writer.Write(append([]byte(data), []byte("\n\n")...))
-			outputBytes := bytes.NewBufferString(data)
-			w.Write(outputBytes.Bytes())
+			suffix := ""
 			if strings.HasPrefix(data, "data: ") {
-				w.Write([]byte("\n\n"))
+				suffix = "\n\n"
 			}
-			//w.Write(append(outputBytes.Bytes(), []byte("\n\n")...))
-			w.(http.Flusher).Flush()
+			_, err := fmt.Fprintf(w, "%s%s", data, suffix)
+			if err != nil {
+				return false
+			}
+			flusher, _ := w.(http.Flusher)
+			flusher.Flush()
 			//fmt.Println(data)
 			return true
 		case <-stopChan:
