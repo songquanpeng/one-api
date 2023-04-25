@@ -62,7 +62,7 @@ _✨ All in one 的 OpenAI 接口，整合各种 API 访问方式，开箱即用
 
 ## 部署
 ### 基于 Docker 进行部署
-执行：`docker run -d --restart always -p 3000:3000 -v /home/ubuntu/data/one-api:/data -v /etc/ssl/certs:/etc/ssl/certs:ro justsong/one-api`
+执行：`docker run -d --restart always -p 3000:3000 -v /home/ubuntu/data/one-api:/data justsong/one-api`
 
 数据将会保存在宿主机的 `/home/ubuntu/data/one-api` 目录。
 
