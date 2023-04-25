@@ -59,12 +59,34 @@ _✨ All in one 的 OpenAI 接口，整合各种 API 访问方式，开箱即用
    + [GitHub 开放授权](https://github.com/settings/applications/new)。
    + 微信公众号授权（需要额外部署 [WeChat Server](https://github.com/songquanpeng/wechat-server)）。
 7. 支持用户管理。
+8. 未来其他大模型开放 API 后，将第一时间支持，并将其封装成同样的 API 访问方式。
 
 ## 部署
 ### 基于 Docker 进行部署
 执行：`docker run -d --restart always -p 3000:3000 -v /home/ubuntu/data/one-api:/data justsong/one-api`
 
-数据将会保存在宿主机的 `/home/ubuntu/data/one-api` 目录。
+`-p 3000:3000` 中的第一个 `3000` 是宿主机的端口，可以根据需要进行修改。
+
+数据将会保存在宿主机的 `/home/ubuntu/data/one-api` 目录，请确保该目录存在且具有写入权限，或者更改为合适的目录。
+
+Nginx 的参考配置：
+```
+server{
+   server_name openai.justsong.cn;  // 请根据实际情况修改你的域名
+   
+   location / {
+          client_max_body_size  64m;
+          proxy_http_version 1.1;
+          proxy_pass http://localhost:3000;  // 请根据实际情况修改你的端口
+          proxy_set_header Host $host;
+          proxy_set_header X-Forwarded-For $remote_addr;
+          proxy_cache_bypass $http_upgrade;
+          proxy_set_header Accept-Encoding gzip;
+   }
+}
+```
+
+推荐使用 Let's Encrypt 配置 HTTPS。
 
 ### 手动部署
 1. 从 [GitHub Releases](https://github.com/songquanpeng/one-api/releases/latest) 下载可执行文件或者从源码编译：
