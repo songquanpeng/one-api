@@ -31,6 +31,7 @@ export function isMobile() {
 }
 
 let showErrorOptions = { autoClose: toastConstants.ERROR_TIMEOUT };
+let showWarningOptions = { autoClose: toastConstants.WARNING_TIMEOUT };
 let showSuccessOptions = { autoClose: toastConstants.SUCCESS_TIMEOUT };
 let showInfoOptions = { autoClose: toastConstants.INFO_TIMEOUT };
 let showNoticeOptions = { autoClose: false };
@@ -72,6 +73,10 @@ export function showError(error) {
   } else {
     toast.error('错误：' + error, showErrorOptions);
   }
+}
+
+export function showWarning(message) {
+  toast.warn(message, showWarningOptions);
 }
 
 export function showSuccess(message) {

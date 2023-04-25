@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Form, Label, Message, Pagination, Table } from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
-import { API, copy, showError, showSuccess, timestamp2string } from '../helpers';
+import { API, copy, showError, showInfo, showSuccess, showWarning, timestamp2string } from '../helpers';
 
 import { ITEMS_PER_PAGE } from '../constants';
 
@@ -243,7 +243,8 @@ const TokensTable = () => {
                           if (await copy(token.key)) {
                             showSuccess('已复制到剪贴板！');
                           } else {
-                            showError('复制失败！');
+                            showWarning('无法复制到剪贴板，请手动复制，已将令牌填入搜索框。')
+                            setSearchKeyword(token.key);
                           }
                         }}
                       >
