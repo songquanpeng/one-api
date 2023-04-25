@@ -1,6 +1,7 @@
 package router
 
 import (
+	"github.com/gin-contrib/gzip"
 	"github.com/gin-gonic/gin"
 	"one-api/controller"
 	"one-api/middleware"
@@ -8,6 +9,7 @@ import (
 
 func SetApiRouter(router *gin.Engine) {
 	apiRouter := router.Group("/api")
+	apiRouter.Use(gzip.Gzip(gzip.DefaultCompression))
 	apiRouter.Use(middleware.GlobalAPIRateLimit())
 	{
 		apiRouter.GET("/status", controller.GetStatus)
