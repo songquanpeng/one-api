@@ -10,6 +10,6 @@ func SetRelayRouter(router *gin.Engine) {
 	relayRouter := router.Group("/v1")
 	relayRouter.Use(middleware.GlobalAPIRateLimit(), middleware.TokenAuth(), middleware.Distribute())
 	{
-		relayRouter.POST("/chat/completions", controller.Relay)
+		relayRouter.Any("/*path", controller.Relay)
 	}
 }
