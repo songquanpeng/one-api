@@ -30,6 +30,18 @@ func Relay(c *gin.Context) {
 	//req.Header.Del("Accept-Encoding")
 	req.Header.Set("Authorization", c.Request.Header.Get("Authorization"))
 	req.Header.Set("Content-Type", c.Request.Header.Get("Content-Type"))
+	acceptHeader := c.Request.Header.Get("Accept")
+	if acceptHeader != "" {
+		req.Header.Set("Accept", acceptHeader)
+	}
+	connectionHeader := c.Request.Header.Get("Connection")
+	if connectionHeader != "" {
+		req.Header.Set("Connection", connectionHeader)
+	}
+	lastEventIDHeader := c.Request.Header.Get("Last-Event-ID")
+	if lastEventIDHeader != "" {
+		req.Header.Set("Last-Event-ID", lastEventIDHeader)
+	}
 	client := &http.Client{}
 
 	resp, err := client.Do(req)
