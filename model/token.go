@@ -65,7 +65,7 @@ func ValidateUserToken(key string) (token *Token, err error) {
 		}()
 		return token, nil
 	}
-	return nil, err
+	return nil, errors.New("无效的 token")
 }
 
 func GetTokenByIds(id int, userId int) (*Token, error) {
