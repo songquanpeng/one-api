@@ -6,12 +6,14 @@ import { API, showError, showSuccess, timestamp2string } from '../../helpers';
 const EditToken = () => {
   const params = useParams();
   const tokenId = params.id;
-  const [loading, setLoading] = useState(true);
-  const [inputs, setInputs] = useState({
+  const isEdit = tokenId !== undefined;
+  const [loading, setLoading] = useState(isEdit);
+  const originInputs = {
     name: '',
     remain_times: -1,
     expired_time: -1
-  });
+  };
+  const [inputs, setInputs] = useState(originInputs);
   const { name, remain_times, expired_time } = inputs;
 
   const handleInputChange = (e, { name, value }) => {
@@ -47,10 +49,13 @@ const EditToken = () => {
     setLoading(false);
   };
   useEffect(() => {
-    loadToken().then();
+    if (isEdit) {
+      loadToken().then();
+    }
   }, []);
 
   const submit = async () => {
+    if (!isEdit && inputs.name === '') return;
     let localInputs = inputs;
     localInputs.remain_times = parseInt(localInputs.remain_times);
     if (localInputs.expired_time !== -1) {
@@ -61,10 +66,20 @@ const EditToken = () => {
       }
       localInputs.expired_time = Math.ceil(time / 1000);
     }
-    let res = await API.put(`/api/token/`, { ...localInputs, id: parseInt(tokenId) });
+    let res;
+    if (isEdit) {
+      res = await API.put(`/api/token/`, { ...localInputs, id: parseInt(tokenId) });
+    } else {
+      res = await API.post(`/api/token/`, localInputs);
+    }
     const { success, message } = res.data;
     if (success) {
-      showSuccess('令牌更新成功！');
+      if (isEdit) {
+        showSuccess('令牌更新成功！');
+      } else {
+        showSuccess('令牌创建成功！');
+        setInputs(originInputs);
+      }
     } else {
       showError(message);
     }
@@ -73,16 +88,17 @@ const EditToken = () => {
   return (
     <>
       <Segment loading={loading}>
-        <Header as='h3'>更新令牌信息</Header>
+        <Header as='h3'>{isEdit ? "更新令牌信息" : "创建新的令牌"}</Header>
         <Form autoComplete='off'>
           <Form.Field>
             <Form.Input
               label='名称'
               name='name'
-              placeholder={'请输入新的名称'}
+              placeholder={'请输入名称'}
               onChange={handleInputChange}
               value={name}
               autoComplete='off'
+              required={!isEdit}
             />
           </Form.Field>
           <Form.Field>
@@ -93,6 +109,7 @@ const EditToken = () => {
               onChange={handleInputChange}
               value={remain_times}
               autoComplete='off'
+              type='number'
             />
           </Form.Field>
           <Form.Field>
@@ -103,6 +120,7 @@ const EditToken = () => {
               onChange={handleInputChange}
               value={expired_time}
               autoComplete='off'
+              type='datetime-local'
             />
           </Form.Field>
           <Button type={'button'} onClick={() => {
