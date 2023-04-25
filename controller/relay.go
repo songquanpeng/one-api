@@ -24,12 +24,12 @@ func Relay(c *gin.Context) {
 		})
 		return
 	}
-	req.Header = c.Request.Header.Clone()
+	//req.Header = c.Request.Header.Clone()
 	// Fix HTTP Decompression failed
 	// https://github.com/stoplightio/prism/issues/1064#issuecomment-824682360
-	req.Header.Del("Accept-Encoding")
-	// Fix http2: invalid Connection request header: ["upgrade"]
-	req.Header.Del("Upgrade")
+	//req.Header.Del("Accept-Encoding")
+	req.Header.Set("Authorization", c.Request.Header.Get("Authorization"))
+	req.Header.Set("Content-Type", c.Request.Header.Get("Content-Type"))
 	client := &http.Client{}
 
 	resp, err := client.Do(req)
