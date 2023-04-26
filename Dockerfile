@@ -24,7 +24,7 @@ RUN apk update \
     && apk upgrade \
     && apk add --no-cache ca-certificates tzdata \
     && update-ca-certificates 2>/dev/null || true
-ENV PORT=3000
+
 COPY --from=builder2 /build/one-api /
 EXPOSE 3000
 WORKDIR /data
