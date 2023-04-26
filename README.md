@@ -87,7 +87,7 @@ server{
 }
 ```
 
-注意，为了 SSE 正常工作，需要关闭 Nginx 的代理缓存和缓冲。
+注意，为了 SSE 正常工作，需要关闭 Nginx 的代理缓冲。
 
 之后使用 Let's Encrypt 的 certbot 配置 HTTPS：
 ```bash
