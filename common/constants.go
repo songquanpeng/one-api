@@ -46,6 +46,8 @@ var WeChatAccountQRCodeImageURL = ""
 var TurnstileSiteKey = ""
 var TurnstileSecretKey = ""
 
+var QuotaForNewUser = 100
+
 const (
 	RoleGuestUser  = 0
 	RoleCommonUser = 1

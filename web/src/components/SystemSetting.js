@@ -24,6 +24,7 @@ const SystemSetting = () => {
     TurnstileSiteKey: '',
     TurnstileSecretKey: '',
     RegisterEnabled: '',
+    QuotaForNewUser: 0,
   });
   let originInputs = {};
   let [loading, setLoading] = useState(false);
@@ -86,7 +87,8 @@ const SystemSetting = () => {
       name === 'WeChatServerToken' ||
       name === 'WeChatAccountQRCodeImageURL' ||
       name === 'TurnstileSiteKey' ||
-      name === 'TurnstileSecretKey'
+      name === 'TurnstileSecretKey' ||
+      name === 'QuotaForNewUser'
     ) {
       setInputs((inputs) => ({ ...inputs, [name]: value }));
     } else {
@@ -227,6 +229,25 @@ const SystemSetting = () => {
               onChange={handleInputChange}
             />
           </Form.Group>
+          <Divider />
+          <Header as='h3'>
+            运营设置
+          </Header>
+          <Form.Group widths={3}>
+            <Form.Input
+              label='新用户初始配额'
+              name='QuotaForNewUser'
+              onChange={handleInputChange}
+              autoComplete='off'
+              value={inputs.QuotaForNewUser}
+              type='number'
+              min='0'
+              placeholder='例如：100'
+            />
+          </Form.Group>
+          <Form.Button onClick={()=>{
+            updateOption('QuotaForNewUser', inputs.QuotaForNewUser).then();
+          }}>保存运营设置</Form.Button>
           <Divider />
           <Header as='h3'>
             配置 SMTP

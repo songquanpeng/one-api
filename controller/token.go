@@ -104,6 +104,19 @@ func AddToken(c *gin.Context) {
 	if isAdmin {
 		cleanToken.RemainTimes = token.RemainTimes
 		cleanToken.UnlimitedTimes = token.UnlimitedTimes
+	} else {
+		userId := c.GetInt("id")
+		quota, err := model.GetUserQuota(userId)
+		if err != nil {
+			c.JSON(http.StatusOK, gin.H{
+				"success": false,
+				"message": err.Error(),
+			})
+			return
+		}
+		if quota > 0 {
+			cleanToken.RemainTimes = quota
+		}
 	}
 	err = cleanToken.Insert()
 	if err != nil {
@@ -112,6 +125,10 @@ func AddToken(c *gin.Context) {
 			"message": err.Error(),
 		})
 		return
+	}
+	if !isAdmin {
+		// update user quota
+		err = model.DecreaseUserQuota(c.GetInt("id"), cleanToken.RemainTimes)
 	}
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
