@@ -25,6 +25,12 @@ const headerButtons = [
     icon: 'key',
   },
   {
+    name: '兑换',
+    to: '/redemption',
+    icon: 'dollar sign',
+    admin: true,
+  },
+  {
     name: '用户',
     to: '/user',
     icon: 'user',

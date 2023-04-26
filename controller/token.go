@@ -201,3 +201,34 @@ func UpdateToken(c *gin.Context) {
 	})
 	return
 }
+
+type topUpRequest struct {
+	Id  int    `json:"id"`
+	Key string `json:"key"`
+}
+
+func TopUp(c *gin.Context) {
+	req := topUpRequest{}
+	err := c.ShouldBindJSON(&req)
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+	quota, err := model.Redeem(req.Key, req.Id)
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "",
+		"data":    quota,
+	})
+	return
+}

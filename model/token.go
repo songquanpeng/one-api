@@ -123,3 +123,8 @@ func DecreaseTokenRemainTimesById(id int) (err error) {
 	err = DB.Model(&Token{}).Where("id = ?", id).Update("remain_times", gorm.Expr("remain_times - ?", 1)).Error
 	return err
 }
+
+func TopUpToken(id int, times int) (err error) {
+	err = DB.Model(&Token{}).Where("id = ?", id).Update("remain_times", gorm.Expr("remain_times + ?", times)).Error
+	return err
+}

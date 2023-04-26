@@ -69,6 +69,10 @@ func InitDB() (err error) {
 		if err != nil {
 			return err
 		}
+		err = db.AutoMigrate(&Redemption{})
+		if err != nil {
+			return err
+		}
 		err = createRootAccountIfNeed()
 		return err
 	} else {

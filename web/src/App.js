@@ -20,6 +20,8 @@ import Token from './pages/Token';
 import EditToken from './pages/Token/EditToken';
 import EditChannel from './pages/Channel/EditChannel';
 import AddChannel from './pages/Channel/AddChannel';
+import Redemption from './pages/Redemption';
+import EditRedemption from './pages/Redemption/EditRedemption';
 
 const Home = lazy(() => import('./pages/Home'));
 const About = lazy(() => import('./pages/About'));
@@ -116,6 +118,30 @@ function App() {
         element={
           <Suspense fallback={<Loading></Loading>}>
             <EditToken />
+          </Suspense>
+        }
+      />
+      <Route
+        path='/redemption'
+        element={
+          <PrivateRoute>
+            <Redemption />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path='/redemption/edit/:id'
+        element={
+          <Suspense fallback={<Loading></Loading>}>
+            <EditRedemption />
+          </Suspense>
+        }
+      />
+      <Route
+        path='/redemption/add'
+        element={
+          <Suspense fallback={<Loading></Loading>}>
+            <EditRedemption />
           </Suspense>
         }
       />

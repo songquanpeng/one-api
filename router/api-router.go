@@ -70,10 +70,21 @@ func SetApiRouter(router *gin.Engine) {
 		{
 			tokenRoute.GET("/", controller.GetAllTokens)
 			tokenRoute.GET("/search", controller.SearchTokens)
+			tokenRoute.POST("/topup", controller.TopUp)
 			tokenRoute.GET("/:id", controller.GetToken)
 			tokenRoute.POST("/", controller.AddToken)
 			tokenRoute.PUT("/", controller.UpdateToken)
 			tokenRoute.DELETE("/:id", controller.DeleteToken)
+		}
+		redemptionRoute := apiRouter.Group("/redemption")
+		redemptionRoute.Use(middleware.AdminAuth())
+		{
+			redemptionRoute.GET("/", controller.GetAllRedemptions)
+			redemptionRoute.GET("/search", controller.SearchRedemptions)
+			redemptionRoute.GET("/:id", controller.GetRedemption)
+			redemptionRoute.POST("/", controller.AddRedemption)
+			redemptionRoute.PUT("/", controller.UpdateRedemption)
+			redemptionRoute.DELETE("/:id", controller.DeleteRedemption)
 		}
 	}
 }
