@@ -54,14 +54,18 @@ export function showError(error) {
   console.error(error);
   if (error.message) {
     if (error.name === 'AxiosError') {
-      switch (error.message) {
-        case 'Request failed with status code 429':
+      switch (error.response.status) {
+        case 401:
+          // toast.error('错误：未登录或登录已过期，请重新登录！', showErrorOptions);
+          window.location.href = '/login?expired=true';
+          break;
+        case 429:
           toast.error('错误：请求次数过多，请稍后再试！', showErrorOptions);
           break;
-        case 'Request failed with status code 500':
+        case 500:
           toast.error('错误：服务器内部错误，请联系管理员！', showErrorOptions);
           break;
-        case 'Request failed with status code 405':
+        case 405:
           toast.info('本站仅作演示之用，无服务端！');
           break;
         default:

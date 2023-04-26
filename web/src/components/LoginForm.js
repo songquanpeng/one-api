@@ -10,7 +10,7 @@ import {
   Modal,
   Segment,
 } from 'semantic-ui-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { UserContext } from '../context/User';
 import { API, showError, showSuccess } from '../helpers';
 
@@ -20,6 +20,7 @@ const LoginForm = () => {
     password: '',
     wechat_verification_code: '',
   });
+  const [searchParams, setSearchParams] = useSearchParams();
   const [submitted, setSubmitted] = useState(false);
   const { username, password } = inputs;
   const [userState, userDispatch] = useContext(UserContext);
@@ -28,6 +29,9 @@ const LoginForm = () => {
   const [status, setStatus] = useState({});
 
   useEffect(() => {
+    if (searchParams.get("expired")) {
+      showError('未登录或登录已过期，请重新登录！');
+    }
     let status = localStorage.getItem('status');
     if (status) {
       status = JSON.parse(status);
