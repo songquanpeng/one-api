@@ -7,6 +7,6 @@ import (
 
 func CORS() gin.HandlerFunc {
 	config := cors.DefaultConfig()
-	config.AllowOrigins = []string{"https://one-api.vercel.app", "http://localhost:3000/"}
+	config.AllowAllOrigins = true
 	return cors.New(config)
 }
