@@ -243,6 +243,42 @@ func GetUser(c *gin.Context) {
 	return
 }
 
+func GenerateAccessToken(c *gin.Context) {
+	id := c.GetInt("id")
+	user, err := model.GetUserById(id, true)
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+	user.AccessToken = common.GetUUID()
+
+	if model.DB.Where("token = ?", user.AccessToken).First(user).RowsAffected != 0 {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": "请重试，系统生成的 UUID 竟然重复了！",
+		})
+		return
+	}
+
+	if err := user.Update(false); err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "",
+		"data":    user.AccessToken,
+	})
+	return
+}
+
 func GetSelf(c *gin.Context) {
 	id := c.GetInt("id")
 	user, err := model.GetUserById(id, false)

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Divider, Form, Header, Image, Modal } from 'semantic-ui-react';
+import { Button, Divider, Form, Header, Image, Message, Modal } from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
 import { API, copy, showError, showInfo, showSuccess } from '../helpers';
 import Turnstile from 'react-turnstile';
@@ -32,6 +32,17 @@ const PersonalSetting = () => {
 
   const handleInputChange = (e, { name, value }) => {
     setInputs((inputs) => ({ ...inputs, [name]: value }));
+  };
+
+  const generateAccessToken = async () => {
+    const res = await API.get('/api/user/token');
+    const { success, message, data } = res.data;
+    if (success) {
+      await copy(data);
+      showSuccess(`令牌已重置并已复制到剪贴板：${data}`);
+    } else {
+      showError(message);
+    }
   };
 
   const bindWeChat = async () => {
@@ -92,9 +103,13 @@ const PersonalSetting = () => {
   return (
     <div style={{ lineHeight: '40px' }}>
       <Header as='h3'>通用设置</Header>
+      <Message>
+        注意，此处生成的令牌用于系统管理，而非用于请求 OpenAI 相关的服务，请知悉。
+      </Message>
       <Button as={Link} to={`/user/edit/`}>
         更新个人信息
       </Button>
+      <Button onClick={generateAccessToken}>生成系统访问令牌</Button>
       <Divider />
       <Header as='h3'>账号绑定</Header>
       <Button

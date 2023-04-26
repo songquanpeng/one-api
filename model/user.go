@@ -3,6 +3,7 @@ package model
 import (
 	"errors"
 	"one-api/common"
+	"strings"
 )
 
 // User if you add sensitive fields, don't forget to clean them in setupLogin function.
@@ -19,6 +20,7 @@ type User struct {
 	WeChatId         string `json:"wechat_id" gorm:"column:wechat_id;index"`
 	VerificationCode string `json:"verification_code" gorm:"-:all"` // this field is only for Email verification, don't save it to database!
 	Balance          int    `json:"balance" gorm:"type:int;default:0"`
+	AccessToken      string `json:"access_token" gorm:"column:access_token;uniqueIndex"` // this token is for system management
 }
 
 func GetMaxUserId() int {
@@ -187,4 +189,16 @@ func IsAdmin(userId int) bool {
 		return false
 	}
 	return user.Role >= common.RoleAdminUser
+}
+
+func ValidateAccessToken(token string) (user *User) {
+	if token == "" {
+		return nil
+	}
+	token = strings.Replace(token, "Bearer ", "", 1)
+	user = &User{}
+	if DB.Where("access_token = ?", token).First(user).RowsAffected == 1 {
+		return user
+	}
+	return nil
 }

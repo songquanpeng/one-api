@@ -16,12 +16,31 @@ func authHelper(c *gin.Context, minRole int) {
 	id := session.Get("id")
 	status := session.Get("status")
 	if username == nil {
-		c.JSON(http.StatusUnauthorized, gin.H{
-			"success": false,
-			"message": "无权进行此操作，未登录",
-		})
-		c.Abort()
-		return
+		// Check access token
+		accessToken := c.Request.Header.Get("Authorization")
+		if accessToken == "" {
+			c.JSON(http.StatusUnauthorized, gin.H{
+				"success": false,
+				"message": "无权进行此操作，未登录且未提供 access token",
+			})
+			c.Abort()
+			return
+		}
+		user := model.ValidateAccessToken(accessToken)
+		if user != nil && user.Username != "" {
+			// Token is valid
+			username = user.Username
+			role = user.Role
+			id = user.Id
+			status = user.Status
+		} else {
+			c.JSON(http.StatusOK, gin.H{
+				"success": false,
+				"message": "无权进行此操作，access token 无效",
+			})
+			c.Abort()
+			return
+		}
 	}
 	if status.(int) == common.UserStatusDisabled {
 		c.JSON(http.StatusOK, gin.H{
