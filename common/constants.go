@@ -65,7 +65,7 @@ var (
 // All duration's unit is seconds
 // Shouldn't larger then RateLimitKeyExpirationDuration
 var (
-	GlobalApiRateLimitNum            = 60000 // TODO: temporary set to 60000
+	GlobalApiRateLimitNum            = 180
 	GlobalApiRateLimitDuration int64 = 3 * 60
 
 	GlobalWebRateLimitNum            = 60

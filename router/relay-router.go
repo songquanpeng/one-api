@@ -8,12 +8,12 @@ import (
 
 func SetRelayRouter(router *gin.Engine) {
 	relayV1Router := router.Group("/v1")
-	relayV1Router.Use(middleware.GlobalAPIRateLimit(), middleware.TokenAuth(), middleware.Distribute())
+	relayV1Router.Use(middleware.TokenAuth(), middleware.Distribute())
 	{
 		relayV1Router.Any("/*path", controller.Relay)
 	}
 	relayDashboardRouter := router.Group("/dashboard")
-	relayDashboardRouter.Use(middleware.GlobalAPIRateLimit(), middleware.TokenAuth(), middleware.Distribute())
+	relayDashboardRouter.Use(middleware.TokenAuth(), middleware.Distribute())
 	{
 		relayDashboardRouter.Any("/*path", controller.Relay)
 	}
