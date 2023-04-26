@@ -76,6 +76,7 @@ func GetToken(c *gin.Context) {
 }
 
 func AddToken(c *gin.Context) {
+	isAdmin := c.GetInt("role") >= common.RoleAdminUser
 	token := model.Token{}
 	err := c.ShouldBindJSON(&token)
 	if err != nil {
@@ -93,14 +94,16 @@ func AddToken(c *gin.Context) {
 		return
 	}
 	cleanToken := model.Token{
-		UserId:         c.GetInt("id"),
-		Name:           token.Name,
-		Key:            common.GetUUID(),
-		CreatedTime:    common.GetTimestamp(),
-		AccessedTime:   common.GetTimestamp(),
-		ExpiredTime:    token.ExpiredTime,
-		RemainTimes:    token.RemainTimes,
-		UnlimitedTimes: token.UnlimitedTimes,
+		UserId:       c.GetInt("id"),
+		Name:         token.Name,
+		Key:          common.GetUUID(),
+		CreatedTime:  common.GetTimestamp(),
+		AccessedTime: common.GetTimestamp(),
+		ExpiredTime:  token.ExpiredTime,
+	}
+	if isAdmin {
+		cleanToken.RemainTimes = token.RemainTimes
+		cleanToken.UnlimitedTimes = token.UnlimitedTimes
 	}
 	err = cleanToken.Insert()
 	if err != nil {
@@ -136,6 +139,7 @@ func DeleteToken(c *gin.Context) {
 }
 
 func UpdateToken(c *gin.Context) {
+	isAdmin := c.GetInt("role") >= common.RoleAdminUser
 	userId := c.GetInt("id")
 	statusOnly := c.Query("status_only")
 	token := model.Token{}
@@ -177,8 +181,10 @@ func UpdateToken(c *gin.Context) {
 		// If you add more fields, please also update token.Update()
 		cleanToken.Name = token.Name
 		cleanToken.ExpiredTime = token.ExpiredTime
-		cleanToken.RemainTimes = token.RemainTimes
-		cleanToken.UnlimitedTimes = token.UnlimitedTimes
+		if isAdmin {
+			cleanToken.RemainTimes = token.RemainTimes
+			cleanToken.UnlimitedTimes = token.UnlimitedTimes
+		}
 	}
 	err = cleanToken.Update()
 	if err != nil {

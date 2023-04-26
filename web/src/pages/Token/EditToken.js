@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Form, Header, Segment } from 'semantic-ui-react';
 import { useParams } from 'react-router-dom';
-import { API, showError, showSuccess, timestamp2string } from '../../helpers';
+import { API, isAdmin, showError, showSuccess, timestamp2string } from '../../helpers';
 
 const EditToken = () => {
   const params = useParams();
@@ -12,8 +12,9 @@ const EditToken = () => {
     name: '',
     remain_times: 0,
     expired_time: -1,
-    unlimited_times: false,
+    unlimited_times: false
   };
+  const isAdminUser = isAdmin();
   const [inputs, setInputs] = useState(originInputs);
   const { name, remain_times, expired_time, unlimited_times } = inputs;
 
@@ -38,7 +39,7 @@ const EditToken = () => {
 
   const setUnlimitedTimes = () => {
     setInputs({ ...inputs, unlimited_times: !unlimited_times });
-  }
+  };
 
   const loadToken = async () => {
     let res = await API.get(`/api/token/${tokenId}`);
@@ -93,7 +94,7 @@ const EditToken = () => {
   return (
     <>
       <Segment loading={loading}>
-        <Header as='h3'>{isEdit ? "更新令牌信息" : "创建新的令牌"}</Header>
+        <Header as='h3'>{isEdit ? '更新令牌信息' : '创建新的令牌'}</Header>
         <Form autoComplete='off'>
           <Form.Field>
             <Form.Input
@@ -106,21 +107,25 @@ const EditToken = () => {
               required={!isEdit}
             />
           </Form.Field>
-          <Form.Field>
-            <Form.Input
-              label='剩余次数'
-              name='remain_times'
-              placeholder={'请输入剩余次数'}
-              onChange={handleInputChange}
-              value={remain_times}
-              autoComplete='off'
-              type='number'
-              disabled={unlimited_times}
-            />
-          </Form.Field>
-          <Button type={'button'} onClick={() => {
-            setUnlimitedTimes();
-          }}>{unlimited_times ? "取消无限次" : "设置为无限次"}</Button>
+          {
+            isAdminUser && <>
+              <Form.Field>
+                <Form.Input
+                  label='剩余次数'
+                  name='remain_times'
+                  placeholder={'请输入剩余次数'}
+                  onChange={handleInputChange}
+                  value={remain_times}
+                  autoComplete='off'
+                  type='number'
+                  disabled={unlimited_times}
+                />
+              </Form.Field>
+              <Button type={'button'} onClick={() => {
+                setUnlimitedTimes();
+              }}>{unlimited_times ? '取消无限次' : '设置为无限次'}</Button>
+            </>
+          }
           <Form.Field>
             <Form.Input
               label='过期时间'
