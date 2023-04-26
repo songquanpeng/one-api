@@ -144,3 +144,12 @@ export function timestamp2string(timestamp) {
     second
   );
 }
+
+export function downloadTextAsFile(text, filename) {
+  let blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+  let url = URL.createObjectURL(blob);
+  let a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.click();
+}

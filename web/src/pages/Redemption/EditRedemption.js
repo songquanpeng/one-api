@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Form, Header, Segment } from 'semantic-ui-react';
 import { useParams } from 'react-router-dom';
-import { API, isAdmin, showError, showSuccess, quotatamp2string } from '../../helpers';
+import { API, downloadTextAsFile, showError, showSuccess } from '../../helpers';
 
 const EditRedemption = () => {
   const params = useParams();
@@ -11,7 +11,7 @@ const EditRedemption = () => {
   const originInputs = {
     name: '',
     quota: 100,
-    count: 1,
+    count: 1
   };
   const [inputs, setInputs] = useState(originInputs);
   const { name, quota, count } = inputs;
@@ -46,10 +46,10 @@ const EditRedemption = () => {
       res = await API.put(`/api/redemption/`, { ...localInputs, id: parseInt(redemptionId) });
     } else {
       res = await API.post(`/api/redemption/`, {
-        ...localInputs,
+        ...localInputs
       });
     }
-    const { success, message } = res.data;
+    const { success, message, data } = res.data;
     if (success) {
       if (isEdit) {
         showSuccess('兑换码更新成功！');
@@ -59,6 +59,13 @@ const EditRedemption = () => {
       }
     } else {
       showError(message);
+    }
+    if (!isEdit && data) {
+      let text = "";
+      for (let i = 0; i < data.length; i++) {
+        text += data[i] + "\n";
+      }
+      downloadTextAsFile(text, `${inputs.name}.txt`);
     }
   };
 
