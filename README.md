@@ -138,6 +138,7 @@ sudo service nginx restart
 之后就可以使用你的令牌访问 One API 了，使用方式与 [OpenAI API](https://platform.openai.com/docs/api-reference/introduction) 一致。
 
 可以通过在令牌后面添加渠道 ID 的方式指定使用哪一个渠道处理本次请求，例如：`Authorization: Bearer ONE_API_KEY-CHANNEL_ID`。
+注意，需要是管理员用户创建的令牌才能指定渠道 ID。
 
 不加的话将会使用负载均衡的方式使用多个渠道。
 

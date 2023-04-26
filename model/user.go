@@ -175,3 +175,16 @@ func ResetUserPasswordByEmail(email string, password string) error {
 	err = DB.Model(&User{}).Where("email = ?", email).Update("password", hashedPassword).Error
 	return err
 }
+
+func IsAdmin(userId int) bool {
+	if userId == 0 {
+		return false
+	}
+	var user User
+	err := DB.Where("id = ?", userId).Select("role").Find(&user).Error
+	if err != nil {
+		common.SysError("No such user " + err.Error())
+		return false
+	}
+	return user.Role >= common.RoleAdminUser
+}

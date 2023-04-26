@@ -83,7 +83,18 @@ func TokenAuth() func(c *gin.Context) {
 		c.Set("token_id", token.Id)
 		c.Set("unlimited_times", token.UnlimitedTimes)
 		if len(parts) > 1 {
-			c.Set("channelId", parts[1])
+			if model.IsAdmin(token.UserId) {
+				c.Set("channelId", parts[1])
+			} else {
+				c.JSON(http.StatusOK, gin.H{
+					"error": gin.H{
+						"message": "普通用户不支持指定渠道",
+						"type":    "one_api_error",
+					},
+				})
+				c.Abort()
+				return
+			}
 		}
 		c.Next()
 	}
