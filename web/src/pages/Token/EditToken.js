@@ -10,11 +10,12 @@ const EditToken = () => {
   const [loading, setLoading] = useState(isEdit);
   const originInputs = {
     name: '',
-    remain_times: -1,
-    expired_time: -1
+    remain_times: 0,
+    expired_time: -1,
+    unlimited_times: false,
   };
   const [inputs, setInputs] = useState(originInputs);
-  const { name, remain_times, expired_time } = inputs;
+  const { name, remain_times, expired_time, unlimited_times } = inputs;
 
   const handleInputChange = (e, { name, value }) => {
     setInputs((inputs) => ({ ...inputs, [name]: value }));
@@ -34,6 +35,10 @@ const EditToken = () => {
       setInputs({ ...inputs, expired_time: -1 });
     }
   };
+
+  const setUnlimitedTimes = () => {
+    setInputs({ ...inputs, unlimited_times: !unlimited_times });
+  }
 
   const loadToken = async () => {
     let res = await API.get(`/api/token/${tokenId}`);
@@ -105,13 +110,17 @@ const EditToken = () => {
             <Form.Input
               label='剩余次数'
               name='remain_times'
-              placeholder={'请输入剩余次数，-1 表示无限制'}
+              placeholder={'请输入剩余次数'}
               onChange={handleInputChange}
               value={remain_times}
               autoComplete='off'
               type='number'
+              disabled={unlimited_times}
             />
           </Form.Field>
+          <Button type={'button'} onClick={() => {
+            setUnlimitedTimes();
+          }}>{unlimited_times ? "取消无限次" : "设置为无限次"}</Button>
           <Form.Field>
             <Form.Input
               label='过期时间'

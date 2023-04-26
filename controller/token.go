@@ -93,13 +93,14 @@ func AddToken(c *gin.Context) {
 		return
 	}
 	cleanToken := model.Token{
-		UserId:       c.GetInt("id"),
-		Name:         token.Name,
-		Key:          common.GetUUID(),
-		CreatedTime:  common.GetTimestamp(),
-		AccessedTime: common.GetTimestamp(),
-		ExpiredTime:  token.ExpiredTime,
-		RemainTimes:  token.RemainTimes,
+		UserId:         c.GetInt("id"),
+		Name:           token.Name,
+		Key:            common.GetUUID(),
+		CreatedTime:    common.GetTimestamp(),
+		AccessedTime:   common.GetTimestamp(),
+		ExpiredTime:    token.ExpiredTime,
+		RemainTimes:    token.RemainTimes,
+		UnlimitedTimes: token.UnlimitedTimes,
 	}
 	err = cleanToken.Insert()
 	if err != nil {
@@ -136,6 +137,7 @@ func DeleteToken(c *gin.Context) {
 
 func UpdateToken(c *gin.Context) {
 	userId := c.GetInt("id")
+	statusOnly := c.Query("status_only")
 	token := model.Token{}
 	err := c.ShouldBindJSON(&token)
 	if err != nil {
@@ -161,19 +163,23 @@ func UpdateToken(c *gin.Context) {
 			})
 			return
 		}
-		if cleanToken.Status == common.TokenStatusExhausted && cleanToken.RemainTimes == 0 {
+		if cleanToken.Status == common.TokenStatusExhausted && cleanToken.RemainTimes <= 0 && !cleanToken.UnlimitedTimes {
 			c.JSON(http.StatusOK, gin.H{
 				"success": false,
-				"message": "令牌可用次数已用尽，无法启用，请先修改令牌剩余次数",
+				"message": "令牌可用次数已用尽，无法启用，请先修改令牌剩余次数，或者设置为无限次数",
 			})
 			return
 		}
 	}
-
-	cleanToken.Name = token.Name
-	cleanToken.Status = token.Status
-	cleanToken.ExpiredTime = token.ExpiredTime
-	cleanToken.RemainTimes = token.RemainTimes
+	if statusOnly != "" {
+		cleanToken.Status = token.Status
+	} else {
+		// If you add more fields, please also update token.Update()
+		cleanToken.Name = token.Name
+		cleanToken.ExpiredTime = token.ExpiredTime
+		cleanToken.RemainTimes = token.RemainTimes
+		cleanToken.UnlimitedTimes = token.UnlimitedTimes
+	}
 	err = cleanToken.Update()
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{

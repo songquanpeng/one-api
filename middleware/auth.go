@@ -80,6 +80,8 @@ func TokenAuth() func(c *gin.Context) {
 			return
 		}
 		c.Set("id", token.UserId)
+		c.Set("token_id", token.Id)
+		c.Set("unlimited_times", token.UnlimitedTimes)
 		if len(parts) > 1 {
 			c.Set("channelId", parts[1])
 		}

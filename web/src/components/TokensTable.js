@@ -79,11 +79,11 @@ const TokensTable = () => {
         break;
       case 'enable':
         data.status = 1;
-        res = await API.put('/api/token/', data);
+        res = await API.put('/api/token/?status_only=true', data);
         break;
       case 'disable':
         data.status = 2;
-        res = await API.put('/api/token/', data);
+        res = await API.put('/api/token/?status_only=true', data);
         break;
     }
     const { success, message } = res.data;
@@ -230,7 +230,7 @@ const TokensTable = () => {
                   <Table.Cell>{token.id}</Table.Cell>
                   <Table.Cell>{token.name ? token.name : '无'}</Table.Cell>
                   <Table.Cell>{renderStatus(token.status)}</Table.Cell>
-                  <Table.Cell>{token.remain_times === -1 ? "无限制" : token.remain_times}</Table.Cell>
+                  <Table.Cell>{token.unlimited_times ? "无限制" : token.remain_times}</Table.Cell>
                   <Table.Cell>{renderTimestamp(token.created_time)}</Table.Cell>
                   <Table.Cell>{renderTimestamp(token.accessed_time)}</Table.Cell>
                   <Table.Cell>{token.expired_time === -1 ? "永不过期" : renderTimestamp(token.expired_time)}</Table.Cell>

@@ -7,16 +7,20 @@ import (
 	"io"
 	"net/http"
 	"one-api/common"
+	"one-api/model"
 	"strings"
 )
 
 func Relay(c *gin.Context) {
 	channelType := c.GetInt("channel")
+	tokenId := c.GetInt("token_id")
+	isUnlimitedTimes := c.GetBool("unlimited_times")
 	baseURL := common.ChannelBaseURLs[channelType]
 	if channelType == common.ChannelTypeCustom {
 		baseURL = c.GetString("base_url")
 	}
-	req, err := http.NewRequest(c.Request.Method, fmt.Sprintf("%s%s", baseURL, c.Request.URL.String()), c.Request.Body)
+	requestURL := c.Request.URL.String()
+	req, err := http.NewRequest(c.Request.Method, fmt.Sprintf("%s%s", baseURL, requestURL), c.Request.Body)
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"error": gin.H{
@@ -46,7 +50,19 @@ func Relay(c *gin.Context) {
 		})
 		return
 	}
-	defer resp.Body.Close()
+
+	defer func() {
+		err := req.Body.Close()
+		if err != nil {
+			common.SysError("Error closing request body: " + err.Error())
+		}
+		if !isUnlimitedTimes && requestURL == "/v1/chat/completions" {
+			err := model.DecreaseTokenRemainTimesById(tokenId)
+			if err != nil {
+				common.SysError("Error decreasing token remain times: " + err.Error())
+			}
+		}
+	}()
 	isStream := resp.Header.Get("Content-Type") == "text/event-stream"
 	if isStream {
 		scanner := bufio.NewScanner(resp.Body)

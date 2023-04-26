@@ -3,20 +3,22 @@ package model
 import (
 	"errors"
 	_ "gorm.io/driver/sqlite"
+	"gorm.io/gorm"
 	"one-api/common"
 	"strings"
 )
 
 type Token struct {
-	Id           int    `json:"id"`
-	UserId       int    `json:"user_id"`
-	Key          string `json:"key" gorm:"uniqueIndex"`
-	Status       int    `json:"status" gorm:"default:1"`
-	Name         string `json:"name" gorm:"index" `
-	CreatedTime  int64  `json:"created_time" gorm:"bigint"`
-	AccessedTime int64  `json:"accessed_time" gorm:"bigint"`
-	ExpiredTime  int64  `json:"expired_time" gorm:"bigint;default:-1"` // -1 means never expired
-	RemainTimes  int    `json:"remain_times" gorm:"default:-1"`        // -1 means infinite times
+	Id             int    `json:"id"`
+	UserId         int    `json:"user_id"`
+	Key            string `json:"key" gorm:"uniqueIndex"`
+	Status         int    `json:"status" gorm:"default:1"`
+	Name           string `json:"name" gorm:"index" `
+	CreatedTime    int64  `json:"created_time" gorm:"bigint"`
+	AccessedTime   int64  `json:"accessed_time" gorm:"bigint"`
+	ExpiredTime    int64  `json:"expired_time" gorm:"bigint;default:-1"` // -1 means never expired
+	RemainTimes    int    `json:"remain_times" gorm:"default:0"`
+	UnlimitedTimes bool   `json:"unlimited_times" gorm:"default:false"`
 }
 
 func GetAllUserTokens(userId int, startIdx int, num int) ([]*Token, error) {
@@ -50,14 +52,16 @@ func ValidateUserToken(key string) (token *Token, err error) {
 			}
 			return nil, errors.New("该 token 已过期")
 		}
+		if !token.UnlimitedTimes && token.RemainTimes <= 0 {
+			token.Status = common.TokenStatusExhausted
+			err := token.SelectUpdate()
+			if err != nil {
+				common.SysError("更新 token 状态失败：" + err.Error())
+			}
+			return nil, errors.New("该 token 可用次数已用尽")
+		}
 		go func() {
 			token.AccessedTime = common.GetTimestamp()
-			if token.RemainTimes > 0 {
-				token.RemainTimes--
-				if token.RemainTimes == 0 {
-					token.Status = common.TokenStatusExhausted
-				}
-			}
 			err := token.SelectUpdate()
 			if err != nil {
 				common.SysError("更新 token 失败：" + err.Error())
@@ -84,15 +88,16 @@ func (token *Token) Insert() error {
 	return err
 }
 
+// Update Make sure your token's fields is completed, because this will update non-zero values
 func (token *Token) Update() error {
 	var err error
-	err = DB.Model(token).Updates(token).Error
+	err = DB.Model(token).Select("name", "status", "expired_time", "remain_times", "unlimited_times").Updates(token).Error
 	return err
 }
 
 func (token *Token) SelectUpdate() error {
 	// This can update zero values
-	return DB.Model(token).Select("accessed_time", "remain_times", "status").Updates(token).Error
+	return DB.Model(token).Select("accessed_time", "status").Updates(token).Error
 }
 
 func (token *Token) Delete() error {
@@ -112,4 +117,9 @@ func DeleteTokenById(id int, userId int) (err error) {
 		return err
 	}
 	return token.Delete()
+}
+
+func DecreaseTokenRemainTimesById(id int) (err error) {
+	err = DB.Model(&Token{}).Where("id = ?", id).Update("remain_times", gorm.Expr("remain_times - ?", 1)).Error
+	return err
 }
