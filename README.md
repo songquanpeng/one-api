@@ -82,7 +82,6 @@ server{
           proxy_set_header X-Forwarded-For $remote_addr;
           proxy_cache_bypass $http_upgrade;
           proxy_set_header Accept-Encoding gzip;
-          proxy_cache off;  # 重要：关闭代理缓存
           proxy_buffering off;  # 重要：关闭代理缓冲
    }
 }
