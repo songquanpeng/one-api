@@ -25,6 +25,7 @@ const SystemSetting = () => {
     TurnstileSecretKey: '',
     RegisterEnabled: '',
     QuotaForNewUser: 0,
+    TopUpLink: ''
   });
   let originInputs = {};
   let [loading, setLoading] = useState(false);
@@ -65,7 +66,7 @@ const SystemSetting = () => {
     }
     const res = await API.put('/api/option', {
       key,
-      value,
+      value
     });
     const { success, message } = res.data;
     if (success) {
@@ -88,7 +89,8 @@ const SystemSetting = () => {
       name === 'WeChatAccountQRCodeImageURL' ||
       name === 'TurnstileSiteKey' ||
       name === 'TurnstileSecretKey' ||
-      name === 'QuotaForNewUser'
+      name === 'QuotaForNewUser' ||
+      name === 'TopUpLink'
     ) {
       setInputs((inputs) => ({ ...inputs, [name]: value }));
     } else {
@@ -100,6 +102,15 @@ const SystemSetting = () => {
     let ServerAddress = removeTrailingSlash(inputs.ServerAddress);
     await updateOption('ServerAddress', ServerAddress);
   };
+
+  const submitOperationConfig = async () => {
+    if (originInputs['QuotaForNewUser'] !== inputs.QuotaForNewUser) {
+      await updateOption('QuotaForNewUser', inputs.QuotaForNewUser);
+    }
+    if (originInputs['TopUpLink'] !== inputs.TopUpLink) {
+      await updateOption('TopUpLink', inputs.TopUpLink);
+    }
+  }
 
   const submitSMTP = async () => {
     if (originInputs['SMTPServer'] !== inputs.SMTPServer) {
@@ -244,10 +255,17 @@ const SystemSetting = () => {
               min='0'
               placeholder='例如：100'
             />
+            <Form.Input
+              label='充值链接'
+              name='TopUpLink'
+              onChange={handleInputChange}
+              autoComplete='off'
+              value={inputs.TopUpLink}
+              type='link'
+              placeholder='例如发卡网站的购买链接'
+            />
           </Form.Group>
-          <Form.Button onClick={()=>{
-            updateOption('QuotaForNewUser', inputs.QuotaForNewUser).then();
-          }}>保存运营设置</Form.Button>
+          <Form.Button onClick={submitOperationConfig}>保存运营设置</Form.Button>
           <Divider />
           <Header as='h3'>
             配置 SMTP

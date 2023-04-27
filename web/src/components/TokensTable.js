@@ -37,6 +37,7 @@ const TokensTable = () => {
   const [showTopUpModal, setShowTopUpModal] = useState(false);
   const [targetTokenIdx, setTargetTokenIdx] = useState(0);
   const [redemptionCode, setRedemptionCode] = useState('');
+  const [topUpLink, setTopUpLink] = useState('');
 
   const loadTokens = async (startIdx) => {
     const res = await API.get(`/api/token/?p=${startIdx}`);
@@ -71,6 +72,13 @@ const TokensTable = () => {
       .catch((reason) => {
         showError(reason);
       });
+    let status = localStorage.getItem('status');
+    if (status) {
+      status = JSON.parse(status);
+      if (status.top_up_link) {
+        setTopUpLink(status.top_up_link);
+      }
+    }
   }, []);
 
   const manageToken = async (id, action, idx) => {
@@ -342,6 +350,11 @@ const TokensTable = () => {
         <Modal.Content>
           <Modal.Description>
             {/*<Image src={status.wechat_qrcode} fluid />*/}
+            {
+              topUpLink && <p>
+                  <a target='_blank' href={topUpLink}>点击此处获取兑换码</a>
+              </p>
+            }
             <Form size='large'>
               <Form.Input
                 fluid

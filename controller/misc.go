@@ -26,6 +26,7 @@ func GetStatus(c *gin.Context) {
 			"server_address":     common.ServerAddress,
 			"turnstile_check":    common.TurnstileCheckEnabled,
 			"turnstile_site_key": common.TurnstileSiteKey,
+			"top_up_link":        common.TopUpLink,
 		},
 	})
 	return
