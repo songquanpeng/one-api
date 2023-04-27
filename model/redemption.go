@@ -48,7 +48,7 @@ func Redeem(key string, tokenId int) (quota int, err error) {
 		return 0, errors.New("未提供 token id")
 	}
 	redemption := &Redemption{}
-	err = DB.Where("key = ?", key).First(redemption).Error
+	err = DB.Where("`key` = ?", key).First(redemption).Error
 	if err != nil {
 		return 0, errors.New("无效的兑换码")
 	}

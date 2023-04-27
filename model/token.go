@@ -39,7 +39,7 @@ func ValidateUserToken(key string) (token *Token, err error) {
 	}
 	key = strings.Replace(key, "Bearer ", "", 1)
 	token = &Token{}
-	err = DB.Where("key = ?", key).First(token).Error
+	err = DB.Where("`key` = ?", key).First(token).Error
 	if err == nil {
 		if token.Status != common.TokenStatusEnabled {
 			return nil, errors.New("该 token 状态不可用")
