@@ -121,7 +121,7 @@ const EditToken = () => {
                   disabled={unlimited_times}
                 />
               </Form.Field>
-              <Button type={'button'} onClick={() => {
+              <Button type={'button'} style={{marginBottom: '14px'}} onClick={() => {
                 setUnlimitedTimes();
               }}>{unlimited_times ? '取消无限次' : '设置为无限次'}</Button>
             </>
