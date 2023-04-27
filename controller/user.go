@@ -559,6 +559,13 @@ func ManageUser(c *gin.Context) {
 		}
 		user.Role = common.RoleAdminUser
 	case "demote":
+		if user.Role == common.RoleRootUser {
+			c.JSON(http.StatusOK, gin.H{
+				"success": false,
+				"message": "无法降级超级管理员用户",
+			})
+			return
+		}
 		user.Role = common.RoleCommonUser
 	}
 
