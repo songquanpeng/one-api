@@ -98,6 +98,16 @@ func TokenAuth() func(c *gin.Context) {
 			c.Abort()
 			return
 		}
+		if !model.IsUserEnabled(token.UserId) {
+			c.JSON(http.StatusOK, gin.H{
+				"error": gin.H{
+					"message": "用户已被封禁",
+					"type":    "one_api_error",
+				},
+			})
+			c.Abort()
+			return
+		}
 		c.Set("id", token.UserId)
 		c.Set("token_id", token.Id)
 		c.Set("unlimited_times", token.UnlimitedTimes)
