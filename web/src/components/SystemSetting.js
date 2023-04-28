@@ -25,6 +25,7 @@ const SystemSetting = () => {
     TurnstileSecretKey: '',
     RegisterEnabled: '',
     QuotaForNewUser: 0,
+    BytesNumber2Quota: 0.8,
     TopUpLink: ''
   });
   let originInputs = {};
@@ -90,6 +91,7 @@ const SystemSetting = () => {
       name === 'TurnstileSiteKey' ||
       name === 'TurnstileSecretKey' ||
       name === 'QuotaForNewUser' ||
+      name === 'BytesNumber2Quota' ||
       name === 'TopUpLink'
     ) {
       setInputs((inputs) => ({ ...inputs, [name]: value }));
@@ -106,6 +108,9 @@ const SystemSetting = () => {
   const submitOperationConfig = async () => {
     if (originInputs['QuotaForNewUser'] !== inputs.QuotaForNewUser) {
       await updateOption('QuotaForNewUser', inputs.QuotaForNewUser);
+    }
+    if (originInputs['BytesNumber2Quota'] !== inputs.BytesNumber2Quota) {
+      await updateOption('BytesNumber2Quota', inputs.BytesNumber2Quota);
     }
     if (originInputs['TopUpLink'] !== inputs.TopUpLink) {
       await updateOption('TopUpLink', inputs.TopUpLink);
@@ -254,6 +259,17 @@ const SystemSetting = () => {
               type='number'
               min='0'
               placeholder='例如：100'
+            />
+            <Form.Input
+              label='Stream 模式下估算 token 时所使用的倍率'
+              name='BytesNumber2Quota'
+              onChange={handleInputChange}
+              autoComplete='off'
+              value={inputs.BytesNumber2Quota}
+              type='number'
+              step='0.01'
+              min='0'
+              placeholder='例如：0.8'
             />
             <Form.Input
               label='充值链接'

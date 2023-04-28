@@ -48,6 +48,7 @@ var TurnstileSiteKey = ""
 var TurnstileSecretKey = ""
 
 var QuotaForNewUser = 100
+var BytesNumber2Quota = 0.8
 
 const (
 	RoleGuestUser  = 0

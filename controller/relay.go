@@ -110,7 +110,7 @@ func relayHelper(c *gin.Context) error {
 		if consumeQuota {
 			quota := 0
 			if isStream {
-				quota = int(float64(len(streamResponseText)) * 0.8)
+				quota = int(float64(len(streamResponseText)) * common.BytesNumber2Quota)
 			} else {
 				quota = textResponse.Usage.TotalTokens
 			}

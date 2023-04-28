@@ -47,6 +47,7 @@ func InitOptionMap() {
 	common.OptionMap["TurnstileSiteKey"] = ""
 	common.OptionMap["TurnstileSecretKey"] = ""
 	common.OptionMap["QuotaForNewUser"] = strconv.Itoa(common.QuotaForNewUser)
+	common.OptionMap["BytesNumber2Quota"] = strconv.FormatFloat(common.BytesNumber2Quota, 'f', -1, 64)
 	common.OptionMap["TopUpLink"] = common.TopUpLink
 	common.OptionMapRWMutex.Unlock()
 	options, _ := AllOption()
@@ -135,6 +136,8 @@ func updateOptionMap(key string, value string) {
 		common.TurnstileSecretKey = value
 	case "QuotaForNewUser":
 		common.QuotaForNewUser, _ = strconv.Atoi(value)
+	case "BytesNumber2Quota":
+		common.BytesNumber2Quota, _ = strconv.ParseFloat(value, 64)
 	case "TopUpLink":
 		common.TopUpLink = value
 	}
