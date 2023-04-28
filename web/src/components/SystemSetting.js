@@ -25,7 +25,9 @@ const SystemSetting = () => {
     TurnstileSecretKey: '',
     RegisterEnabled: '',
     QuotaForNewUser: 0,
-    BytesNumber2Quota: 0.8,
+    RatioGPT3dot5: 2,
+    RatioGPT4: 30,
+    RatioGPT4_32k: 60,
     TopUpLink: ''
   });
   let originInputs = {};
@@ -91,7 +93,7 @@ const SystemSetting = () => {
       name === 'TurnstileSiteKey' ||
       name === 'TurnstileSecretKey' ||
       name === 'QuotaForNewUser' ||
-      name === 'BytesNumber2Quota' ||
+      name.startsWith('Ratio') ||
       name === 'TopUpLink'
     ) {
       setInputs((inputs) => ({ ...inputs, [name]: value }));
@@ -109,8 +111,14 @@ const SystemSetting = () => {
     if (originInputs['QuotaForNewUser'] !== inputs.QuotaForNewUser) {
       await updateOption('QuotaForNewUser', inputs.QuotaForNewUser);
     }
-    if (originInputs['BytesNumber2Quota'] !== inputs.BytesNumber2Quota) {
-      await updateOption('BytesNumber2Quota', inputs.BytesNumber2Quota);
+    if (originInputs['RatioGPT3dot5'] !== inputs.RatioGPT3dot5) {
+      await updateOption('RatioGPT3dot5', inputs.RatioGPT3dot5);
+    }
+    if (originInputs['RatioGPT4'] !== inputs.RatioGPT4) {
+      await updateOption('RatioGPT4', inputs.RatioGPT4);
+    }
+    if (originInputs['RatioGPT4_32k'] !== inputs.RatioGPT4_32k) {
+      await updateOption('RatioGPT4_32k', inputs.RatioGPT4_32k);
     }
     if (originInputs['TopUpLink'] !== inputs.TopUpLink) {
       await updateOption('TopUpLink', inputs.TopUpLink);
@@ -261,17 +269,6 @@ const SystemSetting = () => {
               placeholder='例如：100'
             />
             <Form.Input
-              label='Stream 模式下估算 token 时所使用的倍率'
-              name='BytesNumber2Quota'
-              onChange={handleInputChange}
-              autoComplete='off'
-              value={inputs.BytesNumber2Quota}
-              type='number'
-              step='0.01'
-              min='0'
-              placeholder='例如：0.8'
-            />
-            <Form.Input
               label='充值链接'
               name='TopUpLink'
               onChange={handleInputChange}
@@ -279,6 +276,41 @@ const SystemSetting = () => {
               value={inputs.TopUpLink}
               type='link'
               placeholder='例如发卡网站的购买链接'
+            />
+          </Form.Group>
+          <Form.Group widths={3}>
+            <Form.Input
+              label='GPT-3.5 系列模型倍率'
+              name='RatioGPT3dot5'
+              onChange={handleInputChange}
+              autoComplete='off'
+              value={inputs.RatioGPT3dot5}
+              type='number'
+              step='0.01'
+              min='0'
+              placeholder='例如：2'
+            />
+            <Form.Input
+              label='GPT-4 系列模型倍率'
+              name='RatioGPT4'
+              onChange={handleInputChange}
+              autoComplete='off'
+              value={inputs.RatioGPT4}
+              type='number'
+              step='0.01'
+              min='0'
+              placeholder='例如：30'
+            />
+            <Form.Input
+              label='GPT-4 32k 系列模型倍率'
+              name='RatioGPT4_32k'
+              onChange={handleInputChange}
+              autoComplete='off'
+              value={inputs.RatioGPT4_32k}
+              type='number'
+              step='0.01'
+              min='0'
+              placeholder='例如：60'
             />
           </Form.Group>
           <Form.Button onClick={submitOperationConfig}>保存运营设置</Form.Button>

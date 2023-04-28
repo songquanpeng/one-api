@@ -129,6 +129,15 @@ func relayHelper(c *gin.Context) error {
 			} else {
 				quota = textResponse.Usage.TotalTokens
 			}
+			ratio := common.RatioGPT3dot5
+			if strings.HasPrefix(textRequest.Model, "gpt-4-32k") {
+				ratio = common.RatioGPT4_32k
+			} else if strings.HasPrefix(textRequest.Model, "gpt-4") {
+				ratio = common.RatioGPT4
+			} else {
+				ratio = common.RatioGPT3dot5
+			}
+			quota = int(float64(quota) * ratio)
 			err := model.ConsumeTokenQuota(tokenId, quota)
 			if err != nil {
 				common.SysError("Error consuming token remain quota: " + err.Error())
