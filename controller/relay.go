@@ -64,21 +64,23 @@ func relayHelper(c *gin.Context) error {
 	if channelType == common.ChannelTypeCustom {
 		baseURL = c.GetString("base_url")
 	}
-	requestBody, err := io.ReadAll(c.Request.Body)
-	if err != nil {
-		return err
+	if consumeQuota {
+		requestBody, err := io.ReadAll(c.Request.Body)
+		if err != nil {
+			return err
+		}
+		err = c.Request.Body.Close()
+		if err != nil {
+			return err
+		}
+		var textRequest TextRequest
+		err = json.Unmarshal(requestBody, &textRequest)
+		if err != nil {
+			return err
+		}
+		// Reset request body
+		c.Request.Body = io.NopCloser(bytes.NewBuffer(requestBody))
 	}
-	err = c.Request.Body.Close()
-	if err != nil {
-		return err
-	}
-	var textRequest TextRequest
-	err = json.Unmarshal(requestBody, &textRequest)
-	if err != nil {
-		return err
-	}
-	// Reset request body
-	c.Request.Body = io.NopCloser(bytes.NewBuffer(requestBody))
 	requestURL := c.Request.URL.String()
 	req, err := http.NewRequest(c.Request.Method, fmt.Sprintf("%s%s", baseURL, requestURL), c.Request.Body)
 	if err != nil {
@@ -181,20 +183,22 @@ func relayHelper(c *gin.Context) error {
 		for k, v := range resp.Header {
 			c.Writer.Header().Set(k, v[0])
 		}
-		responseBody, err := io.ReadAll(resp.Body)
-		if err != nil {
-			return err
+		if consumeQuota {
+			responseBody, err := io.ReadAll(resp.Body)
+			if err != nil {
+				return err
+			}
+			err = resp.Body.Close()
+			if err != nil {
+				return err
+			}
+			err = json.Unmarshal(responseBody, &textResponse)
+			if err != nil {
+				return err
+			}
+			// Reset response body
+			resp.Body = io.NopCloser(bytes.NewBuffer(responseBody))
 		}
-		err = resp.Body.Close()
-		if err != nil {
-			return err
-		}
-		err = json.Unmarshal(responseBody, &textResponse)
-		if err != nil {
-			return err
-		}
-		// Reset response body
-		resp.Body = io.NopCloser(bytes.NewBuffer(responseBody))
 		_, err = io.Copy(c.Writer, resp.Body)
 		if err != nil {
 			return err
