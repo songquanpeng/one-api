@@ -119,12 +119,12 @@ func DeleteTokenById(id int, userId int) (err error) {
 	return token.Delete()
 }
 
-func DecreaseTokenRemainQuotaById(id int) (err error) {
-	err = DB.Model(&Token{}).Where("id = ?", id).Update("remain_quota", gorm.Expr("remain_quota - ?", 1)).Error
+func ConsumeTokenQuota(id int, quota int) (err error) {
+	err = DB.Model(&Token{}).Where("id = ?", id).Update("remain_quota", gorm.Expr("remain_quota - ?", quota)).Error
 	return err
 }
 
-func TopUpToken(id int, times int) (err error) {
-	err = DB.Model(&Token{}).Where("id = ?", id).Update("remain_quota", gorm.Expr("remain_quota + ?", times)).Error
+func TopUpTokenQuota(id int, quota int) (err error) {
+	err = DB.Model(&Token{}).Where("id = ?", id).Update("remain_quota", gorm.Expr("remain_quota + ?", quota)).Error
 	return err
 }
