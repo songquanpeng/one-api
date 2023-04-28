@@ -17,8 +17,8 @@ type Token struct {
 	CreatedTime    int64  `json:"created_time" gorm:"bigint"`
 	AccessedTime   int64  `json:"accessed_time" gorm:"bigint"`
 	ExpiredTime    int64  `json:"expired_time" gorm:"bigint;default:-1"` // -1 means never expired
-	RemainTimes    int    `json:"remain_times" gorm:"default:0"`
-	UnlimitedTimes bool   `json:"unlimited_times" gorm:"default:false"`
+	RemainQuota    int    `json:"remain_quota" gorm:"default:0"`
+	UnlimitedQuota bool   `json:"unlimited_quota" gorm:"default:false"`
 }
 
 func GetAllUserTokens(userId int, startIdx int, num int) ([]*Token, error) {
@@ -52,13 +52,13 @@ func ValidateUserToken(key string) (token *Token, err error) {
 			}
 			return nil, errors.New("该 token 已过期")
 		}
-		if !token.UnlimitedTimes && token.RemainTimes <= 0 {
+		if !token.UnlimitedQuota && token.RemainQuota <= 0 {
 			token.Status = common.TokenStatusExhausted
 			err := token.SelectUpdate()
 			if err != nil {
 				common.SysError("更新 token 状态失败：" + err.Error())
 			}
-			return nil, errors.New("该 token 可用次数已用尽")
+			return nil, errors.New("该 token 额度已用尽")
 		}
 		go func() {
 			token.AccessedTime = common.GetTimestamp()
@@ -91,7 +91,7 @@ func (token *Token) Insert() error {
 // Update Make sure your token's fields is completed, because this will update non-zero values
 func (token *Token) Update() error {
 	var err error
-	err = DB.Model(token).Select("name", "status", "expired_time", "remain_times", "unlimited_times").Updates(token).Error
+	err = DB.Model(token).Select("name", "status", "expired_time", "remain_quota", "unlimited_quota").Updates(token).Error
 	return err
 }
 
@@ -119,12 +119,12 @@ func DeleteTokenById(id int, userId int) (err error) {
 	return token.Delete()
 }
 
-func DecreaseTokenRemainTimesById(id int) (err error) {
-	err = DB.Model(&Token{}).Where("id = ?", id).Update("remain_times", gorm.Expr("remain_times - ?", 1)).Error
+func DecreaseTokenRemainQuotaById(id int) (err error) {
+	err = DB.Model(&Token{}).Where("id = ?", id).Update("remain_quota", gorm.Expr("remain_quota - ?", 1)).Error
 	return err
 }
 
 func TopUpToken(id int, times int) (err error) {
-	err = DB.Model(&Token{}).Where("id = ?", id).Update("remain_times", gorm.Expr("remain_times + ?", times)).Error
+	err = DB.Model(&Token{}).Where("id = ?", id).Update("remain_quota", gorm.Expr("remain_quota + ?", times)).Error
 	return err
 }

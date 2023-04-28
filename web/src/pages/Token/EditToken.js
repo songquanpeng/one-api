@@ -10,13 +10,13 @@ const EditToken = () => {
   const [loading, setLoading] = useState(isEdit);
   const originInputs = {
     name: '',
-    remain_times: 0,
+    remain_quota: 0,
     expired_time: -1,
-    unlimited_times: false
+    unlimited_quota: false
   };
   const isAdminUser = isAdmin();
   const [inputs, setInputs] = useState(originInputs);
-  const { name, remain_times, expired_time, unlimited_times } = inputs;
+  const { name, remain_quota, expired_time, unlimited_quota } = inputs;
 
   const handleInputChange = (e, { name, value }) => {
     setInputs((inputs) => ({ ...inputs, [name]: value }));
@@ -37,8 +37,8 @@ const EditToken = () => {
     }
   };
 
-  const setUnlimitedTimes = () => {
-    setInputs({ ...inputs, unlimited_times: !unlimited_times });
+  const setUnlimitedQuota = () => {
+    setInputs({ ...inputs, unlimited_quota: !unlimited_quota });
   };
 
   const loadToken = async () => {
@@ -63,7 +63,7 @@ const EditToken = () => {
   const submit = async () => {
     if (!isEdit && inputs.name === '') return;
     let localInputs = inputs;
-    localInputs.remain_times = parseInt(localInputs.remain_times);
+    localInputs.remain_quota = parseInt(localInputs.remain_quota);
     if (localInputs.expired_time !== -1) {
       let time = Date.parse(localInputs.expired_time);
       if (isNaN(time)) {
@@ -111,19 +111,19 @@ const EditToken = () => {
             isAdminUser && <>
               <Form.Field>
                 <Form.Input
-                  label='剩余次数'
-                  name='remain_times'
-                  placeholder={'请输入剩余次数'}
+                  label='额度'
+                  name='remain_quota'
+                  placeholder={'请输入额度'}
                   onChange={handleInputChange}
-                  value={remain_times}
+                  value={remain_quota}
                   autoComplete='off'
                   type='number'
-                  disabled={unlimited_times}
+                  disabled={unlimited_quota}
                 />
               </Form.Field>
               <Button type={'button'} style={{marginBottom: '14px'}} onClick={() => {
-                setUnlimitedTimes();
-              }}>{unlimited_times ? '取消无限次' : '设置为无限次'}</Button>
+                setUnlimitedQuota();
+              }}>{unlimited_quota ? '取消无限额度' : '设置为无限额度'}</Button>
             </>
           }
           <Form.Field>

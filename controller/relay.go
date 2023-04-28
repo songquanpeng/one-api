@@ -14,7 +14,7 @@ import (
 func Relay(c *gin.Context) {
 	channelType := c.GetInt("channel")
 	tokenId := c.GetInt("token_id")
-	isUnlimitedTimes := c.GetBool("unlimited_times")
+	isUnlimitedQuota := c.GetBool("unlimited_quota")
 	baseURL := common.ChannelBaseURLs[channelType]
 	if channelType == common.ChannelTypeCustom {
 		baseURL = c.GetString("base_url")
@@ -56,8 +56,8 @@ func Relay(c *gin.Context) {
 		if err != nil {
 			common.SysError("Error closing request body: " + err.Error())
 		}
-		if !isUnlimitedTimes && requestURL == "/v1/chat/completions" {
-			err := model.DecreaseTokenRemainTimesById(tokenId)
+		if !isUnlimitedQuota && requestURL == "/v1/chat/completions" {
+			err := model.DecreaseTokenRemainQuotaById(tokenId)
 			if err != nil {
 				common.SysError("Error decreasing token remain times: " + err.Error())
 			}
