@@ -94,10 +94,6 @@ func relayHelper(c *gin.Context) error {
 	if err != nil {
 		return err
 	}
-	err = c.Request.Body.Close()
-	if err != nil {
-		return err
-	}
 	req.Header.Set("Authorization", c.Request.Header.Get("Authorization"))
 	req.Header.Set("Content-Type", c.Request.Header.Get("Content-Type"))
 	req.Header.Set("Accept", c.Request.Header.Get("Accept"))
@@ -111,7 +107,10 @@ func relayHelper(c *gin.Context) error {
 	if err != nil {
 		return err
 	}
-
+	err = c.Request.Body.Close()
+	if err != nil {
+		return err
+	}
 	var textResponse TextResponse
 	isStream := resp.Header.Get("Content-Type") == "text/event-stream"
 	var streamResponseText string
