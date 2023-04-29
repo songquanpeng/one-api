@@ -52,7 +52,7 @@ const AddChannel = () => {
                 <Form.Input
                   label='Base URL'
                   name='base_url'
-                  placeholder={'请输入自定义渠道的 Base URL'}
+                  placeholder={'请输入自定义渠道的 Base URL，例如：https://openai.justsong.cn'}
                   onChange={handleInputChange}
                   value={inputs.base_url}
                   autoComplete='off'
