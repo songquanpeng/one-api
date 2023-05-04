@@ -116,15 +116,26 @@ func DeleteTokenById(id int, userId int) (err error) {
 	if err != nil {
 		return err
 	}
+	quota := token.RemainQuota
+	if quota != 0 {
+		if quota > 0 {
+			err = IncreaseUserQuota(userId, quota)
+		} else {
+			err = DecreaseUserQuota(userId, quota)
+		}
+	}
+	if err != nil {
+		return err
+	}
 	return token.Delete()
 }
 
-func ConsumeTokenQuota(id int, quota int) (err error) {
-	err = DB.Model(&Token{}).Where("id = ?", id).Update("remain_quota", gorm.Expr("remain_quota - ?", quota)).Error
+func IncreaseTokenQuota(id int, quota int) (err error) {
+	err = DB.Model(&Token{}).Where("id = ?", id).Update("remain_quota", gorm.Expr("remain_quota + ?", quota)).Error
 	return err
 }
 
-func TopUpTokenQuota(id int, quota int) (err error) {
-	err = DB.Model(&Token{}).Where("id = ?", id).Update("remain_quota", gorm.Expr("remain_quota + ?", quota)).Error
+func DecreaseTokenQuota(id int, quota int) (err error) {
+	err = DB.Model(&Token{}).Where("id = ?", id).Update("remain_quota", gorm.Expr("remain_quota - ?", quota)).Error
 	return err
 }

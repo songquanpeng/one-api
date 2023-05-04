@@ -55,7 +55,7 @@ func Redeem(key string, tokenId int) (quota int, err error) {
 	if redemption.Status != common.RedemptionCodeStatusEnabled {
 		return 0, errors.New("该兑换码已被使用")
 	}
-	err = TopUpTokenQuota(tokenId, redemption.Quota)
+	err = IncreaseTokenQuota(tokenId, redemption.Quota)
 	if err != nil {
 		return 0, err
 	}

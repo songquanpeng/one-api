@@ -137,7 +137,7 @@ func relayHelper(c *gin.Context) error {
 				ratio = common.RatioGPT3dot5
 			}
 			quota = int(float64(quota) * ratio)
-			err := model.ConsumeTokenQuota(tokenId, quota)
+			err := model.DecreaseTokenQuota(tokenId, quota)
 			if err != nil {
 				common.SysError("Error consuming token remain quota: " + err.Error())
 			}

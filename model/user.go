@@ -225,6 +225,11 @@ func GetUserQuota(id int) (quota int, err error) {
 	return quota, err
 }
 
+func IncreaseUserQuota(id int, quota int) (err error) {
+	err = DB.Model(&User{}).Where("id = ?", id).Update("quota", gorm.Expr("quota + ?", quota)).Error
+	return err
+}
+
 func DecreaseUserQuota(id int, quota int) (err error) {
 	err = DB.Model(&User{}).Where("id = ?", id).Update("quota", gorm.Expr("quota - ?", quota)).Error
 	return err
