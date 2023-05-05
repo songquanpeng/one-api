@@ -49,7 +49,7 @@ _✨ All in one 的 OpenAI 接口，整合各种 API 访问方式，开箱即用
    + [x] [OpenAI-SB](https://openai-sb.com)
    + [x] [OpenAI Max](https://openaimax.com)
    + [x] [OhMyGPT](https://www.ohmygpt.com)
-   + [x] 自定义渠道
+   + [x] 自定义渠道：例如使用自行搭建的 OpenAI 代理
 2. 支持通过负载均衡的方式访问多个渠道。
 3. 支持单个访问渠道设置多个 API Key，利用起来你的多个 API Key。
 4. 支持 HTTP SSE，可以通过流式传输实现打字机效果。
