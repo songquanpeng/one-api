@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Form, Label, Pagination, Table } from 'semantic-ui-react';
+import { Button, Form, Label, Pagination, Popup, Table } from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
 import { API, showError, showSuccess } from '../helpers';
 
@@ -237,15 +237,25 @@ const UsersTable = () => {
                       >
                         降级
                       </Button>
-                      <Button
-                        size={'small'}
-                        negative
-                        onClick={() => {
-                          manageUser(user.username, 'delete', idx);
-                        }}
+                      <Popup
+                        trigger={
+                          <Button size='small' negative>
+                            删除
+                          </Button>
+                        }
+                        on='click'
+                        flowing
+                        hoverable
                       >
-                        删除
-                      </Button>
+                        <Button
+                          negative
+                          onClick={() => {
+                            manageUser(user.username, 'delete', idx);
+                          }}
+                        >
+                          删除用户 {user.username}
+                        </Button>
+                      </Popup>
                       <Button
                         size={'small'}
                         onClick={() => {
