@@ -75,6 +75,30 @@ func GetToken(c *gin.Context) {
 	return
 }
 
+func GetTokenStatus(c *gin.Context) {
+	tokenId := c.GetInt("token_id")
+	userId := c.GetInt("id")
+	token, err := model.GetTokenByIds(tokenId, userId)
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+	expiredAt := token.ExpiredTime
+	if expiredAt == -1 {
+		expiredAt = 0
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"object":          "credit_summary",
+		"total_granted":   token.RemainQuota,
+		"total_used":      0, // not supported currently
+		"total_available": token.RemainQuota,
+		"expires_at":      expiredAt * 1000,
+	})
+}
+
 func AddToken(c *gin.Context) {
 	isAdmin := c.GetInt("role") >= common.RoleAdminUser
 	token := model.Token{}

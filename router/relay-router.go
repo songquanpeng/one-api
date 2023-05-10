@@ -35,9 +35,4 @@ func SetRelayRouter(router *gin.Engine) {
 		relayV1Router.DELETE("/models/:model", controller.RelayNotImplemented)
 		relayV1Router.POST("/moderations", controller.RelayNotImplemented)
 	}
-	relayDashboardRouter := router.Group("/dashboard") // TODO: return system's own token info
-	relayDashboardRouter.Use(middleware.TokenAuth(), middleware.Distribute())
-	{
-		relayDashboardRouter.Any("/*path", controller.Relay)
-	}
 }
