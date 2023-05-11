@@ -121,7 +121,7 @@ func DeleteTokenById(id int, userId int) (err error) {
 		if quota > 0 {
 			err = IncreaseUserQuota(userId, quota)
 		} else {
-			err = DecreaseUserQuota(userId, quota)
+			err = DecreaseUserQuota(userId, -quota)
 		}
 	}
 	if err != nil {
