@@ -1,0 +1,22 @@
+version: '3.4'
+
+services:
+  one-api:
+    image: ghcr.io/songquanpeng/one-api:latest
+    container_name: one-api
+    restart: always
+    command: --log-dir /app/logs
+    ports:
+      - "3000:3000"
+    volumes:
+      - /home/ubuntu/data/one-api:/data
+      - /home/ubuntu/data/one-api/logs:/app/logs
+    # environment:
+    #   REDIS_CONN_STRING: redis://default:redispw@localhost:49153
+    #   SESSION_SECRET: random_string
+    #   SQL_DSN: root:123456@tcp(localhost:3306)/one-api
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s http://localhost:3000/api/status | grep -o '\"success\":\\s*true' | awk '{print $2}' | grep 'true'"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
