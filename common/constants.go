@@ -49,11 +49,6 @@ var TurnstileSecretKey = ""
 
 var QuotaForNewUser = 100
 
-// https://platform.openai.com/docs/models/model-endpoint-compatibility
-var RatioGPT3dot5 float64 = 2
-var RatioGPT4 float64 = 30
-var RatioGPT4_32k float64 = 60
-
 const (
 	RoleGuestUser  = 0
 	RoleCommonUser = 1

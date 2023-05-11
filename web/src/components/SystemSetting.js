@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Divider, Form, Grid, Header, Message } from 'semantic-ui-react';
-import { API, removeTrailingSlash, showError } from '../helpers';
+import { API, removeTrailingSlash, showError, verifyJSON } from '../helpers';
 
 const SystemSetting = () => {
   let [inputs, setInputs] = useState({
@@ -25,9 +25,7 @@ const SystemSetting = () => {
     TurnstileSecretKey: '',
     RegisterEnabled: '',
     QuotaForNewUser: 0,
-    RatioGPT3dot5: 2,
-    RatioGPT4: 30,
-    RatioGPT4_32k: 60,
+    ModelRatio: '',
     TopUpLink: ''
   });
   let originInputs = {};
@@ -93,7 +91,7 @@ const SystemSetting = () => {
       name === 'TurnstileSiteKey' ||
       name === 'TurnstileSecretKey' ||
       name === 'QuotaForNewUser' ||
-      name.startsWith('Ratio') ||
+      name === 'ModelRatio' ||
       name === 'TopUpLink'
     ) {
       setInputs((inputs) => ({ ...inputs, [name]: value }));
@@ -111,19 +109,17 @@ const SystemSetting = () => {
     if (originInputs['QuotaForNewUser'] !== inputs.QuotaForNewUser) {
       await updateOption('QuotaForNewUser', inputs.QuotaForNewUser);
     }
-    if (originInputs['RatioGPT3dot5'] !== inputs.RatioGPT3dot5) {
-      await updateOption('RatioGPT3dot5', inputs.RatioGPT3dot5);
-    }
-    if (originInputs['RatioGPT4'] !== inputs.RatioGPT4) {
-      await updateOption('RatioGPT4', inputs.RatioGPT4);
-    }
-    if (originInputs['RatioGPT4_32k'] !== inputs.RatioGPT4_32k) {
-      await updateOption('RatioGPT4_32k', inputs.RatioGPT4_32k);
+    if (originInputs['ModelRatio'] !== inputs.ModelRatio) {
+      if (!verifyJSON(inputs.ModelRatio)) {
+        showError('模型倍率不是合法的 JSON 字符串');
+        return;
+      }
+      await updateOption('ModelRatio', inputs.ModelRatio);
     }
     if (originInputs['TopUpLink'] !== inputs.TopUpLink) {
       await updateOption('TopUpLink', inputs.TopUpLink);
     }
-  }
+  };
 
   const submitSMTP = async () => {
     if (originInputs['SMTPServer'] !== inputs.SMTPServer) {
@@ -278,39 +274,15 @@ const SystemSetting = () => {
               placeholder='例如发卡网站的购买链接'
             />
           </Form.Group>
-          <Form.Group widths={3}>
-            <Form.Input
-              label='GPT-3.5 系列模型倍率'
-              name='RatioGPT3dot5'
+          <Form.Group widths='equal'>
+            <Form.TextArea
+              label='模型倍率'
+              name='ModelRatio'
               onChange={handleInputChange}
+              style={{ minHeight: 250, fontFamily: 'JetBrains Mono, Consolas' }}
               autoComplete='off'
-              value={inputs.RatioGPT3dot5}
-              type='number'
-              step='0.01'
-              min='0'
-              placeholder='例如：2'
-            />
-            <Form.Input
-              label='GPT-4 系列模型倍率'
-              name='RatioGPT4'
-              onChange={handleInputChange}
-              autoComplete='off'
-              value={inputs.RatioGPT4}
-              type='number'
-              step='0.01'
-              min='0'
-              placeholder='例如：30'
-            />
-            <Form.Input
-              label='GPT-4 32k 系列模型倍率'
-              name='RatioGPT4_32k'
-              onChange={handleInputChange}
-              autoComplete='off'
-              value={inputs.RatioGPT4_32k}
-              type='number'
-              step='0.01'
-              min='0'
-              placeholder='例如：60'
+              value={inputs.ModelRatio}
+              placeholder='为一个 JSON 文本，键为模型名称，值为倍率'
             />
           </Form.Group>
           <Form.Button onClick={submitOperationConfig}>保存运营设置</Form.Button>

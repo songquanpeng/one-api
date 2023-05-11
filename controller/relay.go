@@ -118,24 +118,22 @@ func relayHelper(c *gin.Context) error {
 	defer func() {
 		if consumeQuota {
 			quota := 0
+			usingGPT4 := strings.HasPrefix(textRequest.Model, "gpt-4")
+			completionRatio := 1
+			if usingGPT4 {
+				completionRatio = 2
+			}
 			if isStream {
-				var text string
+				var promptText string
 				for _, message := range textRequest.Messages {
-					text += fmt.Sprintf("%s: %s\n", message.Role, message.Content)
+					promptText += fmt.Sprintf("%s: %s\n", message.Role, message.Content)
 				}
-				text += fmt.Sprintf("%s: %s\n", "assistant", streamResponseText)
-				quota = countToken(text) + 3
+				completionText := fmt.Sprintf("%s: %s\n", "assistant", streamResponseText)
+				quota = countToken(promptText) + countToken(completionText)*completionRatio + 3
 			} else {
-				quota = textResponse.Usage.TotalTokens
+				quota = textResponse.Usage.PromptTokens + textResponse.Usage.CompletionTokens*completionRatio
 			}
-			ratio := common.RatioGPT3dot5
-			if strings.HasPrefix(textRequest.Model, "gpt-4-32k") {
-				ratio = common.RatioGPT4_32k
-			} else if strings.HasPrefix(textRequest.Model, "gpt-4") {
-				ratio = common.RatioGPT4
-			} else {
-				ratio = common.RatioGPT3dot5
-			}
+			ratio := common.GetModelRatio(textRequest.Model)
 			quota = int(float64(quota) * ratio)
 			err := model.DecreaseTokenQuota(tokenId, quota)
 			if err != nil {

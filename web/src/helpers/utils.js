@@ -153,3 +153,12 @@ export function downloadTextAsFile(text, filename) {
   a.download = filename;
   a.click();
 }
+
+export const verifyJSON = (str) => {
+  try {
+    JSON.parse(str);
+  } catch (e) {
+    return false;
+  }
+  return true;
+};
