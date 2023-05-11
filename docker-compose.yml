@@ -1,0 +1,20 @@
+version: '3.4'
+
+services:
+  one-api:
+    image: justsong/one-api
+    container_name: one-api
+    restart: always
+    ports:
+      - "3000:3000"
+    volumes:
+      - /home/ubuntu/data/one-api:/data
+    # environment:   
+    #   REDIS_CONN_STRING: redis://default:redispw@localhost:49153
+    #   SESSION_SECRET: random_string
+    #   SQL_DSN: root:123456@tcp(localhost:3306)/one-api 
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
