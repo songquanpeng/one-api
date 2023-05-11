@@ -16,7 +16,7 @@ services:
     #   SESSION_SECRET: random_string
     #   SQL_DSN: root:123456@tcp(localhost:3306)/one-api
     healthcheck:
-      test: ["CMD", "curl", "-s", "-o", "/dev/null", "-w", "%{http_code}", "http://localhost:3000/api/status", "|", "grep", "200"] # 改为 curl 检测状态
+      test: ["CMD-SHELL", "curl -s http://localhost:3000/api/status | grep -o '\"success\":\\s*true' | awk '{print $2}' | grep 'true'"]
       interval: 30s
       timeout: 10s
       retries: 3
