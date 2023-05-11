@@ -138,9 +138,7 @@ func AddToken(c *gin.Context) {
 			})
 			return
 		}
-		if quota > 0 {
-			cleanToken.RemainQuota = quota
-		}
+		cleanToken.RemainQuota = quota
 	}
 	err = cleanToken.Insert()
 	if err != nil {
