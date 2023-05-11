@@ -2,13 +2,13 @@ version: '3.4'
 
 services:
   one-api:
-    image: justsong/one-api
+    image: ghcr.io/songquanpeng/one-api:latest
     container_name: one-api
     restart: always
     ports:
       - "3000:3000"
     volumes:
-      - /home/ubuntu/data/one-api:/data
+      - /path/to/one-api:/data
     # environment:   
     #   REDIS_CONN_STRING: redis://default:redispw@localhost:49153
     #   SESSION_SECRET: random_string
