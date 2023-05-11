@@ -1,13 +1,13 @@
-   [Unit]
-   Description=One API Service
-   After=network.target
-   
-   [Service]
-   User=yourusername #守护进程用户名
-   WorkingDirectory=/path/to/one-api #oneapi运行路径
-   ExecStart=/path/to/one-api/one-api --port 3000 --log-dir /path/to/one-api/logs #端口
-   Restart=always
-   RestartSec=5
-   
-   [Install]
-   WantedBy=multi-user.target
+[Unit]
+Description=One API Service
+After=network.target
+
+[Service]
+User=yourusername                  # 守护进程用户名
+WorkingDirectory=/path/to/One-API  # One API运行路径
+ExecStart=/path/to/One-API/one-api --port 3000 --log-dir /path/to/One-API/logs  # 端口
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
