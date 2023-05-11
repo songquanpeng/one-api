@@ -5,14 +5,16 @@ services:
     image: ghcr.io/songquanpeng/one-api:latest
     container_name: one-api
     restart: always
+    command: --log-dir /app/logs
     ports:
       - "3000:3000"
     volumes:
-      - /path/to/one-api:/data
-    # environment:   
+      - /home/ubuntu/data/one-api:/data
+      - /home/ubuntu/data/one-api/logs:/app/logs
+    # environment:
     #   REDIS_CONN_STRING: redis://default:redispw@localhost:49153
     #   SESSION_SECRET: random_string
-    #   SQL_DSN: root:123456@tcp(localhost:3306)/one-api 
+    #   SQL_DSN: root:123456@tcp(localhost:3306)/one-api
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000/healthz"]
       interval: 30s
