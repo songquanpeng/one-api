@@ -114,22 +114,55 @@ sudo service nginx restart
    cd one-api/web
    npm install
    npm run build
-
+   
    # 构建后端
    cd ..
    go mod download
    go build -ldflags "-s -w" -o one-api
    ````
+   
 2. 运行：
    ```shell
    chmod u+x one-api
    ./one-api --port 3000 --log-dir ./logs
    ```
+   
 3. 访问 [http://localhost:3000/](http://localhost:3000/) 并登录。初始账号用户名为 `root`，密码为 `123456`。
+
+4. 使用systemd守护服务
+
+   - systemd 下面是一个示例服务文件，可以用于守护的`one-api`二进制程序
+
+   ```
+   sudo nano /etc/systemd/system/one-api.service
+   ```
+
+   ```
+   [Unit]
+   Description=One API Service
+   After=network.target
+   
+   [Service]
+   User=yourusername #守护进程用户名
+   WorkingDirectory=/path/to/one-api #oneapi运行路径
+   ExecStart=/path/to/one-api/one-api --port 3000 --log-dir /path/to/one-api/logs #端口
+   Restart=always
+   RestartSec=5
+   
+   [Install]
+   WantedBy=multi-user.target
+   ```
+
+   ```
+   sudo systemctl daemon-reload #重新加载systemd
+   sudo systemctl start one-api.service #启动oneapi
+   sudo systemctl enable one-api.service #设置开机启动
+   ```
 
 更加详细的部署教程[参见此处](https://iamazing.cn/page/how-to-deploy-a-website)。
 
 ## 配置
+
 系统本身开箱即用。
 
 你可以通过设置环境变量或者命令行参数进行配置。
