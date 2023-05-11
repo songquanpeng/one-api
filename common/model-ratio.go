@@ -24,7 +24,7 @@ var ModelRatio = map[string]float64{
 	"curie":                   10,
 	"babbage":                 10,
 	"ada":                     10,
-	"text-embedding-ada-002":  0.25,
+	"text-embedding-ada-002":  0.2,
 	"text-search-ada-doc-001": 10,
 	"text-moderation-stable":  10,
 	"text-moderation-latest":  10,
