@@ -50,7 +50,7 @@ const EditChannel = () => {
     <>
       <Segment loading={loading}>
         <Header as='h3'>更新渠道信息</Header>
-        <Form autoComplete='off'>
+        <Form autoComplete='new-password'>
           <Form.Field>
             <Form.Select
               label='类型'
@@ -69,7 +69,7 @@ const EditChannel = () => {
                   placeholder={'请输入新的自定义渠道的 Base URL，例如：https://openai.justsong.cn'}
                   onChange={handleInputChange}
                   value={inputs.base_url}
-                  autoComplete='off'
+                  autoComplete='new-password'
                 />
               </Form.Field>
             )
@@ -81,7 +81,7 @@ const EditChannel = () => {
               placeholder={'请输入新的名称'}
               onChange={handleInputChange}
               value={inputs.name}
-              autoComplete='off'
+              autoComplete='new-password'
             />
           </Form.Field>
           <Form.Field>
@@ -92,7 +92,7 @@ const EditChannel = () => {
               onChange={handleInputChange}
               value={inputs.key}
               // type='password'
-              autoComplete='off'
+              autoComplete='new-password'
             />
           </Form.Field>
           <Button onClick={submit}>提交</Button>

@@ -73,7 +73,7 @@ const EditRedemption = () => {
     <>
       <Segment loading={loading}>
         <Header as='h3'>{isEdit ? '更新兑换码信息' : '创建新的兑换码'}</Header>
-        <Form autoComplete='off'>
+        <Form autoComplete='new-password'>
           <Form.Field>
             <Form.Input
               label='名称'
@@ -81,7 +81,7 @@ const EditRedemption = () => {
               placeholder={'请输入名称'}
               onChange={handleInputChange}
               value={name}
-              autoComplete='off'
+              autoComplete='new-password'
               required={!isEdit}
             />
           </Form.Field>
@@ -92,7 +92,7 @@ const EditRedemption = () => {
               placeholder={'请输入单个兑换码中包含的额度'}
               onChange={handleInputChange}
               value={quota}
-              autoComplete='off'
+              autoComplete='new-password'
               type='number'
             />
           </Form.Field>
@@ -105,7 +105,7 @@ const EditRedemption = () => {
                   placeholder={'请输入生成数量'}
                   onChange={handleInputChange}
                   value={count}
-                  autoComplete='off'
+                  autoComplete='new-password'
                   type='number'
                 />
               </Form.Field>

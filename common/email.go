@@ -8,7 +8,7 @@ func SendEmail(subject string, receiver string, content string) error {
 	m.SetHeader("To", receiver)
 	m.SetHeader("Subject", subject)
 	m.SetBody("text/html", content)
-	d := gomail.NewDialer(SMTPServer, 587, SMTPAccount, SMTPToken)
+	d := gomail.NewDialer(SMTPServer, SMTPPort, SMTPAccount, SMTPToken)
 	err := d.DialAndSend(m)
 	return err
 }

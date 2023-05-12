@@ -33,6 +33,7 @@ func InitOptionMap() {
 	common.OptionMap["TurnstileCheckEnabled"] = strconv.FormatBool(common.TurnstileCheckEnabled)
 	common.OptionMap["RegisterEnabled"] = strconv.FormatBool(common.RegisterEnabled)
 	common.OptionMap["SMTPServer"] = ""
+	common.OptionMap["SMTPPort"] = strconv.Itoa(common.SMTPPort)
 	common.OptionMap["SMTPAccount"] = ""
 	common.OptionMap["SMTPToken"] = ""
 	common.OptionMap["Notice"] = ""
@@ -112,6 +113,9 @@ func updateOptionMap(key string, value string) (err error) {
 	switch key {
 	case "SMTPServer":
 		common.SMTPServer = value
+	case "SMTPPort":
+		intValue, _ := strconv.Atoi(value)
+		common.SMTPPort = intValue
 	case "SMTPAccount":
 		common.SMTPAccount = value
 	case "SMTPToken":

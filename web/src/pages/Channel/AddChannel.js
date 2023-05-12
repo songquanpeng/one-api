@@ -36,7 +36,7 @@ const AddChannel = () => {
     <>
       <Segment>
         <Header as='h3'>创建新的渠道</Header>
-        <Form autoComplete='off'>
+        <Form autoComplete='new-password'>
           <Form.Field>
             <Form.Select
               label='类型'
@@ -55,7 +55,7 @@ const AddChannel = () => {
                   placeholder={'请输入自定义渠道的 Base URL，例如：https://openai.justsong.cn'}
                   onChange={handleInputChange}
                   value={inputs.base_url}
-                  autoComplete='off'
+                  autoComplete='new-password'
                 />
               </Form.Field>
             )
@@ -67,7 +67,7 @@ const AddChannel = () => {
               placeholder={'请输入名称'}
               onChange={handleInputChange}
               value={name}
-              autoComplete='off'
+              autoComplete='new-password'
               required
             />
           </Form.Field>
@@ -79,7 +79,7 @@ const AddChannel = () => {
               onChange={handleInputChange}
               value={key}
               // type='password'
-              autoComplete='off'
+              autoComplete='new-password'
               required
             />
           </Form.Field>

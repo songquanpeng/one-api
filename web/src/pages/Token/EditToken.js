@@ -95,7 +95,7 @@ const EditToken = () => {
     <>
       <Segment loading={loading}>
         <Header as='h3'>{isEdit ? '更新令牌信息' : '创建新的令牌'}</Header>
-        <Form autoComplete='off'>
+        <Form autoComplete='new-password'>
           <Form.Field>
             <Form.Input
               label='名称'
@@ -103,7 +103,7 @@ const EditToken = () => {
               placeholder={'请输入名称'}
               onChange={handleInputChange}
               value={name}
-              autoComplete='off'
+              autoComplete='new-password'
               required={!isEdit}
             />
           </Form.Field>
@@ -116,7 +116,7 @@ const EditToken = () => {
                   placeholder={'请输入额度'}
                   onChange={handleInputChange}
                   value={remain_quota}
-                  autoComplete='off'
+                  autoComplete='new-password'
                   type='number'
                   disabled={unlimited_quota}
                 />
@@ -133,7 +133,7 @@ const EditToken = () => {
               placeholder={'请输入过期时间，格式为 yyyy-MM-dd HH:mm:ss，-1 表示无限制'}
               onChange={handleInputChange}
               value={expired_time}
-              autoComplete='off'
+              autoComplete='new-password'
               type='datetime-local'
             />
           </Form.Field>
