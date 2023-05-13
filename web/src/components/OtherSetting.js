@@ -8,6 +8,7 @@ const OtherSetting = () => {
     Footer: '',
     Notice: '',
     About: '',
+    HomePageContent: '',
   });
   let originInputs = {};
   let [loading, setLoading] = useState(false);
@@ -69,6 +70,10 @@ const OtherSetting = () => {
     await updateOption('About', inputs.About);
   };
 
+  const submitOption = async (key) => {
+    await updateOption(key, inputs[key]);
+  };
+
   const openGitHubRelease = () => {
     window.location =
       'https://github.com/songquanpeng/one-api/releases/latest';
@@ -109,6 +114,17 @@ const OtherSetting = () => {
           <Form.Button onClick={submitNotice}>保存公告</Form.Button>
           <Divider />
           <Header as='h3'>个性化设置</Header>
+          <Form.Group widths='equal'>
+            <Form.TextArea
+              label='首页内容'
+              placeholder='在此输入首页内容，支持 Markdown & HTML 代码，设置后首页的状态信息将不再显示'
+              value={inputs.HomePageContent}
+              name='HomePageContent'
+              onChange={handleInputChange}
+              style={{ minHeight: 300, fontFamily: 'JetBrains Mono, Consolas' }}
+            />
+          </Form.Group>
+          <Form.Button onClick={()=>submitOption('HomePageContent')}>保存首页内容</Form.Button>
           <Form.Group widths='equal'>
             <Form.TextArea
               label='关于'
