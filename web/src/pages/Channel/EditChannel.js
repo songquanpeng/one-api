@@ -80,7 +80,7 @@ const EditChannel = () => {
             inputs.type === 3 && (
               <>
                 <Message>
-                  注意，创建资源时，部署名称必须模型名称保持一致，因为 One API 会把请求体中的 model 参数替换为你的部署名称（模型名称中的点会被剔除）。
+                  注意，<strong>模型部署名称必须和模型名称保持一致</strong>，因为 One API 会把请求体中的 model 参数替换为你的部署名称（模型名称中的点会被剔除）。
                 </Message>
                 <Form.Field>
                   <Form.Input
