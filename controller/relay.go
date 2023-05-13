@@ -93,6 +93,10 @@ func relayHelper(c *gin.Context) error {
 	fullRequestURL := fmt.Sprintf("%s%s", baseURL, requestURL)
 	if channelType == common.ChannelTypeAzure {
 		// https://learn.microsoft.com/en-us/azure/cognitive-services/openai/chatgpt-quickstart?pivots=rest-api&tabs=command-line#rest-api
+		query := c.Request.URL.Query()
+		if query.Get("api-version") == "" {
+			requestURL = fmt.Sprintf("%s?api-version=2023-03-15-preview", requestURL)
+		}
 		baseURL = c.GetString("base_url")
 		task := strings.TrimPrefix(requestURL, "/v1/")
 		model_ := textRequest.Model
