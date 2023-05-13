@@ -9,6 +9,9 @@ import (
 )
 
 func SendEmail(subject string, receiver string, content string) error {
+	if SMTPFrom == "" { // for compatibility
+		SMTPFrom = SMTPAccount
+	}
 	encodedSubject := fmt.Sprintf("=?UTF-8?B?%s?=", base64.StdEncoding.EncodeToString([]byte(subject)))
 	mail := []byte(fmt.Sprintf("To: %s\r\n"+
 		"From: %s<%s>\r\n"+

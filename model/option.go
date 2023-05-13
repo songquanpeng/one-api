@@ -60,9 +60,6 @@ func InitOptionMap() {
 			common.SysError("Failed to update option map: " + err.Error())
 		}
 	}
-	if common.SMTPFrom == "" { // for compatibility
-		common.SMTPFrom = common.SMTPAccount
-	}
 }
 
 func UpdateOption(key string, value string) error {
