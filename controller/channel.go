@@ -6,6 +6,7 @@ import (
 	"one-api/common"
 	"one-api/model"
 	"strconv"
+	"strings"
 )
 
 func GetAllChannels(c *gin.Context) {
@@ -84,7 +85,17 @@ func AddChannel(c *gin.Context) {
 	}
 	channel.CreatedTime = common.GetTimestamp()
 	channel.AccessedTime = common.GetTimestamp()
-	err = channel.Insert()
+	keys := strings.Split(channel.Key, "\n")
+	channels := make([]model.Channel, 0)
+	for _, key := range keys {
+		if key == "" {
+			continue
+		}
+		localChannel := channel
+		localChannel.Key = key
+		channels = append(channels, localChannel)
+	}
+	err = model.BatchInsertChannels(channels)
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,

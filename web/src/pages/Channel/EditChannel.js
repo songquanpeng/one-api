@@ -16,8 +16,10 @@ const EditChannel = () => {
     base_url: '',
     other: ''
   };
+  const [batch, setBatch] = useState(false);
   const [inputs, setInputs] = useState(originInputs);
   const handleInputChange = (e, { name, value }) => {
+    console.log(name, value);
     setInputs((inputs) => ({ ...inputs, [name]: value }));
   };
 
@@ -130,17 +132,38 @@ const EditChannel = () => {
               autoComplete='new-password'
             />
           </Form.Field>
-          <Form.Field>
-            <Form.Input
-              label='密钥'
-              name='key'
-              placeholder={'请输入密钥'}
-              onChange={handleInputChange}
-              value={inputs.key}
-              // type='password'
-              autoComplete='new-password'
-            />
-          </Form.Field>
+          {
+            batch ? <Form.Field>
+              <Form.TextArea
+                label='密钥'
+                name='key'
+                placeholder={'请输入密钥，一行一个'}
+                onChange={handleInputChange}
+                value={inputs.key}
+                style={{ minHeight: 150, fontFamily: 'JetBrains Mono, Consolas' }}
+                autoComplete='new-password'
+              />
+            </Form.Field> : <Form.Field>
+              <Form.Input
+                label='密钥'
+                name='key'
+                placeholder={'请输入密钥'}
+                onChange={handleInputChange}
+                value={inputs.key}
+                autoComplete='new-password'
+                />
+            </Form.Field>
+          }
+          {
+            !isEdit && (
+              <Form.Checkbox
+                checked={batch}
+                label='批量创建'
+                name='batch'
+                onChange={() => setBatch(!batch)}
+              />
+            )
+          }
           <Button onClick={submit}>提交</Button>
         </Form>
       </Segment>
