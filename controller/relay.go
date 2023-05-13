@@ -95,7 +95,8 @@ func relayHelper(c *gin.Context) error {
 		// https://learn.microsoft.com/en-us/azure/cognitive-services/openai/chatgpt-quickstart?pivots=rest-api&tabs=command-line#rest-api
 		query := c.Request.URL.Query()
 		if query.Get("api-version") == "" {
-			requestURL = fmt.Sprintf("%s?api-version=2023-03-15-preview", requestURL)
+			apiVersion := c.GetString("api_version")
+			requestURL = fmt.Sprintf("%s?api-version=%s", requestURL, apiVersion)
 		}
 		baseURL = c.GetString("base_url")
 		task := strings.TrimPrefix(requestURL, "/v1/")

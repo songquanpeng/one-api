@@ -13,7 +13,8 @@ const EditChannel = () => {
     name: '',
     type: 1,
     key: '',
-    base_url: ''
+    base_url: '',
+    other: ''
   };
   const [inputs, setInputs] = useState(originInputs);
   const handleInputChange = (e, { name, value }) => {
@@ -89,6 +90,16 @@ const EditChannel = () => {
                     placeholder={'请输入 AZURE_OPENAI_ENDPOINT，例如：https://docs-test-001.openai.azure.com'}
                     onChange={handleInputChange}
                     value={inputs.base_url}
+                    autoComplete='new-password'
+                  />
+                </Form.Field>
+                <Form.Field>
+                  <Form.Input
+                    label='默认 API 版本'
+                    name='other'
+                    placeholder={'请输入默认 API 版本，例如：2023-03-15-preview，该配置可以被实际的请求查询参数所覆盖'}
+                    onChange={handleInputChange}
+                    value={inputs.other}
                     autoComplete='new-password'
                   />
                 </Form.Field>
