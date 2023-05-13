@@ -2,17 +2,19 @@ package common
 
 import (
 	"crypto/tls"
+	"encoding/base64"
 	"fmt"
 	"net/smtp"
 	"strings"
 )
 
 func SendEmail(subject string, receiver string, content string) error {
+	encodedSubject := fmt.Sprintf("=?UTF-8?B?%s?=", base64.StdEncoding.EncodeToString([]byte(subject)))
 	mail := []byte(fmt.Sprintf("To: %s\r\n"+
 		"From: %s<%s>\r\n"+
 		"Subject: %s\r\n"+
 		"Content-Type: text/html; charset=UTF-8\r\n\r\n%s\r\n",
-		receiver, SystemName, SMTPFrom, subject, content))
+		receiver, SystemName, SMTPFrom, encodedSubject, content))
 	auth := smtp.PlainAuth("", SMTPAccount, SMTPToken, SMTPServer)
 	addr := fmt.Sprintf("%s:%d", SMTPServer, SMTPPort)
 	to := strings.Split(receiver, ";")
