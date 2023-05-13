@@ -68,12 +68,8 @@ func relayHelper(c *gin.Context) error {
 	channelType := c.GetInt("channel")
 	tokenId := c.GetInt("token_id")
 	consumeQuota := c.GetBool("consume_quota")
-	baseURL := common.ChannelBaseURLs[channelType]
-	if channelType == common.ChannelTypeCustom {
-		baseURL = c.GetString("base_url")
-	}
 	var textRequest TextRequest
-	if consumeQuota {
+	if consumeQuota || channelType == common.ChannelTypeAzure {
 		requestBody, err := io.ReadAll(c.Request.Body)
 		if err != nil {
 			return err
@@ -89,12 +85,30 @@ func relayHelper(c *gin.Context) error {
 		// Reset request body
 		c.Request.Body = io.NopCloser(bytes.NewBuffer(requestBody))
 	}
+	baseURL := common.ChannelBaseURLs[channelType]
 	requestURL := c.Request.URL.String()
-	req, err := http.NewRequest(c.Request.Method, fmt.Sprintf("%s%s", baseURL, requestURL), c.Request.Body)
+	if channelType == common.ChannelTypeCustom {
+		baseURL = c.GetString("base_url")
+	}
+	fullRequestURL := fmt.Sprintf("%s%s", baseURL, requestURL)
+	if channelType == common.ChannelTypeAzure {
+		// https://learn.microsoft.com/en-us/azure/cognitive-services/openai/chatgpt-quickstart?pivots=rest-api&tabs=command-line#rest-api
+		baseURL = c.GetString("base_url")
+		task := strings.TrimPrefix(requestURL, "/v1/")
+		model_ := textRequest.Model
+		fullRequestURL = fmt.Sprintf("%s/openai/deployments/%s/%s", baseURL, model_, task)
+	}
+	req, err := http.NewRequest(c.Request.Method, fullRequestURL, c.Request.Body)
 	if err != nil {
 		return err
 	}
-	req.Header.Set("Authorization", c.Request.Header.Get("Authorization"))
+	if channelType == common.ChannelTypeAzure {
+		key := c.Request.Header.Get("Authorization")
+		key = strings.TrimPrefix(key, "Bearer ")
+		req.Header.Set("api-key", key)
+	} else {
+		req.Header.Set("Authorization", c.Request.Header.Get("Authorization"))
+	}
 	req.Header.Set("Content-Type", c.Request.Header.Get("Content-Type"))
 	req.Header.Set("Accept", c.Request.Header.Get("Accept"))
 	req.Header.Set("Connection", c.Request.Header.Get("Connection"))

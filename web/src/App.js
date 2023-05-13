@@ -19,7 +19,6 @@ import Channel from './pages/Channel';
 import Token from './pages/Token';
 import EditToken from './pages/Token/EditToken';
 import EditChannel from './pages/Channel/EditChannel';
-import AddChannel from './pages/Channel/AddChannel';
 import Redemption from './pages/Redemption';
 import EditRedemption from './pages/Redemption/EditRedemption';
 
@@ -93,7 +92,7 @@ function App() {
         path='/channel/add'
         element={
           <Suspense fallback={<Loading></Loading>}>
-            <AddChannel />
+            <EditChannel />
           </Suspense>
         }
       />

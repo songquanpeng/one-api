@@ -63,7 +63,7 @@ func Distribute() func(c *gin.Context) {
 		}
 		c.Set("channel", channel.Type)
 		c.Request.Header.Set("Authorization", fmt.Sprintf("Bearer %s", channel.Key))
-		if channel.Type == common.ChannelTypeCustom {
+		if channel.Type == common.ChannelTypeCustom || channel.Type == common.ChannelTypeAzure {
 			c.Set("base_url", channel.BaseURL)
 		}
 		c.Next()

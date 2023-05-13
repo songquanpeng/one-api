@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Form, Header, Segment } from 'semantic-ui-react';
+import { Button, Form, Header, Message, Segment } from 'semantic-ui-react';
 import { useParams } from 'react-router-dom';
 import { API, showError, showSuccess } from '../../helpers';
 import { CHANNEL_OPTIONS } from '../../constants';
@@ -7,13 +7,15 @@ import { CHANNEL_OPTIONS } from '../../constants';
 const EditChannel = () => {
   const params = useParams();
   const channelId = params.id;
-  const [loading, setLoading] = useState(true);
-  const [inputs, setInputs] = useState({
+  const isEdit = channelId !== undefined;
+  const [loading, setLoading] = useState(isEdit);
+  const originInputs = {
     name: '',
-    key: '',
     type: 1,
-    base_url: '',
-  });
+    key: '',
+    base_url: ''
+  };
+  const [inputs, setInputs] = useState(originInputs);
   const handleInputChange = (e, { name, value }) => {
     setInputs((inputs) => ({ ...inputs, [name]: value }));
   };
@@ -30,17 +32,31 @@ const EditChannel = () => {
     setLoading(false);
   };
   useEffect(() => {
-    loadChannel().then();
+    if (isEdit) {
+      loadChannel().then();
+    }
   }, []);
 
   const submit = async () => {
-    if (inputs.base_url.endsWith('/')) {
-      inputs.base_url = inputs.base_url.slice(0, inputs.base_url.length - 1);
+    if (!isEdit && (inputs.name === '' || inputs.key === '')) return;
+    let localInputs = inputs;
+    if (localInputs.base_url.endsWith('/')) {
+      localInputs.base_url = localInputs.base_url.slice(0, localInputs.base_url.length - 1);
     }
-    let res = await API.put(`/api/channel/`, { ...inputs, id: parseInt(channelId) });
+    let res;
+    if (isEdit) {
+      res = await API.put(`/api/channel/`, { ...localInputs, id: parseInt(channelId) });
+    } else {
+      res = await API.post(`/api/channel/`, localInputs);
+    }
     const { success, message } = res.data;
     if (success) {
-      showSuccess('渠道更新成功！');
+      if (isEdit) {
+        showSuccess('渠道更新成功！');
+      } else {
+        showSuccess('渠道创建成功！');
+        setInputs(originInputs);
+      }
     } else {
       showError(message);
     }
@@ -49,7 +65,7 @@ const EditChannel = () => {
   return (
     <>
       <Segment loading={loading}>
-        <Header as='h3'>更新渠道信息</Header>
+        <Header as='h3'>{isEdit ? '更新渠道信息' : '创建新的渠道'}</Header>
         <Form autoComplete='new-password'>
           <Form.Field>
             <Form.Select
@@ -61,12 +77,31 @@ const EditChannel = () => {
             />
           </Form.Field>
           {
+            inputs.type === 3 && (
+              <>
+                <Message>
+                  注意，创建资源时，部署名称必须和 OpenAI 官方的模型名称保持一致，因为 One API 会把请求体中的 model 参数替换为你的部署名称。
+                </Message>
+                <Form.Field>
+                  <Form.Input
+                    label='AZURE_OPENAI_ENDPOINT'
+                    name='base_url'
+                    placeholder={'请输入 AZURE_OPENAI_ENDPOINT，例如：https://docs-test-001.openai.azure.com'}
+                    onChange={handleInputChange}
+                    value={inputs.base_url}
+                    autoComplete='new-password'
+                  />
+                </Form.Field>
+              </>
+            )
+          }
+          {
             inputs.type === 8 && (
               <Form.Field>
                 <Form.Input
                   label='Base URL'
                   name='base_url'
-                  placeholder={'请输入新的自定义渠道的 Base URL，例如：https://openai.justsong.cn'}
+                  placeholder={'请输入自定义渠道的 Base URL，例如：https://openai.justsong.cn'}
                   onChange={handleInputChange}
                   value={inputs.base_url}
                   autoComplete='new-password'
@@ -78,7 +113,7 @@ const EditChannel = () => {
             <Form.Input
               label='名称'
               name='name'
-              placeholder={'请输入新的名称'}
+              placeholder={'请输入名称'}
               onChange={handleInputChange}
               value={inputs.name}
               autoComplete='new-password'
@@ -88,7 +123,7 @@ const EditChannel = () => {
             <Form.Input
               label='密钥'
               name='key'
-              placeholder={'请输入新的密钥'}
+              placeholder={'请输入密钥'}
               onChange={handleInputChange}
               value={inputs.key}
               // type='password'
