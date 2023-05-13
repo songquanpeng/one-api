@@ -42,7 +42,7 @@ _✨ All in one 的 OpenAI 接口，整合各种 API 访问方式，开箱即用
 
 ## 功能
 1. 支持多种 API 访问渠道，欢迎 PR 或提 issue 添加更多渠道：
-   + [x] One API 服务端中继
+   + [x] OpenAI 官方通道
    + [x] [API2D](https://api2d.com/r/197971)
    + [ ] Azure OpenAI API
    + [x] [CloseAI](https://console.openai-asia.com)
