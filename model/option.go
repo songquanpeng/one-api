@@ -53,7 +53,10 @@ func InitOptionMap() {
 	common.OptionMapRWMutex.Unlock()
 	options, _ := AllOption()
 	for _, option := range options {
-		updateOptionMap(option.Key, option.Value)
+		err := updateOptionMap(option.Key, option.Value)
+		if err != nil {
+			common.SysError("Failed to update option map: " + err.Error())
+		}
 	}
 }
 
@@ -70,8 +73,7 @@ func UpdateOption(key string, value string) error {
 	// otherwise it will execute Update (with all fields).
 	DB.Save(&option)
 	// Update OptionMap
-	updateOptionMap(key, value)
-	return nil
+	return updateOptionMap(key, value)
 }
 
 func updateOptionMap(key string, value string) (err error) {
