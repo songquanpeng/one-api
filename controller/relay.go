@@ -100,6 +100,7 @@ func relayHelper(c *gin.Context) error {
 		baseURL = c.GetString("base_url")
 		task := strings.TrimPrefix(requestURL, "/v1/")
 		model_ := textRequest.Model
+		model_ = strings.Replace(model_, ".", "", -1)
 		fullRequestURL = fmt.Sprintf("%s/openai/deployments/%s/%s", baseURL, model_, task)
 	}
 	req, err := http.NewRequest(c.Request.Method, fullRequestURL, c.Request.Body)

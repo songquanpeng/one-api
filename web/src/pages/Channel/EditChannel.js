@@ -80,7 +80,7 @@ const EditChannel = () => {
             inputs.type === 3 && (
               <>
                 <Message>
-                  注意，创建资源时，部署名称必须和 OpenAI 官方的模型名称保持一致，因为 One API 会把请求体中的 model 参数替换为你的部署名称。
+                  注意，创建资源时，部署名称必须模型名称保持一致，因为 One API 会把请求体中的 model 参数替换为你的部署名称（模型名称中的点会被剔除）。
                 </Message>
                 <Form.Field>
                   <Form.Input
