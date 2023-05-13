@@ -14,6 +14,7 @@ const SystemSetting = () => {
     SMTPServer: '',
     SMTPPort: '',
     SMTPAccount: '',
+    SMTPFrom: '',
     SMTPToken: '',
     ServerAddress: '',
     Footer: '',
@@ -128,6 +129,9 @@ const SystemSetting = () => {
     }
     if (originInputs['SMTPAccount'] !== inputs.SMTPAccount) {
       await updateOption('SMTPAccount', inputs.SMTPAccount);
+    }
+    if (originInputs['SMTPFrom'] !== inputs.SMTPFrom) {
+      await updateOption('SMTPFrom', inputs.SMTPFrom);
     }
     if (
       originInputs['SMTPPort'] !== inputs.SMTPPort &&
@@ -298,7 +302,7 @@ const SystemSetting = () => {
             配置 SMTP
             <Header.Subheader>用以支持系统的邮件发送</Header.Subheader>
           </Header>
-          <Form.Group widths={4}>
+          <Form.Group widths={3}>
             <Form.Input
               label='SMTP 服务器地址'
               name='SMTPServer'
@@ -322,6 +326,16 @@ const SystemSetting = () => {
               autoComplete='new-password'
               value={inputs.SMTPAccount}
               placeholder='通常是邮箱地址'
+            />
+          </Form.Group>
+          <Form.Group widths={3}>
+            <Form.Input
+              label='SMTP 发送者邮箱'
+              name='SMTPFrom'
+              onChange={handleInputChange}
+              autoComplete='new-password'
+              value={inputs.SMTPFrom}
+              placeholder='通常和邮箱地址保持一致'
             />
             <Form.Input
               label='SMTP 访问凭证'

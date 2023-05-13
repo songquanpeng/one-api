@@ -11,7 +11,7 @@ func SendEmail(subject string, receiver string, content string) error {
 		"From: %s<%s>\r\n"+
 		"Subject: %s\r\n"+
 		"Content-Type: text/html; charset=UTF-8\r\n\r\n%s\r\n",
-		receiver, SystemName, SMTPAccount, subject, content))
+		receiver, SystemName, SMTPFrom, subject, content))
 	auth := smtp.PlainAuth("", SMTPAccount, SMTPToken, SMTPServer)
 	addr := fmt.Sprintf("%s:%d", SMTPServer, SMTPPort)
 	to := strings.Split(receiver, ";")
