@@ -12,7 +12,7 @@ import {
 } from 'semantic-ui-react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { UserContext } from '../context/User';
-import { API, showError, showSuccess } from '../helpers';
+import { API, getLogo, showError, showSuccess } from '../helpers';
 
 const LoginForm = () => {
   const [inputs, setInputs] = useState({
@@ -27,6 +27,7 @@ const LoginForm = () => {
   let navigate = useNavigate();
 
   const [status, setStatus] = useState({});
+  const logo = getLogo();
 
   useEffect(() => {
     if (searchParams.get("expired")) {
@@ -95,7 +96,7 @@ const LoginForm = () => {
     <Grid textAlign="center" style={{ marginTop: '48px' }}>
       <Grid.Column style={{ maxWidth: 450 }}>
         <Header as="h2" color="" textAlign="center">
-          <Image src="/logo.png" /> 用户登录
+          <Image src={logo} /> 用户登录
         </Header>
         <Form size="large">
           <Segment>

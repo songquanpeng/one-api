@@ -1,40 +1,37 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 
 import { Container, Segment } from 'semantic-ui-react';
+import { getFooterHTML, getSystemName } from '../helpers';
 
 const Footer = () => {
-  const [Footer, setFooter] = useState('');
-  useEffect(() => {
-    let savedFooter = localStorage.getItem('footer_html');
-    if (!savedFooter) savedFooter = '';
-    setFooter(savedFooter);
-  });
+  const systemName = getSystemName();
+  const footer = getFooterHTML();
 
   return (
     <Segment vertical>
-      <Container textAlign="center">
-        {Footer === '' ? (
-          <div className="custom-footer">
+      <Container textAlign='center'>
+        {footer ? (
+          <div
+            className='custom-footer'
+            dangerouslySetInnerHTML={{ __html: footer }}
+          ></div>
+        ) : (
+          <div className='custom-footer'>
             <a
-              href="https://github.com/songquanpeng/one-api"
-              target="_blank"
+              href='https://github.com/songquanpeng/one-api'
+              target='_blank'
             >
-              One API {process.env.REACT_APP_VERSION}{' '}
+              {systemName} {process.env.REACT_APP_VERSION}{' '}
             </a>
             由{' '}
-            <a href="https://github.com/songquanpeng" target="_blank">
+            <a href='https://github.com/songquanpeng' target='_blank'>
               JustSong
             </a>{' '}
             构建，源代码遵循{' '}
-            <a href="https://opensource.org/licenses/mit-license.php">
+            <a href='https://opensource.org/licenses/mit-license.php'>
               MIT 协议
             </a>
           </div>
-        ) : (
-          <div
-            className="custom-footer"
-            dangerouslySetInnerHTML={{ __html: Footer }}
-          ></div>
         )}
       </Container>
     </Segment>

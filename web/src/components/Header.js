@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { UserContext } from '../context/User';
 
 import { Button, Container, Dropdown, Icon, Menu, Segment } from 'semantic-ui-react';
-import { API, isAdmin, isMobile, showSuccess } from '../helpers';
+import { API, getLogo, getSystemName, isAdmin, isMobile, showSuccess } from '../helpers';
 import '../index.css';
 
 // Header Buttons
@@ -53,6 +53,8 @@ const Header = () => {
   let navigate = useNavigate();
 
   const [showSidebar, setShowSidebar] = useState(false);
+  const systemName = getSystemName();
+  const logo = getLogo();
 
   async function logout() {
     setShowSidebar(false);
@@ -111,12 +113,12 @@ const Header = () => {
           <Container>
             <Menu.Item as={Link} to='/'>
               <img
-                src='/logo.png'
+                src={logo}
                 alt='logo'
                 style={{ marginRight: '0.75em' }}
               />
               <div style={{ fontSize: '20px' }}>
-                <b>One API</b>
+                <b>{systemName}</b>
               </div>
             </Menu.Item>
             <Menu.Menu position='right'>
@@ -168,9 +170,9 @@ const Header = () => {
       <Menu borderless style={{ borderTop: 'none' }}>
         <Container>
           <Menu.Item as={Link} to='/' className={'hide-on-mobile'}>
-            <img src='/logo.png' alt='logo' style={{ marginRight: '0.75em' }} />
+            <img src={logo} alt='logo' style={{ marginRight: '0.75em' }} />
             <div style={{ fontSize: '20px' }}>
-              <b>One API</b>
+              <b>{systemName}</b>
             </div>
           </Menu.Item>
           {renderButtons(false)}

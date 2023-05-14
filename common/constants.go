@@ -11,6 +11,7 @@ var Version = "v0.0.0"            // this hard coding will be replaced automatic
 var SystemName = "One API"
 var ServerAddress = "http://localhost:3000"
 var Footer = ""
+var Logo = ""
 var TopUpLink = ""
 
 var UsingSQLite = false

@@ -8,6 +8,8 @@ const OtherSetting = () => {
     Footer: '',
     Notice: '',
     About: '',
+    SystemName: '',
+    Logo: '',
     HomePageContent: '',
   });
   let originInputs = {};
@@ -66,6 +68,14 @@ const OtherSetting = () => {
     await updateOption('Footer', inputs.Footer);
   };
 
+  const submitSystemName = async () => {
+    await updateOption('SystemName', inputs.SystemName);
+  };
+
+  const submitLogo = async () => {
+    await updateOption('Logo', inputs.Logo);
+  };
+
   const submitAbout = async () => {
     await updateOption('About', inputs.About);
   };
@@ -114,6 +124,27 @@ const OtherSetting = () => {
           <Form.Button onClick={submitNotice}>保存公告</Form.Button>
           <Divider />
           <Header as='h3'>个性化设置</Header>
+          <Form.Group widths='equal'>
+            <Form.Input
+              label='系统名称'
+              placeholder='在此输入系统名称'
+              value={inputs.SystemName}
+              name='SystemName'
+              onChange={handleInputChange}
+            />
+          </Form.Group>
+          <Form.Button onClick={submitSystemName}>设置系统名称</Form.Button>
+          <Form.Group widths='equal'>
+            <Form.Input
+              label='Logo 图片地址'
+              placeholder='在此输入 Logo 图片地址'
+              value={inputs.Logo}
+              name='Logo'
+              type='url'
+              onChange={handleInputChange}
+            />
+          </Form.Group>
+          <Form.Button onClick={submitLogo}>设置 Logo</Form.Button>
           <Form.Group widths='equal'>
             <Form.TextArea
               label='首页内容'

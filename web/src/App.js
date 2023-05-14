@@ -42,6 +42,8 @@ function App() {
     if (success) {
       localStorage.setItem('status', JSON.stringify(data));
       statusDispatch({ type: 'set', payload: data });
+      localStorage.setItem('system_name', data.system_name);
+      localStorage.setItem('logo', data.logo);
       localStorage.setItem('footer_html', data.footer_html);
       if (
         data.version !== process.env.REACT_APP_VERSION &&

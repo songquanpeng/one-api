@@ -41,6 +41,8 @@ func InitOptionMap() {
 	common.OptionMap["About"] = ""
 	common.OptionMap["HomePageContent"] = ""
 	common.OptionMap["Footer"] = common.Footer
+	common.OptionMap["SystemName"] = common.SystemName
+	common.OptionMap["Logo"] = common.Logo
 	common.OptionMap["ServerAddress"] = ""
 	common.OptionMap["GitHubClientId"] = ""
 	common.OptionMap["GitHubClientSecret"] = ""
@@ -134,6 +136,10 @@ func updateOptionMap(key string, value string) (err error) {
 		common.GitHubClientSecret = value
 	case "Footer":
 		common.Footer = value
+	case "SystemName":
+		common.SystemName = value
+	case "Logo":
+		common.Logo = value
 	case "WeChatServerAddress":
 		common.WeChatServerAddress = value
 	case "WeChatServerToken":
