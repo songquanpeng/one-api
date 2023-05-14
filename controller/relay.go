@@ -94,10 +94,12 @@ func relayHelper(c *gin.Context) error {
 	if channelType == common.ChannelTypeAzure {
 		// https://learn.microsoft.com/en-us/azure/cognitive-services/openai/chatgpt-quickstart?pivots=rest-api&tabs=command-line#rest-api
 		query := c.Request.URL.Query()
-		if query.Get("api-version") == "" {
-			apiVersion := c.GetString("api_version")
-			requestURL = fmt.Sprintf("%s?api-version=%s", requestURL, apiVersion)
+		apiVersion := query.Get("api-version")
+		if apiVersion == "" {
+			apiVersion = c.GetString("api_version")
 		}
+		requestURL := strings.Split(requestURL, "?")[0]
+		requestURL = fmt.Sprintf("%s?api-version=%s", requestURL, apiVersion)
 		baseURL = c.GetString("base_url")
 		task := strings.TrimPrefix(requestURL, "/v1/")
 		model_ := textRequest.Model
@@ -186,7 +188,7 @@ func relayHelper(c *gin.Context) error {
 				data := scanner.Text()
 				dataChan <- data
 				data = data[6:]
-				if data != "[DONE]" {
+				if !strings.HasPrefix(data, "[DONE]") {
 					var streamResponse StreamResponse
 					err = json.Unmarshal([]byte(data), &streamResponse)
 					if err != nil {
@@ -207,6 +209,9 @@ func relayHelper(c *gin.Context) error {
 		c.Stream(func(w io.Writer) bool {
 			select {
 			case data := <-dataChan:
+				if strings.HasPrefix(data, "data: [DONE]") {
+					data = data[:len(data)-1]
+				}
 				c.Render(-1, common.CustomEvent{Data: data})
 				return true
 			case <-stopChan:
