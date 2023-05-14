@@ -210,7 +210,7 @@ func relayHelper(c *gin.Context) error {
 			select {
 			case data := <-dataChan:
 				if strings.HasPrefix(data, "data: [DONE]") {
-					data = data[:len(data)-1]
+					data = "data: [DONE]"
 				}
 				c.Render(-1, common.CustomEvent{Data: data})
 				return true
