@@ -117,7 +117,7 @@ const OtherSetting = () => {
           <Form.Group widths='equal'>
             <Form.TextArea
               label='首页内容'
-              placeholder='在此输入首页内容，支持 Markdown & HTML 代码，设置后首页的状态信息将不再显示'
+              placeholder='在此输入首页内容，支持 Markdown & HTML 代码，设置后首页的状态信息将不再显示。\n如果输入的是一个链接，则会使用该链接作为 iframe 的 src 属性，这允许你设置任意网页作为首页。'
               value={inputs.HomePageContent}
               name='HomePageContent'
               onChange={handleInputChange}
