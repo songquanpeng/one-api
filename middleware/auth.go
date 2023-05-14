@@ -111,14 +111,9 @@ func TokenAuth() func(c *gin.Context) {
 		c.Set("id", token.UserId)
 		c.Set("token_id", token.Id)
 		requestURL := c.Request.URL.String()
-		consumeQuota := false
-		switch requestURL {
-		case "/v1/chat/completions":
-			consumeQuota = !token.UnlimitedQuota
-		case "/v1/completions":
-			consumeQuota = !token.UnlimitedQuota
-		case "/v1/edits":
-			consumeQuota = !token.UnlimitedQuota
+		consumeQuota := !token.UnlimitedQuota
+		if strings.HasPrefix(requestURL, "/models") {
+			consumeQuota = false
 		}
 		c.Set("consume_quota", consumeQuota)
 		if len(parts) > 1 {
