@@ -43,28 +43,28 @@ _✨ All in one 的 OpenAI 接口，整合各种 API 访问方式，开箱即用
 ## 功能
 1. 支持多种 API 访问渠道，欢迎 PR 或提 issue 添加更多渠道：
    + [x] OpenAI 官方通道
-   + [x] Azure OpenAI API
+   + [x] **Azure OpenAI API**
    + [x] [API2D](https://api2d.com/r/197971)
    + [x] [CloseAI](https://console.openai-asia.com)
    + [x] [OpenAI-SB](https://openai-sb.com)
    + [x] [OpenAI Max](https://openaimax.com)
    + [x] [OhMyGPT](https://www.ohmygpt.com)
    + [x] 自定义渠道：例如使用自行搭建的 OpenAI 代理
-2. 支持通过负载均衡的方式访问多个渠道。
-3. 支持单个访问渠道设置多个 API Key，利用起来你的多个 API Key。
-4. 支持 HTTP SSE，可以通过流式传输实现打字机效果。
-5. 支持设置令牌的过期时间和使用次数。
-6. 支持批量生成和导出兑换码，可使用兑换码为令牌进行充值。
-7. 支持批量创建通道。
-8. 支持发布公告，自定义关于页面，设置充值链接，自定义页脚。
-9. 支持自定义首页，可以选择使用 HTML & Markdown 代码进行自定义，或者使用一个单独的网页通过 iframe 嵌入。
-10. 支持通过系统访问令牌访问管理 API。
-11. 多种用户登录注册方式：
+2. 支持通过**负载均衡**的方式访问多个渠道。
+3. 支持 **stream 模式**，可以通过流式传输实现打字机效果。
+4. 支持**令牌管理**，设置令牌的过期时间和使用次数。
+5. 支持**兑换码管理**，支持批量生成和导出兑换码，可使用兑换码为令牌进行充值。
+6. 支持**通道管理**，批量创建通道。
+7. 支持发布公告，设置充值链接，设置新用户初始额度。
+8. 支持丰富的**自定义**设置，
+   1. 支持自定义系统名称，logo 以及页脚。
+   2. 支持自定义首页和关于页面，可以选择使用 HTML & Markdown 代码进行自定义，或者使用一个单独的网页通过 iframe 嵌入。
+9. 支持通过系统访问令牌访问管理 API。
+10. 支持用户管理，支持**多种用户登录注册方式**：
     + 邮箱登录注册以及通过邮箱进行密码重置。
     + [GitHub 开放授权](https://github.com/settings/applications/new)。
     + 微信公众号授权（需要额外部署 [WeChat Server](https://github.com/songquanpeng/wechat-server)）。
-12. 支持用户管理，支持为新用户设置初始配额。。
-13. 未来其他大模型开放 API 后，将第一时间支持，并将其封装成同样的 API 访问方式。
+11. 未来其他大模型开放 API 后，将第一时间支持，并将其封装成同样的 API 访问方式。
 
 ## 部署
 ### 基于 Docker 进行部署
