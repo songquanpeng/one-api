@@ -117,6 +117,9 @@ func relayHelper(c *gin.Context) error {
 		task := strings.TrimPrefix(requestURL, "/v1/")
 		model_ := textRequest.Model
 		model_ = strings.Replace(model_, ".", "", -1)
+		// https://github.com/songquanpeng/one-api/issues/67
+		model_ = strings.TrimSuffix(model_, "-0301")
+		model_ = strings.TrimSuffix(model_, "-0314")
 		fullRequestURL = fmt.Sprintf("%s/openai/deployments/%s/%s", baseURL, model_, task)
 	}
 	req, err := http.NewRequest(c.Request.Method, fullRequestURL, c.Request.Body)
