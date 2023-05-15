@@ -60,6 +60,11 @@ const ChannelsTable = () => {
     })();
   };
 
+  const refresh = async () => {
+    setLoading(true);
+    await loadChannels(0);
+  }
+
   useEffect(() => {
     loadChannels(0)
       .then()
@@ -174,7 +179,7 @@ const ChannelsTable = () => {
     const res = await API.get(`/api/channel/test`);
     const { success, message } = res.data;
     if (success) {
-      showSuccess("已成功开始测试所有已启用通道，请刷新页面查看结果。");
+      showInfo("已成功开始测试所有已启用通道，请刷新页面查看结果。");
     } else {
       showError(message);
     }
@@ -359,6 +364,7 @@ const ChannelsTable = () => {
                   (channels.length % ITEMS_PER_PAGE === 0 ? 1 : 0)
                 }
               />
+              <Button size='small' onClick={refresh} loading={loading}>刷新</Button>
             </Table.HeaderCell>
           </Table.Row>
         </Table.Footer>

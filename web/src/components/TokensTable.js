@@ -66,6 +66,11 @@ const TokensTable = () => {
     })();
   };
 
+  const refresh = async () => {
+    setLoading(true);
+    await loadTokens(0);
+  }
+
   useEffect(() => {
     loadTokens(0)
       .then()
@@ -334,6 +339,7 @@ const TokensTable = () => {
               <Button size='small' as={Link} to='/token/add' loading={loading}>
                 添加新的令牌
               </Button>
+              <Button size='small' onClick={refresh} loading={loading}>刷新</Button>
               <Pagination
                 floated='right'
                 activePage={activePage}
