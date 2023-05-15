@@ -234,3 +234,8 @@ func DecreaseUserQuota(id int, quota int) (err error) {
 	err = DB.Model(&User{}).Where("id = ?", id).Update("quota", gorm.Expr("quota - ?", quota)).Error
 	return err
 }
+
+func GetRootUserEmail() (email string) {
+	DB.Model(&User{}).Where("role = ?", common.RoleRootUser).Select("email").Find(&email)
+	return email
+}

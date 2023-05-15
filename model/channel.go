@@ -19,10 +19,14 @@ type Channel struct {
 	Other        string `json:"other"`
 }
 
-func GetAllChannels(startIdx int, num int) ([]*Channel, error) {
+func GetAllChannels(startIdx int, num int, selectAll bool) ([]*Channel, error) {
 	var channels []*Channel
 	var err error
-	err = DB.Order("id desc").Limit(num).Offset(startIdx).Omit("key").Find(&channels).Error
+	if selectAll {
+		err = DB.Order("id desc").Find(&channels).Error
+	} else {
+		err = DB.Order("id desc").Limit(num).Offset(startIdx).Omit("key").Find(&channels).Error
+	}
 	return channels, err
 }
 
@@ -77,6 +81,13 @@ func (channel *Channel) UpdateResponseTime(responseTime int64) {
 		TestTime:     common.GetTimestamp(),
 		ResponseTime: int(responseTime),
 	}).Error
+	if err != nil {
+		common.SysError("failed to update response time: " + err.Error())
+	}
+}
+
+func (channel *Channel) UpdateStatus(status int) {
+	err := DB.Model(channel).Update("status", status).Error
 	if err != nil {
 		common.SysError("failed to update response time: " + err.Error())
 	}

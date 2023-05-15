@@ -170,6 +170,16 @@ const ChannelsTable = () => {
     }
   };
 
+  const testAllChannels = async () => {
+    const res = await API.get(`/api/channel/test`);
+    const { success, message } = res.data;
+    if (success) {
+      showSuccess("已成功开始测试所有已启用通道，请刷新页面查看结果。");
+    } else {
+      showError(message);
+    }
+  }
+
   const handleKeywordChange = async (e, { value }) => {
     setSearchKeyword(value.trim());
   };
@@ -334,6 +344,9 @@ const ChannelsTable = () => {
             <Table.HeaderCell colSpan='7'>
               <Button size='small' as={Link} to='/channel/add' loading={loading}>
                 添加新的渠道
+              </Button>
+              <Button size='small' loading={loading} onClick={testAllChannels}>
+                测试所有已启用通道
               </Button>
               <Pagination
                 floated='right'
