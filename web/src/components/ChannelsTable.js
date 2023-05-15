@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Form, Label, Pagination, Popup, Table } from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
-import { API, copy, showError, showSuccess, timestamp2string } from '../helpers';
+import { API, copy, showError, showInfo, showSuccess, timestamp2string } from '../helpers';
 
 import { CHANNEL_OPTIONS, ITEMS_PER_PAGE } from '../constants';
 
@@ -139,6 +139,16 @@ const ChannelsTable = () => {
     setSearching(false);
   };
 
+  const testChannel = async (id, name) => {
+    const res = await API.get(`/api/channel/test/${id}/`);
+    const { success, message, time } = res.data;
+    if (success) {
+      showInfo(`通道 ${name} 测试成功，耗时 ${time} 秒。`);
+    } else {
+      showError(message);
+    }
+  }
+
   const handleKeywordChange = async (e, { value }) => {
     setSearchKeyword(value.trim());
   };
@@ -244,6 +254,15 @@ const ChannelsTable = () => {
                   <Table.Cell>{renderTimestamp(channel.accessed_time)}</Table.Cell>
                   <Table.Cell>
                     <div>
+                      <Button
+                        size={'small'}
+                        positive
+                        onClick={() => {
+                          testChannel(channel.id, channel.name);
+                        }}
+                      >
+                        测试
+                      </Button>
                       <Popup
                         trigger={
                           <Button size='small' negative>

@@ -19,6 +19,11 @@ type Message struct {
 	Content string `json:"content"`
 }
 
+type ChatRequest struct {
+	Model    string    `json:"model"`
+	Messages []Message `json:"messages"`
+}
+
 type TextRequest struct {
 	Model    string    `json:"model"`
 	Messages []Message `json:"messages"`
@@ -32,8 +37,16 @@ type Usage struct {
 	TotalTokens      int `json:"total_tokens"`
 }
 
+type OpenAIError struct {
+	Message string `json:"message"`
+	Type    string `json:"type"`
+	Param   string `json:"param"`
+	Code    string `json:"code"`
+}
+
 type TextResponse struct {
 	Usage `json:"usage"`
+	Error OpenAIError `json:"error"`
 }
 
 type StreamResponse struct {
