@@ -89,7 +89,6 @@ func AddChannel(c *gin.Context) {
 		return
 	}
 	channel.CreatedTime = common.GetTimestamp()
-	channel.AccessedTime = common.GetTimestamp()
 	keys := strings.Split(channel.Key, "\n")
 	channels := make([]model.Channel, 0)
 	for _, key := range keys {
@@ -236,7 +235,9 @@ func TestChannel(c *gin.Context) {
 	tik := time.Now()
 	err = testChannel(channel, chatRequest)
 	tok := time.Now()
-	consumedTime := float64(tok.Sub(tik).Milliseconds()) / 1000.0
+	milliseconds := tok.Sub(tik).Milliseconds()
+	go channel.UpdateResponseTime(milliseconds)
+	consumedTime := float64(milliseconds) / 1000.0
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,

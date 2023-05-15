@@ -13,7 +13,8 @@ type Channel struct {
 	Name         string `json:"name" gorm:"index"`
 	Weight       int    `json:"weight"`
 	CreatedTime  int64  `json:"created_time" gorm:"bigint"`
-	AccessedTime int64  `json:"accessed_time" gorm:"bigint"`
+	TestTime     int64  `json:"test_time" gorm:"bigint"`
+	ResponseTime int    `json:"response_time"` // in milliseconds
 	BaseURL      string `json:"base_url" gorm:"column:base_url"`
 	Other        string `json:"other"`
 }
@@ -69,6 +70,16 @@ func (channel *Channel) Update() error {
 	var err error
 	err = DB.Model(channel).Updates(channel).Error
 	return err
+}
+
+func (channel *Channel) UpdateResponseTime(responseTime int64) {
+	err := DB.Model(channel).Select("response_time", "test_time").Updates(Channel{
+		TestTime:     common.GetTimestamp(),
+		ResponseTime: int(responseTime),
+	}).Error
+	if err != nil {
+		common.SysError("failed to update response time: " + err.Error())
+	}
 }
 
 func (channel *Channel) Delete() error {
