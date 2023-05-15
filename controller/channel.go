@@ -261,13 +261,16 @@ func TestChannel(c *gin.Context) {
 }
 
 var testAllChannelsLock sync.Mutex
+var testAllChannelsRunning bool = false
 
 func testAllChannels(c *gin.Context) error {
-	ok := testAllChannelsLock.TryLock()
-	if !ok {
-		return errors.New("测试已在运行")
+	testAllChannelsLock.Lock()
+	if testAllChannelsRunning {
+		testAllChannelsLock.Unlock()
+		return errors.New("测试已在运行中")
 	}
-	defer testAllChannelsLock.Unlock()
+	testAllChannelsRunning = true
+	testAllChannelsLock.Unlock()
 	channels, err := model.GetAllChannels(0, 0, true)
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
@@ -303,10 +306,13 @@ func testAllChannels(c *gin.Context) error {
 			}
 			channel.UpdateResponseTime(milliseconds)
 		}
-		err := common.SendEmail("通道测试完成", email, "通道测试完成")
+		err := common.SendEmail("通道测试完成", email, "通道测试完成，如果没有收到禁用通知，说明所有通道都正常")
 		if err != nil {
 			common.SysError(fmt.Sprintf("发送邮件失败：%s", err.Error()))
 		}
+		testAllChannelsLock.Lock()
+		testAllChannelsRunning = false
+		testAllChannelsLock.Unlock()
 	}()
 	return nil
 }
