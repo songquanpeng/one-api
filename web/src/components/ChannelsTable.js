@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Form, Label, Pagination, Table } from 'semantic-ui-react';
+import { Button, Form, Label, Pagination, Popup, Table } from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
 import { API, copy, showError, showSuccess, timestamp2string } from '../helpers';
 
@@ -244,15 +244,25 @@ const ChannelsTable = () => {
                   <Table.Cell>{renderTimestamp(channel.accessed_time)}</Table.Cell>
                   <Table.Cell>
                     <div>
-                      <Button
-                        size={'small'}
-                        negative
-                        onClick={() => {
-                          manageChannel(channel.id, 'delete', idx);
-                        }}
+                      <Popup
+                        trigger={
+                          <Button size='small' negative>
+                            删除
+                          </Button>
+                        }
+                        on='click'
+                        flowing
+                        hoverable
                       >
-                        删除
-                      </Button>
+                        <Button
+                          negative
+                          onClick={() => {
+                            manageChannel(channel.id, 'delete', idx);
+                          }}
+                        >
+                          删除渠道 {channel.name}
+                        </Button>
+                      </Popup>
                       <Button
                         size={'small'}
                         onClick={() => {

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Form, Label, Modal, Pagination, Table } from 'semantic-ui-react';
+import { Button, Form, Label, Modal, Pagination, Popup, Table } from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
 import { API, copy, showError, showSuccess, showWarning, timestamp2string } from '../helpers';
 
@@ -283,15 +283,25 @@ const TokensTable = () => {
                         }}>
                         充值
                       </Button>
-                      <Button
-                        size={'small'}
-                        negative
-                        onClick={() => {
-                          manageToken(token.id, 'delete', idx);
-                        }}
+                      <Popup
+                        trigger={
+                          <Button size='small' negative>
+                            删除
+                          </Button>
+                        }
+                        on='click'
+                        flowing
+                        hoverable
                       >
-                        删除
-                      </Button>
+                        <Button
+                          negative
+                          onClick={() => {
+                            manageToken(token.id, 'delete', idx);
+                          }}
+                        >
+                          删除令牌 {token.name}
+                        </Button>
+                      </Popup>
                       <Button
                         size={'small'}
                         onClick={() => {
