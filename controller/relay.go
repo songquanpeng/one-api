@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/pkoukk/tiktoken-go"
@@ -74,6 +75,11 @@ func Relay(c *gin.Context) {
 				"type":    "one_api_error",
 			},
 		})
+		if common.AutomaticDisableChannelEnabled {
+			channelId := c.GetInt("channel_id")
+			channelName := c.GetString("channel_name")
+			disableChannel(channelId, channelName, err)
+		}
 	}
 }
 
@@ -255,6 +261,10 @@ func relayHelper(c *gin.Context) error {
 			err = json.Unmarshal(responseBody, &textResponse)
 			if err != nil {
 				return err
+			}
+			if textResponse.Error.Type != "" {
+				return errors.New(fmt.Sprintf("type %s, code %s, message %s",
+					textResponse.Error.Type, textResponse.Error.Code, textResponse.Error.Message))
 			}
 			// Reset response body
 			resp.Body = io.NopCloser(bytes.NewBuffer(responseBody))

@@ -86,15 +86,15 @@ func (channel *Channel) UpdateResponseTime(responseTime int64) {
 	}
 }
 
-func (channel *Channel) UpdateStatus(status int) {
-	err := DB.Model(channel).Update("status", status).Error
-	if err != nil {
-		common.SysError("failed to update response time: " + err.Error())
-	}
-}
-
 func (channel *Channel) Delete() error {
 	var err error
 	err = DB.Delete(channel).Error
 	return err
+}
+
+func UpdateChannelStatusById(id int, status int) {
+	err := DB.Model(&Channel{}).Where("id = ?", id).Update("status", status).Error
+	if err != nil {
+		common.SysError("failed to update channel status: " + err.Error())
+	}
 }

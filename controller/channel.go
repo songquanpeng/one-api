@@ -263,6 +263,20 @@ func TestChannel(c *gin.Context) {
 var testAllChannelsLock sync.Mutex
 var testAllChannelsRunning bool = false
 
+// disable & notify
+func disableChannel(channelId int, channelName string, err error) {
+	if common.RootUserEmail == "" {
+		common.RootUserEmail = model.GetRootUserEmail()
+	}
+	model.UpdateChannelStatusById(channelId, common.ChannelStatusDisabled)
+	subject := fmt.Sprintf("通道「%s」（#%d）已被禁用", channelName, channelId)
+	content := fmt.Sprintf("通道「%s」（#%d）已被禁用，原因：%s", channelName, channelId, err.Error())
+	err = common.SendEmail(subject, common.RootUserEmail, content)
+	if err != nil {
+		common.SysError(fmt.Sprintf("发送邮件失败：%s", err.Error()))
+	}
+}
+
 func testAllChannels(c *gin.Context) error {
 	testAllChannelsLock.Lock()
 	if testAllChannelsRunning {
@@ -280,8 +294,10 @@ func testAllChannels(c *gin.Context) error {
 		return err
 	}
 	testRequest := buildTestRequest(c)
-	var disableThreshold int64 = 5000 // TODO: make it configurable
-	email := model.GetRootUserEmail()
+	var disableThreshold = int64(common.ChannelDisableThreshold * 1000)
+	if disableThreshold == 0 {
+		disableThreshold = 10000000 // a impossible value
+	}
 	go func() {
 		for _, channel := range channels {
 			if channel.Status != common.ChannelStatusEnabled {
@@ -295,18 +311,11 @@ func testAllChannels(c *gin.Context) error {
 				if milliseconds > disableThreshold {
 					err = errors.New(fmt.Sprintf("响应时间 %.2fs 超过阈值 %.2fs", float64(milliseconds)/1000.0, float64(disableThreshold)/1000.0))
 				}
-				// disable & notify
-				channel.UpdateStatus(common.ChannelStatusDisabled)
-				subject := fmt.Sprintf("通道「%s」（#%d）已被禁用", channel.Name, channel.Id)
-				content := fmt.Sprintf("通道「%s」（#%d）已被禁用，原因：%s", channel.Name, channel.Id, err.Error())
-				err = common.SendEmail(subject, email, content)
-				if err != nil {
-					common.SysError(fmt.Sprintf("发送邮件失败：%s", err.Error()))
-				}
+				disableChannel(channel.Id, channel.Name, err)
 			}
 			channel.UpdateResponseTime(milliseconds)
 		}
-		err := common.SendEmail("通道测试完成", email, "通道测试完成，如果没有收到禁用通知，说明所有通道都正常")
+		err := common.SendEmail("通道测试完成", common.RootUserEmail, "通道测试完成，如果没有收到禁用通知，说明所有通道都正常")
 		if err != nil {
 			common.SysError(fmt.Sprintf("发送邮件失败：%s", err.Error()))
 		}

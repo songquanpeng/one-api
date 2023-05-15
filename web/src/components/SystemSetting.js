@@ -28,7 +28,9 @@ const SystemSetting = () => {
     RegisterEnabled: '',
     QuotaForNewUser: 0,
     ModelRatio: '',
-    TopUpLink: ''
+    TopUpLink: '',
+    AutomaticDisableChannelEnabled: '',
+    ChannelDisableThreshold: 0,
   });
   let originInputs = {};
   let [loading, setLoading] = useState(false);
@@ -62,6 +64,7 @@ const SystemSetting = () => {
       case 'WeChatAuthEnabled':
       case 'TurnstileCheckEnabled':
       case 'RegisterEnabled':
+      case 'AutomaticDisableChannelEnabled':
         value = inputs[key] === 'true' ? 'false' : 'true';
         break;
       default:
@@ -297,6 +300,30 @@ const SystemSetting = () => {
             />
           </Form.Group>
           <Form.Button onClick={submitOperationConfig}>保存运营设置</Form.Button>
+          <Divider />
+          <Header as='h3'>
+            监控设置
+          </Header>
+          <Form.Group widths={3}>
+            <Form.Input
+              label='最长回应时间'
+              name='ChannelDisableThreshold'
+              onChange={handleInputChange}
+              autoComplete='new-password'
+              value={inputs.ChannelDisableThreshold}
+              type='number'
+              min='0'
+              placeholder='单位秒，当运行通道全部测试时，超过此时间将自动禁用通道'
+            />
+          </Form.Group>
+          <Form.Group inline>
+            <Form.Checkbox
+              checked={inputs.AutomaticDisableChannelEnabled === 'true'}
+              label='失败时自动禁用通道'
+              name='AutomaticDisableChannelEnabled'
+              onChange={handleInputChange}
+            />
+          </Form.Group>
           <Divider />
           <Header as='h3'>
             配置 SMTP

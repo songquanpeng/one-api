@@ -52,6 +52,11 @@ var TurnstileSecretKey = ""
 
 var QuotaForNewUser = 100
 
+var ChannelDisableThreshold = 5.0
+var AutomaticDisableChannelEnabled = false
+
+var RootUserEmail = ""
+
 const (
 	RoleGuestUser  = 0
 	RoleCommonUser = 1
