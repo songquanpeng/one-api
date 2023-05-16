@@ -234,6 +234,7 @@ const UsersTable = () => {
                         onClick={() => {
                           manageUser(user.username, 'promote', idx);
                         }}
+                        disabled={user.role === 100}
                       >
                         提升
                       </Button>
@@ -243,12 +244,13 @@ const UsersTable = () => {
                         onClick={() => {
                           manageUser(user.username, 'demote', idx);
                         }}
+                        disabled={user.role === 100}
                       >
                         降级
                       </Button>
                       <Popup
                         trigger={
-                          <Button size='small' negative>
+                          <Button size='small' negative disabled={user.role === 100}>
                             删除
                           </Button>
                         }
@@ -274,6 +276,7 @@ const UsersTable = () => {
                             idx
                           );
                         }}
+                        disabled={user.role === 100}
                       >
                         {user.status === 1 ? '禁用' : '启用'}
                       </Button>
@@ -281,6 +284,7 @@ const UsersTable = () => {
                         size={'small'}
                         as={Link}
                         to={'/user/edit/' + user.id}
+                        disabled={user.role === 100}
                       >
                         编辑
                       </Button>
