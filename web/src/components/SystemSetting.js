@@ -28,6 +28,7 @@ const SystemSetting = () => {
     RegisterEnabled: '',
     QuotaForNewUser: 0,
     QuotaRemindThreshold: 0,
+    PreConsumedQuota: 0,
     ModelRatio: '',
     TopUpLink: '',
     AutomaticDisableChannelEnabled: '',
@@ -98,6 +99,7 @@ const SystemSetting = () => {
       name === 'TurnstileSecretKey' ||
       name === 'QuotaForNewUser' ||
       name === 'QuotaRemindThreshold' ||
+      name === 'PreConsumedQuota' ||
       name === 'ModelRatio' ||
       name === 'TopUpLink'
     ) {
@@ -118,6 +120,9 @@ const SystemSetting = () => {
     }
     if (originInputs['QuotaRemindThreshold'] !== inputs.QuotaRemindThreshold) {
       await updateOption('QuotaRemindThreshold', inputs.QuotaRemindThreshold);
+    }
+    if (originInputs['PreConsumedQuota'] !== inputs.PreConsumedQuota) {
+      await updateOption('PreConsumedQuota', inputs.PreConsumedQuota);
     }
     if (originInputs['ModelRatio'] !== inputs.ModelRatio) {
       if (!verifyJSON(inputs.ModelRatio)) {
@@ -272,7 +277,7 @@ const SystemSetting = () => {
           <Header as='h3'>
             运营设置
           </Header>
-          <Form.Group widths={3}>
+          <Form.Group widths={4}>
             <Form.Input
               label='新用户初始配额'
               name='QuotaForNewUser'
@@ -301,6 +306,16 @@ const SystemSetting = () => {
               type='number'
               min='0'
               placeholder='低于此额度时将发送邮件提醒用户'
+            />
+            <Form.Input
+              label='请求预扣费额度'
+              name='PreConsumedQuota'
+              onChange={handleInputChange}
+              autoComplete='new-password'
+              value={inputs.PreConsumedQuota}
+              type='number'
+              min='0'
+              placeholder='请求结束后多退少补'
             />
           </Form.Group>
           <Form.Group widths='equal'>
