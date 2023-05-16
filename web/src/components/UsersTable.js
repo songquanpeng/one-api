@@ -185,6 +185,14 @@ const UsersTable = () => {
             <Table.HeaderCell
               style={{ cursor: 'pointer' }}
               onClick={() => {
+                sortUser('quota');
+              }}
+            >
+              剩余额度
+            </Table.HeaderCell>
+            <Table.HeaderCell
+              style={{ cursor: 'pointer' }}
+              onClick={() => {
                 sortUser('role');
               }}
             >
@@ -215,6 +223,7 @@ const UsersTable = () => {
                   <Table.Cell>{user.username}</Table.Cell>
                   <Table.Cell>{user.display_name}</Table.Cell>
                   <Table.Cell>{user.email ? user.email : '无'}</Table.Cell>
+                  <Table.Cell>{user.quota}</Table.Cell>
                   <Table.Cell>{renderRole(user.role)}</Table.Cell>
                   <Table.Cell>{renderStatus(user.status)}</Table.Cell>
                   <Table.Cell>
@@ -284,7 +293,7 @@ const UsersTable = () => {
 
         <Table.Footer>
           <Table.Row>
-            <Table.HeaderCell colSpan='6'>
+            <Table.HeaderCell colSpan='7'>
               <Button size='small' as={Link} to='/user/add' loading={loading}>
                 添加新的用户
               </Button>
