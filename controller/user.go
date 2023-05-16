@@ -467,6 +467,13 @@ func CreateUser(c *gin.Context) {
 		})
 		return
 	}
+	if err := common.Validate.Struct(&user); err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": "输入不合法 " + err.Error(),
+		})
+		return
+	}
 	if user.DisplayName == "" {
 		user.DisplayName = user.Username
 	}

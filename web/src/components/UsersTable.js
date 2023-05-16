@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { API, showError, showSuccess } from '../helpers';
 
 import { ITEMS_PER_PAGE } from '../constants';
+import { renderText } from '../helpers/render';
 
 function renderRole(role) {
   switch (role) {
@@ -64,7 +65,7 @@ const UsersTable = () => {
     (async () => {
       const res = await API.post('/api/user/manage', {
         username,
-        action,
+        action
       });
       const { success, message } = res.data;
       if (success) {
@@ -161,18 +162,18 @@ const UsersTable = () => {
             <Table.HeaderCell
               style={{ cursor: 'pointer' }}
               onClick={() => {
-                sortUser('username');
+                sortUser('id');
               }}
             >
-              用户名
+              ID
             </Table.HeaderCell>
             <Table.HeaderCell
               style={{ cursor: 'pointer' }}
               onClick={() => {
-                sortUser('display_name');
+                sortUser('username');
               }}
             >
-              显示名称
+              用户名
             </Table.HeaderCell>
             <Table.HeaderCell
               style={{ cursor: 'pointer' }}
@@ -220,9 +221,17 @@ const UsersTable = () => {
               if (user.deleted) return <></>;
               return (
                 <Table.Row key={user.id}>
-                  <Table.Cell>{user.username}</Table.Cell>
-                  <Table.Cell>{user.display_name}</Table.Cell>
-                  <Table.Cell>{user.email ? user.email : '无'}</Table.Cell>
+                  <Table.Cell>{user.id}</Table.Cell>
+                  <Table.Cell>
+                    <Popup
+                      content={user.email ? user.email : '未绑定邮箱地址'}
+                      key={user.display_name}
+                      header={user.display_name ? user.display_name : user.username}
+                      trigger={<span>{renderText(user.username, 10)}</span>}
+                      hoverable
+                    />
+                  </Table.Cell>
+                  <Table.Cell>{user.email ? renderText(user.email, 30) : '无'}</Table.Cell>
                   <Table.Cell>{user.quota}</Table.Cell>
                   <Table.Cell>{renderRole(user.role)}</Table.Cell>
                   <Table.Cell>{renderStatus(user.status)}</Table.Cell>
