@@ -130,7 +130,23 @@ func DeleteTokenById(id int, userId int) (err error) {
 	return token.Delete()
 }
 
-func DecreaseTokenQuota(tokenId int, quota int) (err error) {
+func IncreaseTokenQuota(id int, quota int) (err error) {
+	if quota < 0 {
+		return errors.New("quota 不能为负数！")
+	}
+	err = DB.Model(&Token{}).Where("id = ?", id).Update("remain_quota", gorm.Expr("remain_quota + ?", quota)).Error
+	return err
+}
+
+func DecreaseTokenQuota(id int, quota int) (err error) {
+	if quota < 0 {
+		return errors.New("quota 不能为负数！")
+	}
+	err = DB.Model(&Token{}).Where("id = ?", id).Update("remain_quota", gorm.Expr("remain_quota - ?", quota)).Error
+	return err
+}
+
+func PreConsumeTokenQuota(tokenId int, quota int) (err error) {
 	if quota < 0 {
 		return errors.New("quota 不能为负数！")
 	}
@@ -138,7 +154,7 @@ func DecreaseTokenQuota(tokenId int, quota int) (err error) {
 	if err != nil {
 		return err
 	}
-	if token.RemainQuota < quota {
+	if !token.UnlimitedQuota && token.RemainQuota < quota {
 		return errors.New("令牌额度不足")
 	}
 	userQuota, err := GetUserQuota(token.UserId)
@@ -163,17 +179,42 @@ func DecreaseTokenQuota(tokenId int, quota int) (err error) {
 			if email != "" {
 				topUpLink := fmt.Sprintf("%s/topup", common.ServerAddress)
 				err = common.SendEmail(prompt, email,
-					fmt.Sprintf("%s，剩余额度为 %d，为了不影响您的使用，请及时充值。<br/>充值链接：<a href='%s'>%s</a>", prompt, userQuota-quota, topUpLink, topUpLink))
+					fmt.Sprintf("%s，当前剩余额度为 %d，为了不影响您的使用，请及时充值。<br/>充值链接：<a href='%s'>%s</a>", prompt, userQuota, topUpLink, topUpLink))
 				if err != nil {
 					common.SysError("发送邮件失败：" + err.Error())
 				}
 			}
 		}()
 	}
-	err = DB.Model(&Token{}).Where("id = ?", tokenId).Update("remain_quota", gorm.Expr("remain_quota - ?", quota)).Error
-	if err != nil {
-		return err
+	if !token.UnlimitedQuota {
+		err = DecreaseTokenQuota(tokenId, quota)
+		if err != nil {
+			return err
+		}
 	}
 	err = DecreaseUserQuota(token.UserId, quota)
 	return err
+}
+
+func PostConsumeTokenQuota(tokenId int, quota int) (err error) {
+	token, err := GetTokenById(tokenId)
+	if quota > 0 {
+		err = DecreaseUserQuota(token.UserId, quota)
+	} else {
+		err = IncreaseUserQuota(token.UserId, -quota)
+	}
+	if err != nil {
+		return err
+	}
+	if !token.UnlimitedQuota {
+		if quota > 0 {
+			err = DecreaseTokenQuota(tokenId, quota)
+		} else {
+			err = IncreaseTokenQuota(tokenId, -quota)
+		}
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }

@@ -128,6 +128,13 @@ func relayHelper(c *gin.Context) error {
 		model_ = strings.TrimSuffix(model_, "-0314")
 		fullRequestURL = fmt.Sprintf("%s/openai/deployments/%s/%s", baseURL, model_, task)
 	}
+	preConsumedQuota := 500 // TODO: make this configurable, take ratio into account
+	if consumeQuota {
+		err := model.PreConsumeTokenQuota(tokenId, preConsumedQuota)
+		if err != nil {
+			return err
+		}
+	}
 	req, err := http.NewRequest(c.Request.Method, fullRequestURL, c.Request.Body)
 	if err != nil {
 		return err
@@ -179,7 +186,8 @@ func relayHelper(c *gin.Context) error {
 			}
 			ratio := common.GetModelRatio(textRequest.Model)
 			quota = int(float64(quota) * ratio)
-			err := model.DecreaseTokenQuota(tokenId, quota)
+			quotaDelta := quota - preConsumedQuota
+			err := model.PostConsumeTokenQuota(tokenId, quotaDelta)
 			if err != nil {
 				common.SysError("Error consuming token remain quota: " + err.Error())
 			}
