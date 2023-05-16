@@ -210,11 +210,12 @@ func testChannel(channel *model.Channel, request *ChatRequest) error {
 func buildTestRequest(c *gin.Context) *ChatRequest {
 	model_ := c.Query("model")
 	testRequest := &ChatRequest{
-		Model: model_,
+		Model:     model_,
+		MaxTokens: 1,
 	}
 	testMessage := Message{
 		Role:    "user",
-		Content: "echo hi",
+		Content: "hi",
 	}
 	testRequest.Messages = append(testRequest.Messages, testMessage)
 	return testRequest
