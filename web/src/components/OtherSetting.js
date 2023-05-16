@@ -12,7 +12,6 @@ const OtherSetting = () => {
     Logo: '',
     HomePageContent: '',
   });
-  let originInputs = {};
   let [loading, setLoading] = useState(false);
   const [showUpdateModal, setShowUpdateModal] = useState(false);
   const [updateData, setUpdateData] = useState({
@@ -21,7 +20,7 @@ const OtherSetting = () => {
   });
 
   const getOptions = async () => {
-    const res = await API.get('/api/option');
+    const res = await API.get('/api/option/');
     const { success, message, data } = res.data;
     if (success) {
       let newInputs = {};
@@ -31,7 +30,6 @@ const OtherSetting = () => {
         }
       });
       setInputs(newInputs);
-      originInputs = newInputs;
     } else {
       showError(message);
     }
@@ -43,7 +41,7 @@ const OtherSetting = () => {
 
   const updateOption = async (key, value) => {
     setLoading(true);
-    const res = await API.put('/api/option', {
+    const res = await API.put('/api/option/', {
       key,
       value,
     });

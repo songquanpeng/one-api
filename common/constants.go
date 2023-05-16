@@ -51,9 +51,9 @@ var TurnstileSiteKey = ""
 var TurnstileSecretKey = ""
 
 var QuotaForNewUser = 100
-
 var ChannelDisableThreshold = 5.0
 var AutomaticDisableChannelEnabled = false
+var QuotaRemindThreshold = 1000 // TODO: QuotaRemindThreshold
 
 var RootUserEmail = ""
 
