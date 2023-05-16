@@ -160,7 +160,6 @@ func DeleteToken(c *gin.Context) {
 }
 
 func UpdateToken(c *gin.Context) {
-	isAdmin := c.GetInt("role") >= common.RoleAdminUser
 	userId := c.GetInt("id")
 	statusOnly := c.Query("status_only")
 	token := model.Token{}
@@ -191,7 +190,7 @@ func UpdateToken(c *gin.Context) {
 		if cleanToken.Status == common.TokenStatusExhausted && cleanToken.RemainQuota <= 0 && !cleanToken.UnlimitedQuota {
 			c.JSON(http.StatusOK, gin.H{
 				"success": false,
-				"message": "令牌可用次数已用尽，无法启用，请先修改令牌剩余次数，或者设置为无限次数",
+				"message": "令牌可用额度已用尽，无法启用，请先修改令牌剩余额度，或者设置为无限额度",
 			})
 			return
 		}
@@ -202,10 +201,8 @@ func UpdateToken(c *gin.Context) {
 		// If you add more fields, please also update token.Update()
 		cleanToken.Name = token.Name
 		cleanToken.ExpiredTime = token.ExpiredTime
-		if isAdmin {
-			cleanToken.RemainQuota = token.RemainQuota
-			cleanToken.UnlimitedQuota = token.UnlimitedQuota
-		}
+		cleanToken.RemainQuota = token.RemainQuota
+		cleanToken.UnlimitedQuota = token.UnlimitedQuota
 	}
 	err = cleanToken.Update()
 	if err != nil {
