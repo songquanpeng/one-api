@@ -336,7 +336,7 @@ const SystemSetting = () => {
           </Header>
           <Form.Group widths={3}>
             <Form.Input
-              label='最长回应时间'
+              label='最长响应时间'
               name='ChannelDisableThreshold'
               onChange={handleInputChange}
               autoComplete='new-password'
