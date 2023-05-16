@@ -40,12 +40,12 @@ func GetRedemptionById(id int) (*Redemption, error) {
 	return &redemption, err
 }
 
-func Redeem(key string, tokenId int) (quota int, err error) {
+func Redeem(key string, userId int) (quota int, err error) {
 	if key == "" {
 		return 0, errors.New("未提供兑换码")
 	}
-	if tokenId == 0 {
-		return 0, errors.New("未提供 token id")
+	if userId == 0 {
+		return 0, errors.New("无效的 user id")
 	}
 	redemption := &Redemption{}
 	err = DB.Where("`key` = ?", key).First(redemption).Error
@@ -55,7 +55,7 @@ func Redeem(key string, tokenId int) (quota int, err error) {
 	if redemption.Status != common.RedemptionCodeStatusEnabled {
 		return 0, errors.New("该兑换码已被使用")
 	}
-	err = IncreaseTokenQuota(tokenId, redemption.Quota)
+	err = IncreaseUserQuota(userId, redemption.Quota)
 	if err != nil {
 		return 0, err
 	}

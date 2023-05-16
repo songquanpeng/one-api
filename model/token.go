@@ -2,6 +2,7 @@ package model
 
 import (
 	"errors"
+	"fmt"
 	_ "gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"one-api/common"
@@ -82,6 +83,16 @@ func GetTokenByIds(id int, userId int) (*Token, error) {
 	return &token, err
 }
 
+func GetTokenById(id int) (*Token, error) {
+	if id == 0 {
+		return nil, errors.New("id 为空！")
+	}
+	token := Token{Id: id}
+	var err error = nil
+	err = DB.First(&token, "id = ?", id).Error
+	return &token, err
+}
+
 func (token *Token) Insert() error {
 	var err error
 	err = DB.Create(token).Error
@@ -116,26 +127,53 @@ func DeleteTokenById(id int, userId int) (err error) {
 	if err != nil {
 		return err
 	}
-	quota := token.RemainQuota
-	if quota != 0 {
-		if quota > 0 {
-			err = IncreaseUserQuota(userId, quota)
-		} else {
-			err = DecreaseUserQuota(userId, -quota)
-		}
-	}
-	if err != nil {
-		return err
-	}
 	return token.Delete()
 }
 
-func IncreaseTokenQuota(id int, quota int) (err error) {
-	err = DB.Model(&Token{}).Where("id = ?", id).Update("remain_quota", gorm.Expr("remain_quota + ?", quota)).Error
-	return err
-}
-
-func DecreaseTokenQuota(id int, quota int) (err error) {
-	err = DB.Model(&Token{}).Where("id = ?", id).Update("remain_quota", gorm.Expr("remain_quota - ?", quota)).Error
+func DecreaseTokenQuota(tokenId int, quota int) (err error) {
+	if quota < 0 {
+		return errors.New("quota 不能为负数！")
+	}
+	token, err := GetTokenById(tokenId)
+	if err != nil {
+		return err
+	}
+	if token.RemainQuota < quota {
+		return errors.New("令牌额度不足")
+	}
+	userQuota, err := GetUserQuota(token.UserId)
+	if err != nil {
+		return err
+	}
+	if userQuota < quota {
+		return errors.New("用户额度不足")
+	}
+	quotaTooLow := userQuota >= common.QuotaRemindThreshold && userQuota-quota < common.QuotaRemindThreshold
+	noMoreQuota := userQuota-quota <= 0
+	if quotaTooLow || noMoreQuota {
+		go func() {
+			email, err := GetUserEmail(token.UserId)
+			if err != nil {
+				common.SysError("获取用户邮箱失败：" + err.Error())
+			}
+			prompt := "您的额度即将用尽"
+			if noMoreQuota {
+				prompt = "您的额度已用尽"
+			}
+			if email != "" {
+				topUpLink := fmt.Sprintf("%s/topup", common.ServerAddress)
+				err = common.SendEmail(prompt, email,
+					fmt.Sprintf("%s，剩余额度为 %d，为了不影响您的使用，请及时充值。<br/>充值链接：<a href='%s'>%s</a>", prompt, userQuota-quota, topUpLink, topUpLink))
+				if err != nil {
+					common.SysError("发送邮件失败：" + err.Error())
+				}
+			}
+		}()
+	}
+	err = DB.Model(&Token{}).Where("id = ?", tokenId).Update("remain_quota", gorm.Expr("remain_quota - ?", quota)).Error
+	if err != nil {
+		return err
+	}
+	err = DecreaseUserQuota(token.UserId, quota)
 	return err
 }

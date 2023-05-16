@@ -37,6 +37,7 @@ func SetApiRouter(router *gin.Engine) {
 				selfRoute.PUT("/self", controller.UpdateSelf)
 				selfRoute.DELETE("/self", controller.DeleteSelf)
 				selfRoute.GET("/token", controller.GenerateAccessToken)
+				selfRoute.POST("/topup", controller.TopUp)
 			}
 
 			adminRoute := userRoute.Group("/")
@@ -74,7 +75,6 @@ func SetApiRouter(router *gin.Engine) {
 		{
 			tokenRoute.GET("/", controller.GetAllTokens)
 			tokenRoute.GET("/search", controller.SearchTokens)
-			tokenRoute.POST("/topup", controller.TopUp)
 			tokenRoute.GET("/:id", controller.GetToken)
 			tokenRoute.POST("/", controller.AddToken)
 			tokenRoute.PUT("/", controller.UpdateToken)

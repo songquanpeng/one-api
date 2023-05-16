@@ -36,8 +36,6 @@ const TokensTable = () => {
   const [searching, setSearching] = useState(false);
   const [showTopUpModal, setShowTopUpModal] = useState(false);
   const [targetTokenIdx, setTargetTokenIdx] = useState(0);
-  const [redemptionCode, setRedemptionCode] = useState('');
-  const [topUpLink, setTopUpLink] = useState('');
 
   const loadTokens = async (startIdx) => {
     const res = await API.get(`/api/token/?p=${startIdx}`);
@@ -77,13 +75,6 @@ const TokensTable = () => {
       .catch((reason) => {
         showError(reason);
       });
-    let status = localStorage.getItem('status');
-    if (status) {
-      status = JSON.parse(status);
-      if (status.top_up_link) {
-        setTopUpLink(status.top_up_link);
-      }
-    }
   }, []);
 
   const manageToken = async (id, action, idx) => {
@@ -155,28 +146,6 @@ const TokensTable = () => {
     setTokens(sortedTokens);
     setLoading(false);
   };
-
-  const topUp = async () => {
-    if (redemptionCode === '') {
-      return;
-    }
-    const res = await API.post('/api/token/topup/', {
-      id: tokens[targetTokenIdx].id,
-      key: redemptionCode
-    });
-    const { success, message, data } = res.data;
-    if (success) {
-      showSuccess('充值成功！');
-      let newTokens = [...tokens];
-      let realIdx = (activePage - 1) * ITEMS_PER_PAGE + targetTokenIdx;
-      newTokens[realIdx].remain_quota += data;
-      setTokens(newTokens);
-      setRedemptionCode('');
-      setShowTopUpModal(false);
-    } else {
-      showError(message);
-    }
-  }
 
   return (
     <>
@@ -279,15 +248,6 @@ const TokensTable = () => {
                       >
                         复制
                       </Button>
-                      <Button
-                        size={'small'}
-                        color={'yellow'}
-                        onClick={() => {
-                          setTargetTokenIdx(idx);
-                          setShowTopUpModal(true);
-                        }}>
-                        充值
-                      </Button>
                       <Popup
                         trigger={
                           <Button size='small' negative>
@@ -355,39 +315,6 @@ const TokensTable = () => {
           </Table.Row>
         </Table.Footer>
       </Table>
-
-      <Modal
-        onClose={() => setShowTopUpModal(false)}
-        onOpen={() => setShowTopUpModal(true)}
-        open={showTopUpModal}
-        size={'mini'}
-      >
-        <Modal.Header>通过兑换码为令牌「{tokens[targetTokenIdx]?.name}」充值</Modal.Header>
-        <Modal.Content>
-          <Modal.Description>
-            {/*<Image src={status.wechat_qrcode} fluid />*/}
-            {
-              topUpLink && <p>
-                  <a target='_blank' href={topUpLink}>点击此处获取兑换码</a>
-              </p>
-            }
-            <Form size='large'>
-              <Form.Input
-                fluid
-                placeholder='兑换码'
-                name='redemptionCode'
-                value={redemptionCode}
-                onChange={(e) => {
-                  setRedemptionCode(e.target.value);
-                }}
-              />
-              <Button color='' fluid size='large' onClick={topUp}>
-                充值
-              </Button>
-            </Form>
-          </Modal.Description>
-        </Modal.Content>
-      </Modal>
     </>
   );
 };

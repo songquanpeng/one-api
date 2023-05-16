@@ -225,12 +225,23 @@ func GetUserQuota(id int) (quota int, err error) {
 	return quota, err
 }
 
+func GetUserEmail(id int) (email string, err error) {
+	err = DB.Model(&User{}).Where("id = ?", id).Select("email").Find(&email).Error
+	return email, err
+}
+
 func IncreaseUserQuota(id int, quota int) (err error) {
+	if quota < 0 {
+		return errors.New("quota 不能为负数！")
+	}
 	err = DB.Model(&User{}).Where("id = ?", id).Update("quota", gorm.Expr("quota + ?", quota)).Error
 	return err
 }
 
 func DecreaseUserQuota(id int, quota int) (err error) {
+	if quota < 0 {
+		return errors.New("quota 不能为负数！")
+	}
 	err = DB.Model(&User{}).Where("id = ?", id).Update("quota", gorm.Expr("quota - ?", quota)).Error
 	return err
 }

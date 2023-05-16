@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Form, Header, Segment } from 'semantic-ui-react';
 import { useParams } from 'react-router-dom';
-import { API, isAdmin, showError, showSuccess, timestamp2string } from '../../helpers';
+import { API, showError, showSuccess, timestamp2string } from '../../helpers';
 
 const EditToken = () => {
   const params = useParams();
@@ -14,7 +14,6 @@ const EditToken = () => {
     expired_time: -1,
     unlimited_quota: false
   };
-  const isAdminUser = isAdmin();
   const [inputs, setInputs] = useState(originInputs);
   const { name, remain_quota, expired_time, unlimited_quota } = inputs;
 
@@ -107,25 +106,21 @@ const EditToken = () => {
               required={!isEdit}
             />
           </Form.Field>
-          {
-            isAdminUser && <>
-              <Form.Field>
-                <Form.Input
-                  label='额度'
-                  name='remain_quota'
-                  placeholder={'请输入额度'}
-                  onChange={handleInputChange}
-                  value={remain_quota}
-                  autoComplete='new-password'
-                  type='number'
-                  disabled={unlimited_quota}
-                />
-              </Form.Field>
-              <Button type={'button'} style={{marginBottom: '14px'}} onClick={() => {
-                setUnlimitedQuota();
-              }}>{unlimited_quota ? '取消无限额度' : '设置为无限额度'}</Button>
-            </>
-          }
+          <Form.Field>
+            <Form.Input
+              label='额度'
+              name='remain_quota'
+              placeholder={'请输入额度'}
+              onChange={handleInputChange}
+              value={remain_quota}
+              autoComplete='new-password'
+              type='number'
+              disabled={unlimited_quota}
+            />
+          </Form.Field>
+          <Button type={'button'} style={{ marginBottom: '14px' }} onClick={() => {
+            setUnlimitedQuota();
+          }}>{unlimited_quota ? '取消无限额度' : '设置为无限额度'}</Button>
           <Form.Field>
             <Form.Input
               label='过期时间'

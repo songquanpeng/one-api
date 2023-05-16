@@ -654,3 +654,34 @@ func EmailBind(c *gin.Context) {
 	})
 	return
 }
+
+type topUpRequest struct {
+	Key string `json:"key"`
+}
+
+func TopUp(c *gin.Context) {
+	req := topUpRequest{}
+	err := c.ShouldBindJSON(&req)
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+	id := c.GetInt("id")
+	quota, err := model.Redeem(req.Key, id)
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "",
+		"data":    quota,
+	})
+	return
+}
