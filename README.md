@@ -40,6 +40,9 @@ _✨ All in one 的 OpenAI 接口，整合各种 API 访问方式，开箱即用
   <a href="https://openai.justsong.cn/">在线演示</a>
 </p>
 
+> **Warning**：从 `v0.2` 版本升级到 `v0.3` 版本需要手动迁移数据库，请手动执行[数据库迁移脚本](./bin/migration_v0.2-v0.3.sql)。
+
+
 ## 功能
 1. 支持多种 API 访问渠道，欢迎 PR 或提 issue 添加更多渠道：
    + [x] OpenAI 官方通道
