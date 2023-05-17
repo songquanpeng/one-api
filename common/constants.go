@@ -132,7 +132,7 @@ const (
 var ChannelBaseURLs = []string{
 	"",                            // 0
 	"https://api.openai.com",      // 1
-	"https://openai.api2d.net",    // 2
+	"https://oa.api2d.net",        // 2
 	"",                            // 3
 	"https://api.openai-asia.com", // 4
 	"https://api.openai-sb.com",   // 5
