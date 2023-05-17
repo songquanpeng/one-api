@@ -175,7 +175,7 @@ func relayHelper(c *gin.Context) error {
 		return err
 	}
 	var textResponse TextResponse
-	isStream := resp.Header.Get("Content-Type") == "text/event-stream"
+	isStream := strings.HasPrefix(resp.Header.Get("Content-Type"), "text/event-stream")
 	var streamResponseText string
 
 	defer func() {
