@@ -77,6 +77,8 @@ func Relay(c *gin.Context) {
 				"type":    "one_api_error",
 			},
 		})
+		channelId := c.GetInt("channel_id")
+		common.SysError(fmt.Sprintf("Relay error: %s, channel id: %d", err.Error(), channelId))
 		if common.AutomaticDisableChannelEnabled {
 			channelId := c.GetInt("channel_id")
 			channelName := c.GetString("channel_name")
