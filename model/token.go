@@ -6,7 +6,6 @@ import (
 	_ "gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"one-api/common"
-	"strings"
 )
 
 type Token struct {
@@ -38,7 +37,6 @@ func ValidateUserToken(key string) (token *Token, err error) {
 	if key == "" {
 		return nil, errors.New("未提供 token")
 	}
-	key = strings.Replace(key, "Bearer ", "", 1)
 	token = &Token{}
 	err = DB.Where("`key` = ?", key).First(token).Error
 	if err == nil {
