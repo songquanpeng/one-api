@@ -48,10 +48,10 @@ _✨ All in one 的 OpenAI 接口，整合各种 API 访问方式，开箱即用
    + [x] OpenAI 官方通道
    + [x] **Azure OpenAI API**
    + [x] [API2D](https://api2d.com/r/197971)
+   + [x] [OhMyGPT](https://aigptx.top?aff=uFpUl2Kf)
    + [x] [CloseAI](https://console.openai-asia.com)
    + [x] [OpenAI-SB](https://openai-sb.com)
    + [x] [OpenAI Max](https://openaimax.com)
-   + [x] [OhMyGPT](https://www.ohmygpt.com)
    + [x] 自定义渠道：例如使用自行搭建的 OpenAI 代理
 2. 支持通过**负载均衡**的方式访问多个渠道。
 3. 支持 **stream 模式**，可以通过流式传输实现打字机效果。
