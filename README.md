@@ -138,7 +138,7 @@ sudo service nginx restart
 1. 所有服务器 `SESSION_SECRET` 设置一样的值。
 2. 必须设置 `SQL_DSN`，使用 MySQL 数据库而非 SQLite，请自行配置主备数据库同步。
 3. 所有从服务器必须设置 `SYNC_FREQUENCY`，以定期从数据库同步配置。
-4. 从服务器可以选择设置 `FRONTEND_BASE_URL`，以重定向页面请求到主服务器。‘
+4. 从服务器可以选择设置 `FRONTEND_BASE_URL`，以重定向页面请求到主服务器。
 
 环境变量的具体使用方法详见[此处](#环境变量)。
 
