@@ -47,6 +47,13 @@ func main() {
 
 	// Initialize options
 	model.InitOptionMap()
+	if os.Getenv("SYNC_FREQUENCY") != "" {
+		frequency, err := strconv.Atoi(os.Getenv("SYNC_FREQUENCY"))
+		if err != nil {
+			common.FatalLog(err)
+		}
+		go model.SyncOptions(frequency)
+	}
 
 	// Initialize HTTP server
 	server := gin.Default()

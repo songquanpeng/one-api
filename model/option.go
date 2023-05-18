@@ -4,6 +4,7 @@ import (
 	"one-api/common"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type Option struct {
@@ -59,12 +60,24 @@ func InitOptionMap() {
 	common.OptionMap["ModelRatio"] = common.ModelRatio2JSONString()
 	common.OptionMap["TopUpLink"] = common.TopUpLink
 	common.OptionMapRWMutex.Unlock()
+	loadOptionsFromDatabase()
+}
+
+func loadOptionsFromDatabase() {
 	options, _ := AllOption()
 	for _, option := range options {
 		err := updateOptionMap(option.Key, option.Value)
 		if err != nil {
 			common.SysError("Failed to update option map: " + err.Error())
 		}
+	}
+}
+
+func SyncOptions(frequency int) {
+	for {
+		time.Sleep(time.Duration(frequency) * time.Second)
+		common.SysLog("Syncing options from database")
+		loadOptionsFromDatabase()
 	}
 }
 
