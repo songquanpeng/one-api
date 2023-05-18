@@ -265,14 +265,14 @@ var testAllChannelsLock sync.Mutex
 var testAllChannelsRunning bool = false
 
 // disable & notify
-func disableChannel(channelId int, channelName string, err error) {
+func disableChannel(channelId int, channelName string, reason string) {
 	if common.RootUserEmail == "" {
 		common.RootUserEmail = model.GetRootUserEmail()
 	}
 	model.UpdateChannelStatusById(channelId, common.ChannelStatusDisabled)
 	subject := fmt.Sprintf("通道「%s」（#%d）已被禁用", channelName, channelId)
-	content := fmt.Sprintf("通道「%s」（#%d）已被禁用，原因：%s", channelName, channelId, err.Error())
-	err = common.SendEmail(subject, common.RootUserEmail, content)
+	content := fmt.Sprintf("通道「%s」（#%d）已被禁用，原因：%s", channelName, channelId, reason)
+	err := common.SendEmail(subject, common.RootUserEmail, content)
 	if err != nil {
 		common.SysError(fmt.Sprintf("发送邮件失败：%s", err.Error()))
 	}
@@ -312,7 +312,7 @@ func testAllChannels(c *gin.Context) error {
 				if milliseconds > disableThreshold {
 					err = errors.New(fmt.Sprintf("响应时间 %.2fs 超过阈值 %.2fs", float64(milliseconds)/1000.0, float64(disableThreshold)/1000.0))
 				}
-				disableChannel(channel.Id, channel.Name, err)
+				disableChannel(channel.Id, channel.Name, err.Error())
 			}
 			channel.UpdateResponseTime(milliseconds)
 		}
