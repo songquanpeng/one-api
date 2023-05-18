@@ -96,6 +96,8 @@ func GetTokenStatus(c *gin.Context) {
 		"total_used":      0, // not supported currently
 		"total_available": token.RemainQuota,
 		"expires_at":      expiredAt * 1000,
+		"hard_limit_usd":  token.RemainQuota,      // 兼容openai的接口
+		"total_usage":     token.TotalUsage * 100, // 兼容openai的接口
 	})
 }
 
@@ -125,6 +127,7 @@ func AddToken(c *gin.Context) {
 		ExpiredTime:    token.ExpiredTime,
 		RemainQuota:    token.RemainQuota,
 		UnlimitedQuota: token.UnlimitedQuota,
+		TotalUsage:     token.TotalUsage,
 	}
 	err = cleanToken.Insert()
 	if err != nil {
@@ -203,6 +206,7 @@ func UpdateToken(c *gin.Context) {
 		cleanToken.ExpiredTime = token.ExpiredTime
 		cleanToken.RemainQuota = token.RemainQuota
 		cleanToken.UnlimitedQuota = token.UnlimitedQuota
+		cleanToken.TotalUsage = token.TotalUsage
 	}
 	err = cleanToken.Update()
 	if err != nil {

@@ -11,11 +11,12 @@ const EditToken = () => {
   const originInputs = {
     name: '',
     remain_quota: 0,
+    total_usage: 0,
     expired_time: -1,
     unlimited_quota: false
   };
   const [inputs, setInputs] = useState(originInputs);
-  const { name, remain_quota, expired_time, unlimited_quota } = inputs;
+  const { name, remain_quota, total_usage, expired_time, unlimited_quota } = inputs;
 
   const handleInputChange = (e, { name, value }) => {
     setInputs((inputs) => ({ ...inputs, [name]: value }));
@@ -63,6 +64,7 @@ const EditToken = () => {
     if (!isEdit && inputs.name === '') return;
     let localInputs = inputs;
     localInputs.remain_quota = parseInt(localInputs.remain_quota);
+    localInputs.total_usage = parseInt(localInputs.total_usage);
     if (localInputs.expired_time !== -1) {
       let time = Date.parse(localInputs.expired_time);
       if (isNaN(time)) {
@@ -104,6 +106,17 @@ const EditToken = () => {
               value={name}
               autoComplete='new-password'
               required={!isEdit}
+            />
+          </Form.Field>
+          <Form.Field>
+            <Form.Input
+                label='已使用额度'
+                name='total_usage'
+                placeholder={'请输入额度'}
+                onChange={handleInputChange}
+                value={total_usage}
+                autoComplete='new-password'
+                type='number'
             />
           </Form.Field>
           <Message>注意，令牌的额度仅用于限制令牌本身的最大额度使用量，实际的使用受到账户的剩余额度限制。</Message>

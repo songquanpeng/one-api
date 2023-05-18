@@ -14,5 +14,7 @@ func SetDashboardRouter(router *gin.Engine) {
 	apiRouter.Use(middleware.TokenAuth())
 	{
 		apiRouter.GET("/billing/credit_grants", controller.GetTokenStatus)
+		apiRouter.GET("/billing/subscription", controller.GetTokenStatus)
+		apiRouter.GET("/billing/usage", controller.GetTokenStatus)
 	}
 }

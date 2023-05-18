@@ -197,6 +197,14 @@ const TokensTable = () => {
               额度
             </Table.HeaderCell>
             <Table.HeaderCell
+                style={{ cursor: 'pointer' }}
+                onClick={() => {
+                  sortToken('total_usage');
+                }}
+            >
+              已使用
+            </Table.HeaderCell>
+            <Table.HeaderCell
               style={{ cursor: 'pointer' }}
               onClick={() => {
                 sortToken('created_time');
@@ -230,6 +238,7 @@ const TokensTable = () => {
                   <Table.Cell>{token.name ? token.name : '无'}</Table.Cell>
                   <Table.Cell>{renderStatus(token.status)}</Table.Cell>
                   <Table.Cell>{token.unlimited_quota ? '无限制' : token.remain_quota}</Table.Cell>
+                  <Table.Cell>{token.total_usage}</Table.Cell>
                   <Table.Cell>{renderTimestamp(token.created_time)}</Table.Cell>
                   <Table.Cell>{token.expired_time === -1 ? '永不过期' : renderTimestamp(token.expired_time)}</Table.Cell>
                   <Table.Cell>
