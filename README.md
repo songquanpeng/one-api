@@ -157,6 +157,8 @@ sudo service nginx restart
    + 例子：`SESSION_SECRET=random_string`
 3. `SQL_DSN`：设置之后将使用指定数据库而非 SQLite。
    + 例子：`SQL_DSN=root:123456@tcp(localhost:3306)/one-api`
+4. `FRONTEND_BASE_URL`：设置之后将使用指定的前端地址，而非后端地址。
+   + 例子：`FRONTEND_BASE_URL=https://openai.justsong.cn`
 
 ### 命令行参数
 1. `--port <port_number>`: 指定服务器监听的端口号，默认为 `3000`。
