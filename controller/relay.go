@@ -262,6 +262,7 @@ func relayHelper(c *gin.Context) *OpenAIErrorWithStatusCode {
 		c.Writer.Header().Set("Cache-Control", "no-cache")
 		c.Writer.Header().Set("Connection", "keep-alive")
 		c.Writer.Header().Set("Transfer-Encoding", "chunked")
+		c.Writer.Header().Set("X-Accel-Buffering", "no")
 		c.Stream(func(w io.Writer) bool {
 			select {
 			case data := <-dataChan:
