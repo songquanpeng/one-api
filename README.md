@@ -38,6 +38,8 @@ _✨ All in one 的 OpenAI 接口，整合各种 API 访问方式，开箱即用
   <a href="https://github.com/songquanpeng/one-api#截图展示">截图展示</a>
   ·
   <a href="https://openai.justsong.cn/">在线演示</a>
+  ·
+  <a href="https://github.com/songquanpeng/one-api#常见问题">常见问题</a>
 </p>
 
 > **Warning**：从 `v0.2` 版本升级到 `v0.3` 版本需要手动迁移数据库，请手动执行[数据库迁移脚本](./bin/migration_v0.2-v0.3.sql)。
@@ -187,3 +189,10 @@ https://openai.justsong.cn
 ### 截图展示
 ![channel](https://user-images.githubusercontent.com/39998050/233837954-ae6683aa-5c4f-429f-a949-6645a83c9490.png)
 ![token](https://user-images.githubusercontent.com/39998050/233837971-dab488b7-6d96-43af-b640-a168e8d1c9bf.png)
+
+## 常见问题
+1. 账户额度足够为什么提示额度不足？
+   + 请检查你的令牌额度是否足够，这个和账户额度是分开的。
+   + 令牌额度仅供用户设置最大使用量，用户可自由设置。
+2. 宝塔部署后访问出现空白页面？
+   + 自动配置的问题。
