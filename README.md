@@ -195,4 +195,4 @@ https://openai.justsong.cn
    + 请检查你的令牌额度是否足够，这个和账户额度是分开的。
    + 令牌额度仅供用户设置最大使用量，用户可自由设置。
 2. 宝塔部署后访问出现空白页面？
-   + 自动配置的问题。
+   + 自动配置的问题，详见[#97](https://github.com/songquanpeng/one-api/issues/97)。
