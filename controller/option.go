@@ -36,7 +36,7 @@ func UpdateOption(c *gin.Context) {
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"success": false,
-			"message": "无效的参数",
+			"message": "invalid parameter",
 		})
 		return
 	}
@@ -45,7 +45,7 @@ func UpdateOption(c *gin.Context) {
 		if option.Value == "true" && common.GitHubClientId == "" {
 			c.JSON(http.StatusOK, gin.H{
 				"success": false,
-				"message": "无法启用 GitHub OAuth，请先填入 GitHub Client ID 以及 GitHub Client Secret！",
+				"message": "Unable to enable GitHub OAuth, please fill in GitHub Client ID and GitHub Client Secret first！",
 			})
 			return
 		}
@@ -53,7 +53,7 @@ func UpdateOption(c *gin.Context) {
 		if option.Value == "true" && common.WeChatServerAddress == "" {
 			c.JSON(http.StatusOK, gin.H{
 				"success": false,
-				"message": "无法启用微信登录，请先填入微信登录相关配置信息！",
+				"message": "Unable to enable WeChat login, please fill in the relevant configuration information for WeChat login first！",
 			})
 			return
 		}
@@ -61,7 +61,7 @@ func UpdateOption(c *gin.Context) {
 		if option.Value == "true" && common.TurnstileSiteKey == "" {
 			c.JSON(http.StatusOK, gin.H{
 				"success": false,
-				"message": "无法启用 Turnstile 校验，请先填入 Turnstile 校验相关配置信息！",
+				"message": "Unable to enable Turnstile verification, please fill in the relevant configuration information of Turnstile verification first！",
 			})
 			return
 		}
