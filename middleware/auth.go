@@ -21,7 +21,7 @@ func authHelper(c *gin.Context, minRole int) {
 		if accessToken == "" {
 			c.JSON(http.StatusUnauthorized, gin.H{
 				"success": false,
-				"message": "无权进行此操作，未登录且未提供 access token",
+				"message": "Unauthorized operation, not logged in and no access token provided.",
 			})
 			c.Abort()
 			return
@@ -36,7 +36,7 @@ func authHelper(c *gin.Context, minRole int) {
 		} else {
 			c.JSON(http.StatusOK, gin.H{
 				"success": false,
-				"message": "无权进行此操作，access token 无效",
+				"message": "Unauthorized operation, invalid access token.",
 			})
 			c.Abort()
 			return
@@ -45,7 +45,7 @@ func authHelper(c *gin.Context, minRole int) {
 	if status.(int) == common.UserStatusDisabled {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
-			"message": "用户已被封禁",
+			"message": "User has been banned.",
 		})
 		c.Abort()
 		return
@@ -53,7 +53,7 @@ func authHelper(c *gin.Context, minRole int) {
 	if role.(int) < minRole {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
-			"message": "无权进行此操作，权限不足",
+			"message": "Unauthorized operation, insufficient permissions.",
 		})
 		c.Abort()
 		return
@@ -103,7 +103,7 @@ func TokenAuth() func(c *gin.Context) {
 		if !model.IsUserEnabled(token.UserId) {
 			c.JSON(http.StatusOK, gin.H{
 				"error": gin.H{
-					"message": "用户已被封禁",
+					"message": "User has been banned.",
 					"type":    "one_api_error",
 				},
 			})
@@ -124,7 +124,7 @@ func TokenAuth() func(c *gin.Context) {
 			} else {
 				c.JSON(http.StatusOK, gin.H{
 					"error": gin.H{
-						"message": "普通用户不支持指定渠道",
+						"message": "Regular users are not allowed to specify channels.",
 						"type":    "one_api_error",
 					},
 				})
