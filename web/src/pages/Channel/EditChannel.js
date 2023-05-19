@@ -46,6 +46,9 @@ const EditChannel = () => {
     if (localInputs.base_url.endsWith('/')) {
       localInputs.base_url = localInputs.base_url.slice(0, localInputs.base_url.length - 1);
     }
+    if (localInputs.type === 3 && localInputs.other === '') {
+      localInputs.other = '2023-03-15-preview';
+    }
     let res;
     if (isEdit) {
       res = await API.put(`/api/channel/`, { ...localInputs, id: parseInt(channelId) });
