@@ -20,7 +20,7 @@ type wechatLoginResponse struct {
 
 func getWeChatIdByCode(code string) (string, error) {
 	if code == "" {
-		return "", errors.New("无效的参数")
+		return "", errors.New("Invalid parameter.")
 	}
 	req, err := http.NewRequest("GET", fmt.Sprintf("%s/api/wechat/user?code=%s", common.WeChatServerAddress, code), nil)
 	if err != nil {
@@ -44,7 +44,7 @@ func getWeChatIdByCode(code string) (string, error) {
 		return "", errors.New(res.Message)
 	}
 	if res.Data == "" {
-		return "", errors.New("验证码错误或已过期")
+		return "", errors.New("Invalid or expired verification code.")
 	}
 	return res.Data, nil
 }
@@ -52,7 +52,7 @@ func getWeChatIdByCode(code string) (string, error) {
 func WeChatAuth(c *gin.Context) {
 	if !common.WeChatAuthEnabled {
 		c.JSON(http.StatusOK, gin.H{
-			"message": "管理员未开启通过微信登录以及注册",
+			"message": "WeChat login and registration are not enabled by the administrator.",
 			"success": false,
 		})
 		return
@@ -95,7 +95,7 @@ func WeChatAuth(c *gin.Context) {
 		} else {
 			c.JSON(http.StatusOK, gin.H{
 				"success": false,
-				"message": "管理员关闭了新用户注册",
+				"message": "New user registration is disabled by the administrator.",
 			})
 			return
 		}
@@ -103,7 +103,7 @@ func WeChatAuth(c *gin.Context) {
 
 	if user.Status != common.UserStatusEnabled {
 		c.JSON(http.StatusOK, gin.H{
-			"message": "用户已被封禁",
+			"message": "User has been banned.",
 			"success": false,
 		})
 		return
@@ -114,7 +114,7 @@ func WeChatAuth(c *gin.Context) {
 func WeChatBind(c *gin.Context) {
 	if !common.WeChatAuthEnabled {
 		c.JSON(http.StatusOK, gin.H{
-			"message": "管理员未开启通过微信登录以及注册",
+			"message": "WeChat login and registration have not been enabled by the administrator.",
 			"success": false,
 		})
 		return
@@ -131,7 +131,7 @@ func WeChatBind(c *gin.Context) {
 	if model.IsWeChatIdAlreadyTaken(wechatId) {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
-			"message": "该微信账号已被绑定",
+			"message": "This WeChat account has already been bound.",
 		})
 		return
 	}
