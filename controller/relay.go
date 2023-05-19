@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/pkoukk/tiktoken-go"
 	"io"
 	"net/http"
 	"one-api/common"
@@ -17,6 +16,7 @@ import (
 type Message struct {
 	Role    string `json:"role"`
 	Content string `json:"content"`
+	Name    string `json:"name"`
 }
 
 type ChatRequest struct {
@@ -63,13 +63,6 @@ type StreamResponse struct {
 		} `json:"delta"`
 		FinishReason string `json:"finish_reason"`
 	} `json:"choices"`
-}
-
-var tokenEncoder, _ = tiktoken.GetEncoding("cl100k_base")
-
-func countToken(text string) int {
-	token := tokenEncoder.Encode(text, nil, nil)
-	return len(token)
 }
 
 func Relay(c *gin.Context) {
@@ -149,11 +142,8 @@ func relayHelper(c *gin.Context) *OpenAIErrorWithStatusCode {
 		model_ = strings.TrimSuffix(model_, "-0314")
 		fullRequestURL = fmt.Sprintf("%s/openai/deployments/%s/%s", baseURL, model_, task)
 	}
-	var promptText string
-	for _, message := range textRequest.Messages {
-		promptText += fmt.Sprintf("%s: %s\n", message.Role, message.Content)
-	}
-	promptTokens := countToken(promptText) + 3
+
+	promptTokens := countTokenMessages(textRequest.Messages, textRequest.Model)
 	preConsumedTokens := common.PreConsumedQuota
 	if textRequest.MaxTokens != 0 {
 		preConsumedTokens = promptTokens + textRequest.MaxTokens
@@ -206,8 +196,8 @@ func relayHelper(c *gin.Context) *OpenAIErrorWithStatusCode {
 				completionRatio = 2
 			}
 			if isStream {
-				completionText := fmt.Sprintf("%s: %s\n", "assistant", streamResponseText)
-				quota = promptTokens + countToken(completionText)*completionRatio
+				responseTokens := countTokenText(streamResponseText, textRequest.Model)
+				quota = promptTokens + responseTokens*completionRatio
 			} else {
 				quota = textResponse.Usage.PromptTokens + textResponse.Usage.CompletionTokens*completionRatio
 			}
