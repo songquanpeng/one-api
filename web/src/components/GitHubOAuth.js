@@ -8,7 +8,7 @@ const GitHubOAuth = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const [userState, userDispatch] = useContext(UserContext);
-  const [prompt, setPrompt] = useState('处理中...');
+  const [prompt, setPrompt] = useState('Processing...');
   const [processing, setProcessing] = useState(true);
 
   let navigate = useNavigate();
@@ -18,23 +18,23 @@ const GitHubOAuth = () => {
     const { success, message, data } = res.data;
     if (success) {
       if (message === 'bind') {
-        showSuccess('绑定成功！');
+        showSuccess('Binding Successful！');
         navigate('/setting');
       } else {
         userDispatch({ type: 'login', payload: data });
         localStorage.setItem('user', JSON.stringify(data));
-        showSuccess('登录成功！');
+        showSuccess('Login Successful！');
         navigate('/');
       }
     } else {
       showError(message);
       if (count === 0) {
-        setPrompt(`操作失败，重定向至登录界面中...`);
+        setPrompt(`Operation failed, redirecting to login page...`);
         navigate('/setting'); // in case this is failed to bind GitHub
         return;
       }
       count++;
-      setPrompt(`出现错误，第 ${count} 次重试中...`);
+      setPrompt(`Error occurred, retrying for the ${count} time...`);
       await new Promise((resolve) => setTimeout(resolve, count * 2000));
       await sendCode(code, count);
     }
