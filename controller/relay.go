@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/pkoukk/tiktoken-go"
 	"io"
 	"net/http"
 	"one-api/common"
@@ -17,6 +16,7 @@ import (
 type Message struct {
 	Role    string `json:"role"`
 	Content string `json:"content"`
+	Name    string `json:"name"`
 }
 
 type ChatRequest struct {
@@ -63,40 +63,6 @@ type StreamResponse struct {
 		} `json:"delta"`
 		FinishReason string `json:"finish_reason"`
 	} `json:"choices"`
-}
-
-func countTokenMessages(messages []Message, model string) int {
-	// 获取模型的编码器
-	tokenEncoder, _ := tiktoken.EncodingForModel(model)
-
-	// 参照官方的token计算cookbook
-	// https://github.com/openai/openai-cookbook/blob/main/examples/How_to_count_tokens_with_tiktoken.ipynb
-	// https://github.com/pkoukk/tiktoken-go/issues/6
-	var tokens_per_message int
-	if strings.HasPrefix(model, "gpt-3.5") {
-		tokens_per_message = 4 // every message follows <|start|>{role/name}\n{content}<|end|>\n
-	} else if strings.HasPrefix(model, "gpt-4") {
-		tokens_per_message = 3
-	} else {
-		tokens_per_message = 3
-	}
-
-	token := 0
-	for _, message := range messages {
-		token += tokens_per_message
-		token += len(tokenEncoder.Encode(message.Content, nil, nil))
-		token += len(tokenEncoder.Encode(message.Role, nil, nil))
-	}
-	// 经过测试这个assistant的token是算在prompt里面的,而不是算在Completion里面的
-	token += 3 // every reply is primed with <|start|>assistant<|message|>
-	return token
-}
-
-func countTokenText(text string, model string) int {
-	// 获取模型的编码器
-	tokenEncoder, _ := tiktoken.EncodingForModel(model)
-	token := tokenEncoder.Encode(text, nil, nil)
-	return len(token)
 }
 
 func Relay(c *gin.Context) {
@@ -230,7 +196,8 @@ func relayHelper(c *gin.Context) *OpenAIErrorWithStatusCode {
 				completionRatio = 2
 			}
 			if isStream {
-				quota = promptTokens + countTokenText(streamResponseText, textRequest.Model)*completionRatio
+				responseTokens := countTokenText(streamResponseText, textRequest.Model)
+				quota = promptTokens + responseTokens*completionRatio
 			} else {
 				quota = textResponse.Usage.PromptTokens + textResponse.Usage.CompletionTokens*completionRatio
 			}
