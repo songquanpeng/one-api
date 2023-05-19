@@ -18,7 +18,7 @@ func Distribute() func(c *gin.Context) {
 			if err != nil {
 				c.JSON(http.StatusOK, gin.H{
 					"error": gin.H{
-						"message": "无效的渠道 ID",
+						"message": "Invalid channel. ID",
 						"type":    "one_api_error",
 					},
 				})
@@ -29,7 +29,7 @@ func Distribute() func(c *gin.Context) {
 			if err != nil {
 				c.JSON(200, gin.H{
 					"error": gin.H{
-						"message": "无效的渠道 ID",
+						"message": "Invalid channel. ID",
 						"type":    "one_api_error",
 					},
 				})
@@ -39,7 +39,7 @@ func Distribute() func(c *gin.Context) {
 			if channel.Status != common.ChannelStatusEnabled {
 				c.JSON(200, gin.H{
 					"error": gin.H{
-						"message": "该渠道已被禁用",
+						"message": "This channel has been disabled.",
 						"type":    "one_api_error",
 					},
 				})
@@ -53,7 +53,7 @@ func Distribute() func(c *gin.Context) {
 			if err != nil {
 				c.JSON(200, gin.H{
 					"error": gin.H{
-						"message": "无可用渠道",
+						"message": "No available channels.",
 						"type":    "one_api_error",
 					},
 				})
