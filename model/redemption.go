@@ -32,7 +32,7 @@ func SearchRedemptions(keyword string) (redemptions []*Redemption, err error) {
 
 func GetRedemptionById(id int) (*Redemption, error) {
 	if id == 0 {
-		return nil, errors.New("id 为空！")
+		return nil, errors.New("id Empty！")
 	}
 	redemption := Redemption{Id: id}
 	var err error = nil
@@ -42,18 +42,18 @@ func GetRedemptionById(id int) (*Redemption, error) {
 
 func Redeem(key string, userId int) (quota int, err error) {
 	if key == "" {
-		return 0, errors.New("未提供兑换码")
+		return 0, errors.New("Redemption code not provided.")
 	}
 	if userId == 0 {
-		return 0, errors.New("无效的 user id")
+		return 0, errors.New("Invalid user id")
 	}
 	redemption := &Redemption{}
 	err = DB.Where("`key` = ?", key).First(redemption).Error
 	if err != nil {
-		return 0, errors.New("无效的兑换码")
+		return 0, errors.New("Invalid redemption code.")
 	}
 	if redemption.Status != common.RedemptionCodeStatusEnabled {
-		return 0, errors.New("该兑换码已被使用")
+		return 0, errors.New("This redemption code has already been used.")
 	}
 	err = IncreaseUserQuota(userId, redemption.Quota)
 	if err != nil {
@@ -64,7 +64,7 @@ func Redeem(key string, userId int) (quota int, err error) {
 		redemption.Status = common.RedemptionCodeStatusUsed
 		err := redemption.SelectUpdate()
 		if err != nil {
-			common.SysError("更新兑换码状态失败：" + err.Error())
+			common.SysError("Failed to update redemption code status.：" + err.Error())
 		}
 	}()
 	return redemption.Quota, nil
