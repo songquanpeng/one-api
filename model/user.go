@@ -43,7 +43,7 @@ func SearchUsers(keyword string) (users []*User, err error) {
 
 func GetUserById(id int, selectAll bool) (*User, error) {
 	if id == 0 {
-		return nil, errors.New("id 为空！")
+		return nil, errors.New("id Empty.！")
 	}
 	user := User{Id: id}
 	var err error = nil
@@ -57,7 +57,7 @@ func GetUserById(id int, selectAll bool) (*User, error) {
 
 func DeleteUserById(id int) (err error) {
 	if id == 0 {
-		return errors.New("id 为空！")
+		return errors.New("id Empty.！")
 	}
 	user := User{Id: id}
 	return user.Delete()
@@ -104,19 +104,19 @@ func (user *User) ValidateAndFill() (err error) {
 	// it won’t be used to build query conditions
 	password := user.Password
 	if user.Username == "" || password == "" {
-		return errors.New("用户名或密码为空")
+		return errors.New("Username or password is empty.")
 	}
 	DB.Where(User{Username: user.Username}).First(user)
 	okay := common.ValidatePasswordAndHash(password, user.Password)
 	if !okay || user.Status != common.UserStatusEnabled {
-		return errors.New("用户名或密码错误，或用户已被封禁")
+		return errors.New("Either the username or password is incorrect, or the user has been banned.")
 	}
 	return nil
 }
 
 func (user *User) FillUserById() error {
 	if user.Id == 0 {
-		return errors.New("id 为空！")
+		return errors.New("id Empty.！")
 	}
 	DB.Where(User{Id: user.Id}).First(user)
 	return nil
@@ -124,7 +124,7 @@ func (user *User) FillUserById() error {
 
 func (user *User) FillUserByEmail() error {
 	if user.Email == "" {
-		return errors.New("email 为空！")
+		return errors.New("email Empty.！")
 	}
 	DB.Where(User{Email: user.Email}).First(user)
 	return nil
@@ -132,7 +132,7 @@ func (user *User) FillUserByEmail() error {
 
 func (user *User) FillUserByGitHubId() error {
 	if user.GitHubId == "" {
-		return errors.New("GitHub id 为空！")
+		return errors.New("GitHub id Empty.！")
 	}
 	DB.Where(User{GitHubId: user.GitHubId}).First(user)
 	return nil
@@ -140,7 +140,7 @@ func (user *User) FillUserByGitHubId() error {
 
 func (user *User) FillUserByWeChatId() error {
 	if user.WeChatId == "" {
-		return errors.New("WeChat id 为空！")
+		return errors.New("WeChat id Empty.！")
 	}
 	DB.Where(User{WeChatId: user.WeChatId}).First(user)
 	return nil
@@ -148,7 +148,7 @@ func (user *User) FillUserByWeChatId() error {
 
 func (user *User) FillUserByUsername() error {
 	if user.Username == "" {
-		return errors.New("username 为空！")
+		return errors.New("username Empty.！")
 	}
 	DB.Where(User{Username: user.Username}).First(user)
 	return nil
@@ -172,7 +172,7 @@ func IsUsernameAlreadyTaken(username string) bool {
 
 func ResetUserPasswordByEmail(email string, password string) error {
 	if email == "" || password == "" {
-		return errors.New("邮箱地址或密码为空！")
+		return errors.New("Email address or password is empty.！")
 	}
 	hashedPassword, err := common.Password2Hash(password)
 	if err != nil {
@@ -232,7 +232,7 @@ func GetUserEmail(id int) (email string, err error) {
 
 func IncreaseUserQuota(id int, quota int) (err error) {
 	if quota < 0 {
-		return errors.New("quota 不能为负数！")
+		return errors.New("quota Cannot be negative.！")
 	}
 	err = DB.Model(&User{}).Where("id = ?", id).Update("quota", gorm.Expr("quota + ?", quota)).Error
 	return err
@@ -240,7 +240,7 @@ func IncreaseUserQuota(id int, quota int) (err error) {
 
 func DecreaseUserQuota(id int, quota int) (err error) {
 	if quota < 0 {
-		return errors.New("quota 不能为负数！")
+		return errors.New("quota Cannot be negative.！")
 	}
 	err = DB.Model(&User{}).Where("id = ?", id).Update("quota", gorm.Expr("quota - ?", quota)).Error
 	return err
