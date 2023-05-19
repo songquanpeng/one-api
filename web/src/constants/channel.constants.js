@@ -6,5 +6,6 @@ export const CHANNEL_OPTIONS = [
   { key: 5, text: 'OpenAI-SB', value: 5, color: 'brown' },
   { key: 6, text: 'OpenAI Max', value: 6, color: 'violet' },
   { key: 7, text: 'OhMyGPT', value: 7, color: 'purple' },
+  { key: 9, text: 'AI.LS', value: 9, color: 'yellow' },
   { key: 8, text: '自定义', value: 8, color: 'pink' }
 ];

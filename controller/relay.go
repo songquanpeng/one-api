@@ -14,9 +14,9 @@ import (
 )
 
 type Message struct {
-	Role    string `json:"role"`
-	Content string `json:"content"`
-	Name    string `json:"name"`
+	Role    string  `json:"role"`
+	Content string  `json:"content"`
+	Name    *string `json:"name,omitempty"`
 }
 
 type ChatRequest struct {
@@ -232,6 +232,10 @@ func relayHelper(c *gin.Context) *OpenAIErrorWithStatusCode {
 		go func() {
 			for scanner.Scan() {
 				data := scanner.Text()
+				if len(data) < 6 { // must be something wrong!
+					common.SysError("Invalid stream response: " + data)
+					continue
+				}
 				dataChan <- data
 				data = data[6:]
 				if !strings.HasPrefix(data, "[DONE]") {

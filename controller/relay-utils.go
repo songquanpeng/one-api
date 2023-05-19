@@ -45,9 +45,9 @@ func countTokenMessages(messages []Message, model string) int {
 		tokenNum += tokensPerMessage
 		tokenNum += len(tokenEncoder.Encode(message.Content, nil, nil))
 		tokenNum += len(tokenEncoder.Encode(message.Role, nil, nil))
-		if message.Name != "" {
+		if message.Name != nil {
 			tokenNum += tokensPerName
-			tokenNum += len(tokenEncoder.Encode(message.Name, nil, nil))
+			tokenNum += len(tokenEncoder.Encode(*message.Name, nil, nil))
 		}
 	}
 	tokenNum += 3 // Every reply is primed with <|start|>assistant<|message|>
