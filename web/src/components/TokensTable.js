@@ -16,15 +16,15 @@ function renderTimestamp(timestamp) {
 function renderStatus(status) {
   switch (status) {
     case 1:
-      return <Label basic color='green'>已启用</Label>;
+      return <Label basic color='green'>Enabled</Label>;
     case 2:
-      return <Label basic color='red'> 已禁用 </Label>;
+      return <Label basic color='red'> Disabled </Label>;
     case 3:
-      return <Label basic color='yellow'> 已过期 </Label>;
+      return <Label basic color='yellow'> Expired </Label>;
     case 4:
-      return <Label basic color='grey'> 已耗尽 </Label>;
+      return <Label basic color='grey'> Depleted </Label>;
     default:
-      return <Label basic color='black'> 未知状态 </Label>;
+      return <Label basic color='black'> Unknown Status </Label>;
   }
 }
 
@@ -95,7 +95,7 @@ const TokensTable = () => {
     }
     const { success, message } = res.data;
     if (success) {
-      showSuccess('操作成功完成！');
+      showSuccess('Operation completed successfully！');
       let token = res.data.data;
       let newTokens = [...tokens];
       let realIdx = (activePage - 1) * ITEMS_PER_PAGE + idx;
@@ -154,7 +154,7 @@ const TokensTable = () => {
           icon='search'
           fluid
           iconPosition='left'
-          placeholder='搜索令牌的 ID 和名称 ...'
+          placeholder='Search for token ID and name ...'
           value={searchKeyword}
           loading={searching}
           onChange={handleKeywordChange}
@@ -178,7 +178,7 @@ const TokensTable = () => {
                 sortToken('name');
               }}
             >
-              名称
+              Name
             </Table.HeaderCell>
             <Table.HeaderCell
               style={{ cursor: 'pointer' }}
@@ -186,7 +186,7 @@ const TokensTable = () => {
                 sortToken('status');
               }}
             >
-              状态
+              Status
             </Table.HeaderCell>
             <Table.HeaderCell
               style={{ cursor: 'pointer' }}
@@ -194,7 +194,7 @@ const TokensTable = () => {
                 sortToken('remain_quota');
               }}
             >
-              额度
+              Quota
             </Table.HeaderCell>
             <Table.HeaderCell
               style={{ cursor: 'pointer' }}
@@ -202,7 +202,7 @@ const TokensTable = () => {
                 sortToken('created_time');
               }}
             >
-              创建时间
+              Creation Date
             </Table.HeaderCell>
             <Table.HeaderCell
               style={{ cursor: 'pointer' }}
@@ -210,9 +210,9 @@ const TokensTable = () => {
                 sortToken('expired_time');
               }}
             >
-              过期时间
+              Expiration Date
             </Table.HeaderCell>
-            <Table.HeaderCell>操作</Table.HeaderCell>
+            <Table.HeaderCell>Actions</Table.HeaderCell>
           </Table.Row>
         </Table.Header>
 
@@ -227,11 +227,11 @@ const TokensTable = () => {
               return (
                 <Table.Row key={token.id}>
                   <Table.Cell>{token.id}</Table.Cell>
-                  <Table.Cell>{token.name ? token.name : '无'}</Table.Cell>
+                  <Table.Cell>{token.name ? token.name : 'none'}</Table.Cell>
                   <Table.Cell>{renderStatus(token.status)}</Table.Cell>
-                  <Table.Cell>{token.unlimited_quota ? '无限制' : token.remain_quota}</Table.Cell>
+                  <Table.Cell>{token.unlimited_quota ? 'Unlimited' : token.remain_quota}</Table.Cell>
                   <Table.Cell>{renderTimestamp(token.created_time)}</Table.Cell>
-                  <Table.Cell>{token.expired_time === -1 ? '永不过期' : renderTimestamp(token.expired_time)}</Table.Cell>
+                  <Table.Cell>{token.expired_time === -1 ? 'Never Expires' : renderTimestamp(token.expired_time)}</Table.Cell>
                   <Table.Cell>
                     <div>
                       <Button
@@ -239,19 +239,19 @@ const TokensTable = () => {
                         positive
                         onClick={async () => {
                           if (await copy(token.key)) {
-                            showSuccess('已复制到剪贴板！');
+                            showSuccess('Copied to clipboard successfully！');
                           } else {
-                            showWarning('无法复制到剪贴板，请手动复制，已将令牌填入搜索框。');
+                            showWarning('Unable to copy to clipboard, please manually copy and the token has been filled into the search box.');
                             setSearchKeyword(token.key);
                           }
                         }}
                       >
-                        复制
+                        Copy
                       </Button>
                       <Popup
                         trigger={
                           <Button size='small' negative>
-                            删除
+                            Delete
                           </Button>
                         }
                         on='click'
@@ -264,7 +264,7 @@ const TokensTable = () => {
                             manageToken(token.id, 'delete', idx);
                           }}
                         >
-                          删除令牌 {token.name}
+                          Delete Token {token.name}
                         </Button>
                       </Popup>
                       <Button
@@ -277,14 +277,14 @@ const TokensTable = () => {
                           );
                         }}
                       >
-                        {token.status === 1 ? '禁用' : '启用'}
+                        {token.status === 1 ? 'Disable' : 'Enable'}
                       </Button>
                       <Button
                         size={'small'}
                         as={Link}
                         to={'/token/edit/' + token.id}
                       >
-                        编辑
+                        Edit
                       </Button>
                     </div>
                   </Table.Cell>
@@ -297,9 +297,9 @@ const TokensTable = () => {
           <Table.Row>
             <Table.HeaderCell colSpan='8'>
               <Button size='small' as={Link} to='/token/add' loading={loading}>
-                添加新的令牌
+                Add New Token
               </Button>
-              <Button size='small' onClick={refresh} loading={loading}>刷新</Button>
+              <Button size='small' onClick={refresh} loading={loading}>Refresh</Button>
               <Pagination
                 floated='right'
                 activePage={activePage}
