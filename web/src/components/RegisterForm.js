@@ -50,16 +50,16 @@ const RegisterForm = () => {
 
   async function handleSubmit(e) {
     if (password.length < 8) {
-      showInfo('密码长度不得小于 8 位！');
+      showInfo('Password must be at least 8 characters in length！');
       return;
     }
     if (password !== password2) {
-      showInfo('两次输入的密码不一致');
+      showInfo('The two entered passwords do not match.');
       return;
     }
     if (username && password) {
       if (turnstileEnabled && turnstileToken === '') {
-        showInfo('请稍后几秒重试，Turnstile 正在检查用户环境！');
+        showInfo('Please wait for a few seconds and try again, Turnstile is checking the user environment！');
         return;
       }
       setLoading(true);
@@ -70,7 +70,7 @@ const RegisterForm = () => {
       const { success, message } = res.data;
       if (success) {
         navigate('/login');
-        showSuccess('注册成功！');
+        showSuccess('Registration successful！');
       } else {
         showError(message);
       }
@@ -81,7 +81,7 @@ const RegisterForm = () => {
   const sendVerificationCode = async () => {
     if (inputs.email === '') return;
     if (turnstileEnabled && turnstileToken === '') {
-      showInfo('请稍后几秒重试，Turnstile 正在检查用户环境！');
+      showInfo('Please wait a few seconds and try again, Turnstile is checking the user environment！');
       return;
     }
     setLoading(true);
@@ -90,7 +90,7 @@ const RegisterForm = () => {
     );
     const { success, message } = res.data;
     if (success) {
-      showSuccess('验证码发送成功，请检查你的邮箱！');
+      showSuccess('Verification code sent successfully, please check your email！');
     } else {
       showError(message);
     }
@@ -101,7 +101,7 @@ const RegisterForm = () => {
     <Grid textAlign='center' style={{ marginTop: '48px' }}>
       <Grid.Column style={{ maxWidth: 450 }}>
         <Header as='h2' color='' textAlign='center'>
-          <Image src={logo} /> 新用户注册
+          <Image src={logo} /> New User Registration
         </Header>
         <Form size='large'>
           <Segment>
@@ -109,7 +109,7 @@ const RegisterForm = () => {
               fluid
               icon='user'
               iconPosition='left'
-              placeholder='输入用户名，最长 12 位'
+              placeholder='Enter your username, up to 12 characters.'
               onChange={handleChange}
               name='username'
             />
@@ -117,7 +117,7 @@ const RegisterForm = () => {
               fluid
               icon='lock'
               iconPosition='left'
-              placeholder='输入密码，最短 8 位，最长 20 位'
+              placeholder='Enter your password with a minimum of 8 characters and a maximum of 20 characters.'
               onChange={handleChange}
               name='password'
               type='password'
@@ -126,7 +126,7 @@ const RegisterForm = () => {
               fluid
               icon='lock'
               iconPosition='left'
-              placeholder='输入密码，最短 8 位，最长 20 位'
+              placeholder='Enter your password, with a minimum of 8 characters and a maximum of 20 characters.'
               onChange={handleChange}
               name='password2'
               type='password'
@@ -137,13 +137,13 @@ const RegisterForm = () => {
                   fluid
                   icon='mail'
                   iconPosition='left'
-                  placeholder='输入邮箱地址'
+                  placeholder='Enter your email address'
                   onChange={handleChange}
                   name='email'
                   type='email'
                   action={
                     <Button onClick={sendVerificationCode} disabled={loading}>
-                      获取验证码
+                      Get Verification Code
                     </Button>
                   }
                 />
@@ -151,7 +151,7 @@ const RegisterForm = () => {
                   fluid
                   icon='lock'
                   iconPosition='left'
-                  placeholder='输入验证码'
+                  placeholder='Enter verification code'
                   onChange={handleChange}
                   name='verification_code'
                 />
@@ -176,14 +176,14 @@ const RegisterForm = () => {
               onClick={handleSubmit}
               loading={loading}
             >
-              注册
+              Registration
             </Button>
           </Segment>
         </Form>
         <Message>
-          已有账户？
+          Already have an account?
           <Link to='/login' className='btn btn-link'>
-            点击登录
+            Click to login
           </Link>
         </Message>
       </Grid.Column>
