@@ -5,7 +5,7 @@ import UsersTable from '../../components/UsersTable';
 const User = () => (
   <>
     <Segment>
-      <Header as='h3'>管理用户</Header>
+      <Header as='h3'>Manage Users</Header>
       <UsersTable/>
     </Segment>
   </>

@@ -50,7 +50,7 @@ const EditUser = () => {
     }
     const { success, message } = res.data;
     if (success) {
-      showSuccess('用户信息更新成功！');
+      showSuccess('User information updated successfully!');
     } else {
       showError(message);
     }
@@ -59,13 +59,13 @@ const EditUser = () => {
   return (
     <>
       <Segment loading={loading}>
-        <Header as='h3'>更新用户信息</Header>
+        <Header as='h3'>Update User Information</Header>
         <Form autoComplete='new-password'>
           <Form.Field>
             <Form.Input
-              label='用户名'
+              label='Username'
               name='username'
-              placeholder={'请输入新的用户名'}
+              placeholder={'Please enter a new username'}
               onChange={handleInputChange}
               value={username}
               autoComplete='new-password'
@@ -73,10 +73,10 @@ const EditUser = () => {
           </Form.Field>
           <Form.Field>
             <Form.Input
-              label='密码'
+              label='Password'
               name='password'
               type={'password'}
-              placeholder={'请输入新的密码'}
+              placeholder={'Please enter a new password'}
               onChange={handleInputChange}
               value={password}
               autoComplete='new-password'
@@ -84,9 +84,9 @@ const EditUser = () => {
           </Form.Field>
           <Form.Field>
             <Form.Input
-              label='显示名称'
+              label='Display name'
               name='display_name'
-              placeholder={'请输入新的显示名称'}
+              placeholder={'Please enter a new display name'}
               onChange={handleInputChange}
               value={display_name}
               autoComplete='new-password'
@@ -94,35 +94,35 @@ const EditUser = () => {
           </Form.Field>
           <Form.Field>
             <Form.Input
-              label='已绑定的 GitHub 账户'
+              label='Connected Github Account'
               name='github_id'
               value={github_id}
               autoComplete='new-password'
-              placeholder='此项只读，需要用户通过个人设置页面的相关绑定按钮进行绑定，不可直接修改'
+              placeholder='This setting is read-only. To change the connected account, please use the button on the personal settings page.'
               readOnly
             />
           </Form.Field>
           <Form.Field>
             <Form.Input
-              label='已绑定的微信账户'
+              label='Connected Wechat Account'
               name='wechat_id'
               value={wechat_id}
               autoComplete='new-password'
-              placeholder='此项只读，需要用户通过个人设置页面的相关绑定按钮进行绑定，不可直接修改'
+              placeholder='This setting is read-only. To change the connected account, please use the button on the personal settings page.'
               readOnly
             />
           </Form.Field>
           <Form.Field>
             <Form.Input
-              label='已绑定的邮箱账户'
+              label='Connected Email Account'
               name='email'
               value={email}
               autoComplete='new-password'
-              placeholder='此项只读，需要用户通过个人设置页面的相关绑定按钮进行绑定，不可直接修改'
+              placeholder='This setting is read-only. To change the connected account, please use the button on the personal settings page.'
               readOnly
             />
           </Form.Field>
-          <Button onClick={submit}>提交</Button>
+          <Button onClick={submit}>Submit</Button>
         </Form>
       </Segment>
     </>

@@ -89,7 +89,7 @@ const OtherSetting = () => {
 
   const checkUpdate = async () => {
     const res = await API.get(
-      'https://api.github.com/repos/analogpvt/one-api/releases/latest'
+      'https://api.github.com/repos/analogpvt/one-api-en/releases/latest'
     );
     const { tag_name, body } = res.data;
     if (tag_name === process.env.REACT_APP_VERSION) {
@@ -108,7 +108,7 @@ const OtherSetting = () => {
       <Grid.Column>
         <Form loading={loading}>
           <Header as='h3'>General Settings</Header>
-          <Form.Button onClick={checkUpdate}>检查更新</Form.Button>
+          <Form.Button onClick={checkUpdate}>Check for updates</Form.Button>
           <Form.Group widths='equal'>
             <Form.TextArea
               label='Announcement'
@@ -131,7 +131,7 @@ const OtherSetting = () => {
               onChange={handleInputChange}
             />
           </Form.Group>
-          <Form.Button onClick={submitSystemName}>设置系统名称</Form.Button>
+          <Form.Button onClick={submitSystemName}>Set System Name</Form.Button>
           <Form.Group widths='equal'>
             <Form.Input
               label='Logo Image URL'
@@ -164,7 +164,7 @@ const OtherSetting = () => {
               style={{ minHeight: 150, fontFamily: 'JetBrains Mono, Consolas' }}
             />
           </Form.Group>
-          <Form.Button onClick={submitAbout}>保存关于</Form.Button>
+          <Form.Button onClick={submitAbout}>Save About</Form.Button>
           <Form.Group widths='equal'>
             <Form.Input
               label='Footer'
@@ -189,7 +189,7 @@ const OtherSetting = () => {
           </Modal.Description>
         </Modal.Content>
         <Modal.Actions>
-          <Button onClick={() => setShowUpdateModal(false)}>关闭</Button>
+          <Button onClick={() => setShowUpdateModal(false)}>Close</Button>
           <Button
             content='Details'
             onClick={() => {

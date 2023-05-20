@@ -96,7 +96,7 @@ const LoginForm = () => {
     <Grid textAlign="center" style={{ marginTop: '48px' }}>
       <Grid.Column style={{ maxWidth: 450 }}>
         <Header as="h2" color="" textAlign="center">
-          <Image src={logo} /> 用户登录
+          <Image src={logo} /> Login
         </Header>
         <Form size="large">
           <Segment>
@@ -125,11 +125,11 @@ const LoginForm = () => {
           </Segment>
         </Form>
         <Message>
-          Forgot Password
+          Forgot Password 
           <Link to="/reset" className="btn btn-link">
             Reset Password
           </Link>
-          ； No account ？
+          ； No account？
           <Link to="/register" className="btn btn-link">
             Click to Register
           </Link>

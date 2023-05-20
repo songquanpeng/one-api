@@ -28,7 +28,7 @@ const TopUp = () => {
 
   const openTopUpLink = () => {
     if (!topUpLink) {
-      showError('超级管理员未设置充值链接！');
+      showError('The super administrator has not set a recharge link!');
       return;
     }
     window.open(topUpLink, '_blank');
@@ -57,12 +57,12 @@ const TopUp = () => {
 
   return (
     <Segment>
-      <Header as='h3'>充值额度</Header>
+      <Header as='h3'>Recharge amount</Header>
       <Grid columns={2} stackable>
         <Grid.Column>
           <Form>
             <Form.Input
-              placeholder='兑换码'
+              placeholder='Redemption code'
               name='redemptionCode'
               value={redemptionCode}
               onChange={(e) => {
@@ -70,10 +70,10 @@ const TopUp = () => {
               }}
             />
             <Button color='green' onClick={openTopUpLink}>
-              获取兑换码
+              Get Redemption Code
             </Button>
             <Button color='yellow' onClick={topUp}>
-              充值
+              Recharge
             </Button>
           </Form>
         </Grid.Column>
@@ -81,7 +81,7 @@ const TopUp = () => {
           <Statistic.Group widths='one'>
             <Statistic>
               <Statistic.Value>{userQuota}</Statistic.Value>
-              <Statistic.Label>剩余额度</Statistic.Label>
+              <Statistic.Label>Balance</Statistic.Label>
             </Statistic>
           </Statistic.Group>
         </Grid.Column>
