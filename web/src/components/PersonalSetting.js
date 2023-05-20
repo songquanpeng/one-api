@@ -39,7 +39,7 @@ const PersonalSetting = () => {
     const { success, message, data } = res.data;
     if (success) {
       await copy(data);
-      showSuccess(`令牌已重置并已复制到剪贴板：${data}`);
+      showSuccess(`Token has been reset and copied to clipboard.：${data}`);
     } else {
       showError(message);
     }
@@ -52,7 +52,7 @@ const PersonalSetting = () => {
     );
     const { success, message } = res.data;
     if (success) {
-      showSuccess('微信账户绑定成功！');
+      showSuccess('WeChat account bound successfully！');
       setShowWeChatBindModal(false);
     } else {
       showError(message);
@@ -68,7 +68,7 @@ const PersonalSetting = () => {
   const sendVerificationCode = async () => {
     if (inputs.email === '') return;
     if (turnstileEnabled && turnstileToken === '') {
-      showInfo('请稍后几秒重试，Turnstile 正在检查用户环境！');
+      showInfo('Please wait a few seconds and retry, Turnstile is checking the user environment！');
       return;
     }
     setLoading(true);
@@ -77,7 +77,7 @@ const PersonalSetting = () => {
     );
     const { success, message } = res.data;
     if (success) {
-      showSuccess('验证码发送成功，请检查邮箱！');
+      showSuccess('Verification code sent successfully, please check your email！');
     } else {
       showError(message);
     }
@@ -92,7 +92,7 @@ const PersonalSetting = () => {
     );
     const { success, message } = res.data;
     if (success) {
-      showSuccess('邮箱账户绑定成功！');
+      showSuccess('Email account bound successfully！');
       setShowEmailBindModal(false);
     } else {
       showError(message);
@@ -102,22 +102,22 @@ const PersonalSetting = () => {
 
   return (
     <div style={{ lineHeight: '40px' }}>
-      <Header as='h3'>通用设置</Header>
+      <Header as='h3'>General Settings</Header>
       <Message>
-        注意，此处生成的令牌用于系统管理，而非用于请求 OpenAI 相关的服务，请知悉。
+        Please note that the token generated here is for system management and not for requesting OpenAI-related services.
       </Message>
       <Button as={Link} to={`/user/edit/`}>
-        更新个人信息
+        Update Personal Information
       </Button>
-      <Button onClick={generateAccessToken}>生成系统访问令牌</Button>
+      <Button onClick={generateAccessToken}>Generate System Access Token</Button>
       <Divider />
-      <Header as='h3'>账号绑定</Header>
+      <Header as='h3'>Account Binding</Header>
       <Button
         onClick={() => {
           setShowWeChatBindModal(true);
         }}
       >
-        绑定微信账号
+        Bind WeChat Account
       </Button>
       <Modal
         onClose={() => setShowWeChatBindModal(false)}
@@ -130,31 +130,31 @@ const PersonalSetting = () => {
             <Image src={status.wechat_qrcode} fluid />
             <div style={{ textAlign: 'center' }}>
               <p>
-                微信扫码关注公众号，输入「验证码」获取验证码（三分钟内有效）
+                Scan the QR code to follow our official WeChat account and enter the "Verification Code" to obtain the code (valid for three minutes).
               </p>
             </div>
             <Form size='large'>
               <Form.Input
                 fluid
-                placeholder='验证码'
+                placeholder='Verification Code'
                 name='wechat_verification_code'
                 value={inputs.wechat_verification_code}
                 onChange={handleInputChange}
               />
               <Button color='' fluid size='large' onClick={bindWeChat}>
-                绑定
+                Bind
               </Button>
             </Form>
           </Modal.Description>
         </Modal.Content>
       </Modal>
-      <Button onClick={openGitHubOAuth}>绑定 GitHub 账号</Button>
+      <Button onClick={openGitHubOAuth}>Bind GitHub Account</Button>
       <Button
         onClick={() => {
           setShowEmailBindModal(true);
         }}
       >
-        绑定邮箱地址
+        Bind Email Address
       </Button>
       <Modal
         onClose={() => setShowEmailBindModal(false)}
@@ -163,25 +163,25 @@ const PersonalSetting = () => {
         size={'tiny'}
         style={{ maxWidth: '450px' }}
       >
-        <Modal.Header>绑定邮箱地址</Modal.Header>
+        <Modal.Header>Bind Email Address</Modal.Header>
         <Modal.Content>
           <Modal.Description>
             <Form size='large'>
               <Form.Input
                 fluid
-                placeholder='输入邮箱地址'
+                placeholder='Email Address Input'
                 onChange={handleInputChange}
                 name='email'
                 type='email'
                 action={
                   <Button onClick={sendVerificationCode} disabled={loading}>
-                    获取验证码
+                    Get Verification Code
                   </Button>
                 }
               />
               <Form.Input
                 fluid
-                placeholder='验证码'
+                placeholder='Verification Code'
                 name='email_verification_code'
                 value={inputs.email_verification_code}
                 onChange={handleInputChange}
@@ -203,7 +203,7 @@ const PersonalSetting = () => {
                 onClick={bindEmail}
                 loading={loading}
               >
-                绑定
+                Bind
               </Button>
             </Form>
           </Modal.Description>
