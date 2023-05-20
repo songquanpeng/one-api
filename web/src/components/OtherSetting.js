@@ -84,16 +84,16 @@ const OtherSetting = () => {
 
   const openGitHubRelease = () => {
     window.location =
-      'https://github.com/songquanpeng/one-api/releases/latest';
+      'https://github.com/analogpvt/one-api/releases/latest';
   };
 
   const checkUpdate = async () => {
     const res = await API.get(
-      'https://api.github.com/repos/songquanpeng/one-api/releases/latest'
+      'https://api.github.com/repos/analogpvt/one-api/releases/latest'
     );
     const { tag_name, body } = res.data;
     if (tag_name === process.env.REACT_APP_VERSION) {
-      showSuccess(`已是最新版本：${tag_name}`);
+      showSuccess(`Already up to date.：${tag_name}`);
     } else {
       setUpdateData({
         tag_name: tag_name,
@@ -107,25 +107,25 @@ const OtherSetting = () => {
     <Grid columns={1}>
       <Grid.Column>
         <Form loading={loading}>
-          <Header as='h3'>通用设置</Header>
+          <Header as='h3'>General Settings</Header>
           <Form.Button onClick={checkUpdate}>检查更新</Form.Button>
           <Form.Group widths='equal'>
             <Form.TextArea
-              label='公告'
-              placeholder='在此输入新的公告内容'
+              label='Announcement'
+              placeholder='Enter new announcement content here.'
               value={inputs.Notice}
               name='Notice'
               onChange={handleInputChange}
               style={{ minHeight: 150, fontFamily: 'JetBrains Mono, Consolas' }}
             />
           </Form.Group>
-          <Form.Button onClick={submitNotice}>保存公告</Form.Button>
+          <Form.Button onClick={submitNotice}>Save Announcement</Form.Button>
           <Divider />
-          <Header as='h3'>个性化设置</Header>
+          <Header as='h3'>Customize Settings</Header>
           <Form.Group widths='equal'>
             <Form.Input
-              label='系统名称'
-              placeholder='在此输入系统名称'
+              label='System Name'
+              placeholder='System Name'
               value={inputs.SystemName}
               name='SystemName'
               onChange={handleInputChange}
@@ -134,30 +134,30 @@ const OtherSetting = () => {
           <Form.Button onClick={submitSystemName}>设置系统名称</Form.Button>
           <Form.Group widths='equal'>
             <Form.Input
-              label='Logo 图片地址'
-              placeholder='在此输入 Logo 图片地址'
+              label='Logo Image URL'
+              placeholder='Enter Logo Image URL here.'
               value={inputs.Logo}
               name='Logo'
               type='url'
               onChange={handleInputChange}
             />
           </Form.Group>
-          <Form.Button onClick={submitLogo}>设置 Logo</Form.Button>
+          <Form.Button onClick={submitLogo}>Home Page Content Settings Logo</Form.Button>
           <Form.Group widths='equal'>
             <Form.TextArea
-              label='首页内容'
-              placeholder='在此输入首页内容，支持 Markdown & HTML 代码，设置后首页的状态信息将不再显示。如果输入的是一个链接，则会使用该链接作为 iframe 的 src 属性，这允许你设置任意网页作为首页。'
+              label='Home Page Content'
+              placeholder='Enter Home Page content here. Supports Markdown & HTML codes. After settings, the status information on the Home page will no longer be displayed. If a link is entered, it will be used as the src attribute for an iframe, allowing you to set any webpage as the Home page.。'
               value={inputs.HomePageContent}
               name='HomePageContent'
               onChange={handleInputChange}
               style={{ minHeight: 150, fontFamily: 'JetBrains Mono, Consolas' }}
             />
           </Form.Group>
-          <Form.Button onClick={()=>submitOption('HomePageContent')}>保存首页内容</Form.Button>
+          <Form.Button onClick={()=>submitOption('HomePageContent')}>Save Home Page Content</Form.Button>
           <Form.Group widths='equal'>
             <Form.TextArea
-              label='关于'
-              placeholder='在此输入新的关于内容，支持 Markdown & HTML 代码。如果输入的是一个链接，则会使用该链接作为 iframe 的 src 属性，这允许你设置任意网页作为关于页面。'
+              label='About'
+              placeholder='Enter new About content here. Supports Markdown & HTML codes. If a link is entered, it will be used as the src attribute for an iframe, allowing you to set any webpage as the About page.'
               value={inputs.About}
               name='About'
               onChange={handleInputChange}
@@ -167,14 +167,14 @@ const OtherSetting = () => {
           <Form.Button onClick={submitAbout}>保存关于</Form.Button>
           <Form.Group widths='equal'>
             <Form.Input
-              label='页脚'
-              placeholder='在此输入新的页脚，留空则使用默认页脚，支持 HTML 代码'
+              label='Footer'
+              placeholder='Enter new footer text here. Leave it blank to use the default footer. Supports HTML codes.'
               value={inputs.Footer}
               name='Footer'
               onChange={handleInputChange}
             />
           </Form.Group>
-          <Form.Button onClick={submitFooter}>设置页脚</Form.Button>
+          <Form.Button onClick={submitFooter}>Footer Settings</Form.Button>
         </Form>
       </Grid.Column>
       <Modal
@@ -182,7 +182,7 @@ const OtherSetting = () => {
         onOpen={() => setShowUpdateModal(true)}
         open={showUpdateModal}
       >
-        <Modal.Header>新版本：{updateData.tag_name}</Modal.Header>
+        <Modal.Header>New Version：{updateData.tag_name}</Modal.Header>
         <Modal.Content>
           <Modal.Description>
             <div dangerouslySetInnerHTML={{ __html: updateData.content }}></div>
@@ -191,7 +191,7 @@ const OtherSetting = () => {
         <Modal.Actions>
           <Button onClick={() => setShowUpdateModal(false)}>关闭</Button>
           <Button
-            content='详情'
+            content='Details'
             onClick={() => {
               setShowUpdateModal(false);
               openGitHubRelease();
