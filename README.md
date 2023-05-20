@@ -51,7 +51,8 @@ _✨All in one's OpenAI interface, integrating various API access methods, out o
     + [x] **Azure OpenAI API**
     + [x] [API2D](https://api2d.com/r/197971)
     + [x] [OhMyGPT](https://aigptx.top?aff=uFpUl2Kf)
-    + [x] [AI.LS](https://ai.ls)
+    + [x] [AI Proxy](https://aiproxy.io/?i=OneAPI)
+   + [x] [AI.LS](https://ai.ls)
     + [x] [OpenAI Max](https://openaimax.com)
     + [x] [OpenAI-SB](https://openai-sb.com)
     + [x] [CloseAI](https://console.openai-asia.com)
