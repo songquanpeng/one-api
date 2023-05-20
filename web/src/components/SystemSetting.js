@@ -126,7 +126,7 @@ const SystemSetting = () => {
     }
     if (originInputs['ModelRatio'] !== inputs.ModelRatio) {
       if (!verifyJSON(inputs.ModelRatio)) {
-        showError('模型倍率不是合法的 JSON 字符串');
+        showError('Model ratio is not a valid JSON string');
         return;
       }
       await updateOption('ModelRatio', inputs.ModelRatio);
@@ -212,49 +212,49 @@ const SystemSetting = () => {
     <Grid columns={1}>
       <Grid.Column>
         <Form loading={loading}>
-          <Header as='h3'>通用设置</Header>
+          <Header as='h3'>General Settings</Header>
           <Form.Group widths='equal'>
             <Form.Input
-              label='服务器地址'
-              placeholder='例如：https://yourdomain.com'
+              label='Server Address'
+              placeholder='For example：https://yourdomain.com'
               value={inputs.ServerAddress}
               name='ServerAddress'
               onChange={handleInputChange}
             />
           </Form.Group>
           <Form.Button onClick={submitServerAddress}>
-            更新服务器地址
+            Update Server Address
           </Form.Button>
           <Divider />
-          <Header as='h3'>配置登录注册</Header>
+          <Header as='h3'>Configure Login & Registration</Header>
           <Form.Group inline>
             <Form.Checkbox
               checked={inputs.PasswordLoginEnabled === 'true'}
-              label='允许通过密码进行登录'
+              label='Allow login with password'
               name='PasswordLoginEnabled'
               onChange={handleInputChange}
             />
             <Form.Checkbox
               checked={inputs.PasswordRegisterEnabled === 'true'}
-              label='允许通过密码进行注册'
+              label='Allow registration with password'
               name='PasswordRegisterEnabled'
               onChange={handleInputChange}
             />
             <Form.Checkbox
               checked={inputs.EmailVerificationEnabled === 'true'}
-              label='通过密码注册时需要进行邮箱验证'
+              label='Email verification is mandatory when registering with a password'
               name='EmailVerificationEnabled'
               onChange={handleInputChange}
             />
             <Form.Checkbox
               checked={inputs.GitHubOAuthEnabled === 'true'}
-              label='允许通过 GitHub 账户登录 & 注册'
+              label='Allow login and registration with GitHub account'
               name='GitHubOAuthEnabled'
               onChange={handleInputChange}
             />
             <Form.Checkbox
               checked={inputs.WeChatAuthEnabled === 'true'}
-              label='允许通过微信登录 & 注册'
+              label='Allow login and registration with WeChat account'
               name='WeChatAuthEnabled'
               onChange={handleInputChange}
             />
@@ -262,163 +262,163 @@ const SystemSetting = () => {
           <Form.Group inline>
             <Form.Checkbox
               checked={inputs.RegisterEnabled === 'true'}
-              label='允许新用户注册（此项为否时，新用户将无法以任何方式进行注册）'
+              label='Allow new users to register (When set to "No", new users will not be able to register in any way)'
               name='RegisterEnabled'
               onChange={handleInputChange}
             />
             <Form.Checkbox
               checked={inputs.TurnstileCheckEnabled === 'true'}
-              label='启用 Turnstile 用户校验'
+              label='Enable Turnstile user verification'
               name='TurnstileCheckEnabled'
               onChange={handleInputChange}
             />
           </Form.Group>
           <Divider />
           <Header as='h3'>
-            运营设置
+            Operational settings
           </Header>
           <Form.Group widths={4}>
             <Form.Input
-              label='新用户初始配额'
+              label='Initial quota for new users'
               name='QuotaForNewUser'
               onChange={handleInputChange}
               autoComplete='new-password'
               value={inputs.QuotaForNewUser}
               type='number'
               min='0'
-              placeholder='例如：100'
+              placeholder='Configure Turnstile settings：100'
             />
             <Form.Input
-              label='充值链接'
+              label='Top-up Link'
               name='TopUpLink'
               onChange={handleInputChange}
               autoComplete='new-password'
               value={inputs.TopUpLink}
               type='link'
-              placeholder='例如发卡网站的购买链接'
+              placeholder='For example, the purchase link of the card-selling website'
             />
             <Form.Input
-              label='额度提醒阈值'
+              label='Quota reminder threshold'
               name='QuotaRemindThreshold'
               onChange={handleInputChange}
               autoComplete='new-password'
               value={inputs.QuotaRemindThreshold}
               type='number'
               min='0'
-              placeholder='低于此额度时将发送邮件提醒用户'
+              placeholder='Users will receive email reminders when their remaining quota falls below this threshold'
             />
             <Form.Input
-              label='请求预扣费额度'
+              label='Requested pre-consumption quota'
               name='PreConsumedQuota'
               onChange={handleInputChange}
               autoComplete='new-password'
               value={inputs.PreConsumedQuota}
               type='number'
               min='0'
-              placeholder='请求结束后多退少补'
+              placeholder='Refund or supplement the quota after the request is completed'
             />
           </Form.Group>
           <Form.Group widths='equal'>
             <Form.TextArea
-              label='模型倍率'
+              label='Model Scaling Factor'
               name='ModelRatio'
               onChange={handleInputChange}
               style={{ minHeight: 250, fontFamily: 'JetBrains Mono, Consolas' }}
               autoComplete='new-password'
               value={inputs.ModelRatio}
-              placeholder='为一个 JSON 文本，键为模型名称，值为倍率'
+              placeholder='A JSON text, where the keys represent the model names and the values represent the scaling factors'
             />
           </Form.Group>
-          <Form.Button onClick={submitOperationConfig}>保存运营设置</Form.Button>
+          <Form.Button onClick={submitOperationConfig}>Save operation settings</Form.Button>
           <Divider />
           <Header as='h3'>
-            监控设置
+            Monitoring Settings
           </Header>
           <Form.Group widths={3}>
             <Form.Input
-              label='最长响应时间'
+              label='Maximum Response Time'
               name='ChannelDisableThreshold'
               onChange={handleInputChange}
               autoComplete='new-password'
               value={inputs.ChannelDisableThreshold}
               type='number'
               min='0'
-              placeholder='单位秒，当运行通道全部测试时，超过此时间将自动禁用通道'
+              placeholder='Maximum response time in seconds. When all test channels are run, if it exceeds this time, the channels will be automatically disabled'
             />
           </Form.Group>
           <Form.Group inline>
             <Form.Checkbox
               checked={inputs.AutomaticDisableChannelEnabled === 'true'}
-              label='失败时自动禁用通道'
+              label='Automatically disable the channel when it fails'
               name='AutomaticDisableChannelEnabled'
               onChange={handleInputChange}
             />
           </Form.Group>
           <Divider />
           <Header as='h3'>
-            配置 SMTP
-            <Header.Subheader>用以支持系统的邮件发送</Header.Subheader>
+            Configuration SMTP
+            <Header.Subheader>Used to support system email sending.</Header.Subheader>
           </Header>
           <Form.Group widths={3}>
             <Form.Input
-              label='SMTP 服务器地址'
+              label='SMTP Server Address'
               name='SMTPServer'
               onChange={handleInputChange}
               autoComplete='new-password'
               value={inputs.SMTPServer}
-              placeholder='例如：smtp.qq.com'
+              placeholder='For example：smtp.qq.com'
             />
             <Form.Input
-              label='SMTP 端口'
+              label='SMTP Port'
               name='SMTPPort'
               onChange={handleInputChange}
               autoComplete='new-password'
               value={inputs.SMTPPort}
-              placeholder='默认: 587'
+              placeholder='DEFAULT: 587'
             />
             <Form.Input
-              label='SMTP 账户'
+              label='SMTP Account'
               name='SMTPAccount'
               onChange={handleInputChange}
               autoComplete='new-password'
               value={inputs.SMTPAccount}
-              placeholder='通常是邮箱地址'
+              placeholder='Usually, it is the email address'
             />
           </Form.Group>
           <Form.Group widths={3}>
             <Form.Input
-              label='SMTP 发送者邮箱'
+              label='SMTP Sender Email'
               name='SMTPFrom'
               onChange={handleInputChange}
               autoComplete='new-password'
               value={inputs.SMTPFrom}
-              placeholder='通常和邮箱地址保持一致'
+              placeholder='Usually, it is kept consistent with the email address'
             />
             <Form.Input
-              label='SMTP 访问凭证'
+              label='SMTP Access Token'
               name='SMTPToken'
               onChange={handleInputChange}
               type='password'
               autoComplete='new-password'
               value={inputs.SMTPToken}
-              placeholder='敏感信息不会发送到前端显示'
+              placeholder='Sensitive information will not be sent to be displayed on the front end'
             />
           </Form.Group>
-          <Form.Button onClick={submitSMTP}>保存 SMTP 设置</Form.Button>
+          <Form.Button onClick={submitSMTP}>Save SMTP Settings</Form.Button>
           <Divider />
           <Header as='h3'>
-            配置 GitHub OAuth App
+            Configure GitHub OAuth App
             <Header.Subheader>
-              用以支持通过 GitHub 进行登录注册，
+              Used to support login and registration via GitHub，
               <a href='https://github.com/settings/developers' target='_blank'>
-                点击此处
+                Click Here
               </a>
-              管理你的 GitHub OAuth App
+              Manage your GitHub OAuth App
             </Header.Subheader>
           </Header>
           <Message>
-            Homepage URL 填 <code>{inputs.ServerAddress}</code>
-            ，Authorization callback URL 填{' '}
+            Homepage URL Fill in <code>{inputs.ServerAddress}</code>
+            ，Authorization callback URL Fill in the required information {' '}
             <code>{`${inputs.ServerAddress}/oauth/github`}</code>
           </Message>
           <Form.Group widths={3}>
@@ -428,7 +428,7 @@ const SystemSetting = () => {
               onChange={handleInputChange}
               autoComplete='new-password'
               value={inputs.GitHubClientId}
-              placeholder='输入你注册的 GitHub OAuth APP 的 ID'
+              placeholder='Enter the ID of the GitHub OAuth App you registered'
             />
             <Form.Input
               label='GitHub Client Secret'
@@ -437,65 +437,65 @@ const SystemSetting = () => {
               type='password'
               autoComplete='new-password'
               value={inputs.GitHubClientSecret}
-              placeholder='敏感信息不会发送到前端显示'
+              placeholder='Sensitive information will not be sent to be displayed on the front end'
             />
           </Form.Group>
           <Form.Button onClick={submitGitHubOAuth}>
-            保存 GitHub OAuth 设置
+            Save GitHub OAuth Settings
           </Form.Button>
           <Divider />
           <Header as='h3'>
-            配置 WeChat Server
+            Configure WeChat Server
             <Header.Subheader>
-              用以支持通过微信进行登录注册，
+              Used to support login and registration via WeChat，
               <a
                 href='https://github.com/songquanpeng/wechat-server'
                 target='_blank'
               >
-                点击此处
+                Click here
               </a>
-              了解 WeChat Server
+              Learn more WeChat Server
             </Header.Subheader>
           </Header>
           <Form.Group widths={3}>
             <Form.Input
-              label='WeChat Server 服务器地址'
+              label='WeChat Server Server Address'
               name='WeChatServerAddress'
-              placeholder='例如：https://yourdomain.com'
+              placeholder='For example：https://yourdomain.com'
               onChange={handleInputChange}
               autoComplete='new-password'
               value={inputs.WeChatServerAddress}
             />
             <Form.Input
-              label='WeChat Server 访问凭证'
+              label='WeChat Server Access Token'
               name='WeChatServerToken'
               type='password'
               onChange={handleInputChange}
               autoComplete='new-password'
               value={inputs.WeChatServerToken}
-              placeholder='敏感信息不会发送到前端显示'
+              placeholder='Sensitive information will not be sent to be displayed on the front end'
             />
             <Form.Input
-              label='微信公众号二维码图片链接'
+              label='WeChat Official Account QR Code Image URL'
               name='WeChatAccountQRCodeImageURL'
               onChange={handleInputChange}
               autoComplete='new-password'
               value={inputs.WeChatAccountQRCodeImageURL}
-              placeholder='输入一个图片链接'
+              placeholder='Enter an image link'
             />
           </Form.Group>
           <Form.Button onClick={submitWeChat}>
-            保存 WeChat Server 设置
+            Save WeChat Server Settings
           </Form.Button>
           <Divider />
           <Header as='h3'>
-            配置 Turnstile
+             Turnstile
             <Header.Subheader>
-              用以支持用户校验，
+              Used to support user verification，
               <a href='https://dash.cloudflare.com/' target='_blank'>
-                点击此处
+                Click here
               </a>
-              管理你的 Turnstile Sites，推荐选择 Invisible Widget Type
+              Manage your Turnstile Sites, it is recommended to choose the Invisible Widget Type.
             </Header.Subheader>
           </Header>
           <Form.Group widths={3}>
@@ -505,7 +505,7 @@ const SystemSetting = () => {
               onChange={handleInputChange}
               autoComplete='new-password'
               value={inputs.TurnstileSiteKey}
-              placeholder='输入你注册的 Turnstile Site Key'
+              placeholder='Enter your registered Turnstile Site Key'
             />
             <Form.Input
               label='Turnstile Secret Key'
@@ -514,11 +514,11 @@ const SystemSetting = () => {
               type='password'
               autoComplete='new-password'
               value={inputs.TurnstileSecretKey}
-              placeholder='敏感信息不会发送到前端显示'
+              placeholder='Sensitive information will not be sent to be displayed on the front end'
             />
           </Form.Group>
           <Form.Button onClick={submitTurnstile}>
-            保存 Turnstile 设置
+            Save Turnstile Settings
           </Form.Button>
         </Form>
       </Grid.Column>
