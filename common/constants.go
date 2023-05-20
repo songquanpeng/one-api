@@ -128,6 +128,7 @@ const (
 	ChannelTypeOhMyGPT   = 7
 	ChannelTypeCustom    = 8
 	ChannelTypeAILS      = 9
+	ChannelTypeAIProxy   = 10
 )
 
 var ChannelBaseURLs = []string{
@@ -141,4 +142,5 @@ var ChannelBaseURLs = []string{
 	"https://api.ohmygpt.com",     // 7
 	"",                            // 8
 	"https://api.caipacity.com",   // 9
+	"https://api.aiproxy.io",      // 10
 }

@@ -51,6 +51,7 @@ _✨ All in one 的 OpenAI 接口，整合各种 API 访问方式，开箱即用
    + [x] **Azure OpenAI API**
    + [x] [API2D](https://api2d.com/r/197971)
    + [x] [OhMyGPT](https://aigptx.top?aff=uFpUl2Kf)
+   + [x] [AI Proxy](https://aiproxy.io/?i=OneAPI)
    + [x] [AI.LS](https://ai.ls)
    + [x] [OpenAI Max](https://openaimax.com)
    + [x] [OpenAI-SB](https://openai-sb.com)
