@@ -16,13 +16,13 @@ function renderTimestamp(timestamp) {
 function renderStatus(status) {
   switch (status) {
     case 1:
-      return <Label basic color='green'>未使用</Label>;
+      return <Label basic color='green'>Unused</Label>;
     case 2:
-      return <Label basic color='red'> 已禁用 </Label>;
+      return <Label basic color='red'> Disabled </Label>;
     case 3:
-      return <Label basic color='grey'> 已使用 </Label>;
+      return <Label basic color='grey'> Used </Label>;
     default:
-      return <Label basic color='black'> 未知状态 </Label>;
+      return <Label basic color='black'> Unknown status </Label>;
   }
 }
 
@@ -86,7 +86,7 @@ const RedemptionsTable = () => {
     }
     const { success, message } = res.data;
     if (success) {
-      showSuccess('操作成功完成！');
+      showSuccess('Operation completed successfully！');
       let redemption = res.data.data;
       let newRedemptions = [...redemptions];
       let realIdx = (activePage - 1) * ITEMS_PER_PAGE + idx;
@@ -145,7 +145,7 @@ const RedemptionsTable = () => {
           icon='search'
           fluid
           iconPosition='left'
-          placeholder='搜索兑换码的 ID 和名称 ...'
+          placeholder='Search for redemption code by ID and name...'
           value={searchKeyword}
           loading={searching}
           onChange={handleKeywordChange}
@@ -169,7 +169,7 @@ const RedemptionsTable = () => {
                 sortRedemption('name');
               }}
             >
-              名称
+              Name
             </Table.HeaderCell>
             <Table.HeaderCell
               style={{ cursor: 'pointer' }}
@@ -177,7 +177,7 @@ const RedemptionsTable = () => {
                 sortRedemption('status');
               }}
             >
-              状态
+              Status
             </Table.HeaderCell>
             <Table.HeaderCell
               style={{ cursor: 'pointer' }}
@@ -185,7 +185,7 @@ const RedemptionsTable = () => {
                 sortRedemption('quota');
               }}
             >
-              额度
+              Quota
             </Table.HeaderCell>
             <Table.HeaderCell
               style={{ cursor: 'pointer' }}
@@ -193,7 +193,7 @@ const RedemptionsTable = () => {
                 sortRedemption('created_time');
               }}
             >
-              创建时间
+              Creation Time
             </Table.HeaderCell>
             <Table.HeaderCell
               style={{ cursor: 'pointer' }}
@@ -201,9 +201,9 @@ const RedemptionsTable = () => {
                 sortRedemption('redeemed_time');
               }}
             >
-              兑换时间
+              Redeemed Time
             </Table.HeaderCell>
-            <Table.HeaderCell>操作</Table.HeaderCell>
+            <Table.HeaderCell>Actions</Table.HeaderCell>
           </Table.Row>
         </Table.Header>
 
@@ -218,11 +218,11 @@ const RedemptionsTable = () => {
               return (
                 <Table.Row key={redemption.id}>
                   <Table.Cell>{redemption.id}</Table.Cell>
-                  <Table.Cell>{redemption.name ? redemption.name : '无'}</Table.Cell>
+                  <Table.Cell>{redemption.name ? redemption.name : 'N/A'}</Table.Cell>
                   <Table.Cell>{renderStatus(redemption.status)}</Table.Cell>
                   <Table.Cell>{redemption.quota}</Table.Cell>
                   <Table.Cell>{renderTimestamp(redemption.created_time)}</Table.Cell>
-                  <Table.Cell>{redemption.redeemed_time ? renderTimestamp(redemption.redeemed_time) : "尚未兑换"} </Table.Cell>
+                  <Table.Cell>{redemption.redeemed_time ? renderTimestamp(redemption.redeemed_time) : "Not Redeemed Yet"} </Table.Cell>
                   <Table.Cell>
                     <div>
                       <Button
@@ -230,14 +230,14 @@ const RedemptionsTable = () => {
                         positive
                         onClick={async () => {
                           if (await copy(redemption.key)) {
-                            showSuccess('已复制到剪贴板！');
+                            showSuccess('Copied to Clipboard！');
                           } else {
-                            showWarning('无法复制到剪贴板，请手动复制，已将兑换码填入搜索框。')
+                            showWarning('Unable to copy to clipboard, please manually copy the redemption code which has been filled in the search box.')
                             setSearchKeyword(redemption.key);
                           }
                         }}
                       >
-                        复制
+                        Copy
                       </Button>
                       <Button
                         size={'small'}
@@ -246,7 +246,7 @@ const RedemptionsTable = () => {
                           manageRedemption(redemption.id, 'delete', idx);
                         }}
                       >
-                        删除
+                        Delete
                       </Button>
                       <Button
                         size={'small'}
@@ -259,14 +259,14 @@ const RedemptionsTable = () => {
                           );
                         }}
                       >
-                        {redemption.status === 1 ? '禁用' : '启用'}
+                        {redemption.status === 1 ? 'Disabled' : 'Enable'}
                       </Button>
                       <Button
                         size={'small'}
                         as={Link}
                         to={'/redemption/edit/' + redemption.id}
                       >
-                        编辑
+                        Edit
                       </Button>
                     </div>
                   </Table.Cell>
@@ -279,7 +279,7 @@ const RedemptionsTable = () => {
           <Table.Row>
             <Table.HeaderCell colSpan='8'>
               <Button size='small' as={Link} to='/redemption/add' loading={loading}>
-                添加新的兑换码
+                Add New Redemption Code
               </Button>
               <Pagination
                 floated='right'
