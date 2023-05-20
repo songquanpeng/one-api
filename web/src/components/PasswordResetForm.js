@@ -33,7 +33,7 @@ const PasswordResetForm = () => {
   async function handleSubmit(e) {
     if (!email) return;
     if (turnstileEnabled && turnstileToken === '') {
-      showInfo('请稍后几秒重试，Turnstile 正在检查用户环境！');
+      showInfo('Please wait a few seconds and retry, Turnstile is checking the user environment！');
       return;
     }
     setLoading(true);
@@ -42,7 +42,7 @@ const PasswordResetForm = () => {
     );
     const { success, message } = res.data;
     if (success) {
-      showSuccess('重置邮件发送成功，请检查邮箱！');
+      showSuccess('Password reset email sent successfully, please check your inbox！');
       setInputs({ ...inputs, email: '' });
     } else {
       showError(message);
@@ -54,7 +54,7 @@ const PasswordResetForm = () => {
     <Grid textAlign='center' style={{ marginTop: '48px' }}>
       <Grid.Column style={{ maxWidth: 450 }}>
         <Header as='h2' color='' textAlign='center'>
-          <Image src='/logo.png' /> 密码重置
+          <Image src='/logo.png' /> Password Reset
         </Header>
         <Form size='large'>
           <Segment>
@@ -62,7 +62,7 @@ const PasswordResetForm = () => {
               fluid
               icon='mail'
               iconPosition='left'
-              placeholder='邮箱地址'
+              placeholder='Email address'
               name='email'
               value={email}
               onChange={handleChange}
@@ -84,7 +84,7 @@ const PasswordResetForm = () => {
               onClick={handleSubmit}
               loading={loading}
             >
-              提交
+              Submit
             </Button>
           </Segment>
         </Form>
