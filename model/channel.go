@@ -6,17 +6,19 @@ import (
 )
 
 type Channel struct {
-	Id           int    `json:"id"`
-	Type         int    `json:"type" gorm:"default:0"`
-	Key          string `json:"key" gorm:"not null"`
-	Status       int    `json:"status" gorm:"default:1"`
-	Name         string `json:"name" gorm:"index"`
-	Weight       int    `json:"weight"`
-	CreatedTime  int64  `json:"created_time" gorm:"bigint"`
-	TestTime     int64  `json:"test_time" gorm:"bigint"`
-	ResponseTime int    `json:"response_time"` // in milliseconds
-	BaseURL      string `json:"base_url" gorm:"column:base_url"`
-	Other        string `json:"other"`
+	Id                 int     `json:"id"`
+	Type               int     `json:"type" gorm:"default:0"`
+	Key                string  `json:"key" gorm:"not null"`
+	Status             int     `json:"status" gorm:"default:1"`
+	Name               string  `json:"name" gorm:"index"`
+	Weight             int     `json:"weight"`
+	CreatedTime        int64   `json:"created_time" gorm:"bigint"`
+	TestTime           int64   `json:"test_time" gorm:"bigint"`
+	ResponseTime       int     `json:"response_time"` // in milliseconds
+	BaseURL            string  `json:"base_url" gorm:"column:base_url"`
+	Other              string  `json:"other"`
+	Balance            float64 `json:"balance"` // in USD
+	BalanceUpdatedTime int64   `json:"balance_updated_time" gorm:"bigint"`
 }
 
 func GetAllChannels(startIdx int, num int, selectAll bool) ([]*Channel, error) {
@@ -83,6 +85,16 @@ func (channel *Channel) UpdateResponseTime(responseTime int64) {
 	}).Error
 	if err != nil {
 		common.SysError("failed to update response time: " + err.Error())
+	}
+}
+
+func (channel *Channel) UpdateBalance(balance float64) {
+	err := DB.Model(channel).Select("balance_updated_time", "balance").Updates(Channel{
+		BalanceUpdatedTime: common.GetTimestamp(),
+		Balance:            balance,
+	}).Error
+	if err != nil {
+		common.SysError("failed to update balance: " + err.Error())
 	}
 }
 
