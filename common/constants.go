@@ -129,6 +129,7 @@ const (
 	ChannelTypeCustom    = 8
 	ChannelTypeAILS      = 9
 	ChannelTypeAIProxy   = 10
+	ChannelTypePaLM      = 11
 )
 
 var ChannelBaseURLs = []string{
@@ -143,4 +144,5 @@ var ChannelBaseURLs = []string{
 	"",                            // 8
 	"https://api.caipacity.com",   // 9
 	"https://api.aiproxy.io",      // 10
+	"",                            // 11
 }
