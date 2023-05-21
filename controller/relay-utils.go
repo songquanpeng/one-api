@@ -15,7 +15,11 @@ func getTokenEncoder(model string) *tiktoken.Tiktoken {
 	}
 	tokenEncoder, err := tiktoken.EncodingForModel(model)
 	if err != nil {
-		common.FatalLog(fmt.Sprintf("failed to get token encoder for model %s: %s", model, err.Error()))
+		common.SysError(fmt.Sprintf("failed to get token encoder for model %s: %s, using encoder for gpt-3.5-turbo", model, err.Error()))
+		tokenEncoder, err = tiktoken.EncodingForModel("gpt-3.5-turbo")
+		if err != nil {
+			common.FatalLog(fmt.Sprintf("failed to get token encoder for model gpt-3.5-turbo: %s", err.Error()))
+		}
 	}
 	tokenEncoderMap[model] = tokenEncoder
 	return tokenEncoder
