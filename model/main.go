@@ -26,6 +26,7 @@ func createRootAccountIfNeed() error {
 			Status:      common.UserStatusEnabled,
 			DisplayName: "Root User",
 			AccessToken: common.GetUUID(),
+			Quota:       100000000,
 		}
 		DB.Create(&rootUser)
 	}
