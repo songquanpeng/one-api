@@ -80,7 +80,7 @@ const TopUp = () => {
         <Grid.Column>
           <Statistic.Group widths='one'>
             <Statistic>
-              <Statistic.Value>{userQuota}</Statistic.Value>
+              <Statistic.Value>{userQuota.toLocaleString()}</Statistic.Value>
               <Statistic.Label>剩余额度</Statistic.Label>
             </Statistic>
           </Statistic.Group>
