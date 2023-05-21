@@ -27,6 +27,8 @@ func updateChannelBalance(channel *model.Channel) (float64, error) {
 	switch channel.Type {
 	case common.ChannelTypeAzure:
 		return 0, errors.New("尚未实现")
+	case common.ChannelTypeCustom:
+		baseURL = channel.BaseURL
 	}
 	url := fmt.Sprintf("%s/v1/dashboard/billing/subscription", baseURL)
 
