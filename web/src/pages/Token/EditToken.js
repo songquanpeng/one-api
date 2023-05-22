@@ -133,22 +133,24 @@ const EditToken = () => {
               type='datetime-local'
             />
           </Form.Field>
-          <Button type={'button'} onClick={() => {
-            setExpiredTime(0, 0, 0, 0);
-          }}>永不过期</Button>
-          <Button type={'button'} onClick={() => {
-            setExpiredTime(1, 0, 0, 0);
-          }}>一个月后过期</Button>
-          <Button type={'button'} onClick={() => {
-            setExpiredTime(0, 1, 0, 0);
-          }}>一天后过期</Button>
-          <Button type={'button'} onClick={() => {
-            setExpiredTime(0, 0, 1, 0);
-          }}>一小时后过期</Button>
-          <Button type={'button'} onClick={() => {
-            setExpiredTime(0, 0, 0, 1);
-          }}>一分钟后过期</Button>
-          <Button onClick={submit}>提交</Button>
+          <div style={{ lineHeight: '40px' }}>
+            <Button type={'button'} onClick={() => {
+              setExpiredTime(0, 0, 0, 0);
+            }}>永不过期</Button>
+            <Button type={'button'} onClick={() => {
+              setExpiredTime(1, 0, 0, 0);
+            }}>一个月后过期</Button>
+            <Button type={'button'} onClick={() => {
+              setExpiredTime(0, 1, 0, 0);
+            }}>一天后过期</Button>
+            <Button type={'button'} onClick={() => {
+              setExpiredTime(0, 0, 1, 0);
+            }}>一小时后过期</Button>
+            <Button type={'button'} onClick={() => {
+              setExpiredTime(0, 0, 0, 1);
+            }}>一分钟后过期</Button>
+          </div>
+          <Button positive onClick={submit} style={{marginTop: '12px'}}>提交</Button>
         </Form>
       </Segment>
     </>

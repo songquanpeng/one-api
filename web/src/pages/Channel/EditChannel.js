@@ -167,7 +167,7 @@ const EditChannel = () => {
               />
             )
           }
-          <Button onClick={submit}>提交</Button>
+          <Button positive onClick={submit}>提交</Button>
         </Form>
       </Segment>
     </>

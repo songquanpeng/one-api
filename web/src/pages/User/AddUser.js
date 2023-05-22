@@ -65,7 +65,7 @@ const AddUser = () => {
               required
             />
           </Form.Field>
-          <Button type={'submit'} onClick={submit}>
+          <Button positive type={'submit'} onClick={submit}>
             提交
           </Button>
         </Form>
