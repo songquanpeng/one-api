@@ -13,12 +13,27 @@ import (
 	"time"
 )
 
+// https://github.com/songquanpeng/one-api/issues/79
+
 type OpenAISubscriptionResponse struct {
-	HasPaymentMethod bool    `json:"has_payment_method"`
-	HardLimitUSD     float64 `json:"hard_limit_usd"`
+	Object             string  `json:"object"`
+	HasPaymentMethod   bool    `json:"has_payment_method"`
+	SoftLimitUSD       float64 `json:"soft_limit_usd"`
+	HardLimitUSD       float64 `json:"hard_limit_usd"`
+	SystemHardLimitUSD float64 `json:"system_hard_limit_usd"`
+}
+
+type OpenAIUsageDailyCost struct {
+	Timestamp float64 `json:"timestamp"`
+	LineItems []struct {
+		Name string  `json:"name"`
+		Cost float64 `json:"cost"`
+	}
 }
 
 type OpenAIUsageResponse struct {
+	Object string `json:"object"`
+	//DailyCosts []OpenAIUsageDailyCost `json:"daily_costs"`
 	TotalUsage float64 `json:"total_usage"` // unit: 0.01 dollar
 }
 
