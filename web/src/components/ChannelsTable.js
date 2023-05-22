@@ -405,7 +405,7 @@ const ChannelsTable = () => {
               <Button size='small' loading={loading} onClick={testAllChannels}>
                 测试所有已启用通道
               </Button>
-              <Button size='small' onClick={updateAllChannelsBalance} loading={updatingBalance}>更新所有已启用通道余额</Button>
+              <Button size='small' onClick={updateAllChannelsBalance} loading={loading || updatingBalance}>更新所有已启用通道余额</Button>
               <Pagination
                 floated='right'
                 activePage={activePage}

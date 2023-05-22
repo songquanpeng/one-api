@@ -106,22 +106,6 @@ const EditToken = () => {
               required={!isEdit}
             />
           </Form.Field>
-          <Message>注意，令牌的额度仅用于限制令牌本身的最大额度使用量，实际的使用受到账户的剩余额度限制。</Message>
-          <Form.Field>
-            <Form.Input
-              label='额度'
-              name='remain_quota'
-              placeholder={'请输入额度'}
-              onChange={handleInputChange}
-              value={remain_quota}
-              autoComplete='new-password'
-              type='number'
-              disabled={unlimited_quota}
-            />
-          </Form.Field>
-          <Button type={'button'} style={{ marginBottom: '14px' }} onClick={() => {
-            setUnlimitedQuota();
-          }}>{unlimited_quota ? '取消无限额度' : '设置为无限额度'}</Button>
           <Form.Field>
             <Form.Input
               label='过期时间'
@@ -150,7 +134,23 @@ const EditToken = () => {
               setExpiredTime(0, 0, 0, 1);
             }}>一分钟后过期</Button>
           </div>
-          <Button positive onClick={submit} style={{marginTop: '12px'}}>提交</Button>
+          <Message>注意，令牌的额度仅用于限制令牌本身的最大额度使用量，实际的使用受到账户的剩余额度限制。</Message>
+          <Form.Field>
+            <Form.Input
+              label='额度'
+              name='remain_quota'
+              placeholder={'请输入额度'}
+              onChange={handleInputChange}
+              value={remain_quota}
+              autoComplete='new-password'
+              type='number'
+              disabled={unlimited_quota}
+            />
+          </Form.Field>
+          <Button type={'button'} onClick={() => {
+            setUnlimitedQuota();
+          }}>{unlimited_quota ? '取消无限额度' : '设置为无限额度'}</Button>
+          <Button positive onClick={submit}>提交</Button>
         </Form>
       </Segment>
     </>
