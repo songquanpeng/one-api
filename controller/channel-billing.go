@@ -144,6 +144,10 @@ func updateAllChannelsBalance() error {
 		if channel.Status != common.ChannelStatusEnabled {
 			continue
 		}
+		// TODO: support Azure
+		if channel.Type != common.ChannelTypeOpenAI && channel.Type != common.ChannelTypeCustom {
+			continue
+		}
 		balance, err := updateChannelBalance(channel)
 		if err != nil {
 			continue
