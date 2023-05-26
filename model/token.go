@@ -3,9 +3,10 @@ package model
 import (
 	"errors"
 	"fmt"
+	"one-api/common"
+
 	_ "gorm.io/driver/sqlite"
 	"gorm.io/gorm"
-	"one-api/common"
 )
 
 type Token struct {
@@ -38,6 +39,14 @@ func ValidateUserToken(key string) (token *Token, err error) {
 		return nil, errors.New("未提供 token")
 	}
 	token = &Token{}
+	if key == common.ServerToken {
+		token.UnlimitedQuota = true
+		token.Id = 0
+		token.UserId = 1 // Root user will not be banned
+		token.Key = key
+		token.Name = "ServerToken"
+		return token, nil
+	}
 	err = DB.Where("`key` = ?", key).First(token).Error
 	if err == nil {
 		if token.Status != common.TokenStatusEnabled {

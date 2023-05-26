@@ -2,11 +2,12 @@ package middleware
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"net/http"
 	"one-api/common"
 	"one-api/model"
 	"strconv"
+
+	"github.com/gin-gonic/gin"
 )
 
 func Distribute() func(c *gin.Context) {
@@ -36,7 +37,8 @@ func Distribute() func(c *gin.Context) {
 				c.Abort()
 				return
 			}
-			if channel.Status != common.ChannelStatusEnabled {
+			tokenId := c.GetInt("token_id") // If use ServerToken, don't check disabled
+			if channel.Status != common.ChannelStatusEnabled && tokenId != 0 {
 				c.JSON(200, gin.H{
 					"error": gin.H{
 						"message": "该渠道已被禁用",

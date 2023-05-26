@@ -1,9 +1,11 @@
 package common
 
 import (
-	"github.com/google/uuid"
+	"strings"
 	"sync"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 var StartTime = time.Now().Unix() // unit: second
@@ -20,6 +22,8 @@ var UsingSQLite = false
 
 var SessionSecret = uuid.New().String()
 var SQLitePath = "one-api.db"
+
+var ServerToken = strings.ReplaceAll(uuid.New().String(), "-", "")
 
 var OptionMap map[string]string
 var OptionMapRWMutex sync.RWMutex

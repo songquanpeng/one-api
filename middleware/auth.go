@@ -1,12 +1,13 @@
 package middleware
 
 import (
-	"github.com/gin-contrib/sessions"
-	"github.com/gin-gonic/gin"
 	"net/http"
 	"one-api/common"
 	"one-api/model"
 	"strings"
+
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-gonic/gin"
 )
 
 func authHelper(c *gin.Context, minRole int) {
@@ -114,7 +115,7 @@ func TokenAuth() func(c *gin.Context) {
 		c.Set("token_id", token.Id)
 		requestURL := c.Request.URL.String()
 		consumeQuota := true
-		if strings.HasPrefix(requestURL, "/v1/models") {
+		if strings.HasPrefix(requestURL, "/v1/models") || token.Id == 0 {
 			consumeQuota = false
 		}
 		c.Set("consume_quota", consumeQuota)

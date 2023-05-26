@@ -5,31 +5,21 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"net/http"
 	"one-api/common"
 	"one-api/model"
 	"strconv"
 	"sync"
 	"time"
+
+	"github.com/gin-gonic/gin"
 )
 
 func testChannel(channel *model.Channel, request *ChatRequest) error {
 	if request.Model == "" {
 		request.Model = "gpt-3.5-turbo"
-		if channel.Type == common.ChannelTypeAzure {
-			request.Model = "gpt-35-turbo"
-		}
 	}
-	requestURL := common.ChannelBaseURLs[channel.Type]
-	if channel.Type == common.ChannelTypeAzure {
-		requestURL = fmt.Sprintf("%s/openai/deployments/%s/chat/completions?api-version=2023-03-15-preview", channel.BaseURL, request.Model)
-	} else {
-		if channel.Type == common.ChannelTypeCustom {
-			requestURL = channel.BaseURL
-		}
-		requestURL += "/v1/chat/completions"
-	}
+	requestURL := common.ServerAddress + "/v1/chat/completions"
 
 	jsonData, err := json.Marshal(request)
 	if err != nil {
@@ -39,11 +29,7 @@ func testChannel(channel *model.Channel, request *ChatRequest) error {
 	if err != nil {
 		return err
 	}
-	if channel.Type == common.ChannelTypeAzure {
-		req.Header.Set("api-key", channel.Key)
-	} else {
-		req.Header.Set("Authorization", "Bearer "+channel.Key)
-	}
+	req.Header.Set("Authorization", fmt.Sprintf("%s-%d", common.ServerToken, channel.Id))
 	req.Header.Set("Content-Type", "application/json")
 	client := &http.Client{}
 	resp, err := client.Do(req)
