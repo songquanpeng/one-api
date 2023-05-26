@@ -5,12 +5,13 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"io"
 	"net/http"
 	"one-api/common"
 	"one-api/model"
 	"strings"
+
+	"github.com/gin-gonic/gin"
 )
 
 type Message struct {
@@ -115,7 +116,7 @@ func relayHelper(c *gin.Context) *OpenAIErrorWithStatusCode {
 	tokenId := c.GetInt("token_id")
 	consumeQuota := c.GetBool("consume_quota")
 	var textRequest GeneralOpenAIRequest
-	if consumeQuota || channelType == common.ChannelTypeAzure || channelType == common.ChannelTypePaLM {
+	if c.Request.Method == http.MethodPost {
 		requestBody, err := io.ReadAll(c.Request.Body)
 		if err != nil {
 			return errorWrapper(err, "read_request_body_failed", http.StatusBadRequest)
