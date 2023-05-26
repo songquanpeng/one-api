@@ -29,34 +29,33 @@ _✨ All in one 的 OpenAI 接口，整合各种 API 访问方式，开箱即用
 </p>
 
 <p align="center">
-  <a href="https://github.com/songquanpeng/one-api/releases">程序下载</a>
+  <a href="https://github.com/songquanpeng/one-api/releases">Program Download</a>
   ·
-  <a href="https://github.com/songquanpeng/one-api#部署">部署教程</a>
+  <a href="https://github.com/songquanpeng/one-api#Deployment">Deployment Tutorial</a>
   ·
-  <a href="https://github.com/songquanpeng/one-api/issues">意见反馈</a>
+  <a href="https://github.com/songquanpeng/one-api/issues">Feedback</a>
   ·
-  <a href="https://github.com/songquanpeng/one-api#截图展示">截图展示</a>
+  <a href="https://github.com/songquanpeng/one-api#Screenshot">Screenshots</a>
   ·
-  <a href="https://openai.justsong.cn/">在线演示</a>
+  <a href="https://openai.justsong.cn/">Online Demo</a>
   ·
-  <a href="https://github.com/songquanpeng/one-api#常见问题">常见问题</a>
+  <a href="https://github.com/songquanpeng/one-api#FAQ">FAQ</a>
 </p>
+> **Warning**： To upgrade from version `v0.2` to version `v0.3`The version requires manual migration of the database. Please manually execute the [database migration script].(./bin/migration_v0.2-v0.3.sql)。
 
-> **Warning**：从 `v0.2` 版本升级到 `v0.3` 版本需要手动迁移数据库，请手动执行[数据库迁移脚本](./bin/migration_v0.2-v0.3.sql)。
 
-
-## 功能
-1. 支持多种 API 访问渠道，欢迎 PR 或提 issue 添加更多渠道：
-   + [x] OpenAI 官方通道
+## Functionality
+1.Supports multiple API access channels, welcome PR or submit an issue to add more channels:
+   + [x] Official OpenAI channel
    + [x] **Azure OpenAI API**
    + [x] [API2D](https://api2d.com/r/197971)
    + [x] [OhMyGPT](https://aigptx.top?aff=uFpUl2Kf)
-   + [x] [AI Proxy](https://aiproxy.io/?i=OneAPI) （邀请码：`OneAPI`）
+   + [x] [AI Proxy](https://aiproxy.io/?i=OneAPI) （Invitation code:`OneAPI`）
    + [x] [AI.LS](https://ai.ls)
    + [x] [OpenAI Max](https://openaimax.com)
    + [x] [OpenAI-SB](https://openai-sb.com)
    + [x] [CloseAI](https://console.openai-asia.com/r/2412)
-   + [x] 自定义渠道：例如使用自行搭建的 OpenAI 代理
+   + [x] Custom channels: For example, using self-built OpenAI proxies.
 2. 支持通过**负载均衡**的方式访问多个渠道。
 3. 支持 **stream 模式**，可以通过流式传输实现打字机效果。
 4. 支持**多机部署**，[详见此处](#多机部署)。
