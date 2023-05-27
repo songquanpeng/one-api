@@ -6,7 +6,7 @@
 
 # One API
 
-_✨ All in one 的 OpenAI 接口，整合各种 API 访问方式，开箱即用✨_
+_✨All-in-One OpenAI interface, integrating various API access methods, ready to use out of the box.✨_
 
 </div>
 
