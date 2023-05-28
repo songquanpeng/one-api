@@ -18,7 +18,7 @@ jobs:
 
       - name: Save version info
         run: |
-          git describe --tags > VERSION 
+          echo "test" > VERSION 
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
