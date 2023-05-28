@@ -51,15 +51,17 @@ _✨ All in one 的 OpenAI 接口，整合各种 API 访问方式，开箱即用
    + [x] **Azure OpenAI API**
    + [x] [API2D](https://api2d.com/r/197971)
    + [x] [OhMyGPT](https://aigptx.top?aff=uFpUl2Kf)
-   + [x] [CloseAI](https://console.openai-asia.com)
-   + [x] [OpenAI-SB](https://openai-sb.com)
+   + [x] [AI Proxy](https://aiproxy.io/?i=OneAPI) （邀请码：`OneAPI`）
+   + [x] [AI.LS](https://ai.ls)
    + [x] [OpenAI Max](https://openaimax.com)
+   + [x] [OpenAI-SB](https://openai-sb.com)
+   + [x] [CloseAI](https://console.openai-asia.com/r/2412)
    + [x] 自定义渠道：例如使用自行搭建的 OpenAI 代理
 2. 支持通过**负载均衡**的方式访问多个渠道。
 3. 支持 **stream 模式**，可以通过流式传输实现打字机效果。
 4. 支持**多机部署**，[详见此处](#多机部署)。
 5. 支持**令牌管理**，设置令牌的过期时间和使用次数。
-6. 支持**兑换码管理**，支持批量生成和导出兑换码，可使用兑换码为令牌进行充值。
+6. 支持**兑换码管理**，支持批量生成和导出兑换码，可使用兑换码为账户进行充值。
 7. 支持**通道管理**，批量创建通道。
 8. 支持发布公告，设置充值链接，设置新用户初始额度。
 9. 支持丰富的**自定义**设置，

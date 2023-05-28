@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Form, Grid, Header, Segment, Statistic } from 'semantic-ui-react';
-import { API, showError, showSuccess } from '../../helpers';
+import { API, showError, showInfo, showSuccess } from '../../helpers';
 
 const TopUp = () => {
   const [redemptionCode, setRedemptionCode] = useState('');
@@ -9,6 +9,7 @@ const TopUp = () => {
 
   const topUp = async () => {
     if (redemptionCode === '') {
+      showInfo('请输入充值码！')
       return;
     }
     const res = await API.post('/api/user/topup', {
@@ -80,7 +81,7 @@ const TopUp = () => {
         <Grid.Column>
           <Statistic.Group widths='one'>
             <Statistic>
-              <Statistic.Value>{userQuota}</Statistic.Value>
+              <Statistic.Value>{userQuota.toLocaleString()}</Statistic.Value>
               <Statistic.Label>剩余额度</Statistic.Label>
             </Statistic>
           </Statistic.Group>

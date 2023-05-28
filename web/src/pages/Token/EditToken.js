@@ -106,6 +106,34 @@ const EditToken = () => {
               required={!isEdit}
             />
           </Form.Field>
+          <Form.Field>
+            <Form.Input
+              label='过期时间'
+              name='expired_time'
+              placeholder={'请输入过期时间，格式为 yyyy-MM-dd HH:mm:ss，-1 表示无限制'}
+              onChange={handleInputChange}
+              value={expired_time}
+              autoComplete='new-password'
+              type='datetime-local'
+            />
+          </Form.Field>
+          <div style={{ lineHeight: '40px' }}>
+            <Button type={'button'} onClick={() => {
+              setExpiredTime(0, 0, 0, 0);
+            }}>永不过期</Button>
+            <Button type={'button'} onClick={() => {
+              setExpiredTime(1, 0, 0, 0);
+            }}>一个月后过期</Button>
+            <Button type={'button'} onClick={() => {
+              setExpiredTime(0, 1, 0, 0);
+            }}>一天后过期</Button>
+            <Button type={'button'} onClick={() => {
+              setExpiredTime(0, 0, 1, 0);
+            }}>一小时后过期</Button>
+            <Button type={'button'} onClick={() => {
+              setExpiredTime(0, 0, 0, 1);
+            }}>一分钟后过期</Button>
+          </div>
           <Message>注意，令牌的额度仅用于限制令牌本身的最大额度使用量，实际的使用受到账户的剩余额度限制。</Message>
           <Form.Field>
             <Form.Input
@@ -119,36 +147,10 @@ const EditToken = () => {
               disabled={unlimited_quota}
             />
           </Form.Field>
-          <Button type={'button'} style={{ marginBottom: '14px' }} onClick={() => {
+          <Button type={'button'} onClick={() => {
             setUnlimitedQuota();
           }}>{unlimited_quota ? '取消无限额度' : '设置为无限额度'}</Button>
-          <Form.Field>
-            <Form.Input
-              label='过期时间'
-              name='expired_time'
-              placeholder={'请输入过期时间，格式为 yyyy-MM-dd HH:mm:ss，-1 表示无限制'}
-              onChange={handleInputChange}
-              value={expired_time}
-              autoComplete='new-password'
-              type='datetime-local'
-            />
-          </Form.Field>
-          <Button type={'button'} onClick={() => {
-            setExpiredTime(0, 0, 0, 0);
-          }}>永不过期</Button>
-          <Button type={'button'} onClick={() => {
-            setExpiredTime(1, 0, 0, 0);
-          }}>一个月后过期</Button>
-          <Button type={'button'} onClick={() => {
-            setExpiredTime(0, 1, 0, 0);
-          }}>一天后过期</Button>
-          <Button type={'button'} onClick={() => {
-            setExpiredTime(0, 0, 1, 0);
-          }}>一小时后过期</Button>
-          <Button type={'button'} onClick={() => {
-            setExpiredTime(0, 0, 0, 1);
-          }}>一分钟后过期</Button>
-          <Button onClick={submit}>提交</Button>
+          <Button positive onClick={submit}>提交</Button>
         </Form>
       </Segment>
     </>

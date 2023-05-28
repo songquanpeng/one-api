@@ -32,6 +32,7 @@ const ChannelsTable = () => {
   const [activePage, setActivePage] = useState(1);
   const [searchKeyword, setSearchKeyword] = useState('');
   const [searching, setSearching] = useState(false);
+  const [updatingBalance, setUpdatingBalance] = useState(false);
 
   const loadChannels = async (startIdx) => {
     const res = await API.get(`/api/channel/?p=${startIdx}`);
@@ -63,7 +64,7 @@ const ChannelsTable = () => {
   const refresh = async () => {
     setLoading(true);
     await loadChannels(0);
-  }
+  };
 
   useEffect(() => {
     loadChannels(0)
@@ -127,7 +128,7 @@ const ChannelsTable = () => {
 
   const renderResponseTime = (responseTime) => {
     let time = responseTime / 1000;
-    time = time.toFixed(2) + " 秒";
+    time = time.toFixed(2) + ' 秒';
     if (responseTime === 0) {
       return <Label basic color='grey'>未测试</Label>;
     } else if (responseTime <= 1000) {
@@ -179,11 +180,38 @@ const ChannelsTable = () => {
     const res = await API.get(`/api/channel/test`);
     const { success, message } = res.data;
     if (success) {
-      showInfo("已成功开始测试所有已启用通道，请刷新页面查看结果。");
+      showInfo('已成功开始测试所有已启用通道，请刷新页面查看结果。');
     } else {
       showError(message);
     }
-  }
+  };
+
+  const updateChannelBalance = async (id, name, idx) => {
+    const res = await API.get(`/api/channel/update_balance/${id}/`);
+    const { success, message, balance } = res.data;
+    if (success) {
+      let newChannels = [...channels];
+      let realIdx = (activePage - 1) * ITEMS_PER_PAGE + idx;
+      newChannels[realIdx].balance = balance;
+      newChannels[realIdx].balance_updated_time = Date.now() / 1000;
+      setChannels(newChannels);
+      showInfo(`通道 ${name} 余额更新成功！`);
+    } else {
+      showError(message);
+    }
+  };
+
+  const updateAllChannelsBalance = async () => {
+    setUpdatingBalance(true);
+    const res = await API.get(`/api/channel/update_balance`);
+    const { success, message } = res.data;
+    if (success) {
+      showInfo('已更新完毕所有已启用通道余额！');
+    } else {
+      showError(message);
+    }
+    setUpdatingBalance(false);
+  };
 
   const handleKeywordChange = async (e, { value }) => {
     setSearchKeyword(value.trim());
@@ -263,10 +291,10 @@ const ChannelsTable = () => {
             <Table.HeaderCell
               style={{ cursor: 'pointer' }}
               onClick={() => {
-                sortChannel('test_time');
+                sortChannel('balance');
               }}
             >
-              测试时间
+              余额
             </Table.HeaderCell>
             <Table.HeaderCell>操作</Table.HeaderCell>
           </Table.Row>
@@ -286,8 +314,22 @@ const ChannelsTable = () => {
                   <Table.Cell>{channel.name ? channel.name : '无'}</Table.Cell>
                   <Table.Cell>{renderType(channel.type)}</Table.Cell>
                   <Table.Cell>{renderStatus(channel.status)}</Table.Cell>
-                  <Table.Cell>{renderResponseTime(channel.response_time)}</Table.Cell>
-                  <Table.Cell>{channel.test_time ? renderTimestamp(channel.test_time) : "未测试"}</Table.Cell>
+                  <Table.Cell>
+                    <Popup
+                      content={channel.test_time ? renderTimestamp(channel.test_time) : '未测试'}
+                      key={channel.id}
+                      trigger={renderResponseTime(channel.response_time)}
+                      basic
+                    />
+                  </Table.Cell>
+                  <Table.Cell>
+                    <Popup
+                      content={channel.balance_updated_time ? renderTimestamp(channel.balance_updated_time) : '未更新'}
+                      key={channel.id}
+                      trigger={<span>${channel.balance.toFixed(2)}</span>}
+                      basic
+                    />
+                  </Table.Cell>
                   <Table.Cell>
                     <div>
                       <Button
@@ -298,6 +340,16 @@ const ChannelsTable = () => {
                         }}
                       >
                         测试
+                      </Button>
+                      <Button
+                        size={'small'}
+                        positive
+                        loading={updatingBalance}
+                        onClick={() => {
+                          updateChannelBalance(channel.id, channel.name, idx);
+                        }}
+                      >
+                        更新余额
                       </Button>
                       <Popup
                         trigger={
@@ -353,6 +405,7 @@ const ChannelsTable = () => {
               <Button size='small' loading={loading} onClick={testAllChannels}>
                 测试所有已启用通道
               </Button>
+              <Button size='small' onClick={updateAllChannelsBalance} loading={loading || updatingBalance}>更新所有已启用通道余额</Button>
               <Pagination
                 floated='right'
                 activePage={activePage}

@@ -14,8 +14,9 @@ const EditUser = () => {
     github_id: '',
     wechat_id: '',
     email: '',
+    quota: 0,
   });
-  const { username, display_name, password, github_id, wechat_id, email } =
+  const { username, display_name, password, github_id, wechat_id, email, quota } =
     inputs;
   const handleInputChange = (e, { name, value }) => {
     setInputs((inputs) => ({ ...inputs, [name]: value }));
@@ -44,7 +45,11 @@ const EditUser = () => {
   const submit = async () => {
     let res = undefined;
     if (userId) {
-      res = await API.put(`/api/user/`, { ...inputs, id: parseInt(userId) });
+      let data = { ...inputs, id: parseInt(userId) };
+      if (typeof data.quota === 'string') {
+        data.quota = parseInt(data.quota);
+      }
+      res = await API.put(`/api/user/`, data);
     } else {
       res = await API.put(`/api/user/self`, inputs);
     }
@@ -92,6 +97,21 @@ const EditUser = () => {
               autoComplete='new-password'
             />
           </Form.Field>
+          {
+            userId && (
+              <Form.Field>
+                <Form.Input
+                  label='剩余额度'
+                  name='quota'
+                  placeholder={'请输入新的剩余额度'}
+                  onChange={handleInputChange}
+                  value={quota}
+                  type={'number'}
+                  autoComplete='new-password'
+                />
+              </Form.Field>
+            )
+          }
           <Form.Field>
             <Form.Input
               label='已绑定的 GitHub 账户'
@@ -122,7 +142,7 @@ const EditUser = () => {
               readOnly
             />
           </Form.Field>
-          <Button onClick={submit}>提交</Button>
+          <Button positive onClick={submit}>提交</Button>
         </Form>
       </Segment>
     </>
