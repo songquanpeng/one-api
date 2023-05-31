@@ -9,8 +9,8 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - /home/ubuntu/data/one-api:/data
-      - /home/ubuntu/data/one-api/logs:/app/logs
+      - ./data:/data
+      - ./logs:/app/logs
     # environment:
     #   REDIS_CONN_STRING: redis://default:redispw@localhost:49153
     #   SESSION_SECRET: random_string
