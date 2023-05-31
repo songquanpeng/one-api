@@ -23,20 +23,21 @@ type OpenAIModelPermission struct {
 }
 
 type OpenAIModels struct {
-	Id         string                `json:"id"`
-	Object     string                `json:"object"`
-	Created    int                   `json:"created"`
-	OwnedBy    string                `json:"owned_by"`
-	Permission OpenAIModelPermission `json:"permission"`
-	Root       string                `json:"root"`
-	Parent     *string               `json:"parent"`
+	Id         string                  `json:"id"`
+	Object     string                  `json:"object"`
+	Created    int                     `json:"created"`
+	OwnedBy    string                  `json:"owned_by"`
+	Permission []OpenAIModelPermission `json:"permission"`
+	Root       string                  `json:"root"`
+	Parent     *string                 `json:"parent"`
 }
 
 var openAIModels []OpenAIModels
 var openAIModelsMap map[string]OpenAIModels
 
 func init() {
-	permission := OpenAIModelPermission{
+	var permission []OpenAIModelPermission
+	permission = append(permission, OpenAIModelPermission{
 		Id:                 "modelperm-LwHkVFn8AcMItP432fKKDIKJ",
 		Object:             "model_permission",
 		Created:            1626777600,
@@ -49,7 +50,7 @@ func init() {
 		Organization:       "*",
 		Group:              nil,
 		IsBlocking:         false,
-	}
+	})
 	// https://platform.openai.com/docs/models/model-endpoint-compatibility
 	openAIModels = []OpenAIModels{
 		{
@@ -107,15 +108,6 @@ func init() {
 			Parent:     nil,
 		},
 		{
-			Id:         "gpt-3.5-turbo",
-			Object:     "model",
-			Created:    1677649963,
-			OwnedBy:    "openai",
-			Permission: permission,
-			Root:       "gpt-3.5-turbo",
-			Parent:     nil,
-		},
-		{
 			Id:         "text-embedding-ada-002",
 			Object:     "model",
 			Created:    1677649963,
@@ -132,7 +124,10 @@ func init() {
 }
 
 func ListModels(c *gin.Context) {
-	c.JSON(200, openAIModels)
+	c.JSON(200, gin.H{
+		"object": "list",
+		"data":   openAIModels,
+	})
 }
 
 func RetrieveModel(c *gin.Context) {
