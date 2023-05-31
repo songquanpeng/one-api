@@ -134,6 +134,9 @@ func disableChannel(channelId int, channelName string, reason string) {
 }
 
 func testAllChannels(c *gin.Context) error {
+	if common.RootUserEmail == "" {
+		common.RootUserEmail = model.GetRootUserEmail()
+	}
 	testAllChannelsLock.Lock()
 	if testAllChannelsRunning {
 		testAllChannelsLock.Unlock()
