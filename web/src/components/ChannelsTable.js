@@ -231,6 +231,15 @@ const ChannelsTable = () => {
     setLoading(false);
   };
 
+  const renderModels = (modelString) => {
+    let models = modelString.split(",");
+    return models.map((model) => (
+        <Label>
+          {model}
+        </Label>
+    ))
+  }
+
   return (
     <>
       <Form onSubmit={searchChannels}>
@@ -288,6 +297,9 @@ const ChannelsTable = () => {
             >
               响应时间
             </Table.HeaderCell>
+            <Table.HeaderCell>
+              支持的模型
+            </Table.HeaderCell>
             <Table.HeaderCell
               style={{ cursor: 'pointer' }}
               onClick={() => {
@@ -321,6 +333,10 @@ const ChannelsTable = () => {
                       trigger={renderResponseTime(channel.response_time)}
                       basic
                     />
+                  </Table.Cell>
+                  <Table.Cell>
+                    {channel.models.length > 0 ? renderModels(channel.models) :<Label>无</Label>
+                    }
                   </Table.Cell>
                   <Table.Cell>
                     <Popup

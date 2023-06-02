@@ -19,6 +19,7 @@ type Channel struct {
 	Other              string  `json:"other"`
 	Balance            float64 `json:"balance"` // in USD
 	BalanceUpdatedTime int64   `json:"balance_updated_time" gorm:"bigint"`
+	Models             string  `json:"models" `
 }
 
 func GetAllChannels(startIdx int, num int, selectAll bool) ([]*Channel, error) {
@@ -48,14 +49,14 @@ func GetChannelById(id int, selectAll bool) (*Channel, error) {
 	return &channel, err
 }
 
-func GetRandomChannel() (*Channel, error) {
+func GetRandomChannel(model string) (*Channel, error) {
 	// TODO: consider weight
 	channel := Channel{}
 	var err error = nil
 	if common.UsingSQLite {
-		err = DB.Where("status = ?", common.ChannelStatusEnabled).Order("RANDOM()").Limit(1).First(&channel).Error
+		err = DB.Where("status = ? and (models = ? or models like ? or models like ? or models like ?)", common.ChannelStatusEnabled, model, model+",%", "%,"+model, "%,"+model+",%").Order("RANDOM()").Limit(1).First(&channel).Error
 	} else {
-		err = DB.Where("status = ?", common.ChannelStatusEnabled).Order("RAND()").Limit(1).First(&channel).Error
+		err = DB.Where("status = ? and (models = ? or models like ? or models like ? or models like ?)", common.ChannelStatusEnabled, model, model+",%", "%,"+model, "%,"+model+",%").Order("RAND()").Limit(1).First(&channel).Error
 	}
 	return &channel, err
 }

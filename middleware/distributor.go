@@ -1,10 +1,14 @@
 package middleware
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"io"
 	"net/http"
 	"one-api/common"
+	"one-api/controller"
 	"one-api/model"
 	"strconv"
 )
@@ -49,7 +53,44 @@ func Distribute() func(c *gin.Context) {
 		} else {
 			// Select a channel for the user
 			var err error
-			channel, err = model.GetRandomChannel()
+			var textRequest controller.GeneralOpenAIRequest
+			requestBody, err := io.ReadAll(c.Request.Body)
+			if err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{
+					"error": gin.H{
+						"message": "read_request_body_failed",
+						"type":    "one_api_error",
+					},
+				})
+				c.Abort()
+				return
+			}
+			err = c.Request.Body.Close()
+			if err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{
+					"error": gin.H{
+						"message": "close_request_body_failed",
+						"type":    "one_api_error",
+					},
+				})
+				c.Abort()
+				return
+			}
+			err = json.Unmarshal(requestBody, &textRequest)
+			if err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{
+					"error": gin.H{
+						"message": "unmarshal_request_body_failed",
+						"type":    "one_api_error",
+					},
+				})
+				c.Abort()
+				return
+			}
+			// Reset request body
+			c.Request.Body = io.NopCloser(bytes.NewBuffer(requestBody))
+			model_ := textRequest.Model
+			channel, err = model.GetRandomChannel(model_)
 			if err != nil {
 				c.JSON(200, gin.H{
 					"error": gin.H{
