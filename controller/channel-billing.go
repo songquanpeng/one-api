@@ -73,8 +73,8 @@ func updateChannelBalance(channel *model.Channel) (float64, error) {
 	}
 	now := time.Now()
 	startDate := fmt.Sprintf("%s-01", now.Format("2006-01"))
-	//endDate := now.Format("2006-01-02")
-	url = fmt.Sprintf("%s/v1/dashboard/billing/usage?start_date=%s&end_date=%s", baseURL, startDate, "2023-06-01")
+	endDate := now.Format("2006-01-02")
+	url = fmt.Sprintf("%s/v1/dashboard/billing/usage?start_date=%s&end_date=%s", baseURL, startDate, endDate)
 	req, err = http.NewRequest("GET", url, nil)
 	if err != nil {
 		return 0, err
