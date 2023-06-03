@@ -40,10 +40,14 @@ type OpenAIUsageResponse struct {
 func updateChannelBalance(channel *model.Channel) (float64, error) {
 	baseURL := common.ChannelBaseURLs[channel.Type]
 	switch channel.Type {
+	case common.ChannelTypeOpenAI:
+		// do nothing
 	case common.ChannelTypeAzure:
 		return 0, errors.New("尚未实现")
 	case common.ChannelTypeCustom:
 		baseURL = channel.BaseURL
+	default:
+		return 0, errors.New("尚未实现")
 	}
 	url := fmt.Sprintf("%s/v1/dashboard/billing/subscription", baseURL)
 
