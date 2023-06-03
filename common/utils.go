@@ -5,6 +5,7 @@ import (
 	"github.com/google/uuid"
 	"html/template"
 	"log"
+	"math/rand"
 	"net"
 	"os/exec"
 	"runtime"
@@ -131,6 +132,29 @@ func GetUUID() string {
 	code := uuid.New().String()
 	code = strings.Replace(code, "-", "", -1)
 	return code
+}
+
+const keyChars = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+func init() {
+	rand.Seed(time.Now().UnixNano())
+}
+
+func GenerateKey() string {
+	rand.Seed(time.Now().UnixNano())
+	key := make([]byte, 48)
+	for i := 0; i < 16; i++ {
+		key[i] = keyChars[rand.Intn(len(keyChars))]
+	}
+	uuid_ := GetUUID()
+	for i := 0; i < 32; i++ {
+		c := uuid_[i]
+		if i%2 == 0 && c >= 'a' && c <= 'z' {
+			c = c - 'a' + 'A'
+		}
+		key[i+16] = c
+	}
+	return string(key)
 }
 
 func GetTimestamp() int64 {

@@ -119,7 +119,7 @@ func AddToken(c *gin.Context) {
 	cleanToken := model.Token{
 		UserId:         c.GetInt("id"),
 		Name:           token.Name,
-		Key:            common.GetUUID(),
+		Key:            common.GenerateKey(),
 		CreatedTime:    common.GetTimestamp(),
 		AccessedTime:   common.GetTimestamp(),
 		ExpiredTime:    token.ExpiredTime,
