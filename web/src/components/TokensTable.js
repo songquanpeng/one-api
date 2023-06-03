@@ -238,11 +238,12 @@ const TokensTable = () => {
                         size={'small'}
                         positive
                         onClick={async () => {
-                          if (await copy(token.key)) {
+                          let key = "sk-" + token.key;
+                          if (await copy(key)) {
                             showSuccess('已复制到剪贴板！');
                           } else {
                             showWarning('无法复制到剪贴板，请手动复制，已将令牌填入搜索框。');
-                            setSearchKeyword(token.key);
+                            setSearchKeyword(key);
                           }
                         }}
                       >
