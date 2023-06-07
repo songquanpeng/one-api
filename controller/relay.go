@@ -116,20 +116,10 @@ func relayHelper(c *gin.Context) *OpenAIErrorWithStatusCode {
 	consumeQuota := c.GetBool("consume_quota")
 	var textRequest GeneralOpenAIRequest
 	if consumeQuota || channelType == common.ChannelTypeAzure || channelType == common.ChannelTypePaLM {
-		requestBody, err := io.ReadAll(c.Request.Body)
+		err := common.UnmarshalBodyReusable(c, &textRequest)
 		if err != nil {
-			return errorWrapper(err, "read_request_body_failed", http.StatusBadRequest)
+			return errorWrapper(err, "bind_request_body_failed", http.StatusBadRequest)
 		}
-		err = c.Request.Body.Close()
-		if err != nil {
-			return errorWrapper(err, "close_request_body_failed", http.StatusBadRequest)
-		}
-		err = json.Unmarshal(requestBody, &textRequest)
-		if err != nil {
-			return errorWrapper(err, "unmarshal_request_body_failed", http.StatusBadRequest)
-		}
-		// Reset request body
-		c.Request.Body = io.NopCloser(bytes.NewBuffer(requestBody))
 	}
 	baseURL := common.ChannelBaseURLs[channelType]
 	requestURL := c.Request.URL.String()

@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { API, showError, showSuccess } from '../helpers';
 
 import { ITEMS_PER_PAGE } from '../constants';
-import { renderText } from '../helpers/render';
+import { renderGroup, renderText } from '../helpers/render';
 
 function renderRole(role) {
   switch (role) {
@@ -178,6 +178,14 @@ const UsersTable = () => {
             <Table.HeaderCell
               style={{ cursor: 'pointer' }}
               onClick={() => {
+                sortUser('group');
+              }}
+            >
+              分组
+            </Table.HeaderCell>
+            <Table.HeaderCell
+              style={{ cursor: 'pointer' }}
+              onClick={() => {
                 sortUser('email');
               }}
             >
@@ -231,6 +239,7 @@ const UsersTable = () => {
                       hoverable
                     />
                   </Table.Cell>
+                  <Table.Cell>{renderGroup(user.group)}</Table.Cell>
                   <Table.Cell>{user.email ? renderText(user.email, 30) : '无'}</Table.Cell>
                   <Table.Cell>{user.quota}</Table.Cell>
                   <Table.Cell>{renderRole(user.role)}</Table.Cell>
@@ -306,7 +315,7 @@ const UsersTable = () => {
 
         <Table.Footer>
           <Table.Row>
-            <Table.HeaderCell colSpan='7'>
+            <Table.HeaderCell colSpan='8'>
               <Button size='small' as={Link} to='/user/add' loading={loading}>
                 添加新的用户
               </Button>

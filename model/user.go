@@ -22,6 +22,7 @@ type User struct {
 	VerificationCode string `json:"verification_code" gorm:"-:all"`                                    // this field is only for Email verification, don't save it to database!
 	AccessToken      string `json:"access_token" gorm:"type:char(32);column:access_token;uniqueIndex"` // this token is for system management
 	Quota            int    `json:"quota" gorm:"type:int;default:0"`
+	Group            string `json:"group" gorm:"type:varchar(32);default:'default'"`
 }
 
 func GetMaxUserId() int {
@@ -227,6 +228,11 @@ func GetUserQuota(id int) (quota int, err error) {
 func GetUserEmail(id int) (email string, err error) {
 	err = DB.Model(&User{}).Where("id = ?", id).Select("email").Find(&email).Error
 	return email, err
+}
+
+func GetUserGroup(id int) (group string, err error) {
+	err = DB.Model(&User{}).Where("id = ?", id).Select("`group`").Find(&group).Error
+	return group, err
 }
 
 func IncreaseUserQuota(id int, quota int) (err error) {
