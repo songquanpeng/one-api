@@ -40,6 +40,8 @@ _✨ All in one 的 OpenAI 接口，整合各种 API 访问方式，开箱即用
   <a href="https://openai.justsong.cn/">在线演示</a>
   ·
   <a href="https://github.com/songquanpeng/one-api#常见问题">常见问题</a>
+  ·
+  <a href="https://iamazing.cn/page/reward">赞赏支持</a>
 </p>
 
 > **Warning**：从 `v0.2` 版本升级到 `v0.3` 版本需要手动迁移数据库，请手动执行[数据库迁移脚本](./bin/migration_v0.2-v0.3.sql)。
