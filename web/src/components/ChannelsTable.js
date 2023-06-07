@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { API, showError, showInfo, showSuccess, timestamp2string } from '../helpers';
 
 import { CHANNEL_OPTIONS, ITEMS_PER_PAGE } from '../constants';
+import { renderGroup } from '../helpers/render';
 
 function renderTimestamp(timestamp) {
   return (
@@ -267,6 +268,14 @@ const ChannelsTable = () => {
             <Table.HeaderCell
               style={{ cursor: 'pointer' }}
               onClick={() => {
+                sortChannel('group');
+              }}
+            >
+              分组
+            </Table.HeaderCell>
+            <Table.HeaderCell
+              style={{ cursor: 'pointer' }}
+              onClick={() => {
                 sortChannel('type');
               }}
             >
@@ -312,6 +321,7 @@ const ChannelsTable = () => {
                 <Table.Row key={channel.id}>
                   <Table.Cell>{channel.id}</Table.Cell>
                   <Table.Cell>{channel.name ? channel.name : '无'}</Table.Cell>
+                  <Table.Cell>{renderGroup(channel.group)}</Table.Cell>
                   <Table.Cell>{renderType(channel.type)}</Table.Cell>
                   <Table.Cell>{renderStatus(channel.status)}</Table.Cell>
                   <Table.Cell>
@@ -398,7 +408,7 @@ const ChannelsTable = () => {
 
         <Table.Footer>
           <Table.Row>
-            <Table.HeaderCell colSpan='7'>
+            <Table.HeaderCell colSpan='8'>
               <Button size='small' as={Link} to='/channel/add' loading={loading}>
                 添加新的渠道
               </Button>

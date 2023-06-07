@@ -3,7 +3,6 @@ package model
 import (
 	"errors"
 	"fmt"
-	_ "gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"one-api/common"
 )

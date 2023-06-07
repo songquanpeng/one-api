@@ -8,11 +8,15 @@ import (
 
 func SetRelayRouter(router *gin.Engine) {
 	// https://platform.openai.com/docs/api-reference/introduction
+	modelsRouter := router.Group("/v1/models")
+	modelsRouter.Use(middleware.TokenAuth())
+	{
+		modelsRouter.GET("/", controller.ListModels)
+		modelsRouter.GET("/:model", controller.RetrieveModel)
+	}
 	relayV1Router := router.Group("/v1")
 	relayV1Router.Use(middleware.TokenAuth(), middleware.Distribute())
 	{
-		relayV1Router.GET("/models", controller.ListModels)
-		relayV1Router.GET("/models/:model", controller.RetrieveModel)
 		relayV1Router.POST("/completions", controller.RelayNotImplemented)
 		relayV1Router.POST("/chat/completions", controller.Relay)
 		relayV1Router.POST("/edits", controller.RelayNotImplemented)

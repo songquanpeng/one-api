@@ -14,10 +14,12 @@ const EditChannel = () => {
     type: 1,
     key: '',
     base_url: '',
-    other: ''
+    other: '',
+    models: [],
   };
   const [batch, setBatch] = useState(false);
   const [inputs, setInputs] = useState(originInputs);
+  const [modelOptions, setModelOptions] = useState([]);
   const handleInputChange = (e, { name, value }) => {
     console.log(name, value);
     setInputs((inputs) => ({ ...inputs, [name]: value }));
@@ -27,17 +29,36 @@ const EditChannel = () => {
     let res = await API.get(`/api/channel/${channelId}`);
     const { success, message, data } = res.data;
     if (success) {
-      data.password = '';
+      if (data.models === "") {
+        data.models = []
+      } else {
+        data.models = data.models.split(",")
+      }
       setInputs(data);
     } else {
       showError(message);
     }
     setLoading(false);
   };
+
+  const fetchModels = async () => {
+    try {
+      let res = await API.get(`/api/channel/models`);
+      setModelOptions(res.data.data.map((model) => ({
+        key: model.id,
+        text: model.id,
+        value: model.id,
+      })));
+    } catch (error) {
+      console.error('Error fetching models:', error);
+    }
+  };
+
   useEffect(() => {
     if (isEdit) {
       loadChannel().then();
     }
+    fetchModels().then();
   }, []);
 
   const submit = async () => {
@@ -50,6 +71,7 @@ const EditChannel = () => {
       localInputs.other = '2023-03-15-preview';
     }
     let res;
+    localInputs.models = localInputs.models.join(",")
     if (isEdit) {
       res = await API.put(`/api/channel/`, { ...localInputs, id: parseInt(channelId) });
     } else {
@@ -135,6 +157,19 @@ const EditChannel = () => {
               onChange={handleInputChange}
               value={inputs.name}
               autoComplete='new-password'
+            />
+          </Form.Field>
+          <Form.Field>
+            <Form.Dropdown
+              label='支持的模型'
+              name='models'
+              fluid
+              multiple
+              selection
+              onChange={handleInputChange}
+              value={inputs.models}
+              autoComplete='new-password'
+              options={modelOptions}
             />
           </Form.Field>
           {

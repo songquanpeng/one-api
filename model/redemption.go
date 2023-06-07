@@ -2,7 +2,6 @@ package model
 
 import (
 	"errors"
-	_ "gorm.io/driver/sqlite"
 	"one-api/common"
 )
 

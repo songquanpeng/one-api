@@ -9,6 +9,10 @@ import (
 	"strconv"
 )
 
+type ModelRequest struct {
+	Model string `json:"model"`
+}
+
 func Distribute() func(c *gin.Context) {
 	return func(c *gin.Context) {
 		var channel *model.Channel
@@ -48,8 +52,21 @@ func Distribute() func(c *gin.Context) {
 			}
 		} else {
 			// Select a channel for the user
-			var err error
-			channel, err = model.GetRandomChannel()
+			var modelRequest ModelRequest
+			err := common.UnmarshalBodyReusable(c, &modelRequest)
+			if err != nil {
+				c.JSON(200, gin.H{
+					"error": gin.H{
+						"message": "无效的请求",
+						"type":    "one_api_error",
+					},
+				})
+				c.Abort()
+				return
+			}
+			userId := c.GetInt("id")
+			userGroup, _ := model.GetUserGroup(userId)
+			channel, err = model.GetRandomSatisfiedChannel(userGroup, modelRequest.Model)
 			if err != nil {
 				c.JSON(200, gin.H{
 					"error": gin.H{
