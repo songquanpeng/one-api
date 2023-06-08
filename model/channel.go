@@ -91,6 +91,7 @@ func (channel *Channel) Update() error {
 	if err != nil {
 		return err
 	}
+	DB.Model(channel).First(channel, "id = ?", channel.Id)
 	err = channel.UpdateAbilities()
 	return err
 }
