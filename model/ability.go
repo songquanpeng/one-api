@@ -9,7 +9,7 @@ type Ability struct {
 	Group     string `json:"group" gorm:"type:varchar(32);primaryKey;autoIncrement:false"`
 	Model     string `json:"model" gorm:"primaryKey;autoIncrement:false"`
 	ChannelId int    `json:"channel_id" gorm:"primaryKey;autoIncrement:false;index"`
-	Enabled   bool   `json:"enabled" gorm:"default:1"`
+	Enabled   bool   `json:"enabled"`
 }
 
 func GetRandomSatisfiedChannel(group string, model string) (*Channel, error) {
@@ -68,5 +68,5 @@ func (channel *Channel) UpdateAbilities() error {
 }
 
 func UpdateAbilityStatus(channelId int, status bool) error {
-	return DB.Model(&Ability{}).Where("channel_id = ?", channelId).Update("enabled", status).Error
+	return DB.Model(&Ability{}).Where("channel_id = ?", channelId).Select("enabled").Update("enabled", status).Error
 }

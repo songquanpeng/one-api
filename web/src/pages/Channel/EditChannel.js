@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Form, Header, Message, Segment } from 'semantic-ui-react';
 import { useParams } from 'react-router-dom';
-import { API, showError, showSuccess } from '../../helpers';
+import { API, showError, showInfo, showSuccess } from '../../helpers';
 import { CHANNEL_OPTIONS } from '../../constants';
 
 const EditChannel = () => {
@@ -15,13 +15,15 @@ const EditChannel = () => {
     key: '',
     base_url: '',
     other: '',
+    group: 'default',
     models: [],
   };
   const [batch, setBatch] = useState(false);
   const [inputs, setInputs] = useState(originInputs);
   const [modelOptions, setModelOptions] = useState([]);
+  const [basicModels, setBasicModels] = useState([]);
+  const [fullModels, setFullModels] = useState([]);
   const handleInputChange = (e, { name, value }) => {
-    console.log(name, value);
     setInputs((inputs) => ({ ...inputs, [name]: value }));
   };
 
@@ -49,8 +51,10 @@ const EditChannel = () => {
         text: model.id,
         value: model.id,
       })));
+      setFullModels(res.data.data.map((model) => model.id));
+      setBasicModels(res.data.data.filter((model) => !model.id.startsWith("gpt-4")).map((model) => model.id));
     } catch (error) {
-      console.error('Error fetching models:', error);
+      showError(error.message);
     }
   };
 
@@ -62,7 +66,10 @@ const EditChannel = () => {
   }, []);
 
   const submit = async () => {
-    if (!isEdit && (inputs.name === '' || inputs.key === '')) return;
+    if (!isEdit && (inputs.name === '' || inputs.key === '')) {
+      showInfo('请填写渠道名称和渠道密钥！');
+      return;
+    }
     let localInputs = inputs;
     if (localInputs.base_url.endsWith('/')) {
       localInputs.base_url = localInputs.base_url.slice(0, localInputs.base_url.length - 1);
@@ -160,8 +167,19 @@ const EditChannel = () => {
             />
           </Form.Field>
           <Form.Field>
+            <Form.Input
+              label='分组'
+              name='group'
+              placeholder={'请输入分组'}
+              onChange={handleInputChange}
+              value={inputs.group}
+              autoComplete='new-password'
+            />
+          </Form.Field>
+          <Form.Field>
             <Form.Dropdown
-              label='支持的模型'
+              label='模型'
+              placeholder={'请选择该通道所支持的模型'}
               name='models'
               fluid
               multiple
@@ -172,6 +190,14 @@ const EditChannel = () => {
               options={modelOptions}
             />
           </Form.Field>
+          <div style={{ lineHeight: '40px', marginBottom: '12px'}}>
+            <Button type={'button'} onClick={() => {
+              handleInputChange(null, { name: 'models', value: basicModels });
+            }}>填入基础模型</Button>
+            <Button type={'button'} onClick={() => {
+              handleInputChange(null, { name: 'models', value: fullModels });
+            }}>填入所有模型</Button>
+          </div>
           {
             batch ? <Form.Field>
               <Form.TextArea

@@ -15,8 +15,9 @@ const EditUser = () => {
     wechat_id: '',
     email: '',
     quota: 0,
+    group: 'default'
   });
-  const { username, display_name, password, github_id, wechat_id, email, quota } =
+  const { username, display_name, password, github_id, wechat_id, email, quota, group } =
     inputs;
   const handleInputChange = (e, { name, value }) => {
     setInputs((inputs) => ({ ...inputs, [name]: value }));
@@ -98,7 +99,17 @@ const EditUser = () => {
             />
           </Form.Field>
           {
-            userId && (
+            userId && <>
+              <Form.Field>
+                <Form.Input
+                  label='分组'
+                  name='group'
+                  placeholder={'请输入用户分组'}
+                  onChange={handleInputChange}
+                  value={group}
+                  autoComplete='new-password'
+                />
+              </Form.Field>
               <Form.Field>
                 <Form.Input
                   label='剩余额度'
@@ -110,7 +121,7 @@ const EditUser = () => {
                   autoComplete='new-password'
                 />
               </Form.Field>
-            )
+            </>
           }
           <Form.Field>
             <Form.Input
