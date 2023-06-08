@@ -302,7 +302,6 @@ const UsersTable = () => {
                         size={'small'}
                         as={Link}
                         to={'/user/edit/' + user.id}
-                        disabled={user.role === 100}
                       >
                         编辑
                       </Button>
