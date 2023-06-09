@@ -46,6 +46,8 @@ _✨ All in one 的 OpenAI 接口，整合各种 API 访问方式，开箱即用
 
 > **Warning**：使用 Docker 拉取的最新镜像可能是 `alpha` 版本，如果追求稳定性请手动指定版本。
 
+> **Warning**：从 `v0.3` 版本升级到 `v0.4` 版本需要手动迁移数据库，请手动执行[数据库迁移脚本](./bin/migration_v0.3-v0.4.sql)。
+
 ## 功能
 1. 支持多种 API 访问渠道，欢迎 PR 或提 issue 添加更多渠道：
    + [x] OpenAI 官方通道

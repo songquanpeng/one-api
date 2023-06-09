@@ -13,9 +13,6 @@ type Ability struct {
 }
 
 func GetRandomSatisfiedChannel(group string, model string) (*Channel, error) {
-	if group == "default" {
-		return GetRandomChannel()
-	}
 	ability := Ability{}
 	var err error = nil
 	if common.UsingSQLite {
