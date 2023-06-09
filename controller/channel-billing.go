@@ -41,7 +41,9 @@ func updateChannelBalance(channel *model.Channel) (float64, error) {
 	baseURL := common.ChannelBaseURLs[channel.Type]
 	switch channel.Type {
 	case common.ChannelTypeOpenAI:
-		// do nothing
+		if channel.BaseURL != "" {
+			baseURL = channel.BaseURL
+		}
 	case common.ChannelTypeAzure:
 		return 0, errors.New("尚未实现")
 	case common.ChannelTypeCustom:
