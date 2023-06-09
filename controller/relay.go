@@ -147,6 +147,10 @@ func relayHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 	requestURL := c.Request.URL.String()
 	if channelType == common.ChannelTypeCustom {
 		baseURL = c.GetString("base_url")
+	} else if channelType == common.ChannelTypeOpenAI {
+		if c.GetString("base_url") != "" {
+			baseURL = c.GetString("base_url")
+		}
 	}
 	fullRequestURL := fmt.Sprintf("%s%s", baseURL, requestURL)
 	if channelType == common.ChannelTypeAzure {
