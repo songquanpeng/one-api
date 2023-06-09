@@ -199,6 +199,20 @@ const EditChannel = () => {
             }}>填入所有模型</Button>
           </div>
           {
+            inputs.type === 1 && (
+              <Form.Field>
+                <Form.Input
+                  label='代理'
+                  name='base_url'
+                  placeholder={'请输入 OpenAI API 代理地址，如果不需要请留空，格式为：https://api.openai.com'}
+                  onChange={handleInputChange}
+                  value={inputs.base_url}
+                  autoComplete='new-password'
+                />
+              </Form.Field>
+            )
+          }
+          {
             batch ? <Form.Field>
               <Form.TextArea
                 label='密钥'

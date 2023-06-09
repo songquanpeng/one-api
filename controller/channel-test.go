@@ -27,6 +27,8 @@ func testChannel(channel *model.Channel, request *ChatRequest) error {
 	} else {
 		if channel.Type == common.ChannelTypeCustom {
 			requestURL = channel.BaseURL
+		} else if channel.Type == common.ChannelTypeOpenAI && channel.BaseURL != "" {
+			requestURL = channel.BaseURL
 		}
 		requestURL += "/v1/chat/completions"
 	}
