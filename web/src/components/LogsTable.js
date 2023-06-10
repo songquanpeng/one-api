@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Label, Pagination, Table } from 'semantic-ui-react';
-import { API, showError, timestamp2string } from '../helpers';
+import { Button, Label, Pagination, Select, Table } from 'semantic-ui-react';
+import { API, isAdmin, showError, timestamp2string } from '../helpers';
 
 import { ITEMS_PER_PAGE } from '../constants';
 
@@ -12,6 +12,19 @@ function renderTimestamp(timestamp) {
   );
 }
 
+const MODE_OPTIONS = [
+  { key: 'all', text: '全部用户', value: 'all' },
+  { key: 'self', text: '当前用户', value: 'self' },
+];
+
+const LOG_OPTIONS = [
+  { key: '0', text: '全部', value: 0 },
+  { key: '1', text: '充值', value: 1 },
+  { key: '2', text: '消费', value: 2 },
+  { key: '3', text: '管理', value: 3 },
+  { key: '4', text: '系统', value: 4 }
+];
+
 function renderType(type) {
   switch (type) {
     case 1:
@@ -21,7 +34,7 @@ function renderType(type) {
     case 3:
       return <Label basic color='orange'> 管理 </Label>;
     case 4:
-      return <Label basic color='red'> 系统 </Label>;
+      return <Label basic color='purple'> 系统 </Label>;
     default:
       return <Label basic color='black'> 未知 </Label>;
   }
@@ -33,9 +46,16 @@ const LogsTable = () => {
   const [activePage, setActivePage] = useState(1);
   const [searchKeyword, setSearchKeyword] = useState('');
   const [searching, setSearching] = useState(false);
+  const [logType, setLogType] = useState(0);
+  const [mode, setMode] = useState('self'); // all, self
+  const showModePanel = isAdmin();
 
   const loadLogs = async (startIdx) => {
-    const res = await API.get(`/api/log/self/?p=${startIdx}`);
+    let url = `/api/log/self/?p=${startIdx}&type=${logType}`;
+    if (mode === 'all') {
+      url = `/api/log/?p=${startIdx}&type=${logType}`;
+    }
+    const res = await API.get(url);
     const { success, message, data } = res.data;
     if (success) {
       if (startIdx === 0) {
@@ -73,6 +93,10 @@ const LogsTable = () => {
         showError(reason);
       });
   }, []);
+
+  useEffect(() => {
+    refresh().then();
+  }, [mode, logType]);
 
   const searchLogs = async () => {
     if (searchKeyword === '') {
@@ -125,6 +149,19 @@ const LogsTable = () => {
             >
               时间
             </Table.HeaderCell>
+            {
+              showModePanel && (
+                <Table.HeaderCell
+                  style={{ cursor: 'pointer' }}
+                  onClick={() => {
+                    sortLog('user_id');
+                  }}
+                  width={1}
+                >
+                  用户
+                </Table.HeaderCell>
+              )
+            }
             <Table.HeaderCell
               style={{ cursor: 'pointer' }}
               onClick={() => {
@@ -139,7 +176,7 @@ const LogsTable = () => {
               onClick={() => {
                 sortLog('content');
               }}
-              width={11}
+              width={showModePanel ? 10 : 11}
             >
               详情
             </Table.HeaderCell>
@@ -157,6 +194,11 @@ const LogsTable = () => {
               return (
                 <Table.Row key={log.created_at}>
                   <Table.Cell>{renderTimestamp(log.created_at)}</Table.Cell>
+                  {
+                    showModePanel && (
+                      <Table.Cell><Label>{log.user_id}</Label></Table.Cell>
+                    )
+                  }
                   <Table.Cell>{renderType(log.type)}</Table.Cell>
                   <Table.Cell>{log.content}</Table.Cell>
                 </Table.Row>
@@ -166,7 +208,31 @@ const LogsTable = () => {
 
         <Table.Footer>
           <Table.Row>
-            <Table.HeaderCell colSpan='4'>
+            <Table.HeaderCell colSpan={showModePanel ? '5' : '4'}>
+              {
+                showModePanel && (
+                  <Select
+                    placeholder='选择模式'
+                    options={MODE_OPTIONS}
+                    style={{ marginRight: '8px' }}
+                    name='mode'
+                    value={mode}
+                    onChange={(e, { name, value }) => {
+                      setMode(value);
+                    }}
+                  />
+                )
+              }
+              <Select
+                placeholder='选择明细分类'
+                options={LOG_OPTIONS}
+                style={{ marginRight: '8px' }}
+                name='logType'
+                value={logType}
+                onChange={(e, { name, value }) => {
+                  setLogType(value);
+                }}
+              />
               <Button size='small' onClick={refresh} loading={loading}>刷新</Button>
               <Pagination
                 floated='right'
