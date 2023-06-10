@@ -2,6 +2,7 @@ package model
 
 import (
 	"errors"
+	"fmt"
 	"gorm.io/gorm"
 	"one-api/common"
 	"strings"
@@ -73,8 +74,14 @@ func (user *User) Insert() error {
 	}
 	user.Quota = common.QuotaForNewUser
 	user.AccessToken = common.GetUUID()
-	err = DB.Create(user).Error
-	return err
+	result := DB.Create(user)
+	if result.Error != nil {
+		return result.Error
+	}
+	if common.QuotaForNewUser > 0 {
+		RecordLog(user.Id, LogTypeSystem, fmt.Sprintf("新用户注册赠送 %d 点额度", common.QuotaForNewUser))
+	}
+	return nil
 }
 
 func (user *User) Update(updatePassword bool) error {

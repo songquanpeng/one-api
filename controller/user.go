@@ -2,6 +2,7 @@ package controller
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -350,6 +351,9 @@ func UpdateUser(c *gin.Context) {
 			"message": err.Error(),
 		})
 		return
+	}
+	if originUser.Quota != updatedUser.Quota {
+		model.RecordLog(originUser.Id, model.LogTypeManage, fmt.Sprintf("管理员将用户额度从 %d 点修改为 %d 点", originUser.Quota, updatedUser.Quota))
 	}
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,

@@ -18,6 +18,10 @@ function renderType(type) {
       return <Label basic color='green'> 充值 </Label>;
     case 2:
       return <Label basic color='olive'> 消费 </Label>;
+    case 3:
+      return <Label basic color='orange'> 管理 </Label>;
+    case 4:
+      return <Label basic color='red'> 系统 </Label>;
     default:
       return <Label basic color='black'> 未知 </Label>;
   }

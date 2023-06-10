@@ -17,6 +17,8 @@ const (
 	LogTypeUnknown = iota
 	LogTypeTopup
 	LogTypeConsume
+	LogTypeManage
+	LogTypeSystem
 )
 
 func RecordLog(userId int, logType int, content string) {
