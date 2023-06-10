@@ -1,6 +1,9 @@
 package model
 
-import "one-api/common"
+import (
+	"gorm.io/gorm"
+	"one-api/common"
+)
 
 type Log struct {
 	Id        int    `json:"id"`
@@ -9,6 +12,12 @@ type Log struct {
 	Type      int    `json:"type" gorm:"index"`
 	Content   string `json:"content"`
 }
+
+const (
+	LogTypeUnknown = iota
+	LogTypeTopup
+	LogTypeConsume
+)
 
 func RecordLog(userId int, logType int, content string) {
 	log := &Log{
@@ -29,7 +38,13 @@ func GetAllLogs(logType int, startIdx int, num int) (logs []*Log, err error) {
 }
 
 func GetUserLogs(userId int, logType int, startIdx int, num int) (logs []*Log, err error) {
-	err = DB.Where("user_id = ? and type = ?", userId, logType).Order("id desc").Limit(num).Offset(startIdx).Find(&logs).Error
+	var tx *gorm.DB
+	if logType == LogTypeUnknown {
+		tx = DB.Where("user_id = ?", userId)
+	} else {
+		tx = DB.Where("user_id = ? and type = ?", userId, logType)
+	}
+	err = tx.Order("id desc").Limit(num).Offset(startIdx).Omit("id").Find(&logs).Error
 	return logs, err
 }
 
@@ -39,6 +54,6 @@ func SearchAllLogs(keyword string) (logs []*Log, err error) {
 }
 
 func SearchUserLogs(userId int, keyword string) (logs []*Log, err error) {
-	err = DB.Where("user_id = ? and type = ?", userId, keyword).Order("id desc").Limit(common.MaxRecentItems).Find(&logs).Error
+	err = DB.Where("user_id = ? and type = ?", userId, keyword).Order("id desc").Limit(common.MaxRecentItems).Omit("id").Find(&logs).Error
 	return logs, err
 }

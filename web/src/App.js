@@ -22,6 +22,7 @@ import EditChannel from './pages/Channel/EditChannel';
 import Redemption from './pages/Redemption';
 import EditRedemption from './pages/Redemption/EditRedemption';
 import TopUp from './pages/TopUp';
+import Log from './pages/Log';
 
 const Home = lazy(() => import('./pages/Home'));
 const About = lazy(() => import('./pages/About'));
@@ -248,6 +249,14 @@ function App() {
             <TopUp />
           </Suspense>
         </PrivateRoute>
+        }
+      />
+      <Route
+        path='/log'
+        element={
+          <PrivateRoute>
+            <Log />
+          </PrivateRoute>
         }
       />
       <Route

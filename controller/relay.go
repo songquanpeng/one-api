@@ -244,6 +244,8 @@ func relayHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 			if err != nil {
 				common.SysError("Error consuming token remain quota: " + err.Error())
 			}
+			userId := c.GetInt("id")
+			model.RecordLog(userId, model.LogTypeConsume, fmt.Sprintf("使用模型 %s 消耗 %d 点额度", textRequest.Model, quota))
 		}
 	}()
 
