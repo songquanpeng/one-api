@@ -35,7 +35,13 @@ func RecordLog(userId int, logType int, content string) {
 }
 
 func GetAllLogs(logType int, startIdx int, num int) (logs []*Log, err error) {
-	err = DB.Where("type = ?", logType).Order("id desc").Limit(num).Offset(startIdx).Find(&logs).Error
+	var tx *gorm.DB
+	if logType == LogTypeUnknown {
+		tx = DB
+	} else {
+		tx = DB.Where("type = ?", logType)
+	}
+	err = tx.Order("id desc").Limit(num).Offset(startIdx).Find(&logs).Error
 	return logs, err
 }
 
