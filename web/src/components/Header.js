@@ -42,6 +42,11 @@ const headerButtons = [
     admin: true,
   },
   {
+    name: '日志',
+    to: '/log',
+    icon: 'book',
+  },
+  {
     name: '设置',
     to: '/setting',
     icon: 'setting',

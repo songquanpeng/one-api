@@ -2,6 +2,7 @@ package model
 
 import (
 	"errors"
+	"fmt"
 	"one-api/common"
 )
 
@@ -65,6 +66,7 @@ func Redeem(key string, userId int) (quota int, err error) {
 		if err != nil {
 			common.SysError("更新兑换码状态失败：" + err.Error())
 		}
+		RecordLog(userId, LogTypeTopup, fmt.Sprintf("通过兑换码充值 %d 点额度", redemption.Quota))
 	}()
 	return redemption.Quota, nil
 }
