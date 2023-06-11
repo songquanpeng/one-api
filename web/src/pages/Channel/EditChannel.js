@@ -61,7 +61,7 @@ const EditChannel = () => {
 
   const fetchGroups = async () => {
     try {
-      let res = await API.get(`/api/group`);
+      let res = await API.get(`/api/group/`);
       setGroupOptions(res.data.data.map((group) => ({
         key: group,
         text: group,
