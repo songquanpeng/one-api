@@ -10,6 +10,10 @@ export function renderText(text, limit) {
 export function renderGroup(group) {
   if (group === "") {
     return <Label>default</Label>
+  } else if (group === "vip" || group === "pro") {
+    return <Label color='yellow'>{group}</Label>
+  } else if (group === "svip" || group === "premium") {
+    return <Label color='red'>{group}</Label>
   }
   return <Label>{group}</Label>
 }

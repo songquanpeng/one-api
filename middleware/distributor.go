@@ -16,6 +16,9 @@ type ModelRequest struct {
 
 func Distribute() func(c *gin.Context) {
 	return func(c *gin.Context) {
+		userId := c.GetInt("id")
+		userGroup, _ := model.GetUserGroup(userId)
+		c.Set("group", userGroup)
 		var channel *model.Channel
 		channelId, ok := c.Get("channelId")
 		if ok {
@@ -70,8 +73,6 @@ func Distribute() func(c *gin.Context) {
 					modelRequest.Model = "text-moderation-stable"
 				}
 			}
-			userId := c.GetInt("id")
-			userGroup, _ := model.GetUserGroup(userId)
 			channel, err = model.GetRandomSatisfiedChannel(userGroup, modelRequest.Model)
 			if err != nil {
 				c.JSON(200, gin.H{

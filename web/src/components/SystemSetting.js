@@ -30,6 +30,7 @@ const SystemSetting = () => {
     QuotaRemindThreshold: 0,
     PreConsumedQuota: 0,
     ModelRatio: '',
+    GroupRatio: '',
     TopUpLink: '',
     AutomaticDisableChannelEnabled: '',
     ChannelDisableThreshold: 0,
@@ -101,6 +102,7 @@ const SystemSetting = () => {
       name === 'QuotaRemindThreshold' ||
       name === 'PreConsumedQuota' ||
       name === 'ModelRatio' ||
+      name === 'GroupRatio' ||
       name === 'TopUpLink'
     ) {
       setInputs((inputs) => ({ ...inputs, [name]: value }));
@@ -130,6 +132,13 @@ const SystemSetting = () => {
         return;
       }
       await updateOption('ModelRatio', inputs.ModelRatio);
+    }
+    if (originInputs['GroupRatio'] !== inputs.GroupRatio) {
+      if (!verifyJSON(inputs.GroupRatio)) {
+        showError('分组倍率不是合法的 JSON 字符串');
+        return;
+      }
+      await updateOption('GroupRatio', inputs.GroupRatio);
     }
     if (originInputs['TopUpLink'] !== inputs.TopUpLink) {
       await updateOption('TopUpLink', inputs.TopUpLink);
@@ -327,6 +336,17 @@ const SystemSetting = () => {
               autoComplete='new-password'
               value={inputs.ModelRatio}
               placeholder='为一个 JSON 文本，键为模型名称，值为倍率'
+            />
+          </Form.Group>
+          <Form.Group widths='equal'>
+            <Form.TextArea
+              label='分组倍率'
+              name='GroupRatio'
+              onChange={handleInputChange}
+              style={{ minHeight: 250, fontFamily: 'JetBrains Mono, Consolas' }}
+              autoComplete='new-password'
+              value={inputs.GroupRatio}
+              placeholder='为一个 JSON 文本，键为分组名称，值为倍率'
             />
           </Form.Group>
           <Form.Button onClick={submitOperationConfig}>保存运营设置</Form.Button>

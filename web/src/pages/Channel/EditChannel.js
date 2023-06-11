@@ -21,6 +21,7 @@ const EditChannel = () => {
   const [batch, setBatch] = useState(false);
   const [inputs, setInputs] = useState(originInputs);
   const [modelOptions, setModelOptions] = useState([]);
+  const [groupOptions, setGroupOptions] = useState([]);
   const [basicModels, setBasicModels] = useState([]);
   const [fullModels, setFullModels] = useState([]);
   const handleInputChange = (e, { name, value }) => {
@@ -58,11 +59,25 @@ const EditChannel = () => {
     }
   };
 
+  const fetchGroups = async () => {
+    try {
+      let res = await API.get(`/api/group`);
+      setGroupOptions(res.data.data.map((group) => ({
+        key: group,
+        text: group,
+        value: group,
+      })));
+    } catch (error) {
+      showError(error.message);
+    }
+  };
+
   useEffect(() => {
     if (isEdit) {
       loadChannel().then();
     }
     fetchModels().then();
+    fetchGroups().then();
   }, []);
 
   const submit = async () => {
@@ -167,13 +182,19 @@ const EditChannel = () => {
             />
           </Form.Field>
           <Form.Field>
-            <Form.Input
+            <Form.Dropdown
               label='分组'
+              placeholder={'请选择分组'}
               name='group'
-              placeholder={'请输入分组'}
+              fluid
+              search
+              selection
+              allowAdditions
+              additionLabel={'请在系统设置页面编辑分组倍率以添加新的分组：'}
               onChange={handleInputChange}
               value={inputs.group}
               autoComplete='new-password'
+              options={groupOptions}
             />
           </Form.Field>
           <Form.Field>
