@@ -201,3 +201,11 @@ https://openai.justsong.cn
    + 令牌额度仅供用户设置最大使用量，用户可自由设置。
 2. 宝塔部署后访问出现空白页面？
    + 自动配置的问题，详见[#97](https://github.com/songquanpeng/one-api/issues/97)。
+3. 提示无可用渠道？
+   + 请检查的用户分组和渠道分组设置。
+   + 以及渠道的模型设置。
+
+## 注意
+本项目为开源项目，请在遵循 OpenAI 的[使用条款](https://openai.com/policies/terms-of-use)以及法律法规的情况下使用，不得用于非法用途。
+
+本项目依据 MIT 协议开源，请以某种方式保留 One API 的版权信息。
