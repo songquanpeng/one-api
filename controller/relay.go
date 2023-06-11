@@ -65,7 +65,7 @@ type OpenAIError struct {
 	Message string `json:"message"`
 	Type    string `json:"type"`
 	Param   string `json:"param"`
-	Code    string `json:"code"`
+	Code    any    `json:"code"`
 }
 
 type OpenAIErrorWithStatusCode struct {
