@@ -37,6 +37,6 @@ func SetRelayRouter(router *gin.Engine) {
 		relayV1Router.POST("/fine-tunes/:id/cancel", controller.RelayNotImplemented)
 		relayV1Router.GET("/fine-tunes/:id/events", controller.RelayNotImplemented)
 		relayV1Router.DELETE("/models/:model", controller.RelayNotImplemented)
-		relayV1Router.POST("/moderations", controller.RelayNotImplemented)
+		relayV1Router.POST("/moderations", controller.Relay)
 	}
 }

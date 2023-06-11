@@ -179,6 +179,24 @@ func init() {
 			Root:       "text-ada-001",
 			Parent:     nil,
 		},
+		{
+			Id:         "text-moderation-latest",
+			Object:     "model",
+			Created:    1677649963,
+			OwnedBy:    "openai",
+			Permission: permission,
+			Root:       "text-moderation-latest",
+			Parent:     nil,
+		},
+		{
+			Id:         "text-moderation-stable",
+			Object:     "model",
+			Created:    1677649963,
+			OwnedBy:    "openai",
+			Permission: permission,
+			Root:       "text-moderation-stable",
+			Parent:     nil,
+		},
 	}
 	openAIModelsMap = make(map[string]OpenAIModels)
 	for _, model := range openAIModels {

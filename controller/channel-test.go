@@ -59,7 +59,7 @@ func testChannel(channel *model.Channel, request *ChatRequest) error {
 		return err
 	}
 	if response.Usage.CompletionTokens == 0 {
-		return errors.New(fmt.Sprintf("type %s, code %s, message %s", response.Error.Type, response.Error.Code, response.Error.Message))
+		return errors.New(fmt.Sprintf("type %s, code %v, message %s", response.Error.Type, response.Error.Code, response.Error.Message))
 	}
 	return nil
 }
