@@ -140,6 +140,7 @@ func relayHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 	channelType := c.GetInt("channel")
 	tokenId := c.GetInt("token_id")
 	consumeQuota := c.GetBool("consume_quota")
+	group := c.GetString("group")
 	var textRequest GeneralOpenAIRequest
 	if consumeQuota || channelType == common.ChannelTypeAzure || channelType == common.ChannelTypePaLM {
 		err := common.UnmarshalBodyReusable(c, &textRequest)
@@ -194,7 +195,9 @@ func relayHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 	if textRequest.MaxTokens != 0 {
 		preConsumedTokens = promptTokens + textRequest.MaxTokens
 	}
-	ratio := common.GetModelRatio(textRequest.Model)
+	modelRatio := common.GetModelRatio(textRequest.Model)
+	groupRatio := common.GetGroupRatio(group)
+	ratio := modelRatio * groupRatio
 	preConsumedQuota := int(float64(preConsumedTokens) * ratio)
 	if consumeQuota {
 		err := model.PreConsumeTokenQuota(tokenId, preConsumedQuota)
@@ -257,7 +260,7 @@ func relayHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 				common.SysError("Error consuming token remain quota: " + err.Error())
 			}
 			userId := c.GetInt("id")
-			model.RecordLog(userId, model.LogTypeConsume, fmt.Sprintf("使用模型 %s 消耗 %d 点额度", textRequest.Model, quota))
+			model.RecordLog(userId, model.LogTypeConsume, fmt.Sprintf("使用模型 %s 消耗 %d 点额度（模型倍率 %.2f，分组倍率 %.2f）", textRequest.Model, quota, modelRatio, groupRatio))
 		}
 	}()
 
