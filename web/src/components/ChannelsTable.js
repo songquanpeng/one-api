@@ -27,6 +27,13 @@ function renderType(type) {
   return <Label basic color={type2label[type].color}>{type2label[type].text}</Label>;
 }
 
+function renderBalance(type, balance) {
+  if (type === 5) {
+    return <span>{balance.toFixed(2)}</span>
+  }
+  return <span>${balance.toFixed(2)}</span>
+}
+
 const ChannelsTable = () => {
   const [channels, setChannels] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -336,7 +343,7 @@ const ChannelsTable = () => {
                     <Popup
                       content={channel.balance_updated_time ? renderTimestamp(channel.balance_updated_time) : '未更新'}
                       key={channel.id}
-                      trigger={<span>${channel.balance.toFixed(2)}</span>}
+                      trigger={renderBalance(channel.type, channel.balance)}
                       basic
                     />
                   </Table.Cell>
