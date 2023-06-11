@@ -7,6 +7,7 @@ import (
 	"one-api/common"
 	"one-api/model"
 	"strconv"
+	"strings"
 )
 
 type ModelRequest struct {
@@ -63,6 +64,11 @@ func Distribute() func(c *gin.Context) {
 				})
 				c.Abort()
 				return
+			}
+			if strings.HasPrefix(c.Request.URL.Path, "/v1/moderations") {
+				if modelRequest.Model == "" {
+					modelRequest.Model = "text-moderation-stable"
+				}
 			}
 			userId := c.GetInt("id")
 			userGroup, _ := model.GetUserGroup(userId)
