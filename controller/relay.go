@@ -108,7 +108,7 @@ func Relay(c *gin.Context) {
 	err := relayHelper(c, relayMode)
 	if err != nil {
 		if err.StatusCode == http.StatusTooManyRequests {
-			err.OpenAIError.Message = "负载已满，请稍后再试，或升级账户以提升服务质量。"
+			err.OpenAIError.Message = "当前分组负载已饱和，请稍后再试，或升级账户以提升服务质量。"
 		}
 		c.JSON(err.StatusCode, gin.H{
 			"error": err.OpenAIError,
