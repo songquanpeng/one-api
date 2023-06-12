@@ -39,6 +39,7 @@ func ModelRatio2JSONString() string {
 }
 
 func UpdateModelRatioByJSONString(jsonStr string) error {
+	ModelRatio = make(map[string]float64)
 	return json.Unmarshal([]byte(jsonStr), &ModelRatio)
 }
 
