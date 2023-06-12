@@ -17,6 +17,7 @@ func GroupRatio2JSONString() string {
 }
 
 func UpdateGroupRatioByJSONString(jsonStr string) error {
+	GroupRatio = make(map[string]float64)
 	return json.Unmarshal([]byte(jsonStr), &GroupRatio)
 }
 
