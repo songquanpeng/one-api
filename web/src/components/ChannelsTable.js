@@ -29,7 +29,7 @@ function renderType(type) {
 
 function renderBalance(type, balance) {
   if (type === 5) {
-    return <span>{balance.toFixed(2)}</span>
+    return <span>¥{(balance / 10000).toFixed(2)}</span>
   }
   return <span>${balance.toFixed(2)}</span>
 }
