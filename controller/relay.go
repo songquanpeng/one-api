@@ -38,7 +38,7 @@ type GeneralOpenAIRequest struct {
 	Temperature float64   `json:"temperature"`
 	TopP        float64   `json:"top_p"`
 	N           int       `json:"n"`
-	Input       string    `json:"input"`
+	Input       any       `json:"input"`
 }
 
 type ChatRequest struct {
@@ -189,7 +189,7 @@ func relayHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 	case RelayModeCompletions:
 		promptTokens = countTokenText(textRequest.Prompt, textRequest.Model)
 	case RelayModeModeration:
-		promptTokens = countTokenText(textRequest.Input, textRequest.Model)
+		promptTokens = countTokenInput(textRequest.Input, textRequest.Model)
 	}
 	preConsumedTokens := common.PreConsumedQuota
 	if textRequest.MaxTokens != 0 {

@@ -58,6 +58,20 @@ func countTokenMessages(messages []Message, model string) int {
 	return tokenNum
 }
 
+func countTokenInput(input any, model string) int {
+	switch input.(type) {
+	case string:
+		return countTokenText(input.(string), model)
+	case []string:
+		text := ""
+		for _, s := range input.([]string) {
+			text += s
+		}
+		return countTokenText(text, model)
+	}
+	return 0
+}
+
 func countTokenText(text string, model string) int {
 	tokenEncoder := getTokenEncoder(model)
 	token := tokenEncoder.Encode(text, nil, nil)

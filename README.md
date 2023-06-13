@@ -117,6 +117,8 @@ sudo certbot --nginx
 sudo service nginx restart
 ```
 
+初始账号用户名为 `root`，密码为 `123456`。
+
 ### 手动部署
 1. 从 [GitHub Releases](https://github.com/songquanpeng/one-api/releases/latest) 下载可执行文件或者从源码编译：
    ```shell
