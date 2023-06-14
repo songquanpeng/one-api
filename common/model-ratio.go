@@ -8,10 +8,15 @@ import "encoding/json"
 var ModelRatio = map[string]float64{
 	"gpt-4":                   15,
 	"gpt-4-0314":              15,
+	"gpt-4-0613":              15,
 	"gpt-4-32k":               30,
 	"gpt-4-32k-0314":          30,
+	"gpt-4-32k-0613":          30,
 	"gpt-3.5-turbo":           1, // $0.002 / 1K tokens
 	"gpt-3.5-turbo-0301":      1,
+	"gpt-3.5-turbo-0613":      1,
+	"gpt-3.5-turbo-16k":       2, // $0.004 / 1K tokens
+	"gpt-3.5-turbo-16k-0613":  2,
 	"text-ada-001":            0.2,
 	"text-babbage-001":        0.25,
 	"text-curie-001":          1,
