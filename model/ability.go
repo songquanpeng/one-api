@@ -30,15 +30,18 @@ func GetRandomSatisfiedChannel(group string, model string) (*Channel, error) {
 
 func (channel *Channel) AddAbilities() error {
 	models_ := strings.Split(channel.Models, ",")
+	groups_ := strings.Split(channel.Group, ",")
 	abilities := make([]Ability, 0, len(models_))
 	for _, model := range models_ {
-		ability := Ability{
-			Group:     channel.Group,
-			Model:     model,
-			ChannelId: channel.Id,
-			Enabled:   channel.Status == common.ChannelStatusEnabled,
+		for _, group := range groups_ {
+			ability := Ability{
+				Group:     group,
+				Model:     model,
+				ChannelId: channel.Id,
+				Enabled:   channel.Status == common.ChannelStatusEnabled,
+			}
+			abilities = append(abilities, ability)
 		}
-		abilities = append(abilities, ability)
 	}
 	return DB.Create(&abilities).Error
 }

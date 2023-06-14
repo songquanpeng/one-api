@@ -239,16 +239,15 @@ func relayHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 	defer func() {
 		if consumeQuota {
 			quota := 0
-			usingGPT4 := strings.HasPrefix(textRequest.Model, "gpt-4")
-			completionRatio := 1
-			if usingGPT4 {
+			completionRatio := 1.34 // default for gpt-3
+			if strings.HasPrefix(textRequest.Model, "gpt-4") {
 				completionRatio = 2
 			}
 			if isStream {
 				responseTokens := countTokenText(streamResponseText, textRequest.Model)
-				quota = promptTokens + responseTokens*completionRatio
+				quota = promptTokens + int(float64(responseTokens)*completionRatio)
 			} else {
-				quota = textResponse.Usage.PromptTokens + textResponse.Usage.CompletionTokens*completionRatio
+				quota = textResponse.Usage.PromptTokens + int(float64(textResponse.Usage.CompletionTokens)*completionRatio)
 			}
 			quota = int(float64(quota) * ratio)
 			if ratio != 0 && quota <= 0 {
@@ -260,7 +259,7 @@ func relayHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 				common.SysError("Error consuming token remain quota: " + err.Error())
 			}
 			userId := c.GetInt("id")
-			model.RecordLog(userId, model.LogTypeConsume, fmt.Sprintf("使用模型 %s 消耗 %d 点额度（模型倍率 %.2f，分组倍率 %.2f）", textRequest.Model, quota, modelRatio, groupRatio))
+			model.RecordLog(userId, model.LogTypeConsume, fmt.Sprintf("使用模型 %s 消耗 %d 点额度（模型倍率 %.2f，分组倍率 %.2f，补全倍率 %.2f）", textRequest.Model, quota, modelRatio, groupRatio, completionRatio))
 		}
 	}()
 
