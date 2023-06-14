@@ -30,28 +30,28 @@ const (
 // https://platform.openai.com/docs/api-reference/chat
 
 type GeneralOpenAIRequest struct {
-	Model       string    `json:"model"`
-	Messages    []Message `json:"messages"`
-	Prompt      string    `json:"prompt"`
-	Stream      bool      `json:"stream"`
-	MaxTokens   int       `json:"max_tokens"`
-	Temperature float64   `json:"temperature"`
-	TopP        float64   `json:"top_p"`
-	N           int       `json:"n"`
-	Input       any       `json:"input"`
+	Model    string    `json:"model"`
+	Messages []Message `json:"messages"`
+	Prompt   string    `json:"prompt"`
+	Stream   bool      `json:"stream"`
+	//MaxTokens   int       `json:"max_tokens"`
+	Temperature float64 `json:"temperature"`
+	TopP        float64 `json:"top_p"`
+	N           int     `json:"n"`
+	Input       any     `json:"input"`
 }
 
 type ChatRequest struct {
-	Model     string    `json:"model"`
-	Messages  []Message `json:"messages"`
-	MaxTokens int       `json:"max_tokens"`
+	Model    string    `json:"model"`
+	Messages []Message `json:"messages"`
+	//MaxTokens int       `json:"max_tokens"`
 }
 
 type TextRequest struct {
-	Model     string    `json:"model"`
-	Messages  []Message `json:"messages"`
-	Prompt    string    `json:"prompt"`
-	MaxTokens int       `json:"max_tokens"`
+	Model    string    `json:"model"`
+	Messages []Message `json:"messages"`
+	Prompt   string    `json:"prompt"`
+	//MaxTokens int       `json:"max_tokens"`
 	//Stream   bool      `json:"stream"`
 }
 
@@ -193,9 +193,9 @@ func relayHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 		promptTokens = countTokenInput(textRequest.Input, textRequest.Model)
 	}
 	preConsumedTokens := common.PreConsumedQuota
-	if textRequest.MaxTokens != 0 {
-		preConsumedTokens = promptTokens + textRequest.MaxTokens
-	}
+	//if textRequest.MaxTokens != 0 {
+	//	preConsumedTokens = promptTokens + textRequest.MaxTokens
+	//}
 	modelRatio := common.GetModelRatio(textRequest.Model)
 	groupRatio := common.GetGroupRatio(group)
 	ratio := modelRatio * groupRatio
