@@ -177,6 +177,7 @@ func relayHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 		// https://github.com/songquanpeng/one-api/issues/67
 		model_ = strings.TrimSuffix(model_, "-0301")
 		model_ = strings.TrimSuffix(model_, "-0314")
+		model_ = strings.TrimSuffix(model_, "-0613")
 		fullRequestURL = fmt.Sprintf("%s/openai/deployments/%s/%s", baseURL, model_, task)
 	} else if channelType == common.ChannelTypePaLM {
 		err := relayPaLM(textRequest, c)
