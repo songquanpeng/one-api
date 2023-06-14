@@ -15,8 +15,8 @@ const EditChannel = () => {
     key: '',
     base_url: '',
     other: '',
-    group: 'default',
     models: [],
+    groups: ['default']
   };
   const [batch, setBatch] = useState(false);
   const [inputs, setInputs] = useState(originInputs);
@@ -36,6 +36,11 @@ const EditChannel = () => {
         data.models = []
       } else {
         data.models = data.models.split(",")
+      }
+      if (data.group === "") {
+        data.groups = []
+      } else {
+        data.groups = data.group.split(",")
       }
       setInputs(data);
     } else {
@@ -94,6 +99,7 @@ const EditChannel = () => {
     }
     let res;
     localInputs.models = localInputs.models.join(",")
+    localInputs.group = localInputs.groups.join(",")
     if (isEdit) {
       res = await API.put(`/api/channel/`, { ...localInputs, id: parseInt(channelId) });
     } else {
@@ -185,14 +191,14 @@ const EditChannel = () => {
             <Form.Dropdown
               label='分组'
               placeholder={'请选择分组'}
-              name='group'
+              name='groups'
               fluid
-              search
+              multiple
               selection
               allowAdditions
               additionLabel={'请在系统设置页面编辑分组倍率以添加新的分组：'}
               onChange={handleInputChange}
-              value={inputs.group}
+              value={inputs.groups}
               autoComplete='new-password'
               options={groupOptions}
             />
