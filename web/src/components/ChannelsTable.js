@@ -313,6 +313,14 @@ const ChannelsTable = () => {
             >
               响应时间
             </Table.HeaderCell>
+            <Table.HeaderCell
+                style={{ cursor: 'pointer' }}
+                onClick={() => {
+                  sortChannel('other');
+                }}
+            >
+              默认 API 版本
+            </Table.HeaderCell>
             <Table.HeaderCell>
               支持的模型
             </Table.HeaderCell>
@@ -351,6 +359,7 @@ const ChannelsTable = () => {
                       basic
                     />
                   </Table.Cell>
+                  <Table.Cell>{channel.other ? channel.other : '无'}</Table.Cell>
                   <Table.Cell>
                     {channel.models.length > 0 ? renderModels(channel.models) :<Label>无</Label>
                     }
