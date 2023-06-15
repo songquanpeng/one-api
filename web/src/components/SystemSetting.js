@@ -34,6 +34,7 @@ const SystemSetting = () => {
     TopUpLink: '',
     AutomaticDisableChannelEnabled: '',
     ChannelDisableThreshold: 0,
+    LogConsumeEnabled: '',
   });
   const [originInputs, setOriginInputs] = useState({});
   let [loading, setLoading] = useState(false);
@@ -68,6 +69,7 @@ const SystemSetting = () => {
       case 'TurnstileCheckEnabled':
       case 'RegisterEnabled':
       case 'AutomaticDisableChannelEnabled':
+      case 'LogConsumeEnabled':
         value = inputs[key] === 'true' ? 'false' : 'true';
         break;
       default:
@@ -349,6 +351,12 @@ const SystemSetting = () => {
               placeholder='为一个 JSON 文本，键为分组名称，值为倍率'
             />
           </Form.Group>
+          <Form.Checkbox
+            checked={inputs.LogConsumeEnabled === 'true'}
+            label='启用额度消费日志记录'
+            name='LogConsumeEnabled'
+            onChange={handleInputChange}
+          />
           <Form.Button onClick={submitOperationConfig}>保存运营设置</Form.Button>
           <Divider />
           <Header as='h3'>

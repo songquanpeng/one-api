@@ -22,6 +22,9 @@ const (
 )
 
 func RecordLog(userId int, logType int, content string) {
+	if logType == LogTypeConsume && !common.LogConsumeEnabled {
+		return
+	}
 	log := &Log{
 		UserId:    userId,
 		CreatedAt: common.GetTimestamp(),
