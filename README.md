@@ -210,4 +210,6 @@ https://openai.justsong.cn
 ## 注意
 本项目为开源项目，请在遵循 OpenAI 的[使用条款](https://openai.com/policies/terms-of-use)以及法律法规的情况下使用，不得用于非法用途。
 
-本项目依据 MIT 协议开源，请以某种方式保留 One API 的版权信息。
+本项目使用 MIT 协议进行开源，请以某种方式保留 One API 的版权信息。
+
+依据 MIT 协议，使用者需自行承担使用本项目的风险与责任，本开源项目开发者与此无关。
