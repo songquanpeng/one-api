@@ -188,7 +188,7 @@ func relayHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 	case RelayModeChatCompletions:
 		promptTokens = countTokenMessages(textRequest.Messages, textRequest.Model)
 	case RelayModeCompletions:
-		promptTokens = countTokenText(textRequest.Prompt, textRequest.Model)
+		promptTokens = countTokenInput(textRequest.Prompt, textRequest.Model)
 	case RelayModeModeration:
 		promptTokens = countTokenInput(textRequest.Input, textRequest.Model)
 	}
