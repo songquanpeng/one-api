@@ -29,8 +29,6 @@ _✨ All in one 的 OpenAI 接口，整合各种 API 访问方式，开箱即用
 </p>
 
 <p align="center">
-  <a href="https://github.com/songquanpeng/one-api/releases">程序下载</a>
-  ·
   <a href="https://github.com/songquanpeng/one-api#部署">部署教程</a>
   ·
   <a href="https://github.com/songquanpeng/one-api#使用方法">使用方法</a>
