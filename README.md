@@ -119,6 +119,18 @@ sudo service nginx restart
 
 初始账号用户名为 `root`，密码为 `123456`。
 
+### 部署到 Zeabur
+
+Zeabur 的服务器在国外，自动解决了网络的问题；同时免费的额度也足够个人使用。
+
+1. fork 一份代码
+2. 进入 [Zeabur](https://zeabur.com/)，登录，进入控制台
+3. 新建一个 Project， 然后在 Service -> Add Service，选择 Git（第一次使用需要先授权），选择你 fork 的仓库
+4. Deploy 会自动开始，先取消。进入下方 Variable，添加一个 `PORT`，值为 `3000`，然后保存
+5. 选择 Redeploy
+6. 进入下方 Domains，选择一个合适的域名前缀，如 "my-one-api"，最终域名为 "my-one-api.zeabur.app"；也可以 CNAME 自己的域名
+7. 等待部署完成，点击生成的域名进入 one-api
+
 ### 手动部署
 1. 从 [GitHub Releases](https://github.com/songquanpeng/one-api/releases/latest) 下载可执行文件或者从源码编译：
    ```shell
