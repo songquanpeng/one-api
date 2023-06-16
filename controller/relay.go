@@ -30,27 +30,27 @@ const (
 // https://platform.openai.com/docs/api-reference/chat
 
 type GeneralOpenAIRequest struct {
-	Model    string    `json:"model"`
-	Messages []Message `json:"messages"`
-	Prompt   string    `json:"prompt"`
-	Stream   bool      `json:"stream"`
+	Model       string    `json:"model"`
+	Messages    []Message `json:"messages"`
+	Prompt      any       `json:"prompt"`
+	Stream      bool      `json:"stream"`
 	//MaxTokens   int       `json:"max_tokens"`
-	Temperature float64 `json:"temperature"`
-	TopP        float64 `json:"top_p"`
-	N           int     `json:"n"`
-	Input       any     `json:"input"`
+	Temperature float64   `json:"temperature"`
+	TopP        float64   `json:"top_p"`
+	N           int       `json:"n"`
+	Input       any       `json:"input"`
 }
 
 type ChatRequest struct {
-	Model    string    `json:"model"`
-	Messages []Message `json:"messages"`
+	Model     string    `json:"model"`
+	Messages  []Message `json:"messages"`
 	//MaxTokens int       `json:"max_tokens"`
 }
 
 type TextRequest struct {
-	Model    string    `json:"model"`
-	Messages []Message `json:"messages"`
-	Prompt   string    `json:"prompt"`
+	Model     string    `json:"model"`
+	Messages  []Message `json:"messages"`
+	Prompt    string    `json:"prompt"`
 	//MaxTokens int       `json:"max_tokens"`
 	//Stream   bool      `json:"stream"`
 }
@@ -188,7 +188,7 @@ func relayHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 	case RelayModeChatCompletions:
 		promptTokens = countTokenMessages(textRequest.Messages, textRequest.Model)
 	case RelayModeCompletions:
-		promptTokens = countTokenText(textRequest.Prompt, textRequest.Model)
+		promptTokens = countTokenInput(textRequest.Prompt, textRequest.Model)
 	case RelayModeModeration:
 		promptTokens = countTokenInput(textRequest.Input, textRequest.Model)
 	}
@@ -260,7 +260,10 @@ func relayHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 				common.SysError("Error consuming token remain quota: " + err.Error())
 			}
 			userId := c.GetInt("id")
-			model.RecordLog(userId, model.LogTypeConsume, fmt.Sprintf("使用模型 %s 消耗 %d 点额度（模型倍率 %.2f，分组倍率 %.2f，补全倍率 %.2f）", textRequest.Model, quota, modelRatio, groupRatio, completionRatio))
+			model.RecordLog(userId, model.LogTypeConsume, fmt.Sprintf("使用模型 %s 消耗 %d 点额度（模型倍率 %.2f，分组倍率 %.2f）", textRequest.Model, quota, modelRatio, groupRatio))
+			model.UpdateUserUsedQuotaAndRequestCount(userId, quota)
+			channelId := c.GetInt("channel_id")
+			model.UpdateChannelUsedQuota(channelId, quota)
 		}
 	}()
 

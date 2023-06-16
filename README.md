@@ -29,9 +29,9 @@ _✨ All in one 的 OpenAI 接口，整合各种 API 访问方式，开箱即用
 </p>
 
 <p align="center">
-  <a href="https://github.com/songquanpeng/one-api/releases">程序下载</a>
-  ·
   <a href="https://github.com/songquanpeng/one-api#部署">部署教程</a>
+  ·
+  <a href="https://github.com/songquanpeng/one-api#使用方法">使用方法</a>
   ·
   <a href="https://github.com/songquanpeng/one-api/issues">意见反馈</a>
   ·
@@ -158,10 +158,23 @@ sudo service nginx restart
 
 等到系统启动后，使用 `root` 用户登录系统并做进一步的配置。
 
-## 使用方式
-在`渠道`页面中添加你的 API Key，之后在`令牌`页面中新增一个访问令牌。
+## 使用方法
+在`渠道`页面中添加你的 API Key，之后在`令牌`页面中新增访问令牌。
 
 之后就可以使用你的令牌访问 One API 了，使用方式与 [OpenAI API](https://platform.openai.com/docs/api-reference/introduction) 一致。
+
+你需要在各种用到 OpenAI API 的地方设置 API Base 为你的 One API 的部署地址，例如：`https://openai.justsong.cn`，API Key 则为你在 One API 中生成的令牌。
+
+注意，具体的 API Base 的格式取决于你所使用的客户端。
+
+```mermaid
+graph LR
+    A(用户)
+    A --->|请求| B(One API)
+    B -->|中继请求| C(OpenAI)
+    B -->|中继请求| D(Azure)
+    B -->|中继请求| E(其他下游渠道)
+```
 
 可以通过在令牌后面添加渠道 ID 的方式指定使用哪一个渠道处理本次请求，例如：`Authorization: Bearer ONE_API_KEY-CHANNEL_ID`。
 注意，需要是管理员用户创建的令牌才能指定渠道 ID。
