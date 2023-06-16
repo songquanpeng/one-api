@@ -32,7 +32,7 @@ const (
 type GeneralOpenAIRequest struct {
 	Model       string    `json:"model"`
 	Messages    []Message `json:"messages"`
-	Prompt      string    `json:"prompt"`
+	Prompt      any       `json:"prompt"`
 	Stream      bool      `json:"stream"`
 	MaxTokens   int       `json:"max_tokens"`
 	Temperature float64   `json:"temperature"`
