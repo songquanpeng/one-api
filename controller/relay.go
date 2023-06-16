@@ -32,7 +32,7 @@ const (
 type GeneralOpenAIRequest struct {
 	Model       string    `json:"model"`
 	Messages    []Message `json:"messages"`
-	Prompt      string    `json:"prompt"`
+	Prompt      any       `json:"prompt"`
 	Stream      bool      `json:"stream"`
 	MaxTokens   int       `json:"max_tokens"`
 	Temperature float64   `json:"temperature"`
@@ -188,7 +188,7 @@ func relayHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 	case RelayModeChatCompletions:
 		promptTokens = countTokenMessages(textRequest.Messages, textRequest.Model)
 	case RelayModeCompletions:
-		promptTokens = countTokenText(textRequest.Prompt, textRequest.Model)
+		promptTokens = countTokenInput(textRequest.Prompt, textRequest.Model)
 	case RelayModeModeration:
 		promptTokens = countTokenInput(textRequest.Input, textRequest.Model)
 	}
