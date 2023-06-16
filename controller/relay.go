@@ -32,7 +32,7 @@ const (
 type GeneralOpenAIRequest struct {
 	Model       string    `json:"model"`
 	Messages    []Message `json:"messages"`
-	Prompt      string    `json:"prompt"`
+	Prompt      any       `json:"prompt"`
 	Stream      bool      `json:"stream"`
 	MaxTokens   int       `json:"max_tokens"`
 	Temperature float64   `json:"temperature"`
@@ -188,7 +188,7 @@ func relayHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 	case RelayModeChatCompletions:
 		promptTokens = countTokenMessages(textRequest.Messages, textRequest.Model)
 	case RelayModeCompletions:
-		promptTokens = countTokenText(textRequest.Prompt, textRequest.Model)
+		promptTokens = countTokenInput(textRequest.Prompt, textRequest.Model)
 	case RelayModeModeration:
 		promptTokens = countTokenInput(textRequest.Input, textRequest.Model)
 	}
@@ -260,7 +260,10 @@ func relayHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 				common.SysError("Error consuming token remain quota: " + err.Error())
 			}
 			userId := c.GetInt("id")
-			model.RecordLog(userId, model.LogTypeConsume, fmt.Sprintf("使用模型 %s 消耗 %d 点额度（模型倍率 %.2f，分组倍率 %.2f，补全倍率 %.2f）", textRequest.Model, quota, modelRatio, groupRatio, completionRatio))
+			model.RecordLog(userId, model.LogTypeConsume, fmt.Sprintf("使用模型 %s 消耗 %d 点额度（模型倍率 %.2f，分组倍率 %.2f）", textRequest.Model, quota, modelRatio, groupRatio))
+			model.UpdateUserUsedQuotaAndRequestCount(userId, quota)
+			channelId := c.GetInt("channel_id")
+			model.UpdateChannelUsedQuota(channelId, quota)
 		}
 	}()
 

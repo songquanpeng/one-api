@@ -1,6 +1,7 @@
 package model
 
 import (
+	"gorm.io/gorm"
 	"one-api/common"
 )
 
@@ -20,6 +21,7 @@ type Channel struct {
 	BalanceUpdatedTime int64   `json:"balance_updated_time" gorm:"bigint"`
 	Models             string  `json:"models"`
 	Group              string  `json:"group" gorm:"type:varchar(32);default:'default'"`
+	UsedQuota          int64   `json:"used_quota" gorm:"bigint;default:0"`
 }
 
 func GetAllChannels(startIdx int, num int, selectAll bool) ([]*Channel, error) {
@@ -134,5 +136,12 @@ func UpdateChannelStatusById(id int, status int) {
 	err = DB.Model(&Channel{}).Where("id = ?", id).Update("status", status).Error
 	if err != nil {
 		common.SysError("failed to update channel status: " + err.Error())
+	}
+}
+
+func UpdateChannelUsedQuota(id int, quota int) {
+	err := DB.Model(&Channel{}).Where("id = ?", id).Update("used_quota", gorm.Expr("used_quota + ?", quota)).Error
+	if err != nil {
+		common.SysError("failed to update channel used quota: " + err.Error())
 	}
 }
