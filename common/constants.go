@@ -138,17 +138,17 @@ const (
 )
 
 var ChannelBaseURLs = []string{
-	"",                            // 0
-	"https://api.openai.com",      // 1
-	"https://oa.api2d.net",        // 2
-	"",                            // 3
-	"https://api.openai-asia.com", // 4
-	"https://api.openai-sb.com",   // 5
-	"https://api.openaimax.com",   // 6
-	"https://api.ohmygpt.com",     // 7
-	"",                            // 8
-	"https://api.caipacity.com",   // 9
-	"https://api.aiproxy.io",      // 10
-	"",                            // 11
-	"https://api.api2gpt.com",     // 12
+	"",                             // 0
+	"https://api.openai.com",       // 1
+	"https://oa.api2d.net",         // 2
+	"",                             // 3
+	"https://api.openai-proxy.org", // 4
+	"https://api.openai-sb.com",    // 5
+	"https://api.openaimax.com",    // 6
+	"https://api.ohmygpt.com",      // 7
+	"",                             // 8
+	"https://api.caipacity.com",    // 9
+	"https://api.aiproxy.io",       // 10
+	"",                             // 11
+	"https://api.api2gpt.com",      // 12
 }
