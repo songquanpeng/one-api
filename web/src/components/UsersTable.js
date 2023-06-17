@@ -240,7 +240,7 @@ const UsersTable = () => {
                     />
                   </Table.Cell>
                   <Table.Cell>{renderGroup(user.group)}</Table.Cell>
-                  <Table.Cell>{user.email ? renderText(user.email, 30) : '无'}</Table.Cell>
+                  <Table.Cell>{user.email ? renderText(user.email, 20) : '无'}</Table.Cell>
                   <Table.Cell>
                     <Popup content='剩余额度' trigger={<Label>{renderNumber(user.quota)}</Label>} />
                     <Popup content='已用额度' trigger={<Label>{renderNumber(user.used_quota)}</Label>} />
