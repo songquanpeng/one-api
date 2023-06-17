@@ -119,20 +119,6 @@ sudo service nginx restart
 
 初始账号用户名为 `root`，密码为 `123456`。
 
-### 部署到 Zeabur
-
-Zeabur 的服务器在国外，自动解决了网络的问题；同时免费的额度也足够个人使用。
-
-1. fork 一份代码
-2. 进入 [Zeabur](https://zeabur.com/)，登录，进入控制台
-3. 新建一个 Project，在 Service -> Add Service 选择 Marketplace，选择 MySQL，并记下连接参数（用户名、密码、地址、端口）
-4. 复制链接参数，运行 ```create database `one-api` ``` 创建数据库
-5. 然后在 Service -> Add Service，选择 Git（第一次使用需要先授权），选择你 fork 的仓库
-6. Deploy 会自动开始，先取消。进入下方 Variable，添加一个 `PORT`，值为 `3000`，在添加一个 `SQL_DSN`，值为 `<username>:<password>@tcp(<addr>:<port>)/one-api` ，然后保存【注意：如果不填写 `SQL_DSN`，数据将无法持久化，重新部署后数据会丢失。】
-7. 选择 Redeploy
-8. 进入下方 Domains，选择一个合适的域名前缀，如 "my-one-api"，最终域名为 "my-one-api.zeabur.app"；也可以 CNAME 自己的域名
-9. 等待部署完成，点击生成的域名进入 one-api
-
 ### 手动部署
 1. 从 [GitHub Releases](https://github.com/songquanpeng/one-api/releases/latest) 下载可执行文件或者从源码编译：
    ```shell
@@ -164,6 +150,27 @@ Zeabur 的服务器在国外，自动解决了网络的问题；同时免费的�
 4. 从服务器可以选择设置 `FRONTEND_BASE_URL`，以重定向页面请求到主服务器。
 
 环境变量的具体使用方法详见[此处](#环境变量)。
+
+
+### 部署到第三方平台
+<details>
+<summary><strong>部署到 Zeabur</strong></summary>
+<div>
+
+> Zeabur 的服务器在国外，自动解决了网络的问题，同时免费的额度也足够个人使用。
+
+1. 首先 fork 一份代码。
+2. 进入 [Zeabur](https://zeabur.com/)，登录，进入控制台。
+3. 新建一个 Project，在 Service -> Add Service 选择 Marketplace，选择 MySQL，并记下连接参数（用户名、密码、地址、端口）。
+4. 复制链接参数，运行 ```create database `one-api` ``` 创建数据库。
+5. 然后在 Service -> Add Service，选择 Git（第一次使用需要先授权），选择你 fork 的仓库。
+6. Deploy 会自动开始，先取消。进入下方 Variable，添加一个 `PORT`，值为 `3000`，再添加一个 `SQL_DSN`，值为 `<username>:<password>@tcp(<addr>:<port>)/one-api` ，然后保存。 注意如果不填写 `SQL_DSN`，数据将无法持久化，重新部署后数据会丢失。
+7. 选择 Redeploy。
+8. 进入下方 Domains，选择一个合适的域名前缀，如 "my-one-api"，最终域名为 "my-one-api.zeabur.app"，也可以 CNAME 自己的域名。
+9. 等待部署完成，点击生成的域名进入 One API。
+
+</div>
+</details>
 
 ## 配置
 系统本身开箱即用。
