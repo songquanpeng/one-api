@@ -59,6 +59,7 @@ _✨ All in one 的 OpenAI 接口，整合各种 API 访问方式，开箱即用
    + [x] [OpenAI Max](https://openaimax.com)
    + [x] [OpenAI-SB](https://openai-sb.com)
    + [x] [CloseAI](https://console.openai-asia.com/r/2412)
+   + [x] [API2GPT](http://console.api2gpt.com/m/00002S)
    + [x] 自定义渠道：例如各种未收录的第三方代理服务
 2. 支持通过**负载均衡**的方式访问多个渠道。
 3. 支持 **stream 模式**，可以通过流式传输实现打字机效果。
