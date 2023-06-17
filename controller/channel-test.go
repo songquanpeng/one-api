@@ -14,12 +14,12 @@ import (
 	"time"
 )
 
-func testChannel(channel *model.Channel, request *ChatRequest) error {
-	if request.Model == "" {
+func testChannel(channel *model.Channel, request ChatRequest) error {
+	switch channel.Type {
+	case common.ChannelTypeAzure:
+		request.Model = "gpt-35-turbo"
+	default:
 		request.Model = "gpt-3.5-turbo"
-		if channel.Type == common.ChannelTypeAzure {
-			request.Model = "gpt-35-turbo"
-		}
 	}
 	requestURL := common.ChannelBaseURLs[channel.Type]
 	if channel.Type == common.ChannelTypeAzure {
@@ -97,7 +97,7 @@ func TestChannel(c *gin.Context) {
 	}
 	testRequest := buildTestRequest(c)
 	tik := time.Now()
-	err = testChannel(channel, testRequest)
+	err = testChannel(channel, *testRequest)
 	tok := time.Now()
 	milliseconds := tok.Sub(tik).Milliseconds()
 	go channel.UpdateResponseTime(milliseconds)
@@ -165,7 +165,7 @@ func testAllChannels(c *gin.Context) error {
 				continue
 			}
 			tik := time.Now()
-			err := testChannel(channel, testRequest)
+			err := testChannel(channel, *testRequest)
 			tok := time.Now()
 			milliseconds := tok.Sub(tik).Milliseconds()
 			if err != nil || milliseconds > disableThreshold {
