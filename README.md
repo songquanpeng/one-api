@@ -55,11 +55,11 @@ _✨ All in one 的 OpenAI 接口，整合各种 API 访问方式，开箱即用
    + [x] [API2D](https://api2d.com/r/197971)
    + [x] [OhMyGPT](https://aigptx.top?aff=uFpUl2Kf)
    + [x] [AI Proxy](https://aiproxy.io/?i=OneAPI) （邀请码：`OneAPI`）
+   + [x] [OpenAI-SB](https://openai-sb.com)
+   + [x] [API2GPT](http://console.api2gpt.com/m/00002S)
+   + [x] [CloseAI](https://console.openai-asia.com/r/2412)
    + [x] [AI.LS](https://ai.ls)
    + [x] [OpenAI Max](https://openaimax.com)
-   + [x] [OpenAI-SB](https://openai-sb.com)
-   + [x] [CloseAI](https://console.openai-asia.com/r/2412)
-   + [x] [API2GPT](http://console.api2gpt.com/m/00002S)
    + [x] 自定义渠道：例如各种未收录的第三方代理服务
 2. 支持通过**负载均衡**的方式访问多个渠道。
 3. 支持 **stream 模式**，可以通过流式传输实现打字机效果。
@@ -84,7 +84,9 @@ _✨ All in one 的 OpenAI 接口，整合各种 API 访问方式，开箱即用
 
 ## 部署
 ### 基于 Docker 进行部署
-执行：`docker run -d --restart always -p 3000:3000 -v /home/ubuntu/data/one-api:/data justsong/one-api`
+部署命令：`docker run --name one-api -d --restart always -p 3000:3000 -v /home/ubuntu/data/one-api:/data justsong/one-api`
+
+更新命令：`docker run --rm -v /var/run/docker.sock:/var/run/docker.sock containrrr/watchtower -cR`
 
 `-p 3000:3000` 中的第一个 `3000` 是宿主机的端口，可以根据需要进行修改。
 
@@ -153,6 +155,26 @@ sudo service nginx restart
 
 环境变量的具体使用方法详见[此处](#环境变量)。
 
+### 部署第三方服务配合 One API 使用
+> 欢迎 PR 添加更多示例。
+
+#### ChatGPT Next Web
+项目主页：https://github.com/Yidadaa/ChatGPT-Next-Web
+
+```bash
+docker run --name chat-next-web -d -p 3001:3000 -e BASE_URL=https://openai.justsong.cn yidadaa/chatgpt-next-web
+```
+
+注意修改端口号和 `BASE_URL`。
+
+#### ChatGPT Web
+项目主页：https://github.com/Chanzhaoyu/chatgpt-web
+
+```bash
+docker run --name chatgpt-web -d -p 3002:3002 -e OPENAI_API_BASE_URL=https://openai.justsong.cn -e OPENAI_API_KEY=sk-xxx chenzhaoyu94/chatgpt-web
+```
+
+注意修改端口号、`OPENAI_API_BASE_URL` 和 `OPENAI_API_KEY`。
 
 ### 部署到第三方平台
 <details>
@@ -209,7 +231,7 @@ graph LR
    + 例子：`REDIS_CONN_STRING=redis://default:redispw@localhost:49153`
 2. `SESSION_SECRET`：设置之后将使用固定的会话密钥，这样系统重新启动后已登录用户的 cookie 将依旧有效。
    + 例子：`SESSION_SECRET=random_string`
-3. `SQL_DSN`：设置之后将使用指定数据库而非 SQLite。
+3. `SQL_DSN`：设置之后将使用指定数据库而非 SQLite，请使用 MySQL 8.0 版本。
    + 例子：`SQL_DSN=root:123456@tcp(localhost:3306)/one-api`
 4. `FRONTEND_BASE_URL`：设置之后将使用指定的前端地址，而非后端地址。
    + 例子：`FRONTEND_BASE_URL=https://openai.justsong.cn`

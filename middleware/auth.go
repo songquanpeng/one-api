@@ -112,6 +112,7 @@ func TokenAuth() func(c *gin.Context) {
 		}
 		c.Set("id", token.UserId)
 		c.Set("token_id", token.Id)
+		c.Set("token_name", token.Name)
 		requestURL := c.Request.URL.String()
 		consumeQuota := true
 		if strings.HasPrefix(requestURL, "/v1/models") {
