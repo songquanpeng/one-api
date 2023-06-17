@@ -165,7 +165,7 @@ const OtherSetting = () => {
             />
           </Form.Group>
           <Form.Button onClick={submitAbout}>保存关于</Form.Button>
-          <Message>移除 One API 的版权标识必须首先获得授权，后续版本将通过授权码强制执行。</Message>
+          <Message>移除 One API 的版权标识必须首先获得授权，项目维护需要花费大量精力，如果本项目对你有意义，请主动支持本项目。</Message>
           <Form.Group widths='equal'>
             <Form.Input
               label='页脚'
