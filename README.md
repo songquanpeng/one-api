@@ -56,6 +56,7 @@ _✨ All in one 的 OpenAI 接口，整合各种 API 访问方式，开箱即用
    + [x] [OhMyGPT](https://aigptx.top?aff=uFpUl2Kf)
    + [x] [AI Proxy](https://aiproxy.io/?i=OneAPI) （邀请码：`OneAPI`）
    + [x] [OpenAI-SB](https://openai-sb.com)
+   + [x] [API2GPT](http://console.api2gpt.com/m/00002S)
    + [x] [CloseAI](https://console.openai-asia.com/r/2412)
    + [x] [AI.LS](https://ai.ls)
    + [x] [OpenAI Max](https://openaimax.com)

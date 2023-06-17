@@ -54,6 +54,13 @@ type AIProxyUserOverviewResponse struct {
 	} `json:"data"`
 }
 
+type API2GPTUsageResponse struct {
+	Object         string  `json:"object"`
+	TotalGranted   float64 `json:"total_granted"`
+	TotalUsed      float64 `json:"total_used"`
+	TotalRemaining float64 `json:"total_remaining"`
+}
+
 // GetAuthHeader get auth header
 func GetAuthHeader(token string) http.Header {
 	h := http.Header{}
@@ -127,6 +134,23 @@ func updateChannelAIProxyBalance(channel *model.Channel) (float64, error) {
 	return response.Data.TotalPoints, nil
 }
 
+func updateChannelAPI2GPTBalance(channel *model.Channel) (float64, error) {
+	url := "https://api.api2gpt.com/dashboard/billing/credit_grants"
+	body, err := GetResponseBody("GET", url, channel, GetAuthHeader(channel.Key))
+
+	if err != nil {
+		return 0, err
+	}
+	response := API2GPTUsageResponse{}
+	err = json.Unmarshal(body, &response)
+	fmt.Print(response)
+	if err != nil {
+		return 0, err
+	}
+	channel.UpdateBalance(response.TotalRemaining)
+	return response.TotalRemaining, nil
+}
+
 func updateChannelBalance(channel *model.Channel) (float64, error) {
 	baseURL := common.ChannelBaseURLs[channel.Type]
 	switch channel.Type {
@@ -142,6 +166,8 @@ func updateChannelBalance(channel *model.Channel) (float64, error) {
 		return updateChannelOpenAISBBalance(channel)
 	case common.ChannelTypeAIProxy:
 		return updateChannelAIProxyBalance(channel)
+	case common.ChannelTypeAPI2GPT:
+		return updateChannelAPI2GPTBalance(channel)
 	default:
 		return 0, errors.New("尚未实现")
 	}

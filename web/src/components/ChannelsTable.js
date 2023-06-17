@@ -36,6 +36,8 @@ function renderBalance(type, balance) {
       return <span>{balance.toFixed(5)}</span>;
     case 10: // AI Proxy
       return <span>{renderNumber(balance)}</span>;
+    case 12: // API2GPT
+      return <span>¥{balance.toFixed(2)}</span>;
     default:
       return <span>不支持</span>;
   }
