@@ -152,7 +152,7 @@ const RedemptionsTable = () => {
         />
       </Form>
 
-      <Table basic>
+      <Table basic compact size='small'>
         <Table.Header>
           <Table.Row>
             <Table.HeaderCell
