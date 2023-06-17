@@ -34,6 +34,7 @@ const SystemSetting = () => {
     ModelRatio: '',
     GroupRatio: '',
     TopUpLink: '',
+    ChatLink: '',
     AutomaticDisableChannelEnabled: '',
     ChannelDisableThreshold: 0,
     LogConsumeEnabled: ''
@@ -109,7 +110,8 @@ const SystemSetting = () => {
       name === 'PreConsumedQuota' ||
       name === 'ModelRatio' ||
       name === 'GroupRatio' ||
-      name === 'TopUpLink'
+      name === 'TopUpLink' ||
+      name === 'ChatLink'
     ) {
       setInputs((inputs) => ({ ...inputs, [name]: value }));
     } else {
@@ -154,6 +156,9 @@ const SystemSetting = () => {
     }
     if (originInputs['TopUpLink'] !== inputs.TopUpLink) {
       await updateOption('TopUpLink', inputs.TopUpLink);
+    }
+    if (originInputs['ChatLink'] !== inputs.ChatLink) {
+      await updateOption('ChatLink', inputs.ChatLink);
     }
   };
 
@@ -359,6 +364,15 @@ const SystemSetting = () => {
               type='number'
               min='0'
               placeholder='例如：100'
+            />
+            <Form.Input
+              label='聊天页面链接'
+              name='ChatLink'
+              onChange={handleInputChange}
+              autoComplete='new-password'
+              value={inputs.ChatLink}
+              type='link'
+              placeholder='例如 ChatGPT Next Web 的部署地址'
             />
           </Form.Group>
           <Form.Group widths='equal'>

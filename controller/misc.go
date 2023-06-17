@@ -28,6 +28,7 @@ func GetStatus(c *gin.Context) {
 			"turnstile_check":    common.TurnstileCheckEnabled,
 			"turnstile_site_key": common.TurnstileSiteKey,
 			"top_up_link":        common.TopUpLink,
+			"chat_link":          common.ChatLink,
 		},
 	})
 	return
