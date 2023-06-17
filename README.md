@@ -83,7 +83,9 @@ _✨ All in one 的 OpenAI 接口，整合各种 API 访问方式，开箱即用
 
 ## 部署
 ### 基于 Docker 进行部署
-执行：`docker run -d --restart always -p 3000:3000 -v /home/ubuntu/data/one-api:/data justsong/one-api`
+部署命令：`docker run -d --restart always -p 3000:3000 -v /home/ubuntu/data/one-api:/data justsong/one-api`
+
+更新命令：`docker run --rm -v /var/run/docker.sock:/var/run/docker.sock containrrr/watchtower -cR`
 
 `-p 3000:3000` 中的第一个 `3000` 是宿主机的端口，可以根据需要进行修改。
 
@@ -208,7 +210,7 @@ graph LR
    + 例子：`REDIS_CONN_STRING=redis://default:redispw@localhost:49153`
 2. `SESSION_SECRET`：设置之后将使用固定的会话密钥，这样系统重新启动后已登录用户的 cookie 将依旧有效。
    + 例子：`SESSION_SECRET=random_string`
-3. `SQL_DSN`：设置之后将使用指定数据库而非 SQLite。
+3. `SQL_DSN`：设置之后将使用指定数据库而非 SQLite，请使用 MySQL 8.0 版本。
    + 例子：`SQL_DSN=root:123456@tcp(localhost:3306)/one-api`
 4. `FRONTEND_BASE_URL`：设置之后将使用指定的前端地址，而非后端地址。
    + 例子：`FRONTEND_BASE_URL=https://openai.justsong.cn`
