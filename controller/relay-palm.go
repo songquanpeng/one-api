@@ -51,7 +51,7 @@ func relayPaLM(openAIRequest GeneralOpenAIRequest, c *gin.Context) *OpenAIErrorW
 		Temperature:    openAIRequest.Temperature,
 		CandidateCount: openAIRequest.N,
 		TopP:           openAIRequest.TopP,
-		//TopK:           openAIRequest.MaxTokens,
+		TopK:           openAIRequest.MaxTokens,
 	}
 	// TODO: forward request to PaLM & convert response
 	fmt.Print(request)
