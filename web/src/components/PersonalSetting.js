@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Divider, Form, Header, Image, Message, Modal } from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
-import { API, copy, showError, showInfo, showSuccess } from '../helpers';
+import { API, copy, showError, showInfo, showNotice, showSuccess } from '../helpers';
 import Turnstile from 'react-turnstile';
 
 const PersonalSetting = () => {
@@ -40,6 +40,18 @@ const PersonalSetting = () => {
     if (success) {
       await copy(data);
       showSuccess(`令牌已重置并已复制到剪贴板：${data}`);
+    } else {
+      showError(message);
+    }
+  };
+
+  const getAffLink = async () => {
+    const res = await API.get('/api/user/aff');
+    const { success, message, data } = res.data;
+    if (success) {
+      let link = `${window.location.origin}/register?aff=${data}`;
+      await copy(link);
+      showNotice(`邀请链接已复制到剪切板：${link}`);
     } else {
       showError(message);
     }
@@ -110,6 +122,7 @@ const PersonalSetting = () => {
         更新个人信息
       </Button>
       <Button onClick={generateAccessToken}>生成系统访问令牌</Button>
+      <Button onClick={getAffLink}>复制邀请链接</Button>
       <Divider />
       <Header as='h3'>账号绑定</Header>
       {
