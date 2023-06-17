@@ -157,6 +157,15 @@ func GenerateKey() string {
 	return string(key)
 }
 
+func GetRandomString(length int) string {
+	rand.Seed(time.Now().UnixNano())
+	key := make([]byte, length)
+	for i := 0; i < length; i++ {
+		key[i] = keyChars[rand.Intn(len(keyChars))]
+	}
+	return string(key)
+}
+
 func GetTimestamp() int64 {
 	return time.Now().Unix()
 }

@@ -27,6 +27,8 @@ const SystemSetting = () => {
     TurnstileSecretKey: '',
     RegisterEnabled: '',
     QuotaForNewUser: 0,
+    QuotaForInviter: 0,
+    QuotaForInvitee: 0,
     QuotaRemindThreshold: 0,
     PreConsumedQuota: 0,
     ModelRatio: '',
@@ -34,7 +36,7 @@ const SystemSetting = () => {
     TopUpLink: '',
     AutomaticDisableChannelEnabled: '',
     ChannelDisableThreshold: 0,
-    LogConsumeEnabled: '',
+    LogConsumeEnabled: ''
   });
   const [originInputs, setOriginInputs] = useState({});
   let [loading, setLoading] = useState(false);
@@ -101,6 +103,8 @@ const SystemSetting = () => {
       name === 'TurnstileSiteKey' ||
       name === 'TurnstileSecretKey' ||
       name === 'QuotaForNewUser' ||
+      name === 'QuotaForInviter' ||
+      name === 'QuotaForInvitee' ||
       name === 'QuotaRemindThreshold' ||
       name === 'PreConsumedQuota' ||
       name === 'ModelRatio' ||
@@ -121,6 +125,12 @@ const SystemSetting = () => {
   const submitOperationConfig = async () => {
     if (originInputs['QuotaForNewUser'] !== inputs.QuotaForNewUser) {
       await updateOption('QuotaForNewUser', inputs.QuotaForNewUser);
+    }
+    if (originInputs['QuotaForInvitee'] !== inputs.QuotaForInvitee) {
+      await updateOption('QuotaForInvitee', inputs.QuotaForInvitee);
+    }
+    if (originInputs['QuotaForInviter'] !== inputs.QuotaForInviter) {
+      await updateOption('QuotaForInviter', inputs.QuotaForInviter);
     }
     if (originInputs['QuotaRemindThreshold'] !== inputs.QuotaRemindThreshold) {
       await updateOption('QuotaRemindThreshold', inputs.QuotaRemindThreshold);
@@ -327,6 +337,28 @@ const SystemSetting = () => {
               type='number'
               min='0'
               placeholder='请求结束后多退少补'
+            />
+          </Form.Group>
+          <Form.Group widths={4}>
+            <Form.Input
+              label='邀请新用户奖励配额'
+              name='QuotaForInviter'
+              onChange={handleInputChange}
+              autoComplete='new-password'
+              value={inputs.QuotaForInviter}
+              type='number'
+              min='0'
+              placeholder='例如：100'
+            />
+            <Form.Input
+              label='新用户使用邀请码奖励配额'
+              name='QuotaForInvitee'
+              onChange={handleInputChange}
+              autoComplete='new-password'
+              value={inputs.QuotaForInvitee}
+              type='number'
+              min='0'
+              placeholder='例如：100'
             />
           </Form.Group>
           <Form.Group widths='equal'>
