@@ -1,9 +1,10 @@
 package common
 
 import (
-	"github.com/google/uuid"
 	"sync"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 var StartTime = time.Now().Unix() // unit: second
@@ -133,6 +134,7 @@ const (
 	ChannelTypeAILS      = 9
 	ChannelTypeAIProxy   = 10
 	ChannelTypePaLM      = 11
+	ChannelTypeAPI2GPT   = 12
 )
 
 var ChannelBaseURLs = []string{
@@ -148,4 +150,5 @@ var ChannelBaseURLs = []string{
 	"https://api.caipacity.com",   // 9
 	"https://api.aiproxy.io",      // 10
 	"",                            // 11
+	"https://api.api2gpt.com",     // 12
 }
