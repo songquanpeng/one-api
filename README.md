@@ -155,6 +155,12 @@ sudo service nginx restart
 
 环境变量的具体使用方法详见[此处](#环境变量)。
 
+### 宝塔部署教程
+
+详见[#175](https://github.com/songquanpeng/one-api/issues/175)。
+
+如果部署后访问出现空白页面，详见[#97](https://github.com/songquanpeng/one-api/issues/97)。
+
 ### 部署第三方服务配合 One API 使用
 > 欢迎 PR 添加更多示例。
 
@@ -259,9 +265,7 @@ https://openai.justsong.cn
 1. 账户额度足够为什么提示额度不足？
    + 请检查你的令牌额度是否足够，这个和账户额度是分开的。
    + 令牌额度仅供用户设置最大使用量，用户可自由设置。
-2. 宝塔部署后访问出现空白页面？
-   + 自动配置的问题，详见[#97](https://github.com/songquanpeng/one-api/issues/97)。
-3. 提示无可用渠道？
+2. 提示无可用渠道？
    + 请检查的用户分组和渠道分组设置。
    + 以及渠道的模型设置。
 
