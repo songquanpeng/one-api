@@ -23,6 +23,7 @@ import Redemption from './pages/Redemption';
 import EditRedemption from './pages/Redemption/EditRedemption';
 import TopUp from './pages/TopUp';
 import Log from './pages/Log';
+import Chat from './pages/Chat';
 
 const Home = lazy(() => import('./pages/Home'));
 const About = lazy(() => import('./pages/About'));
@@ -47,6 +48,11 @@ function App() {
       localStorage.setItem('system_name', data.system_name);
       localStorage.setItem('logo', data.logo);
       localStorage.setItem('footer_html', data.footer_html);
+      if (data.chat_link) {
+        localStorage.setItem('chat_link', data.chat_link);
+      } else {
+        localStorage.removeItem('chat_link');
+      }
       if (
         data.version !== process.env.REACT_APP_VERSION &&
         data.version !== 'v0.0.0' &&
@@ -264,6 +270,14 @@ function App() {
         element={
           <Suspense fallback={<Loading></Loading>}>
             <About />
+          </Suspense>
+        }
+      />
+      <Route
+        path='/chat'
+        element={
+          <Suspense fallback={<Loading></Loading>}>
+            <Chat />
           </Suspense>
         }
       />

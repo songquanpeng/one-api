@@ -143,7 +143,6 @@ func updateChannelAPI2GPTBalance(channel *model.Channel) (float64, error) {
 	}
 	response := API2GPTUsageResponse{}
 	err = json.Unmarshal(body, &response)
-	fmt.Print(response)
 	if err != nil {
 		return 0, err
 	}

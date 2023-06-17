@@ -14,6 +14,7 @@ var ServerAddress = "http://localhost:3000"
 var Footer = ""
 var Logo = ""
 var TopUpLink = ""
+var ChatLink = ""
 
 var UsingSQLite = false
 

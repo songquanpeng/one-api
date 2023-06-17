@@ -63,6 +63,7 @@ func InitOptionMap() {
 	common.OptionMap["ModelRatio"] = common.ModelRatio2JSONString()
 	common.OptionMap["GroupRatio"] = common.GroupRatio2JSONString()
 	common.OptionMap["TopUpLink"] = common.TopUpLink
+	common.OptionMap["ChatLink"] = common.ChatLink
 	common.OptionMapRWMutex.Unlock()
 	loadOptionsFromDatabase()
 }
@@ -191,6 +192,8 @@ func updateOptionMap(key string, value string) (err error) {
 		err = common.UpdateGroupRatioByJSONString(value)
 	case "TopUpLink":
 		common.TopUpLink = value
+	case "ChatLink":
+		common.ChatLink = value
 	case "ChannelDisableThreshold":
 		common.ChannelDisableThreshold, _ = strconv.ParseFloat(value, 64)
 	}
