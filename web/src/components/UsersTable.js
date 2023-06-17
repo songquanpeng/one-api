@@ -156,7 +156,7 @@ const UsersTable = () => {
         />
       </Form>
 
-      <Table basic>
+      <Table basic compact size='small'>
         <Table.Header>
           <Table.Row>
             <Table.HeaderCell
@@ -240,7 +240,9 @@ const UsersTable = () => {
                     />
                   </Table.Cell>
                   <Table.Cell>{renderGroup(user.group)}</Table.Cell>
-                  <Table.Cell>{user.email ? renderText(user.email, 20) : '无'}</Table.Cell>
+                  <Table.Cell>
+                    {user.email ? <Popup hoverable content={user.email} trigger={<span>{renderText(user.email, 24)}</span>} /> : '无'}
+                  </Table.Cell>
                   <Table.Cell>
                     <Popup content='剩余额度' trigger={<Label>{renderNumber(user.quota)}</Label>} />
                     <Popup content='已用额度' trigger={<Label>{renderNumber(user.used_quota)}</Label>} />
