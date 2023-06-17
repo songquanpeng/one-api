@@ -30,27 +30,27 @@ const (
 // https://platform.openai.com/docs/api-reference/chat
 
 type GeneralOpenAIRequest struct {
-	Model       string    `json:"model"`
-	Messages    []Message `json:"messages"`
-	Prompt      any       `json:"prompt"`
-	Stream      bool      `json:"stream"`
+	Model    string    `json:"model"`
+	Messages []Message `json:"messages"`
+	Prompt   any       `json:"prompt"`
+	Stream   bool      `json:"stream"`
 	//MaxTokens   int       `json:"max_tokens"`
-	Temperature float64   `json:"temperature"`
-	TopP        float64   `json:"top_p"`
-	N           int       `json:"n"`
-	Input       any       `json:"input"`
+	Temperature float64 `json:"temperature"`
+	TopP        float64 `json:"top_p"`
+	N           int     `json:"n"`
+	Input       any     `json:"input"`
 }
 
 type ChatRequest struct {
-	Model     string    `json:"model"`
-	Messages  []Message `json:"messages"`
+	Model    string    `json:"model"`
+	Messages []Message `json:"messages"`
 	//MaxTokens int       `json:"max_tokens"`
 }
 
 type TextRequest struct {
-	Model     string    `json:"model"`
-	Messages  []Message `json:"messages"`
-	Prompt    string    `json:"prompt"`
+	Model    string    `json:"model"`
+	Messages []Message `json:"messages"`
+	Prompt   string    `json:"prompt"`
 	//MaxTokens int       `json:"max_tokens"`
 	//Stream   bool      `json:"stream"`
 }
@@ -393,6 +393,18 @@ func RelayNotImplemented(c *gin.Context) {
 		Type:    "one_api_error",
 		Param:   "",
 		Code:    "api_not_implemented",
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"error": err,
+	})
+}
+
+func RelayNotFound(c *gin.Context) {
+	err := OpenAIError{
+		Message: fmt.Sprintf("API not found: %s:%s", c.Request.Method, c.Request.URL.Path),
+		Type:    "one_api_error",
+		Param:   "",
+		Code:    "api_not_found",
 	}
 	c.JSON(http.StatusOK, gin.H{
 		"error": err,
