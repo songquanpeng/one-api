@@ -182,6 +182,12 @@ func relayHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 	} else if channelType == common.ChannelTypePaLM {
 		err := relayPaLM(textRequest, c)
 		return err
+	} else {
+		// 强制使用0613模型
+		textRequest.Model = strings.TrimSuffix(textRequest.Model, "-0301")
+		textRequest.Model = strings.TrimSuffix(textRequest.Model, "-0314")
+		textRequest.Model = strings.TrimSuffix(textRequest.Model, "-0613")
+		textRequest.Model = textRequest.Model + "-0613"
 	}
 	var promptTokens int
 	switch relayMode {
