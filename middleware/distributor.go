@@ -73,6 +73,9 @@ func Distribute() func(c *gin.Context) {
 					modelRequest.Model = "text-moderation-stable"
 				}
 			}
+			if strings.HasPrefix(modelRequest.Model, "gpt-35-turbo") {
+				modelRequest.Model = strings.Replace(modelRequest.Model, "gpt-35-turbo", "gpt-3.5-turbo", 1)
+			}
 			channel, err = model.GetRandomSatisfiedChannel(userGroup, modelRequest.Model)
 			if err != nil {
 				c.JSON(200, gin.H{
