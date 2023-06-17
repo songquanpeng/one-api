@@ -55,10 +55,10 @@ _✨ All in one 的 OpenAI 接口，整合各种 API 访问方式，开箱即用
    + [x] [API2D](https://api2d.com/r/197971)
    + [x] [OhMyGPT](https://aigptx.top?aff=uFpUl2Kf)
    + [x] [AI Proxy](https://aiproxy.io/?i=OneAPI) （邀请码：`OneAPI`）
-   + [x] [AI.LS](https://ai.ls)
-   + [x] [OpenAI Max](https://openaimax.com)
    + [x] [OpenAI-SB](https://openai-sb.com)
    + [x] [CloseAI](https://console.openai-asia.com/r/2412)
+   + [x] [AI.LS](https://ai.ls)
+   + [x] [OpenAI Max](https://openaimax.com)
    + [x] 自定义渠道：例如各种未收录的第三方代理服务
 2. 支持通过**负载均衡**的方式访问多个渠道。
 3. 支持 **stream 模式**，可以通过流式传输实现打字机效果。
@@ -74,11 +74,12 @@ _✨ All in one 的 OpenAI 接口，整合各种 API 访问方式，开箱即用
     1. 支持自定义系统名称，logo 以及页脚。
     2. 支持自定义首页和关于页面，可以选择使用 HTML & Markdown 代码进行自定义，或者使用一个单独的网页通过 iframe 嵌入。
 13. 支持通过系统访问令牌访问管理 API。
-14. 支持用户管理，支持**多种用户登录注册方式**：
+14. 支持 Cloudflare Turnstile 用户校验。
+15. 支持用户管理，支持**多种用户登录注册方式**：
     + 邮箱登录注册以及通过邮箱进行密码重置。
     + [GitHub 开放授权](https://github.com/settings/applications/new)。
     + 微信公众号授权（需要额外部署 [WeChat Server](https://github.com/songquanpeng/wechat-server)）。
-15. 未来其他大模型开放 API 后，将第一时间支持，并将其封装成同样的 API 访问方式。
+16. 未来其他大模型开放 API 后，将第一时间支持，并将其封装成同样的 API 访问方式。
 
 ## 部署
 ### 基于 Docker 进行部署
