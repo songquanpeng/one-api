@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { API, showError, showInfo, showSuccess, timestamp2string } from '../helpers';
 
 import { CHANNEL_OPTIONS, ITEMS_PER_PAGE } from '../constants';
-import { renderGroup } from '../helpers/render';
+import { renderGroup, renderNumber } from '../helpers/render';
 
 function renderTimestamp(timestamp) {
   return (
@@ -28,10 +28,17 @@ function renderType(type) {
 }
 
 function renderBalance(type, balance) {
-  if (type === 5) {
-    return <span>¥{(balance / 10000).toFixed(2)}</span>
+  switch (type) {
+    case 1: // OpenAI
+    case 8: // 自定义
+      return <span>${balance.toFixed(2)}</span>;
+    case 5: // OpenAI-SB
+      return <span>¥{(balance / 10000).toFixed(2)}</span>;
+    case 10: // AI Proxy
+      return <span>{renderNumber(balance)}</span>;
+    default:
+      return <span>不支持</span>;
   }
-  return <span>${balance.toFixed(2)}</span>
 }
 
 const ChannelsTable = () => {
@@ -422,7 +429,8 @@ const ChannelsTable = () => {
               <Button size='small' loading={loading} onClick={testAllChannels}>
                 测试所有已启用通道
               </Button>
-              <Button size='small' onClick={updateAllChannelsBalance} loading={loading || updatingBalance}>更新所有已启用通道余额</Button>
+              <Button size='small' onClick={updateAllChannelsBalance}
+                      loading={loading || updatingBalance}>更新所有已启用通道余额</Button>
               <Pagination
                 floated='right'
                 activePage={activePage}
