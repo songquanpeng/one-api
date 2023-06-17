@@ -83,7 +83,7 @@ _✨ All in one 的 OpenAI 接口，整合各种 API 访问方式，开箱即用
 
 ## 部署
 ### 基于 Docker 进行部署
-部署命令：`docker run -d --restart always -p 3000:3000 -v /home/ubuntu/data/one-api:/data justsong/one-api`
+部署命令：`docker run --name one-api -d --restart always -p 3000:3000 -v /home/ubuntu/data/one-api:/data justsong/one-api`
 
 更新命令：`docker run --rm -v /var/run/docker.sock:/var/run/docker.sock containrrr/watchtower -cR`
 
@@ -154,6 +154,26 @@ sudo service nginx restart
 
 环境变量的具体使用方法详见[此处](#环境变量)。
 
+### 部署第三方服务配合 One API 使用
+> 欢迎 PR 添加更多示例。
+
+#### ChatGPT Next Web
+项目主页：https://github.com/Yidadaa/ChatGPT-Next-Web
+
+```bash
+docker run --name chat-next-web -d -p 3001:3000 -e BASE_URL=https://openai.justsong.cn yidadaa/chatgpt-next-web
+```
+
+注意修改端口号和 `BASE_URL`。
+
+#### ChatGPT Web
+项目主页：https://github.com/Chanzhaoyu/chatgpt-web
+
+```bash
+docker run --name chatgpt-web -d -p 3002:3002 -e OPENAI_API_BASE_URL=https://openai.justsong.cn -e OPENAI_API_KEY=sk-xxx chenzhaoyu94/chatgpt-web
+```
+
+注意修改端口号、`OPENAI_API_BASE_URL` 和 `OPENAI_API_KEY`。
 
 ### 部署到第三方平台
 <details>
