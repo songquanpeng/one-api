@@ -262,13 +262,16 @@ https://openai.justsong.cn
 ![token](https://user-images.githubusercontent.com/39998050/233837971-dab488b7-6d96-43af-b640-a168e8d1c9bf.png)
 
 ## 常见问题
-1. 账户额度足够为什么提示额度不足？
+1. 额度是什么？怎么计算的？
+   + 额度 = token * 倍率
+   + 倍率包括分组的倍率，以及补全的倍率。
+2. 账户额度足够为什么提示额度不足？
    + 请检查你的令牌额度是否足够，这个和账户额度是分开的。
    + 令牌额度仅供用户设置最大使用量，用户可自由设置。
-2. 提示无可用渠道？
+3. 提示无可用渠道？
    + 请检查的用户分组和渠道分组设置。
    + 以及渠道的模型设置。
-3. 渠道测试报错：`invalid character '<' looking for beginning of value`
+4. 渠道测试报错：`invalid character '<' looking for beginning of value`
    + 这是因为返回值不是合法的 JSON，而是一个 HTML 页面。
    + 大概率是你的部署站的 IP 或代理的节点被 CloudFlare 封禁了。
 
