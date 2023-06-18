@@ -238,7 +238,7 @@ graph LR
 2. `SESSION_SECRET`：设置之后将使用固定的会话密钥，这样系统重新启动后已登录用户的 cookie 将依旧有效。
    + 例子：`SESSION_SECRET=random_string`
 3. `SQL_DSN`：设置之后将使用指定数据库而非 SQLite，请使用 MySQL 8.0 版本。
-   + 例子：`SQL_DSN=root:123456@tcp(localhost:3306)/one-api`
+   + 例子：`SQL_DSN=root:123456@tcp(localhost:3306)/oneapi`
 4. `FRONTEND_BASE_URL`：设置之后将使用指定的前端地址，而非后端地址。
    + 例子：`FRONTEND_BASE_URL=https://openai.justsong.cn`
 5. `SYNC_FREQUENCY`：设置之后将定期与数据库同步配置，单位为秒，未设置则不进行同步。
