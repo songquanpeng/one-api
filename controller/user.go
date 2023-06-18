@@ -259,7 +259,7 @@ func GenerateAccessToken(c *gin.Context) {
 	}
 	user.AccessToken = common.GetUUID()
 
-	if model.DB.Where("token = ?", user.AccessToken).First(user).RowsAffected != 0 {
+	if model.DB.Where("access_token = ?", user.AccessToken).First(user).RowsAffected != 0 {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
 			"message": "请重试，系统生成的 UUID 竟然重复了！",
