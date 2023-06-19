@@ -13,7 +13,7 @@ import (
 	"strings"
 )
 
-func relayHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
+func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 	channelType := c.GetInt("channel")
 	tokenId := c.GetInt("token_id")
 	consumeQuota := c.GetBool("consume_quota")

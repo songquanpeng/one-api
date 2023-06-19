@@ -109,7 +109,7 @@ func Relay(c *gin.Context) {
 	case RelayModeImagesGenerations:
 		err = relayImageHelper(c, relayMode)
 	default:
-		err = relayHelper(c, relayMode)
+		err = relayTextHelper(c, relayMode)
 	}
 	if err != nil {
 		if err.StatusCode == http.StatusTooManyRequests {
