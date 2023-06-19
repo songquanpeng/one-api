@@ -157,9 +157,9 @@ sudo service nginx restart
 
 ### 宝塔部署教程
 
-详见[#175](https://github.com/songquanpeng/one-api/issues/175)。
+详见 #175。
 
-如果部署后访问出现空白页面，详见[#97](https://github.com/songquanpeng/one-api/issues/97)。
+如果部署后访问出现空白页面，详见 #97。
 
 ### 部署第三方服务配合 One API 使用
 > 欢迎 PR 添加更多示例。
@@ -277,7 +277,7 @@ https://openai.justsong.cn
    + 大概率是你的部署站的 IP 或代理的节点被 CloudFlare 封禁了。
 
 ## 注意
-本项目为开源项目，请在遵循 OpenAI 的[使用条款](https://openai.com/policies/terms-of-use)以及法律法规的情况下使用，不得用于非法用途。
+本项目为开源项目，请在遵循 **OpenAI 的[使用条款]**(https://openai.com/policies/terms-of-use)以及**法律法规**的情况下使用，不得用于非法用途。
 
 本项目使用 MIT 协议进行开源，请以某种方式保留 One API 的版权信息。
 
