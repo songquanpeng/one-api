@@ -4,6 +4,7 @@ import SystemSetting from '../../components/SystemSetting';
 import { isRoot } from '../../helpers';
 import OtherSetting from '../../components/OtherSetting';
 import PersonalSetting from '../../components/PersonalSetting';
+import OperationSetting from '../../components/OperationSetting';
 
 const Setting = () => {
   let panes = [
@@ -18,6 +19,14 @@ const Setting = () => {
   ];
 
   if (isRoot()) {
+    panes.push({
+      menuItem: '运营设置',
+      render: () => (
+        <Tab.Pane attached={false}>
+          <OperationSetting />
+        </Tab.Pane>
+      )
+    });
     panes.push({
       menuItem: '系统设置',
       render: () => (

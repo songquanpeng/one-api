@@ -70,17 +70,18 @@ _✨ All in one 的 OpenAI 接口，整合各种 API 访问方式，开箱即用
 8. 支持**用户分组**以及**渠道分组**，支持为不同分组设置不同的倍率。
 9. 支持渠道**设置模型列表**。
 10. 支持**查看额度明细**。
-11. 支持发布公告，设置充值链接，设置新用户初始额度。
-12. 支持丰富的**自定义**设置，
+11. 支持**用户邀请奖励**。
+12. 支持发布公告，设置充值链接，设置新用户初始额度。
+13. 支持丰富的**自定义**设置，
     1. 支持自定义系统名称，logo 以及页脚。
     2. 支持自定义首页和关于页面，可以选择使用 HTML & Markdown 代码进行自定义，或者使用一个单独的网页通过 iframe 嵌入。
-13. 支持通过系统访问令牌访问管理 API。
-14. 支持 Cloudflare Turnstile 用户校验。
-15. 支持用户管理，支持**多种用户登录注册方式**：
+14. 支持通过系统访问令牌访问管理 API。
+15. 支持 Cloudflare Turnstile 用户校验。
+16. 支持用户管理，支持**多种用户登录注册方式**：
     + 邮箱登录注册以及通过邮箱进行密码重置。
     + [GitHub 开放授权](https://github.com/settings/applications/new)。
     + 微信公众号授权（需要额外部署 [WeChat Server](https://github.com/songquanpeng/wechat-server)）。
-16. 未来其他大模型开放 API 后，将第一时间支持，并将其封装成同样的 API 访问方式。
+17. 未来其他大模型开放 API 后，将第一时间支持，并将其封装成同样的 API 访问方式。
 
 ## 部署
 ### 基于 Docker 进行部署
@@ -157,9 +158,9 @@ sudo service nginx restart
 
 ### 宝塔部署教程
 
-详见[#175](https://github.com/songquanpeng/one-api/issues/175)。
+详见 [#175](https://github.com/songquanpeng/one-api/issues/175)。
 
-如果部署后访问出现空白页面，详见[#97](https://github.com/songquanpeng/one-api/issues/97)。
+如果部署后访问出现空白页面，详见 [#97](https://github.com/songquanpeng/one-api/issues/97)。
 
 ### 部署第三方服务配合 One API 使用
 > 欢迎 PR 添加更多示例。
@@ -277,7 +278,7 @@ https://openai.justsong.cn
    + 大概率是你的部署站的 IP 或代理的节点被 CloudFlare 封禁了。
 
 ## 注意
-本项目为开源项目，请在遵循 OpenAI 的[使用条款](https://openai.com/policies/terms-of-use)以及法律法规的情况下使用，不得用于非法用途。
+本项目为开源项目，请在遵循 OpenAI 的[使用条款](https://openai.com/policies/terms-of-use)以及**法律法规**的情况下使用，不得用于非法用途。
 
 本项目使用 MIT 协议进行开源，请以某种方式保留 One API 的版权信息。
 

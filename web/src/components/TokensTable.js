@@ -154,7 +154,7 @@ const TokensTable = () => {
           icon='search'
           fluid
           iconPosition='left'
-          placeholder='搜索令牌的 ID 和名称 ...'
+          placeholder='搜索令牌的名称 ...'
           value={searchKeyword}
           loading={searching}
           onChange={handleKeywordChange}
