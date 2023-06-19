@@ -167,14 +167,6 @@ const TokensTable = () => {
             <Table.HeaderCell
               style={{ cursor: 'pointer' }}
               onClick={() => {
-                sortToken('id');
-              }}
-            >
-              ID
-            </Table.HeaderCell>
-            <Table.HeaderCell
-              style={{ cursor: 'pointer' }}
-              onClick={() => {
                 sortToken('name');
               }}
             >
@@ -226,7 +218,6 @@ const TokensTable = () => {
               if (token.deleted) return <></>;
               return (
                 <Table.Row key={token.id}>
-                  <Table.Cell>{token.id}</Table.Cell>
                   <Table.Cell>{token.name ? token.name : '无'}</Table.Cell>
                   <Table.Cell>{renderStatus(token.status)}</Table.Cell>
                   <Table.Cell>{token.unlimited_quota ? '无限制' : token.remain_quota}</Table.Cell>
@@ -296,7 +287,7 @@ const TokensTable = () => {
 
         <Table.Footer>
           <Table.Row>
-            <Table.HeaderCell colSpan='8'>
+            <Table.HeaderCell colSpan='7'>
               <Button size='small' as={Link} to='/token/add' loading={loading}>
                 添加新的令牌
               </Button>
