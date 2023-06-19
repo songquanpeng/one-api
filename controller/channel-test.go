@@ -58,7 +58,7 @@ func testChannel(channel *model.Channel, request ChatRequest) error {
 	if err != nil {
 		return err
 	}
-	if response.Usage.CompletionTokens == 0 {
+	if response.Id == "" {
 		return errors.New(fmt.Sprintf("type %s, code %v, message %s", response.Error.Type, response.Error.Code, response.Error.Message))
 	}
 	return nil

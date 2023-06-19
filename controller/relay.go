@@ -70,6 +70,7 @@ type OpenAIErrorWithStatusCode struct {
 }
 
 type TextResponse struct {
+	Id    string `json:"id"`
 	Usage `json:"usage"`
 	Error OpenAIError `json:"error"`
 }
