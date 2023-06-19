@@ -18,6 +18,7 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 	tokenId := c.GetInt("token_id")
 	consumeQuota := c.GetBool("consume_quota")
 	group := c.GetString("group")
+	channelName := c.GetString("channel_name")
 	var textRequest GeneralOpenAIRequest
 	if consumeQuota || channelType == common.ChannelTypeAzure || channelType == common.ChannelTypePaLM {
 		err := common.UnmarshalBodyReusable(c, &textRequest)
@@ -77,7 +78,7 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 	groupRatio := common.GetGroupRatio(group)
 	ratio := modelRatio * groupRatio
 	preConsumedQuota := int(float64(preConsumedTokens) * ratio)
-	if consumeQuota {
+	if consumeQuota && strings.Contains(channelName, "反代") == false {
 		err := model.PreConsumeTokenQuota(tokenId, preConsumedQuota)
 		if err != nil {
 			return errorWrapper(err, "pre_consume_token_quota_failed", http.StatusOK)
@@ -132,16 +133,18 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 				quota = 1
 			}
 			quotaDelta := quota - preConsumedQuota
-			err := model.PostConsumeTokenQuota(tokenId, quotaDelta)
-			if err != nil {
-				common.SysError("Error consuming token remain quota: " + err.Error())
-			}
 			tokenName := c.GetString("token_name")
 			userId := c.GetInt("id")
-			model.RecordLog(userId, model.LogTypeConsume, fmt.Sprintf("通过令牌「%s」使用模型 %s 消耗 %d 点额度（模型倍率 %.2f，分组倍率 %.2f）", tokenName, textRequest.Model, quota, modelRatio, groupRatio))
-			model.UpdateUserUsedQuotaAndRequestCount(userId, quota)
-			channelId := c.GetInt("channel_id")
-			model.UpdateChannelUsedQuota(channelId, quota)
+			model.RecordLog(userId, model.LogTypeConsume, fmt.Sprintf("通过渠道「%s」通过令牌「%s」使用模型 %s 消耗 %d 点额度（模型倍率 %.2f，分组倍率 %.2f）", channelName, tokenName, textRequest.Model, quota, modelRatio, groupRatio))
+			if strings.Contains(channelName, "反代") == false {
+				err := model.PostConsumeTokenQuota(tokenId, quotaDelta)
+				if err != nil {
+					common.SysError("Error consuming token remain quota: " + err.Error())
+				}
+				model.UpdateUserUsedQuotaAndRequestCount(userId, quota)
+				channelId := c.GetInt("channel_id")
+				model.UpdateChannelUsedQuota(channelId, quota)
+			}
 		}
 	}()
 
