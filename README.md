@@ -157,9 +157,9 @@ sudo service nginx restart
 
 ### 宝塔部署教程
 
-详见 https://github.com/songquanpeng/one-api/issues/175
+详见 [#175](https://github.com/songquanpeng/one-api/issues/175)。
 
-如果部署后访问出现空白页面，详见 https://github.com/songquanpeng/one-api/issues/97
+如果部署后访问出现空白页面，详见 [#97](https://github.com/songquanpeng/one-api/issues/97)。
 
 ### 部署第三方服务配合 One API 使用
 > 欢迎 PR 添加更多示例。
