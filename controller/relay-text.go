@@ -143,7 +143,7 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 			quotaDelta := quota - preConsumedQuota
 			tokenName := c.GetString("token_name")
 			userId := c.GetInt("id")
-			model.RecordLog(userId, model.LogTypeConsume, fmt.Sprintf("通过渠道「%s」通过令牌「%s」使用模型 %s 消耗 %s 点额度（模型倍率 %.2f，分组倍率 %.2f）%d prompt + %d completion = %d tokens", channelName, tokenName, textRequest.Model, common.LogQuota(quota), modelRatio, groupRatio, prompt, completion, tokens))
+			model.RecordLog(userId, model.LogTypeConsume, fmt.Sprintf("通过渠道「%s」通过令牌「%s」使用模型 %s 消耗 %s（模型倍率 %.2f，分组倍率 %.2f）%d prompt + %d completion = %d tokens", channelName, tokenName, textRequest.Model, common.LogQuota(quota), modelRatio, groupRatio, prompt, completion, tokens))
 			if strings.Contains(channelName, "反代") == false {
 				err := model.PostConsumeTokenQuota(tokenId, quotaDelta)
 				if err != nil {
