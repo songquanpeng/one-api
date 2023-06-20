@@ -154,7 +154,7 @@ const OperationSetting = () => {
               placeholder='例如 ChatGPT Next Web 的部署地址'
             />
             <Form.Input
-              label='额度汇率'
+              label='单位美元额度'
               name='QuotaPerUnit'
               onChange={handleInputChange}
               autoComplete='new-password'
