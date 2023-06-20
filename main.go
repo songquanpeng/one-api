@@ -47,12 +47,18 @@ func main() {
 
 	// Initialize options
 	model.InitOptionMap()
+	if common.RedisEnabled {
+		model.InitChannelCache()
+	}
 	if os.Getenv("SYNC_FREQUENCY") != "" {
 		frequency, err := strconv.Atoi(os.Getenv("SYNC_FREQUENCY"))
 		if err != nil {
 			common.FatalLog(err)
 		}
 		go model.SyncOptions(frequency)
+		if common.RedisEnabled {
+			go model.SyncChannelCache(frequency)
+		}
 	}
 
 	// Initialize HTTP server

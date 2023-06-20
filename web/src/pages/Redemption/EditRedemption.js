@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Button, Form, Header, Segment } from 'semantic-ui-react';
 import { useParams } from 'react-router-dom';
 import { API, downloadTextAsFile, showError, showSuccess } from '../../helpers';
+import { renderQuota } from '../../helpers/render';
 
 const EditRedemption = () => {
   const params = useParams();
@@ -87,7 +88,7 @@ const EditRedemption = () => {
           </Form.Field>
           <Form.Field>
             <Form.Input
-              label='额度'
+              label={`额度（等价金额 ${renderQuota(quota)}）`}
               name='quota'
               placeholder={'请输入单个兑换码中包含的额度'}
               onChange={handleInputChange}

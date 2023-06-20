@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Form, Grid, Header, Segment, Statistic } from 'semantic-ui-react';
 import { API, showError, showInfo, showSuccess } from '../../helpers';
+import { renderQuota } from '../../helpers/render';
 
 const TopUp = () => {
   const [redemptionCode, setRedemptionCode] = useState('');
@@ -81,7 +82,7 @@ const TopUp = () => {
         <Grid.Column>
           <Statistic.Group widths='one'>
             <Statistic>
-              <Statistic.Value>{userQuota.toLocaleString()}</Statistic.Value>
+              <Statistic.Value>{renderQuota(userQuota)}</Statistic.Value>
               <Statistic.Label>剩余额度</Statistic.Label>
             </Statistic>
           </Statistic.Group>

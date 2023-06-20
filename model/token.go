@@ -36,8 +36,7 @@ func ValidateUserToken(key string) (token *Token, err error) {
 	if key == "" {
 		return nil, errors.New("未提供 token")
 	}
-	token = &Token{}
-	err = DB.Where("`key` = ?", key).First(token).Error
+	token, err = CacheGetTokenByKey(key)
 	if err == nil {
 		if token.Status != common.TokenStatusEnabled {
 			return nil, errors.New("该 token 状态不可用")

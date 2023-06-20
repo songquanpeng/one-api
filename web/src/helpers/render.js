@@ -36,3 +36,14 @@ export function renderNumber(num) {
     return num;
   }
 }
+
+export function renderQuota(quota, digits = 2) {
+  let quotaPerUnit = localStorage.getItem('quota_per_unit');
+  let displayInCurrency = localStorage.getItem('display_in_currency');
+  quotaPerUnit = parseFloat(quotaPerUnit);
+  displayInCurrency = displayInCurrency === 'true';
+  if (displayInCurrency) {
+    return '$' + (quota / quotaPerUnit).toFixed(digits);
+  }
+  return renderNumber(quota);
+}
