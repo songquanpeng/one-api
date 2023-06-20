@@ -33,6 +33,7 @@ func CacheGetTokenByKey(key string) (*Token, error) {
 		if err != nil {
 			common.SysError("Redis set token error: " + err.Error())
 		}
+		return &token, nil
 	}
 	err = json.Unmarshal([]byte(tokenObjectString), &token)
 	return &token, err
@@ -94,6 +95,7 @@ func CacheGetRandomSatisfiedChannel(group string, model string) (*Channel, error
 	if !common.RedisEnabled {
 		return GetRandomSatisfiedChannel(group, model)
 	}
+	return GetRandomSatisfiedChannel(group, model)
 	// TODO: implement this
 	return nil, nil
 }
