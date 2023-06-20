@@ -132,12 +132,20 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 			if strings.HasPrefix(textRequest.Model, "gpt-4") {
 				completionRatio = 2
 			}
+			var prompt int
+			var completion int
+			var tokens int
 			if isStream {
 				responseTokens := countTokenText(streamResponseText, textRequest.Model)
 				quota = promptTokens + int(float64(responseTokens)*completionRatio)
+				prompt = promptTokens
+				completion = responseTokens
 			} else {
 				quota = textResponse.Usage.PromptTokens + int(float64(textResponse.Usage.CompletionTokens)*completionRatio)
+				prompt = textResponse.Usage.PromptTokens
+				completion = textResponse.Usage.CompletionTokens
 			}
+			tokens = prompt + completion
 			quota = int(float64(quota) * ratio)
 			if ratio != 0 && quota <= 0 {
 				quota = 1
@@ -145,7 +153,7 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 			quotaDelta := quota - preConsumedQuota
 			tokenName := c.GetString("token_name")
 			userId := c.GetInt("id")
-			model.RecordLog(userId, model.LogTypeConsume, fmt.Sprintf("通过渠道「%s」通过令牌「%s」使用模型 %s 消耗 %d 点额度（模型倍率 %.2f，分组倍率 %.2f）", channelName, tokenName, textRequest.Model, quota, modelRatio, groupRatio))
+			model.RecordLog(userId, model.LogTypeConsume, fmt.Sprintf("通过渠道「%s」通过令牌「%s」使用模型 %s 消耗 %d 点额度（模型倍率 %.2f，分组倍率 %.2f）%d prompt + %d completion = %d tokens", channelName, tokenName, textRequest.Model, quota, modelRatio, groupRatio, prompt, completion, tokens))
 			if strings.Contains(channelName, "反代") == false {
 				err := model.PostConsumeTokenQuota(tokenId, quotaDelta)
 				if err != nil {
