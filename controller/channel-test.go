@@ -25,9 +25,7 @@ func testChannel(channel *model.Channel, request ChatRequest) error {
 	if channel.Type == common.ChannelTypeAzure {
 		requestURL = fmt.Sprintf("%s/openai/deployments/%s/chat/completions?api-version=2023-03-15-preview", channel.BaseURL, request.Model)
 	} else {
-		if channel.Type == common.ChannelTypeCustom {
-			requestURL = channel.BaseURL
-		} else if channel.Type == common.ChannelTypeOpenAI && channel.BaseURL != "" {
+		if channel.BaseURL != "" {
 			requestURL = channel.BaseURL
 		}
 		requestURL += "/v1/chat/completions"
