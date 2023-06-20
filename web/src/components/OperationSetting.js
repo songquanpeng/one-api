@@ -13,9 +13,11 @@ const OperationSetting = () => {
     GroupRatio: '',
     TopUpLink: '',
     ChatLink: '',
+    QuotaPerUnit: 0,
     AutomaticDisableChannelEnabled: '',
     ChannelDisableThreshold: 0,
-    LogConsumeEnabled: ''
+    LogConsumeEnabled: '',
+    DisplayInCurrencyEnabled: ''
   });
   const [originInputs, setOriginInputs] = useState({});
   let [loading, setLoading] = useState(false);
@@ -118,6 +120,9 @@ const OperationSetting = () => {
         if (originInputs['ChatLink'] !== inputs.ChatLink) {
           await updateOption('ChatLink', inputs.ChatLink);
         }
+        if (originInputs['QuotaPerUnit'] !== inputs.QuotaPerUnit) {
+          await updateOption('QuotaPerUnit', inputs.QuotaPerUnit);
+        }
         break;
     }
   };
@@ -129,7 +134,7 @@ const OperationSetting = () => {
           <Header as='h3'>
             通用设置
           </Header>
-          <Form.Group widths={2}>
+          <Form.Group widths={3}>
             <Form.Input
               label='充值链接'
               name='TopUpLink'
@@ -147,6 +152,30 @@ const OperationSetting = () => {
               value={inputs.ChatLink}
               type='link'
               placeholder='例如 ChatGPT Next Web 的部署地址'
+            />
+            <Form.Input
+              label='额度汇率'
+              name='QuotaPerUnit'
+              onChange={handleInputChange}
+              autoComplete='new-password'
+              value={inputs.QuotaPerUnit}
+              type='number'
+              step='0.01'
+              placeholder='一单位货币能兑换的额度'
+            />
+          </Form.Group>
+          <Form.Group inline>
+            <Form.Checkbox
+              checked={inputs.LogConsumeEnabled === 'true'}
+              label='启用额度消费日志记录'
+              name='LogConsumeEnabled'
+              onChange={handleInputChange}
+            />
+            <Form.Checkbox
+              checked={inputs.DisplayInCurrencyEnabled === 'true'}
+              label='以货币形式显示额度'
+              name='DisplayInCurrencyEnabled'
+              onChange={handleInputChange}
             />
           </Form.Group>
           <Form.Button onClick={() => {
@@ -264,12 +293,6 @@ const OperationSetting = () => {
               placeholder='为一个 JSON 文本，键为分组名称，值为倍率'
             />
           </Form.Group>
-          <Form.Checkbox
-            checked={inputs.LogConsumeEnabled === 'true'}
-            label='启用额度消费日志记录'
-            name='LogConsumeEnabled'
-            onChange={handleInputChange}
-          />
           <Form.Button onClick={() => {
             submitConfig('ratio').then();
           }}>保存倍率设置</Form.Button>

@@ -35,6 +35,7 @@ func InitOptionMap() {
 	common.OptionMap["RegisterEnabled"] = strconv.FormatBool(common.RegisterEnabled)
 	common.OptionMap["AutomaticDisableChannelEnabled"] = strconv.FormatBool(common.AutomaticDisableChannelEnabled)
 	common.OptionMap["LogConsumeEnabled"] = strconv.FormatBool(common.LogConsumeEnabled)
+	common.OptionMap["DisplayInCurrencyEnabled"] = strconv.FormatBool(common.DisplayInCurrencyEnabled)
 	common.OptionMap["ChannelDisableThreshold"] = strconv.FormatFloat(common.ChannelDisableThreshold, 'f', -1, 64)
 	common.OptionMap["SMTPServer"] = ""
 	common.OptionMap["SMTPFrom"] = ""
@@ -64,6 +65,7 @@ func InitOptionMap() {
 	common.OptionMap["GroupRatio"] = common.GroupRatio2JSONString()
 	common.OptionMap["TopUpLink"] = common.TopUpLink
 	common.OptionMap["ChatLink"] = common.ChatLink
+	common.OptionMap["QuotaPerUnit"] = strconv.FormatFloat(common.QuotaPerUnit, 'f', -1, 64)
 	common.OptionMapRWMutex.Unlock()
 	loadOptionsFromDatabase()
 }
@@ -140,6 +142,8 @@ func updateOptionMap(key string, value string) (err error) {
 			common.AutomaticDisableChannelEnabled = boolValue
 		case "LogConsumeEnabled":
 			common.LogConsumeEnabled = boolValue
+		case "DisplayInCurrencyEnabled":
+			common.DisplayInCurrencyEnabled = boolValue
 		}
 	}
 	switch key {
@@ -196,6 +200,8 @@ func updateOptionMap(key string, value string) (err error) {
 		common.ChatLink = value
 	case "ChannelDisableThreshold":
 		common.ChannelDisableThreshold, _ = strconv.ParseFloat(value, 64)
+	case "QuotaPerUnit":
+		common.QuotaPerUnit, _ = strconv.ParseFloat(value, 64)
 	}
 	return err
 }

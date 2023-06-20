@@ -42,3 +42,11 @@ func FatalLog(v ...any) {
 	_, _ = fmt.Fprintf(gin.DefaultErrorWriter, "[FATAL] %v | %v \n", t.Format("2006/01/02 - 15:04:05"), v)
 	os.Exit(1)
 }
+
+func LogQuota(quota int) string {
+	if DisplayInCurrencyEnabled {
+		return fmt.Sprintf("＄%.6f 额度", float64(quota)/QuotaPerUnit)
+	} else {
+		return fmt.Sprintf("%d 点额度", quota)
+	}
+}

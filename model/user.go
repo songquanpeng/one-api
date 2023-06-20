@@ -93,16 +93,16 @@ func (user *User) Insert(inviterId int) error {
 		return result.Error
 	}
 	if common.QuotaForNewUser > 0 {
-		RecordLog(user.Id, LogTypeSystem, fmt.Sprintf("新用户注册赠送 %d 点额度", common.QuotaForNewUser))
+		RecordLog(user.Id, LogTypeSystem, fmt.Sprintf("新用户注册赠送 %s", common.LogQuota(common.QuotaForNewUser)))
 	}
 	if inviterId != 0 {
 		if common.QuotaForInvitee > 0 {
 			_ = IncreaseUserQuota(user.Id, common.QuotaForInvitee)
-			RecordLog(user.Id, LogTypeSystem, fmt.Sprintf("使用邀请码赠送 %d 点额度", common.QuotaForInvitee))
+			RecordLog(user.Id, LogTypeSystem, fmt.Sprintf("使用邀请码赠送 %s", common.LogQuota(common.QuotaForInvitee)))
 		}
 		if common.QuotaForInviter > 0 {
 			_ = IncreaseUserQuota(inviterId, common.QuotaForInviter)
-			RecordLog(inviterId, LogTypeSystem, fmt.Sprintf("邀请用户赠送 %d 点额度", common.QuotaForInviter))
+			RecordLog(inviterId, LogTypeSystem, fmt.Sprintf("邀请用户赠送 %s", common.LogQuota(common.QuotaForInviter)))
 		}
 	}
 	return nil
@@ -253,6 +253,11 @@ func ValidateAccessToken(token string) (user *User) {
 
 func GetUserQuota(id int) (quota int, err error) {
 	err = DB.Model(&User{}).Where("id = ?", id).Select("quota").Find(&quota).Error
+	return quota, err
+}
+
+func GetUserUsedQuota(id int) (quota int, err error) {
+	err = DB.Model(&User{}).Where("id = ?", id).Select("used_quota").Find(&quota).Error
 	return quota, err
 }
 
