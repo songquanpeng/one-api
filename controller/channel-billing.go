@@ -9,6 +9,7 @@ import (
 	"one-api/common"
 	"one-api/model"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -160,6 +161,9 @@ func updateChannelBalance(channel *model.Channel) (float64, error) {
 	case common.ChannelTypeAzure:
 		return 0, errors.New("尚未实现")
 	case common.ChannelTypeCustom:
+		if strings.Contains(channel.Name, "反代") {
+			return 0, errors.New("尚未实现")
+		}
 		baseURL = channel.BaseURL
 	case common.ChannelTypeOpenAISB:
 		return updateChannelOpenAISBBalance(channel)
