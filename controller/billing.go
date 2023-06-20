@@ -48,6 +48,9 @@ func GetUsage(c *gin.Context) {
 		return
 	}
 	amount := float64(quota)
+	if common.DisplayInCurrencyEnabled {
+		amount /= common.QuotaPerUnit
+	}
 	usage := OpenAIUsageResponse{
 		Object:     "list",
 		TotalUsage: amount,
