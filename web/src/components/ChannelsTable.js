@@ -238,9 +238,17 @@ const ChannelsTable = () => {
     if (channels.length === 0) return;
     setLoading(true);
     let sortedChannels = [...channels];
-    sortedChannels.sort((a, b) => {
-      return ('' + a[key]).localeCompare(b[key]);
-    });
+    if (typeof sortedChannels[0][key] === 'string'){
+      sortedChannels.sort((a, b) => {
+        return ('' + a[key]).localeCompare(b[key]);
+      });
+    } else {
+      sortedChannels.sort((a, b) => {
+        if (a[key] === b[key]) return 0;
+        if (a[key] > b[key]) return -1;
+        if (a[key] < b[key]) return 1;
+      });
+    }
     if (sortedChannels[0].id === channels[0].id) {
       sortedChannels.reverse();
     }
