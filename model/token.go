@@ -34,7 +34,7 @@ func SearchUserTokens(userId int, keyword string) (tokens []*Token, err error) {
 
 func ValidateUserToken(key string) (token *Token, err error) {
 	if key == "" {
-		return nil, errors.New("未提供 token")
+		return nil, errors.New("未提供令牌")
 	}
 	token, err = CacheGetTokenByKey(key)
 	if err == nil {
@@ -66,7 +66,7 @@ func ValidateUserToken(key string) (token *Token, err error) {
 		}()
 		return token, nil
 	}
-	return nil, errors.New("无效的 token")
+	return nil, errors.New("无效的令牌")
 }
 
 func GetTokenByIds(id int, userId int) (*Token, error) {
