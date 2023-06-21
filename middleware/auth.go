@@ -100,7 +100,7 @@ func TokenAuth() func(c *gin.Context) {
 			c.Abort()
 			return
 		}
-		if !model.IsUserEnabled(token.UserId) {
+		if !model.CacheIsUserEnabled(token.UserId) {
 			c.JSON(http.StatusOK, gin.H{
 				"error": gin.H{
 					"message": "用户已被封禁",
