@@ -55,6 +55,9 @@ func InitDB() (err error) {
 	}
 	if err == nil {
 		DB = db
+		if !common.IsMasterNode {
+			return nil
+		}
 		err := db.AutoMigrate(&Channel{})
 		if err != nil {
 			return err

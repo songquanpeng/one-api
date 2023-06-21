@@ -1,6 +1,7 @@
 package common
 
 import (
+	"os"
 	"sync"
 	"time"
 
@@ -66,6 +67,8 @@ var QuotaRemindThreshold = 1000
 var PreConsumedQuota = 500
 
 var RootUserEmail = ""
+
+var IsMasterNode = os.Getenv("SYNC_FREQUENCY") == ""
 
 const (
 	RoleGuestUser  = 0
