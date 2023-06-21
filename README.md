@@ -151,9 +151,10 @@ sudo service nginx restart
 
 ### 多机部署
 1. 所有服务器 `SESSION_SECRET` 设置一样的值。
-2. 必须设置 `SQL_DSN`，使用 MySQL 数据库而非 SQLite，请自行配置主备数据库同步。
+2. 必须设置 `SQL_DSN`，使用 MySQL 数据库而非 SQLite，所有服务器连接同一个数据库。
 3. 所有从服务器必须设置 `SYNC_FREQUENCY`，以定期从数据库同步配置。
 4. 从服务器可以选择设置 `FRONTEND_BASE_URL`，以重定向页面请求到主服务器。
+5. 推荐每台服务器上都分别装好 Redis，设置好 `REDIS_CONN_STRING`，这样可以做到在缓存未过期的情况下数据库零访问，可以减少延迟。
 
 环境变量的具体使用方法详见[此处](#环境变量)。
 
@@ -170,7 +171,7 @@ sudo service nginx restart
 项目主页：https://github.com/Yidadaa/ChatGPT-Next-Web
 
 ```bash
-docker run --name chat-next-web -d -p 3001:3000 -e BASE_URL=https://openai.justsong.cn yidadaa/chatgpt-next-web
+docker run --name chat-next-web -d -p 3001:3000 yidadaa/chatgpt-next-web
 ```
 
 注意修改端口号和 `BASE_URL`。
@@ -267,7 +268,7 @@ https://openai.justsong.cn
 1. 额度是什么？怎么计算的？One API 的额度计算有问题？
    + 额度 = token * 倍率
    + 倍率包括分组的倍率，以及补全的倍率。
-   + 如果是非流模式，官方接口会返回消耗的总 token，但是你要注意提示和补全的消耗额度不一样。
+   + 如果是非流模式，官方接口会返回消耗的总 token，但是你要注意提示和补全的消耗倍率不一样。
 2. 账户额度足够为什么提示额度不足？
    + 请检查你的令牌额度是否足够，这个和账户额度是分开的。
    + 令牌额度仅供用户设置最大使用量，用户可自由设置。
@@ -277,6 +278,9 @@ https://openai.justsong.cn
 4. 渠道测试报错：`invalid character '<' looking for beginning of value`
    + 这是因为返回值不是合法的 JSON，而是一个 HTML 页面。
    + 大概率是你的部署站的 IP 或代理的节点被 CloudFlare 封禁了。
+5. ChatGPT Next Web 报错：`Failed to fetch`
+   + 部署的时候不要设置 `BASE_URL`。
+   + 检查你的接口地址和 API Key 有没有填对。
 
 ## 注意
 本项目为开源项目，请在遵循 OpenAI 的[使用条款](https://openai.com/policies/terms-of-use)以及**法律法规**的情况下使用，不得用于非法用途。
