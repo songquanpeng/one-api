@@ -16,7 +16,8 @@ const EditChannel = () => {
     base_url: '',
     other: '',
     models: [],
-    groups: ['default']
+    groups: ['default'],
+    used_quota: 0
   };
   const [batch, setBatch] = useState(false);
   const [inputs, setInputs] = useState(originInputs);
@@ -25,6 +26,9 @@ const EditChannel = () => {
   const [basicModels, setBasicModels] = useState([]);
   const [fullModels, setFullModels] = useState([]);
   const handleInputChange = (e, { name, value }) => {
+    if (name === "used_quota") {
+        value = parseInt(value)
+    }
     setInputs((inputs) => ({ ...inputs, [name]: value }));
   };
 
@@ -113,6 +117,11 @@ const EditChannel = () => {
         showSuccess('渠道创建成功！');
         setInputs(originInputs);
       }
+      if (isEdit) {
+        loadChannel().then();
+      }
+      fetchModels().then();
+      fetchGroups().then();
     } else {
       showError(message);
     }
@@ -199,6 +208,16 @@ const EditChannel = () => {
               onChange={handleInputChange}
               value={inputs.name}
               autoComplete='new-password'
+            />
+          </Form.Field>
+          <Form.Field>
+            <Form.Input
+                label='已使用额度'
+                name='used_quota'
+                placeholder={'请输入已使用额度'}
+                onChange={handleInputChange}
+                value={inputs.used_quota}
+                type='number'
             />
           </Form.Field>
           <Form.Field>
