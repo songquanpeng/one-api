@@ -21,7 +21,7 @@ func GetSubscription(c *gin.Context) {
 	}
 	amount := float64(quota)
 	if common.DisplayInCurrencyEnabled {
-		amount = amount / 1000 * common.QuotaPerUnit
+		amount /= common.QuotaPerUnit
 	}
 	subscription := OpenAISubscriptionResponse{
 		Object:             "billing_subscription",
@@ -49,7 +49,7 @@ func GetUsage(c *gin.Context) {
 	}
 	amount := float64(quota)
 	if common.DisplayInCurrencyEnabled {
-		amount = amount / 1000 * common.QuotaPerUnit
+		amount /= common.QuotaPerUnit
 	}
 	usage := OpenAIUsageResponse{
 		Object:     "list",

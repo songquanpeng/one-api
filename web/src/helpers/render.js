@@ -43,7 +43,7 @@ export function renderQuota(quota, digits = 2) {
   quotaPerUnit = parseFloat(quotaPerUnit);
   displayInCurrency = displayInCurrency === 'true';
   if (displayInCurrency) {
-    return '$' + (quota / 1000 * quotaPerUnit).toFixed(digits);
+    return '$' + (quota / quotaPerUnit).toFixed(digits);
   }
   return renderNumber(quota);
 }
