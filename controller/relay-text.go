@@ -16,6 +16,7 @@ import (
 func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 	channelType := c.GetInt("channel")
 	tokenId := c.GetInt("token_id")
+	userId := c.GetInt("id")
 	consumeQuota := c.GetBool("consume_quota")
 	group := c.GetString("group")
 	channelName := c.GetString("channel_name")
@@ -74,7 +75,16 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 	groupRatio := common.GetGroupRatio(group)
 	ratio := modelRatio * groupRatio
 	preConsumedQuota := int(float64(preConsumedTokens) * ratio)
-	if consumeQuota && strings.Contains(channelName, "反代") == false {
+	userQuota, err := model.CacheGetUserQuota(userId)
+	if err != nil {
+		return errorWrapper(err, "get_user_quota_failed", http.StatusOK)
+	}
+	if userQuota > 10*preConsumedQuota {
+		// in this case, we do not pre-consume quota
+		// because the user has enough quota
+		preConsumedQuota = 0
+	}
+	if consumeQuota && preConsumedQuota > 0 && strings.Contains(channelName, "反代") == false {
 		err := model.PreConsumeTokenQuota(tokenId, preConsumedQuota)
 		if err != nil {
 			return errorWrapper(err, "pre_consume_token_quota_failed", http.StatusOK)
@@ -136,15 +146,16 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 			if ratio != 0 && quota <= 0 {
 				quota = 1
 			}
-			quotaDelta := quota - preConsumedQuota
 			tokenName := c.GetString("token_name")
-			userId := c.GetInt("id")
 			model.RecordLog(userId, model.LogTypeConsume, fmt.Sprintf("通过渠道「%s」通过令牌「%s」使用模型 %s 消耗 %s（模型倍率 %.2f，分组倍率 %.2f）%d prompt + %d completion = %d tokens", channelName, tokenName, textRequest.Model, common.LogQuota(quota), modelRatio, groupRatio, prompt, completion, tokens))
 			if strings.Contains(channelName, "反代") == false {
+				quotaDelta := quota - preConsumedQuota
 				err := model.PostConsumeTokenQuota(tokenId, quotaDelta)
 				if err != nil {
 					common.SysError("Error consuming token remain quota: " + err.Error())
 				}
+				//tokenName := c.GetString("token_name")
+				//model.RecordLog(userId, model.LogTypeConsume, fmt.Sprintf("通过令牌「%s」使用模型 %s 消耗 %s（模型倍率 %.2f，分组倍率 %.2f）", tokenName, textRequest.Model, common.LogQuota(quota), modelRatio, groupRatio))
 				model.UpdateUserUsedQuotaAndRequestCount(userId, quota)
 				channelId := c.GetInt("channel_id")
 				model.UpdateChannelUsedQuota(channelId, quota)
