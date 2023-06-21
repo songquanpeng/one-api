@@ -17,9 +17,10 @@ func InitRedisClient() (err error) {
 		SysLog("REDIS_CONN_STRING not set, Redis is not enabled")
 		return nil
 	}
+	SysLog("Redis is enabled")
 	opt, err := redis.ParseURL(os.Getenv("REDIS_CONN_STRING"))
 	if err != nil {
-		panic(err)
+		FatalLog(err)
 	}
 	RDB = redis.NewClient(opt)
 

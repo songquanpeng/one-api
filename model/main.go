@@ -42,17 +42,19 @@ func InitDB() (err error) {
 	var db *gorm.DB
 	if os.Getenv("SQL_DSN") != "" {
 		// Use MySQL
+		common.SysLog("using MySQL as database")
 		db, err = gorm.Open(mysql.Open(os.Getenv("SQL_DSN")), &gorm.Config{
 			PrepareStmt: true, // precompile SQL
 		})
 	} else {
 		// Use SQLite
+		common.SysLog("SQL_DSN not set, using SQLite as database")
 		common.UsingSQLite = true
 		db, err = gorm.Open(sqlite.Open(common.SQLitePath), &gorm.Config{
 			PrepareStmt: true, // precompile SQL
 		})
-		common.SysLog("SQL_DSN not set, using SQLite as database")
 	}
+	common.SysLog("Database connected")
 	if err == nil {
 		DB = db
 		if !common.IsMasterNode {
@@ -86,6 +88,7 @@ func InitDB() (err error) {
 		if err != nil {
 			return err
 		}
+		common.SysLog("Database migrated")
 		err = createRootAccountIfNeed()
 		return err
 	} else {
