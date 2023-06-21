@@ -34,39 +34,39 @@ func SearchUserTokens(userId int, keyword string) (tokens []*Token, err error) {
 
 func ValidateUserToken(key string) (token *Token, err error) {
 	if key == "" {
-		return nil, errors.New("未提供 token")
+		return nil, errors.New("未提供令牌")
 	}
 	token, err = CacheGetTokenByKey(key)
 	if err == nil {
 		if token.Status != common.TokenStatusEnabled {
-			return nil, errors.New("该 token 状态不可用")
+			return nil, errors.New("该令牌状态不可用")
 		}
 		if token.ExpiredTime != -1 && token.ExpiredTime < common.GetTimestamp() {
 			token.Status = common.TokenStatusExpired
 			err := token.SelectUpdate()
 			if err != nil {
-				common.SysError("更新 token 状态失败：" + err.Error())
+				common.SysError("更新令牌状态失败：" + err.Error())
 			}
-			return nil, errors.New("该 token 已过期")
+			return nil, errors.New("该令牌已过期")
 		}
 		if !token.UnlimitedQuota && token.RemainQuota <= 0 {
 			token.Status = common.TokenStatusExhausted
 			err := token.SelectUpdate()
 			if err != nil {
-				common.SysError("更新 token 状态失败：" + err.Error())
+				common.SysError("更新令牌状态失败：" + err.Error())
 			}
-			return nil, errors.New("该 token 额度已用尽")
+			return nil, errors.New("该令牌额度已用尽")
 		}
 		go func() {
 			token.AccessedTime = common.GetTimestamp()
 			err := token.SelectUpdate()
 			if err != nil {
-				common.SysError("更新 token 失败：" + err.Error())
+				common.SysError("更新令牌失败：" + err.Error())
 			}
 		}()
 		return token, nil
 	}
-	return nil, errors.New("无效的 token")
+	return nil, errors.New("无效的令牌")
 }
 
 func GetTokenByIds(id int, userId int) (*Token, error) {

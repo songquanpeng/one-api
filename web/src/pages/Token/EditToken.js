@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Button, Form, Header, Message, Segment } from 'semantic-ui-react';
 import { useParams } from 'react-router-dom';
 import { API, showError, showSuccess, timestamp2string } from '../../helpers';
-import { renderQuota } from '../../helpers/render';
+import { renderQuota, renderQuotaWithPrompt } from '../../helpers/render';
 
 const EditToken = () => {
   const params = useParams();
@@ -138,7 +138,7 @@ const EditToken = () => {
           <Message>注意，令牌的额度仅用于限制令牌本身的最大额度使用量，实际的使用受到账户的剩余额度限制。</Message>
           <Form.Field>
             <Form.Input
-              label={`额度（等价金额 ${renderQuota(remain_quota)}）`}
+              label={`额度${renderQuotaWithPrompt(remain_quota)}`}
               name='remain_quota'
               placeholder={'请输入额度'}
               onChange={handleInputChange}
