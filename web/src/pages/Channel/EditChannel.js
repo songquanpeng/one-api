@@ -32,15 +32,15 @@ const EditChannel = () => {
     let res = await API.get(`/api/channel/${channelId}`);
     const { success, message, data } = res.data;
     if (success) {
-      if (data.models === "") {
-        data.models = []
+      if (data.models === '') {
+        data.models = [];
       } else {
-        data.models = data.models.split(",")
+        data.models = data.models.split(',');
       }
-      if (data.group === "") {
-        data.groups = []
+      if (data.group === '') {
+        data.groups = [];
       } else {
-        data.groups = data.group.split(",")
+        data.groups = data.group.split(',');
       }
       setInputs(data);
     } else {
@@ -55,10 +55,10 @@ const EditChannel = () => {
       setModelOptions(res.data.data.map((model) => ({
         key: model.id,
         text: model.id,
-        value: model.id,
+        value: model.id
       })));
       setFullModels(res.data.data.map((model) => model.id));
-      setBasicModels(res.data.data.filter((model) => !model.id.startsWith("gpt-4")).map((model) => model.id));
+      setBasicModels(res.data.data.filter((model) => !model.id.startsWith('gpt-4')).map((model) => model.id));
     } catch (error) {
       showError(error.message);
     }
@@ -70,7 +70,7 @@ const EditChannel = () => {
       setGroupOptions(res.data.data.map((group) => ({
         key: group,
         text: group,
-        value: group,
+        value: group
       })));
     } catch (error) {
       showError(error.message);
@@ -90,6 +90,10 @@ const EditChannel = () => {
       showInfo('请填写渠道名称和渠道密钥！');
       return;
     }
+    if (inputs.models.length === 0) {
+      showInfo('请至少选择一个模型！');
+      return;
+    }
     let localInputs = inputs;
     if (localInputs.base_url.endsWith('/')) {
       localInputs.base_url = localInputs.base_url.slice(0, localInputs.base_url.length - 1);
@@ -98,8 +102,8 @@ const EditChannel = () => {
       localInputs.other = '2023-03-15-preview';
     }
     let res;
-    localInputs.models = localInputs.models.join(",")
-    localInputs.group = localInputs.groups.join(",")
+    localInputs.models = localInputs.models.join(',');
+    localInputs.group = localInputs.groups.join(',');
     if (isEdit) {
       res = await API.put(`/api/channel/`, { ...localInputs, id: parseInt(channelId) });
     } else {
@@ -231,13 +235,16 @@ const EditChannel = () => {
               options={modelOptions}
             />
           </Form.Field>
-          <div style={{ lineHeight: '40px', marginBottom: '12px'}}>
+          <div style={{ lineHeight: '40px', marginBottom: '12px' }}>
             <Button type={'button'} onClick={() => {
               handleInputChange(null, { name: 'models', value: basicModels });
             }}>填入基础模型</Button>
             <Button type={'button'} onClick={() => {
               handleInputChange(null, { name: 'models', value: fullModels });
             }}>填入所有模型</Button>
+            <Button type={'button'} onClick={() => {
+              handleInputChange(null, { name: 'models', value: [] });
+            }}>清除所有模型</Button>
           </div>
           {
             batch ? <Form.Field>
