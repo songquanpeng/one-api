@@ -181,9 +181,9 @@ const EditChannel = () => {
             inputs.type !== 3 && inputs.type !== 8 && (
               <Form.Field>
                 <Form.Input
-                  label='Base URL'
+                  label='镜像'
                   name='base_url'
-                  placeholder={'请输入自定义 Base URL，格式为：https://domain.com，可不填，不填使用渠道默认值'}
+                  placeholder={'请输入镜像站地址，格式为：https://domain.com，可不填，不填则使用渠道默认值'}
                   onChange={handleInputChange}
                   value={inputs.base_url}
                   autoComplete='new-password'
@@ -239,20 +239,6 @@ const EditChannel = () => {
               handleInputChange(null, { name: 'models', value: fullModels });
             }}>填入所有模型</Button>
           </div>
-          {
-            inputs.type === 1 && (
-              <Form.Field>
-                <Form.Input
-                  label='代理'
-                  name='base_url'
-                  placeholder={'请输入 OpenAI API 代理地址，如果不需要请留空，格式为：https://api.openai.com'}
-                  onChange={handleInputChange}
-                  value={inputs.base_url}
-                  autoComplete='new-password'
-                />
-              </Form.Field>
-            )
-          }
           {
             batch ? <Form.Field>
               <Form.TextArea
