@@ -68,7 +68,7 @@ var PreConsumedQuota = 500
 
 var RootUserEmail = ""
 
-var IsMasterNode = os.Getenv("SYNC_FREQUENCY") == ""
+var IsMasterNode = os.Getenv("NODE_TYPE") != "slave"
 
 const (
 	RoleGuestUser  = 0

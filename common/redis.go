@@ -17,9 +17,9 @@ func InitRedisClient() (err error) {
 		SysLog("REDIS_CONN_STRING not set, Redis is not enabled")
 		return nil
 	}
-	if IsMasterNode {
-		SysLog("Redis is disabled on master node")
+	if os.Getenv("SYNC_FREQUENCY") == "" {
 		RedisEnabled = false
+		SysLog("SYNC_FREQUENCY not set, Redis is disabled")
 		return nil
 	}
 	SysLog("Redis is enabled")
