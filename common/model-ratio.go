@@ -40,7 +40,7 @@ var ModelRatio = map[string]float64{
 func ModelRatio2JSONString() string {
 	jsonBytes, err := json.Marshal(ModelRatio)
 	if err != nil {
-		SysError("Error marshalling model ratio: " + err.Error())
+		SysError("error marshalling model ratio: " + err.Error())
 	}
 	return string(jsonBytes)
 }
@@ -53,7 +53,7 @@ func UpdateModelRatioByJSONString(jsonStr string) error {
 func GetModelRatio(name string) float64 {
 	ratio, ok := ModelRatio[name]
 	if !ok {
-		SysError("Model ratio not found: " + name)
+		SysError("model ratio not found: " + name)
 		return 30
 	}
 	return ratio

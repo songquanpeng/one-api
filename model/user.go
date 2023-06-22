@@ -220,7 +220,7 @@ func IsAdmin(userId int) bool {
 	var user User
 	err := DB.Where("id = ?", userId).Select("role").Find(&user).Error
 	if err != nil {
-		common.SysError("No such user " + err.Error())
+		common.SysError("no such user " + err.Error())
 		return false
 	}
 	return user.Role >= common.RoleAdminUser
@@ -233,7 +233,7 @@ func IsUserEnabled(userId int) bool {
 	var user User
 	err := DB.Where("id = ?", userId).Select("status").Find(&user).Error
 	if err != nil {
-		common.SysError("No such user " + err.Error())
+		common.SysError("no such user " + err.Error())
 		return false
 	}
 	return user.Status == common.UserStatusEnabled
@@ -300,6 +300,6 @@ func UpdateUserUsedQuotaAndRequestCount(id int, quota int) {
 		},
 	).Error
 	if err != nil {
-		common.SysError("Failed to update user used quota and request count: " + err.Error())
+		common.SysError("failed to update user used quota and request count: " + err.Error())
 	}
 }

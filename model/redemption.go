@@ -64,7 +64,7 @@ func Redeem(key string, userId int) (quota int, err error) {
 		redemption.Status = common.RedemptionCodeStatusUsed
 		err := redemption.SelectUpdate()
 		if err != nil {
-			common.SysError("更新兑换码状态失败：" + err.Error())
+			common.SysError("failed to update redemption status: " + err.Error())
 		}
 		RecordLog(userId, LogTypeTopup, fmt.Sprintf("通过兑换码充值 %s", common.LogQuota(redemption.Quota)))
 	}()

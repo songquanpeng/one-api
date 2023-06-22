@@ -75,7 +75,7 @@ func loadOptionsFromDatabase() {
 	for _, option := range options {
 		err := updateOptionMap(option.Key, option.Value)
 		if err != nil {
-			common.SysError("Failed to update option map: " + err.Error())
+			common.SysError("failed to update option map: " + err.Error())
 		}
 	}
 }
@@ -83,7 +83,7 @@ func loadOptionsFromDatabase() {
 func SyncOptions(frequency int) {
 	for {
 		time.Sleep(time.Duration(frequency) * time.Second)
-		common.SysLog("Syncing options from database")
+		common.SysLog("syncing options from database")
 		loadOptionsFromDatabase()
 	}
 }

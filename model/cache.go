@@ -137,13 +137,13 @@ func InitChannelCache() {
 	channelSyncLock.Lock()
 	group2model2channels = newGroup2model2channels
 	channelSyncLock.Unlock()
-	common.SysLog("Channels synced from database")
+	common.SysLog("channels synced from database")
 }
 
 func SyncChannelCache(frequency int) {
 	for {
 		time.Sleep(time.Duration(frequency) * time.Second)
-		common.SysLog("Syncing channels from database")
+		common.SysLog("syncing channels from database")
 		InitChannelCache()
 	}
 }

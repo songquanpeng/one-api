@@ -54,7 +54,7 @@ func InitDB() (err error) {
 			PrepareStmt: true, // precompile SQL
 		})
 	}
-	common.SysLog("Database connected")
+	common.SysLog("database connected")
 	if err == nil {
 		DB = db
 		if !common.IsMasterNode {
@@ -88,7 +88,7 @@ func InitDB() (err error) {
 		if err != nil {
 			return err
 		}
-		common.SysLog("Database migrated")
+		common.SysLog("database migrated")
 		err = createRootAccountIfNeed()
 		return err
 	} else {
