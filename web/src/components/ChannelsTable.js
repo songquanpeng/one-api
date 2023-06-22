@@ -263,7 +263,7 @@ const ChannelsTable = () => {
           icon='search'
           fluid
           iconPosition='left'
-          placeholder='搜索渠道的 ID 和名称 ...'
+          placeholder='搜索渠道的 ID，名称和密钥 ...'
           value={searchKeyword}
           loading={searching}
           onChange={handleKeywordChange}
