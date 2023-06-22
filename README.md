@@ -152,12 +152,11 @@ sudo service nginx restart
 ### 多机部署
 1. 所有服务器 `SESSION_SECRET` 设置一样的值。
 2. 必须设置 `SQL_DSN`，使用 MySQL 数据库而非 SQLite，所有服务器连接同一个数据库。
-3. 所有从服务器必须设置 `SYNC_FREQUENCY`，以定期从数据库同步配置。
-4. 从服务器可以选择设置 `FRONTEND_BASE_URL`，以重定向页面请求到主服务器。
-5. 从服务器上**分别**装好 Redis，设置好 `REDIS_CONN_STRING`，这样可以做到在缓存未过期的情况下数据库零访问，可以减少延迟。
-6. 如果主服务器访问数据库延迟也比较高，则也需要启用 Redis，并设置 `SYNC_FREQUENCY`，以定期从数据库同步配置。
-
-注意，设置 `SYNC_FREQUENCY` 后会导致从服务器的状态不会实时更新，而是定期同步。
+3. 所有从服务器必须设置 `NODE_TYPE` 为 `slave`。
+4. 设置 `SYNC_FREQUENCY` 后服务器将定期从数据库同步配置。
+5. 从服务器可以选择设置 `FRONTEND_BASE_URL`，以重定向页面请求到主服务器。
+6. 从服务器上**分别**装好 Redis，设置好 `REDIS_CONN_STRING`，这样可以做到在缓存未过期的情况下数据库零访问，可以减少延迟。
+7. 如果主服务器访问数据库延迟也比较高，则也需要启用 Redis，并设置 `SYNC_FREQUENCY`，以定期从数据库同步配置。
 
 环境变量的具体使用方法详见[此处](#环境变量)。
 
@@ -249,6 +248,8 @@ graph LR
    + 例子：`FRONTEND_BASE_URL=https://openai.justsong.cn`
 5. `SYNC_FREQUENCY`：设置之后将定期与数据库同步配置，单位为秒，未设置则不进行同步。
    + 例子：`SYNC_FREQUENCY=60`
+6. `NODE_TYPE`：设置之后将指定节点类型，可选值为 `master` 和 `slave`，未设置则默认为 `master`。
+   + 例子：`NODE_TYPE=slave`
 
 ### 命令行参数
 1. `--port <port_number>`: 指定服务器监听的端口号，默认为 `3000`。
