@@ -86,7 +86,7 @@ _✨ All in one 的 OpenAI 接口，整合各种 API 访问方式，开箱即用
 
 ## 部署
 ### 基于 Docker 进行部署
-部署命令：`docker run --name one-api -d --restart always -p 3000:3000 -v /home/ubuntu/data/one-api:/data justsong/one-api`
+部署命令：`docker run --name one-api -d --restart always -p 3000:3000 -e TZ=Asia/Shanghai -v /home/ubuntu/data/one-api:/data justsong/one-api`
 
 更新命令：`docker run --rm -v /var/run/docker.sock:/var/run/docker.sock containrrr/watchtower -cR`
 
