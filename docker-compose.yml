@@ -13,11 +13,13 @@ services:
       - ./logs:/app/logs
     environment:
       - SQL_DSN=root:123456@tcp(host.docker.internal:3306)/one-api  # 修改此行，或注释掉以使用 SQLite 作为数据库
-      - REDIS_CONN_STRING=redis://redis:6379
+      - REDIS_CONN_STRING=redis://redis
       - SESSION_SECRET=random_string  # 修改为随机字符串
       - TZ=Asia/Shanghai
 #      - SYNC_FREQUENCY=60  # 多机部署时从节点取消注释该行
 #      - FRONTEND_BASE_URL=https://openai.justsong.cn  # 多机部署时从节点取消注释该行
+    depends_on:
+      - redis
     healthcheck:
       test: [ "CMD-SHELL", "curl -s http://localhost:3000/api/status | grep -o '\"success\":\\s*true' | awk '{print $2}' | grep 'true'" ]
       interval: 30s
@@ -28,5 +30,3 @@ services:
     image: redis:latest
     container_name: redis
     restart: always
-    ports:
-      - "6379:6379"
