@@ -7,6 +7,7 @@ import (
 	"github.com/gin-contrib/sessions/redis"
 	"github.com/gin-gonic/gin"
 	"one-api/common"
+	"one-api/controller"
 	"one-api/middleware"
 	"one-api/model"
 	"one-api/router"
@@ -58,6 +59,20 @@ func main() {
 		if common.RedisEnabled {
 			go model.SyncChannelCache(frequency)
 		}
+	}
+	if os.Getenv("CHANNEL_UPDATE_FREQUENCY") != "" {
+		frequency, err := strconv.Atoi(os.Getenv("CHANNEL_UPDATE_FREQUENCY"))
+		if err != nil {
+			common.FatalLog("failed to parse CHANNEL_UPDATE_FREQUENCY: " + err.Error())
+		}
+		go controller.AutomaticallyUpdateChannels(frequency)
+	}
+	if os.Getenv("CHANNEL_TEST_FREQUENCY") != "" {
+		frequency, err := strconv.Atoi(os.Getenv("CHANNEL_TEST_FREQUENCY"))
+		if err != nil {
+			common.FatalLog("failed to parse CHANNEL_TEST_FREQUENCY: " + err.Error())
+		}
+		go controller.AutomaticallyTestChannels(frequency)
 	}
 
 	// Initialize HTTP server

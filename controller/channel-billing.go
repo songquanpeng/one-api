@@ -257,6 +257,7 @@ func updateAllChannelsBalance() error {
 				disableChannel(channel.Id, channel.Name, "余额不足")
 			}
 		}
+		time.Sleep(common.RequestInterval)
 	}
 	return nil
 }
@@ -276,4 +277,13 @@ func UpdateAllChannelsBalance(c *gin.Context) {
 		"message": "",
 	})
 	return
+}
+
+func AutomaticallyUpdateChannels(frequency int) {
+	for {
+		time.Sleep(time.Duration(frequency) * time.Minute)
+		common.SysLog("updating all channels")
+		_ = updateAllChannelsBalance()
+		common.SysLog("channels update done")
+	}
 }

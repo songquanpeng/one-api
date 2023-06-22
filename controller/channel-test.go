@@ -62,10 +62,9 @@ func testChannel(channel *model.Channel, request ChatRequest) error {
 	return nil
 }
 
-func buildTestRequest(c *gin.Context) *ChatRequest {
-	model_ := c.Query("model")
+func buildTestRequest() *ChatRequest {
 	testRequest := &ChatRequest{
-		Model:     model_,
+		Model:     "", // this will be set later
 		MaxTokens: 1,
 	}
 	testMessage := Message{
@@ -93,7 +92,7 @@ func TestChannel(c *gin.Context) {
 		})
 		return
 	}
-	testRequest := buildTestRequest(c)
+	testRequest := buildTestRequest()
 	tik := time.Now()
 	err = testChannel(channel, *testRequest)
 	tok := time.Now()
@@ -133,7 +132,7 @@ func disableChannel(channelId int, channelName string, reason string) {
 	}
 }
 
-func testAllChannels(c *gin.Context) error {
+func testAllChannels(notify bool) error {
 	if common.RootUserEmail == "" {
 		common.RootUserEmail = model.GetRootUserEmail()
 	}
@@ -146,13 +145,9 @@ func testAllChannels(c *gin.Context) error {
 	testAllChannelsLock.Unlock()
 	channels, err := model.GetAllChannels(0, 0, true)
 	if err != nil {
-		c.JSON(http.StatusOK, gin.H{
-			"success": false,
-			"message": err.Error(),
-		})
 		return err
 	}
-	testRequest := buildTestRequest(c)
+	testRequest := buildTestRequest()
 	var disableThreshold = int64(common.ChannelDisableThreshold * 1000)
 	if disableThreshold == 0 {
 		disableThreshold = 10000000 // a impossible value
@@ -173,20 +168,23 @@ func testAllChannels(c *gin.Context) error {
 				disableChannel(channel.Id, channel.Name, err.Error())
 			}
 			channel.UpdateResponseTime(milliseconds)
-		}
-		err := common.SendEmail("通道测试完成", common.RootUserEmail, "通道测试完成，如果没有收到禁用通知，说明所有通道都正常")
-		if err != nil {
-			common.SysError(fmt.Sprintf("failed to send email: %s", err.Error()))
+			time.Sleep(common.RequestInterval)
 		}
 		testAllChannelsLock.Lock()
 		testAllChannelsRunning = false
 		testAllChannelsLock.Unlock()
+		if notify {
+			err := common.SendEmail("通道测试完成", common.RootUserEmail, "通道测试完成，如果没有收到禁用通知，说明所有通道都正常")
+			if err != nil {
+				common.SysError(fmt.Sprintf("failed to send email: %s", err.Error()))
+			}
+		}
 	}()
 	return nil
 }
 
 func TestAllChannels(c *gin.Context) {
-	err := testAllChannels(c)
+	err := testAllChannels(true)
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
@@ -199,4 +197,13 @@ func TestAllChannels(c *gin.Context) {
 		"message": "",
 	})
 	return
+}
+
+func AutomaticallyTestChannels(frequency int) {
+	for {
+		time.Sleep(time.Duration(frequency) * time.Minute)
+		common.SysLog("testing all channels")
+		_ = testAllChannels(false)
+		common.SysLog("channel test finished")
+	}
 }
