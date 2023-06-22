@@ -16,7 +16,7 @@ for ((i=1; i<=count; i++)); do
            https://"$domain"/v1/chat/completions \
            -H "Content-Type: application/json" \
            -H "Authorization: Bearer $key" \
-           -d '{"prompt": "hi!", "max_tokens": 1}')
+           -d '{"prompt": "hi!", "max_tokens": 1, "model": "gpt-3.5-turbo"}')
   echo "$result"
   total_time=$(bc <<< "$total_time + $result")
   times+=("$result")
