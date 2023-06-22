@@ -152,7 +152,7 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 				quotaDelta := quota - preConsumedQuota
 				err := model.PostConsumeTokenQuota(tokenId, quotaDelta)
 				if err != nil {
-					common.SysError("Error consuming token remain quota: " + err.Error())
+					common.SysError("error consuming token remain quota: " + err.Error())
 				}
 				//tokenName := c.GetString("token_name")
 				//model.RecordLog(userId, model.LogTypeConsume, fmt.Sprintf("通过令牌「%s」使用模型 %s 消耗 %s（模型倍率 %.2f，分组倍率 %.2f）", tokenName, textRequest.Model, common.LogQuota(quota), modelRatio, groupRatio))
@@ -186,7 +186,7 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 			for scanner.Scan() {
 				data := scanner.Text()
 				if len(data) < 6 { // must be something wrong!
-					common.SysError("Invalid stream response: " + data)
+					common.SysError("invalid stream response: " + data)
 					continue
 				}
 				dataChan <- data
@@ -197,7 +197,7 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 						var streamResponse ChatCompletionsStreamResponse
 						err = json.Unmarshal([]byte(data), &streamResponse)
 						if err != nil {
-							common.SysError("Error unmarshalling stream response: " + err.Error())
+							common.SysError("error unmarshalling stream response: " + err.Error())
 							return
 						}
 						for _, choice := range streamResponse.Choices {
@@ -207,7 +207,7 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 						var streamResponse CompletionsStreamResponse
 						err = json.Unmarshal([]byte(data), &streamResponse)
 						if err != nil {
-							common.SysError("Error unmarshalling stream response: " + err.Error())
+							common.SysError("error unmarshalling stream response: " + err.Error())
 							return
 						}
 						for _, choice := range streamResponse.Choices {
