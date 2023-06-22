@@ -2,6 +2,7 @@ package common
 
 import (
 	"os"
+	"strconv"
 	"sync"
 	"time"
 
@@ -69,6 +70,9 @@ var PreConsumedQuota = 500
 var RootUserEmail = ""
 
 var IsMasterNode = os.Getenv("NODE_TYPE") != "slave"
+
+var requestInterval, _ = strconv.Atoi(os.Getenv("REQUEST_INTERVAL"))
+var RequestInterval = time.Duration(requestInterval) * time.Second
 
 const (
 	RoleGuestUser  = 0
