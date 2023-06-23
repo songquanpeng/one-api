@@ -135,7 +135,7 @@ func RelayNotImplemented(c *gin.Context) {
 		Param:   "",
 		Code:    "api_not_implemented",
 	}
-	c.JSON(http.StatusOK, gin.H{
+	c.JSON(http.StatusNotImplemented, gin.H{
 		"error": err,
 	})
 }
@@ -147,7 +147,7 @@ func RelayNotFound(c *gin.Context) {
 		Param:   "",
 		Code:    "api_not_found",
 	}
-	c.JSON(http.StatusOK, gin.H{
+	c.JSON(http.StatusNotFound, gin.H{
 		"error": err,
 	})
 }
