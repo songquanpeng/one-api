@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Form, Grid, Header, Image, Segment } from 'semantic-ui-react';
-import { API, copy, showError, showSuccess } from '../helpers';
+import { API, copy, showError, showInfo, showNotice, showSuccess } from '../helpers';
 import { useSearchParams } from 'react-router-dom';
 
 const PasswordResetConfirm = () => {
@@ -33,7 +33,7 @@ const PasswordResetConfirm = () => {
     if (success) {
       let password = res.data.data;
       await copy(password);
-      showSuccess(`密码已重置并已复制到剪贴板：${password}`);
+      showNotice(`密码已重置并已复制到剪贴板：${password}`);
     } else {
       showError(message);
     }
