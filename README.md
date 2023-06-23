@@ -41,6 +41,8 @@ _✨ All in one 的 OpenAI 接口，整合各种 API 访问方式，开箱即用
   ·
   <a href="https://github.com/songquanpeng/one-api#常见问题">常见问题</a>
   ·
+  <a href="https://github.com/songquanpeng/one-api#相关项目">相关项目</a>
+  ·
   <a href="https://iamazing.cn/page/reward">赞赏支持</a>
 </p>
 
@@ -291,6 +293,9 @@ https://openai.justsong.cn
 5. ChatGPT Next Web 报错：`Failed to fetch`
    + 部署的时候不要设置 `BASE_URL`。
    + 检查你的接口地址和 API Key 有没有填对。
+
+## 相关项目
+[FastGPT](https://github.com/c121914yu/FastGPT): 三分钟搭建 AI 知识库
 
 ## 注意
 本项目为开源项目，请在遵循 OpenAI 的[使用条款](https://openai.com/policies/terms-of-use)以及**法律法规**的情况下使用，不得用于非法用途。
