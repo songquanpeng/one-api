@@ -91,7 +91,7 @@ func TokenAuth() func(c *gin.Context) {
 		key = parts[0]
 		token, err := model.ValidateUserToken(key)
 		if err != nil {
-			c.JSON(http.StatusOK, gin.H{
+			c.JSON(http.StatusUnauthorized, gin.H{
 				"error": gin.H{
 					"message": err.Error(),
 					"type":    "one_api_error",
@@ -101,7 +101,7 @@ func TokenAuth() func(c *gin.Context) {
 			return
 		}
 		if !model.CacheIsUserEnabled(token.UserId) {
-			c.JSON(http.StatusOK, gin.H{
+			c.JSON(http.StatusForbidden, gin.H{
 				"error": gin.H{
 					"message": "用户已被封禁",
 					"type":    "one_api_error",
@@ -123,7 +123,7 @@ func TokenAuth() func(c *gin.Context) {
 			if model.IsAdmin(token.UserId) {
 				c.Set("channelId", parts[1])
 			} else {
-				c.JSON(http.StatusOK, gin.H{
+				c.JSON(http.StatusForbidden, gin.H{
 					"error": gin.H{
 						"message": "普通用户不支持指定渠道",
 						"type":    "one_api_error",
