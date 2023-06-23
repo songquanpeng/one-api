@@ -84,7 +84,7 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 		// because the user has enough quota
 		preConsumedQuota = 0
 	}
-	if consumeQuota && preConsumedQuota > 0 && strings.Contains(channelName, "反代") == false {
+	if consumeQuota && preConsumedQuota > 0 && strings.Contains(channelName, "免费") == false {
 		err := model.PreConsumeTokenQuota(tokenId, preConsumedQuota)
 		if err != nil {
 			return errorWrapper(err, "pre_consume_token_quota_failed", http.StatusOK)
@@ -148,7 +148,7 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 			}
 			tokenName := c.GetString("token_name")
 			model.RecordLog(userId, model.LogTypeConsume, fmt.Sprintf("通过渠道「%s」通过令牌「%s」使用模型 %s 消耗 %s（模型倍率 %.2f，分组倍率 %.2f）%d prompt + %d completion = %d tokens", channelName, tokenName, textRequest.Model, common.LogQuota(quota), modelRatio, groupRatio, prompt, completion, tokens))
-			if strings.Contains(channelName, "反代") == false {
+			if strings.Contains(channelName, "免费") == false {
 				quotaDelta := quota - preConsumedQuota
 				err := model.PostConsumeTokenQuota(tokenId, quotaDelta)
 				if err != nil {
