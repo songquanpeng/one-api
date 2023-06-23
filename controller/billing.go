@@ -7,8 +7,17 @@ import (
 )
 
 func GetSubscription(c *gin.Context) {
-	userId := c.GetInt("id")
-	quota, err := model.GetUserQuota(userId)
+	var quota int
+	var err error
+	var token *model.Token
+	if common.DisplayTokenStatEnabled {
+		tokenId := c.GetInt("token_id")
+		token, err = model.GetTokenById(tokenId)
+		quota = token.RemainQuota
+	} else {
+		userId := c.GetInt("id")
+		quota, err = model.GetUserQuota(userId)
+	}
 	if err != nil {
 		openAIError := OpenAIError{
 			Message: err.Error(),
@@ -35,8 +44,17 @@ func GetSubscription(c *gin.Context) {
 }
 
 func GetUsage(c *gin.Context) {
-	userId := c.GetInt("id")
-	quota, err := model.GetUserUsedQuota(userId)
+	var quota int
+	var err error
+	var token *model.Token
+	if common.DisplayTokenStatEnabled {
+		tokenId := c.GetInt("token_id")
+		token, err = model.GetTokenById(tokenId)
+		quota = token.UsedQuota
+	} else {
+		userId := c.GetInt("id")
+		quota, err = model.GetUserUsedQuota(userId)
+	}
 	if err != nil {
 		openAIError := OpenAIError{
 			Message: err.Error(),

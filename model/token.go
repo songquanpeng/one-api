@@ -18,6 +18,7 @@ type Token struct {
 	ExpiredTime    int64  `json:"expired_time" gorm:"bigint;default:-1"` // -1 means never expired
 	RemainQuota    int    `json:"remain_quota" gorm:"default:0"`
 	UnlimitedQuota bool   `json:"unlimited_quota" gorm:"default:false"`
+	UsedQuota      int    `json:"used_quota" gorm:"default:0"` // used quota
 }
 
 func GetAllUserTokens(userId int, startIdx int, num int) ([]*Token, error) {
@@ -130,7 +131,12 @@ func IncreaseTokenQuota(id int, quota int) (err error) {
 	if quota < 0 {
 		return errors.New("quota 不能为负数！")
 	}
-	err = DB.Model(&Token{}).Where("id = ?", id).Update("remain_quota", gorm.Expr("remain_quota + ?", quota)).Error
+	err = DB.Model(&Token{}).Where("id = ?", id).Updates(
+		map[string]interface{}{
+			"remain_quota": gorm.Expr("remain_quota + ?", quota),
+			"used_quota":   gorm.Expr("used_quota - ?", quota),
+		},
+	).Error
 	return err
 }
 
@@ -138,7 +144,12 @@ func DecreaseTokenQuota(id int, quota int) (err error) {
 	if quota < 0 {
 		return errors.New("quota 不能为负数！")
 	}
-	err = DB.Model(&Token{}).Where("id = ?", id).Update("remain_quota", gorm.Expr("remain_quota - ?", quota)).Error
+	err = DB.Model(&Token{}).Where("id = ?", id).Updates(
+		map[string]interface{}{
+			"remain_quota": gorm.Expr("remain_quota - ?", quota),
+			"used_quota":   gorm.Expr("used_quota + ?", quota),
+		},
+	).Error
 	return err
 }
 

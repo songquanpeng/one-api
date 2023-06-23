@@ -17,7 +17,8 @@ const OperationSetting = () => {
     AutomaticDisableChannelEnabled: '',
     ChannelDisableThreshold: 0,
     LogConsumeEnabled: '',
-    DisplayInCurrencyEnabled: ''
+    DisplayInCurrencyEnabled: '',
+    DisplayTokenStatEnabled: ''
   });
   const [originInputs, setOriginInputs] = useState({});
   let [loading, setLoading] = useState(false);
@@ -175,6 +176,12 @@ const OperationSetting = () => {
               checked={inputs.DisplayInCurrencyEnabled === 'true'}
               label='以货币形式显示额度'
               name='DisplayInCurrencyEnabled'
+              onChange={handleInputChange}
+            />
+            <Form.Checkbox
+              checked={inputs.DisplayTokenStatEnabled === 'true'}
+              label='Billing 相关 API 显示令牌额度而非用户额度'
+              name='DisplayTokenStatEnabled'
               onChange={handleInputChange}
             />
           </Form.Group>
