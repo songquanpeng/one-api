@@ -169,9 +169,17 @@ const LogsTable = () => {
     if (logs.length === 0) return;
     setLoading(true);
     let sortedLogs = [...logs];
-    sortedLogs.sort((a, b) => {
-      return ('' + a[key]).localeCompare(b[key]);
-    });
+    if (typeof sortedLogs[0][key] === 'string'){
+      sortedLogs.sort((a, b) => {
+        return ('' + a[key]).localeCompare(b[key]);
+      });
+    } else {
+      sortedLogs.sort((a, b) => {
+        if (a[key] === b[key]) return 0;
+        if (a[key] > b[key]) return -1;
+        if (a[key] < b[key]) return 1;
+      });
+    }
     if (sortedLogs[0].id === logs[0].id) {
       sortedLogs.reverse();
     }
