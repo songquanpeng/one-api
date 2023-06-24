@@ -220,7 +220,7 @@ const LogsTable = () => {
                 onClick={() => {
                   sortLog('type');
                 }}
-                width={2}
+                width={1}
               >
                 类型
               </Table.HeaderCell>
@@ -265,7 +265,7 @@ const LogsTable = () => {
                 onClick={() => {
                   sortLog('content');
                 }}
-                width={4}
+                width={5}
               >
                 详情
               </Table.HeaderCell>
