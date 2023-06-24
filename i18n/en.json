@@ -454,7 +454,8 @@
   "起始时间": "Start Time",
   "结束时间": "End Time",
   "查询": "Query",
-  "提示令牌": "Prompt Token",
-  "补全令牌": "Completion Token",
-  "消耗额度": "Used Quota"
+  "提示": "Prompt",
+  "补全": "Completion",
+  "消耗额度": "Used Quota",
+  "可选值": "Optional Values"
 }

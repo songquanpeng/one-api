@@ -16,9 +16,10 @@ func GetAllLogs(c *gin.Context) {
 	startTimestamp, _ := strconv.ParseInt(c.Query("start_timestamp"), 10, 64)
 	endTimestamp, _ := strconv.ParseInt(c.Query("end_timestamp"), 10, 64)
 	username := c.Query("username")
+	tokenName := c.Query("token_name")
 	modelName := c.Query("model_name")
 	channelName := c.Query("channel_name")
-	logs, err := model.GetAllLogs(logType, startTimestamp, endTimestamp, modelName, username, p*common.ItemsPerPage, common.ItemsPerPage, channelName)
+	logs, err := model.GetAllLogs(logType, startTimestamp, endTimestamp, modelName, username, tokenName, p*common.ItemsPerPage, common.ItemsPerPage, channelName)
 	if err != nil {
 		c.JSON(200, gin.H{
 			"success": false,
@@ -99,10 +100,11 @@ func GetLogsStat(c *gin.Context) {
 	logType, _ := strconv.Atoi(c.Query("type"))
 	startTimestamp, _ := strconv.ParseInt(c.Query("start_timestamp"), 10, 64)
 	endTimestamp, _ := strconv.ParseInt(c.Query("end_timestamp"), 10, 64)
+	tokenName := c.Query("token_name")
 	username := c.Query("username")
 	modelName := c.Query("model_name")
 	channelName := c.Query("channel_name")
-	quotaNum := model.SumUsedQuota(logType, startTimestamp, endTimestamp, modelName, username, "", channelName)
+	quotaNum := model.SumUsedQuota(logType, startTimestamp, endTimestamp, modelName, username, tokenName, channelName)
 	//tokenNum := model.SumUsedToken(logType, startTimestamp, endTimestamp, modelName, username, "")
 	c.JSON(200, gin.H{
 		"success": true,
