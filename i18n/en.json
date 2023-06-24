@@ -415,5 +415,14 @@
   "构建，源代码遵循{' '}": ", the source code licensed under{' '}",
   "MIT 协议": "MIT License",
   "充值额度": "Recharge Quota",
-  "获取兑换码": "Get Redeem Code"
+  "获取兑换码": "Get Redeem Code",
+  "一个月后过期": "Expires after one month",
+  "一天后过期": "Expires after one day",
+  "一小时后过期": "Expires after one hour",
+  "一分钟后过期": "Expires after one minute",
+  "创建新的令牌": "Create New Token",
+  "注意，令牌的额度仅用于限制令牌本身的最大额度使用量，实际的使用受到账户的剩余额度限制。": "Note that the quota of the token is only used to limit the maximum quota usage of the token itself, and the actual usage is limited by the remaining quota of the account.",
+  "设置为无限额度": "Set to unlimited quota",
+  "更新令牌信息": "Update Token Information",
+  "请输入充值码！": "Please enter the recharge code!"
 }
