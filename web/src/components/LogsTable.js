@@ -51,12 +51,13 @@ const LogsTable = () => {
   const isAdminUser = isAdmin();
   let now = new Date();
   const [inputs, setInputs] = useState({
-    name: '',
+    username: '',
+    token_name: '',
     model_name: '',
     start_timestamp: timestamp2string(0),
     end_timestamp: timestamp2string(now.getTime() / 1000 + 3600)
   });
-  const { name, model_name, start_timestamp, end_timestamp } = inputs;
+  const { username, token_name, model_name, start_timestamp, end_timestamp } = inputs;
 
   const [stat, setStat] = useState({
     quota: 0,
@@ -70,7 +71,7 @@ const LogsTable = () => {
   const getLogSelfStat = async () => {
     let localStartTimestamp = Date.parse(start_timestamp) / 1000;
     let localEndTimestamp = Date.parse(end_timestamp) / 1000;
-    let res = await API.get(`/api/log/self/stat?type=${logType}&token_name=${name}&model_name=${model_name}&start_timestamp=${localStartTimestamp}&end_timestamp=${localEndTimestamp}`);
+    let res = await API.get(`/api/log/self/stat?type=${logType}&token_name=${token_name}&model_name=${model_name}&start_timestamp=${localStartTimestamp}&end_timestamp=${localEndTimestamp}`);
     const { success, message, data } = res.data;
     if (success) {
       setStat(data);
@@ -82,7 +83,7 @@ const LogsTable = () => {
   const getLogStat = async () => {
     let localStartTimestamp = Date.parse(start_timestamp) / 1000;
     let localEndTimestamp = Date.parse(end_timestamp) / 1000;
-    let res = await API.get(`/api/log/stat?type=${logType}&username=${name}&model_name=${model_name}&start_timestamp=${localStartTimestamp}&end_timestamp=${localEndTimestamp}`);
+    let res = await API.get(`/api/log/stat?type=${logType}&username=${username}&token_name=${token_name}&model_name=${model_name}&start_timestamp=${localStartTimestamp}&end_timestamp=${localEndTimestamp}`);
     const { success, message, data } = res.data;
     if (success) {
       setStat(data);
@@ -96,9 +97,9 @@ const LogsTable = () => {
     let localStartTimestamp = Date.parse(start_timestamp) / 1000;
     let localEndTimestamp = Date.parse(end_timestamp) / 1000;
     if (isAdminUser) {
-      url = `/api/log/?p=${startIdx}&type=${logType}&username=${name}&model_name=${model_name}&start_timestamp=${localStartTimestamp}&end_timestamp=${localEndTimestamp}`;
+      url = `/api/log/?p=${startIdx}&type=${logType}&username=${username}&token_name=${token_name}&model_name=${model_name}&start_timestamp=${localStartTimestamp}&end_timestamp=${localEndTimestamp}`;
     } else {
-      url = `/api/log/self/?p=${startIdx}&type=${logType}&token_name=${name}&model_name=${model_name}&start_timestamp=${localStartTimestamp}&end_timestamp=${localEndTimestamp}`;
+      url = `/api/log/self/?p=${startIdx}&type=${logType}&token_name=${token_name}&model_name=${model_name}&start_timestamp=${localStartTimestamp}&end_timestamp=${localEndTimestamp}`;
     }
     const res = await API.get(url);
     const { success, message, data } = res.data;
@@ -183,10 +184,17 @@ const LogsTable = () => {
         <Header as='h3'>使用明细（总消耗额度：{renderQuota(stat.quota)}）</Header>
         <Form>
           <Form.Group>
-            <Form.Input fluid label={isAdminUser ? '用户名称' : '令牌名称'} width={3} value={name}
-                        placeholder={isAdminUser ? '留空则查询全部用户' : '留空则查询全部令牌'} name='name'
-                        onChange={handleInputChange} />
-            <Form.Input fluid label='模型名称' width={3} value={model_name} placeholder='留空则查询全部模型' name='model_name'
+            {
+              isAdminUser && (
+                <Form.Input fluid label={'用户名称'} width={2} value={username}
+                            placeholder={'可选值'} name='username'
+                            onChange={handleInputChange} />
+              )
+            }
+            <Form.Input fluid label={'令牌名称'} width={isAdminUser ? 2 : 3} value={token_name}
+                        placeholder={'可选值'} name='token_name' onChange={handleInputChange} />
+            <Form.Input fluid label='模型名称' width={isAdminUser ? 2 : 3} value={model_name} placeholder='可选值'
+                        name='model_name'
                         onChange={handleInputChange} />
             <Form.Input fluid label='起始时间' width={4} value={start_timestamp} type='datetime-local'
                         name='start_timestamp'
@@ -209,11 +217,25 @@ const LogsTable = () => {
               >
                 时间
               </Table.HeaderCell>
+              {
+                isAdminUser && <Table.HeaderCell
+                  style={{ cursor: 'pointer' }}
+                  onClick={() => {
+                    sortLog('username');
+                  }}
+                  width={1}
+                >
+                  用户
+                </Table.HeaderCell>
+              }
               <Table.HeaderCell
                 style={{ cursor: 'pointer' }}
+                onClick={() => {
+                  sortLog('token_name');
+                }}
                 width={1}
               >
-                {isAdminUser ? '用户' : '令牌'}
+                令牌
               </Table.HeaderCell>
               <Table.HeaderCell
                 style={{ cursor: 'pointer' }}
@@ -240,7 +262,7 @@ const LogsTable = () => {
                 }}
                 width={1}
               >
-                提示令牌
+                提示
               </Table.HeaderCell>
               <Table.HeaderCell
                 style={{ cursor: 'pointer' }}
@@ -249,7 +271,7 @@ const LogsTable = () => {
                 }}
                 width={1}
               >
-                补全令牌
+                补全
               </Table.HeaderCell>
               <Table.HeaderCell
                 style={{ cursor: 'pointer' }}
@@ -265,7 +287,7 @@ const LogsTable = () => {
                 onClick={() => {
                   sortLog('content');
                 }}
-                width={5}
+                width={isAdminUser ? 4 : 5}
               >
                 详情
               </Table.HeaderCell>
@@ -288,15 +310,11 @@ const LogsTable = () => {
                         <Table.Cell>{log.username ? <Label>{log.username}</Label> : ''}</Table.Cell>
                       )
                     }
-                    {
-                      !isAdminUser && (
-                        <Table.Cell>{log.token_name ? <Label>{log.token_name}</Label> : ''}</Table.Cell>
-                      )
-                    }
+                    <Table.Cell>{log.token_name ? <Label basic>{log.token_name}</Label> : ''}</Table.Cell>
                     <Table.Cell>{renderType(log.type)}</Table.Cell>
                     <Table.Cell>{log.model_name ? <Label basic>{log.model_name}</Label> : ''}</Table.Cell>
-                    <Table.Cell>{log.prompt_tokens ? log.prompt_tokens: ''}</Table.Cell>
-                    <Table.Cell>{log.completion_tokens ? log.completion_tokens: ''}</Table.Cell>
+                    <Table.Cell>{log.prompt_tokens ? log.prompt_tokens : ''}</Table.Cell>
+                    <Table.Cell>{log.completion_tokens ? log.completion_tokens : ''}</Table.Cell>
                     <Table.Cell>{log.quota ? renderQuota(log.quota, 6) : ''}</Table.Cell>
                     <Table.Cell>{log.content}</Table.Cell>
                   </Table.Row>
@@ -306,7 +324,7 @@ const LogsTable = () => {
 
           <Table.Footer>
             <Table.Row>
-              <Table.HeaderCell colSpan={'8'}>
+              <Table.HeaderCell colSpan={'9'}>
                 <Select
                   placeholder='选择明细分类'
                   options={LOG_OPTIONS}
