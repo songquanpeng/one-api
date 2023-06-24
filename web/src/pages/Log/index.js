@@ -4,10 +4,7 @@ import LogsTable from '../../components/LogsTable';
 
 const Token = () => (
   <>
-    <Segment>
-      <Header as='h3'>额度明细</Header>
-      <LogsTable />
-    </Segment>
+    <LogsTable />
   </>
 );
 

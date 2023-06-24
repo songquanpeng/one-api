@@ -59,6 +59,7 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 		return err
 	}
 	var promptTokens int
+	var completionTokens int
 	switch relayMode {
 	case RelayModeChatCompletions:
 		promptTokens = countTokenMessages(textRequest.Messages, textRequest.Model)
@@ -128,20 +129,13 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 			if strings.HasPrefix(textRequest.Model, "gpt-4") {
 				completionRatio = 2
 			}
-			var prompt int
-			var completion int
-			var tokens int
 			if isStream {
-				responseTokens := countTokenText(streamResponseText, textRequest.Model)
-				quota = promptTokens + int(float64(responseTokens)*completionRatio)
-				prompt = promptTokens
-				completion = responseTokens
+				completionTokens = countTokenText(streamResponseText, textRequest.Model)
 			} else {
-				quota = textResponse.Usage.PromptTokens + int(float64(textResponse.Usage.CompletionTokens)*completionRatio)
-				prompt = textResponse.Usage.PromptTokens
-				completion = textResponse.Usage.CompletionTokens
+				promptTokens = textResponse.Usage.PromptTokens
+				completionTokens = textResponse.Usage.CompletionTokens
 			}
-			tokens = prompt + completion
+			quota = promptTokens + int(float64(completionTokens)*completionRatio)
 			quota = int(float64(quota) * ratio)
 			if ratio != 0 && quota <= 0 {
 				quota = 1
@@ -154,8 +148,9 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 				if err != nil {
 					common.SysError("error consuming token remain quota: " + err.Error())
 				}
-				//tokenName := c.GetString("token_name")
-				//model.RecordLog(userId, model.LogTypeConsume, fmt.Sprintf("通过令牌「%s」使用模型 %s 消耗 %s（模型倍率 %.2f，分组倍率 %.2f）", tokenName, textRequest.Model, common.LogQuota(quota), modelRatio, groupRatio))
+				tokenName := c.GetString("token_name")
+				logContent := fmt.Sprintf("模型倍率 %.2f，分组倍率 %.2f", modelRatio, groupRatio)
+				model.RecordConsumeLog(userId, promptTokens, completionTokens, textRequest.Model, tokenName, quota, logContent)
 				model.UpdateUserUsedQuotaAndRequestCount(userId, quota)
 				channelId := c.GetInt("channel_id")
 				model.UpdateChannelUsedQuota(channelId, quota)

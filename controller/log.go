@@ -13,7 +13,11 @@ func GetAllLogs(c *gin.Context) {
 		p = 0
 	}
 	logType, _ := strconv.Atoi(c.Query("type"))
-	logs, err := model.GetAllLogs(logType, p*common.ItemsPerPage, common.ItemsPerPage)
+	startTimestamp, _ := strconv.ParseInt(c.Query("start_timestamp"), 10, 64)
+	endTimestamp, _ := strconv.ParseInt(c.Query("end_timestamp"), 10, 64)
+	username := c.Query("username")
+	modelName := c.Query("model_name")
+	logs, err := model.GetAllLogs(logType, startTimestamp, endTimestamp, modelName, username, p*common.ItemsPerPage, common.ItemsPerPage)
 	if err != nil {
 		c.JSON(200, gin.H{
 			"success": false,
@@ -35,7 +39,11 @@ func GetUserLogs(c *gin.Context) {
 	}
 	userId := c.GetInt("id")
 	logType, _ := strconv.Atoi(c.Query("type"))
-	logs, err := model.GetUserLogs(userId, logType, p*common.ItemsPerPage, common.ItemsPerPage)
+	startTimestamp, _ := strconv.ParseInt(c.Query("start_timestamp"), 10, 64)
+	endTimestamp, _ := strconv.ParseInt(c.Query("end_timestamp"), 10, 64)
+	tokenName := c.Query("token_name")
+	modelName := c.Query("model_name")
+	logs, err := model.GetUserLogs(userId, logType, startTimestamp, endTimestamp, modelName, tokenName, p*common.ItemsPerPage, common.ItemsPerPage)
 	if err != nil {
 		c.JSON(200, gin.H{
 			"success": false,
@@ -82,5 +90,42 @@ func SearchUserLogs(c *gin.Context) {
 		"success": true,
 		"message": "",
 		"data":    logs,
+	})
+}
+
+func GetLogsStat(c *gin.Context) {
+	logType, _ := strconv.Atoi(c.Query("type"))
+	startTimestamp, _ := strconv.ParseInt(c.Query("start_timestamp"), 10, 64)
+	endTimestamp, _ := strconv.ParseInt(c.Query("end_timestamp"), 10, 64)
+	username := c.Query("username")
+	modelName := c.Query("model_name")
+	quotaNum := model.SumUsedQuota(logType, startTimestamp, endTimestamp, modelName, username, "")
+	//tokenNum := model.SumUsedToken(logType, startTimestamp, endTimestamp, modelName, username, "")
+	c.JSON(200, gin.H{
+		"success": true,
+		"message": "",
+		"data": gin.H{
+			"quota": quotaNum,
+			//"token": tokenNum,
+		},
+	})
+}
+
+func GetLogsSelfStat(c *gin.Context) {
+	username := c.GetString("username")
+	logType, _ := strconv.Atoi(c.Query("type"))
+	startTimestamp, _ := strconv.ParseInt(c.Query("start_timestamp"), 10, 64)
+	endTimestamp, _ := strconv.ParseInt(c.Query("end_timestamp"), 10, 64)
+	tokenName := c.Query("token_name")
+	modelName := c.Query("model_name")
+	quotaNum := model.SumUsedQuota(logType, startTimestamp, endTimestamp, modelName, username, tokenName)
+	//tokenNum := model.SumUsedToken(logType, startTimestamp, endTimestamp, modelName, username, tokenName)
+	c.JSON(200, gin.H{
+		"success": true,
+		"message": "",
+		"data": gin.H{
+			"quota": quotaNum,
+			//"token": tokenNum,
+		},
 	})
 }

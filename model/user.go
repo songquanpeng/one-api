@@ -303,3 +303,8 @@ func UpdateUserUsedQuotaAndRequestCount(id int, quota int) {
 		common.SysError("failed to update user used quota and request count: " + err.Error())
 	}
 }
+
+func GetUsernameById(id int) (username string) {
+	DB.Model(&User{}).Where("id = ?", id).Select("username").Find(&username)
+	return username
+}

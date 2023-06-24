@@ -441,5 +441,19 @@
   "此项只读，需要用户通过个人设置页面的相关绑定按钮进行绑定，不可直接修改": "This item is read-only. Users need to bind through the relevant binding button on the personal settings page, and cannot be modified directly",
   "已绑定的微信账户": "WeChat Account Bound",
   "已绑定的邮箱账户": "Email Account Bound",
-  "用户信息更新成功！": "User information updated successfully!"
+  "用户信息更新成功！": "User information updated successfully!",
+  "模型倍率 %.2f，分组倍率 %.2f": "model rate %.2f, group rate %.2f",
+  "使用明细（总消耗额度：{renderQuota(stat.quota)}）": "Usage Details (Total Consumption Quota: {renderQuota(stat.quota)})",
+  "用户名称": "User Name",
+  "令牌名称": "Token Name",
+  "留空则查询全部用户": "Leave blank to query all users",
+  "留空则查询全部令牌": "Leave blank to query all tokens",
+  "模型名称": "Model Name",
+  "留空则查询全部模型": "Leave blank to query all models",
+  "起始时间": "Start Time",
+  "结束时间": "End Time",
+  "查询": "Query",
+  "提示令牌": "Prompt Token",
+  "补全令牌": "Completion Token",
+  "消耗额度": "Used Quota"
 }
