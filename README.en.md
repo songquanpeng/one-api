@@ -33,28 +33,28 @@ _✨ The all-in-one OpenAI interface, integrates various API access methods, rea
 </p>
 
 <p align="center">
-  <a href="https://github.com/songquanpeng/one-api#deployment">Deployment Tutorial</a>
+  <a href="#deployment">Deployment Tutorial</a>
   ·
-  <a href="https://github.com/songquanpeng/one-api#usage">Usage</a>
+  <a href="#usage">Usage</a>
   ·
   <a href="https://github.com/songquanpeng/one-api/issues">Feedback</a>
   ·
-  <a href="https://github.com/songquanpeng/one-api#screenshots">Screenshots</a>
+  <a href="#screenshots">Screenshots</a>
   ·
   <a href="https://openai.justsong.cn/">Live Demo</a>
   ·
-  <a href="https://github.com/songquanpeng/one-api#faq">FAQ</a>
+  <a href="#faq">FAQ</a>
   ·
-  <a href="https://github.com/songquanpeng/one-api#related-projects">Related Projects</a>
+  <a href="#related-projects">Related Projects</a>
   ·
   <a href="https://iamazing.cn/page/reward">Donate</a>
 </p>
 
 > **Warning**: This README is translated by ChatGPT. Please feel free to submit a PR if you find any translation errors.
 
-> **Note**: The latest image pulled from Docker may be an `alpha` release. Specify the version manually if you require stability.
+> **Warning**: The Docker image for English version is `justsong/one-api-en`.
 
-> **Warning**: Manual migration of the database is necessary when upgrading from version `v0.3` to `v0.4`. Please manually execute the [database migration script](./bin/migration_v0.3-v0.4.sql).
+> **Note**: The latest image pulled from Docker may be an `alpha` release. Specify the version manually if you require stability.
 
 ## Features
 1. Supports multiple API access channels. Welcome PRs or issue submissions for additional channels:
@@ -94,7 +94,7 @@ _✨ The all-in-one OpenAI interface, integrates various API access methods, rea
 
 ## Deployment
 ### Docker Deployment
-Deployment command: `docker run --name one-api -d --restart always -p 3000:3000 -e TZ=Asia/Shanghai -v /home/ubuntu/data/one-api:/data justsong/one-api`
+Deployment command: `docker run --name one-api -d --restart always -p 3000:3000 -e TZ=Asia/Shanghai -v /home/ubuntu/data/one-api:/data justsong/one-api-en`
 
 Update command: `docker run --rm -v /var/run/docker.sock:/var/run/docker.sock containrrr/watchtower -cR`
 
