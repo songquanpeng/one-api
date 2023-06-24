@@ -124,7 +124,7 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 	defer func() {
 		if consumeQuota {
 			quota := 0
-			completionRatio := 1.34 // default for gpt-3
+			completionRatio := 1.333333 // default for gpt-3
 			if strings.HasPrefix(textRequest.Model, "gpt-4") {
 				completionRatio = 2
 			}
