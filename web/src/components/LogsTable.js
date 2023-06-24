@@ -107,7 +107,7 @@ const LogsTable = () => {
       if (startIdx === 0) {
         setLogs(data);
       } else {
-        let newLogs = logs;
+        let newLogs = [...logs];
         newLogs.push(...data);
         setLogs(newLogs);
       }
