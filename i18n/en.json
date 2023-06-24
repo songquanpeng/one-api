@@ -424,5 +424,7 @@
   "注意，令牌的额度仅用于限制令牌本身的最大额度使用量，实际的使用受到账户的剩余额度限制。": "Note that the quota of the token is only used to limit the maximum quota usage of the token itself, and the actual usage is limited by the remaining quota of the account.",
   "设置为无限额度": "Set to unlimited quota",
   "更新令牌信息": "Update Token Information",
-  "请输入充值码！": "Please enter the recharge code!"
+  "请输入充值码！": "Please enter the recharge code!",
+  "请输入名称": "Please enter a name",
+  "请输入密钥，一行一个": "Please enter the key, one per line"
 }
