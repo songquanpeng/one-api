@@ -129,6 +129,7 @@ const LogsTable = () => {
 
   const refresh = async () => {
     setLoading(true);
+    setActivePage(1)
     await loadLogs(0);
     if (isAdminUser) {
       getLogStat().then();
