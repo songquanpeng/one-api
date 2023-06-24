@@ -449,6 +449,7 @@
   "留空则查询全部用户": "Leave blank to query all users",
   "留空则查询全部令牌": "Leave blank to query all tokens",
   "模型名称": "Model Name",
+  "渠道名称": "Channel Name",
   "留空则查询全部模型": "Leave blank to query all models",
   "起始时间": "Start Time",
   "结束时间": "End Time",

@@ -53,10 +53,11 @@ const LogsTable = () => {
   const [inputs, setInputs] = useState({
     name: '',
     model_name: '',
+    channel_name: '',
     start_timestamp: timestamp2string(0),
     end_timestamp: timestamp2string(now.getTime() / 1000 + 3600)
   });
-  const { name, model_name, start_timestamp, end_timestamp } = inputs;
+  const { name, model_name,channel_name, start_timestamp, end_timestamp } = inputs;
 
   const [stat, setStat] = useState({
     quota: 0,
@@ -70,7 +71,7 @@ const LogsTable = () => {
   const getLogSelfStat = async () => {
     let localStartTimestamp = Date.parse(start_timestamp) / 1000;
     let localEndTimestamp = Date.parse(end_timestamp) / 1000;
-    let res = await API.get(`/api/log/self/stat?type=${logType}&token_name=${name}&model_name=${model_name}&start_timestamp=${localStartTimestamp}&end_timestamp=${localEndTimestamp}`);
+    let res = await API.get(`/api/log/self/stat?type=${logType}&token_name=${name}&model_name=${model_name}&channel_name=${channel_name}&start_timestamp=${localStartTimestamp}&end_timestamp=${localEndTimestamp}`);
     const { success, message, data } = res.data;
     if (success) {
       setStat(data);
@@ -82,7 +83,7 @@ const LogsTable = () => {
   const getLogStat = async () => {
     let localStartTimestamp = Date.parse(start_timestamp) / 1000;
     let localEndTimestamp = Date.parse(end_timestamp) / 1000;
-    let res = await API.get(`/api/log/stat?type=${logType}&username=${name}&model_name=${model_name}&start_timestamp=${localStartTimestamp}&end_timestamp=${localEndTimestamp}`);
+    let res = await API.get(`/api/log/stat?type=${logType}&username=${name}&model_name=${model_name}&channel_name=${channel_name}&start_timestamp=${localStartTimestamp}&end_timestamp=${localEndTimestamp}`);
     const { success, message, data } = res.data;
     if (success) {
       setStat(data);
@@ -96,9 +97,9 @@ const LogsTable = () => {
     let localStartTimestamp = Date.parse(start_timestamp) / 1000;
     let localEndTimestamp = Date.parse(end_timestamp) / 1000;
     if (isAdminUser) {
-      url = `/api/log/?p=${startIdx}&type=${logType}&username=${name}&model_name=${model_name}&start_timestamp=${localStartTimestamp}&end_timestamp=${localEndTimestamp}`;
+      url = `/api/log/?p=${startIdx}&type=${logType}&username=${name}&model_name=${model_name}&channel_name=${channel_name}&start_timestamp=${localStartTimestamp}&end_timestamp=${localEndTimestamp}`;
     } else {
-      url = `/api/log/self/?p=${startIdx}&type=${logType}&token_name=${name}&model_name=${model_name}&start_timestamp=${localStartTimestamp}&end_timestamp=${localEndTimestamp}`;
+      url = `/api/log/self/?p=${startIdx}&type=${logType}&token_name=${name}&model_name=${model_name}&channel_name=${channel_name}&start_timestamp=${localStartTimestamp}&end_timestamp=${localEndTimestamp}`;
     }
     const res = await API.get(url);
     const { success, message, data } = res.data;
@@ -188,6 +189,8 @@ const LogsTable = () => {
                         onChange={handleInputChange} />
             <Form.Input fluid label='模型名称' width={3} value={model_name} placeholder='留空则查询全部模型' name='model_name'
                         onChange={handleInputChange} />
+            <Form.Input fluid label='渠道名称' width={3} value={channel_name} placeholder='留空则查询全部模型' name='channel_name'
+                        onChange={handleInputChange} />
             <Form.Input fluid label='起始时间' width={4} value={start_timestamp} type='datetime-local'
                         name='start_timestamp'
                         onChange={handleInputChange} />
@@ -232,6 +235,15 @@ const LogsTable = () => {
                 width={2}
               >
                 模型
+              </Table.HeaderCell>
+              <Table.HeaderCell
+                  style={{ cursor: 'pointer' }}
+                  onClick={() => {
+                    sortLog('channel_name');
+                  }}
+                  width={2}
+              >
+                渠道
               </Table.HeaderCell>
               <Table.HeaderCell
                 style={{ cursor: 'pointer' }}
@@ -295,6 +307,7 @@ const LogsTable = () => {
                     }
                     <Table.Cell>{renderType(log.type)}</Table.Cell>
                     <Table.Cell>{log.model_name ? <Label basic>{log.model_name}</Label> : ''}</Table.Cell>
+                    <Table.Cell>{log.channel_name ? <Label basic>{log.channel_name}</Label> : ''}</Table.Cell>
                     <Table.Cell>{log.prompt_tokens ? log.prompt_tokens: ''}</Table.Cell>
                     <Table.Cell>{log.completion_tokens ? log.completion_tokens: ''}</Table.Cell>
                     <Table.Cell>{log.quota ? renderQuota(log.quota, 6) : ''}</Table.Cell>

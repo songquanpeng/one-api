@@ -140,8 +140,6 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 			if ratio != 0 && quota <= 0 {
 				quota = 1
 			}
-			tokenName := c.GetString("token_name")
-			model.RecordLog(userId, model.LogTypeConsume, fmt.Sprintf("通过渠道「%s」通过令牌「%s」使用模型 %s 消耗 %s（模型倍率 %.2f，分组倍率 %.2f）%d prompt + %d completion = %d tokens", channelName, tokenName, textRequest.Model, common.LogQuota(quota), modelRatio, groupRatio, prompt, completion, tokens))
 			if strings.Contains(channelName, "免费") == false {
 				quotaDelta := quota - preConsumedQuota
 				err := model.PostConsumeTokenQuota(tokenId, quotaDelta)
@@ -150,7 +148,7 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 				}
 				tokenName := c.GetString("token_name")
 				logContent := fmt.Sprintf("模型倍率 %.2f，分组倍率 %.2f", modelRatio, groupRatio)
-				model.RecordConsumeLog(userId, promptTokens, completionTokens, textRequest.Model, tokenName, quota, logContent)
+				model.RecordConsumeLog(userId, promptTokens, completionTokens, textRequest.Model, tokenName, quota, logContent, channelName)
 				model.UpdateUserUsedQuotaAndRequestCount(userId, quota)
 				channelId := c.GetInt("channel_id")
 				model.UpdateChannelUsedQuota(channelId, quota)
