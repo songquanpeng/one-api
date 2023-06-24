@@ -2,9 +2,6 @@ import argparse
 import json
 import os
 
-from tqdm import tqdm
-
-
 def list_file_paths(path):
     file_paths = []
     for root, dirs, files in os.walk(path):
@@ -38,7 +35,7 @@ def replace_keys_in_repository(repo_path, json_file_path):
 
     files = list_file_paths(repo_path)
     print('Total files: {}'.format(len(files)))
-    for file_path in tqdm(files, total=len(files)):
+    for file_path in files:
         replace_keys_in_file(file_path, pairs)
 
 
