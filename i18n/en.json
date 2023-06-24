@@ -426,5 +426,20 @@
   "更新令牌信息": "Update Token Information",
   "请输入充值码！": "Please enter the recharge code!",
   "请输入名称": "Please enter a name",
-  "请输入密钥，一行一个": "Please enter the key, one per line"
+  "请输入密钥，一行一个": "Please enter the key, one per line",
+  "请输入额度": "Please enter the quota",
+  "令牌创建成功": "Token created successfully",
+  "令牌更新成功": "Token updated successfully",
+  "充值成功！": "Recharge successful!",
+  "更新用户信息": "Update User Information",
+  "请输入新的用户名": "Please enter a new username",
+  "密码": "Password",
+  "请输入新的密码": "Please enter a new password",
+  "显示名称": "Display Name",
+  "请输入新的显示名称": "Please enter a new display name",
+  "已绑定的 GitHub 账户": "GitHub Account Bound",
+  "此项只读，需要用户通过个人设置页面的相关绑定按钮进行绑定，不可直接修改": "This item is read-only. Users need to bind through the relevant binding button on the personal settings page, and cannot be modified directly",
+  "已绑定的微信账户": "WeChat Account Bound",
+  "已绑定的邮箱账户": "Email Account Bound",
+  "用户信息更新成功！": "User information updated successfully!"
 }
