@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"io"
@@ -28,6 +29,25 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 	}
 	if relayMode == RelayModeModeration && textRequest.Model == "" {
 		textRequest.Model = "text-moderation-latest"
+	}
+	// request validation
+	if textRequest.Model == "" {
+		return errorWrapper(errors.New("model is required"), "required_field_missing", http.StatusBadRequest)
+	}
+	switch relayMode {
+	case RelayModeCompletions:
+		if textRequest.Prompt == "" {
+			return errorWrapper(errors.New("prompt is required"), "required_field_missing", http.StatusBadRequest)
+		}
+	case RelayModeChatCompletions:
+		if len(textRequest.Messages) == 0 {
+			return errorWrapper(errors.New("messages is required"), "required_field_missing", http.StatusBadRequest)
+		}
+	case RelayModeEmbeddings:
+	case RelayModeModeration:
+		if textRequest.Input == "" {
+			return errorWrapper(errors.New("input is required"), "required_field_missing", http.StatusBadRequest)
+		}
 	}
 	baseURL := common.ChannelBaseURLs[channelType]
 	requestURL := c.Request.URL.String()
