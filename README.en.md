@@ -10,7 +10,7 @@
 
 # One API
 
-_✨ The all-in-one OpenAI interface, integrates various API access methods, ready to use ✨_
+_✨ An OpenAI key management & redistribution system, easy to deploy & use ✨_
 
 </div>
 
