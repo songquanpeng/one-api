@@ -10,7 +10,7 @@
 
 # One API
 
-_✨ A OpenAI key management & redistribution system ✨_
+_✨ An OpenAI key management & redistribution system, easy to deploy & use ✨_
 
 </div>
 
