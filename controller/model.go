@@ -224,6 +224,24 @@ func init() {
 			Root:       "text-moderation-stable",
 			Parent:     nil,
 		},
+		{
+			Id:         "text-davinci-edit-001",
+			Object:     "model",
+			Created:    1677649963,
+			OwnedBy:    "openai",
+			Permission: permission,
+			Root:       "text-davinci-edit-001",
+			Parent:     nil,
+		},
+		{
+			Id:         "code-davinci-edit-001",
+			Object:     "model",
+			Created:    1677649963,
+			OwnedBy:    "openai",
+			Permission: permission,
+			Root:       "code-davinci-edit-001",
+			Parent:     nil,
+		},
 	}
 	openAIModelsMap = make(map[string]OpenAIModels)
 	for _, model := range openAIModels {
