@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Button, Form, Header, Segment } from 'semantic-ui-react';
 import { useParams } from 'react-router-dom';
 import { API, showError, showSuccess } from '../../helpers';
+import { renderQuota, renderQuotaWithPrompt } from '../../helpers/render';
 
 const EditUser = () => {
   const params = useParams();
@@ -134,7 +135,7 @@ const EditUser = () => {
               </Form.Field>
               <Form.Field>
                 <Form.Input
-                  label='剩余额度'
+                  label={`剩余额度${renderQuotaWithPrompt(quota)}`}
                   name='quota'
                   placeholder={'请输入新的剩余额度'}
                   onChange={handleInputChange}
