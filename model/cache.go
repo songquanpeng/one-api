@@ -108,7 +108,7 @@ var channelSyncLock sync.RWMutex
 func InitChannelCache() {
 	newChannelId2channel := make(map[int]*Channel)
 	var channels []*Channel
-	DB.Where("status = ?", 1).Find(&channels)
+	DB.Where("status = ?", common.ChannelStatusEnabled).Find(&channels)
 	for _, channel := range channels {
 		newChannelId2channel[channel.Id] = channel
 	}
