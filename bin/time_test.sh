@@ -12,14 +12,16 @@ total_time=0
 times=()
 
 for ((i=1; i<=count; i++)); do
-  result=$(curl -o /dev/null -s -w %{time_total}\\n \
+  result=$(curl -o /dev/null -s -w "%{http_code} %{time_total}\\n" \
            https://"$domain"/v1/chat/completions \
            -H "Content-Type: application/json" \
            -H "Authorization: Bearer $key" \
            -d '{"messages": [{"content": "echo hi", "role": "user"}], "model": "gpt-3.5-turbo", "stream": false, "max_tokens": 1}')
-  echo "$result"
-  total_time=$(bc <<< "$total_time + $result")
-  times+=("$result")
+  http_code=$(echo "$result" | awk '{print $1}')
+  time=$(echo "$result" | awk '{print $2}')
+  echo "HTTP status code: $http_code, Time taken: $time"
+  total_time=$(bc <<< "$total_time + $time")
+  times+=("$time")
 done
 
 average_time=$(echo "scale=4; $total_time / $count" | bc)
