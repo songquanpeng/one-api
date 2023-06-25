@@ -33,7 +33,7 @@ func GetSubscription(c *gin.Context) {
 		amount /= common.QuotaPerUnit
 	}
 	if token != nil && token.UnlimitedQuota {
-		amount = 99999999.9999
+		amount = 100000000
 	}
 	subscription := OpenAISubscriptionResponse{
 		Object:             "billing_subscription",
