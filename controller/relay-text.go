@@ -139,6 +139,12 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 			if ratio != 0 && quota <= 0 {
 				quota = 1
 			}
+			totalTokens := promptTokens + completionTokens
+			if totalTokens == 0 {
+				// in this case, must be some error happened
+				// we cannot just return, because we may have to return the pre-consumed quota
+				quota = 0
+			}
 			quotaDelta := quota - preConsumedQuota
 			err := model.PostConsumeTokenQuota(tokenId, quotaDelta)
 			if err != nil {
