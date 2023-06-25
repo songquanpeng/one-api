@@ -71,7 +71,7 @@ func GetUsage(c *gin.Context) {
 	}
 	usage := OpenAIUsageResponse{
 		Object:     "list",
-		TotalUsage: amount,
+		TotalUsage: amount * 100,
 	}
 	c.JSON(200, usage)
 	return
