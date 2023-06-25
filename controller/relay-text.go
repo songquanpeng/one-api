@@ -168,7 +168,7 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 			}
 			tokenName := c.GetString("token_name")
 			logContent := fmt.Sprintf("模型倍率 %.2f，分组倍率 %.2f", modelRatio, groupRatio)
-			model.RecordConsumeLog(userId, promptTokens, completionTokens, textRequest.Model, tokenName, quota, logContent)
+			model.RecordConsumeLog(userId, promptTokens, completionTokens, textRequest.Model, tokenName, quota, logContent, channelName)
 			if strings.Contains(channelName, "免费") == false {
 				quotaDelta := quota - preConsumedQuota
 				err := model.PostConsumeTokenQuota(tokenId, quotaDelta)
