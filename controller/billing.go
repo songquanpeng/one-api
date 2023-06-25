@@ -32,7 +32,7 @@ func GetSubscription(c *gin.Context) {
 	if common.DisplayInCurrencyEnabled {
 		amount /= common.QuotaPerUnit
 	}
-	if token.UnlimitedQuota {
+	if token != nil && token.UnlimitedQuota {
 		amount = 99999999.9999
 	}
 	subscription := OpenAISubscriptionResponse{
