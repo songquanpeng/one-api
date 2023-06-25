@@ -19,8 +19,9 @@ const (
 	RelayModeChatCompletions
 	RelayModeCompletions
 	RelayModeEmbeddings
-	RelayModeModeration
+	RelayModeModerations
 	RelayModeImagesGenerations
+	RelayModeEdits
 )
 
 // https://platform.openai.com/docs/api-reference/chat
@@ -35,6 +36,7 @@ type GeneralOpenAIRequest struct {
 	TopP        float64   `json:"top_p"`
 	N           int       `json:"n"`
 	Input       any       `json:"input"`
+	Instruction string    `json:"instruction"`
 }
 
 type ChatRequest struct {
@@ -99,9 +101,11 @@ func Relay(c *gin.Context) {
 	} else if strings.HasPrefix(c.Request.URL.Path, "/v1/embeddings") {
 		relayMode = RelayModeEmbeddings
 	} else if strings.HasPrefix(c.Request.URL.Path, "/v1/moderations") {
-		relayMode = RelayModeModeration
+		relayMode = RelayModeModerations
 	} else if strings.HasPrefix(c.Request.URL.Path, "/v1/images/generations") {
 		relayMode = RelayModeImagesGenerations
+	} else if strings.HasPrefix(c.Request.URL.Path, "/v1/edits") {
+		relayMode = RelayModeEdits
 	}
 	var err *OpenAIErrorWithStatusCode
 	switch relayMode {
