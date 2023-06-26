@@ -4,7 +4,6 @@ import (
 	"embed"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
-	"github.com/gin-contrib/sessions/redis"
 	"github.com/gin-gonic/gin"
 	"one-api/common"
 	"one-api/controller"
@@ -82,14 +81,8 @@ func main() {
 	server.Use(middleware.CORS())
 
 	// Initialize session store
-	if common.RedisEnabled {
-		opt := common.ParseRedisOption()
-		store, _ := redis.NewStore(opt.MinIdleConns, opt.Network, opt.Addr, opt.Password, []byte(common.SessionSecret))
-		server.Use(sessions.Sessions("session", store))
-	} else {
-		store := cookie.NewStore([]byte(common.SessionSecret))
-		server.Use(sessions.Sessions("session", store))
-	}
+	store := cookie.NewStore([]byte(common.SessionSecret))
+	server.Use(sessions.Sessions("session", store))
 
 	router.SetRouter(server, buildFS, indexPage)
 	var port = os.Getenv("PORT")
