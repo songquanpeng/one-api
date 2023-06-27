@@ -240,7 +240,7 @@ If the channel ID is not provided, load balancing will be used to distribute the
     + Example: `CHANNEL_UPDATE_FREQUENCY=1440`
 8. `CHANNEL_TEST_FREQUENCY`: When set, it periodically tests the channels, with the unit in minutes. If not set, no test will happen.
     + Example: `CHANNEL_TEST_FREQUENCY=1440`
-9. `REQUEST_INTERVAL`: The time interval (in seconds) between requests when updating channel balances and testing channel availability. Default is no interval.
+9. `POLLING_INTERVAL`: The time interval (in seconds) between requests when updating channel balances and testing channel availability. Default is no interval.
     + Example: `POLLING_INTERVAL=5`
 
 ### Command Line Parameters

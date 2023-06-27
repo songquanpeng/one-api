@@ -72,7 +72,7 @@ var RootUserEmail = ""
 
 var IsMasterNode = os.Getenv("NODE_TYPE") != "slave"
 
-var requestInterval, _ = strconv.Atoi(os.Getenv("REQUEST_INTERVAL"))
+var requestInterval, _ = strconv.Atoi(os.Getenv("POLLING_INTERVAL"))
 var RequestInterval = time.Duration(requestInterval) * time.Second
 
 const (
