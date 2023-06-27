@@ -11,3 +11,8 @@ export const CHANNEL_OPTIONS = [
   { key: 10, text: 'AI Proxy', value: 10, color: 'purple' },
   { key: 12, text: 'API2GPT', value: 12, color: 'blue' }
 ];
+export const MODEL_MAPPING_EXAMPLE = {
+  "gpt-3.5-turbo-0301": "gpt-3.5-turbo",
+  "gpt-4-0314": "gpt-4",
+  "gpt-4-32k-0314": "gpt-4-32k"
+};

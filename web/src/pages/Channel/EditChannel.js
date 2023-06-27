@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Button, Form, Header, Message, Segment } from 'semantic-ui-react';
 import { useParams } from 'react-router-dom';
 import { API, showError, showInfo, showSuccess, verifyJSON } from '../../helpers';
-import { CHANNEL_OPTIONS } from '../../constants';
+import { CHANNEL_OPTIONS, MODEL_MAPPING_EXAMPLE } from '../../constants';
 
 const EditChannel = () => {
   const params = useParams();
@@ -257,11 +257,11 @@ const EditChannel = () => {
           <Form.Field>
             <Form.TextArea
               label='模型映射'
-              placeholder={'为一个 JSON 文本，键为用户请求的模型名称，值为要替换的模型名称'}
+              placeholder={`为一个 JSON 文本，键为用户请求的模型名称，值为要替换的模型名称，例如：\n${JSON.stringify(modelMappingExample, null, 2)}`}
               name='model_mapping'
               onChange={handleInputChange}
               value={inputs.model_mapping}
-              style={{ minHeight: 100, fontFamily: 'JetBrains Mono, Consolas' }}
+              style={{ minHeight: 150, fontFamily: 'JetBrains Mono, Consolas' }}
               autoComplete='new-password'
             />
           </Form.Field>
