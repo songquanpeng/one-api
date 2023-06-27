@@ -53,6 +53,20 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 			return errorWrapper(errors.New("field instruction is required"), "required_field_missing", http.StatusBadRequest)
 		}
 	}
+	// map model name
+	modelMapping := c.GetString("model_mapping")
+	isModelMapped := false
+	if modelMapping != "" {
+		modelMap := make(map[string]string)
+		err := json.Unmarshal([]byte(modelMapping), &modelMap)
+		if err != nil {
+			return errorWrapper(err, "unmarshal_model_mapping_failed", http.StatusInternalServerError)
+		}
+		if modelMap[textRequest.Model] != "" {
+			textRequest.Model = modelMap[textRequest.Model]
+			isModelMapped = true
+		}
+	}
 	baseURL := common.ChannelBaseURLs[channelType]
 	requestURL := c.Request.URL.String()
 	if c.GetString("base_url") != "" {
@@ -114,7 +128,17 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 			return errorWrapper(err, "pre_consume_token_quota_failed", http.StatusForbidden)
 		}
 	}
-	req, err := http.NewRequest(c.Request.Method, fullRequestURL, c.Request.Body)
+	var requestBody io.Reader
+	if isModelMapped {
+		jsonStr, err := json.Marshal(textRequest)
+		if err != nil {
+			return errorWrapper(err, "marshal_text_request_failed", http.StatusInternalServerError)
+		}
+		requestBody = bytes.NewBuffer(jsonStr)
+	} else {
+		requestBody = c.Request.Body
+	}
+	req, err := http.NewRequest(c.Request.Method, fullRequestURL, requestBody)
 	if err != nil {
 		return errorWrapper(err, "new_request_failed", http.StatusInternalServerError)
 	}

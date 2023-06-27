@@ -27,16 +27,16 @@ const (
 // https://platform.openai.com/docs/api-reference/chat
 
 type GeneralOpenAIRequest struct {
-	Model       string    `json:"model"`
-	Messages    []Message `json:"messages"`
-	Prompt      any       `json:"prompt"`
-	Stream      bool      `json:"stream"`
-	MaxTokens   int       `json:"max_tokens"`
-	Temperature float64   `json:"temperature"`
-	TopP        float64   `json:"top_p"`
-	N           int       `json:"n"`
-	Input       any       `json:"input"`
-	Instruction string    `json:"instruction"`
+	Model       string    `json:"model,omitempty"`
+	Messages    []Message `json:"messages,omitempty"`
+	Prompt      any       `json:"prompt,omitempty"`
+	Stream      bool      `json:"stream,omitempty"`
+	MaxTokens   int       `json:"max_tokens,omitempty"`
+	Temperature float64   `json:"temperature,omitempty"`
+	TopP        float64   `json:"top_p,omitempty"`
+	N           int       `json:"n,omitempty"`
+	Input       any       `json:"input,omitempty"`
+	Instruction string    `json:"instruction,omitempty"`
 }
 
 type ChatRequest struct {
