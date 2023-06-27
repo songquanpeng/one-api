@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Form, Header, Message, Segment } from 'semantic-ui-react';
 import { useParams } from 'react-router-dom';
-import { API, showError, showInfo, showSuccess } from '../../helpers';
+import { API, showError, showInfo, showSuccess, verifyJSON } from '../../helpers';
 import { CHANNEL_OPTIONS } from '../../constants';
 
 const EditChannel = () => {
@@ -15,6 +15,7 @@ const EditChannel = () => {
     key: '',
     base_url: '',
     other: '',
+    model_mapping:'',
     models: [],
     groups: ['default'],
     used_quota: 0
@@ -45,6 +46,9 @@ const EditChannel = () => {
         data.groups = [];
       } else {
         data.groups = data.group.split(',');
+      }
+      if (data.model_mapping !== '') {
+        data.model_mapping = JSON.stringify(JSON.parse(data.model_mapping), null, 2);
       }
       setInputs(data);
     } else {
@@ -96,6 +100,10 @@ const EditChannel = () => {
     }
     if (inputs.models.length === 0) {
       showInfo('请至少选择一个模型！');
+      return;
+    }
+    if (inputs.model_mapping !== "" && !verifyJSON(inputs.model_mapping)) {
+      showInfo('模型映射必须是合法的 JSON 格式！');
       return;
     }
     let localInputs = inputs;
@@ -265,6 +273,17 @@ const EditChannel = () => {
               handleInputChange(null, { name: 'models', value: [] });
             }}>清除所有模型</Button>
           </div>
+          <Form.Field>
+            <Form.TextArea
+              label='模型映射'
+              placeholder={'为一个 JSON 文本，键为用户请求的模型名称，值为要替换的模型名称'}
+              name='model_mapping'
+              onChange={handleInputChange}
+              value={inputs.model_mapping}
+              style={{ minHeight: 100, fontFamily: 'JetBrains Mono, Consolas' }}
+              autoComplete='new-password'
+            />
+          </Form.Field>
           {
             batch ? <Form.Field>
               <Form.TextArea
