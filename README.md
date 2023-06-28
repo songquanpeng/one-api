@@ -173,9 +173,6 @@ sudo service nginx restart
 
 如果部署后访问出现空白页面，详见 [#97](https://github.com/songquanpeng/one-api/issues/97)。
 
-### Sealos 可视化部署，仅需 1 分钟，无需梯子
-[参考这个链接教程中 1~5 步](https://github.com/c121914yu/FastGPT/blob/main/docs/deploy/one-api/sealos.md)
-
 ### 部署第三方服务配合 One API 使用
 > 欢迎 PR 添加更多示例。
 
@@ -198,6 +195,17 @@ docker run --name chatgpt-web -d -p 3002:3002 -e OPENAI_API_BASE_URL=https://ope
 注意修改端口号、`OPENAI_API_BASE_URL` 和 `OPENAI_API_KEY`。
 
 ### 部署到第三方平台
+<details>
+<summary><strong>部署到 Sealos </strong></summary>
+<div>
+
+> Sealos 可视化部署，仅需 1 分钟。
+
+参考这个[教程](https://github.com/c121914yu/FastGPT/blob/main/docs/deploy/one-api/sealos.md)中 1~5 步。
+
+</div>
+</details>
+
 <details>
 <summary><strong>部署到 Zeabur</strong></summary>
 <div>
