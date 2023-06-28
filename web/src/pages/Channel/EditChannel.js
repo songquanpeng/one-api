@@ -4,6 +4,12 @@ import { useParams } from 'react-router-dom';
 import { API, showError, showInfo, showSuccess, verifyJSON } from '../../helpers';
 import { CHANNEL_OPTIONS } from '../../constants';
 
+const MODEL_MAPPING_EXAMPLE = {
+  'gpt-3.5-turbo-0301': 'gpt-3.5-turbo',
+  'gpt-4-0314': 'gpt-4',
+  'gpt-4-32k-0314': 'gpt-4-32k'
+};
+
 const EditChannel = () => {
   const params = useParams();
   const channelId = params.id;
@@ -15,7 +21,7 @@ const EditChannel = () => {
     key: '',
     base_url: '',
     other: '',
-    model_mapping:'',
+    model_mapping: '',
     models: [],
     groups: ['default'],
     used_quota: 0
@@ -102,7 +108,7 @@ const EditChannel = () => {
       showInfo('请至少选择一个模型！');
       return;
     }
-    if (inputs.model_mapping !== "" && !verifyJSON(inputs.model_mapping)) {
+    if (inputs.model_mapping !== '' && !verifyJSON(inputs.model_mapping)) {
       showInfo('模型映射必须是合法的 JSON 格式！');
       return;
     }
@@ -276,11 +282,11 @@ const EditChannel = () => {
           <Form.Field>
             <Form.TextArea
               label='模型映射'
-              placeholder={'为一个 JSON 文本，键为用户请求的模型名称，值为要替换的模型名称'}
+              placeholder={`为一个 JSON 文本，键为用户请求的模型名称，值为要替换的模型名称，例如：\n${JSON.stringify(MODEL_MAPPING_EXAMPLE, null, 2)}`}
               name='model_mapping'
               onChange={handleInputChange}
               value={inputs.model_mapping}
-              style={{ minHeight: 100, fontFamily: 'JetBrains Mono, Consolas' }}
+              style={{ minHeight: 150, fontFamily: 'JetBrains Mono, Consolas' }}
               autoComplete='new-password'
             />
           </Form.Field>
