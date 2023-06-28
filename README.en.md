@@ -57,17 +57,13 @@ _✨ An OpenAI key management & redistribution system, easy to deploy & use ✨_
 > **Note**: The latest image pulled from Docker may be an `alpha` release. Specify the version manually if you require stability.
 
 ## Features
-1. Supports multiple API access channels. Welcome PRs or issue submissions for additional channels:
+1. Supports multiple API access channels:
     + [x] Official OpenAI channel (support proxy configuration)
     + [x] **Azure OpenAI API**
     + [x] [OpenAI-SB](https://openai-sb.com)
     + [x] [API2D](https://api2d.com/r/197971)
     + [x] [OhMyGPT](https://aigptx.top?aff=uFpUl2Kf)
     + [x] [AI Proxy](https://aiproxy.io/?i=OneAPI) (invitation code: `OneAPI`)
-    + [x] [API2GPT](http://console.api2gpt.com/m/00002S)
-    + [x] [CloseAI](https://console.closeai-asia.com/r/2412)
-    + [x] [AI.LS](https://ai.ls)
-    + [x] [OpenAI Max](https://openaimax.com)
     + [x] Custom channel: Various third-party proxy services not included in the list
 2. Supports access to multiple channels through **load balancing**.
 3. Supports **stream mode** that enables typewriter-like effect through stream transmission.

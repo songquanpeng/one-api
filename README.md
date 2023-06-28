@@ -56,22 +56,18 @@ _✨ All in one 的 OpenAI 接口，整合各种 API 访问方式，开箱即用
 > **Warning**：从 `v0.3` 版本升级到 `v0.4` 版本需要手动迁移数据库，请手动执行[数据库迁移脚本](./bin/migration_v0.3-v0.4.sql)。
 
 ## 功能
-1. 支持多种 API 访问渠道，欢迎 PR 或提 issue 添加更多渠道：
-   + [x] OpenAI 官方通道（支持配置代理）
+1. 支持多种 API 访问渠道：
+   + [x] OpenAI 官方通道（支持配置镜像）
    + [x] **Azure OpenAI API**
    + [x] [OpenAI-SB](https://openai-sb.com)
    + [x] [API2D](https://api2d.com/r/197971)
    + [x] [OhMyGPT](https://aigptx.top?aff=uFpUl2Kf)
    + [x] [AI Proxy](https://aiproxy.io/?i=OneAPI) （邀请码：`OneAPI`）
-   + [x] [API2GPT](http://console.api2gpt.com/m/00002S)
-   + [x] [CloseAI](https://console.closeai-asia.com/r/2412)
-   + [x] [AI.LS](https://ai.ls)
-   + [x] [OpenAI Max](https://openaimax.com)
    + [x] 自定义渠道：例如各种未收录的第三方代理服务
 2. 支持通过**负载均衡**的方式访问多个渠道。
 3. 支持 **stream 模式**，可以通过流式传输实现打字机效果。
 4. 支持**多机部署**，[详见此处](#多机部署)。
-5. 支持**令牌管理**，设置令牌的过期时间和使用次数。
+5. 支持**令牌管理**，设置令牌的过期时间和额度。
 6. 支持**兑换码管理**，支持批量生成和导出兑换码，可使用兑换码为账户进行充值。
 7. 支持**通道管理**，批量创建通道。
 8. 支持**用户分组**以及**渠道分组**，支持为不同分组设置不同的倍率。
