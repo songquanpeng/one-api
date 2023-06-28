@@ -173,6 +173,10 @@ Refer to [#175](https://github.com/songquanpeng/one-api/issues/175) for detailed
 
 If you encounter a blank page after deployment, refer to [#97](https://github.com/songquanpeng/one-api/issues/97) for possible solutions.
 
+### Deploy by Sealos
+[Refer to the article](https://github.com/c121914yu/FastGPT/blob/main/docs/deploy/one-api/sealos.md)
+
+
 ### Deployment on Third-Party Platforms
 <details>
 <summary><strong>Deployment on Zeabur</strong></summary>

@@ -173,6 +173,9 @@ sudo service nginx restart
 
 如果部署后访问出现空白页面，详见 [#97](https://github.com/songquanpeng/one-api/issues/97)。
 
+### Sealos 可视化部署，仅需 1 分钟，无需梯子
+[参考这个链接教程中 1~5 步](https://github.com/c121914yu/FastGPT/blob/main/docs/deploy/one-api/sealos.md)
+
 ### 部署第三方服务配合 One API 使用
 > 欢迎 PR 添加更多示例。
 
