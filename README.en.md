@@ -60,6 +60,7 @@ _✨ An OpenAI key management & redistribution system, easy to deploy & use ✨_
 1. Supports multiple API access channels:
     + [x] Official OpenAI channel (support proxy configuration)
     + [x] **Azure OpenAI API**
+    + [x] [API Distribute](https://api.gptjk.top/register?aff=QGxj)
     + [x] [OpenAI-SB](https://openai-sb.com)
     + [x] [API2D](https://api2d.com/r/197971)
     + [x] [OhMyGPT](https://aigptx.top?aff=uFpUl2Kf)
