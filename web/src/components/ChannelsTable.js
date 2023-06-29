@@ -38,6 +38,8 @@ function renderBalance(type, balance) {
       return <span>{renderNumber(balance)}</span>;
     case 12: // API2GPT
       return <span>¥{balance.toFixed(2)}</span>;
+    case 13: // AIGC2D
+      return <span>{renderNumber(balance)}</span>;
     default:
       return <span>不支持</span>;
   }
