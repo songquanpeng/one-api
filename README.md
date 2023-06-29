@@ -308,6 +308,8 @@ https://openai.justsong.cn
 5. ChatGPT Next Web 报错：`Failed to fetch`
    + 部署的时候不要设置 `BASE_URL`。
    + 检查你的接口地址和 API Key 有没有填对。
+6. 报错：`当前分组负载已饱和，请稍后再试`
+   + 上游通道 429 了。
 
 ## 相关项目
 [FastGPT](https://github.com/c121914yu/FastGPT): 三分钟搭建 AI 知识库
