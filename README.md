@@ -112,6 +112,7 @@ server{
           proxy_set_header X-Forwarded-For $remote_addr;
           proxy_cache_bypass $http_upgrade;
           proxy_set_header Accept-Encoding gzip;
+          proxy_read_timeout 300s;  # GPT-4 需要较长的超时时间，请自行调整
    }
 }
 ```
