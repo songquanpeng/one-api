@@ -62,11 +62,11 @@ type API2GPTUsageResponse struct {
 }
 
 type APGC2DGPTUsageResponse struct {
-	Grants         interface{} `json:"grants"`
-	Object         string      `json:"object"`
-	TotalAvailable float64     `json:"total_available"`
-	TotalGranted   float64     `json:"total_granted"`
-	TotalUsed      float64     `json:"total_used"`
+	//Grants         interface{} `json:"grants"`
+	Object         string  `json:"object"`
+	TotalAvailable float64 `json:"total_available"`
+	TotalGranted   float64 `json:"total_granted"`
+	TotalUsed      float64 `json:"total_used"`
 }
 
 // GetAuthHeader get auth header
@@ -161,13 +161,11 @@ func updateChannelAPI2GPTBalance(channel *model.Channel) (float64, error) {
 func updateChannelAIGC2DBalance(channel *model.Channel) (float64, error) {
 	url := "https://api.aigc2d.com/dashboard/billing/credit_grants"
 	body, err := GetResponseBody("GET", url, channel, GetAuthHeader(channel.Key))
-
 	if err != nil {
 		return 0, err
 	}
 	response := APGC2DGPTUsageResponse{}
 	err = json.Unmarshal(body, &response)
-	fmt.Println(response)
 	if err != nil {
 		return 0, err
 	}
