@@ -456,5 +456,7 @@
   "提示": "Prompt",
   "补全": "Completion",
   "消耗额度": "Used Quota",
-  "可选值": "Optional Values"
+  "可选值": "Optional Values",
+  "渠道不存在：%d": "Channel does not exist: %d",
+  "数据库一致性已被破坏，请联系管理员": "Database consistency has been broken, please contact the administrator"
 }

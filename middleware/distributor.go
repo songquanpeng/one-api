@@ -75,9 +75,14 @@ func Distribute() func(c *gin.Context) {
 			}
 			channel, err = model.CacheGetRandomSatisfiedChannel(userGroup, modelRequest.Model)
 			if err != nil {
+				message := "无可用渠道"
+				if channel != nil {
+					common.SysError(fmt.Sprintf("渠道不存在：%d", channel.Id))
+					message = "数据库一致性已被破坏，请联系管理员"
+				}
 				c.JSON(http.StatusServiceUnavailable, gin.H{
 					"error": gin.H{
-						"message": "无可用渠道",
+						"message": message,
 						"type":    "one_api_error",
 					},
 				})

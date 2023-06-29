@@ -24,6 +24,7 @@ func GetRandomSatisfiedChannel(group string, model string) (*Channel, error) {
 		return nil, err
 	}
 	channel := Channel{}
+	channel.Id = ability.ChannelId
 	err = DB.First(&channel, "id = ?", ability.ChannelId).Error
 	return &channel, err
 }
