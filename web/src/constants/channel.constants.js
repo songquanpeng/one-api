@@ -9,5 +9,6 @@ export const CHANNEL_OPTIONS = [
   { key: 7, text: 'OhMyGPT', value: 7, color: 'purple' },
   { key: 9, text: 'AI.LS', value: 9, color: 'yellow' },
   { key: 10, text: 'AI Proxy', value: 10, color: 'purple' },
-  { key: 12, text: 'API2GPT', value: 12, color: 'blue' }
+  { key: 12, text: 'API2GPT', value: 12, color: 'blue' },
+  {key: 13, text: 'AIGC2D', value: 13, color: 'purple'}
 ];

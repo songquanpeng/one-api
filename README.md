@@ -64,6 +64,7 @@ _✨ All in one 的 OpenAI 接口，整合各种 API 访问方式，开箱即用
    + [x] [API2D](https://api2d.com/r/197971)
    + [x] [OhMyGPT](https://aigptx.top?aff=uFpUl2Kf)
    + [x] [AI Proxy](https://aiproxy.io/?i=OneAPI) （邀请码：`OneAPI`）
+   + [x] [AIGC2D](https://www.aigc2d.com?source=OneAPI)
    + [x] 自定义渠道：例如各种未收录的第三方代理服务
 2. 支持通过**负载均衡**的方式访问多个渠道。
 3. 支持 **stream 模式**，可以通过流式传输实现打字机效果。
