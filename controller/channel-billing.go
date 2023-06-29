@@ -62,6 +62,14 @@ type API2GPTUsageResponse struct {
 	TotalRemaining float64 `json:"total_remaining"`
 }
 
+type APGC2DGPTUsageResponse struct {
+	//Grants         interface{} `json:"grants"`
+	Object         string  `json:"object"`
+	TotalAvailable float64 `json:"total_available"`
+	TotalGranted   float64 `json:"total_granted"`
+	TotalUsed      float64 `json:"total_used"`
+}
+
 // GetAuthHeader get auth header
 func GetAuthHeader(token string) http.Header {
 	h := http.Header{}
@@ -151,6 +159,21 @@ func updateChannelAPI2GPTBalance(channel *model.Channel) (float64, error) {
 	return response.TotalRemaining, nil
 }
 
+func updateChannelAIGC2DBalance(channel *model.Channel) (float64, error) {
+	url := "https://api.aigc2d.com/dashboard/billing/credit_grants"
+	body, err := GetResponseBody("GET", url, channel, GetAuthHeader(channel.Key))
+	if err != nil {
+		return 0, err
+	}
+	response := APGC2DGPTUsageResponse{}
+	err = json.Unmarshal(body, &response)
+	if err != nil {
+		return 0, err
+	}
+	channel.UpdateBalance(response.TotalAvailable)
+	return response.TotalAvailable, nil
+}
+
 func updateChannelBalance(channel *model.Channel) (float64, error) {
 	baseURL := common.ChannelBaseURLs[channel.Type]
 	switch channel.Type {
@@ -171,6 +194,8 @@ func updateChannelBalance(channel *model.Channel) (float64, error) {
 		return updateChannelAIProxyBalance(channel)
 	case common.ChannelTypeAPI2GPT:
 		return updateChannelAPI2GPTBalance(channel)
+	case common.ChannelTypeAIGC2D:
+		return updateChannelAIGC2DBalance(channel)
 	default:
 		return 0, errors.New("尚未实现")
 	}

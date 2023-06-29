@@ -148,6 +148,7 @@ const (
 	ChannelTypeAIProxy   = 10
 	ChannelTypePaLM      = 11
 	ChannelTypeAPI2GPT   = 12
+	ChannelTypeAIGC2D    = 13
 )
 
 var ChannelBaseURLs = []string{
@@ -164,4 +165,5 @@ var ChannelBaseURLs = []string{
 	"https://api.aiproxy.io",       // 10
 	"",                             // 11
 	"https://api.api2gpt.com",      // 12
+	"https://api.aigc2d.com",       // 13
 }
