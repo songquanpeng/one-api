@@ -74,9 +74,6 @@ const OperationSetting = () => {
   const submitConfig = async (group) => {
     switch (group) {
       case 'monitor':
-        if (originInputs['AutomaticDisableChannelEnabled'] !== inputs.AutomaticDisableChannelEnabled) {
-          await updateOption('AutomaticDisableChannelEnabled', inputs.AutomaticDisableChannelEnabled);
-        }
         if (originInputs['ChannelDisableThreshold'] !== inputs.ChannelDisableThreshold) {
           await updateOption('ChannelDisableThreshold', inputs.ChannelDisableThreshold);
         }
