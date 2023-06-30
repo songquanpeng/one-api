@@ -2,10 +2,11 @@ package controller
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"net/http"
 	"one-api/common"
 	"strings"
+
+	"github.com/gin-gonic/gin"
 )
 
 type Message struct {
@@ -99,6 +100,8 @@ func Relay(c *gin.Context) {
 	} else if strings.HasPrefix(c.Request.URL.Path, "/v1/completions") {
 		relayMode = RelayModeCompletions
 	} else if strings.HasPrefix(c.Request.URL.Path, "/v1/embeddings") {
+		relayMode = RelayModeEmbeddings
+	} else if strings.HasSuffix(c.Request.URL.Path, "embeddings") {
 		relayMode = RelayModeEmbeddings
 	} else if strings.HasPrefix(c.Request.URL.Path, "/v1/moderations") {
 		relayMode = RelayModeModerations
