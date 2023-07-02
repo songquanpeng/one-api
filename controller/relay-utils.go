@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/pkoukk/tiktoken-go"
 	"one-api/common"
-	"strings"
 )
 
 var tokenEncoderMap = map[string]*tiktoken.Tiktoken{}
@@ -34,12 +33,9 @@ func countTokenMessages(messages []Message, model string) int {
 	// Every message follows <|start|>{role/name}\n{content}<|end|>\n
 	var tokensPerMessage int
 	var tokensPerName int
-	if strings.HasPrefix(model, "gpt-3.5") {
+	if model == "gpt-3.5-turbo-0301" {
 		tokensPerMessage = 4
 		tokensPerName = -1 // If there's a name, the role is omitted
-	} else if strings.HasPrefix(model, "gpt-4") {
-		tokensPerMessage = 3
-		tokensPerName = 1
 	} else {
 		tokensPerMessage = 3
 		tokensPerName = 1
