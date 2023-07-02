@@ -44,8 +44,7 @@ let headerButtons = [
   {
     name: '日志',
     to: '/log',
-    icon: 'book',
-    admin: true,
+    icon: 'book'
   },
   {
     name: '设置',
