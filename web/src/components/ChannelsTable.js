@@ -60,8 +60,8 @@ const ChannelsTable = () => {
       if (startIdx === 0) {
         setChannels(data);
       } else {
-        let newChannels = channels;
-        newChannels.push(...data);
+        let newChannels = [...channels];
+        newChannels.splice(startIdx * ITEMS_PER_PAGE, data.length, ...data);
         setChannels(newChannels);
       }
     } else {
@@ -82,7 +82,7 @@ const ChannelsTable = () => {
 
   const refresh = async () => {
     setLoading(true);
-    await loadChannels(0);
+    await loadChannels(activePage - 1);
   };
 
   useEffect(() => {
@@ -240,7 +240,7 @@ const ChannelsTable = () => {
     if (channels.length === 0) return;
     setLoading(true);
     let sortedChannels = [...channels];
-    if (typeof sortedChannels[0][key] === 'string'){
+    if (typeof sortedChannels[0][key] === 'string') {
       sortedChannels.sort((a, b) => {
         return ('' + a[key]).localeCompare(b[key]);
       });

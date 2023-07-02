@@ -108,7 +108,7 @@ const LogsTable = () => {
         setLogs(data);
       } else {
         let newLogs = [...logs];
-        newLogs.push(...data);
+        newLogs.splice(startIdx * ITEMS_PER_PAGE, data.length, ...data);
         setLogs(newLogs);
       }
     } else {

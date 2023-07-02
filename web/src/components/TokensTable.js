@@ -45,8 +45,8 @@ const TokensTable = () => {
       if (startIdx === 0) {
         setTokens(data);
       } else {
-        let newTokens = tokens;
-        newTokens.push(...data);
+        let newTokens = [...tokens];
+        newTokens.splice(startIdx * ITEMS_PER_PAGE, data.length, ...data);
         setTokens(newTokens);
       }
     } else {
@@ -67,7 +67,7 @@ const TokensTable = () => {
 
   const refresh = async () => {
     setLoading(true);
-    await loadTokens(0);
+    await loadTokens(activePage - 1);
   }
 
   useEffect(() => {
