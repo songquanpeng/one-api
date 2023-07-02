@@ -93,6 +93,10 @@ _✨ All in one 的 OpenAI 接口，整合各种 API 访问方式，开箱即用
 ### 基于 Docker 进行部署
 部署命令：`docker run --name one-api -d --restart always -p 3000:3000 -e TZ=Asia/Shanghai -v /home/ubuntu/data/one-api:/data justsong/one-api`
 
+如果上面的镜像无法拉取，可以尝试使用 GitHub 的 Docker 镜像，将上面的 `justsong/one-api` 替换为 `ghcr.io/songquanpeng/one-api` 即可。
+
+如果你的并发量较大，推荐设置 `SQL_DSN`，详见下面[环境变量](#环境变量)一节。
+
 更新命令：`docker run --rm -v /var/run/docker.sock:/var/run/docker.sock containrrr/watchtower -cR`
 
 `-p 3000:3000` 中的第一个 `3000` 是宿主机的端口，可以根据需要进行修改。
@@ -263,7 +267,10 @@ graph LR
    + 例子：`SESSION_SECRET=random_string`
 3. `SQL_DSN`：设置之后将使用指定数据库而非 SQLite，请使用 MySQL 8.0 版本。
    + 例子：`SQL_DSN=root:123456@tcp(localhost:3306)/oneapi`
-4. `FRONTEND_BASE_URL`：设置之后将使用指定的前端地址，而非后端地址，仅限从服务器设置。
+   + 注意需要提前建立数据库 `oneapi`，无需手动建表，程序将自动建表。
+   + 如果使用本地数据库：部署命令可添加 `--network="host"` 以使得容器内的程序可以访问到宿主机上的 MySQL。
+   + 如果使用云数据库：如果云服务器需要验证身份，需要在连接参数中添加 `?tls=skip-verify`。
+4. `FRONTEND_BASE_URL`：设置之后将重定向页面请求到指定的地址，仅限从服务器设置。
    + 例子：`FRONTEND_BASE_URL=https://openai.justsong.cn`
 5. `SYNC_FREQUENCY`：设置之后将定期与数据库同步配置，单位为秒，未设置则不进行同步。
    + 例子：`SYNC_FREQUENCY=60`
