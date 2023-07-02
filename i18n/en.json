@@ -36,7 +36,7 @@
   "通过令牌「%s」使用模型 %s 消耗 %s（模型倍率 %.2f，分组倍率 %.2f）": "Using model %s with token %s consumes %s (model rate %.2f, group rate %.2f)",
   "当前分组负载已饱和，请稍后再试，或升级账户以提升服务质量。": "The current group load is saturated, please try again later, or upgrade your account to improve service quality.",
   "令牌名称长度必须在1-20之间": "The length of the token name must be between 1-20",
-  "令牌已过期，无法启用，请先修改令牌过期时间": "The token has expired and cannot be enabled. Please modify the token expiration time first",
+  "令牌已过期，无法启用，请先修改令牌过期时间，或者设置为永不过期": "The token has expired and cannot be enabled. Please modify the expiration time of the token, or set it to never expire.",
   "令牌可用额度已用尽，无法启用，请先修改令牌剩余额度，或者设置为无限额度": "The available quota of the token has been used up and cannot be enabled. Please modify the remaining quota of the token, or set it to unlimited quota",
   "管理员关闭了密码登录": "The administrator has turned off password login",
   "无法保存会话信息，请重试": "Unable to save session information, please try again",
