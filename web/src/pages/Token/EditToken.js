@@ -11,7 +11,7 @@ const EditToken = () => {
   const [loading, setLoading] = useState(isEdit);
   const originInputs = {
     name: '',
-    remain_quota: 0,
+    remain_quota: isEdit ? 0 : 500000,
     expired_time: -1,
     unlimited_quota: false
   };
