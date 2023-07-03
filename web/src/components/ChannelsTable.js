@@ -28,7 +28,6 @@ function renderType(type) {
 }
 
 function renderBalance(type, balance) {
-  console.log(type,balance)
   switch (type) {
     case 1: // OpenAI
     case 4: // CloseAI
