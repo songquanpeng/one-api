@@ -60,11 +60,11 @@ _✨ All in one 的 OpenAI 接口，整合各种 API 访问方式，开箱即用
    + [x] OpenAI 官方通道（支持配置镜像）
    + [x] **Azure OpenAI API**
    + [x] [API Distribute](https://api.gptjk.top/register?aff=QGxj)
-   + [x] [CloseAI](https://console.closeai-asia.com/r/2412)
    + [x] [OpenAI-SB](https://openai-sb.com)
    + [x] [API2D](https://api2d.com/r/197971)
    + [x] [OhMyGPT](https://aigptx.top?aff=uFpUl2Kf)
    + [x] [AI Proxy](https://aiproxy.io/?i=OneAPI) （邀请码：`OneAPI`）
+   + [x] [CloseAI](https://console.closeai-asia.com/r/2412)
    + [x] 自定义渠道：例如各种未收录的第三方代理服务
 2. 支持通过**负载均衡**的方式访问多个渠道。
 3. 支持 **stream 模式**，可以通过流式传输实现打字机效果。
