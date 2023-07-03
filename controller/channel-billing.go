@@ -198,6 +198,9 @@ func updateChannelAIGC2DBalance(channel *model.Channel) (float64, error) {
 
 func updateChannelBalance(channel *model.Channel) (float64, error) {
 	baseURL := common.ChannelBaseURLs[channel.Type]
+	if channel.BaseURL == "" {
+		channel.BaseURL = baseURL
+	}
 	switch channel.Type {
 	case common.ChannelTypeOpenAI:
 		if channel.BaseURL != "" {
