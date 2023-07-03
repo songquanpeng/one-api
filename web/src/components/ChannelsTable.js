@@ -28,8 +28,11 @@ function renderType(type) {
 }
 
 function renderBalance(type, balance) {
+  console.log(type,balance)
   switch (type) {
     case 1: // OpenAI
+    case 4: // CloseAI
+      return <span>¥{balance.toFixed(2)}</span>;
     case 8: // 自定义
       return <span>${balance.toFixed(2)}</span>;
     case 5: // OpenAI-SB
