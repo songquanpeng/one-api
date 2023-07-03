@@ -192,6 +192,10 @@ func updateChannelBalance(channel *model.Channel) (float64, error) {
 		return updateChannelAPI2GPTBalance(channel)
 	case common.ChannelTypeAIGC2D:
 		return updateChannelAIGC2DBalance(channel)
+	case common.ChannelTypeGPTNiuX:
+		if channel.BaseURL != "" {
+			baseURL = channel.BaseURL
+		}
 	default:
 		return 0, errors.New("尚未实现")
 	}

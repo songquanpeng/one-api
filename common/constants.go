@@ -149,6 +149,7 @@ const (
 	ChannelTypePaLM      = 11
 	ChannelTypeAPI2GPT   = 12
 	ChannelTypeAIGC2D    = 13
+	ChannelTypeGPTNiuX   = 14
 )
 
 var ChannelBaseURLs = []string{
@@ -166,4 +167,5 @@ var ChannelBaseURLs = []string{
 	"",                             // 11
 	"https://api.api2gpt.com",      // 12
 	"https://api.aigc2d.com",       // 13
+	"https://api.gptniux.com",      // 14
 }

@@ -40,6 +40,8 @@ function renderBalance(type, balance) {
       return <span>¥{balance.toFixed(2)}</span>;
     case 13: // AIGC2D
       return <span>{renderNumber(balance)}</span>;
+    case 14: // GPTNiuX
+      return <span>${balance.toFixed(2)}</span>;
     default:
       return <span>不支持</span>;
   }
