@@ -1,13 +1,15 @@
 #!/bin/bash
 
-if [ $# -ne 3 ]; then
-  echo "Usage: time_test.sh <domain> <key> <count>"
+if [ $# -lt 3 ]; then
+  echo "Usage: time_test.sh <domain> <key> <count> [<model>]"
   exit 1
 fi
 
 domain=$1
 key=$2
 count=$3
+model=${4:-"gpt-3.5-turbo"} # 设置默认模型为 gpt-3.5-turbo
+
 total_time=0
 times=()
 
@@ -16,7 +18,7 @@ for ((i=1; i<=count; i++)); do
            https://"$domain"/v1/chat/completions \
            -H "Content-Type: application/json" \
            -H "Authorization: Bearer $key" \
-           -d '{"messages": [{"content": "echo hi", "role": "user"}], "model": "gpt-3.5-turbo", "stream": false, "max_tokens": 1}')
+           -d '{"messages": [{"content": "echo hi", "role": "user"}], "model": "'"$model"'", "stream": false, "max_tokens": 1}')
   http_code=$(echo "$result" | awk '{print $1}')
   time=$(echo "$result" | awk '{print $2}')
   echo "HTTP status code: $http_code, Time taken: $time"
