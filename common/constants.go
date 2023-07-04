@@ -67,6 +67,7 @@ var ChannelDisableThreshold = 5.0
 var AutomaticDisableChannelEnabled = false
 var QuotaRemindThreshold = 1000
 var PreConsumedQuota = 500
+var ApproximateTokenEnabled = false
 
 var RootUserEmail = ""
 
