@@ -145,6 +145,7 @@ const EditChannel = () => {
             <Form.Select
               label='类型'
               name='type'
+              required
               options={CHANNEL_OPTIONS}
               value={inputs.type}
               onChange={handleInputChange}
@@ -201,7 +202,7 @@ const EditChannel = () => {
                 <Form.Input
                   label='镜像'
                   name='base_url'
-                  placeholder={'请输入镜像站地址，格式为：https://domain.com，可不填，不填则使用渠道默认值'}
+                  placeholder={'此项可选，输入镜像站地址，格式为：https://domain.com'}
                   onChange={handleInputChange}
                   value={inputs.base_url}
                   autoComplete='new-password'
@@ -212,6 +213,7 @@ const EditChannel = () => {
           <Form.Field>
             <Form.Input
               label='名称'
+              required
               name='name'
               placeholder={'请输入名称'}
               onChange={handleInputChange}
@@ -224,6 +226,7 @@ const EditChannel = () => {
               label='分组'
               placeholder={'请选择分组'}
               name='groups'
+              required
               fluid
               multiple
               selection
@@ -240,6 +243,7 @@ const EditChannel = () => {
               label='模型'
               placeholder={'请选择该通道所支持的模型'}
               name='models'
+              required
               fluid
               multiple
               selection
@@ -263,7 +267,7 @@ const EditChannel = () => {
           <Form.Field>
             <Form.TextArea
               label='模型映射'
-              placeholder={`为一个 JSON 文本，键为用户请求的模型名称，值为要替换的模型名称，例如：\n${JSON.stringify(MODEL_MAPPING_EXAMPLE, null, 2)}`}
+              placeholder={`此项可选，为一个 JSON 文本，键为用户请求的模型名称，值为要替换的模型名称，例如：\n${JSON.stringify(MODEL_MAPPING_EXAMPLE, null, 2)}`}
               name='model_mapping'
               onChange={handleInputChange}
               value={inputs.model_mapping}
@@ -276,6 +280,7 @@ const EditChannel = () => {
               <Form.TextArea
                 label='密钥'
                 name='key'
+                required
                 placeholder={'请输入密钥，一行一个'}
                 onChange={handleInputChange}
                 value={inputs.key}
@@ -286,6 +291,7 @@ const EditChannel = () => {
               <Form.Input
                 label='密钥'
                 name='key'
+                required
                 placeholder={'请输入密钥'}
                 onChange={handleInputChange}
                 value={inputs.key}
