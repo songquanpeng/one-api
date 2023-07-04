@@ -151,7 +151,7 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 	}
 	req.Header.Set("Content-Type", c.Request.Header.Get("Content-Type"))
 	req.Header.Set("Accept", c.Request.Header.Get("Accept"))
-	req.Header.Set("Connection", c.Request.Header.Get("Connection"))
+	//req.Header.Set("Connection", c.Request.Header.Get("Connection"))
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
