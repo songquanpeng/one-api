@@ -189,7 +189,7 @@ sudo service nginx restart
 docker run --name chat-next-web -d -p 3001:3000 yidadaa/chatgpt-next-web
 ```
 
-注意修改端口号和 `BASE_URL`。
+注意修改端口号，之后在页面上设置接口地址（例如：https://openai.justsong.cn/ ）和 API Key 即可。
 
 #### ChatGPT Web
 项目主页：https://github.com/Chanzhaoyu/chatgpt-web
