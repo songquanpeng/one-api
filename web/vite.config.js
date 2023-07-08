@@ -1,44 +1,30 @@
-import fs from "node:fs";
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import * as esbuild from "esbuild";
+import fs from 'fs/promises';
 
-const sourceJSPattern = /\/src\/.*\.js$/;
-const rollupPlugin = (matchers) => ({
-  name: "js-in-jsx",
-  load(id) {
-    if (matchers.some(matcher => matcher.test(id))) {
-      const file = fs.readFileSync(id, { encoding: "utf-8" });
-      return esbuild.transformSync(file, { loader: "jsx" });
-    }
-  }
-});
-
-export default defineConfig({
-  plugins: [
-    react()
-  ],
-  build: {
-    outDir: "./build",
-    rollupOptions: {
-      plugins: [
-        rollupPlugin([sourceJSPattern])
-      ],
-    },
-    commonjsOptions: {
-      transformMixedEsModules: true,
-    },
+export default defineConfig(() => ({
+  plugins: [react()],
+  esbuild: {
+    loader: "jsx",
+    include: /src\/.*\.jsx?$/,
+    // loader: "tsx",
+    // include: /src\/.*\.[tj]sx?$/,
+    exclude: [],
   },
   optimizeDeps: {
     esbuildOptions: {
-      loader: {
-        ".js": "jsx",
-      },
+      plugins: [
+        {
+          name: "load-js-files-as-jsx",
+          setup(build) {
+            build.onLoad({ filter: /src\/.*\.js$/ }, async (args) => ({
+              loader: "jsx",
+              contents: await fs.readFile(args.path, "utf8"),
+            }));
+          },
+        },
+      ],
     },
   },
-  esbuild: {
-    loader: "jsx",
-    include: [sourceJSPattern],
-    exclude: [],
-  },
-});
+}));
