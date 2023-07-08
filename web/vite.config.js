@@ -5,6 +5,9 @@ import fs from 'fs/promises';
 
 export default defineConfig(() => ({
   plugins: [react()],
+  build: {
+    outDir: './build',
+  },
   esbuild: {
     loader: "jsx",
     include: /src\/.*\.jsx?$/,
