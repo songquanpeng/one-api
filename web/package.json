@@ -17,8 +17,8 @@
     "semantic-ui-react": "^2.1.4"
   },
   "scripts": {
-    "start": "vite preview",
-    "build": "vite build",
+    "start": "react-scripts start",
+    "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
