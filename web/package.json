@@ -10,16 +10,16 @@
     "react-dom": "^18.2.0",
     "react-dropzone": "^14.2.3",
     "react-router-dom": "^6.14.1",
-    "react-scripts": "5.0.1",
     "react-toastify": "^9.1.3",
     "react-turnstile": "^1.1.1",
     "semantic-ui-css": "^2.5.0",
     "semantic-ui-react": "^2.1.4"
   },
   "scripts": {
-    "start": "vite preview --host 0.0.0.0",
-    "build": "vite build",
-    "dev": "vite dev"
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
   },
   "eslintConfig": {
     "extends": [
@@ -40,9 +40,8 @@
     ]
   },
   "devDependencies": {
-    "@vitejs/plugin-react": "^4.0.2",
     "prettier": "^2.7.1",
-    "vite": "^4.4.2"
+    "react-scripts": "^5.0.1"
   },
   "prettier": {
     "singleQuote": true,
