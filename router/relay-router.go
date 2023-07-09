@@ -1,9 +1,10 @@
 package router
 
 import (
-	"github.com/gin-gonic/gin"
 	"one-api/controller"
 	"one-api/middleware"
+
+	"github.com/gin-gonic/gin"
 )
 
 func SetRelayRouter(router *gin.Engine) {
@@ -20,7 +21,7 @@ func SetRelayRouter(router *gin.Engine) {
 		relayV1Router.POST("/completions", controller.Relay)
 		relayV1Router.POST("/chat/completions", controller.Relay)
 		relayV1Router.POST("/edits", controller.Relay)
-		relayV1Router.POST("/images/generations", controller.RelayNotImplemented)
+		relayV1Router.POST("/images/generations", controller.Relay)
 		relayV1Router.POST("/images/edits", controller.RelayNotImplemented)
 		relayV1Router.POST("/images/variations", controller.RelayNotImplemented)
 		relayV1Router.POST("/embeddings", controller.Relay)

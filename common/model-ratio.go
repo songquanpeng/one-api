@@ -35,6 +35,7 @@ var ModelRatio = map[string]float64{
 	"text-search-ada-doc-001": 10,
 	"text-moderation-stable":  0.1,
 	"text-moderation-latest":  0.1,
+	"dall-e":                  8,
 }
 
 func ModelRatio2JSONString() string {
