@@ -2,7 +2,7 @@ import { showError } from './utils';
 import axios from 'axios';
 
 export const API = axios.create({
-  baseURL: process.env.REACT_APP_SERVER ? process.env.REACT_APP_SERVER : '',
+  baseURL: 'http://localhost:3000',
 });
 
 API.interceptors.response.use(
