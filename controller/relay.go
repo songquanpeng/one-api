@@ -2,10 +2,11 @@ package controller
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"net/http"
 	"one-api/common"
 	"strings"
+
+	"github.com/gin-gonic/gin"
 )
 
 type Message struct {
@@ -37,6 +38,7 @@ type GeneralOpenAIRequest struct {
 	N           int       `json:"n,omitempty"`
 	Input       any       `json:"input,omitempty"`
 	Instruction string    `json:"instruction,omitempty"`
+	Size        string    `json:"size,omitempty"`
 }
 
 type ChatRequest struct {
@@ -74,6 +76,13 @@ type OpenAIErrorWithStatusCode struct {
 type TextResponse struct {
 	Usage `json:"usage"`
 	Error OpenAIError `json:"error"`
+}
+
+type ImageResponse struct {
+	Created int `json:"created"`
+	Data    []struct {
+		Url string `json:"url"`
+	}
 }
 
 type ChatCompletionsStreamResponse struct {
