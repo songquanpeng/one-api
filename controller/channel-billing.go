@@ -96,6 +96,9 @@ func GetResponseBody(method, url string, channel *model.Channel, headers http.He
 	if err != nil {
 		return nil, err
 	}
+	if res.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("status code: %d", res.StatusCode)
+	}
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
 		return nil, err

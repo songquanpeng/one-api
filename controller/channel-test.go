@@ -55,7 +55,7 @@ func testChannel(channel *model.Channel, request ChatRequest) error {
 		return err
 	}
 
-	if resp.StatusCode != 200 {
+	if resp.StatusCode != http.StatusOK {
 		return errors.New("invalid status code: " + strconv.Itoa(resp.StatusCode))
 	}
 
