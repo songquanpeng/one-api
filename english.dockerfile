@@ -2,7 +2,7 @@
 FROM python:3.11 as translator
 WORKDIR /app
 COPY . .
-RUN python translate.py --repository_path . --json_file_path ./i18n/en.json
+RUN python ./i18n/translate.py --repository_path . --json_file_path ./i18n/en.json
 
 # Node build stage
 FROM node:18 as builder
