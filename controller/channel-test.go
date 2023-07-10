@@ -55,6 +55,10 @@ func testChannel(channel *model.Channel, request ChatRequest) error {
 		return err
 	}
 
+	if resp.StatusCode != 200 {
+		return errors.New("invalid status code: " + strconv.Itoa(resp.StatusCode))
+	}
+
 	var response TextResponse
 	isStream := strings.HasPrefix(resp.Header.Get("Content-Type"), "text/event-stream")
 	var streamResponseText string

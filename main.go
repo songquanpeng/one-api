@@ -23,7 +23,7 @@ var buildFS embed.FS
 var indexPage []byte
 
 func main() {
-	godotenv.Load()
+	godotenv.Load(".env")
 
 	common.SetupGinLog()
 	common.SysLog("One API " + common.Version + " started")
