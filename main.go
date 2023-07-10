@@ -2,9 +2,6 @@ package main
 
 import (
 	"embed"
-	"github.com/gin-contrib/sessions"
-	"github.com/gin-contrib/sessions/cookie"
-	"github.com/gin-gonic/gin"
 	"one-api/common"
 	"one-api/controller"
 	"one-api/middleware"
@@ -12,6 +9,11 @@ import (
 	"one-api/router"
 	"os"
 	"strconv"
+
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-contrib/sessions/cookie"
+	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 )
 
 //go:embed web/build
@@ -21,6 +23,8 @@ var buildFS embed.FS
 var indexPage []byte
 
 func main() {
+	godotenv.Load()
+
 	common.SetupGinLog()
 	common.SysLog("One API " + common.Version + " started")
 	if os.Getenv("GIN_MODE") != "debug" {
