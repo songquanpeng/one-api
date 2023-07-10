@@ -10,7 +10,7 @@ WORKDIR /build
 COPY ./web/package*.json ./
 RUN npm ci
 COPY --from=translator /app .
-RUN REACT_APP_VERSION=$(cat VERSION) npm run build
+RUN cd web && REACT_APP_VERSION=$(cat VERSION) npm run build
 
 # Go build stage
 FROM golang AS builder2
