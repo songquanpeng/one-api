@@ -22,7 +22,7 @@ COPY go.mod .
 COPY go.sum .
 RUN go mod download
 COPY --from=translator /app .
-COPY --from=builder /build/build ./web/build
+COPY --from=builder /build/web/build ./web/build
 RUN go build -ldflags "-s -w -X 'one-api/common.Version=$(cat VERSION)' -extldflags '-static'" -o one-api
 
 # Final stage
