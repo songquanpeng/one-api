@@ -6,12 +6,14 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"io"
+	"log"
 	"net/http"
 	"one-api/common"
 	"one-api/model"
 	"strings"
+
+	"github.com/gin-gonic/gin"
 )
 
 func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
@@ -156,6 +158,19 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 	resp, err := client.Do(req)
 	if err != nil {
 		return errorWrapper(err, "do_request_failed", http.StatusInternalServerError)
+	}
+	if resp.StatusCode != http.StatusOK {
+		// Print Data if Error
+		bodyBytes, err := io.ReadAll(resp.Body)
+		if err != nil {
+			return errorWrapper(err, "read_response_body_failed", http.StatusInternalServerError)
+		}
+
+		bodyString := string(bodyBytes)
+
+		log.Printf("Error: %s", bodyString)
+
+		return errorWrapper(err, "request_failed", resp.StatusCode)
 	}
 	err = req.Body.Close()
 	if err != nil {

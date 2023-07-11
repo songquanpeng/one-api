@@ -6,7 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"one-api/common"
 	"one-api/model"
@@ -100,7 +100,7 @@ func testChannel(channel *model.Channel, request ChatRequest) error {
 			}
 		}
 	} else {
-		body, err := ioutil.ReadAll(resp.Body)
+		body, err := io.ReadAll(resp.Body)
 		if err != nil {
 			return err
 		}
