@@ -1,5 +1,5 @@
 # Initial stage
-FROM python:3.12 as translator
+FROM python:3.11 as translator
 WORKDIR /app
 COPY . .
 RUN python ./i18n/translate.py --repository_path . --json_file_path ./i18n/en.json
