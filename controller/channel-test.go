@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"bufio"
 	"bytes"
 	"encoding/json"
 	"errors"
@@ -60,67 +59,22 @@ func testChannel(channel *model.Channel, request ChatRequest) error {
 	}
 
 	var response TextResponse
-	isStream := strings.HasPrefix(resp.Header.Get("Content-Type"), "text/event-stream")
-	var streamResponseText string
 
-	if isStream {
-		scanner := bufio.NewScanner(resp.Body)
-		scanner.Split(func(data []byte, atEOF bool) (advance int, token []byte, err error) {
-			if atEOF && len(data) == 0 {
-				return 0, nil, nil
-			}
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
+	err = json.Unmarshal(body, &response)
+	if err != nil {
+		return err
+	}
 
-			if i := strings.Index(string(data), "\n\n"); i >= 0 {
-				return i + 2, data[0:i], nil
-			}
-
-			if atEOF {
-				return len(data), data, nil
-			}
-
-			return 0, nil, nil
-		})
-		for scanner.Scan() {
-			data := scanner.Text()
-			if len(data) < 6 { // must be something wrong!
-				common.SysError("invalid stream response: " + data)
-				continue
-			}
-			data = data[6:]
-			if !strings.HasPrefix(data, "[DONE]") {
-				var streamResponse ChatCompletionsStreamResponse
-				err = json.Unmarshal([]byte(data), &streamResponse)
-				if err != nil {
-					common.SysError("error unmarshalling stream response: " + err.Error())
-					return err
-				}
-				for _, choice := range streamResponse.Choices {
-					streamResponseText += choice.Delta.Content
-				}
-			}
-		}
-	} else {
-		body, err := io.ReadAll(resp.Body)
-		if err != nil {
-			return err
-		}
-		err = json.Unmarshal(body, &response)
-		if err != nil {
-			return err
-		}
-
-		// channel.BaseURL starts with https://api.openai.com
-		if response.Usage.CompletionTokens == 0 && strings.HasPrefix(channel.BaseURL, "https://api.openai.com") {
-			return errors.New(fmt.Sprintf("type %s, code %v, message %s", response.Error.Type, response.Error.Code, response.Error.Message))
-		}
+	// channel.BaseURL starts with https://api.openai.com
+	if response.Usage.CompletionTokens == 0 && strings.HasPrefix(channel.BaseURL, "https://api.openai.com") {
+		return errors.New(fmt.Sprintf("type %s, code %v, message %s", response.Error.Type, response.Error.Code, response.Error.Message))
 	}
 
 	defer resp.Body.Close()
-
-	// Check if streaming is complete and streamResponseText is populated
-	if isStream && streamResponseText == "" {
-		return errors.New("Streaming not complete")
-	}
 
 	return nil
 }
