@@ -138,7 +138,28 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 		}
 		requestBody = bytes.NewBuffer(jsonStr)
 	} else {
-		requestBody = c.Request.Body
+		bodyBytes, err := io.ReadAll(c.Request.Body)
+		if err != nil {
+			return errorWrapper(err, "read_request_body_failed", http.StatusInternalServerError)
+		}
+		var bodyMap map[string]interface{}
+		err = json.Unmarshal(bodyBytes, &bodyMap)
+		if err != nil {
+			return errorWrapper(err, "unmarshal_request_body_failed", http.StatusInternalServerError)
+		}
+
+		// Add "stream":true to body map if it doesn't exist
+		if _, exists := bodyMap["stream"]; !exists {
+			bodyMap["stream"] = true
+		}
+
+		// Marshal the body map back into JSON
+		bodyBytes, err = json.Marshal(bodyMap)
+		if err != nil {
+			return errorWrapper(err, "marshal_request_body_failed", http.StatusInternalServerError)
+		}
+
+		requestBody = bytes.NewBuffer(bodyBytes)
 	}
 	req, err := http.NewRequest(c.Request.Method, fullRequestURL, requestBody)
 	if err != nil {
