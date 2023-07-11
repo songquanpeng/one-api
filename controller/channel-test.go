@@ -99,10 +99,6 @@ func testChannel(channel *model.Channel, request ChatRequest) error {
 				}
 			}
 		}
-
-		if streamResponseText == "" {
-			return errors.New("empty stream response")
-		}
 	} else {
 		body, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
@@ -121,6 +117,11 @@ func testChannel(channel *model.Channel, request ChatRequest) error {
 
 	defer resp.Body.Close()
 
+	// Check if streaming is complete and streamResponseText is populated
+	if isStream && streamResponseText == "" {
+		return errors.New("Streaming not complete")
+	}
+
 	return nil
 }
 
@@ -128,6 +129,7 @@ func buildTestRequest() *ChatRequest {
 	testRequest := &ChatRequest{
 		Model:     "", // this will be set later
 		MaxTokens: 1,
+		Stream:    false,
 	}
 	testMessage := Message{
 		Role:    "user",
