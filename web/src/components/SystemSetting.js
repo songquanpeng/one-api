@@ -195,55 +195,55 @@ const SystemSetting = () => {
     <Grid columns={1}>
       <Grid.Column>
         <Form loading={loading}>
-          <Header as='h3'>通用设置</Header>
+          <Header as='h3'>General Settings</Header>
           <Form.Group widths='equal'>
             <Form.Input
-              label='服务器地址'
-              placeholder='例如：https://yourdomain.com'
+              label='Server Address'
+              placeholder='For example：https://yourdomain.com'
               value={inputs.ServerAddress}
               name='ServerAddress'
               onChange={handleInputChange}
             />
           </Form.Group>
           <Form.Button onClick={submitServerAddress}>
-            更新服务器地址
+            Update Server Address
           </Form.Button>
           <Divider />
-          <Header as='h3'>配置登录注册</Header>
+          <Header as='h3'>Configure Login/Registration</Header>
           <Form.Group inline>
             <Form.Checkbox
               checked={inputs.PasswordLoginEnabled === 'true'}
-              label='允许通过密码进行登录'
+              label='Allow login via password'
               name='PasswordLoginEnabled'
               onChange={handleInputChange}
             />
             <Form.Checkbox
               checked={inputs.PasswordRegisterEnabled === 'true'}
-              label='允许通过密码进行注册'
+              label='Allow registration via password'
               name='PasswordRegisterEnabled'
               onChange={handleInputChange}
             />
             <Form.Checkbox
               checked={inputs.EmailVerificationEnabled === 'true'}
-              label='通过密码注册时需要进行邮箱验证'
+              label='Email verification is required when registering via password'
               name='EmailVerificationEnabled'
               onChange={handleInputChange}
             />
             <Form.Checkbox
               checked={inputs.GitHubOAuthEnabled === 'true'}
-              label='允许通过 GitHub 账户登录 & 注册'
+              label='Allow login & registration via GitHub account'
               name='GitHubOAuthEnabled'
               onChange={handleInputChange}
             />
             <Form.Checkbox
               checked={inputs.DiscordOAuthEnabled === 'true'}
-              label='允许通过 Discord 账户登录 & 注册'
+              label='允许通过 Discord 账户登录和注册'
               name='DiscordOAuthEnabled'
               onChange={handleInputChange}
             />
             <Form.Checkbox
               checked={inputs.WeChatAuthEnabled === 'true'}
-              label='允许通过微信登录 & 注册'
+              label='Allow login & registration via WeChat'
               name='WeChatAuthEnabled'
               onChange={handleInputChange}
             />
@@ -251,82 +251,82 @@ const SystemSetting = () => {
           <Form.Group inline>
             <Form.Checkbox
               checked={inputs.RegisterEnabled === 'true'}
-              label='允许新用户注册（此项为否时，新用户将无法以任何方式进行注册）'
+              label='Allow new user registration (if this option is off, new users will not be able to register in any way）'
               name='RegisterEnabled'
               onChange={handleInputChange}
             />
             <Form.Checkbox
               checked={inputs.TurnstileCheckEnabled === 'true'}
-              label='启用 Turnstile 用户校验'
+              label='Enable Turnstile user verification'
               name='TurnstileCheckEnabled'
               onChange={handleInputChange}
             />
           </Form.Group>
           <Divider />
           <Header as='h3'>
-            配置 SMTP
-            <Header.Subheader>用以支持系统的邮件发送</Header.Subheader>
+            Configure SMTP
+            <Header.Subheader>To support the system email sending</Header.Subheader>
           </Header>
           <Form.Group widths={3}>
             <Form.Input
-              label='SMTP 服务器地址'
+              label='SMTP Server Address'
               name='SMTPServer'
               onChange={handleInputChange}
               autoComplete='new-password'
               value={inputs.SMTPServer}
-              placeholder='例如：smtp.qq.com'
+              placeholder='For example: smtp.qq.com'
             />
             <Form.Input
-              label='SMTP 端口'
+              label='SMTP Port'
               name='SMTPPort'
               onChange={handleInputChange}
               autoComplete='new-password'
               value={inputs.SMTPPort}
-              placeholder='默认: 587'
+              placeholder='Default: 587'
             />
             <Form.Input
-              label='SMTP 账户'
+              label='SMTP Account'
               name='SMTPAccount'
               onChange={handleInputChange}
               autoComplete='new-password'
               value={inputs.SMTPAccount}
-              placeholder='通常是邮箱地址'
+              placeholder='Usually an email address'
             />
           </Form.Group>
           <Form.Group widths={3}>
             <Form.Input
-              label='SMTP 发送者邮箱'
+              label='SMTP Sender email'
               name='SMTPFrom'
               onChange={handleInputChange}
               autoComplete='new-password'
               value={inputs.SMTPFrom}
-              placeholder='通常和邮箱地址保持一致'
+              placeholder='Usually consistent with the email address'
             />
             <Form.Input
-              label='SMTP 访问凭证'
+              label='SMTP Access Credential'
               name='SMTPToken'
               onChange={handleInputChange}
               type='password'
               autoComplete='new-password'
               value={inputs.SMTPToken}
-              placeholder='敏感信息不会发送到前端显示'
+              placeholder='Sensitive information will not be displayed in the frontend'
             />
           </Form.Group>
-          <Form.Button onClick={submitSMTP}>保存 SMTP 设置</Form.Button>
+          <Form.Button onClick={submitSMTP}>Save SMTP Settings</Form.Button>
           <Divider />
           <Header as='h3'>
-            配置 Discord OAuth App
+            Configure Discord OAuth App
             <Header.Subheader>
-              用以支持通过 GitHub 进行登录注册，
+              To support login & registration via GitHub，
               <a href='https://discord.com/developers/applications' target='_blank'>
-                点击此处
+                Click here
               </a>
-              管理你的 Discord OAuth App
+              Manage your Discord OAuth App
             </Header.Subheader>
           </Header>
           <Message>
-            Homepage URL 填 <code>{inputs.ServerAddress}</code>
-            ，Authorization callback URL 填{' '}
+            Fill in the Homepage URL <code>{inputs.ServerAddress}</code>
+            ，Fill in the Authorization callback URL{' '}
             <code>{`${inputs.ServerAddress}/oauth/discord`}</code>
           </Message>
           <Form.Group widths={3}>
@@ -336,7 +336,7 @@ const SystemSetting = () => {
               onChange={handleInputChange}
               autoComplete='new-password'
               value={inputs.DiscordClientId}
-              placeholder='输入你注册的 Discord OAuth APP 的 ID'
+              placeholder='Enter the ID of your registered Discord OAuth APP'
             />
             <Form.Input
               label='Discord Client Secret'
@@ -345,26 +345,26 @@ const SystemSetting = () => {
               type='password'
               autoComplete='new-password'
               value={inputs.DiscordClientSecret}
-              placeholder='敏感信息不会发送到前端显示'
+              placeholder='Sensitive information will not be displayed in the frontend'
             />
           </Form.Group>
           <Form.Button onClick={submitDiscordOAuth}>
-            保存 Discord OAuth 设置
+            Save Discord OAuth Settings
           </Form.Button>
           <Divider />
           <Header as='h3'>
-            配置 GitHub OAuth App
+            Configure GitHub OAuth App
             <Header.Subheader>
-              用以支持通过 GitHub 进行登录注册，
+              To support login & registration via GitHub，
               <a href='https://github.com/settings/developers' target='_blank'>
-                点击此处
+                Click here
               </a>
-              管理你的 GitHub OAuth App
+              Manage your GitHub OAuth App
             </Header.Subheader>
           </Header>
           <Message>
-            Homepage URL 填 <code>{inputs.ServerAddress}</code>
-            ，Authorization callback URL 填{' '}
+            Fill in the Homepage URL <code>{inputs.ServerAddress}</code>
+            ，Fill in the Authorization callback URL{' '}
             <code>{`${inputs.ServerAddress}/oauth/github`}</code>
           </Message>
           <Form.Group widths={3}>
@@ -374,7 +374,7 @@ const SystemSetting = () => {
               onChange={handleInputChange}
               autoComplete='new-password'
               value={inputs.GitHubClientId}
-              placeholder='输入你注册的 GitHub OAuth APP 的 ID'
+              placeholder='Enter your registered GitHub OAuth APP ID'
             />
             <Form.Input
               label='GitHub Client Secret'
@@ -383,65 +383,65 @@ const SystemSetting = () => {
               type='password'
               autoComplete='new-password'
               value={inputs.GitHubClientSecret}
-              placeholder='敏感信息不会发送到前端显示'
+              placeholder='Sensitive information will not be displayed in the frontend'
             />
           </Form.Group>
           <Form.Button onClick={submitGitHubOAuth}>
-            保存 GitHub OAuth 设置
+            Save GitHub OAuth Settings
           </Form.Button>
           <Divider />
           <Header as='h3'>
-            配置 WeChat Server
+            Configure WeChat Server
             <Header.Subheader>
-              用以支持通过微信进行登录注册，
+              To support login & registration via WeChat，
               <a
                 href='https://github.com/songquanpeng/wechat-server'
                 target='_blank'
               >
-                点击此处
+                Click here
               </a>
-              了解 WeChat Server
+              Learn about WeChat Server
             </Header.Subheader>
           </Header>
           <Form.Group widths={3}>
             <Form.Input
-              label='WeChat Server 服务器地址'
+              label='WeChat Server Server Address'
               name='WeChatServerAddress'
-              placeholder='例如：https://yourdomain.com'
+              placeholder='For example：https://yourdomain.com'
               onChange={handleInputChange}
               autoComplete='new-password'
               value={inputs.WeChatServerAddress}
             />
             <Form.Input
-              label='WeChat Server 访问凭证'
+              label='WeChat Server Access Credential'
               name='WeChatServerToken'
               type='password'
               onChange={handleInputChange}
               autoComplete='new-password'
               value={inputs.WeChatServerToken}
-              placeholder='敏感信息不会发送到前端显示'
+              placeholder='Sensitive information will not be displayed in the frontend'
             />
             <Form.Input
-              label='微信公众号二维码图片链接'
+              label='WeChat Public Account QR Code Image Link'
               name='WeChatAccountQRCodeImageURL'
               onChange={handleInputChange}
               autoComplete='new-password'
               value={inputs.WeChatAccountQRCodeImageURL}
-              placeholder='输入一个图片链接'
+              placeholder='Enter an image link'
             />
           </Form.Group>
           <Form.Button onClick={submitWeChat}>
-            保存 WeChat Server 设置
+            Save WeChat Server Settings
           </Form.Button>
           <Divider />
           <Header as='h3'>
-            配置 Turnstile
+            Configure Turnstile
             <Header.Subheader>
-              用以支持用户校验，
+              To support user verification，
               <a href='https://dash.cloudflare.com/' target='_blank'>
-                点击此处
+                Click here
               </a>
-              管理你的 Turnstile Sites，推荐选择 Invisible Widget Type
+              Manage your Turnstile Sites, recommend selecting Invisible Widget Type
             </Header.Subheader>
           </Header>
           <Form.Group widths={3}>
@@ -451,7 +451,7 @@ const SystemSetting = () => {
               onChange={handleInputChange}
               autoComplete='new-password'
               value={inputs.TurnstileSiteKey}
-              placeholder='输入你注册的 Turnstile Site Key'
+              placeholder='Enter your registered Turnstile Site Key'
             />
             <Form.Input
               label='Turnstile Secret Key'
@@ -460,11 +460,11 @@ const SystemSetting = () => {
               type='password'
               autoComplete='new-password'
               value={inputs.TurnstileSecretKey}
-              placeholder='敏感信息不会发送到前端显示'
+              placeholder='Sensitive information will not be displayed in the frontend'
             />
           </Form.Group>
           <Form.Button onClick={submitTurnstile}>
-            保存 Turnstile 设置
+            Save Turnstile Settings
           </Form.Button>
         </Form>
       </Grid.Column>
