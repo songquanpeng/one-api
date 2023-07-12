@@ -2,11 +2,12 @@ package controller
 
 import (
 	"encoding/json"
-	"github.com/gin-gonic/gin"
 	"net/http"
 	"one-api/common"
 	"one-api/model"
 	"strings"
+
+	"github.com/gin-gonic/gin"
 )
 
 func GetOptions(c *gin.Context) {
@@ -41,6 +42,14 @@ func UpdateOption(c *gin.Context) {
 		return
 	}
 	switch option.Key {
+	case "DiscordOAuthEnabled":
+		if option.Value == "true" && common.DiscordClientId == "" {
+			c.JSON(http.StatusOK, gin.H{
+				"success": false,
+				"message": "无法启用 Discord OAuth，请先填入 Discord Client ID 以及 Discord Client Secret！",
+			})
+			return
+		}
 	case "GitHubOAuthEnabled":
 		if option.Value == "true" && common.GitHubClientId == "" {
 			c.JSON(http.StatusOK, gin.H{

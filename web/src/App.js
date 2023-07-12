@@ -12,6 +12,7 @@ import AddUser from './pages/User/AddUser';
 import { API, getLogo, getSystemName, showError, showNotice } from './helpers';
 import PasswordResetForm from './components/PasswordResetForm';
 import GitHubOAuth from './components/GitHubOAuth';
+import DiscordOAuth from './components/DiscordOAuth';
 import PasswordResetConfirm from './components/PasswordResetConfirm';
 import { UserContext } from './context/User';
 import { StatusContext } from './context/Status';
@@ -231,6 +232,14 @@ function App() {
         }
       />
       <Route
+        path='/oauth/discord'
+        element={
+          <Suspense fallback={<Loading></Loading>}>
+            <DiscordOAuth />
+          </Suspense>
+        }
+      />
+      <Route
         path='/setting'
         element={
           <PrivateRoute>
@@ -243,11 +252,11 @@ function App() {
       <Route
         path='/topup'
         element={
-        <PrivateRoute>
-          <Suspense fallback={<Loading></Loading>}>
-            <TopUp />
-          </Suspense>
-        </PrivateRoute>
+          <PrivateRoute>
+            <Suspense fallback={<Loading></Loading>}>
+              <TopUp />
+            </Suspense>
+          </PrivateRoute>
         }
       />
       <Route

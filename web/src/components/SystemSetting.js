@@ -8,8 +8,11 @@ const SystemSetting = () => {
     PasswordRegisterEnabled: '',
     EmailVerificationEnabled: '',
     GitHubOAuthEnabled: '',
+    DiscordOAuthEnabled: '',
     GitHubClientId: '',
     GitHubClientSecret: '',
+    DiscordClientId: '',
+    DiscordClientSecret: '',
     Notice: '',
     SMTPServer: '',
     SMTPPort: '',
@@ -56,6 +59,7 @@ const SystemSetting = () => {
       case 'PasswordRegisterEnabled':
       case 'EmailVerificationEnabled':
       case 'GitHubOAuthEnabled':
+      case 'DiscordOAuthEnabled':
       case 'WeChatAuthEnabled':
       case 'TurnstileCheckEnabled':
       case 'RegisterEnabled':
@@ -82,6 +86,8 @@ const SystemSetting = () => {
       name === 'Notice' ||
       name.startsWith('SMTP') ||
       name === 'ServerAddress' ||
+      name === 'DiscordClientId' ||
+      name === 'DiscordClientSecret' ||
       name === 'GitHubClientId' ||
       name === 'GitHubClientSecret' ||
       name === 'WeChatServerAddress' ||
@@ -161,6 +167,18 @@ const SystemSetting = () => {
     }
   };
 
+  const submitDiscordOAuth = async () => {
+    if (originInputs['DiscordClientId'] !== inputs.DiscordClientId) {
+      await updateOption('DiscordClientId', inputs.DiscordClientId);
+    }
+    if (
+      originInputs['DiscordClientSecret'] !== inputs.DiscordClientSecret &&
+      inputs.DiscordClientSecret !== ''
+    ) {
+      await updateOption('DiscordClientSecret', inputs.DiscordClientSecret);
+    }
+  };
+
   const submitTurnstile = async () => {
     if (originInputs['TurnstileSiteKey'] !== inputs.TurnstileSiteKey) {
       await updateOption('TurnstileSiteKey', inputs.TurnstileSiteKey);
@@ -215,6 +233,12 @@ const SystemSetting = () => {
               checked={inputs.GitHubOAuthEnabled === 'true'}
               label='允许通过 GitHub 账户登录 & 注册'
               name='GitHubOAuthEnabled'
+              onChange={handleInputChange}
+            />
+            <Form.Checkbox
+              checked={inputs.DiscordOAuthEnabled === 'true'}
+              label='允许通过 Discord 账户登录 & 注册'
+              name='DiscordOAuthEnabled'
               onChange={handleInputChange}
             />
             <Form.Checkbox
@@ -289,6 +313,44 @@ const SystemSetting = () => {
             />
           </Form.Group>
           <Form.Button onClick={submitSMTP}>保存 SMTP 设置</Form.Button>
+          <Divider />
+          <Header as='h3'>
+            配置 Discord OAuth App
+            <Header.Subheader>
+              用以支持通过 GitHub 进行登录注册，
+              <a href='https://discord.com/developers/applications' target='_blank'>
+                点击此处
+              </a>
+              管理你的 Discord OAuth App
+            </Header.Subheader>
+          </Header>
+          <Message>
+            Homepage URL 填 <code>{inputs.ServerAddress}</code>
+            ，Authorization callback URL 填{' '}
+            <code>{`${inputs.ServerAddress}/oauth/discord`}</code>
+          </Message>
+          <Form.Group widths={3}>
+            <Form.Input
+              label='Discord Client ID'
+              name='DiscordClientId'
+              onChange={handleInputChange}
+              autoComplete='new-password'
+              value={inputs.DiscordClientId}
+              placeholder='输入你注册的 Discord OAuth APP 的 ID'
+            />
+            <Form.Input
+              label='Discord Client Secret'
+              name='DiscordClientSecret'
+              onChange={handleInputChange}
+              type='password'
+              autoComplete='new-password'
+              value={inputs.DiscordClientSecret}
+              placeholder='敏感信息不会发送到前端显示'
+            />
+          </Form.Group>
+          <Form.Button onClick={submitDiscordOAuth}>
+            保存 Discord OAuth 设置
+          </Form.Button>
           <Divider />
           <Header as='h3'>
             配置 GitHub OAuth App
