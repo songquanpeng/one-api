@@ -3,7 +3,6 @@ package controller
 import (
 	"one-api/common"
 	"one-api/model"
-	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -47,7 +46,7 @@ func GetSubscription(c *gin.Context) {
 		SoftLimitUSD:       amount,
 		HardLimitUSD:       amount,
 		SystemHardLimitUSD: amount,
-		AccessUntil:        time.Unix(expirationDate, 0),
+		AccessUntil:        expirationDate,
 	}
 	c.JSON(200, subscription)
 	return
