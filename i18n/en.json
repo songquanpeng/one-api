@@ -522,5 +522,5 @@
   "该 Discord 账户已被绑定": "The Discord account has been bound",
   "管理员未开启通过 Discord 登录以及注册": "The administrator has not enabled login and registration via Discord",
   "无法启用 Discord OAuth，请先填入 Discord Client ID 以及 Discord Client Secret！": "Unable to enable Discord OAuth, please fill in the Discord Client ID and Discord Client Secret first!",
-  "兑换失败，": "Redemption failed, ",
+  "兑换失败，": "Redemption failed, "
 }
