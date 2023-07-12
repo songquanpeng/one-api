@@ -12,7 +12,8 @@ import {
 } from 'semantic-ui-react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { UserContext } from '../context/User';
-import { API, getLogo, showError, showSuccess } from '../helpers';
+import { API, getLogo, showError, showSuccess, showInfo } from '../helpers';
+import Turnstile from 'react-turnstile';
 
 const LoginForm = () => {
   const [inputs, setInputs] = useState({
@@ -24,6 +25,9 @@ const LoginForm = () => {
   const [submitted, setSubmitted] = useState(false);
   const { username, password } = inputs;
   const [userState, userDispatch] = useContext(UserContext);
+  const [turnstileEnabled, setTurnstileEnabled] = useState(false);
+  const [turnstileSiteKey, setTurnstileSiteKey] = useState('');
+  const [turnstileToken, setTurnstileToken] = useState('');
   let navigate = useNavigate();
 
   const [status, setStatus] = useState({});
@@ -37,6 +41,11 @@ const LoginForm = () => {
     if (status) {
       status = JSON.parse(status);
       setStatus(status);
+
+      if (status.turnstile_check) {
+        setTurnstileEnabled(true);
+        setTurnstileSiteKey(status.turnstile_site_key);
+      }
     }
   }, []);
 
@@ -76,7 +85,12 @@ const LoginForm = () => {
   async function handleSubmit(e) {
     setSubmitted(true);
     if (username && password) {
-      const res = await API.post('/api/user/login', {
+      if (turnstileEnabled && turnstileToken === '') {
+        showInfo('请稍后几秒重试，Turnstile 正在检查用户环境！');
+        return;
+      }
+
+      const res = await API.post(`/api/user/login?turnstile=${turnstileToken}`, {
         username,
         password,
       });
@@ -119,6 +133,16 @@ const LoginForm = () => {
               value={password}
               onChange={handleChange}
             />
+            {turnstileEnabled ? (
+              <Turnstile
+                sitekey={turnstileSiteKey}
+                onVerify={(token) => {
+                  setTurnstileToken(token);
+                }}
+              />
+            ) : (
+              <></>
+            )}
             <Button color="" fluid size="large" onClick={handleSubmit}>
               登录
             </Button>
