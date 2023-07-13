@@ -2,12 +2,13 @@ package middleware
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"net/http"
 	"one-api/common"
 	"one-api/model"
 	"strconv"
 	"strings"
+
+	"github.com/gin-gonic/gin"
 )
 
 type ModelRequest struct {
@@ -71,6 +72,11 @@ func Distribute() func(c *gin.Context) {
 			if strings.HasPrefix(c.Request.URL.Path, "/v1/moderations") {
 				if modelRequest.Model == "" {
 					modelRequest.Model = "text-moderation-stable"
+				}
+			}
+			if strings.HasSuffix(c.Request.URL.Path, "embeddings") {
+				if modelRequest.Model == "" {
+					modelRequest.Model = c.Param("model")
 				}
 			}
 			channel, err = model.CacheGetRandomSatisfiedChannel(userGroup, modelRequest.Model)
