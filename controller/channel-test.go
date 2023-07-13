@@ -118,13 +118,12 @@ func testChannel(channel *model.Channel, request ChatRequest) error {
 
 func buildTestRequest() *ChatRequest {
 	testRequest := &ChatRequest{
-		Model:     "", // this will be set later
-		MaxTokens: 1,
-		Stream:    true,
+		Model:  "", // this will be set later
+		Stream: true,
 	}
 	testMessage := Message{
 		Role:    "user",
-		Content: "hi",
+		Content: "say hi word only",
 	}
 	testRequest.Messages = append(testRequest.Messages, testMessage)
 	return testRequest
