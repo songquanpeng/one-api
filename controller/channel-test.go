@@ -83,12 +83,18 @@ func testChannel(channel *model.Channel, request ChatRequest) error {
 			common.SysError("invalid stream response: " + data)
 			continue
 		}
+		if !strings.HasPrefix(data, "data:") {
+			continue
+		}
 		data = data[6:]
 		if !strings.HasPrefix(data, "[DONE]") {
 			var streamResponse ChatCompletionsStreamResponse
 			err = json.Unmarshal([]byte(data), &streamResponse)
 			if err != nil {
-				common.SysError("error unmarshalling stream response: " + err.Error())
+				// Prinnt the body in string
+				buf := new(bytes.Buffer)
+				buf.ReadFrom(resp.Body)
+				common.SysError("error unmarshalling stream response: " + err.Error() + " " + buf.String())
 				return err
 			}
 			for _, choice := range streamResponse.Choices {

@@ -278,6 +278,9 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 					common.SysError("invalid stream response: " + data)
 					continue
 				}
+				if !strings.HasPrefix(data, "data:") {
+					continue
+				}
 				dataChan <- data
 				data = data[6:]
 				if !strings.HasPrefix(data, "[DONE]") {
