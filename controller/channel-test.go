@@ -58,7 +58,8 @@ func testChannel(channel *model.Channel, request ChatRequest) error {
 		return errors.New("invalid status code: " + strconv.Itoa(resp.StatusCode))
 	}
 
-	var streamResponseText string
+	var done = false
+	var streamResponseText = ""
 
 	scanner := bufio.NewScanner(resp.Body)
 	scanner.Split(func(data []byte, atEOF bool) (advance int, token []byte, err error) {
@@ -93,13 +94,16 @@ func testChannel(channel *model.Channel, request ChatRequest) error {
 			for _, choice := range streamResponse.Choices {
 				streamResponseText += choice.Delta.Content
 			}
+		} else {
+			done = true
+			break
 		}
 	}
 
 	defer resp.Body.Close()
 
 	// Check if streaming is complete and streamResponseText is populated
-	if streamResponseText == "" {
+	if streamResponseText == "" || !done {
 		return errors.New("Streaming not complete")
 	}
 
