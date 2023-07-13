@@ -278,6 +278,25 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 					common.SysError("invalid stream response: " + data)
 					continue
 				}
+				// If data has event: event content inside, remove it, it can be prefix or inside the data
+				if strings.HasPrefix(data, "event:") || strings.Contains(data, "event:") {
+					// Remove event: event in the front or back
+					data = strings.TrimPrefix(data, "event: event")
+					data = strings.TrimSuffix(data, "event: event")
+					// Remove everything, only keep `data: {...}` <--- this is the json
+					// Find the start and end indices of `data: {...}` substring
+					startIndex := strings.Index(data, "data:")
+					endIndex := strings.LastIndex(data, "}")
+
+					// If both indices are found and end index is greater than start index
+					if startIndex != -1 && endIndex != -1 && endIndex > startIndex {
+						// Extract the `data: {...}` substring
+						data = data[startIndex : endIndex+1]
+					}
+
+					// Trim whitespace and newlines from the modified data string
+					data = strings.TrimSpace(data)
+				}
 				if !strings.HasPrefix(data, "data:") {
 					continue
 				}
