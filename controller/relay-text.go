@@ -181,15 +181,13 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 		return errorWrapper(err, "do_request_failed", http.StatusInternalServerError)
 	}
 	if resp.StatusCode != http.StatusOK {
-		// Print Data if Error
-		bodyBytes, err := io.ReadAll(resp.Body)
-		if err != nil {
-			return errorWrapper(err, "read_response_body_failed", http.StatusInternalServerError)
+		// Print the body in string
+		if resp.Body != nil {
+			buf := new(bytes.Buffer)
+			buf.ReadFrom(resp.Body)
+			log.Printf("Error Channel (%s): %s", baseURL, buf.String())
+			return errorWrapper(err, "request_failed", resp.StatusCode)
 		}
-
-		bodyString := string(bodyBytes)
-
-		log.Printf("Error: %s", bodyString)
 
 		return errorWrapper(err, "request_failed", resp.StatusCode)
 	}

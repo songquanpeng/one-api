@@ -55,10 +55,14 @@ func testChannel(channel *model.Channel, request ChatRequest) error {
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		// Prinnt the body in string
-		buf := new(bytes.Buffer)
-		buf.ReadFrom(resp.Body)
-		return errors.New("error response: " + strconv.Itoa(resp.StatusCode) + " " + buf.String())
+		// Print the body in string
+		if resp.Body != nil {
+			buf := new(bytes.Buffer)
+			buf.ReadFrom(resp.Body)
+			return errors.New("error response: " + strconv.Itoa(resp.StatusCode) + " " + buf.String())
+		}
+
+		return errors.New("error response: " + strconv.Itoa(resp.StatusCode))
 	}
 
 	var done = false
