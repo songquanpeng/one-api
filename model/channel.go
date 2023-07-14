@@ -1,8 +1,9 @@
 package model
 
 import (
-	"gorm.io/gorm"
 	"one-api/common"
+
+	"gorm.io/gorm"
 )
 
 type Channel struct {
@@ -23,6 +24,9 @@ type Channel struct {
 	Group              string  `json:"group" gorm:"type:varchar(32);default:'default'"`
 	UsedQuota          int64   `json:"used_quota" gorm:"bigint;default:0"`
 	ModelMapping       string  `json:"model_mapping" gorm:"type:varchar(1024);default:''"`
+
+	// Additional fields, default value is false
+	EnableIpRandomization bool `json:"enable_ip_randomization"`
 }
 
 func GetAllChannels(startIdx int, num int, selectAll bool) ([]*Channel, error) {

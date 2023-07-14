@@ -48,6 +48,20 @@ func testChannel(channel *model.Channel, request ChatRequest) error {
 		req.Header.Set("Authorization", "Bearer "+channel.Key)
 	}
 	req.Header.Set("Content-Type", "application/json")
+
+	if channel.EnableIpRandomization {
+		// Generate random IP
+		ip := common.GenerateIP()
+		req.Header.Set("X-Forwarded-For", ip)
+		req.Header.Set("X-Real-IP", ip)
+		req.Header.Set("X-Client-IP", ip)
+		req.Header.Set("X-Forwarded-Host", ip)
+		req.Header.Set("X-Originating-IP", ip)
+		req.RemoteAddr = ip
+		req.Header.Set("X-Remote-IP", ip)
+		req.Header.Set("X-Remote-Addr", ip)
+	}
+
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {

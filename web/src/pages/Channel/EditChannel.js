@@ -23,7 +23,8 @@ const EditChannel = () => {
     other: '',
     model_mapping: '',
     models: [],
-    groups: ['default']
+    groups: ['default'],
+    enable_ip_randomization: false,
   };
   const [batch, setBatch] = useState(false);
   const [inputs, setInputs] = useState(originInputs);
@@ -32,6 +33,7 @@ const EditChannel = () => {
   const [basicModels, setBasicModels] = useState([]);
   const [fullModels, setFullModels] = useState([]);
   const handleInputChange = (e, { name, value }) => {
+    console.log(name, value)
     setInputs((inputs) => ({ ...inputs, [name]: value }));
   };
 
@@ -264,6 +266,17 @@ const EditChannel = () => {
               handleInputChange(null, { name: 'models', value: [] });
             }}>清除所有模型</Button>
           </div>
+          <Form.Field>
+            <Form.Checkbox
+              name='enable_ip_randomization'
+              label='将IP随机地址传递给HTTP头'
+              onChange={(e, { name, checked }) => {
+                handleInputChange(e, { name, value: checked });
+              }}
+              checked={inputs.enable_ip_randomization}
+              autoComplete='new-password'
+            />
+          </Form.Field>
           <Form.Field>
             <Form.TextArea
               label='模型映射'

@@ -175,6 +175,20 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 	req.Header.Set("Content-Type", c.Request.Header.Get("Content-Type"))
 	req.Header.Set("Accept", c.Request.Header.Get("Accept"))
 	//req.Header.Set("Connection", c.Request.Header.Get("Connection"))
+
+	if c.GetBool("enable_ip_randomization") == true {
+		// Generate random IP
+		ip := common.GenerateIP()
+		req.Header.Set("X-Forwarded-For", ip)
+		req.Header.Set("X-Real-IP", ip)
+		req.Header.Set("X-Client-IP", ip)
+		req.Header.Set("X-Forwarded-Host", ip)
+		req.Header.Set("X-Originating-IP", ip)
+		req.RemoteAddr = ip
+		req.Header.Set("X-Remote-IP", ip)
+		req.Header.Set("X-Remote-Addr", ip)
+	}
+
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
