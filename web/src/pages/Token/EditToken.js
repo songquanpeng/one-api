@@ -13,8 +13,12 @@ const EditToken = () => {
     name: '',
     remain_quota: isEdit ? 0 : 500000,
     expired_time: -1,
-    unlimited_quota: false
+    unlimited_quota: false,
+    models: [],
   };
+  const [modelOptions, setModelOptions] = useState([]);
+  const [basicModels, setBasicModels] = useState([]);
+  const [fullModels, setFullModels] = useState([]);
   const [inputs, setInputs] = useState(originInputs);
   const { name, remain_quota, expired_time, unlimited_quota } = inputs;
 
@@ -39,6 +43,21 @@ const EditToken = () => {
 
   const setUnlimitedQuota = () => {
     setInputs({ ...inputs, unlimited_quota: !unlimited_quota });
+  };
+
+  const fetchModels = async () => {
+    try {
+      let res = await API.get(`/api/channel/models`);
+      setModelOptions(res.data.data.map((model) => ({
+        key: model.id,
+        text: model.id,
+        value: model.id
+      })));
+      setFullModels(res.data.data.map((model) => model.id));
+      setBasicModels(res.data.data.filter((model) => !model.id.startsWith('gpt-4')).map((model) => model.id));
+    } catch (error) {
+      showError(error.message);
+    }
   };
 
   const loadToken = async () => {
@@ -72,6 +91,11 @@ const EditToken = () => {
       }
       localInputs.expired_time = Math.ceil(time / 1000);
     }
+    if (inputs.models.length === 0) {
+      showError('请至少选择一个模型！');
+      return;
+    }
+    localInputs.models = localInputs.models.join(',');
     let res;
     if (isEdit) {
       res = await API.put(`/api/token/`, { ...localInputs, id: parseInt(tokenId) });
@@ -90,6 +114,10 @@ const EditToken = () => {
       showError(message);
     }
   };
+
+  useEffect(() => {
+    fetchModels().then();
+  }, []);
 
   return (
     <>
@@ -151,6 +179,32 @@ const EditToken = () => {
           <Button type={'button'} onClick={() => {
             setUnlimitedQuota();
           }}>{unlimited_quota ? '取消无限额度' : '设置为无限额度'}</Button>
+          <Form.Field style={{ marginTop: '12px' }}>
+            <Form.Dropdown
+              label='模型'
+              placeholder={'请选择此密钥支持的模型'}
+              name='models'
+              required
+              fluid
+              multiple
+              selection
+              onChange={handleInputChange}
+              value={inputs.models}
+              autoComplete='new-password'
+              options={modelOptions}
+            />
+          </Form.Field>
+          <div style={{ lineHeight: '40px', marginBottom: '12px' }}>
+            <Button type={'button'} onClick={() => {
+              handleInputChange(null, { name: 'models', value: basicModels });
+            }}>填入基础模型</Button>
+            <Button type={'button'} onClick={() => {
+              handleInputChange(null, { name: 'models', value: fullModels });
+            }}>填入所有模型</Button>
+            <Button type={'button'} onClick={() => {
+              handleInputChange(null, { name: 'models', value: [] });
+            }}>清除所有模型</Button>
+          </div>
           <Button positive onClick={submit}>提交</Button>
         </Form>
       </Segment>

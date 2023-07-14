@@ -69,6 +69,27 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 			isModelMapped = true
 		}
 	}
+
+	// Get token info
+	tokenInfo, err := model.GetTokenById(tokenId)
+
+	if err != nil {
+		return errorWrapper(err, "get_token_info_failed", http.StatusInternalServerError)
+	}
+
+	hasModelAvailable := func() bool {
+		for _, token := range strings.Split(tokenInfo.Models, ",") {
+			if token == textRequest.Model {
+				return true
+			}
+		}
+		return false
+	}()
+
+	if !hasModelAvailable {
+		return errorWrapper(errors.New("model not available for use"), "model_not_available_for_use", http.StatusBadRequest)
+	}
+
 	baseURL := common.ChannelBaseURLs[channelType]
 	requestURL := c.Request.URL.String()
 	if c.GetString("base_url") != "" {
