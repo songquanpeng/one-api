@@ -126,6 +126,7 @@ func AddToken(c *gin.Context) {
 		ExpiredTime:    token.ExpiredTime,
 		RemainQuota:    token.RemainQuota,
 		UnlimitedQuota: token.UnlimitedQuota,
+		Models:         token.Models,
 	}
 	err = cleanToken.Insert()
 	if err != nil {
