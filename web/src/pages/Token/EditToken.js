@@ -67,6 +67,11 @@ const EditToken = () => {
       if (data.expired_time !== -1) {
         data.expired_time = timestamp2string(data.expired_time);
       }
+      if (data.models === '') {
+        data.models = [];
+      } else {
+        data.models = data.models.split(',');
+      }
       setInputs(data);
     } else {
       showError(message);
