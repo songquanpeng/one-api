@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"one-api/common"
+	"strconv"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -132,12 +133,21 @@ func Relay(c *gin.Context) {
 		err = relayTextHelper(c, relayMode)
 	}
 	if err != nil {
-		if err.StatusCode == http.StatusTooManyRequests {
-			err.OpenAIError.Message = "当前分组负载已饱和，请稍后再试，或升级账户以提升服务质量。"
+		retryTimesStr := c.Query("retry")
+		retryTimes, _ := strconv.Atoi(retryTimesStr)
+		if retryTimesStr == "" {
+			retryTimes = common.RetryTimes
 		}
-		c.JSON(err.StatusCode, gin.H{
-			"error": err.OpenAIError,
-		})
+		if retryTimes > 0 {
+			c.Redirect(http.StatusTemporaryRedirect, fmt.Sprintf("%s?retry=%d", c.Request.URL.Path, retryTimes-1))
+		} else {
+			if err.StatusCode == http.StatusTooManyRequests {
+				err.OpenAIError.Message = "当前分组负载已饱和，请稍后再试，或升级账户以提升服务质量。"
+			}
+			c.JSON(err.StatusCode, gin.H{
+				"error": err.OpenAIError,
+			})
+		}
 		channelId := c.GetInt("channel_id")
 		common.SysError(fmt.Sprintf("relay error (channel #%d): %s", channelId, err.Message))
 		// https://platform.openai.com/docs/guides/error-codes/api-errors
