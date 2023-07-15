@@ -413,7 +413,7 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 				for scanner.Scan() {
 					data := scanner.Text()
 					if len(data) < 6 { // must be something wrong!
-						common.SysError("invalid stream response: " + data)
+						// common.SysError("invalid stream response: " + data)
 						continue
 					}
 					// If data has event: event content inside, remove it, it can be prefix or inside the data
