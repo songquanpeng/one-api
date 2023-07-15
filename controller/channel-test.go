@@ -186,34 +186,25 @@ func testChannel(channel *model.Channel, request ChatRequest) error {
 				break
 			}
 		} else if channel.Type == common.ChannelTypeChatGPTWeb {
-			// data may contain multiple json objects, so we need to split them
-			// they are "{....}{....}{....}" or "{....}\n{....}\n{....}" or "{....}"
+			scanner := bufio.NewScanner(resp.Body)
+			go func() {
+				for scanner.Scan() {
+					var chatResponse ChatGptWebChatResponse
+					err = json.Unmarshal(scanner.Bytes(), &chatResponse)
 
-			// remove all spaces and newlines outside of json objects
-			jsonObjs := strings.Split(data, "\n") // Split the data into multiple JSON objects
-			for _, jsonObj := range jsonObjs {
-				if jsonObj == "" {
-					continue
-				}
+					if err != nil {
+						log.Println("error unmarshal chat response: " + err.Error())
+						continue
+					}
 
-				var chatResponse ChatGptWebChatResponse
-				err = json.Unmarshal([]byte(jsonObj), &chatResponse)
-				if err != nil {
-					// Print the body in string
-					buf := new(bytes.Buffer)
-					buf.ReadFrom(resp.Body)
-					common.SysError("error unmarshalling chat response: " + err.Error() + " " + buf.String())
-					return err
-				}
-
-				// if response role is assistant and contains delta, append the content to streamResponseText
-				if chatResponse.Role == "assistant" && chatResponse.Detail != nil {
-					for _, choice := range chatResponse.Detail.Choices {
-						log.Print(choice.Delta.Content)
-						streamResponseText += choice.Delta.Content
+					// if response role is assistant and contains delta, append the content to streamResponseText
+					if chatResponse.Role == "assistant" && chatResponse.Detail != nil {
+						for _, choice := range chatResponse.Detail.Choices {
+							streamResponseText += choice.Delta.Content
+						}
 					}
 				}
-			}
+			}()
 		}
 	}
 
