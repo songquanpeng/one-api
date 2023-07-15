@@ -79,6 +79,11 @@ func Distribute() func(c *gin.Context) {
 					modelRequest.Model = c.Param("model")
 				}
 			}
+			if strings.HasPrefix(c.Request.URL.Path, "/v1/images/generations") {
+				if modelRequest.Model == "" {
+					modelRequest.Model = "dall-e"
+				}
+			}
 			channel, err = model.CacheGetRandomSatisfiedChannel(userGroup, modelRequest.Model)
 			if err != nil {
 				message := "无可用渠道"

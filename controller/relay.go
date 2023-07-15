@@ -38,6 +38,7 @@ type GeneralOpenAIRequest struct {
 	N           int       `json:"n,omitempty"`
 	Input       any       `json:"input,omitempty"`
 	Instruction string    `json:"instruction,omitempty"`
+	Size        string    `json:"size,omitempty"`
 }
 
 type ChatRequest struct {
@@ -52,6 +53,12 @@ type TextRequest struct {
 	Prompt    string    `json:"prompt"`
 	MaxTokens int       `json:"max_tokens"`
 	//Stream   bool      `json:"stream"`
+}
+
+type ImageRequest struct {
+	Prompt string `json:"prompt"`
+	N      int    `json:"n"`
+	Size   string `json:"size"`
 }
 
 type Usage struct {
@@ -75,6 +82,13 @@ type OpenAIErrorWithStatusCode struct {
 type TextResponse struct {
 	Usage `json:"usage"`
 	Error OpenAIError `json:"error"`
+}
+
+type ImageResponse struct {
+	Created int `json:"created"`
+	Data    []struct {
+		Url string `json:"url"`
+	}
 }
 
 type ChatCompletionsStreamResponse struct {
