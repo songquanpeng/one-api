@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Button, Form, Header, Message, Segment } from 'semantic-ui-react';
 import { useParams } from 'react-router-dom';
 import { API, showError, showSuccess, timestamp2string } from '../../helpers';
-import { renderQuota, renderQuotaWithPrompt } from '../../helpers/render';
+import { renderQuotaWithPrompt } from '../../helpers/render';
 
 const EditToken = () => {
   const params = useParams();
@@ -14,7 +14,7 @@ const EditToken = () => {
     remain_quota: isEdit ? 0 : 500000,
     expired_time: -1,
     unlimited_quota: false,
-    models: [],
+    models: isEdit ? [] : ['gpt-3.5-turbo', 'gpt-3.5-turbo-0301', 'gpt-3.5-turbo-0613', 'gpt-3.5-turbo-16k', 'gpt-3.5-turbo-16k-0613']
   };
   const [modelOptions, setModelOptions] = useState([]);
   const [basicModels, setBasicModels] = useState([]);
