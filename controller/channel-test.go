@@ -122,29 +122,29 @@ func testChannel(channel *model.Channel, request ChatRequest) error {
 	var done = false
 	var streamResponseText = ""
 
-	scanner := bufio.NewScanner(resp.Body)
-	scanner.Split(func(data []byte, atEOF bool) (advance int, token []byte, err error) {
-		if atEOF && len(data) == 0 {
+	if channel.Type != common.ChannelTypeChatGPTWeb {
+		scanner := bufio.NewScanner(resp.Body)
+		scanner.Split(func(data []byte, atEOF bool) (advance int, token []byte, err error) {
+			if atEOF && len(data) == 0 {
+				return 0, nil, nil
+			}
+
+			if i := strings.Index(string(data), "\n"); i >= 0 {
+				return i + 2, data[0:i], nil
+			}
+
+			if atEOF {
+				return len(data), data, nil
+			}
+
 			return 0, nil, nil
-		}
+		})
+		for scanner.Scan() {
+			data := scanner.Text()
+			if len(data) < 6 { // must be something wrong!
+				continue
+			}
 
-		if i := strings.Index(string(data), "\n\n"); i >= 0 {
-			return i + 2, data[0:i], nil
-		}
-
-		if atEOF {
-			return len(data), data, nil
-		}
-
-		return 0, nil, nil
-	})
-	for scanner.Scan() {
-		data := scanner.Text()
-		if len(data) < 6 { // must be something wrong!
-			common.SysError("invalid stream response: " + data)
-			continue
-		}
-		if channel.Type != common.ChannelTypeChatGPTWeb {
 			// If data has event: event content inside, remove it, it can be prefix or inside the data
 			if strings.HasPrefix(data, "event:") || strings.Contains(data, "event:") {
 				// Remove event: event in the front or back
@@ -185,27 +185,28 @@ func testChannel(channel *model.Channel, request ChatRequest) error {
 				done = true
 				break
 			}
-		} else if channel.Type == common.ChannelTypeChatGPTWeb {
-			scanner := bufio.NewScanner(resp.Body)
-			go func() {
-				for scanner.Scan() {
-					var chatResponse ChatGptWebChatResponse
-					err = json.Unmarshal(scanner.Bytes(), &chatResponse)
+		}
+	} else if channel.Type == common.ChannelTypeChatGPTWeb {
+		scanner := bufio.NewScanner(resp.Body)
 
-					if err != nil {
-						log.Println("error unmarshal chat response: " + err.Error())
-						continue
-					}
+		go func() {
+			for scanner.Scan() {
+				var chatResponse ChatGptWebChatResponse
+				err = json.Unmarshal(scanner.Bytes(), &chatResponse)
 
-					// if response role is assistant and contains delta, append the content to streamResponseText
-					if chatResponse.Role == "assistant" && chatResponse.Detail != nil {
-						for _, choice := range chatResponse.Detail.Choices {
-							streamResponseText += choice.Delta.Content
-						}
+				if err != nil {
+					log.Println("error unmarshal chat response: " + err.Error())
+					continue
+				}
+
+				// if response role is assistant and contains delta, append the content to streamResponseText
+				if chatResponse.Role == "assistant" && chatResponse.Detail != nil {
+					for _, choice := range chatResponse.Detail.Choices {
+						streamResponseText += choice.Delta.Content
 					}
 				}
-			}()
-		}
+			}
+		}()
 	}
 
 	defer resp.Body.Close()
