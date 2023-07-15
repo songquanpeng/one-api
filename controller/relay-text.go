@@ -33,6 +33,9 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 	if relayMode == RelayModeModerations && textRequest.Model == "" {
 		textRequest.Model = "text-moderation-latest"
 	}
+	if relayMode == RelayModeEmbeddings && textRequest.Model == "" {
+		textRequest.Model = c.Param("model")
+	}
 	// request validation
 	if textRequest.Model == "" {
 		return errorWrapper(errors.New("model is required"), "required_field_missing", http.StatusBadRequest)
@@ -478,7 +481,8 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 				if strings.HasPrefix(data, "data: [DONE]") {
 					data = data[:12]
 				}
-				log.Print(data)
+				// some implementations may add \r at the end of data
+				data = strings.TrimSuffix(data, "\r")
 				c.Render(-1, common.CustomEvent{Data: data})
 				return true
 			case <-stopChan:

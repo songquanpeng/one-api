@@ -20,6 +20,7 @@ const OperationSetting = () => {
     DisplayInCurrencyEnabled: '',
     DisplayTokenStatEnabled: '',
     ApproximateTokenEnabled: '',
+    RetryTimes: 0,
   });
   const [originInputs, setOriginInputs] = useState({});
   let [loading, setLoading] = useState(false);
@@ -122,6 +123,9 @@ const OperationSetting = () => {
         if (originInputs['QuotaPerUnit'] !== inputs.QuotaPerUnit) {
           await updateOption('QuotaPerUnit', inputs.QuotaPerUnit);
         }
+        if (originInputs['RetryTimes'] !== inputs.RetryTimes) {
+          await updateOption('RetryTimes', inputs.RetryTimes);
+        }
         break;
     }
   };
@@ -133,7 +137,7 @@ const OperationSetting = () => {
           <Header as='h3'>
             通用设置
           </Header>
-          <Form.Group widths={3}>
+          <Form.Group widths={4}>
             <Form.Input
               label='充值链接'
               name='TopUpLink'
@@ -161,6 +165,17 @@ const OperationSetting = () => {
               type='number'
               step='0.01'
               placeholder='一单位货币能兑换的额度'
+            />
+            <Form.Input
+              label='失败重试次数'
+              name='RetryTimes'
+              type={'number'}
+              step='1'
+              min='0'
+              onChange={handleInputChange}
+              autoComplete='new-password'
+              value={inputs.RetryTimes}
+              placeholder='失败重试次数'
             />
           </Form.Group>
           <Form.Group inline>

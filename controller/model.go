@@ -252,6 +252,24 @@ func init() {
 			Root:       "code-davinci-edit-001",
 			Parent:     nil,
 		},
+		{
+			Id:         "ChatGLM",
+			Object:     "model",
+			Created:    1677649963,
+			OwnedBy:    "thudm",
+			Permission: permission,
+			Root:       "ChatGLM",
+			Parent:     nil,
+		},
+		{
+			Id:         "ChatGLM2",
+			Object:     "model",
+			Created:    1677649963,
+			OwnedBy:    "thudm",
+			Permission: permission,
+			Root:       "ChatGLM2",
+			Parent:     nil,
+		},
 	}
 	openAIModelsMap = make(map[string]OpenAIModels)
 	for _, model := range openAIModels {

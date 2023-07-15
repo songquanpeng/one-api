@@ -22,26 +22,26 @@ func relayImageHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode 
 	consumeQuota := c.GetBool("consume_quota")
 	group := c.GetString("group")
 
-	var textRequest GeneralOpenAIRequest
+	var imageRequest ImageRequest
 	if consumeQuota {
-		err := common.UnmarshalBodyReusable(c, &textRequest)
+		err := common.UnmarshalBodyReusable(c, &imageRequest)
 		if err != nil {
 			return errorWrapper(err, "bind_request_body_failed", http.StatusBadRequest)
 		}
 	}
 
 	// Prompt validation
-	if textRequest.Prompt == "" {
+	if imageRequest.Prompt == "" {
 		return errorWrapper(errors.New("prompt is required"), "required_field_missing", http.StatusBadRequest)
 	}
 
 	// Not "256x256", "512x512", or "1024x1024"
-	if textRequest.Size != "" && textRequest.Size != "256x256" && textRequest.Size != "512x512" && textRequest.Size != "1024x1024" {
+	if imageRequest.Size != "" && imageRequest.Size != "256x256" && imageRequest.Size != "512x512" && imageRequest.Size != "1024x1024" {
 		return errorWrapper(errors.New("size must be one of 256x256, 512x512, or 1024x1024"), "invalid_field_value", http.StatusBadRequest)
 	}
 
-	// N should between 1 to 10
-	if textRequest.N != 0 && (textRequest.N < 1 || textRequest.N > 10) {
+	// N should between 1 and 10
+	if imageRequest.N != 0 && (imageRequest.N < 1 || imageRequest.N > 10) {
 		return errorWrapper(errors.New("n must be between 1 and 10"), "invalid_field_value", http.StatusBadRequest)
 	}
 
@@ -71,7 +71,7 @@ func relayImageHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode 
 
 	var requestBody io.Reader
 	if isModelMapped {
-		jsonStr, err := json.Marshal(textRequest)
+		jsonStr, err := json.Marshal(imageRequest)
 		if err != nil {
 			return errorWrapper(err, "marshal_text_request_failed", http.StatusInternalServerError)
 		}
@@ -87,14 +87,14 @@ func relayImageHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode 
 
 	sizeRatio := 1.0
 	// Size
-	if textRequest.Size == "256x256" {
+	if imageRequest.Size == "256x256" {
 		sizeRatio = 1
-	} else if textRequest.Size == "512x512" {
+	} else if imageRequest.Size == "512x512" {
 		sizeRatio = 1.125
-	} else if textRequest.Size == "1024x1024" {
+	} else if imageRequest.Size == "1024x1024" {
 		sizeRatio = 1.25
 	}
-	quota := int(ratio * sizeRatio * 1000)
+	quota := int(ratio*sizeRatio*1000) * imageRequest.N
 
 	if consumeQuota && userQuota-quota < 0 {
 		return errorWrapper(err, "insufficient_user_quota", http.StatusForbidden)

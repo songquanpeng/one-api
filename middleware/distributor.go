@@ -74,6 +74,11 @@ func Distribute() func(c *gin.Context) {
 					modelRequest.Model = "text-moderation-stable"
 				}
 			}
+			if strings.HasSuffix(c.Request.URL.Path, "embeddings") {
+				if modelRequest.Model == "" {
+					modelRequest.Model = c.Param("model")
+				}
+			}
 			if strings.HasPrefix(c.Request.URL.Path, "/v1/images/generations") {
 				if modelRequest.Model == "" {
 					modelRequest.Model = "dall-e"
