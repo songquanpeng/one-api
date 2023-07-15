@@ -154,6 +154,9 @@ const (
 	ChannelTypePaLM      = 11
 	ChannelTypeAPI2GPT   = 12
 	ChannelTypeAIGC2D    = 13
+
+	// Reserve engineering for public projects
+	ChannelTypeChatGPTWeb = 14 // Chanzhaoyu/chatgpt-web
 )
 
 var ChannelBaseURLs = []string{
@@ -171,4 +174,7 @@ var ChannelBaseURLs = []string{
 	"",                              // 11
 	"https://api.api2gpt.com",       // 12
 	"https://api.aigc2d.com",        // 13
+
+	// Reserve engineering for public projects
+	"", // 14 // Chanzhaoyu/chatgpt-web
 }

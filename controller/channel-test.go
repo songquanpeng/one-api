@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 	"one-api/common"
 	"one-api/model"
@@ -27,6 +28,11 @@ func testChannel(channel *model.Channel, request ChatRequest) error {
 	requestURL := common.ChannelBaseURLs[channel.Type]
 	if channel.Type == common.ChannelTypeAzure {
 		requestURL = fmt.Sprintf("%s/openai/deployments/%s/chat/completions?api-version=2023-03-15-preview", channel.BaseURL, request.Model)
+	} else if channel.Type == common.ChannelTypeChatGPTWeb {
+		if channel.BaseURL != "" {
+			requestURL = channel.BaseURL
+		}
+		requestURL += "/api/chat-process"
 	} else {
 		if channel.BaseURL != "" {
 			requestURL = channel.BaseURL
@@ -35,6 +41,41 @@ func testChannel(channel *model.Channel, request ChatRequest) error {
 	}
 
 	jsonData, err := json.Marshal(request)
+
+	if channel.Type == common.ChannelTypeChatGPTWeb {
+		// Get system message from Message json, Role == "system"
+		var systemMessage Message
+
+		for _, message := range request.Messages {
+			if message.Role == "system" {
+				systemMessage = message
+				break
+			}
+		}
+
+		var prompt string
+
+		// Get all the Message, Roles from request.Messages, and format it into string by
+		// ||> role: content
+		for _, message := range request.Messages {
+			// Exclude system message
+			if message.Role == "system" {
+				continue
+			}
+			prompt += "||> " + message.Role + ": " + message.Content + "\n"
+		}
+
+		// Construct json data without adding escape character
+		map1 := map[string]string{
+			"prompt":        prompt,
+			"systemMessage": systemMessage.Content,
+			"temperature":   strconv.FormatFloat(request.Temperature, 'f', 2, 64),
+			"top_p":         strconv.FormatFloat(request.TopP, 'f', 2, 64),
+		}
+
+		// Convert map to json string
+		jsonData, err = json.Marshal(map1)
+	}
 	if err != nil {
 		return err
 	}
@@ -104,52 +145,83 @@ func testChannel(channel *model.Channel, request ChatRequest) error {
 			common.SysError("invalid stream response: " + data)
 			continue
 		}
-		// If data has event: event content inside, remove it, it can be prefix or inside the data
-		if strings.HasPrefix(data, "event:") || strings.Contains(data, "event:") {
-			// Remove event: event in the front or back
-			data = strings.TrimPrefix(data, "event: event")
-			data = strings.TrimSuffix(data, "event: event")
-			// Remove everything, only keep `data: {...}` <--- this is the json
-			// Find the start and end indices of `data: {...}` substring
-			startIndex := strings.Index(data, "data:")
-			endIndex := strings.LastIndex(data, "}")
+		if channel.Type != common.ChannelTypeChatGPTWeb {
+			// If data has event: event content inside, remove it, it can be prefix or inside the data
+			if strings.HasPrefix(data, "event:") || strings.Contains(data, "event:") {
+				// Remove event: event in the front or back
+				data = strings.TrimPrefix(data, "event: event")
+				data = strings.TrimSuffix(data, "event: event")
+				// Remove everything, only keep `data: {...}` <--- this is the json
+				// Find the start and end indices of `data: {...}` substring
+				startIndex := strings.Index(data, "data:")
+				endIndex := strings.LastIndex(data, "}")
 
-			// If both indices are found and end index is greater than start index
-			if startIndex != -1 && endIndex != -1 && endIndex > startIndex {
-				// Extract the `data: {...}` substring
-				data = data[startIndex : endIndex+1]
-			}
+				// If both indices are found and end index is greater than start index
+				if startIndex != -1 && endIndex != -1 && endIndex > startIndex {
+					// Extract the `data: {...}` substring
+					data = data[startIndex : endIndex+1]
+				}
 
-			// Trim whitespace and newlines from the modified data string
-			data = strings.TrimSpace(data)
-		}
-		if !strings.HasPrefix(data, "data:") {
-			continue
-		}
-		data = data[6:]
-		if !strings.HasPrefix(data, "[DONE]") {
-			var streamResponse ChatCompletionsStreamResponse
-			err = json.Unmarshal([]byte(data), &streamResponse)
-			if err != nil {
-				// Prinnt the body in string
-				buf := new(bytes.Buffer)
-				buf.ReadFrom(resp.Body)
-				common.SysError("error unmarshalling stream response: " + err.Error() + " " + buf.String())
-				return err
+				// Trim whitespace and newlines from the modified data string
+				data = strings.TrimSpace(data)
 			}
-			for _, choice := range streamResponse.Choices {
-				streamResponseText += choice.Delta.Content
+			if !strings.HasPrefix(data, "data:") {
+				continue
 			}
-		} else {
-			done = true
-			break
+			data = data[6:]
+			if !strings.HasPrefix(data, "[DONE]") {
+				var streamResponse ChatCompletionsStreamResponse
+				err = json.Unmarshal([]byte(data), &streamResponse)
+				if err != nil {
+					// Prinnt the body in string
+					buf := new(bytes.Buffer)
+					buf.ReadFrom(resp.Body)
+					common.SysError("error unmarshalling stream response: " + err.Error() + " " + buf.String())
+					return err
+				}
+				for _, choice := range streamResponse.Choices {
+					streamResponseText += choice.Delta.Content
+				}
+			} else {
+				done = true
+				break
+			}
+		} else if channel.Type == common.ChannelTypeChatGPTWeb {
+			// data may contain multiple json objects, so we need to split them
+			// they are "{....}{....}{....}" or "{....}\n{....}\n{....}" or "{....}"
+
+			// remove all spaces and newlines outside of json objects
+			jsonObjs := strings.Split(data, "\n") // Split the data into multiple JSON objects
+			for _, jsonObj := range jsonObjs {
+				if jsonObj == "" {
+					continue
+				}
+
+				var chatResponse ChatGptWebChatResponse
+				err = json.Unmarshal([]byte(jsonObj), &chatResponse)
+				if err != nil {
+					// Print the body in string
+					buf := new(bytes.Buffer)
+					buf.ReadFrom(resp.Body)
+					common.SysError("error unmarshalling chat response: " + err.Error() + " " + buf.String())
+					return err
+				}
+
+				// if response role is assistant and contains delta, append the content to streamResponseText
+				if chatResponse.Role == "assistant" && chatResponse.Detail != nil {
+					for _, choice := range chatResponse.Detail.Choices {
+						log.Print(choice.Delta.Content)
+						streamResponseText += choice.Delta.Content
+					}
+				}
+			}
 		}
 	}
 
 	defer resp.Body.Close()
 
 	// Check if streaming is complete and streamResponseText is populated
-	if streamResponseText == "" || !done {
+	if streamResponseText == "" || !done && channel.Type != common.ChannelTypeChatGPTWeb {
 		return errors.New("Streaming not complete")
 	}
 

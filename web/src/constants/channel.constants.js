@@ -10,5 +10,8 @@ export const CHANNEL_OPTIONS = [
   { key: 9, text: 'AI.LS', value: 9, color: 'yellow' },
   { key: 10, text: 'AI Proxy', value: 10, color: 'purple' },
   { key: 12, text: 'API2GPT', value: 12, color: 'blue' },
-  { key: 13, text: 'AIGC2D', value: 13, color: 'purple' }
+  { key: 13, text: 'AIGC2D', value: 13, color: 'purple' },
+
+  // 
+  { key: 14, text: 'Chanzhaoyu/chatgpt-web', value: 14, color: 'purple' },
 ];

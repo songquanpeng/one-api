@@ -46,6 +46,9 @@ type ChatRequest struct {
 	Messages  []Message `json:"messages"`
 	MaxTokens *int      `json:"max_tokens,omitempty"`
 	Stream    bool      `json:"stream"`
+	// -1.0 to 1.0
+	Temperature float64 `json:"temperature"`
+	TopP        float64 `json:"top_p"`
 }
 
 type TextRequest struct {
@@ -100,6 +103,32 @@ type CompletionsStreamResponse struct {
 		Text         string `json:"text"`
 		FinishReason string `json:"finish_reason"`
 	} `json:"choices"`
+}
+
+type ChatGptWebDetail struct {
+	ID      string             `json:"id"`
+	Object  string             `json:"object"`
+	Created int                `json:"created"`
+	Model   string             `json:"model"`
+	Choices []ChatGptWebChoice `json:"choices"`
+}
+
+type ChatGptWebChoice struct {
+	Delta struct {
+		Content string `json:"content"`
+		Role    string `json:"role"`
+	} `json:"delta"`
+	Index         int    `json:"index"`
+	Finish_Reason string `json:"finish_reason"`
+}
+
+type ChatGptWebChatResponse struct {
+	Role            string            `json:"role"`
+	ID              string            `json:"id"`
+	ParentMessageID string            `json:"parentMessageId"`
+	Text            string            `json:"text"`
+	Delta           string            `json:"delta"`
+	Detail          *ChatGptWebDetail `json:"detail"`
 }
 
 func Relay(c *gin.Context) {
