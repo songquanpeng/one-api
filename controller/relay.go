@@ -55,6 +55,12 @@ type TextRequest struct {
 	//Stream   bool      `json:"stream"`
 }
 
+type ImageRequest struct {
+	Prompt string `json:"prompt"`
+	N      int    `json:"n"`
+	Size   string `json:"size"`
+}
+
 type Usage struct {
 	PromptTokens     int `json:"prompt_tokens"`
 	CompletionTokens int `json:"completion_tokens"`
