@@ -1,6 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Form, Grid, Header, Image, Segment } from 'semantic-ui-react';
-import { API, copy, showError, showInfo, showNotice, showSuccess } from '../helpers';
+import {
+  API,
+  copy,
+  showError,
+  showInfo,
+  showNotice,
+  showSuccess,
+} from '../helpers';
 import { useSearchParams } from 'react-router-dom';
 
 const PasswordResetConfirm = () => {

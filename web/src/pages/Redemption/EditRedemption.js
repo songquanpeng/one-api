@@ -12,7 +12,7 @@ const EditRedemption = () => {
   const originInputs = {
     name: '',
     quota: 100000,
-    count: 1
+    count: 1,
   };
   const [inputs, setInputs] = useState(originInputs);
   const { name, quota, count } = inputs;
@@ -44,10 +44,13 @@ const EditRedemption = () => {
     localInputs.quota = parseInt(localInputs.quota);
     let res;
     if (isEdit) {
-      res = await API.put(`/api/redemption/`, { ...localInputs, id: parseInt(redemptionId) });
+      res = await API.put(`/api/redemption/`, {
+        ...localInputs,
+        id: parseInt(redemptionId),
+      });
     } else {
       res = await API.post(`/api/redemption/`, {
-        ...localInputs
+        ...localInputs,
       });
     }
     const { success, message, data } = res.data;
@@ -62,9 +65,9 @@ const EditRedemption = () => {
       showError(message);
     }
     if (!isEdit && data) {
-      let text = "";
+      let text = '';
       for (let i = 0; i < data.length; i++) {
-        text += data[i] + "\n";
+        text += data[i] + '\n';
       }
       downloadTextAsFile(text, `${inputs.name}.txt`);
     }
@@ -97,8 +100,8 @@ const EditRedemption = () => {
               type='number'
             />
           </Form.Field>
-          {
-            !isEdit && <>
+          {!isEdit && (
+            <>
               <Form.Field>
                 <Form.Input
                   label='生成数量'
@@ -111,8 +114,10 @@ const EditRedemption = () => {
                 />
               </Form.Field>
             </>
-          }
-          <Button positive onClick={submit}>提交</Button>
+          )}
+          <Button positive onClick={submit}>
+            提交
+          </Button>
         </Form>
       </Segment>
     </>

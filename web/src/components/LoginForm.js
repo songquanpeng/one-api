@@ -34,7 +34,7 @@ const LoginForm = () => {
   const logo = getLogo();
 
   useEffect(() => {
-    if (searchParams.get("expired")) {
+    if (searchParams.get('expired')) {
       showError('未登录或登录已过期，请重新登录！');
     }
     let status = localStorage.getItem('status');
@@ -53,13 +53,13 @@ const LoginForm = () => {
 
   const onGitHubOAuthClicked = () => {
     window.open(
-      `https://github.com/login/oauth/authorize?client_id=${status.github_client_id}&scope=user:email`
+      `https://github.com/login/oauth/authorize?client_id=${status.github_client_id}&scope=user:email`,
     );
   };
 
   const onDiscordOAuthClicked = () => {
     window.open(
-      `https://discord.com/oauth2/authorize?response_type=code&client_id=${status.discord_client_id}&redirect_uri=${window.location.origin}/oauth/discord&scope=identify`
+      `https://discord.com/oauth2/authorize?response_type=code&client_id=${status.discord_client_id}&redirect_uri=${window.location.origin}/oauth/discord&scope=identify`,
     );
   };
 
@@ -69,7 +69,7 @@ const LoginForm = () => {
 
   const onSubmitWeChatVerificationCode = async () => {
     const res = await API.get(
-      `/api/oauth/wechat?code=${inputs.wechat_verification_code}`
+      `/api/oauth/wechat?code=${inputs.wechat_verification_code}`,
     );
     const { success, message, data } = res.data;
     if (success) {
@@ -96,10 +96,13 @@ const LoginForm = () => {
         return;
       }
 
-      const res = await API.post(`/api/user/login?turnstile=${turnstileToken}`, {
-        username,
-        password,
-      });
+      const res = await API.post(
+        `/api/user/login?turnstile=${turnstileToken}`,
+        {
+          username,
+          password,
+        },
+      );
       const { success, message, data } = res.data;
       if (success) {
         userDispatch({ type: 'login', payload: data });
@@ -113,29 +116,29 @@ const LoginForm = () => {
   }
 
   return (
-    <Grid textAlign="center" style={{ marginTop: '48px' }}>
+    <Grid textAlign='center' style={{ marginTop: '48px' }}>
       <Grid.Column style={{ maxWidth: 450 }}>
-        <Header as="h2" color="" textAlign="center">
+        <Header as='h2' color='' textAlign='center'>
           <Image src={logo} /> 用户登录
         </Header>
-        <Form size="large">
+        <Form size='large'>
           <Segment>
             <Form.Input
               fluid
-              icon="user"
-              iconPosition="left"
-              placeholder="用户名"
-              name="username"
+              icon='user'
+              iconPosition='left'
+              placeholder='用户名'
+              name='username'
               value={username}
               onChange={handleChange}
             />
             <Form.Input
               fluid
-              icon="lock"
-              iconPosition="left"
-              placeholder="密码"
-              name="password"
-              type="password"
+              icon='lock'
+              iconPosition='left'
+              placeholder='密码'
+              name='password'
+              type='password'
               value={password}
               onChange={handleChange}
             />
@@ -149,18 +152,18 @@ const LoginForm = () => {
             ) : (
               <></>
             )}
-            <Button color="" fluid size="large" onClick={handleSubmit}>
+            <Button color='' fluid size='large' onClick={handleSubmit}>
               登录
             </Button>
           </Segment>
         </Form>
         <Message>
           忘记密码？
-          <Link to="/reset" className="btn btn-link">
+          <Link to='/reset' className='btn btn-link'>
             点击重置
           </Link>
           ； 没有账户？
-          <Link to="/register" className="btn btn-link">
+          <Link to='/register' className='btn btn-link'>
             点击注册
           </Link>
         </Message>
@@ -170,24 +173,24 @@ const LoginForm = () => {
             {status.discord_oauth && (
               <Button
                 circular
-                color="blue"
-                icon="discord"
+                color='blue'
+                icon='discord'
                 onClick={onDiscordOAuthClicked}
               />
             )}
             {status.github_oauth && (
               <Button
                 circular
-                color="black"
-                icon="github"
+                color='black'
+                icon='github'
                 onClick={onGitHubOAuthClicked}
               />
             )}
             {status.wechat_login && (
               <Button
                 circular
-                color="green"
-                icon="wechat"
+                color='green'
+                icon='wechat'
                 onClick={onWeChatLoginClicked}
               />
             )}
@@ -209,18 +212,18 @@ const LoginForm = () => {
                   微信扫码关注公众号，输入「验证码」获取验证码（三分钟内有效）
                 </p>
               </div>
-              <Form size="large">
+              <Form size='large'>
                 <Form.Input
                   fluid
-                  placeholder="验证码"
-                  name="wechat_verification_code"
+                  placeholder='验证码'
+                  name='wechat_verification_code'
                   value={inputs.wechat_verification_code}
                   onChange={handleChange}
                 />
                 <Button
-                  color=""
+                  color=''
                   fluid
-                  size="large"
+                  size='large'
                   onClick={onSubmitWeChatVerificationCode}
                 >
                   登录

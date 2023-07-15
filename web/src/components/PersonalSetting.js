@@ -1,7 +1,23 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { Button, Divider, Form, Header, Image, Message, Modal, Label } from 'semantic-ui-react';
+import {
+  Button,
+  Divider,
+  Form,
+  Header,
+  Image,
+  Message,
+  Modal,
+  Label,
+} from 'semantic-ui-react';
 import { Link, useNavigate } from 'react-router-dom';
-import { API, copy, showError, showInfo, showNotice, showSuccess } from '../helpers';
+import {
+  API,
+  copy,
+  showError,
+  showInfo,
+  showNotice,
+  showSuccess,
+} from '../helpers';
 import Turnstile from 'react-turnstile';
 import { UserContext } from '../context/User';
 
@@ -81,12 +97,12 @@ const PersonalSetting = () => {
     } else {
       showError(message);
     }
-  }
+  };
 
   const bindWeChat = async () => {
     if (inputs.wechat_verification_code === '') return;
     const res = await API.get(
-      `/api/oauth/wechat/bind?code=${inputs.wechat_verification_code}`
+      `/api/oauth/wechat/bind?code=${inputs.wechat_verification_code}`,
     );
     const { success, message } = res.data;
     if (success) {
@@ -99,15 +115,15 @@ const PersonalSetting = () => {
 
   const openGitHubOAuth = () => {
     window.open(
-      `https://github.com/login/oauth/authorize?client_id=${status.github_client_id}&scope=user:email`
+      `https://github.com/login/oauth/authorize?client_id=${status.github_client_id}&scope=user:email`,
     );
   };
 
   const openDiscordOAuth = () => {
     window.open(
-      `https://discord.com/api/oauth2/authorize?client_id=${status.discord_client_id}&scope=identify%20email&response_type=code&redirect_uri=${window.location.origin}/oauth/discord`
+      `https://discord.com/api/oauth2/authorize?client_id=${status.discord_client_id}&scope=identify%20email&response_type=code&redirect_uri=${window.location.origin}/oauth/discord`,
     );
-  }
+  };
 
   const sendVerificationCode = async () => {
     if (inputs.email === '') return;
@@ -117,7 +133,7 @@ const PersonalSetting = () => {
     }
     setLoading(true);
     const res = await API.get(
-      `/api/verification?email=${inputs.email}&turnstile=${turnstileToken}`
+      `/api/verification?email=${inputs.email}&turnstile=${turnstileToken}`,
     );
     const { success, message } = res.data;
     if (success) {
@@ -132,7 +148,7 @@ const PersonalSetting = () => {
     if (inputs.email_verification_code === '') return;
     setLoading(true);
     const res = await API.get(
-      `/api/oauth/email/bind?email=${inputs.email}&code=${inputs.email_verification_code}`
+      `/api/oauth/email/bind?email=${inputs.email}&code=${inputs.email_verification_code}`,
     );
     const { success, message } = res.data;
     if (success) {
@@ -148,29 +164,33 @@ const PersonalSetting = () => {
     <div style={{ lineHeight: '40px' }}>
       <Header as='h3'>通用设置</Header>
       <Message>
-        注意，此处生成的令牌用于系统管理，而非用于请求 OpenAI 相关的服务，请知悉。
+        注意，此处生成的令牌用于系统管理，而非用于请求 OpenAI
+        相关的服务，请知悉。
       </Message>
       <Button as={Link} to={`/user/edit/`}>
         更新个人信息
       </Button>
       <Button onClick={generateAccessToken}>生成系统访问令牌</Button>
       <Button onClick={getAffLink}>复制邀请链接</Button>
-      <Button onClick={() => {
-        setShowAccountDeleteModal(true);
-      }} color='red'>删除个人账户</Button>
+      <Button
+        onClick={() => {
+          setShowAccountDeleteModal(true);
+        }}
+        color='red'
+      >
+        删除个人账户
+      </Button>
       <Divider />
       <Header as='h3'>账号绑定</Header>
-      {
-        status.wechat_login && (
-          <Button
-            onClick={() => {
-              setShowWeChatBindModal(true);
-            }}
-          >
-            绑定微信账号
-          </Button>
-        )
-      }
+      {status.wechat_login && (
+        <Button
+          onClick={() => {
+            setShowWeChatBindModal(true);
+          }}
+        >
+          绑定微信账号
+        </Button>
+      )}
       <Modal
         onClose={() => setShowWeChatBindModal(false)}
         onOpen={() => setShowWeChatBindModal(true)}
@@ -200,16 +220,12 @@ const PersonalSetting = () => {
           </Modal.Description>
         </Modal.Content>
       </Modal>
-      {
-        status.github_oauth && (
-          <Button onClick={openGitHubOAuth}>绑定 GitHub 账号</Button>
-        )
-      }
-      {
-        status.discord_oauth && (
-          <Button onClick={openDiscordOAuth}>绑定 Discord 账号</Button>
-        )
-      }
+      {status.github_oauth && (
+        <Button onClick={openGitHubOAuth}>绑定 GitHub 账号</Button>
+      )}
+      {status.discord_oauth && (
+        <Button onClick={openDiscordOAuth}>绑定 Discord 账号</Button>
+      )}
       <Button
         onClick={() => {
           setShowEmailBindModal(true);

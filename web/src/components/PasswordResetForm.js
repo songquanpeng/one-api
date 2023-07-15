@@ -38,7 +38,7 @@ const PasswordResetForm = () => {
     }
     setLoading(true);
     const res = await API.get(
-      `/api/reset_password?email=${email}&turnstile=${turnstileToken}`
+      `/api/reset_password?email=${email}&turnstile=${turnstileToken}`,
     );
     const { success, message } = res.data;
     if (success) {

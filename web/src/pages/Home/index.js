@@ -52,8 +52,8 @@ const Home = () => {
   }, []);
   return (
     <>
-      {
-        homePageContentLoaded && homePageContent === '' ? <>
+      {homePageContentLoaded && homePageContent === '' ? (
+        <>
           <Segment>
             <Header as='h3'>系统状况</Header>
             <Grid columns={2} stackable>
@@ -121,16 +121,22 @@ const Home = () => {
               </Grid.Column>
             </Grid>
           </Segment>
-        </> : <>
-          {
-            homePageContent.startsWith('https://') ? <iframe
+        </>
+      ) : (
+        <>
+          {homePageContent.startsWith('https://') ? (
+            <iframe
               src={homePageContent}
               style={{ width: '100%', height: '100vh', border: 'none' }}
-            /> : <div style={{ fontSize: 'larger' }} dangerouslySetInnerHTML={{ __html: homePageContent }}></div>
-          }
+            />
+          ) : (
+            <div
+              style={{ fontSize: 'larger' }}
+              dangerouslySetInnerHTML={{ __html: homePageContent }}
+            ></div>
+          )}
         </>
-      }
-
+      )}
     </>
   );
 };

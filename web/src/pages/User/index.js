@@ -6,7 +6,7 @@ const User = () => (
   <>
     <Segment>
       <Header as='h3'>管理用户</Header>
-      <UsersTable/>
+      <UsersTable />
     </Segment>
   </>
 );

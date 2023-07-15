@@ -14,8 +14,8 @@ const Setting = () => {
         <Tab.Pane attached={false}>
           <PersonalSetting />
         </Tab.Pane>
-      )
-    }
+      ),
+    },
   ];
 
   if (isRoot()) {
@@ -25,7 +25,7 @@ const Setting = () => {
         <Tab.Pane attached={false}>
           <OperationSetting />
         </Tab.Pane>
-      )
+      ),
     });
     panes.push({
       menuItem: '系统设置',
@@ -33,7 +33,7 @@ const Setting = () => {
         <Tab.Pane attached={false}>
           <SystemSetting />
         </Tab.Pane>
-      )
+      ),
     });
     panes.push({
       menuItem: '其他设置',
@@ -41,7 +41,7 @@ const Setting = () => {
         <Tab.Pane attached={false}>
           <OtherSetting />
         </Tab.Pane>
-      )
+      ),
     });
   }
 

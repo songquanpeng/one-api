@@ -30,38 +30,38 @@ const AddUser = () => {
   return (
     <>
       <Segment>
-        <Header as="h3">创建新用户账户</Header>
-        <Form autoComplete="off">
+        <Header as='h3'>创建新用户账户</Header>
+        <Form autoComplete='off'>
           <Form.Field>
             <Form.Input
-              label="用户名"
-              name="username"
+              label='用户名'
+              name='username'
               placeholder={'请输入用户名'}
               onChange={handleInputChange}
               value={username}
-              autoComplete="off"
+              autoComplete='off'
               required
             />
           </Form.Field>
           <Form.Field>
             <Form.Input
-              label="显示名称"
-              name="display_name"
+              label='显示名称'
+              name='display_name'
               placeholder={'请输入显示名称'}
               onChange={handleInputChange}
               value={display_name}
-              autoComplete="off"
+              autoComplete='off'
             />
           </Form.Field>
           <Form.Field>
             <Form.Input
-              label="密码"
-              name="password"
+              label='密码'
+              name='password'
               type={'password'}
               placeholder={'请输入密码'}
               onChange={handleInputChange}
               value={password}
-              autoComplete="off"
+              autoComplete='off'
               required
             />
           </Form.Field>

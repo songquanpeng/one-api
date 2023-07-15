@@ -9,5 +9,5 @@ API.interceptors.response.use(
   (response) => response,
   (error) => {
     showError(error);
-  }
+  },
 );

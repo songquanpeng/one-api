@@ -1,5 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Divider, Form, Grid, Header, Message, Modal } from 'semantic-ui-react';
+import {
+  Button,
+  Divider,
+  Form,
+  Grid,
+  Header,
+  Message,
+  Modal,
+} from 'semantic-ui-react';
 import { API, showError, showSuccess } from '../helpers';
 import { marked } from 'marked';
 
@@ -10,13 +18,13 @@ const OtherSetting = () => {
     About: '',
     SystemName: '',
     Logo: '',
-    HomePageContent: ''
+    HomePageContent: '',
   });
   let [loading, setLoading] = useState(false);
   const [showUpdateModal, setShowUpdateModal] = useState(false);
   const [updateData, setUpdateData] = useState({
     tag_name: '',
-    content: ''
+    content: '',
   });
 
   const getOptions = async () => {
@@ -43,7 +51,7 @@ const OtherSetting = () => {
     setLoading(true);
     const res = await API.put('/api/option/', {
       key,
-      value
+      value,
     });
     const { success, message } = res.data;
     if (success) {
@@ -83,13 +91,12 @@ const OtherSetting = () => {
   };
 
   const openGitHubRelease = () => {
-    window.location =
-      'https://github.com/songquanpeng/one-api/releases/latest';
+    window.location = 'https://github.com/songquanpeng/one-api/releases/latest';
   };
 
   const checkUpdate = async () => {
     const res = await API.get(
-      'https://api.github.com/repos/songquanpeng/one-api/releases/latest'
+      'https://api.github.com/repos/songquanpeng/one-api/releases/latest',
     );
     const { tag_name, body } = res.data;
     if (tag_name === process.env.REACT_APP_VERSION) {
@@ -97,7 +104,7 @@ const OtherSetting = () => {
     } else {
       setUpdateData({
         tag_name: tag_name,
-        content: marked.parse(body)
+        content: marked.parse(body),
       });
       setShowUpdateModal(true);
     }
@@ -153,7 +160,9 @@ const OtherSetting = () => {
               style={{ minHeight: 150, fontFamily: 'JetBrains Mono, Consolas' }}
             />
           </Form.Group>
-          <Form.Button onClick={() => submitOption('HomePageContent')}>保存首页内容</Form.Button>
+          <Form.Button onClick={() => submitOption('HomePageContent')}>
+            保存首页内容
+          </Form.Button>
           <Form.Group widths='equal'>
             <Form.TextArea
               label='关于'
@@ -165,7 +174,10 @@ const OtherSetting = () => {
             />
           </Form.Group>
           <Form.Button onClick={submitAbout}>保存关于</Form.Button>
-          <Message>移除 One API 的版权标识必须首先获得授权，项目维护需要花费大量精力，如果本项目对你有意义，请主动支持本项目。</Message>
+          <Message>
+            移除 One API
+            的版权标识必须首先获得授权，项目维护需要花费大量精力，如果本项目对你有意义，请主动支持本项目。
+          </Message>
           <Form.Group widths='equal'>
             <Form.Input
               label='页脚'

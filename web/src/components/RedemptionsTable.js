@@ -1,29 +1,59 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Form, Label, Message, Pagination, Table } from 'semantic-ui-react';
+import {
+  Button,
+  Form,
+  Label,
+  Message,
+  Pagination,
+  Table,
+} from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
-import { API, copy, showError, showInfo, showSuccess, showWarning, timestamp2string } from '../helpers';
+import {
+  API,
+  copy,
+  showError,
+  showInfo,
+  showSuccess,
+  showWarning,
+  timestamp2string,
+} from '../helpers';
 
 import { ITEMS_PER_PAGE } from '../constants';
 import { renderQuota } from '../helpers/render';
 
 function renderTimestamp(timestamp) {
-  return (
-    <>
-      {timestamp2string(timestamp)}
-    </>
-  );
+  return <>{timestamp2string(timestamp)}</>;
 }
 
 function renderStatus(status) {
   switch (status) {
     case 1:
-      return <Label basic color='green'>未使用</Label>;
+      return (
+        <Label basic color='green'>
+          未使用
+        </Label>
+      );
     case 2:
-      return <Label basic color='red'> 已禁用 </Label>;
+      return (
+        <Label basic color='red'>
+          {' '}
+          已禁用{' '}
+        </Label>
+      );
     case 3:
-      return <Label basic color='grey'> 已使用 </Label>;
+      return (
+        <Label basic color='grey'>
+          {' '}
+          已使用{' '}
+        </Label>
+      );
     default:
-      return <Label basic color='black'> 未知状态 </Label>;
+      return (
+        <Label basic color='black'>
+          {' '}
+          未知状态{' '}
+        </Label>
+      );
   }
 }
 
@@ -110,7 +140,9 @@ const RedemptionsTable = () => {
       return;
     }
     setSearching(true);
-    const res = await API.get(`/api/redemption/search?keyword=${searchKeyword}`);
+    const res = await API.get(
+      `/api/redemption/search?keyword=${searchKeyword}`,
+    );
     const { success, message, data } = res.data;
     if (success) {
       setRedemptions(data);
@@ -212,18 +244,26 @@ const RedemptionsTable = () => {
           {redemptions
             .slice(
               (activePage - 1) * ITEMS_PER_PAGE,
-              activePage * ITEMS_PER_PAGE
+              activePage * ITEMS_PER_PAGE,
             )
             .map((redemption, idx) => {
               if (redemption.deleted) return <></>;
               return (
                 <Table.Row key={redemption.id}>
                   <Table.Cell>{redemption.id}</Table.Cell>
-                  <Table.Cell>{redemption.name ? redemption.name : '无'}</Table.Cell>
+                  <Table.Cell>
+                    {redemption.name ? redemption.name : '无'}
+                  </Table.Cell>
                   <Table.Cell>{renderStatus(redemption.status)}</Table.Cell>
                   <Table.Cell>{renderQuota(redemption.quota)}</Table.Cell>
-                  <Table.Cell>{renderTimestamp(redemption.created_time)}</Table.Cell>
-                  <Table.Cell>{redemption.redeemed_time ? renderTimestamp(redemption.redeemed_time) : "尚未兑换"} </Table.Cell>
+                  <Table.Cell>
+                    {renderTimestamp(redemption.created_time)}
+                  </Table.Cell>
+                  <Table.Cell>
+                    {redemption.redeemed_time
+                      ? renderTimestamp(redemption.redeemed_time)
+                      : '尚未兑换'}{' '}
+                  </Table.Cell>
                   <Table.Cell>
                     <div>
                       <Button
@@ -233,7 +273,9 @@ const RedemptionsTable = () => {
                           if (await copy(redemption.key)) {
                             showSuccess('已复制到剪贴板！');
                           } else {
-                            showWarning('无法复制到剪贴板，请手动复制，已将兑换码填入搜索框。')
+                            showWarning(
+                              '无法复制到剪贴板，请手动复制，已将兑换码填入搜索框。',
+                            );
                             setSearchKeyword(redemption.key);
                           }
                         }}
@@ -251,12 +293,12 @@ const RedemptionsTable = () => {
                       </Button>
                       <Button
                         size={'small'}
-                        disabled={redemption.status === 3}  // used
+                        disabled={redemption.status === 3} // used
                         onClick={() => {
                           manageRedemption(
                             redemption.id,
                             redemption.status === 1 ? 'disable' : 'enable',
-                            idx
+                            idx,
                           );
                         }}
                       >
@@ -279,7 +321,12 @@ const RedemptionsTable = () => {
         <Table.Footer>
           <Table.Row>
             <Table.HeaderCell colSpan='8'>
-              <Button size='small' as={Link} to='/redemption/add' loading={loading}>
+              <Button
+                size='small'
+                as={Link}
+                to='/redemption/add'
+                loading={loading}
+              >
                 添加新的兑换码
               </Button>
               <Pagination

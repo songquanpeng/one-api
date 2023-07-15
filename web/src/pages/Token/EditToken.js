@@ -14,7 +14,15 @@ const EditToken = () => {
     remain_quota: isEdit ? 0 : 500000,
     expired_time: -1,
     unlimited_quota: false,
-    models: isEdit ? [] : ['gpt-3.5-turbo', 'gpt-3.5-turbo-0301', 'gpt-3.5-turbo-0613', 'gpt-3.5-turbo-16k', 'gpt-3.5-turbo-16k-0613']
+    models: isEdit
+      ? []
+      : [
+          'gpt-3.5-turbo',
+          'gpt-3.5-turbo-0301',
+          'gpt-3.5-turbo-0613',
+          'gpt-3.5-turbo-16k',
+          'gpt-3.5-turbo-16k-0613',
+        ],
   };
   const [modelOptions, setModelOptions] = useState([]);
   const [basicModels, setBasicModels] = useState([]);
@@ -48,13 +56,19 @@ const EditToken = () => {
   const fetchModels = async () => {
     try {
       let res = await API.get(`/api/channel/models`);
-      setModelOptions(res.data.data.map((model) => ({
-        key: model.id,
-        text: model.id,
-        value: model.id
-      })));
+      setModelOptions(
+        res.data.data.map((model) => ({
+          key: model.id,
+          text: model.id,
+          value: model.id,
+        })),
+      );
       setFullModels(res.data.data.map((model) => model.id));
-      setBasicModels(res.data.data.filter((model) => !model.id.startsWith('gpt-4')).map((model) => model.id));
+      setBasicModels(
+        res.data.data
+          .filter((model) => !model.id.startsWith('gpt-4'))
+          .map((model) => model.id),
+      );
     } catch (error) {
       showError(error.message);
     }
@@ -103,7 +117,10 @@ const EditToken = () => {
     localInputs.models = localInputs.models.join(',');
     let res;
     if (isEdit) {
-      res = await API.put(`/api/token/`, { ...localInputs, id: parseInt(tokenId) });
+      res = await API.put(`/api/token/`, {
+        ...localInputs,
+        id: parseInt(tokenId),
+      });
     } else {
       res = await API.post(`/api/token/`, localInputs);
     }
@@ -144,7 +161,9 @@ const EditToken = () => {
             <Form.Input
               label='过期时间'
               name='expired_time'
-              placeholder={'请输入过期时间，格式为 yyyy-MM-dd HH:mm:ss，-1 表示无限制'}
+              placeholder={
+                '请输入过期时间，格式为 yyyy-MM-dd HH:mm:ss，-1 表示无限制'
+              }
               onChange={handleInputChange}
               value={expired_time}
               autoComplete='new-password'
@@ -152,23 +171,50 @@ const EditToken = () => {
             />
           </Form.Field>
           <div style={{ lineHeight: '40px' }}>
-            <Button type={'button'} onClick={() => {
-              setExpiredTime(0, 0, 0, 0);
-            }}>永不过期</Button>
-            <Button type={'button'} onClick={() => {
-              setExpiredTime(1, 0, 0, 0);
-            }}>一个月后过期</Button>
-            <Button type={'button'} onClick={() => {
-              setExpiredTime(0, 1, 0, 0);
-            }}>一天后过期</Button>
-            <Button type={'button'} onClick={() => {
-              setExpiredTime(0, 0, 1, 0);
-            }}>一小时后过期</Button>
-            <Button type={'button'} onClick={() => {
-              setExpiredTime(0, 0, 0, 1);
-            }}>一分钟后过期</Button>
+            <Button
+              type={'button'}
+              onClick={() => {
+                setExpiredTime(0, 0, 0, 0);
+              }}
+            >
+              永不过期
+            </Button>
+            <Button
+              type={'button'}
+              onClick={() => {
+                setExpiredTime(1, 0, 0, 0);
+              }}
+            >
+              一个月后过期
+            </Button>
+            <Button
+              type={'button'}
+              onClick={() => {
+                setExpiredTime(0, 1, 0, 0);
+              }}
+            >
+              一天后过期
+            </Button>
+            <Button
+              type={'button'}
+              onClick={() => {
+                setExpiredTime(0, 0, 1, 0);
+              }}
+            >
+              一小时后过期
+            </Button>
+            <Button
+              type={'button'}
+              onClick={() => {
+                setExpiredTime(0, 0, 0, 1);
+              }}
+            >
+              一分钟后过期
+            </Button>
           </div>
-          <Message>注意，令牌的额度仅用于限制令牌本身的最大额度使用量，实际的使用受到账户的剩余额度限制。</Message>
+          <Message>
+            注意，令牌的额度仅用于限制令牌本身的最大额度使用量，实际的使用受到账户的剩余额度限制。
+          </Message>
           <Form.Field>
             <Form.Input
               label={`额度${renderQuotaWithPrompt(remain_quota)}`}
@@ -181,9 +227,14 @@ const EditToken = () => {
               disabled={unlimited_quota}
             />
           </Form.Field>
-          <Button type={'button'} onClick={() => {
-            setUnlimitedQuota();
-          }}>{unlimited_quota ? '取消无限额度' : '设置为无限额度'}</Button>
+          <Button
+            type={'button'}
+            onClick={() => {
+              setUnlimitedQuota();
+            }}
+          >
+            {unlimited_quota ? '取消无限额度' : '设置为无限额度'}
+          </Button>
           <Form.Field style={{ marginTop: '12px' }}>
             <Form.Dropdown
               label='模型'
@@ -200,17 +251,34 @@ const EditToken = () => {
             />
           </Form.Field>
           <div style={{ lineHeight: '40px', marginBottom: '12px' }}>
-            <Button type={'button'} onClick={() => {
-              handleInputChange(null, { name: 'models', value: basicModels });
-            }}>填入基础模型</Button>
-            <Button type={'button'} onClick={() => {
-              handleInputChange(null, { name: 'models', value: fullModels });
-            }}>填入所有模型</Button>
-            <Button type={'button'} onClick={() => {
-              handleInputChange(null, { name: 'models', value: [] });
-            }}>清除所有模型</Button>
+            <Button
+              type={'button'}
+              onClick={() => {
+                handleInputChange(null, { name: 'models', value: basicModels });
+              }}
+            >
+              填入基础模型
+            </Button>
+            <Button
+              type={'button'}
+              onClick={() => {
+                handleInputChange(null, { name: 'models', value: fullModels });
+              }}
+            >
+              填入所有模型
+            </Button>
+            <Button
+              type={'button'}
+              onClick={() => {
+                handleInputChange(null, { name: 'models', value: [] });
+              }}
+            >
+              清除所有模型
+            </Button>
           </div>
-          <Button positive onClick={submit}>提交</Button>
+          <Button positive onClick={submit}>
+            提交
+          </Button>
         </Form>
       </Segment>
     </>

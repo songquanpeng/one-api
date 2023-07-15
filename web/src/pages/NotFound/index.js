@@ -5,15 +5,13 @@ const NotFound = () => (
   <>
     <Header
       block
-      as="h4"
-      content="404"
-      attached="top"
-      icon="info"
-      className="small-icon"
+      as='h4'
+      content='404'
+      attached='top'
+      icon='info'
+      className='small-icon'
     />
-    <Segment attached="bottom">
-      未找到所请求的页面
-    </Segment>
+    <Segment attached='bottom'>未找到所请求的页面</Segment>
   </>
 );
 

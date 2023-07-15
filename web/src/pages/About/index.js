@@ -31,8 +31,8 @@ const About = () => {
 
   return (
     <>
-      {
-        aboutLoaded && about === '' ? <>
+      {aboutLoaded && about === '' ? (
+        <>
           <Segment>
             <Header as='h3'>关于</Header>
             <p>可在设置页面设置关于内容，支持 HTML & Markdown</p>
@@ -41,20 +41,26 @@ const About = () => {
               https://github.com/songquanpeng/one-api
             </a>
           </Segment>
-        </> : <>
-          {
-            about.startsWith('https://') ? <iframe
+        </>
+      ) : (
+        <>
+          {about.startsWith('https://') ? (
+            <iframe
               src={about}
               style={{ width: '100%', height: '100vh', border: 'none' }}
-            /> : <Segment>
-              <div style={{ fontSize: 'larger' }} dangerouslySetInnerHTML={{ __html: about }}></div>
+            />
+          ) : (
+            <Segment>
+              <div
+                style={{ fontSize: 'larger' }}
+                dangerouslySetInnerHTML={{ __html: about }}
+              ></div>
             </Segment>
-          }
+          )}
         </>
-      }
+      )}
     </>
   );
 };
-
 
 export default About;

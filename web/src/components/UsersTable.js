@@ -1,10 +1,22 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Form, Label, Pagination, Popup, Table } from 'semantic-ui-react';
+import {
+  Button,
+  Form,
+  Label,
+  Pagination,
+  Popup,
+  Table,
+} from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
 import { API, showError, showSuccess } from '../helpers';
 
 import { ITEMS_PER_PAGE } from '../constants';
-import { renderGroup, renderNumber, renderQuota, renderText } from '../helpers/render';
+import {
+  renderGroup,
+  renderNumber,
+  renderQuota,
+  renderText,
+} from '../helpers/render';
 
 function renderRole(role) {
   switch (role) {
@@ -65,7 +77,7 @@ const UsersTable = () => {
     (async () => {
       const res = await API.post('/api/user/manage', {
         username,
-        action
+        action,
       });
       const { success, message } = res.data;
       if (success) {
@@ -215,7 +227,7 @@ const UsersTable = () => {
           {users
             .slice(
               (activePage - 1) * ITEMS_PER_PAGE,
-              activePage * ITEMS_PER_PAGE
+              activePage * ITEMS_PER_PAGE,
             )
             .map((user, idx) => {
               if (user.deleted) return <></>;
@@ -226,7 +238,9 @@ const UsersTable = () => {
                     <Popup
                       content={user.email ? user.email : '未绑定邮箱地址'}
                       key={user.username}
-                      header={user.display_name ? user.display_name : user.username}
+                      header={
+                        user.display_name ? user.display_name : user.username
+                      }
                       trigger={<span>{renderText(user.username, 10)}</span>}
                       hoverable
                     />
@@ -236,9 +250,22 @@ const UsersTable = () => {
                   {/*  {user.email ? <Popup hoverable content={user.email} trigger={<span>{renderText(user.email, 24)}</span>} /> : '无'}*/}
                   {/*</Table.Cell>*/}
                   <Table.Cell>
-                    <Popup content='剩余额度' trigger={<Label basic>{renderQuota(user.quota)}</Label>} />
-                    <Popup content='已用额度' trigger={<Label basic>{renderQuota(user.used_quota)}</Label>} />
-                    <Popup content='请求次数' trigger={<Label basic>{renderNumber(user.request_count)}</Label>} />
+                    <Popup
+                      content='剩余额度'
+                      trigger={<Label basic>{renderQuota(user.quota)}</Label>}
+                    />
+                    <Popup
+                      content='已用额度'
+                      trigger={
+                        <Label basic>{renderQuota(user.used_quota)}</Label>
+                      }
+                    />
+                    <Popup
+                      content='请求次数'
+                      trigger={
+                        <Label basic>{renderNumber(user.request_count)}</Label>
+                      }
+                    />
                   </Table.Cell>
                   <Table.Cell>{renderRole(user.role)}</Table.Cell>
                   <Table.Cell>{renderStatus(user.status)}</Table.Cell>
@@ -266,7 +293,11 @@ const UsersTable = () => {
                       </Button>
                       <Popup
                         trigger={
-                          <Button size='small' negative disabled={user.role === 100}>
+                          <Button
+                            size='small'
+                            negative
+                            disabled={user.role === 100}
+                          >
                             删除
                           </Button>
                         }
@@ -289,7 +320,7 @@ const UsersTable = () => {
                           manageUser(
                             user.username,
                             user.status === 1 ? 'disable' : 'enable',
-                            idx
+                            idx,
                           );
                         }}
                         disabled={user.role === 100}

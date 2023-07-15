@@ -70,7 +70,7 @@ const SystemSetting = () => {
     }
     const res = await API.put('/api/option/', {
       key,
-      value
+      value,
     });
     const { success, message } = res.data;
     if (success) {
@@ -135,7 +135,7 @@ const SystemSetting = () => {
     if (originInputs['WeChatServerAddress'] !== inputs.WeChatServerAddress) {
       await updateOption(
         'WeChatServerAddress',
-        removeTrailingSlash(inputs.WeChatServerAddress)
+        removeTrailingSlash(inputs.WeChatServerAddress),
       );
     }
     if (
@@ -144,7 +144,7 @@ const SystemSetting = () => {
     ) {
       await updateOption(
         'WeChatAccountQRCodeImageURL',
-        inputs.WeChatAccountQRCodeImageURL
+        inputs.WeChatAccountQRCodeImageURL,
       );
     }
     if (
@@ -265,7 +265,9 @@ const SystemSetting = () => {
           <Divider />
           <Header as='h3'>
             Configure SMTP
-            <Header.Subheader>To support the system email sending</Header.Subheader>
+            <Header.Subheader>
+              To support the system email sending
+            </Header.Subheader>
           </Header>
           <Form.Group widths={3}>
             <Form.Input
@@ -318,7 +320,10 @@ const SystemSetting = () => {
             Configure Discord OAuth App
             <Header.Subheader>
               To support login & registration via GitHub，
-              <a href='https://discord.com/developers/applications' target='_blank'>
+              <a
+                href='https://discord.com/developers/applications'
+                target='_blank'
+              >
                 Click here
               </a>
               Manage your Discord OAuth App
@@ -441,7 +446,8 @@ const SystemSetting = () => {
               <a href='https://dash.cloudflare.com/' target='_blank'>
                 Click here
               </a>
-              Manage your Turnstile Sites, recommend selecting Invisible Widget Type
+              Manage your Turnstile Sites, recommend selecting Invisible Widget
+              Type
             </Header.Subheader>
           </Header>
           <Form.Group widths={3}>

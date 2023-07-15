@@ -12,6 +12,6 @@ export const CHANNEL_OPTIONS = [
   { key: 12, text: 'API2GPT', value: 12, color: 'blue' },
   { key: 13, text: 'AIGC2D', value: 13, color: 'purple' },
 
-  // 
+  //
   { key: 14, text: 'Chanzhaoyu/chatgpt-web', value: 14, color: 'purple' },
 ];

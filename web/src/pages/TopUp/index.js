@@ -1,5 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Form, Grid, Header, Segment, Statistic } from 'semantic-ui-react';
+import {
+  Button,
+  Form,
+  Grid,
+  Header,
+  Segment,
+  Statistic,
+} from 'semantic-ui-react';
 import { API, showError, showInfo, showSuccess } from '../../helpers';
 import { renderQuota } from '../../helpers/render';
 
@@ -10,11 +17,11 @@ const TopUp = () => {
 
   const topUp = async () => {
     if (redemptionCode === '') {
-      showInfo('请输入充值码！')
+      showInfo('请输入充值码！');
       return;
     }
     const res = await API.post('/api/user/topup', {
-      key: redemptionCode
+      key: redemptionCode,
     });
     const { success, message, data } = res.data;
     if (success) {
@@ -36,15 +43,15 @@ const TopUp = () => {
     window.open(topUpLink, '_blank');
   };
 
-  const getUserQuota = async ()=>{
-    let res  = await API.get(`/api/user/self`);
-    const {success, message, data} = res.data;
+  const getUserQuota = async () => {
+    let res = await API.get(`/api/user/self`);
+    const { success, message, data } = res.data;
     if (success) {
       setUserQuota(data.quota);
     } else {
       showError(message);
     }
-  }
+  };
 
   useEffect(() => {
     let status = localStorage.getItem('status');
@@ -91,6 +98,5 @@ const TopUp = () => {
     </Segment>
   );
 };
-
 
 export default TopUp;

@@ -1,31 +1,66 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Form, Label, Modal, Pagination, Popup, Table } from 'semantic-ui-react';
+import {
+  Button,
+  Form,
+  Label,
+  Modal,
+  Pagination,
+  Popup,
+  Table,
+} from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
-import { API, copy, showError, showSuccess, showWarning, timestamp2string } from '../helpers';
+import {
+  API,
+  copy,
+  showError,
+  showSuccess,
+  showWarning,
+  timestamp2string,
+} from '../helpers';
 
 import { ITEMS_PER_PAGE } from '../constants';
 import { renderQuota } from '../helpers/render';
 
 function renderTimestamp(timestamp) {
-  return (
-    <>
-      {timestamp2string(timestamp)}
-    </>
-  );
+  return <>{timestamp2string(timestamp)}</>;
 }
 
 function renderStatus(status) {
   switch (status) {
     case 1:
-      return <Label basic color='green'>已启用</Label>;
+      return (
+        <Label basic color='green'>
+          已启用
+        </Label>
+      );
     case 2:
-      return <Label basic color='red'> 已禁用 </Label>;
+      return (
+        <Label basic color='red'>
+          {' '}
+          已禁用{' '}
+        </Label>
+      );
     case 3:
-      return <Label basic color='yellow'> 已过期 </Label>;
+      return (
+        <Label basic color='yellow'>
+          {' '}
+          已过期{' '}
+        </Label>
+      );
     case 4:
-      return <Label basic color='grey'> 已耗尽 </Label>;
+      return (
+        <Label basic color='grey'>
+          {' '}
+          已耗尽{' '}
+        </Label>
+      );
     default:
-      return <Label basic color='black'> 未知状态 </Label>;
+      return (
+        <Label basic color='black'>
+          {' '}
+          未知状态{' '}
+        </Label>
+      );
   }
 }
 
@@ -68,7 +103,7 @@ const TokensTable = () => {
   const refresh = async () => {
     setLoading(true);
     await loadTokens(activePage - 1);
-  }
+  };
 
   useEffect(() => {
     loadTokens(0)
@@ -221,7 +256,7 @@ const TokensTable = () => {
           {tokens
             .slice(
               (activePage - 1) * ITEMS_PER_PAGE,
-              activePage * ITEMS_PER_PAGE
+              activePage * ITEMS_PER_PAGE,
             )
             .map((token, idx) => {
               if (token.deleted) return <></>;
@@ -230,20 +265,30 @@ const TokensTable = () => {
                   <Table.Cell>{token.name ? token.name : '无'}</Table.Cell>
                   <Table.Cell>{renderStatus(token.status)}</Table.Cell>
                   <Table.Cell>{renderQuota(token.used_quota)}</Table.Cell>
-                  <Table.Cell>{token.unlimited_quota ? '无限制' : renderQuota(token.remain_quota, 2)}</Table.Cell>
+                  <Table.Cell>
+                    {token.unlimited_quota
+                      ? '无限制'
+                      : renderQuota(token.remain_quota, 2)}
+                  </Table.Cell>
                   <Table.Cell>{renderTimestamp(token.created_time)}</Table.Cell>
-                  <Table.Cell>{token.expired_time === -1 ? '永不过期' : renderTimestamp(token.expired_time)}</Table.Cell>
+                  <Table.Cell>
+                    {token.expired_time === -1
+                      ? '永不过期'
+                      : renderTimestamp(token.expired_time)}
+                  </Table.Cell>
                   <Table.Cell>
                     <div>
                       <Button
                         size={'small'}
                         positive
                         onClick={async () => {
-                          let key = "sk-" + token.key;
+                          let key = 'sk-' + token.key;
                           if (await copy(key)) {
                             showSuccess('已复制到剪贴板！');
                           } else {
-                            showWarning('无法复制到剪贴板，请手动复制，已将令牌填入搜索框。');
+                            showWarning(
+                              '无法复制到剪贴板，请手动复制，已将令牌填入搜索框。',
+                            );
                             setSearchKeyword(key);
                           }
                         }}
@@ -275,7 +320,7 @@ const TokensTable = () => {
                           manageToken(
                             token.id,
                             token.status === 1 ? 'disable' : 'enable',
-                            idx
+                            idx,
                           );
                         }}
                       >
@@ -301,7 +346,9 @@ const TokensTable = () => {
               <Button size='small' as={Link} to='/token/add' loading={loading}>
                 添加新的令牌
               </Button>
-              <Button size='small' onClick={refresh} loading={loading}>刷新</Button>
+              <Button size='small' onClick={refresh} loading={loading}>
+                刷新
+              </Button>
               <Pagination
                 floated='right'
                 activePage={activePage}

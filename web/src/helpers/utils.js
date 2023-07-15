@@ -24,7 +24,7 @@ export function getSystemName() {
 export function getLogo() {
   let logo = localStorage.getItem('logo');
   if (!logo) return '/logo.png';
-  return logo
+  return logo;
 }
 
 export function getFooterHTML() {
@@ -147,17 +147,7 @@ export function timestamp2string(timestamp) {
     second = '0' + second;
   }
   return (
-    year +
-    '-' +
-    month +
-    '-' +
-    day +
-    ' ' +
-    hour +
-    ':' +
-    minute +
-    ':' +
-    second
+    year + '-' + month + '-' + day + ' ' + hour + ':' + minute + ':' + second
   );
 }
 

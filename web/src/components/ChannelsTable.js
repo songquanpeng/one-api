@@ -1,30 +1,43 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Form, Label, Pagination, Popup, Table } from 'semantic-ui-react';
+import {
+  Button,
+  Form,
+  Label,
+  Pagination,
+  Popup,
+  Table,
+} from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
-import { API, showError, showInfo, showSuccess, timestamp2string } from '../helpers';
+import {
+  API,
+  showError,
+  showInfo,
+  showSuccess,
+  timestamp2string,
+} from '../helpers';
 
 import { CHANNEL_OPTIONS, ITEMS_PER_PAGE } from '../constants';
 import { renderGroup, renderNumber } from '../helpers/render';
 
 function renderTimestamp(timestamp) {
-  return (
-    <>
-      {timestamp2string(timestamp)}
-    </>
-  );
+  return <>{timestamp2string(timestamp)}</>;
 }
 
 let type2label = undefined;
 
 function renderType(type) {
   if (!type2label) {
-    type2label = new Map;
+    type2label = new Map();
     for (let i = 0; i < CHANNEL_OPTIONS.length; i++) {
       type2label[CHANNEL_OPTIONS[i].value] = CHANNEL_OPTIONS[i];
     }
     type2label[0] = { value: 0, text: '未知类型', color: 'grey' };
   }
-  return <Label basic color={type2label[type].color}>{type2label[type].text}</Label>;
+  return (
+    <Label basic color={type2label[type].color}>
+      {type2label[type].text}
+    </Label>
+  );
 }
 
 function renderBalance(type, balance) {
@@ -132,7 +145,11 @@ const ChannelsTable = () => {
   const renderStatus = (status) => {
     switch (status) {
       case 1:
-        return <Label basic color='green'>已启用</Label>;
+        return (
+          <Label basic color='green'>
+            已启用
+          </Label>
+        );
       case 2:
         return (
           <Label basic color='red'>
@@ -152,15 +169,35 @@ const ChannelsTable = () => {
     let time = responseTime / 1000;
     time = time.toFixed(2) + ' 秒';
     if (responseTime === 0) {
-      return <Label basic color='grey'>未测试</Label>;
+      return (
+        <Label basic color='grey'>
+          未测试
+        </Label>
+      );
     } else if (responseTime <= 1000) {
-      return <Label basic color='green'>{time}</Label>;
+      return (
+        <Label basic color='green'>
+          {time}
+        </Label>
+      );
     } else if (responseTime <= 3000) {
-      return <Label basic color='olive'>{time}</Label>;
+      return (
+        <Label basic color='olive'>
+          {time}
+        </Label>
+      );
     } else if (responseTime <= 5000) {
-      return <Label basic color='yellow'>{time}</Label>;
+      return (
+        <Label basic color='yellow'>
+          {time}
+        </Label>
+      );
     } else {
-      return <Label basic color='red'>{time}</Label>;
+      return (
+        <Label basic color='red'>
+          {time}
+        </Label>
+      );
     }
   };
 
@@ -342,7 +379,7 @@ const ChannelsTable = () => {
           {channels
             .slice(
               (activePage - 1) * ITEMS_PER_PAGE,
-              activePage * ITEMS_PER_PAGE
+              activePage * ITEMS_PER_PAGE,
             )
             .map((channel, idx) => {
               if (channel.deleted) return <></>;
@@ -355,7 +392,11 @@ const ChannelsTable = () => {
                   <Table.Cell>{renderStatus(channel.status)}</Table.Cell>
                   <Table.Cell>
                     <Popup
-                      content={channel.test_time ? renderTimestamp(channel.test_time) : '未测试'}
+                      content={
+                        channel.test_time
+                          ? renderTimestamp(channel.test_time)
+                          : '未测试'
+                      }
                       key={channel.id}
                       trigger={renderResponseTime(channel.response_time)}
                       basic
@@ -363,7 +404,11 @@ const ChannelsTable = () => {
                   </Table.Cell>
                   <Table.Cell>
                     <Popup
-                      content={channel.balance_updated_time ? renderTimestamp(channel.balance_updated_time) : '未更新'}
+                      content={
+                        channel.balance_updated_time
+                          ? renderTimestamp(channel.balance_updated_time)
+                          : '未更新'
+                      }
                       key={channel.id}
                       trigger={renderBalance(channel.type, channel.balance)}
                       basic
@@ -415,7 +460,7 @@ const ChannelsTable = () => {
                           manageChannel(
                             channel.id,
                             channel.status === 1 ? 'disable' : 'enable',
-                            idx
+                            idx,
                           );
                         }}
                       >
@@ -438,14 +483,24 @@ const ChannelsTable = () => {
         <Table.Footer>
           <Table.Row>
             <Table.HeaderCell colSpan='8'>
-              <Button size='small' as={Link} to='/channel/add' loading={loading}>
+              <Button
+                size='small'
+                as={Link}
+                to='/channel/add'
+                loading={loading}
+              >
                 添加新的渠道
               </Button>
               <Button size='small' loading={loading} onClick={testAllChannels}>
                 测试所有已启用通道
               </Button>
-              <Button size='small' onClick={updateAllChannelsBalance}
-                      loading={loading || updatingBalance}>更新所有已启用通道余额</Button>
+              <Button
+                size='small'
+                onClick={updateAllChannelsBalance}
+                loading={loading || updatingBalance}
+              >
+                更新所有已启用通道余额
+              </Button>
               <Pagination
                 floated='right'
                 activePage={activePage}
@@ -457,7 +512,9 @@ const ChannelsTable = () => {
                   (channels.length % ITEMS_PER_PAGE === 0 ? 1 : 0)
                 }
               />
-              <Button size='small' onClick={refresh} loading={loading}>刷新</Button>
+              <Button size='small' onClick={refresh} loading={loading}>
+                刷新
+              </Button>
             </Table.HeaderCell>
           </Table.Row>
         </Table.Footer>

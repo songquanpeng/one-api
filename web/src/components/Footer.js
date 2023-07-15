@@ -37,10 +37,7 @@ const Footer = () => {
           ></div>
         ) : (
           <div className='custom-footer'>
-            <a
-              href='https://github.com/songquanpeng/one-api'
-              target='_blank'
-            >
+            <a href='https://github.com/songquanpeng/one-api' target='_blank'>
               {systemName} {process.env.REACT_APP_VERSION}{' '}
             </a>
             由{' '}

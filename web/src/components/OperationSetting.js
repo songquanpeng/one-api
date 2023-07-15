@@ -54,7 +54,7 @@ const OperationSetting = () => {
     }
     const res = await API.put('/api/option/', {
       key,
-      value
+      value,
     });
     const { success, message } = res.data;
     if (success) {
@@ -76,11 +76,22 @@ const OperationSetting = () => {
   const submitConfig = async (group) => {
     switch (group) {
       case 'monitor':
-        if (originInputs['ChannelDisableThreshold'] !== inputs.ChannelDisableThreshold) {
-          await updateOption('ChannelDisableThreshold', inputs.ChannelDisableThreshold);
+        if (
+          originInputs['ChannelDisableThreshold'] !==
+          inputs.ChannelDisableThreshold
+        ) {
+          await updateOption(
+            'ChannelDisableThreshold',
+            inputs.ChannelDisableThreshold,
+          );
         }
-        if (originInputs['QuotaRemindThreshold'] !== inputs.QuotaRemindThreshold) {
-          await updateOption('QuotaRemindThreshold', inputs.QuotaRemindThreshold);
+        if (
+          originInputs['QuotaRemindThreshold'] !== inputs.QuotaRemindThreshold
+        ) {
+          await updateOption(
+            'QuotaRemindThreshold',
+            inputs.QuotaRemindThreshold,
+          );
         }
         break;
       case 'ratio':
@@ -134,9 +145,7 @@ const OperationSetting = () => {
     <Grid columns={1}>
       <Grid.Column>
         <Form loading={loading}>
-          <Header as='h3'>
-            通用设置
-          </Header>
+          <Header as='h3'>通用设置</Header>
           <Form.Group widths={4}>
             <Form.Input
               label='充值链接'
@@ -204,13 +213,15 @@ const OperationSetting = () => {
               onChange={handleInputChange}
             />
           </Form.Group>
-          <Form.Button onClick={() => {
-            submitConfig('general').then();
-          }}>保存通用设置</Form.Button>
+          <Form.Button
+            onClick={() => {
+              submitConfig('general').then();
+            }}
+          >
+            保存通用设置
+          </Form.Button>
           <Divider />
-          <Header as='h3'>
-            监控设置
-          </Header>
+          <Header as='h3'>监控设置</Header>
           <Form.Group widths={3}>
             <Form.Input
               label='最长响应时间'
@@ -241,13 +252,15 @@ const OperationSetting = () => {
               onChange={handleInputChange}
             />
           </Form.Group>
-          <Form.Button onClick={() => {
-            submitConfig('monitor').then();
-          }}>保存监控设置</Form.Button>
+          <Form.Button
+            onClick={() => {
+              submitConfig('monitor').then();
+            }}
+          >
+            保存监控设置
+          </Form.Button>
           <Divider />
-          <Header as='h3'>
-            额度设置
-          </Header>
+          <Header as='h3'>额度设置</Header>
           <Form.Group widths={4}>
             <Form.Input
               label='新用户初始额度'
@@ -290,13 +303,15 @@ const OperationSetting = () => {
               placeholder='例如：1000'
             />
           </Form.Group>
-          <Form.Button onClick={() => {
-            submitConfig('quota').then();
-          }}>保存额度设置</Form.Button>
+          <Form.Button
+            onClick={() => {
+              submitConfig('quota').then();
+            }}
+          >
+            保存额度设置
+          </Form.Button>
           <Divider />
-          <Header as='h3'>
-            倍率设置
-          </Header>
+          <Header as='h3'>倍率设置</Header>
           <Form.Group widths='equal'>
             <Form.TextArea
               label='模型倍率'
@@ -319,9 +334,13 @@ const OperationSetting = () => {
               placeholder='为一个 JSON 文本，键为分组名称，值为倍率'
             />
           </Form.Group>
-          <Form.Button onClick={() => {
-            submitConfig('ratio').then();
-          }}>保存倍率设置</Form.Button>
+          <Form.Button
+            onClick={() => {
+              submitConfig('ratio').then();
+            }}
+          >
+            保存倍率设置
+          </Form.Button>
         </Form>
       </Grid.Column>
     </Grid>

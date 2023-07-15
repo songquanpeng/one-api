@@ -17,22 +17,32 @@ const EditUser = () => {
     wechat_id: '',
     email: '',
     quota: 0,
-    group: 'default'
+    group: 'default',
   });
   const [groupOptions, setGroupOptions] = useState([]);
-  const { username, display_name, password, github_id, wechat_id, email, quota, discord_id } =
-    inputs;
+  const {
+    username,
+    display_name,
+    password,
+    github_id,
+    wechat_id,
+    email,
+    quota,
+    discord_id,
+  } = inputs;
   const handleInputChange = (e, { name, value }) => {
     setInputs((inputs) => ({ ...inputs, [name]: value }));
   };
   const fetchGroups = async () => {
     try {
       let res = await API.get(`/api/group/`);
-      setGroupOptions(res.data.data.map((group) => ({
-        key: group,
-        text: group,
-        value: group,
-      })));
+      setGroupOptions(
+        res.data.data.map((group) => ({
+          key: group,
+          text: group,
+          value: group,
+        })),
+      );
     } catch (error) {
       showError(error.message);
     }
@@ -116,8 +126,8 @@ const EditUser = () => {
               autoComplete='new-password'
             />
           </Form.Field>
-          {
-            userId && <>
+          {userId && (
+            <>
               <Form.Field>
                 <Form.Dropdown
                   label='分组'
@@ -146,7 +156,7 @@ const EditUser = () => {
                 />
               </Form.Field>
             </>
-          }
+          )}
           <Form.Field>
             <Form.Input
               label='已绑定的 GitHub 账户'
@@ -187,7 +197,9 @@ const EditUser = () => {
               readOnly
             />
           </Form.Field>
-          <Button positive onClick={submit}>提交</Button>
+          <Button positive onClick={submit}>
+            提交
+          </Button>
         </Form>
       </Segment>
     </>

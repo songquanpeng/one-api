@@ -1,21 +1,26 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Form, Header, Label, Pagination, Segment, Select, Table } from 'semantic-ui-react';
+import {
+  Button,
+  Form,
+  Header,
+  Label,
+  Pagination,
+  Segment,
+  Select,
+  Table,
+} from 'semantic-ui-react';
 import { API, isAdmin, showError, timestamp2string } from '../helpers';
 
 import { ITEMS_PER_PAGE } from '../constants';
 import { renderQuota } from '../helpers/render';
 
 function renderTimestamp(timestamp) {
-  return (
-    <>
-      {timestamp2string(timestamp)}
-    </>
-  );
+  return <>{timestamp2string(timestamp)}</>;
 }
 
 const MODE_OPTIONS = [
   { key: 'all', text: '全部用户', value: 'all' },
-  { key: 'self', text: '当前用户', value: 'self' }
+  { key: 'self', text: '当前用户', value: 'self' },
 ];
 
 const LOG_OPTIONS = [
@@ -23,21 +28,46 @@ const LOG_OPTIONS = [
   { key: '1', text: '充值', value: 1 },
   { key: '2', text: '消费', value: 2 },
   { key: '3', text: '管理', value: 3 },
-  { key: '4', text: '系统', value: 4 }
+  { key: '4', text: '系统', value: 4 },
 ];
 
 function renderType(type) {
   switch (type) {
     case 1:
-      return <Label basic color='green'> 充值 </Label>;
+      return (
+        <Label basic color='green'>
+          {' '}
+          充值{' '}
+        </Label>
+      );
     case 2:
-      return <Label basic color='olive'> 消费 </Label>;
+      return (
+        <Label basic color='olive'>
+          {' '}
+          消费{' '}
+        </Label>
+      );
     case 3:
-      return <Label basic color='orange'> 管理 </Label>;
+      return (
+        <Label basic color='orange'>
+          {' '}
+          管理{' '}
+        </Label>
+      );
     case 4:
-      return <Label basic color='purple'> 系统 </Label>;
+      return (
+        <Label basic color='purple'>
+          {' '}
+          系统{' '}
+        </Label>
+      );
     default:
-      return <Label basic color='black'> 未知 </Label>;
+      return (
+        <Label basic color='black'>
+          {' '}
+          未知{' '}
+        </Label>
+      );
   }
 }
 
@@ -55,13 +85,14 @@ const LogsTable = () => {
     token_name: '',
     model_name: '',
     start_timestamp: timestamp2string(0),
-    end_timestamp: timestamp2string(now.getTime() / 1000 + 3600)
+    end_timestamp: timestamp2string(now.getTime() / 1000 + 3600),
   });
-  const { username, token_name, model_name, start_timestamp, end_timestamp } = inputs;
+  const { username, token_name, model_name, start_timestamp, end_timestamp } =
+    inputs;
 
   const [stat, setStat] = useState({
     quota: 0,
-    token: 0
+    token: 0,
   });
 
   const handleInputChange = (e, { name, value }) => {
@@ -71,7 +102,9 @@ const LogsTable = () => {
   const getLogSelfStat = async () => {
     let localStartTimestamp = Date.parse(start_timestamp) / 1000;
     let localEndTimestamp = Date.parse(end_timestamp) / 1000;
-    let res = await API.get(`/api/log/self/stat?type=${logType}&token_name=${token_name}&model_name=${model_name}&start_timestamp=${localStartTimestamp}&end_timestamp=${localEndTimestamp}`);
+    let res = await API.get(
+      `/api/log/self/stat?type=${logType}&token_name=${token_name}&model_name=${model_name}&start_timestamp=${localStartTimestamp}&end_timestamp=${localEndTimestamp}`,
+    );
     const { success, message, data } = res.data;
     if (success) {
       setStat(data);
@@ -83,7 +116,9 @@ const LogsTable = () => {
   const getLogStat = async () => {
     let localStartTimestamp = Date.parse(start_timestamp) / 1000;
     let localEndTimestamp = Date.parse(end_timestamp) / 1000;
-    let res = await API.get(`/api/log/stat?type=${logType}&username=${username}&token_name=${token_name}&model_name=${model_name}&start_timestamp=${localStartTimestamp}&end_timestamp=${localEndTimestamp}`);
+    let res = await API.get(
+      `/api/log/stat?type=${logType}&username=${username}&token_name=${token_name}&model_name=${model_name}&start_timestamp=${localStartTimestamp}&end_timestamp=${localEndTimestamp}`,
+    );
     const { success, message, data } = res.data;
     if (success) {
       setStat(data);
@@ -129,7 +164,7 @@ const LogsTable = () => {
 
   const refresh = async () => {
     setLoading(true);
-    setActivePage(1)
+    setActivePage(1);
     await loadLogs(0);
     if (isAdminUser) {
       getLogStat().then();
@@ -169,7 +204,7 @@ const LogsTable = () => {
     if (logs.length === 0) return;
     setLoading(true);
     let sortedLogs = [...logs];
-    if (typeof sortedLogs[0][key] === 'string'){
+    if (typeof sortedLogs[0][key] === 'string') {
       sortedLogs.sort((a, b) => {
         return ('' + a[key]).localeCompare(b[key]);
       });
@@ -190,28 +225,61 @@ const LogsTable = () => {
   return (
     <>
       <Segment>
-        <Header as='h3'>使用明细（总消耗额度：{renderQuota(stat.quota)}）</Header>
+        <Header as='h3'>
+          使用明细（总消耗额度：{renderQuota(stat.quota)}）
+        </Header>
         <Form>
           <Form.Group>
-            {
-              isAdminUser && (
-                <Form.Input fluid label={'用户名称'} width={2} value={username}
-                            placeholder={'可选值'} name='username'
-                            onChange={handleInputChange} />
-              )
-            }
-            <Form.Input fluid label={'令牌名称'} width={isAdminUser ? 2 : 3} value={token_name}
-                        placeholder={'可选值'} name='token_name' onChange={handleInputChange} />
-            <Form.Input fluid label='模型名称' width={isAdminUser ? 2 : 3} value={model_name} placeholder='可选值'
-                        name='model_name'
-                        onChange={handleInputChange} />
-            <Form.Input fluid label='起始时间' width={4} value={start_timestamp} type='datetime-local'
-                        name='start_timestamp'
-                        onChange={handleInputChange} />
-            <Form.Input fluid label='结束时间' width={4} value={end_timestamp} type='datetime-local'
-                        name='end_timestamp'
-                        onChange={handleInputChange} />
-            <Form.Button fluid label='操作' width={2} onClick={refresh}>查询</Form.Button>
+            {isAdminUser && (
+              <Form.Input
+                fluid
+                label={'用户名称'}
+                width={2}
+                value={username}
+                placeholder={'可选值'}
+                name='username'
+                onChange={handleInputChange}
+              />
+            )}
+            <Form.Input
+              fluid
+              label={'令牌名称'}
+              width={isAdminUser ? 2 : 3}
+              value={token_name}
+              placeholder={'可选值'}
+              name='token_name'
+              onChange={handleInputChange}
+            />
+            <Form.Input
+              fluid
+              label='模型名称'
+              width={isAdminUser ? 2 : 3}
+              value={model_name}
+              placeholder='可选值'
+              name='model_name'
+              onChange={handleInputChange}
+            />
+            <Form.Input
+              fluid
+              label='起始时间'
+              width={4}
+              value={start_timestamp}
+              type='datetime-local'
+              name='start_timestamp'
+              onChange={handleInputChange}
+            />
+            <Form.Input
+              fluid
+              label='结束时间'
+              width={4}
+              value={end_timestamp}
+              type='datetime-local'
+              name='end_timestamp'
+              onChange={handleInputChange}
+            />
+            <Form.Button fluid label='操作' width={2} onClick={refresh}>
+              查询
+            </Form.Button>
           </Form.Group>
         </Form>
         <Table basic compact size='small'>
@@ -226,8 +294,8 @@ const LogsTable = () => {
               >
                 时间
               </Table.HeaderCell>
-              {
-                isAdminUser && <Table.HeaderCell
+              {isAdminUser && (
+                <Table.HeaderCell
                   style={{ cursor: 'pointer' }}
                   onClick={() => {
                     sortLog('username');
@@ -236,7 +304,7 @@ const LogsTable = () => {
                 >
                   用户
                 </Table.HeaderCell>
-              }
+              )}
               <Table.HeaderCell
                 style={{ cursor: 'pointer' }}
                 onClick={() => {
@@ -307,24 +375,42 @@ const LogsTable = () => {
             {logs
               .slice(
                 (activePage - 1) * ITEMS_PER_PAGE,
-                activePage * ITEMS_PER_PAGE
+                activePage * ITEMS_PER_PAGE,
               )
               .map((log, idx) => {
                 if (log.deleted) return <></>;
                 return (
                   <Table.Row key={log.created_at}>
                     <Table.Cell>{renderTimestamp(log.created_at)}</Table.Cell>
-                    {
-                      isAdminUser && (
-                        <Table.Cell>{log.username ? <Label>{log.username}</Label> : ''}</Table.Cell>
-                      )
-                    }
-                    <Table.Cell>{log.token_name ? <Label basic>{log.token_name}</Label> : ''}</Table.Cell>
+                    {isAdminUser && (
+                      <Table.Cell>
+                        {log.username ? <Label>{log.username}</Label> : ''}
+                      </Table.Cell>
+                    )}
+                    <Table.Cell>
+                      {log.token_name ? (
+                        <Label basic>{log.token_name}</Label>
+                      ) : (
+                        ''
+                      )}
+                    </Table.Cell>
                     <Table.Cell>{renderType(log.type)}</Table.Cell>
-                    <Table.Cell>{log.model_name ? <Label basic>{log.model_name}</Label> : ''}</Table.Cell>
-                    <Table.Cell>{log.prompt_tokens ? log.prompt_tokens : ''}</Table.Cell>
-                    <Table.Cell>{log.completion_tokens ? log.completion_tokens : ''}</Table.Cell>
-                    <Table.Cell>{log.quota ? renderQuota(log.quota, 6) : ''}</Table.Cell>
+                    <Table.Cell>
+                      {log.model_name ? (
+                        <Label basic>{log.model_name}</Label>
+                      ) : (
+                        ''
+                      )}
+                    </Table.Cell>
+                    <Table.Cell>
+                      {log.prompt_tokens ? log.prompt_tokens : ''}
+                    </Table.Cell>
+                    <Table.Cell>
+                      {log.completion_tokens ? log.completion_tokens : ''}
+                    </Table.Cell>
+                    <Table.Cell>
+                      {log.quota ? renderQuota(log.quota, 6) : ''}
+                    </Table.Cell>
                     <Table.Cell>{log.content}</Table.Cell>
                   </Table.Row>
                 );
@@ -344,7 +430,9 @@ const LogsTable = () => {
                     setLogType(value);
                   }}
                 />
-                <Button size='small' onClick={refresh} loading={loading}>刷新</Button>
+                <Button size='small' onClick={refresh} loading={loading}>
+                  刷新
+                </Button>
                 <Pagination
                   floated='right'
                   activePage={activePage}

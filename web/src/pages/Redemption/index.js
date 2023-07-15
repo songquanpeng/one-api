@@ -6,7 +6,7 @@ const Redemption = () => (
   <>
     <Segment>
       <Header as='h3'>管理兑换码</Header>
-      <RedemptionsTable/>
+      <RedemptionsTable />
     </Segment>
   </>
 );
