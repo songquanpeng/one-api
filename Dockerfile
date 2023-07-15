@@ -5,7 +5,7 @@ COPY ./web/package*.json ./
 RUN npm ci
 COPY ./web .
 COPY ./VERSION .
-RUN REACT_APP_VERSION=$(cat VERSION) npm run build
+RUN VITE_REACT_APP_VERSION=$(cat VERSION) npm run build
 
 # Go build stage
 FROM golang AS builder2

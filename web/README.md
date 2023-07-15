@@ -10,8 +10,8 @@ npm start
 npm run build
 ```
 
-If you want to change the default server, please set `REACT_APP_SERVER` environment variables before build,
-for example: `REACT_APP_SERVER=http://your.domain.com`.
+If you want to change the default server, please set `VITE_REACT_APP_SERVER` environment variables before build,
+for example: `VITE_REACT_APP_SERVER=http://your.domain.com`.
 
 Before you start editing, make sure your `Actions on Save` options have `Optimize imports` & `Run Prettier` enabled.
 

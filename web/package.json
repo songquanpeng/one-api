@@ -16,10 +16,8 @@
     "semantic-ui-react": "^2.1.4"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "start": "vite preview",
+    "build": "vite build"
   },
   "eslintConfig": {
     "extends": [
@@ -40,9 +38,10 @@
     ]
   },
   "devDependencies": {
-    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
+    "@vitejs/plugin-react": "^4.0.3",
     "prettier": "3.0.0",
-    "react-scripts": "^5.0.1"
+    "terser": "^5.19.0",
+    "vite": "^4.4.4"
   },
   "prettier": {
     "singleQuote": true,
