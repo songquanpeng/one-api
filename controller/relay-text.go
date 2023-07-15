@@ -121,8 +121,6 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 	} else if channelType == common.ChannelTypeChatGPTWeb {
 		// remove /v1/chat/completions from request url
 		requestURL := strings.Split(requestURL, "/v1/chat/completions")[0]
-		requestURL += "/api/chat-process"
-
 		fullRequestURL = fmt.Sprintf("%s%s", baseURL, requestURL)
 	} else if channelType == common.ChannelTypePaLM {
 		err := relayPaLM(textRequest, c)

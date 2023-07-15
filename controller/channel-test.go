@@ -32,7 +32,6 @@ func testChannel(channel *model.Channel, request ChatRequest) error {
 		if channel.BaseURL != "" {
 			requestURL = channel.BaseURL
 		}
-		requestURL += "/api/chat-process"
 	} else {
 		if channel.BaseURL != "" {
 			requestURL = channel.BaseURL
