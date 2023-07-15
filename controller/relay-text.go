@@ -399,8 +399,8 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 					return 0, nil, nil
 				}
 
-				if i := strings.Index(string(data), "\n\n"); i >= 0 {
-					return i + 2, data[0:i], nil
+				if i := strings.Index(string(data), "\n"); i >= 0 {
+					return i + 1, data[0:i], nil
 				}
 
 				if atEOF {
