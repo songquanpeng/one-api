@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Form, Header, Message, Segment } from 'semantic-ui-react';
+import { Button, Form, Header, Input, Message, Segment } from 'semantic-ui-react';
 import { useParams } from 'react-router-dom';
 import { API, showError, showInfo, showSuccess, verifyJSON } from '../../helpers';
 import { CHANNEL_OPTIONS } from '../../constants';
@@ -31,6 +31,7 @@ const EditChannel = () => {
   const [groupOptions, setGroupOptions] = useState([]);
   const [basicModels, setBasicModels] = useState([]);
   const [fullModels, setFullModels] = useState([]);
+  const [customModel, setCustomModel] = useState('');
   const handleInputChange = (e, { name, value }) => {
     setInputs((inputs) => ({ ...inputs, [name]: value }));
   };
@@ -43,6 +44,19 @@ const EditChannel = () => {
         data.models = [];
       } else {
         data.models = data.models.split(',');
+        setTimeout(() => {
+          let localModelOptions = [...modelOptions];
+          data.models.forEach((model) => {
+            if (!localModelOptions.find((option) => option.key === model)) {
+              localModelOptions.push({
+                key: model,
+                text: model,
+                value: model
+              });
+            }
+          });
+          setModelOptions(localModelOptions);
+        }, 1000);
       }
       if (data.group === '') {
         data.groups = [];
@@ -263,6 +277,27 @@ const EditChannel = () => {
             <Button type={'button'} onClick={() => {
               handleInputChange(null, { name: 'models', value: [] });
             }}>清除所有模型</Button>
+            <Input
+              action={
+                <Button type={'button'} onClick={()=>{
+                  let localModels = [...inputs.models];
+                  localModels.push(customModel);
+                  let localModelOptions = [...modelOptions];
+                  localModelOptions.push({
+                    key: customModel,
+                    text: customModel,
+                    value: customModel,
+                  });
+                  setModelOptions(localModelOptions);
+                  handleInputChange(null, { name: 'models', value: localModels });
+                }}>填入</Button>
+              }
+              placeholder='输入自定义模型名称'
+              value={customModel}
+              onChange={(e, { value }) => {
+                setCustomModel(value);
+              }}
+            />
           </div>
           <Form.Field>
             <Form.TextArea
@@ -309,7 +344,7 @@ const EditChannel = () => {
               />
             )
           }
-          <Button positive onClick={submit}>提交</Button>
+          <Button type={isEdit ? "button" : "submit"} positive onClick={submit}>提交</Button>
         </Form>
       </Segment>
     </>
