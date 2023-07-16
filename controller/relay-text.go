@@ -224,7 +224,7 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 		// Construct json data without adding escape character
 		map1 := make(map[string]interface{})
 
-		map1["prompt"] = prompt
+		map1["prompt"] = prompt + "\nResponse as assistant, but do not include the role in response."
 		map1["systemMessage"] = systemMessage.Content
 
 		if reqBody.Temperature != 0 {
