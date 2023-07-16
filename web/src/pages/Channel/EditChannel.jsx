@@ -51,7 +51,7 @@ const EditChannel = () => {
     setInputs((inputs) => ({ ...inputs, [name]: value }));
   };
 
-  const loadChannel = async () => {
+  const loadChannel = async (modelOptions) => {
     let res = await API.get(`/api/channel/${channelId}`);
     const { success, message, data } = res.data;
     if (success) {
@@ -60,13 +60,13 @@ const EditChannel = () => {
       } else {
         data.models = data.models.split(',');
         setTimeout(() => {
-          let localModelOptions = [...data.models];
+          let localModelOptions = [...modelOptions];
           data.models.forEach((model) => {
             if (!localModelOptions.find((option) => option.key === model)) {
               localModelOptions.push({
                 key: model,
                 text: model,
-                value: model
+                value: model,
               });
             }
           });
@@ -95,19 +95,23 @@ const EditChannel = () => {
   const fetchModels = async () => {
     try {
       let res = await API.get(`/api/channel/models`);
-      setModelOptions(
-        res.data.data.map((model) => ({
-          key: model.id,
-          text: model.id,
-          value: model.id,
-        })),
-      );
+
       setFullModels(res.data.data.map((model) => model.id));
       setBasicModels(
         res.data.data
           .filter((model) => !model.id.startsWith('gpt-4'))
           .map((model) => model.id),
       );
+
+      const allModels = res.data.data.map((model) => ({
+        key: model.id,
+        text: model.id,
+        value: model.id,
+      }));
+
+      setModelOptions(allModels);
+
+      return allModels;
     } catch (error) {
       showError(error.message);
     }
@@ -128,12 +132,12 @@ const EditChannel = () => {
     }
   };
 
-  useEffect(() => {
+  useEffect(async () => {
+    const models = await fetchModels();
+    await fetchGroups();
     if (isEdit) {
-      loadChannel().then();
+      await loadChannel(models);
     }
-    fetchModels().then();
-    fetchGroups().then();
   }, []);
 
   const submit = async () => {
