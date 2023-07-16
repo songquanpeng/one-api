@@ -59,19 +59,19 @@ const EditChannel = () => {
         data.models = [];
       } else {
         data.models = data.models.split(',');
-        // setTimeout(() => {
-        //   let localModelOptions = [...modelOptions];
-        //   data.models.forEach((model) => {
-        //     if (!localModelOptions.find((option) => option.key === model)) {
-        //       localModelOptions.push({
-        //         key: model,
-        //         text: model,
-        //         value: model,
-        //       });
-        //     }
-        //   });
-        //   setModelOptions(localModelOptions);
-        // }, 1000);
+        setTimeout(() => {
+          let localModelOptions = [...data.models];
+          data.models.forEach((model) => {
+            if (!localModelOptions.find((option) => option.key === model)) {
+              localModelOptions.push({
+                key: model,
+                text: model,
+                value: model
+              });
+            }
+          });
+          setModelOptions(localModelOptions);
+        }, 1000);
       }
       if (data.group === '') {
         data.groups = [];
