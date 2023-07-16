@@ -11,7 +11,6 @@ import (
 	"net/http"
 	"one-api/common"
 	"one-api/model"
-	"strconv"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -223,11 +222,16 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 		}
 
 		// Construct json data without adding escape character
-		map1 := map[string]string{
-			"prompt":        prompt,
-			"systemMessage": systemMessage.Content,
-			"temperature":   strconv.FormatFloat(reqBody.Temperature, 'f', 2, 64),
-			"top_p":         strconv.FormatFloat(reqBody.TopP, 'f', 2, 64),
+		map1 := make(map[string]interface{})
+
+		map1["prompt"] = prompt
+		map1["systemMessage"] = systemMessage.Content
+
+		if reqBody.Temperature != 0 {
+			map1["temperature"] = formatFloat(reqBody.Temperature)
+		}
+		if reqBody.TopP != 0 {
+			map1["top_p"] = formatFloat(reqBody.TopP)
 		}
 
 		// Convert map to json string
@@ -348,16 +352,42 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 		dataChan := make(chan string)
 		stopChan := make(chan bool)
 
-		if channelType == common.ChannelTypeChatGPTWeb {
-			scanner := bufio.NewScanner(resp.Body)
-			go func() {
-				for scanner.Scan() {
-					var chatResponse ChatGptWebChatResponse
-					err = json.Unmarshal(scanner.Bytes(), &chatResponse)
+		scanner := bufio.NewScanner(resp.Body)
 
+		if channelType != common.ChannelTypeChatGPTWeb {
+			scanner.Split(func(data []byte, atEOF bool) (advance int, token []byte, err error) {
+				if atEOF && len(data) == 0 {
+					return 0, nil, nil
+				}
+
+				if i := strings.Index(string(data), "\n"); i >= 0 {
+					return i + 2, data[0:i], nil
+				}
+
+				if atEOF {
+					return len(data), data, nil
+				}
+
+				return 0, nil, nil
+			})
+		}
+
+		go func() {
+			for scanner.Scan() {
+				data := scanner.Text()
+				if len(data) < 6 { // must be something wrong!
+					continue
+				}
+
+				if channelType == common.ChannelTypeChatGPTWeb {
+					var chatResponse ChatGptWebChatResponse
+					err = json.Unmarshal([]byte(data), &chatResponse)
 					if err != nil {
-						log.Println("error unmarshal chat response: " + err.Error())
-						continue
+						// Print the body in string
+						buf := new(bytes.Buffer)
+						buf.ReadFrom(resp.Body)
+						common.SysError("error unmarshalling chat response: " + err.Error() + " " + buf.String())
+						return
 					}
 
 					// if response role is assistant and contains delta, append the content to streamResponseText
@@ -387,33 +417,7 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 							dataChan <- "data: " + string(jsonData)
 						}
 					}
-				}
-				stopChan <- true
-			}()
-		} else {
-			scanner := bufio.NewScanner(resp.Body)
-			scanner.Split(func(data []byte, atEOF bool) (advance int, token []byte, err error) {
-				if atEOF && len(data) == 0 {
-					return 0, nil, nil
-				}
-
-				if i := strings.Index(string(data), "\n"); i >= 0 {
-					return i + 1, data[0:i], nil
-				}
-
-				if atEOF {
-					return len(data), data, nil
-				}
-
-				return 0, nil, nil
-			})
-			go func() {
-				for scanner.Scan() {
-					data := scanner.Text()
-					if len(data) < 6 { // must be something wrong!
-						// common.SysError("invalid stream response: " + data)
-						continue
-					}
+				} else {
 					// If data has event: event content inside, remove it, it can be prefix or inside the data
 					if strings.HasPrefix(data, "event:") || strings.Contains(data, "event:") {
 						// Remove event: event in the front or back
@@ -463,10 +467,11 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 						}
 
 					}
+
 				}
-				stopChan <- true
-			}()
-		}
+			}
+			stopChan <- true
+		}()
 
 		c.Writer.Header().Set("Content-Type", "text/event-stream")
 		c.Writer.Header().Set("Cache-Control", "no-cache")
