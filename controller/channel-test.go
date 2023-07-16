@@ -130,7 +130,6 @@ func testChannel(channel *model.Channel, request ChatRequest) error {
 		return errors.New("error response: " + strconv.Itoa(resp.StatusCode))
 	}
 
-	var done = false
 	var streamResponseText = ""
 
 	scanner := bufio.NewScanner(resp.Body)
@@ -158,8 +157,8 @@ func testChannel(channel *model.Channel, request ChatRequest) error {
 		if len(data) < 6 { // must be something wrong!
 			continue
 		}
-		if channel.Type != common.ChannelTypeChatGPTWeb {
 
+		if channel.Type != common.ChannelTypeChatGPTWeb {
 			// If data has event: event content inside, remove it, it can be prefix or inside the data
 			if strings.HasPrefix(data, "event:") || strings.Contains(data, "event:") {
 				// Remove event: event in the front or back
@@ -196,9 +195,6 @@ func testChannel(channel *model.Channel, request ChatRequest) error {
 				for _, choice := range streamResponse.Choices {
 					streamResponseText += choice.Delta.Content
 				}
-			} else {
-				done = true
-				break
 			}
 
 		} else if channel.Type == common.ChannelTypeChatGPTWeb {
@@ -225,7 +221,7 @@ func testChannel(channel *model.Channel, request ChatRequest) error {
 	defer resp.Body.Close()
 
 	// Check if streaming is complete and streamResponseText is populated
-	if streamResponseText == "" || !done && channel.Type != common.ChannelTypeChatGPTWeb {
+	if streamResponseText == "" {
 		return errors.New("Streaming not complete")
 	}
 
@@ -239,7 +235,7 @@ func buildTestRequest() *ChatRequest {
 	}
 	testMessage := Message{
 		Role:    "user",
-		Content: "say hi word only",
+		Content: "Hello ChatGPT!",
 	}
 	testRequest.Messages = append(testRequest.Messages, testMessage)
 	return testRequest
