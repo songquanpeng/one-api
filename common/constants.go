@@ -158,6 +158,7 @@ const (
 
 	// Reserve engineering for public projects
 	ChannelTypeChatGPTWeb = 14 // Chanzhaoyu/chatgpt-web
+	ChannelTypeChatbotUI  = 15 // mckaywrigley/chatbot-ui
 )
 
 var ChannelBaseURLs = []string{
@@ -178,4 +179,5 @@ var ChannelBaseURLs = []string{
 
 	// Reserve engineering for public projects
 	"", // 14 // Chanzhaoyu/chatgpt-web
+	"", // 15 // mckaywrigley/chatbot-ui
 }

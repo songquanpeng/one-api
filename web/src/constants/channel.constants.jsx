@@ -14,4 +14,5 @@ export const CHANNEL_OPTIONS = [
 
   //
   { key: 14, text: 'Chanzhaoyu/chatgpt-web', value: 14, color: 'purple' },
+  { key: 14, text: 'mckaywrigley/chatbot-ui', value: 15, color: 'orange' },
 ];

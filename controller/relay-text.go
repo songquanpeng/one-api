@@ -11,7 +11,9 @@ import (
 	"net/http"
 	"one-api/common"
 	"one-api/model"
+	"strconv"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -118,6 +120,10 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 		model_ = strings.TrimSuffix(model_, "-0613")
 		fullRequestURL = fmt.Sprintf("%s/openai/deployments/%s/%s", baseURL, model_, task)
 	} else if channelType == common.ChannelTypeChatGPTWeb {
+		// remove /v1/chat/completions from request url
+		requestURL := strings.Split(requestURL, "/v1/chat/completions")[0]
+		fullRequestURL = fmt.Sprintf("%s%s", baseURL, requestURL)
+	} else if channelType == common.ChannelTypeChatbotUI {
 		// remove /v1/chat/completions from request url
 		requestURL := strings.Split(requestURL, "/v1/chat/completions")[0]
 		fullRequestURL = fmt.Sprintf("%s%s", baseURL, requestURL)
@@ -243,6 +249,47 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 
 		// Convert json string to io.Reader
 		requestBody = bytes.NewReader(jsonData)
+	} else if channelType == common.ChannelTypeChatbotUI {
+		// Get system message from Message json, Role == "system"
+		var reqBody ChatRequest
+
+		// Parse requestBody into systemMessage
+		err := json.NewDecoder(requestBody).Decode(&reqBody)
+
+		if err != nil {
+			return errorWrapper(err, "decode_request_body_failed", http.StatusInternalServerError)
+		}
+
+		// Get system message from Message json, Role == "system"
+		var systemMessage string
+
+		for _, message := range reqBody.Messages {
+			if message.Role == "system" {
+				systemMessage = message.Content
+				break
+			}
+		}
+
+		// Construct json data without adding escape character
+		map1 := make(map[string]interface{})
+
+		map1["prompt"] = systemMessage
+		map1["temperature"] = formatFloat(reqBody.Temperature)
+		map1["key"] = ""
+		map1["messages"] = reqBody.Messages
+		map1["model"] = map[string]interface{}{
+			"id": reqBody.Model,
+		}
+
+		// Convert map to json string
+		jsonData, err := json.Marshal(map1)
+
+		if err != nil {
+			return errorWrapper(err, "marshal_json_failed", http.StatusInternalServerError)
+		}
+
+		// Convert json string to io.Reader
+		requestBody = bytes.NewReader(jsonData)
 	}
 
 	req, err := http.NewRequest(c.Request.Method, fullRequestURL, requestBody)
@@ -348,13 +395,13 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 		}
 	}()
 
-	if isStream {
+	if isStream || channelType == common.ChannelTypeChatGPTWeb || channelType == common.ChannelTypeChatbotUI {
 		dataChan := make(chan string)
 		stopChan := make(chan bool)
 
 		scanner := bufio.NewScanner(resp.Body)
 
-		if channelType != common.ChannelTypeChatGPTWeb {
+		if channelType != common.ChannelTypeChatGPTWeb && channelType != common.ChannelTypeChatbotUI {
 			scanner.Split(func(data []byte, atEOF bool) (advance int, token []byte, err error) {
 				if atEOF && len(data) == 0 {
 					return 0, nil, nil
@@ -417,6 +464,27 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 							dataChan <- "data: " + string(jsonData)
 						}
 					}
+				} else if channelType == common.ChannelTypeChatbotUI {
+					returnObj := map[string]interface{}{
+						"id":      "chatcmpl-" + strconv.Itoa(int(time.Now().UnixNano())),
+						"object":  "text_completion",
+						"created": time.Now().Unix(),
+						"model":   textRequest.Model,
+						"choices": []map[string]interface{}{
+							// set finish_reason to null in json
+							{
+								"finish_reason": nil,
+								"index":         0,
+								"delta": map[string]interface{}{
+									"content": data,
+								},
+							},
+						},
+					}
+
+					jsonData, _ := json.Marshal(returnObj)
+
+					dataChan <- "data: " + string(jsonData)
 				} else {
 					// If data has event: event content inside, remove it, it can be prefix or inside the data
 					if strings.HasPrefix(data, "event:") || strings.Contains(data, "event:") {

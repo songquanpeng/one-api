@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 	"one-api/common"
 	"one-api/model"
@@ -35,6 +36,10 @@ func testChannel(channel *model.Channel, request ChatRequest) error {
 	if channel.Type == common.ChannelTypeAzure {
 		requestURL = fmt.Sprintf("%s/openai/deployments/%s/chat/completions?api-version=2023-03-15-preview", channel.BaseURL, request.Model)
 	} else if channel.Type == common.ChannelTypeChatGPTWeb {
+		if channel.BaseURL != "" {
+			requestURL = channel.BaseURL
+		}
+	} else if channel.Type == common.ChannelTypeChatbotUI {
 		if channel.BaseURL != "" {
 			requestURL = channel.BaseURL
 		}
@@ -85,7 +90,35 @@ func testChannel(channel *model.Channel, request ChatRequest) error {
 
 		// Convert map to json string
 		jsonData, err = json.Marshal(map1)
+	} else if channel.Type == common.ChannelTypeChatbotUI {
+		// Get system message from Message json, Role == "system"
+		var systemMessage string
+
+		for _, message := range request.Messages {
+			if message.Role == "system" {
+				systemMessage = message.Content
+				break
+			}
+		}
+
+		// Construct json data without adding escape character
+		map1 := make(map[string]interface{})
+
+		map1["prompt"] = systemMessage
+		map1["temperature"] = formatFloat(request.Temperature)
+		map1["key"] = ""
+		map1["messages"] = request.Messages
+		map1["model"] = map[string]interface{}{
+			"id": request.Model,
+		}
+
+		// Convert map to json string
+		jsonData, err = json.Marshal(map1)
+
+		//Print jsoinData to console
+		log.Println(string(jsonData))
 	}
+
 	if err != nil {
 		return err
 	}
@@ -134,7 +167,7 @@ func testChannel(channel *model.Channel, request ChatRequest) error {
 
 	scanner := bufio.NewScanner(resp.Body)
 
-	if channel.Type != common.ChannelTypeChatGPTWeb {
+	if channel.Type != common.ChannelTypeChatGPTWeb && channel.Type != common.ChannelTypeChatbotUI {
 		scanner.Split(func(data []byte, atEOF bool) (advance int, token []byte, err error) {
 			if atEOF && len(data) == 0 {
 				return 0, nil, nil
@@ -158,7 +191,27 @@ func testChannel(channel *model.Channel, request ChatRequest) error {
 			continue
 		}
 
-		if channel.Type != common.ChannelTypeChatGPTWeb {
+		if channel.Type == common.ChannelTypeChatGPTWeb {
+			var chatResponse ChatGptWebChatResponse
+			err = json.Unmarshal([]byte(data), &chatResponse)
+			if err != nil {
+				// Print the body in string
+				buf := new(bytes.Buffer)
+				buf.ReadFrom(resp.Body)
+				common.SysError("error unmarshalling chat response: " + err.Error() + " " + buf.String())
+				return err
+			}
+
+			// if response role is assistant and contains delta, append the content to streamResponseText
+			if chatResponse.Role == "assistant" && chatResponse.Detail != nil {
+				for _, choice := range chatResponse.Detail.Choices {
+					streamResponseText += choice.Delta.Content
+				}
+			}
+
+		} else if channel.Type == common.ChannelTypeChatbotUI {
+			streamResponseText += data
+		} else if channel.Type != common.ChannelTypeChatGPTWeb {
 			// If data has event: event content inside, remove it, it can be prefix or inside the data
 			if strings.HasPrefix(data, "event:") || strings.Contains(data, "event:") {
 				// Remove event: event in the front or back
@@ -193,24 +246,6 @@ func testChannel(channel *model.Channel, request ChatRequest) error {
 					return err
 				}
 				for _, choice := range streamResponse.Choices {
-					streamResponseText += choice.Delta.Content
-				}
-			}
-
-		} else if channel.Type == common.ChannelTypeChatGPTWeb {
-			var chatResponse ChatGptWebChatResponse
-			err = json.Unmarshal([]byte(data), &chatResponse)
-			if err != nil {
-				// Print the body in string
-				buf := new(bytes.Buffer)
-				buf.ReadFrom(resp.Body)
-				common.SysError("error unmarshalling chat response: " + err.Error() + " " + buf.String())
-				return err
-			}
-
-			// if response role is assistant and contains delta, append the content to streamResponseText
-			if chatResponse.Role == "assistant" && chatResponse.Detail != nil {
-				for _, choice := range chatResponse.Detail.Choices {
 					streamResponseText += choice.Delta.Content
 				}
 			}
