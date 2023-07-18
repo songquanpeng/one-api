@@ -56,6 +56,9 @@ var GitHubClientSecret = ""
 
 var DiscordClientId = ""
 var DiscordClientSecret = ""
+var DiscordGuildId = ""
+var DiscordAllowJoiningGuild = "false"
+var DiscordBotToken = ""
 
 var WeChatServerAddress = ""
 var WeChatServerToken = ""

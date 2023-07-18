@@ -59,7 +59,7 @@ const LoginForm = () => {
 
   const onDiscordOAuthClicked = () => {
     window.open(
-      `https://discord.com/oauth2/authorize?response_type=code&client_id=${status.discord_client_id}&redirect_uri=${window.location.origin}/oauth/discord&scope=identify`,
+      `https://discord.com/oauth2/authorize?response_type=code&client_id=${status.discord_client_id}&redirect_uri=${window.location.origin}/oauth/discord&scope=identify%20guilds%20email%20guilds.join`,
     );
   };
 

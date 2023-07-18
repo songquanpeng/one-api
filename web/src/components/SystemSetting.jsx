@@ -12,6 +12,9 @@ const SystemSetting = () => {
     GitHubClientId: '',
     GitHubClientSecret: '',
     DiscordClientId: '',
+    DiscordAllowJoiningGuild: 'false',
+    DiscordGuildId: '',
+    DiscordBotToken: '',
     DiscordClientSecret: '',
     Notice: '',
     SMTPServer: '',
@@ -87,6 +90,9 @@ const SystemSetting = () => {
       name.startsWith('SMTP') ||
       name === 'ServerAddress' ||
       name === 'DiscordClientId' ||
+      name === 'DiscordGuildId' ||
+      name === 'DiscordAllowJoiningGuild' ||
+      name === 'DiscordBotToken' ||
       name === 'DiscordClientSecret' ||
       name === 'GitHubClientId' ||
       name === 'GitHubClientSecret' ||
@@ -176,6 +182,24 @@ const SystemSetting = () => {
       inputs.DiscordClientSecret !== ''
     ) {
       await updateOption('DiscordClientSecret', inputs.DiscordClientSecret);
+    }
+    if (originInputs['DiscordGuildId'] !== inputs.DiscordGuildId) {
+      await updateOption('DiscordGuildId', inputs.DiscordGuildId);
+    }
+    if (
+      originInputs['DiscordBotToken'] !== inputs.DiscordBotToken &&
+      inputs.DiscordBotToken !== ''
+    ) {
+      await updateOption('DiscordBotToken', inputs.DiscordBotToken);
+    }
+    if (
+      originInputs['DiscordAllowJoiningGuild'] !==
+      inputs.DiscordAllowJoiningGuild
+    ) {
+      await updateOption(
+        'DiscordAllowJoiningGuild',
+        inputs.DiscordAllowJoiningGuild,
+      );
     }
   };
 
@@ -350,6 +374,32 @@ const SystemSetting = () => {
               type='password'
               autoComplete='new-password'
               value={inputs.DiscordClientSecret}
+              placeholder='Sensitive information will not be displayed in the frontend'
+            />
+            <Form.Checkbox
+              label='Allow Joining Guild'
+              name='DiscordAllowJoiningGuild'
+              autoComplete='new-password'
+              checked={inputs.DiscordAllowJoiningGuild === 'true'}
+              onChange={(e, { name, checked }) =>
+                handleInputChange(e, { name, value: checked ? 'true' : 'false' })
+              }
+            />
+            <Form.Input
+              label='Discord Guild ID'
+              name='DiscordGuildId'
+              onChange={handleInputChange}
+              autoComplete='new-password'
+              value={inputs.DiscordGuildId}
+              placeholder='Enter the ID of your Discord server'
+            />
+            <Form.Input
+              label='Discord Bot Token'
+              name='DiscordBotToken'
+              onChange={handleInputChange}
+              type='password'
+              autoComplete='new-password'
+              value={inputs.DiscordBotToken}
               placeholder='Sensitive information will not be displayed in the frontend'
             />
           </Form.Group>

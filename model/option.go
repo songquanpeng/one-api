@@ -56,6 +56,9 @@ func InitOptionMap() {
 	common.OptionMap["GitHubClientSecret"] = ""
 	common.OptionMap["DiscordClientId"] = ""
 	common.OptionMap["DiscordClientSecret"] = ""
+	common.OptionMap["DiscordGuildId"] = ""
+	common.OptionMap["DiscordBotToken"] = ""
+	common.OptionMap["DiscordAllowJoiningGuild"] = ""
 	common.OptionMap["WeChatServerAddress"] = ""
 	common.OptionMap["WeChatServerToken"] = ""
 	common.OptionMap["WeChatAccountQRCodeImageURL"] = ""
@@ -178,6 +181,12 @@ func updateOptionMap(key string, value string) (err error) {
 		common.GitHubClientSecret = value
 	case "DiscordClientId":
 		common.DiscordClientId = value
+	case "DiscordGuildId":
+		common.DiscordGuildId = value
+	case "DiscordBotToken":
+		common.DiscordBotToken = value
+	case "DiscordAllowJoiningGuild":
+		common.DiscordAllowJoiningGuild = value
 	case "DiscordClientSecret":
 		common.DiscordClientSecret = value
 	case "Footer":

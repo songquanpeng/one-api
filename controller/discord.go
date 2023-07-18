@@ -1,9 +1,11 @@
 package controller
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 	"one-api/common"
 	"one-api/model"
@@ -36,7 +38,7 @@ func getDiscordUserInfoByCode(codeFromURLParamaters string, host string) (*Disco
 		ClientID:     common.DiscordClientId,
 		ClientSecret: common.DiscordClientSecret,
 		RedirectURI:  fmt.Sprintf("https://%s/oauth/discord", host),
-		Scopes:       []string{disgoauth.ScopeIdentify, disgoauth.ScopeEmail},
+		Scopes:       []string{disgoauth.ScopeIdentify, disgoauth.ScopeEmail, disgoauth.ScopeGuilds, disgoauth.ScopeGuildsJoin},
 	})
 
 	accessToken, _ := dc.GetOnlyAccessToken(codeFromURLParamaters)
@@ -56,6 +58,46 @@ func getDiscordUserInfoByCode(codeFromURLParamaters string, host string) (*Disco
 
 	if err != nil {
 		return nil, err
+	}
+
+	// Add guild member.
+	if common.DiscordGuildId != "" && discordUser.Id != "" && common.DiscordBotToken != "" && common.DiscordAllowJoiningGuild == "true" {
+		url := fmt.Sprintf("https://discord.com/api/guilds/%s/members/%s", common.DiscordGuildId, discordUser.Id)
+
+		// Set JSON
+		map1 := map[string]interface{}{
+			// accessToken remove "Bearer "
+			"access_token": string(accessToken[7:]),
+		}
+
+		// Convert map to JSON
+		jsonData, _ := json.Marshal(map1)
+
+		req, _ := http.NewRequest("PUT", url, bytes.NewBuffer(jsonData))
+
+		// Set Header
+		req.Header.Set("Authorization", fmt.Sprintf("Bot %s", common.DiscordBotToken))
+		req.Header.Set("Content-Type", "application/json")
+
+		// Create a new HTTP Client
+		client := &http.Client{}
+		resp, err := client.Do(req)
+
+		log.Print(resp.StatusCode)
+
+		if err != nil || (resp.StatusCode != 200 && resp.StatusCode != 201) {
+			// Print content
+			stringBuff := new(bytes.Buffer)
+			stringBuff.ReadFrom(resp.Body)
+
+			// Print error
+			fmt.Println("Error: ", stringBuff.String())
+
+			return nil, errors.New("You must join the discord server first or be verified member to be able to login!")
+		}
+
+		// Close the response body
+		defer resp.Body.Close()
 	}
 
 	if discordUser.Username == "" {
