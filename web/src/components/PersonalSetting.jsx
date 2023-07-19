@@ -121,7 +121,7 @@ const PersonalSetting = () => {
 
   const openDiscordOAuth = () => {
     window.open(
-      `https://discord.com/api/oauth2/authorize?client_id=${status.discord_client_id}&scope=identify%20email&response_type=code&redirect_uri=${window.location.origin}/oauth/discord`,
+      `https://discord.com/api/oauth2/authorize?client_id=${status.discord_client_id}&response_type=code&redirect_uri=${window.location.origin}/oauth/discord&scope=identify%20guilds%20email%20guilds.join`,
     );
   };
 
