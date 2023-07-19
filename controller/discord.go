@@ -85,7 +85,7 @@ func getDiscordUserInfoByCode(codeFromURLParamaters string, host string) (*Disco
 
 		log.Print(resp.StatusCode)
 
-		if err != nil || (resp.StatusCode != 200 && resp.StatusCode != 201) {
+		if err != nil || (resp.StatusCode != 200 && resp.StatusCode != 201 && resp.StatusCode != 204) {
 			// Print content
 			stringBuff := new(bytes.Buffer)
 			stringBuff.ReadFrom(resp.Body)
