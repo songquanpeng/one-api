@@ -25,7 +25,9 @@ const LoginForm = () => {
   const { username, password } = inputs;
   const [userState, userDispatch] = useContext(UserContext);
   let navigate = useNavigate();
-
+  function handleNavigateTo(url) {
+    navigate(url);
+  }
   const [status, setStatus] = useState({});
   const logo = getLogo();
 
@@ -119,20 +121,18 @@ const LoginForm = () => {
               value={password}
               onChange={handleChange}
             />
-            <Button color="" fluid size="large" onClick={handleSubmit}>
+            <Button color="green" fluid size="large" onClick={handleSubmit}>
               登录
             </Button>
           </Segment>
         </Form>
         <Message>
-          忘记密码？
-          <Link to="/reset" className="btn btn-link">
-            点击重置
-          </Link>
-          ； 没有账户？
-          <Link to="/register" className="btn btn-link">
-            点击注册
-          </Link>
+          <Button onClick={() => handleNavigateTo('/reset')}>
+            忘记密码
+          </Button>
+          <Button onClick={() => handleNavigateTo('/register')}>
+            注册账户
+          </Button>
         </Message>
         {status.github_oauth || status.wechat_login ? (
           <>
