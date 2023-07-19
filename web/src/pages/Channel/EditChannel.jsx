@@ -23,6 +23,10 @@ const MODEL_MAPPING_EXAMPLE = {
   'gpt-4-32k-0314': 'gpt-4-32k',
 };
 
+const CUSTOM_HTTP_HEADERS_EXAMPLE = {
+  'X-OpenAI-Organization': 'OpenAI',
+};
+
 const EditChannel = () => {
   const params = useParams();
   const channelId = params.id;
@@ -35,6 +39,7 @@ const EditChannel = () => {
     base_url: '',
     other: '',
     model_mapping: '',
+    custom_http_headers: '',
     models: [],
     groups: ['default'],
     enable_ip_randomization: false,
@@ -81,6 +86,13 @@ const EditChannel = () => {
       if (data.model_mapping !== '') {
         data.model_mapping = JSON.stringify(
           JSON.parse(data.model_mapping),
+          null,
+          2,
+        );
+      }
+      if (data.custom_http_headers !== '') {
+        data.custom_http_headers = JSON.stringify(
+          JSON.parse(data.custom_http_headers),
           null,
           2,
         );
@@ -151,6 +163,13 @@ const EditChannel = () => {
     }
     if (inputs.model_mapping !== '' && !verifyJSON(inputs.model_mapping)) {
       showInfo('模型映射必须是合法的 JSON 格式！');
+      return;
+    }
+    if (
+      inputs.custom_http_headers !== '' &&
+      !verifyJSON(inputs.custom_http_headers)
+    ) {
+      showInfo('自定义 HTTP 头必须是合法的 JSON 格式！');
       return;
     }
     let localInputs = inputs;
@@ -390,6 +409,21 @@ const EditChannel = () => {
               name='model_mapping'
               onChange={handleInputChange}
               value={inputs.model_mapping}
+              style={{ minHeight: 150, fontFamily: 'JetBrains Mono, Consolas' }}
+              autoComplete='new-password'
+            />
+          </Form.Field>
+          <Form.Field>
+            <Form.TextArea
+              label='自定义 HTTP 头'
+              placeholder={`此项可选，为一个 JSON 文本，键为 HTTP 头名称，值为 HTTP 头内容，例如：\n${JSON.stringify(
+                CUSTOM_HTTP_HEADERS_EXAMPLE,
+                null,
+                2,
+              )}`}
+              name='custom_http_headers'
+              onChange={handleInputChange}
+              value={inputs.custom_http_headers}
               style={{ minHeight: 150, fontFamily: 'JetBrains Mono, Consolas' }}
               autoComplete='new-password'
             />

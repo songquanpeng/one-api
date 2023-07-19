@@ -320,6 +320,20 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 		req.Header.Set("X-Remote-Addr", ip)
 	}
 
+	custom_http_headers := c.GetString("custom_http_headers")
+	if custom_http_headers != "" {
+		var custom_http_headers_map map[string]string
+		err := json.Unmarshal([]byte(custom_http_headers), &custom_http_headers_map)
+
+		if err != nil {
+			return errorWrapper(err, "unmarshal_custom_http_headers_failed", http.StatusInternalServerError)
+		}
+
+		for key, value := range custom_http_headers_map {
+			req.Header.Set(key, value)
+		}
+	}
+
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {

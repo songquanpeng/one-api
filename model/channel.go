@@ -26,7 +26,8 @@ type Channel struct {
 	ModelMapping       string  `json:"model_mapping" gorm:"type:varchar(1024);default:''"`
 
 	// Additional fields, default value is false
-	EnableIpRandomization bool `json:"enable_ip_randomization"`
+	EnableIpRandomization bool   `json:"enable_ip_randomization"`
+	CustomHttpHeaders     string `json:"custom_http_headers"`
 }
 
 func GetAllChannels(startIdx int, num int, selectAll bool) ([]*Channel, error) {
