@@ -330,7 +330,7 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 		if resp.Body != nil {
 			buf := new(bytes.Buffer)
 			buf.ReadFrom(resp.Body)
-			log.Printf("Error Channel (%s): %s", baseURL, buf.String())
+			log.Printf("Error Channel (%s) (%s): %s", baseURL, textRequest.Model, buf.String())
 			return errorWrapper(err, "request_failed", resp.StatusCode)
 		}
 
