@@ -27,7 +27,7 @@ jobs:
         run: |
           cd web
           npm install
-          VITE_REACT_APP_VERSION=$(git describe --tags) npm run build
+          REACT_APP_VERSION=$(git describe --tags) npm run build
           cd ..
       - name: Set up Go
         uses: actions/setup-go@v3
