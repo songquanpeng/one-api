@@ -1,25 +1,27 @@
 package controller
 
 import (
-	"github.com/gin-gonic/gin"
 	"one-api/common"
 	"one-api/model"
+
+	"github.com/gin-gonic/gin"
 )
 
 func GetSubscription(c *gin.Context) {
-	var remainQuota int
-	var usedQuota int
+	var quota int
 	var err error
-	var token *model.Token
+	var expirationDate int64
+
+	tokenId := c.GetInt("token_id")
+	token, err := model.GetTokenById(tokenId)
+
+	expirationDate = token.ExpiredTime
+
 	if common.DisplayTokenStatEnabled {
-		tokenId := c.GetInt("token_id")
-		token, err = model.GetTokenById(tokenId)
-		remainQuota = token.RemainQuota
-		usedQuota = token.UsedQuota
+		quota = token.RemainQuota
 	} else {
 		userId := c.GetInt("id")
-		remainQuota, err = model.GetUserQuota(userId)
-		usedQuota, err = model.GetUserUsedQuota(userId)
+		quota, err = model.GetUserQuota(userId)
 	}
 	if err != nil {
 		openAIError := OpenAIError{
@@ -31,7 +33,6 @@ func GetSubscription(c *gin.Context) {
 		})
 		return
 	}
-	quota := remainQuota + usedQuota
 	amount := float64(quota)
 	if common.DisplayInCurrencyEnabled {
 		amount /= common.QuotaPerUnit
@@ -45,6 +46,7 @@ func GetSubscription(c *gin.Context) {
 		SoftLimitUSD:       amount,
 		HardLimitUSD:       amount,
 		SystemHardLimitUSD: amount,
+		AccessUntil:        expirationDate,
 	}
 	c.JSON(200, subscription)
 	return
