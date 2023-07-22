@@ -85,6 +85,20 @@ type TextResponse struct {
 	Error OpenAIError `json:"error"`
 }
 
+type OpenAITextResponseChoice struct {
+	Index        int `json:"index"`
+	Message      `json:"message"`
+	FinishReason string `json:"finish_reason"`
+}
+
+type OpenAITextResponse struct {
+	Id      string                     `json:"id"`
+	Object  string                     `json:"object"`
+	Created int64                      `json:"created"`
+	Choices []OpenAITextResponseChoice `json:"choices"`
+	Usage   `json:"usage"`
+}
+
 type ImageResponse struct {
 	Created int `json:"created"`
 	Data    []struct {
@@ -92,13 +106,19 @@ type ImageResponse struct {
 	}
 }
 
+type ChatCompletionsStreamResponseChoice struct {
+	Delta struct {
+		Content string `json:"content"`
+	} `json:"delta"`
+	FinishReason string `json:"finish_reason,omitempty"`
+}
+
 type ChatCompletionsStreamResponse struct {
-	Choices []struct {
-		Delta struct {
-			Content string `json:"content"`
-		} `json:"delta"`
-		FinishReason string `json:"finish_reason"`
-	} `json:"choices"`
+	Id      string                                `json:"id"`
+	Object  string                                `json:"object"`
+	Created int64                                 `json:"created"`
+	Model   string                                `json:"model"`
+	Choices []ChatCompletionsStreamResponseChoice `json:"choices"`
 }
 
 type CompletionsStreamResponse struct {

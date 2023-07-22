@@ -270,6 +270,24 @@ func init() {
 			Root:       "ChatGLM2",
 			Parent:     nil,
 		},
+		{
+			Id:         "claude-instant-1",
+			Object:     "model",
+			Created:    1677649963,
+			OwnedBy:    "anturopic",
+			Permission: permission,
+			Root:       "claude-instant-1",
+			Parent:     nil,
+		},
+		{
+			Id:         "claude-2",
+			Object:     "model",
+			Created:    1677649963,
+			OwnedBy:    "anturopic",
+			Permission: permission,
+			Root:       "claude-2",
+			Parent:     nil,
+		},
 	}
 	openAIModelsMap = make(map[string]OpenAIModels)
 	for _, model := range openAIModels {

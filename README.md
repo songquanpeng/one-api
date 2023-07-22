@@ -60,6 +60,7 @@ _✨ All in one 的 OpenAI 接口，整合各种 API 访问方式，开箱即用
 ## 功能
 1. 支持多种 API 访问渠道：
    + [x] OpenAI 官方通道（支持配置镜像）
+   + [x] [Anthropic Claude 系列模型](https://anthropic.com)
    + [x] **Azure OpenAI API**
    + [x] [API Distribute](https://api.gptjk.top/register?aff=QGxj)
    + [x] [OpenAI-SB](https://openai-sb.com)

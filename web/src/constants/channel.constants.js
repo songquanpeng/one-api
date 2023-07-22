@@ -1,5 +1,6 @@
 export const CHANNEL_OPTIONS = [
   { key: 1, text: 'OpenAI', value: 1, color: 'green' },
+  { key: 14, text: 'Anthropic', value: 14, color: 'black' },
   { key: 8, text: '自定义', value: 8, color: 'pink' },
   { key: 3, text: 'Azure', value: 3, color: 'olive' },
   { key: 2, text: 'API2D', value: 2, color: 'blue' },
