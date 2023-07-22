@@ -18,6 +18,7 @@ const (
 	APITypeOpenAI = iota
 	APITypeClaude
 	APITypePaLM
+	APITypeBaidu
 )
 
 func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
@@ -79,6 +80,8 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 	apiType := APITypeOpenAI
 	if strings.HasPrefix(textRequest.Model, "claude") {
 		apiType = APITypeClaude
+	} else if strings.HasPrefix(textRequest.Model, "ERNIE") {
+		apiType = APITypeBaidu
 	}
 	baseURL := common.ChannelBaseURLs[channelType]
 	requestURL := c.Request.URL.String()
@@ -112,6 +115,18 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 		if baseURL != "" {
 			fullRequestURL = fmt.Sprintf("%s/v1/complete", baseURL)
 		}
+	case APITypeBaidu:
+		switch textRequest.Model {
+		case "ERNIE-Bot":
+			fullRequestURL = "https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/completions"
+		case "ERNIE-Bot-turbo":
+			fullRequestURL = "https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/eb-instant"
+		case "BLOOMZ-7B":
+			fullRequestURL = "https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/bloomz_7b1"
+		}
+		apiKey := c.Request.Header.Get("Authorization")
+		apiKey = strings.TrimPrefix(apiKey, "Bearer ")
+		fullRequestURL += "?access_token=" + apiKey // TODO: access token expire in 30 days
 	}
 	var promptTokens int
 	var completionTokens int
@@ -160,6 +175,13 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 	case APITypeClaude:
 		claudeRequest := requestOpenAI2Claude(textRequest)
 		jsonStr, err := json.Marshal(claudeRequest)
+		if err != nil {
+			return errorWrapper(err, "marshal_text_request_failed", http.StatusInternalServerError)
+		}
+		requestBody = bytes.NewBuffer(jsonStr)
+	case APITypeBaidu:
+		baiduRequest := requestOpenAI2Baidu(textRequest)
+		jsonStr, err := json.Marshal(baiduRequest)
 		if err != nil {
 			return errorWrapper(err, "marshal_text_request_failed", http.StatusInternalServerError)
 		}
@@ -216,7 +238,7 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 			if strings.HasPrefix(textRequest.Model, "gpt-4") {
 				completionRatio = 2
 			}
-			if isStream {
+			if isStream && apiType != APITypeBaidu {
 				completionTokens = countTokenText(streamResponseText, textRequest.Model)
 			} else {
 				promptTokens = textResponse.Usage.PromptTokens
@@ -279,6 +301,22 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 			return nil
 		} else {
 			err, usage := claudeHandler(c, resp, promptTokens, textRequest.Model)
+			if err != nil {
+				return err
+			}
+			textResponse.Usage = *usage
+			return nil
+		}
+	case APITypeBaidu:
+		if isStream {
+			err, usage := baiduStreamHandler(c, resp)
+			if err != nil {
+				return err
+			}
+			textResponse.Usage = *usage
+			return nil
+		} else {
+			err, usage := baiduHandler(c, resp)
 			if err != nil {
 				return err
 			}

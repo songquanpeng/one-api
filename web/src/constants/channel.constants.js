@@ -3,6 +3,7 @@ export const CHANNEL_OPTIONS = [
   { key: 14, text: 'Anthropic', value: 14, color: 'black' },
   { key: 8, text: '自定义', value: 8, color: 'pink' },
   { key: 3, text: 'Azure', value: 3, color: 'olive' },
+  { key: 15, text: 'Baidu', value: 15, color: 'blue' },
   { key: 2, text: 'API2D', value: 2, color: 'blue' },
   { key: 4, text: 'CloseAI', value: 4, color: 'teal' },
   { key: 5, text: 'OpenAI-SB', value: 5, color: 'brown' },

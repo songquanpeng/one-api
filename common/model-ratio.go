@@ -4,6 +4,7 @@ import "encoding/json"
 
 // ModelRatio
 // https://platform.openai.com/docs/models/model-endpoint-compatibility
+// https://cloud.baidu.com/doc/WENXINWORKSHOP/s/Blfmc9dlf
 // https://openai.com/pricing
 // TODO: when a new api is enabled, check the pricing here
 // 1 === $0.002 / 1K tokens
@@ -38,6 +39,8 @@ var ModelRatio = map[string]float64{
 	"dall-e":                  8,
 	"claude-instant-1":        0.75,
 	"claude-2":                30,
+	"ERNIE-Bot":               1,    // 0.012元/千tokens
+	"ERNIE-Bot-turbo":         0.67, // 0.008元/千tokens
 }
 
 func ModelRatio2JSONString() string {
