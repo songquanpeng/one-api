@@ -159,30 +159,7 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 	}
 	switch apiType {
 	case APITypeClaude:
-		claudeRequest := ClaudeRequest{
-			Model:             textRequest.Model,
-			Prompt:            "",
-			MaxTokensToSample: textRequest.MaxTokens,
-			StopSequences:     nil,
-			Temperature:       textRequest.Temperature,
-			TopP:              textRequest.TopP,
-			Stream:            textRequest.Stream,
-		}
-		if claudeRequest.MaxTokensToSample == 0 {
-			claudeRequest.MaxTokensToSample = 1000000
-		}
-		prompt := ""
-		for _, message := range textRequest.Messages {
-			if message.Role == "user" {
-				prompt += fmt.Sprintf("\n\nHuman: %s", message.Content)
-			} else if message.Role == "assistant" {
-				prompt += fmt.Sprintf("\n\nAssistant: %s", message.Content)
-			} else {
-				// ignore other roles
-			}
-			prompt += "\n\nAssistant:"
-		}
-		claudeRequest.Prompt = prompt
+		claudeRequest := requestOpenAI2Claude(textRequest)
 		jsonStr, err := json.Marshal(claudeRequest)
 		if err != nil {
 			return errorWrapper(err, "marshal_text_request_failed", http.StatusInternalServerError)
@@ -441,15 +418,9 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 						return true
 					}
 					streamResponseText += claudeResponse.Completion
-					var choice ChatCompletionsStreamResponseChoice
-					choice.Delta.Content = claudeResponse.Completion
-					choice.FinishReason = stopReasonClaude2OpenAI(claudeResponse.StopReason)
-					var response ChatCompletionsStreamResponse
+					response := streamResponseClaude2OpenAI(&claudeResponse)
 					response.Id = responseId
 					response.Created = createdTime
-					response.Object = "chat.completion.chunk"
-					response.Model = textRequest.Model
-					response.Choices = []ChatCompletionsStreamResponseChoice{choice}
 					jsonStr, err := json.Marshal(response)
 					if err != nil {
 						common.SysError("error marshalling stream response: " + err.Error())
@@ -492,26 +463,12 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 					StatusCode: resp.StatusCode,
 				}
 			}
-			choice := OpenAITextResponseChoice{
-				Index: 0,
-				Message: Message{
-					Role:    "assistant",
-					Content: strings.TrimPrefix(claudeResponse.Completion, " "),
-					Name:    nil,
-				},
-				FinishReason: stopReasonClaude2OpenAI(claudeResponse.StopReason),
-			}
+			fullTextResponse := responseClaude2OpenAI(&claudeResponse)
 			completionTokens := countTokenText(claudeResponse.Completion, textRequest.Model)
-			fullTextResponse := OpenAITextResponse{
-				Id:      fmt.Sprintf("chatcmpl-%s", common.GetUUID()),
-				Object:  "chat.completion",
-				Created: common.GetTimestamp(),
-				Choices: []OpenAITextResponseChoice{choice},
-				Usage: Usage{
-					PromptTokens:     promptTokens,
-					CompletionTokens: completionTokens,
-					TotalTokens:      promptTokens + promptTokens,
-				},
+			fullTextResponse.Usage = Usage{
+				PromptTokens:     promptTokens,
+				CompletionTokens: completionTokens,
+				TotalTokens:      promptTokens + completionTokens,
 			}
 			textResponse.Usage = fullTextResponse.Usage
 			jsonResponse, err := json.Marshal(fullTextResponse)
