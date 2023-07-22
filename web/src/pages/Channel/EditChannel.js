@@ -27,6 +27,7 @@ const EditChannel = () => {
   };
   const [batch, setBatch] = useState(false);
   const [inputs, setInputs] = useState(originInputs);
+  const [originModelOptions, setOriginModelOptions] = useState([]);
   const [modelOptions, setModelOptions] = useState([]);
   const [groupOptions, setGroupOptions] = useState([]);
   const [basicModels, setBasicModels] = useState([]);
@@ -44,19 +45,6 @@ const EditChannel = () => {
         data.models = [];
       } else {
         data.models = data.models.split(',');
-        setTimeout(() => {
-          let localModelOptions = [...modelOptions];
-          data.models.forEach((model) => {
-            if (!localModelOptions.find((option) => option.key === model)) {
-              localModelOptions.push({
-                key: model,
-                text: model,
-                value: model
-              });
-            }
-          });
-          setModelOptions(localModelOptions);
-        }, 1000);
       }
       if (data.group === '') {
         data.groups = [];
@@ -76,13 +64,16 @@ const EditChannel = () => {
   const fetchModels = async () => {
     try {
       let res = await API.get(`/api/channel/models`);
-      setModelOptions(res.data.data.map((model) => ({
+      let localModelOptions = res.data.data.map((model) => ({
         key: model.id,
         text: model.id,
         value: model.id
-      })));
+      }));
+      setOriginModelOptions(localModelOptions);
       setFullModels(res.data.data.map((model) => model.id));
-      setBasicModels(res.data.data.filter((model) => !model.id.startsWith('gpt-4')).map((model) => model.id));
+      setBasicModels(res.data.data.filter((model) => {
+        return model.id.startsWith('gpt-3') || model.id.startsWith('text-');
+      }).map((model) => model.id));
     } catch (error) {
       showError(error.message);
     }
@@ -100,6 +91,20 @@ const EditChannel = () => {
       showError(error.message);
     }
   };
+
+  useEffect(() => {
+    let localModelOptions = [...originModelOptions];
+    inputs.models.forEach((model) => {
+      if (!localModelOptions.find((option) => option.key === model)) {
+        localModelOptions.push({
+          key: model,
+          text: model,
+          value: model
+        });
+      }
+    });
+    setModelOptions(localModelOptions);
+  }, [originModelOptions, inputs.models]);
 
   useEffect(() => {
     if (isEdit) {
@@ -280,15 +285,20 @@ const EditChannel = () => {
             <Input
               action={
                 <Button type={'button'} onClick={()=>{
+                  if (customModel.trim() === "") return;
+                  if (inputs.models.includes(customModel)) return;
                   let localModels = [...inputs.models];
                   localModels.push(customModel);
-                  let localModelOptions = [...modelOptions];
+                  let localModelOptions = [];
                   localModelOptions.push({
                     key: customModel,
                     text: customModel,
                     value: customModel,
                   });
-                  setModelOptions(localModelOptions);
+                  setModelOptions(modelOptions=>{
+                    return [...modelOptions, ...localModelOptions];
+                  });
+                  setCustomModel('');
                   handleInputChange(null, { name: 'models', value: localModels });
                 }}>填入</Button>
               }
