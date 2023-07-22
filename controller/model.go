@@ -306,6 +306,15 @@ func init() {
 			Root:       "ERNIE-Bot-turbo",
 			Parent:     nil,
 		},
+		{
+			Id:         "PaLM-2",
+			Object:     "model",
+			Created:    1677649963,
+			OwnedBy:    "google",
+			Permission: permission,
+			Root:       "PaLM-2",
+			Parent:     nil,
+		},
 	}
 	openAIModelsMap = make(map[string]OpenAIModels)
 	for _, model := range openAIModels {

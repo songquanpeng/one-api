@@ -41,6 +41,7 @@ var ModelRatio = map[string]float64{
 	"claude-2":                30,
 	"ERNIE-Bot":               1,    // 0.012元/千tokens
 	"ERNIE-Bot-turbo":         0.67, // 0.008元/千tokens
+	"PaLM-2":                  1,
 }
 
 func ModelRatio2JSONString() string {

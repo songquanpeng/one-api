@@ -62,6 +62,7 @@ _✨ All in one 的 OpenAI 接口，整合各种 API 访问方式，开箱即用
    + [x] OpenAI 官方通道（支持配置镜像）
    + [x] **Azure OpenAI API**
    + [x] [Anthropic Claude 系列模型](https://anthropic.com)
+   + [x] [Google PaLM2 系列模型](https://developers.generativeai.google)
    + [x] [百度文心一言系列模型](https://cloud.baidu.com/doc/WENXINWORKSHOP/index.html)
    + [x] [API Distribute](https://api.gptjk.top/register?aff=QGxj)
    + [x] [OpenAI-SB](https://openai-sb.com)
