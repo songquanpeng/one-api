@@ -131,6 +131,9 @@ func palmStreamHandler(c *gin.Context, resp *http.Response) (*OpenAIErrorWithSta
 		fullTextResponse := streamResponsePaLM2OpenAI(&palmResponse)
 		fullTextResponse.Id = responseId
 		fullTextResponse.Created = createdTime
+		if len(palmResponse.Candidates) > 0 {
+			responseText = palmResponse.Candidates[0].Content
+		}
 		jsonResponse, err := json.Marshal(fullTextResponse)
 		if err != nil {
 			common.SysError("error marshalling stream response: " + err.Error())
