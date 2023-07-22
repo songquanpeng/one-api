@@ -337,7 +337,7 @@ const EditChannel = () => {
                 label='密钥'
                 name='key'
                 required
-                placeholder={'请输入密钥'}
+                placeholder={inputs.type === 15 ? "请输入 access token，当前版本暂不支持自动刷新，请每 30 天更新一次" : '请输入密钥'}
                 onChange={handleInputChange}
                 value={inputs.key}
                 autoComplete='new-password'
