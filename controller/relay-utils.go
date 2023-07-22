@@ -91,3 +91,16 @@ func errorWrapper(err error, code string, statusCode int) *OpenAIErrorWithStatus
 		StatusCode:  statusCode,
 	}
 }
+
+func shouldDisableChannel(err *OpenAIError) bool {
+	if !common.AutomaticDisableChannelEnabled {
+		return false
+	}
+	if err == nil {
+		return false
+	}
+	if err.Type == "insufficient_quota" || err.Code == "invalid_api_key" || err.Code == "account_deactivated" {
+		return true
+	}
+	return false
+}
