@@ -22,6 +22,7 @@ type OpenAISubscriptionResponse struct {
 	SoftLimitUSD       float64 `json:"soft_limit_usd"`
 	HardLimitUSD       float64 `json:"hard_limit_usd"`
 	SystemHardLimitUSD float64 `json:"system_hard_limit_usd"`
+	AccessUntil        int64   `json:"access_until"`
 }
 
 type OpenAIUsageDailyCost struct {
@@ -95,6 +96,9 @@ func GetResponseBody(method, url string, channel *model.Channel, headers http.He
 	res, err := client.Do(req)
 	if err != nil {
 		return nil, err
+	}
+	if res.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("status code: %d", res.StatusCode)
 	}
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
