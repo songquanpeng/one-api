@@ -332,22 +332,24 @@ func init() {
 	}
 }
 
-func ListModels(c *gin.Context) {
+func ListModels(c *gin.Context, isChannel bool) {
 	userId := c.GetInt("id")
 	userGroup, _ := model.CacheGetUserGroup(userId)
 
 	// Only return the models that the channel and user have access to
 	var modalList []OpenAIModels
 
-	for _, modalData := range openAIModels {
-		channel, err := model.CacheGetRandomSatisfiedChannel(userGroup, modalData.Id)
+	if !isChannel {
+		for _, modalData := range openAIModels {
+			channel, err := model.CacheGetRandomSatisfiedChannel(userGroup, modalData.Id)
 
-		if err != nil {
-			continue
-		}
+			if err != nil {
+				continue
+			}
 
-		if channel != nil {
-			modalList = append(modalList, modalData)
+			if channel != nil {
+				modalList = append(modalList, modalData)
+			}
 		}
 	}
 
