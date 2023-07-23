@@ -1,27 +1,30 @@
 package controller
 
 import (
+	"github.com/gin-gonic/gin"
 	"one-api/common"
 	"one-api/model"
-
-	"github.com/gin-gonic/gin"
 )
 
 func GetSubscription(c *gin.Context) {
-	var quota int
+	var remainQuota int
+	var usedQuota int
 	var err error
-	var expirationDate int64
-
-	tokenId := c.GetInt("token_id")
-	token, err := model.GetTokenById(tokenId)
-
-	expirationDate = token.ExpiredTime
-
+	var token *model.Token
+	var expiredTime int64
 	if common.DisplayTokenStatEnabled {
-		quota = token.RemainQuota
+		tokenId := c.GetInt("token_id")
+		token, err = model.GetTokenById(tokenId)
+		expiredTime = token.ExpiredTime
+		remainQuota = token.RemainQuota
+		usedQuota = token.UsedQuota
 	} else {
 		userId := c.GetInt("id")
-		quota, err = model.GetUserQuota(userId)
+		remainQuota, err = model.GetUserQuota(userId)
+		usedQuota, err = model.GetUserUsedQuota(userId)
+	}
+	if expiredTime <= 0 {
+		expiredTime = 0
 	}
 	if err != nil {
 		openAIError := OpenAIError{
@@ -33,6 +36,7 @@ func GetSubscription(c *gin.Context) {
 		})
 		return
 	}
+	quota := remainQuota + usedQuota
 	amount := float64(quota)
 	if common.DisplayInCurrencyEnabled {
 		amount /= common.QuotaPerUnit
@@ -46,7 +50,7 @@ func GetSubscription(c *gin.Context) {
 		SoftLimitUSD:       amount,
 		HardLimitUSD:       amount,
 		SystemHardLimitUSD: amount,
-		AccessUntil:        expirationDate,
+		AccessUntil:        expiredTime,
 	}
 	c.JSON(200, subscription)
 	return
