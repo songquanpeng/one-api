@@ -1,13 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import {
-  Button,
-  Form,
-  Grid,
-  Header,
-  Image,
-  Message,
-  Segment,
-} from 'semantic-ui-react';
+import { Button, Form, Grid, Header, Image, Message, Segment } from 'semantic-ui-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { API, getLogo, showError, showInfo, showSuccess } from '../helpers';
 import Turnstile from 'react-turnstile';
@@ -18,7 +10,7 @@ const RegisterForm = () => {
     password: '',
     password2: '',
     email: '',
-    verification_code: '',
+    verification_code: ''
   });
   const { username, password, password2 } = inputs;
   const [showEmailVerification, setShowEmailVerification] = useState(false);
@@ -45,9 +37,7 @@ const RegisterForm = () => {
   });
 
   let navigate = useNavigate();
-  function handleNavigateTo(url) {
-    navigate(url);
-  }
+
   function handleChange(e) {
     const { name, value } = e.target;
     console.log(name, value);
@@ -186,17 +176,15 @@ const RegisterForm = () => {
               onClick={handleSubmit}
               loading={loading}
             >
-              确认注册
+              注册
             </Button>
           </Segment>
         </Form>
         <Message>
-          <Button onClick={() => handleNavigateTo('/reset')}>
-            忘记密码
-          </Button>
-          <Button onClick={() => handleNavigateTo('/login')}>
-            已有帐户
-          </Button>
+          已有账户？
+          <Link to='/login' className='btn btn-link'>
+            点击登录
+          </Link>
         </Message>
       </Grid.Column>
     </Grid>

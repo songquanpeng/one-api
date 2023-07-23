@@ -5,7 +5,7 @@ import Turnstile from 'react-turnstile';
 
 const PasswordResetForm = () => {
   const [inputs, setInputs] = useState({
-    email: '',
+    email: ''
   });
   const { email } = inputs;
 
@@ -15,7 +15,7 @@ const PasswordResetForm = () => {
   const [turnstileToken, setTurnstileToken] = useState('');
   const [disableButton, setDisableButton] = useState(false);
   const [countdown, setCountdown] = useState(30);
-  
+
   useEffect(() => {
     let countdownInterval = null;
     if (disableButton && countdown > 0) {
