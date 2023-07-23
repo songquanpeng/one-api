@@ -2,6 +2,7 @@ package controller
 
 import (
 	"fmt"
+	"one-api/model"
 
 	"github.com/gin-gonic/gin"
 )
@@ -332,9 +333,27 @@ func init() {
 }
 
 func ListModels(c *gin.Context) {
+	userId := c.GetInt("id")
+	userGroup, _ := model.CacheGetUserGroup(userId)
+
+	// Only return the models that the channel and user have access to
+	var modalList []OpenAIModels
+
+	for _, modalData := range openAIModels {
+		channel, err := model.CacheGetRandomSatisfiedChannel(userGroup, modalData.Id)
+
+		if err != nil {
+			continue
+		}
+
+		if channel != nil {
+			modalList = append(modalList, modalData)
+		}
+	}
+
 	c.JSON(200, gin.H{
 		"object": "list",
-		"data":   openAIModels,
+		"data":   modalList,
 	})
 }
 
