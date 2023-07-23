@@ -1,36 +1,25 @@
 import React, { useContext, useEffect, useState } from 'react';
-import {
-  Button,
-  Divider,
-  Form,
-  Grid,
-  Header,
-  Image,
-  Message,
-  Modal,
-  Segment,
-} from 'semantic-ui-react';
+import { Button, Divider, Form, Grid, Header, Image, Message, Modal, Segment } from 'semantic-ui-react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { UserContext } from '../context/User';
-import { API, getLogo, showError, showSuccess, showInfo } from '../helpers';
+import { API, getLogo, showError, showSuccess } from '../helpers';
 
 const LoginForm = () => {
   const [inputs, setInputs] = useState({
     username: '',
     password: '',
-    wechat_verification_code: '',
+    wechat_verification_code: ''
   });
   const [searchParams, setSearchParams] = useSearchParams();
   const [submitted, setSubmitted] = useState(false);
   const { username, password } = inputs;
   const [userState, userDispatch] = useContext(UserContext);
   let navigate = useNavigate();
-
   const [status, setStatus] = useState({});
   const logo = getLogo();
 
   useEffect(() => {
-    if (searchParams.get("expired")) {
+    if (searchParams.get('expired')) {
       showError('未登录或登录已过期，请重新登录！');
     }
     let status = localStorage.getItem('status');
@@ -78,7 +67,7 @@ const LoginForm = () => {
     if (username && password) {
       const res = await API.post(`/api/user/login`, {
         username,
-        password,
+        password
       });
       const { success, message, data } = res.data;
       if (success) {
@@ -93,44 +82,44 @@ const LoginForm = () => {
   }
 
   return (
-    <Grid textAlign="center" style={{ marginTop: '48px' }}>
+    <Grid textAlign='center' style={{ marginTop: '48px' }}>
       <Grid.Column style={{ maxWidth: 450 }}>
-        <Header as="h2" color="" textAlign="center">
+        <Header as='h2' color='' textAlign='center'>
           <Image src={logo} /> 用户登录
         </Header>
-        <Form size="large">
+        <Form size='large'>
           <Segment>
             <Form.Input
               fluid
-              icon="user"
-              iconPosition="left"
-              placeholder="用户名"
-              name="username"
+              icon='user'
+              iconPosition='left'
+              placeholder='用户名'
+              name='username'
               value={username}
               onChange={handleChange}
             />
             <Form.Input
               fluid
-              icon="lock"
-              iconPosition="left"
-              placeholder="密码"
-              name="password"
-              type="password"
+              icon='lock'
+              iconPosition='left'
+              placeholder='密码'
+              name='password'
+              type='password'
               value={password}
               onChange={handleChange}
             />
-            <Button color="" fluid size="large" onClick={handleSubmit}>
+            <Button color='green' fluid size='large' onClick={handleSubmit}>
               登录
             </Button>
           </Segment>
         </Form>
         <Message>
           忘记密码？
-          <Link to="/reset" className="btn btn-link">
+          <Link to='/reset' className='btn btn-link'>
             点击重置
           </Link>
           ； 没有账户？
-          <Link to="/register" className="btn btn-link">
+          <Link to='/register' className='btn btn-link'>
             点击注册
           </Link>
         </Message>
@@ -140,8 +129,8 @@ const LoginForm = () => {
             {status.github_oauth ? (
               <Button
                 circular
-                color="black"
-                icon="github"
+                color='black'
+                icon='github'
                 onClick={onGitHubOAuthClicked}
               />
             ) : (
@@ -150,8 +139,8 @@ const LoginForm = () => {
             {status.wechat_login ? (
               <Button
                 circular
-                color="green"
-                icon="wechat"
+                color='green'
+                icon='wechat'
                 onClick={onWeChatLoginClicked}
               />
             ) : (
@@ -175,18 +164,18 @@ const LoginForm = () => {
                   微信扫码关注公众号，输入「验证码」获取验证码（三分钟内有效）
                 </p>
               </div>
-              <Form size="large">
+              <Form size='large'>
                 <Form.Input
                   fluid
-                  placeholder="验证码"
-                  name="wechat_verification_code"
+                  placeholder='验证码'
+                  name='wechat_verification_code'
                   value={inputs.wechat_verification_code}
                   onChange={handleChange}
                 />
                 <Button
-                  color=""
+                  color=''
                   fluid
-                  size="large"
+                  size='large'
                   onClick={onSubmitWeChatVerificationCode}
                 >
                   登录

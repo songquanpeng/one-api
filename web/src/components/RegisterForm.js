@@ -1,13 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import {
-  Button,
-  Form,
-  Grid,
-  Header,
-  Image,
-  Message,
-  Segment,
-} from 'semantic-ui-react';
+import { Button, Form, Grid, Header, Image, Message, Segment } from 'semantic-ui-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { API, getLogo, showError, showInfo, showSuccess } from '../helpers';
 import Turnstile from 'react-turnstile';
@@ -18,7 +10,7 @@ const RegisterForm = () => {
     password: '',
     password2: '',
     email: '',
-    verification_code: '',
+    verification_code: ''
   });
   const { username, password, password2 } = inputs;
   const [showEmailVerification, setShowEmailVerification] = useState(false);
@@ -178,7 +170,7 @@ const RegisterForm = () => {
               <></>
             )}
             <Button
-              color=''
+              color='green'
               fluid
               size='large'
               onClick={handleSubmit}
