@@ -288,7 +288,7 @@ const PersonalSetting = () => {
             <Form size='large'>
               <Form.Input
                 fluid
-                placeholder={`输入你的账户名 ${userState.user.username} 以确认删除`}
+                placeholder={`输入你的账户名 ${userState?.user?.username} 以确认删除`}
                 name='self_account_deletion_confirmation'
                 value={inputs.self_account_deletion_confirmation}
                 onChange={handleInputChange}
