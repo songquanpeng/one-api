@@ -8,6 +8,7 @@ import "encoding/json"
 // https://openai.com/pricing
 // TODO: when a new api is enabled, check the pricing here
 // 1 === $0.002 / 1K tokens
+// 1 === ￥0.014 / 1k tokens
 var ModelRatio = map[string]float64{
 	"gpt-4":                   15,
 	"gpt-4-0314":              15,
@@ -39,9 +40,12 @@ var ModelRatio = map[string]float64{
 	"dall-e":                  8,
 	"claude-instant-1":        0.75,
 	"claude-2":                30,
-	"ERNIE-Bot":               1,    // 0.012元/千tokens
-	"ERNIE-Bot-turbo":         0.67, // 0.008元/千tokens
+	"ERNIE-Bot":               0.8572, // ￥0.012 / 1k tokens
+	"ERNIE-Bot-turbo":         0.5715, // ￥0.008 / 1k tokens
 	"PaLM-2":                  1,
+	"chatglm_pro":             0.7143, // ￥0.01 / 1k tokens
+	"chatglm_std":             0.3572, // ￥0.005 / 1k tokens
+	"chatglm_lite":            0.1429, // ￥0.002 / 1k tokens
 }
 
 func ModelRatio2JSONString() string {

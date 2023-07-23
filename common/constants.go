@@ -153,6 +153,7 @@ const (
 	ChannelTypeAIGC2D    = 13
 	ChannelTypeAnthropic = 14
 	ChannelTypeBaidu     = 15
+	ChannelTypeZhipu     = 16
 )
 
 var ChannelBaseURLs = []string{
@@ -172,4 +173,5 @@ var ChannelBaseURLs = []string{
 	"https://api.aigc2d.com",        // 13
 	"https://api.anthropic.com",     // 14
 	"https://aip.baidubce.com",      // 15
+	"https://open.bigmodel.cn",      // 16
 }
