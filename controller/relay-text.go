@@ -22,6 +22,12 @@ const (
 	APITypeZhipu
 )
 
+var httpClient *http.Client
+
+func init() {
+	httpClient = &http.Client{}
+}
+
 func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 	channelType := c.GetInt("channel")
 	tokenId := c.GetInt("token_id")
@@ -244,8 +250,7 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 	req.Header.Set("Content-Type", c.Request.Header.Get("Content-Type"))
 	req.Header.Set("Accept", c.Request.Header.Get("Accept"))
 	//req.Header.Set("Connection", c.Request.Header.Get("Connection"))
-	client := &http.Client{}
-	resp, err := client.Do(req)
+	resp, err := httpClient.Do(req)
 	if err != nil {
 		return errorWrapper(err, "do_request_failed", http.StatusInternalServerError)
 	}

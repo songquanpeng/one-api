@@ -115,7 +115,7 @@ func openaiHandler(c *gin.Context, resp *http.Response, consumeQuota bool) (*Ope
 	}
 	// We shouldn't set the header before we parse the response body, because the parse part may fail.
 	// And then we will have to send an error response, but in this case, the header has already been set.
-	// So the client will be confused by the response.
+	// So the httpClient will be confused by the response.
 	// For example, Postman will report error, and we cannot check the response at all.
 	for k, v := range resp.Header {
 		c.Writer.Header().Set(k, v[0])

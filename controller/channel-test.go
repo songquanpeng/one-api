@@ -45,8 +45,7 @@ func testChannel(channel *model.Channel, request ChatRequest) (error, *OpenAIErr
 		req.Header.Set("Authorization", "Bearer "+channel.Key)
 	}
 	req.Header.Set("Content-Type", "application/json")
-	client := &http.Client{}
-	resp, err := client.Do(req)
+	resp, err := httpClient.Do(req)
 	if err != nil {
 		return err, nil
 	}
