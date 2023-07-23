@@ -10,7 +10,7 @@
 
 # One API
 
-_✨ An OpenAI key management & redistribution system, easy to deploy & use ✨_
+_✨ Access all LLM through the standard OpenAI API format, easy to deploy & use ✨_
 
 </div>
 
