@@ -1,19 +1,19 @@
-import React, { useEffect, useState, useContext } from 'react';
-import { Button, Divider, Form, Header, Image, Message, Modal, Label } from 'semantic-ui-react';
+import React, { useContext, useEffect, useState } from 'react';
+import { Button, Divider, Form, Header, Image, Message, Modal } from 'semantic-ui-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { API, copy, showError, showInfo, showNotice, showSuccess } from '../helpers';
 import Turnstile from 'react-turnstile';
 import { UserContext } from '../context/User';
 
 const PersonalSetting = () => {
-  const [userDispatch] = useContext(UserContext);
+  const [userState, userDispatch] = useContext(UserContext);
   let navigate = useNavigate();
 
   const [inputs, setInputs] = useState({
     wechat_verification_code: '',
     email_verification_code: '',
     email: '',
-    self_account_deletion_confirmation: '',
+    self_account_deletion_confirmation: ''
   });
   const [status, setStatus] = useState({});
   const [showWeChatBindModal, setShowWeChatBindModal] = useState(false);
@@ -64,8 +64,8 @@ const PersonalSetting = () => {
   };
 
   const deleteAccount = async () => {
-    if (inputs.self_account_deletion_confirmation !== 'CONFIRM') {
-      showError('请确认您要删除账户！');
+    if (inputs.self_account_deletion_confirmation !== userState.user.username) {
+      showError('请输入你的账户名以确认删除！');
       return;
     }
 
@@ -81,7 +81,7 @@ const PersonalSetting = () => {
     } else {
       showError(message);
     }
-  }
+  };
 
   const bindWeChat = async () => {
     if (inputs.wechat_verification_code === '') return;
@@ -151,7 +151,7 @@ const PersonalSetting = () => {
       <Button onClick={getAffLink}>复制邀请链接</Button>
       <Button onClick={() => {
         setShowAccountDeleteModal(true);
-      }} color='red'>删除个人账户</Button>
+      }}>删除个人账户</Button>
       <Divider />
       <Header as='h3'>账号绑定</Header>
       {
@@ -266,14 +266,13 @@ const PersonalSetting = () => {
         size={'tiny'}
         style={{ maxWidth: '450px' }}
       >
-        <Modal.Header>您是否确认删除自己的帐户?</Modal.Header>
+        <Modal.Header>确认删除自己的帐户</Modal.Header>
         <Modal.Content>
           <Modal.Description>
             <Form size='large'>
               <Form.Input
                 fluid
-                label='请输入 "CONFIRM" 以删除您的帐户。'
-                placeholder='确认文字'
+                placeholder={`输入你的账户名 ${userState.user.username} 以确认删除`}
                 name='self_account_deletion_confirmation'
                 value={inputs.self_account_deletion_confirmation}
                 onChange={handleInputChange}

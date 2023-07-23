@@ -483,7 +483,7 @@ func DeleteSelf(c *gin.Context) {
 	if user.Role == common.RoleRootUser {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
-			"message": "无权删除超级管理员",
+			"message": "不能删除超级管理员账户",
 		})
 		return
 	}
