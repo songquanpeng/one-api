@@ -1,18 +1,24 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Button, Divider, Form, Header, Image, Message, Modal } from 'semantic-ui-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { API, copy, showError, showInfo, showNotice, showSuccess } from '../helpers';
 import Turnstile from 'react-turnstile';
+import { UserContext } from '../context/User';
 
 const PersonalSetting = () => {
+  const [userState, userDispatch] = useContext(UserContext);
+  let navigate = useNavigate();
+
   const [inputs, setInputs] = useState({
     wechat_verification_code: '',
     email_verification_code: '',
     email: '',
+    self_account_deletion_confirmation: ''
   });
   const [status, setStatus] = useState({});
   const [showWeChatBindModal, setShowWeChatBindModal] = useState(false);
   const [showEmailBindModal, setShowEmailBindModal] = useState(false);
+  const [showAccountDeleteModal, setShowAccountDeleteModal] = useState(false);
   const [turnstileEnabled, setTurnstileEnabled] = useState(false);
   const [turnstileSiteKey, setTurnstileSiteKey] = useState('');
   const [turnstileToken, setTurnstileToken] = useState('');
@@ -67,6 +73,26 @@ const PersonalSetting = () => {
       let link = `${window.location.origin}/register?aff=${data}`;
       await copy(link);
       showNotice(`邀请链接已复制到剪切板：${link}`);
+    } else {
+      showError(message);
+    }
+  };
+
+  const deleteAccount = async () => {
+    if (inputs.self_account_deletion_confirmation !== userState.user.username) {
+      showError('请输入你的账户名以确认删除！');
+      return;
+    }
+
+    const res = await API.delete('/api/user/self');
+    const { success, message } = res.data;
+
+    if (success) {
+      showSuccess('账户已删除！');
+      await API.get('/api/user/logout');
+      userDispatch({ type: 'logout' });
+      localStorage.removeItem('user');
+      navigate('/login');
     } else {
       showError(message);
     }
@@ -139,6 +165,9 @@ const PersonalSetting = () => {
       </Button>
       <Button onClick={generateAccessToken}>生成系统访问令牌</Button>
       <Button onClick={getAffLink}>复制邀请链接</Button>
+      <Button onClick={() => {
+        setShowAccountDeleteModal(true);
+      }}>删除个人账户</Button>
       <Divider />
       <Header as='h3'>账号绑定</Header>
       {
@@ -241,6 +270,47 @@ const PersonalSetting = () => {
                 loading={loading}
               >
                 绑定
+              </Button>
+            </Form>
+          </Modal.Description>
+        </Modal.Content>
+      </Modal>
+      <Modal
+        onClose={() => setShowAccountDeleteModal(false)}
+        onOpen={() => setShowAccountDeleteModal(true)}
+        open={showAccountDeleteModal}
+        size={'tiny'}
+        style={{ maxWidth: '450px' }}
+      >
+        <Modal.Header>确认删除自己的帐户</Modal.Header>
+        <Modal.Content>
+          <Modal.Description>
+            <Form size='large'>
+              <Form.Input
+                fluid
+                placeholder={`输入你的账户名 ${userState.user.username} 以确认删除`}
+                name='self_account_deletion_confirmation'
+                value={inputs.self_account_deletion_confirmation}
+                onChange={handleInputChange}
+              />
+              {turnstileEnabled ? (
+                <Turnstile
+                  sitekey={turnstileSiteKey}
+                  onVerify={(token) => {
+                    setTurnstileToken(token);
+                  }}
+                />
+              ) : (
+                <></>
+              )}
+              <Button
+                color='red'
+                fluid
+                size='large'
+                onClick={deleteAccount}
+                loading={loading}
+              >
+                删除
               </Button>
             </Form>
           </Modal.Description>
