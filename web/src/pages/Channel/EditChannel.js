@@ -215,20 +215,6 @@ const EditChannel = () => {
               </Form.Field>
             )
           }
-          {
-            inputs.type !== 3 && inputs.type !== 8 && (
-              <Form.Field>
-                <Form.Input
-                  label='镜像'
-                  name='base_url'
-                  placeholder={'此项可选，输入镜像站地址，格式为：https://domain.com'}
-                  onChange={handleInputChange}
-                  value={inputs.base_url}
-                  autoComplete='new-password'
-                />
-              </Form.Field>
-            )
-          }
           <Form.Field>
             <Form.Input
               label='名称'
@@ -352,6 +338,20 @@ const EditChannel = () => {
                 name='batch'
                 onChange={() => setBatch(!batch)}
               />
+            )
+          }
+          {
+            inputs.type !== 3 && inputs.type !== 8 && (
+              <Form.Field>
+                <Form.Input
+                  label='镜像'
+                  name='base_url'
+                  placeholder={'此项可选，输入镜像站地址，格式为：https://domain.com'}
+                  onChange={handleInputChange}
+                  value={inputs.base_url}
+                  autoComplete='new-password'
+                />
+              </Form.Field>
             )
           }
           <Button type={isEdit ? "button" : "submit"} positive onClick={submit}>提交</Button>
