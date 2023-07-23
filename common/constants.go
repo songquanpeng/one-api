@@ -77,6 +77,8 @@ var IsMasterNode = os.Getenv("NODE_TYPE") != "slave"
 var requestInterval, _ = strconv.Atoi(os.Getenv("POLLING_INTERVAL"))
 var RequestInterval = time.Duration(requestInterval) * time.Second
 
+var SyncFrequency = 10 * 60 // unit is second, will be overwritten by SYNC_FREQUENCY
+
 const (
 	RoleGuestUser  = 0
 	RoleCommonUser = 1

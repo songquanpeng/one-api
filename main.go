@@ -54,6 +54,7 @@ func main() {
 		if err != nil {
 			common.FatalLog("failed to parse SYNC_FREQUENCY: " + err.Error())
 		}
+		common.SyncFrequency = frequency
 		go model.SyncOptions(frequency)
 		if common.RedisEnabled {
 			go model.SyncChannelCache(frequency)

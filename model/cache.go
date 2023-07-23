@@ -12,11 +12,11 @@ import (
 	"time"
 )
 
-const (
-	TokenCacheSeconds         = 60 * 60
-	UserId2GroupCacheSeconds  = 60 * 60
-	UserId2QuotaCacheSeconds  = 10 * 60
-	UserId2StatusCacheSeconds = 60 * 60
+var (
+	TokenCacheSeconds         = common.SyncFrequency
+	UserId2GroupCacheSeconds  = common.SyncFrequency
+	UserId2QuotaCacheSeconds  = common.SyncFrequency
+	UserId2StatusCacheSeconds = common.SyncFrequency
 )
 
 func CacheGetTokenByKey(key string) (*Token, error) {
@@ -35,7 +35,7 @@ func CacheGetTokenByKey(key string) (*Token, error) {
 		if err != nil {
 			return nil, err
 		}
-		err = common.RedisSet(fmt.Sprintf("token:%s", key), string(jsonBytes), TokenCacheSeconds*time.Second)
+		err = common.RedisSet(fmt.Sprintf("token:%s", key), string(jsonBytes), time.Duration(TokenCacheSeconds)*time.Second)
 		if err != nil {
 			common.SysError("Redis set token error: " + err.Error())
 		}
@@ -55,7 +55,7 @@ func CacheGetUserGroup(id int) (group string, err error) {
 		if err != nil {
 			return "", err
 		}
-		err = common.RedisSet(fmt.Sprintf("user_group:%d", id), group, UserId2GroupCacheSeconds*time.Second)
+		err = common.RedisSet(fmt.Sprintf("user_group:%d", id), group, time.Duration(UserId2GroupCacheSeconds)*time.Second)
 		if err != nil {
 			common.SysError("Redis set user group error: " + err.Error())
 		}
@@ -73,7 +73,7 @@ func CacheGetUserQuota(id int) (quota int, err error) {
 		if err != nil {
 			return 0, err
 		}
-		err = common.RedisSet(fmt.Sprintf("user_quota:%d", id), fmt.Sprintf("%d", quota), UserId2QuotaCacheSeconds*time.Second)
+		err = common.RedisSet(fmt.Sprintf("user_quota:%d", id), fmt.Sprintf("%d", quota), time.Duration(UserId2QuotaCacheSeconds)*time.Second)
 		if err != nil {
 			common.SysError("Redis set user quota error: " + err.Error())
 		}
@@ -91,7 +91,7 @@ func CacheUpdateUserQuota(id int) error {
 	if err != nil {
 		return err
 	}
-	err = common.RedisSet(fmt.Sprintf("user_quota:%d", id), fmt.Sprintf("%d", quota), UserId2QuotaCacheSeconds*time.Second)
+	err = common.RedisSet(fmt.Sprintf("user_quota:%d", id), fmt.Sprintf("%d", quota), time.Duration(UserId2QuotaCacheSeconds)*time.Second)
 	return err
 }
 
@@ -106,7 +106,7 @@ func CacheIsUserEnabled(userId int) bool {
 			status = common.UserStatusEnabled
 		}
 		enabled = fmt.Sprintf("%d", status)
-		err = common.RedisSet(fmt.Sprintf("user_enabled:%d", userId), enabled, UserId2StatusCacheSeconds*time.Second)
+		err = common.RedisSet(fmt.Sprintf("user_enabled:%d", userId), enabled, time.Duration(UserId2StatusCacheSeconds)*time.Second)
 		if err != nil {
 			common.SysError("Redis set user enabled error: " + err.Error())
 		}
