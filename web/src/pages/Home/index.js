@@ -98,6 +98,12 @@ const Home = () => {
                           : '未启用'}
                       </p>
                       <p>
+                        Discord 身份验证：
+                        {statusState?.status?.discord_oauth === true
+                          ? '已启用'
+                          : '未启用'}
+                      </p>
+                      <p>
                         微信身份验证：
                         {statusState?.status?.wechat_login === true
                           ? '已启用'

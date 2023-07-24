@@ -46,6 +46,12 @@ const LoginForm = () => {
     );
   };
 
+  const onDiscordOAuthClicked = () => {
+    window.open(
+      `https://discord.com/oauth2/authorize?response_type=code&client_id=${status.discord_client_id}&redirect_uri=${window.location.origin}/oauth/discord&scope=identify`,
+    );
+  };
+
   const onWeChatLoginClicked = () => {
     setShowWeChatLoginModal(true);
   };
@@ -147,28 +153,32 @@ const LoginForm = () => {
             点击注册
           </Link>
         </Message>
-        {status.github_oauth || status.wechat_login ? (
+        {status.github_oauth || status.wechat_login || status.discord_oauth ? (
           <>
             <Divider horizontal>Or</Divider>
-            {status.github_oauth ? (
+            {status.discord_oauth && (
+              <Button
+                circular
+                color='blue'
+                icon='discord'
+                onClick={onDiscordOAuthClicked}
+              />
+            )}
+            {status.github_oauth && (
               <Button
                 circular
                 color='black'
                 icon='github'
                 onClick={onGitHubOAuthClicked}
               />
-            ) : (
-              <></>
             )}
-            {status.wechat_login ? (
+            {status.wechat_login && (
               <Button
                 circular
                 color='green'
                 icon='wechat'
                 onClick={onWeChatLoginClicked}
               />
-            ) : (
-              <></>
             )}
           </>
         ) : (

@@ -118,6 +118,12 @@ const PersonalSetting = () => {
     );
   };
 
+  const openDiscordOAuth = () => {
+    window.open(
+      `https://discord.com/api/oauth2/authorize?client_id=${status.discord_client_id}&response_type=code&redirect_uri=${window.location.origin}/oauth/discord&scope=identify`,
+    );
+  };
+
   const sendVerificationCode = async () => {
     setDisableButton(true);
     if (inputs.email === '') return;
@@ -213,6 +219,11 @@ const PersonalSetting = () => {
       {
         status.github_oauth && (
           <Button onClick={openGitHubOAuth}>绑定 GitHub 账号</Button>
+        )
+      }
+      {
+        status.discord_oauth && (
+          <Button onClick={openDiscordOAuth}>绑定 Discord 账号</Button>
         )
       }
       <Button
