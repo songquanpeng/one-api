@@ -1,17 +1,20 @@
 package controller
 
 import (
+	"bufio"
 	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"net/http"
 	"one-api/common"
 	"one-api/model"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
+
+	"github.com/gin-gonic/gin"
 )
 
 func testChannel(channel *model.Channel, request ChatRequest) (error, *OpenAIError) {
@@ -58,21 +61,64 @@ func testChannel(channel *model.Channel, request ChatRequest) (error, *OpenAIErr
 		return err, nil
 	}
 	defer resp.Body.Close()
-	var response TextResponse
-	err = json.NewDecoder(resp.Body).Decode(&response)
-	if err != nil {
-		return err, nil
+
+	isStream := strings.HasPrefix(resp.Header.Get("Content-Type"), "text/event-stream")
+
+	if channel.AllowStreaming && isStream {
+		responseText := ""
+		scanner := bufio.NewScanner(resp.Body)
+		scanner.Split(func(data []byte, atEOF bool) (advance int, token []byte, err error) {
+			if atEOF && len(data) == 0 {
+				return 0, nil, nil
+			}
+			if i := strings.Index(string(data), "\n"); i >= 0 {
+				return i + 1, data[0:i], nil
+			}
+			if atEOF {
+				return len(data), data, nil
+			}
+			return 0, nil, nil
+		})
+		for scanner.Scan() {
+			data := scanner.Text()
+			if len(data) < 6 { // ignore blank line or wrong format
+				continue
+			}
+			data = data[6:]
+			if !strings.HasPrefix(data, "[DONE]") {
+				var streamResponse ChatCompletionsStreamResponse
+				err := json.Unmarshal([]byte(data), &streamResponse)
+				if err != nil {
+					return err, nil
+				}
+				for _, choice := range streamResponse.Choices {
+					responseText += choice.Delta.Content
+				}
+			}
+		}
+
+		if responseText == "" {
+			return errors.New("Empty response"), nil
+		}
+	} else {
+		var response TextResponse
+		err = json.NewDecoder(resp.Body).Decode(&response)
+		if err != nil {
+			return err, nil
+		}
+		if response.Usage.CompletionTokens == 0 {
+			return errors.New(fmt.Sprintf("type %s, code %v, message %s", response.Error.Type, response.Error.Code, response.Error.Message)), &response.Error
+		}
 	}
-	if response.Usage.CompletionTokens == 0 {
-		return errors.New(fmt.Sprintf("type %s, code %v, message %s", response.Error.Type, response.Error.Code, response.Error.Message)), &response.Error
-	}
+
 	return nil, nil
 }
 
-func buildTestRequest() *ChatRequest {
+func buildTestRequest(stream bool) *ChatRequest {
 	testRequest := &ChatRequest{
 		Model:     "", // this will be set later
 		MaxTokens: 1,
+		Stream:    stream,
 	}
 	testMessage := Message{
 		Role:    "user",
@@ -99,7 +145,7 @@ func TestChannel(c *gin.Context) {
 		})
 		return
 	}
-	testRequest := buildTestRequest()
+	testRequest := buildTestRequest(channel.AllowStreaming)
 	tik := time.Now()
 	err, _ = testChannel(channel, *testRequest)
 	tok := time.Now()
@@ -154,7 +200,6 @@ func testAllChannels(notify bool) error {
 	if err != nil {
 		return err
 	}
-	testRequest := buildTestRequest()
 	var disableThreshold = int64(common.ChannelDisableThreshold * 1000)
 	if disableThreshold == 0 {
 		disableThreshold = 10000000 // a impossible value
@@ -165,6 +210,7 @@ func testAllChannels(notify bool) error {
 				continue
 			}
 			tik := time.Now()
+			testRequest := buildTestRequest(channel.AllowStreaming)
 			err, openaiErr := testChannel(channel, *testRequest)
 			tok := time.Now()
 			milliseconds := tok.Sub(tik).Milliseconds()

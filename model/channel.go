@@ -1,8 +1,10 @@
 package model
 
 import (
-	"gorm.io/gorm"
+	"encoding/json"
 	"one-api/common"
+
+	"gorm.io/gorm"
 )
 
 type Channel struct {
@@ -23,6 +25,8 @@ type Channel struct {
 	Group              string  `json:"group" gorm:"type:varchar(32);default:'default'"`
 	UsedQuota          int64   `json:"used_quota" gorm:"bigint;default:0"`
 	ModelMapping       string  `json:"model_mapping" gorm:"type:varchar(1024);default:''"`
+	AllowStreaming     bool    `json:"allow_streaming"`
+	AllowNonStreaming  bool    `json:"allow_non_streaming"`
 }
 
 func GetAllChannels(startIdx int, num int, selectAll bool) ([]*Channel, error) {
@@ -80,7 +84,19 @@ func BatchInsertChannels(channels []Channel) error {
 
 func (channel *Channel) Insert() error {
 	var err error
-	err = DB.Create(channel).Error
+	// turn channel into a map
+	channelMap := make(map[string]interface{})
+
+	// Convert channel struct to a map
+	channelBytes, err := json.Marshal(channel)
+	if err != nil {
+		return err
+	}
+	err = json.Unmarshal(channelBytes, &channelMap)
+	if err != nil {
+		return err
+	}
+	err = DB.Create(channelMap).Error
 	if err != nil {
 		return err
 	}
@@ -90,11 +106,24 @@ func (channel *Channel) Insert() error {
 
 func (channel *Channel) Update() error {
 	var err error
-	err = DB.Model(channel).Updates(channel).Error
+	// turn channel into a map
+	channelMap := make(map[string]interface{})
+
+	// Convert channel struct to a map
+	channelBytes, err := json.Marshal(channel)
 	if err != nil {
 		return err
 	}
-	DB.Model(channel).First(channel, "id = ?", channel.Id)
+	err = json.Unmarshal(channelBytes, &channelMap)
+	if err != nil {
+		return err
+	}
+
+	err = DB.Model(channel).Updates(channelMap).Error
+	if err != nil {
+		return err
+	}
+	DB.Model(channel).First(channelMap, "id = ?", channel.Id)
 	err = channel.UpdateAbilities()
 	return err
 }

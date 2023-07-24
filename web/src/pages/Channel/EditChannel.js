@@ -22,6 +22,8 @@ const EditChannel = () => {
     base_url: '',
     other: '',
     model_mapping: '',
+    allow_streaming: true,
+    allow_non_streaming: true,
     models: [],
     groups: ['default']
   };
@@ -94,6 +96,9 @@ const EditChannel = () => {
 
   useEffect(() => {
     let localModelOptions = [...originModelOptions];
+    if (!Array.isArray(inputs.models)) {
+      inputs.models = inputs.models.split(',');
+    }
     inputs.models.forEach((model) => {
       if (!localModelOptions.find((option) => option.key === model)) {
         localModelOptions.push({
@@ -125,6 +130,11 @@ const EditChannel = () => {
     }
     if (inputs.model_mapping !== '' && !verifyJSON(inputs.model_mapping)) {
       showInfo('模型映射必须是合法的 JSON 格式！');
+      return;
+    }
+    // allow streaming and allow non streaming cannot be both false
+    if (!inputs.allow_streaming && !inputs.allow_non_streaming) {
+      showInfo('流式请求和非流式请求不能同时禁用！');
       return;
     }
     let localInputs = inputs;
@@ -176,7 +186,7 @@ const EditChannel = () => {
                 <Message>
                   注意，<strong>模型部署名称必须和模型名称保持一致</strong>，因为 One API 会把请求体中的 model
                   参数替换为你的部署名称（模型名称中的点会被剔除），<a target='_blank'
-                                                                    href='https://github.com/songquanpeng/one-api/issues/133?notification_referrer_id=NT_kwDOAmJSYrM2NjIwMzI3NDgyOjM5OTk4MDUw#issuecomment-1571602271'>图片演示</a>。
+                    href='https://github.com/songquanpeng/one-api/issues/133?notification_referrer_id=NT_kwDOAmJSYrM2NjIwMzI3NDgyOjM5OTk4MDUw#issuecomment-1571602271'>图片演示</a>。
                 </Message>
                 <Form.Field>
                   <Form.Input
@@ -270,7 +280,7 @@ const EditChannel = () => {
             }}>清除所有模型</Button>
             <Input
               action={
-                <Button type={'button'} onClick={()=>{
+                <Button type={'button'} onClick={() => {
                   if (customModel.trim() === "") return;
                   if (inputs.models.includes(customModel)) return;
                   let localModels = [...inputs.models];
@@ -281,7 +291,7 @@ const EditChannel = () => {
                     text: customModel,
                     value: customModel,
                   });
-                  setModelOptions(modelOptions=>{
+                  setModelOptions(modelOptions => {
                     return [...modelOptions, ...localModelOptions];
                   });
                   setCustomModel('');
@@ -304,6 +314,26 @@ const EditChannel = () => {
               value={inputs.model_mapping}
               style={{ minHeight: 150, fontFamily: 'JetBrains Mono, Consolas' }}
               autoComplete='new-password'
+            />
+          </Form.Field>
+          <Form.Field>
+            <Form.Checkbox
+              checked={inputs.allow_streaming}
+              label='允许流式请求'
+              name='allow_streaming'
+              onChange={() => {
+                setInputs((inputs) => ({ ...inputs, allow_streaming: !inputs.allow_streaming }));
+              }}
+            />
+          </Form.Field>
+          <Form.Field>
+            <Form.Checkbox
+              checked={inputs.allow_non_streaming}
+              label='允许非流式请求'
+              name='allow_non_streaming'
+              onChange={() => {
+                setInputs((inputs) => ({ ...inputs, allow_non_streaming: !inputs.allow_non_streaming }));
+              }}
             />
           </Form.Field>
           {

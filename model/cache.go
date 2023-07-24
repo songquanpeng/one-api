@@ -160,9 +160,9 @@ func SyncChannelCache(frequency int) {
 	}
 }
 
-func CacheGetRandomSatisfiedChannel(group string, model string) (*Channel, error) {
+func CacheGetRandomSatisfiedChannel(group string, model string, stream bool) (*Channel, error) {
 	if !common.RedisEnabled {
-		return GetRandomSatisfiedChannel(group, model)
+		return GetRandomSatisfiedChannel(group, model, stream)
 	}
 	channelSyncLock.RLock()
 	defer channelSyncLock.RUnlock()
@@ -170,6 +170,14 @@ func CacheGetRandomSatisfiedChannel(group string, model string) (*Channel, error
 	if len(channels) == 0 {
 		return nil, errors.New("channel not found")
 	}
-	idx := rand.Intn(len(channels))
-	return channels[idx], nil
+
+	var filteredChannels []*Channel
+	for _, channel := range channels {
+		if (stream && channel.AllowStreaming) || (!stream && channel.AllowNonStreaming) {
+			filteredChannels = append(filteredChannels, channel)
+		}
+	}
+
+	idx := rand.Intn(len(filteredChannels))
+	return filteredChannels[idx], nil
 }
