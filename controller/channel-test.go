@@ -84,6 +84,25 @@ func testChannel(channel *model.Channel, request ChatRequest) (error, *OpenAIErr
 			if len(data) < 6 { // ignore blank line or wrong format
 				continue
 			}
+			// ChatGPT Next Web
+			if strings.HasPrefix(data, "event:") || strings.Contains(data, "event:") {
+				// Remove event: event in the front or back
+				data = strings.TrimPrefix(data, "event: event")
+				data = strings.TrimSuffix(data, "event: event")
+				// Remove everything, only keep `data: {...}` <--- this is the json
+				// Find the start and end indices of `data: {...}` substring
+				startIndex := strings.Index(data, "data:")
+				endIndex := strings.LastIndex(data, "}")
+
+				// If both indices are found and end index is greater than start index
+				if startIndex != -1 && endIndex != -1 && endIndex > startIndex {
+					// Extract the `data: {...}` substring
+					data = data[startIndex : endIndex+1]
+				}
+			}
+			if !strings.HasPrefix(data, "data:") {
+				continue
+			}
 			data = data[6:]
 			if !strings.HasPrefix(data, "[DONE]") {
 				var streamResponse ChatCompletionsStreamResponse
