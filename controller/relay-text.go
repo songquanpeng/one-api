@@ -142,6 +142,9 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 		fullRequestURL = "https://generativelanguage.googleapis.com/v1beta2/models/chat-bison-001:generateMessage"
 		apiKey := c.Request.Header.Get("Authorization")
 		apiKey = strings.TrimPrefix(apiKey, "Bearer ")
+		if baseURL != "" {
+			fullRequestURL = strings.Replace(fullRequestURL, "https://generativelanguage.googleapis.com", baseURL, 1)
+		}
 		fullRequestURL += "?key=" + apiKey
 	case APITypeZhipu:
 		method := "invoke"
