@@ -25,6 +25,9 @@ const SystemSetting = () => {
     WeChatServerAddress: '',
     WeChatServerToken: '',
     WeChatAccountQRCodeImageURL: '',
+    GoogleOAuthEnabled: '',
+    GoogleClientId: '',
+    GoogleClientSecret: '',
     TurnstileCheckEnabled: '',
     TurnstileSiteKey: '',
     TurnstileSecretKey: '',
@@ -61,6 +64,7 @@ const SystemSetting = () => {
       case 'GitHubOAuthEnabled':
       case 'DiscordOAuthEnabled':
       case 'WeChatAuthEnabled':
+      case 'GoogleOAuthEnabled':
       case 'TurnstileCheckEnabled':
       case 'RegisterEnabled':
         value = inputs[key] === 'true' ? 'false' : 'true';
@@ -93,6 +97,8 @@ const SystemSetting = () => {
       name === 'WeChatServerAddress' ||
       name === 'WeChatServerToken' ||
       name === 'WeChatAccountQRCodeImageURL' ||
+      name === 'GoogleClientId' ||
+      name === 'GoogleClientSecret' ||
       name === 'TurnstileSiteKey' ||
       name === 'TurnstileSecretKey'
     ) {
@@ -152,6 +158,18 @@ const SystemSetting = () => {
       inputs.WeChatServerToken !== ''
     ) {
       await updateOption('WeChatServerToken', inputs.WeChatServerToken);
+    }
+  };
+
+  const submitGoogleOAuth = async () => {
+    if (originInputs['GoogleClientId'] !== inputs.GoogleClientId) {
+      await updateOption('GoogleClientId', inputs.GoogleClientId);
+    }
+    if (
+      originInputs['GoogleClientSecret'] !== inputs.GoogleClientSecret &&
+      inputs.GoogleClientSecret !== ''
+    ) {
+      await updateOption('GoogleClientSecret', inputs.GoogleClientSecret);
     }
   };
 
@@ -239,6 +257,12 @@ const SystemSetting = () => {
               checked={inputs.GitHubOAuthEnabled === 'true'}
               label='允许通过 GitHub 账户登录 & 注册'
               name='GitHubOAuthEnabled'
+              onChange={handleInputChange}
+            />
+            <Form.Checkbox
+              checked={inputs.GoogleOAuthEnabled === 'true'}
+              label='允许通过 Google 账户登录和注册'
+              name='GoogleOAuthEnabled'
               onChange={handleInputChange}
             />
             <Form.Checkbox
@@ -432,6 +456,44 @@ const SystemSetting = () => {
           </Form.Group>
           <Form.Button onClick={submitDiscordOAuth}>
             保存 Discord OAuth 设置
+          </Form.Button>
+          <Divider />
+          <Header as='h3'>
+            配置 Google OAuth 应用程序
+            <Header.Subheader>
+              用以支持通过 Google 进行登录注册，
+              <a href='https://console.cloud.google.com/' target='_blank'>
+                点击此处
+              </a>
+              管理你的 Google OAuth App
+            </Header.Subheader>
+          </Header>
+          <Message>
+            Homepage URL 填 <code>{inputs.ServerAddress}</code>
+            ，Authorization callback URL 填{' '}
+            <code>{`${inputs.ServerAddress}/oauth/google`}</code>
+          </Message>
+          <Form.Group widths={3}>
+            <Form.Input
+              label='Google 客户 ID'
+              name='GoogleClientId'
+              onChange={handleInputChange}
+              autoComplete='new-password'
+              value={inputs.GoogleClientId}
+              placeholder='输入您注册的 Google OAuth APP 的 ID'
+            />
+            <Form.Input
+              label='Google 客户秘密'
+              name='GoogleClientSecret'
+              onChange={handleInputChange}
+              type='password'
+              autoComplete='new-password'
+              value={inputs.GoogleClientSecret}
+              placeholder='敏感信息不会发送到前端显示'
+            />
+          </Form.Group>
+          <Form.Button onClick={submitGoogleOAuth}>
+            保存 Google OAuth 设置
           </Form.Button>
           <Divider />
           <Header as='h3'>

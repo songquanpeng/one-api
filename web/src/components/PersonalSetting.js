@@ -112,6 +112,12 @@ const PersonalSetting = () => {
     }
   };
 
+  const openGoogleOAuth = () => {
+    window.open(
+      `https://accounts.google.com/o/oauth2/v2/auth?client_id=${status.google_client_id}&redirect_uri=${window.location.origin}/oauth/google&response_type=code&scope=https://www.googleapis.com/auth/userinfo.profile`
+    );
+  };
+
   const openGitHubOAuth = () => {
     window.open(
       `https://github.com/login/oauth/authorize?client_id=${status.github_client_id}&scope=user:email`
@@ -224,6 +230,12 @@ const PersonalSetting = () => {
       {
         status.discord_oauth && (
           <Button onClick={openDiscordOAuth}>绑定 Discord 账号</Button>
+        )
+      }
+      {
+        status.google_oauth && (
+          <Button onClick={openGoogleOAuth}>绑定 Google 账号</Button>
+
         )
       }
       <Button

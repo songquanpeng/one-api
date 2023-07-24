@@ -40,6 +40,12 @@ const LoginForm = () => {
 
   const [showWeChatLoginModal, setShowWeChatLoginModal] = useState(false);
 
+  const openGoogleOAuth = () => {
+    window.open(
+      `https://accounts.google.com/o/oauth2/v2/auth?client_id=${status.google_client_id}&redirect_uri=${window.location.origin}/oauth/google&response_type=code&scope=profile`
+    );
+  };
+
   const onGitHubOAuthClicked = () => {
     window.open(
       `https://github.com/login/oauth/authorize?client_id=${status.github_client_id}&scope=user:email`
@@ -153,7 +159,7 @@ const LoginForm = () => {
             点击注册
           </Link>
         </Message>
-        {status.github_oauth || status.wechat_login || status.discord_oauth ? (
+        {status.github_oauth || status.wechat_login || status.discord_oauth || status.google_oauth ? (
           <>
             <Divider horizontal>Or</Divider>
             {status.discord_oauth && (
@@ -178,6 +184,14 @@ const LoginForm = () => {
                 color='green'
                 icon='wechat'
                 onClick={onWeChatLoginClicked}
+              />
+            )}
+            {status.google_oauth && (
+              <Button
+                circular
+                color='red'
+                icon='google'
+                onClick={openGoogleOAuth}
               />
             )}
           </>
