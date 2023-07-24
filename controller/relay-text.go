@@ -85,13 +85,14 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 		}
 	}
 	apiType := APITypeOpenAI
-	if strings.HasPrefix(textRequest.Model, "claude") {
+	switch channelType {
+	case common.ChannelTypeAnthropic:
 		apiType = APITypeClaude
-	} else if strings.HasPrefix(textRequest.Model, "ERNIE") {
+	case common.ChannelTypeBaidu:
 		apiType = APITypeBaidu
-	} else if strings.HasPrefix(textRequest.Model, "PaLM") {
+	case common.ChannelTypePaLM:
 		apiType = APITypePaLM
-	} else if strings.HasPrefix(textRequest.Model, "chatglm_") {
+	case common.ChannelTypeZhipu:
 		apiType = APITypeZhipu
 	}
 	baseURL := common.ChannelBaseURLs[channelType]
