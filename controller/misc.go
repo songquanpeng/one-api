@@ -3,10 +3,11 @@ package controller
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"net/http"
 	"one-api/common"
 	"one-api/model"
+
+	"github.com/gin-gonic/gin"
 )
 
 func GetStatus(c *gin.Context) {
@@ -19,6 +20,8 @@ func GetStatus(c *gin.Context) {
 			"email_verification":  common.EmailVerificationEnabled,
 			"github_oauth":        common.GitHubOAuthEnabled,
 			"github_client_id":    common.GitHubClientId,
+			"google_oauth":        common.GoogleOAuthEnabled,
+			"google_client_id":    common.GoogleClientId,
 			"system_name":         common.SystemName,
 			"logo":                common.Logo,
 			"footer_html":         common.Footer,

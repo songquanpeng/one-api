@@ -2,11 +2,12 @@ package controller
 
 import (
 	"encoding/json"
-	"github.com/gin-gonic/gin"
 	"net/http"
 	"one-api/common"
 	"one-api/model"
 	"strings"
+
+	"github.com/gin-gonic/gin"
 )
 
 func GetOptions(c *gin.Context) {
@@ -54,6 +55,14 @@ func UpdateOption(c *gin.Context) {
 			c.JSON(http.StatusOK, gin.H{
 				"success": false,
 				"message": "无法启用微信登录，请先填入微信登录相关配置信息！",
+			})
+			return
+		}
+	case "GoogleOAuthEnabled":
+		if option.Value == "true" && common.GoogleClientId == "" {
+			c.JSON(http.StatusOK, gin.H{
+				"success": false,
+				"message": "无法启用 Google OAuth，请先填入 Google Client ID 以及 Google Client Secret！",
 			})
 			return
 		}

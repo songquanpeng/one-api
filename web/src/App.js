@@ -12,6 +12,7 @@ import AddUser from './pages/User/AddUser';
 import { API, getLogo, getSystemName, showError, showNotice } from './helpers';
 import PasswordResetForm from './components/PasswordResetForm';
 import GitHubOAuth from './components/GitHubOAuth';
+import GoogleOAuth from './components/GoogleOAuth';
 import PasswordResetConfirm from './components/PasswordResetConfirm';
 import { UserContext } from './context/User';
 import { StatusContext } from './context/Status';
@@ -236,6 +237,14 @@ function App() {
         element={
           <Suspense fallback={<Loading></Loading>}>
             <GitHubOAuth />
+          </Suspense>
+        }
+      />
+      <Route
+        path='/oauth/google'
+        element={
+          <Suspense fallback={<Loading></Loading>}>
+            <GoogleOAuth />
           </Suspense>
         }
       />

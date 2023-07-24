@@ -39,6 +39,7 @@ var PasswordRegisterEnabled = true
 var EmailVerificationEnabled = false
 var GitHubOAuthEnabled = false
 var WeChatAuthEnabled = false
+var GoogleOAuthEnabled = false
 var TurnstileCheckEnabled = false
 var RegisterEnabled = true
 
@@ -56,6 +57,9 @@ var GitHubClientSecret = ""
 var WeChatServerAddress = ""
 var WeChatServerToken = ""
 var WeChatAccountQRCodeImageURL = ""
+
+var GoogleClientId = ""
+var GoogleClientSecret = ""
 
 var TurnstileSiteKey = ""
 var TurnstileSecretKey = ""
