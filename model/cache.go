@@ -173,7 +173,7 @@ func CacheGetRandomSatisfiedChannel(group string, model string, stream bool) (*C
 
 	var filteredChannels []*Channel
 	for _, channel := range channels {
-		if (stream && channel.AllowStreaming) || (!stream && channel.AllowNonStreaming) {
+		if (stream && channel.AllowStreaming == common.ChannelAllowStreamEnabled) || (!stream && channel.AllowNonStreaming == common.ChannelAllowNonStreamEnabled) {
 			filteredChannels = append(filteredChannels, channel)
 		}
 	}

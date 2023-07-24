@@ -22,8 +22,8 @@ const EditChannel = () => {
     base_url: '',
     other: '',
     model_mapping: '',
-    allow_streaming: true,
-    allow_non_streaming: true,
+    allow_streaming: 1,
+    allow_non_streaming: 1,
     models: [],
     groups: ['default']
   };
@@ -133,7 +133,7 @@ const EditChannel = () => {
       return;
     }
     // allow streaming and allow non streaming cannot be both false
-    if (!inputs.allow_streaming && !inputs.allow_non_streaming) {
+    if (inputs.allow_streaming === 2 && inputs.allow_non_streaming === 2) {
       showInfo('流式请求和非流式请求不能同时禁用！');
       return;
     }
@@ -318,21 +318,21 @@ const EditChannel = () => {
           </Form.Field>
           <Form.Field>
             <Form.Checkbox
-              checked={inputs.allow_streaming}
+              checked={inputs.allow_streaming === 1}
               label='允许流式请求'
               name='allow_streaming'
               onChange={() => {
-                setInputs((inputs) => ({ ...inputs, allow_streaming: !inputs.allow_streaming }));
+                setInputs((inputs) => ({ ...inputs, allow_streaming: inputs.allow_streaming === 1 ? 2 : 1 }));
               }}
             />
           </Form.Field>
           <Form.Field>
             <Form.Checkbox
-              checked={inputs.allow_non_streaming}
+              checked={inputs.allow_non_streaming === 1}
               label='允许非流式请求'
               name='allow_non_streaming'
               onChange={() => {
-                setInputs((inputs) => ({ ...inputs, allow_non_streaming: !inputs.allow_non_streaming }));
+                setInputs((inputs) => ({ ...inputs, allow_non_streaming: inputs.allow_non_streaming === 1 ? 2 : 1 }));
               }}
             />
           </Form.Field>

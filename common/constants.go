@@ -143,6 +143,16 @@ const (
 )
 
 const (
+	ChannelAllowNonStreamEnabled  = 1
+	ChannelAllowNonStreamDisabled = 2
+)
+
+const (
+	ChannelAllowStreamEnabled  = 1
+	ChannelAllowStreamDisabled = 2
+)
+
+const (
 	ChannelTypeUnknown   = 0
 	ChannelTypeOpenAI    = 1
 	ChannelTypeAPI2D     = 2

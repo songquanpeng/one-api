@@ -1,6 +1,7 @@
 package model
 
 import (
+	"fmt"
 	"one-api/common"
 	"strings"
 )
@@ -19,9 +20,9 @@ func GetRandomSatisfiedChannel(group string, model string, stream bool) (*Channe
 	cmd := "`group` = ? and model = ? and enabled = 1"
 
 	if stream {
-		cmd += " and allow_streaming = 1"
+		cmd += fmt.Sprintf(" and allow_streaming = %d", common.ChannelAllowStreamEnabled)
 	} else {
-		cmd += " and allow_non_streaming = 1"
+		cmd += fmt.Sprintf(" and allow_non_streaming = %d", common.ChannelAllowNonStreamEnabled)
 	}
 
 	if common.UsingSQLite {
