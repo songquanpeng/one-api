@@ -12,13 +12,22 @@ type Ability struct {
 	Enabled   bool   `json:"enabled"`
 }
 
-func GetRandomSatisfiedChannel(group string, model string) (*Channel, error) {
+func GetRandomSatisfiedChannel(group string, model string, stream bool) (*Channel, error) {
 	ability := Ability{}
 	var err error = nil
-	if common.UsingSQLite {
-		err = DB.Where("`group` = ? and model = ? and enabled = 1", group, model).Order("RANDOM()").Limit(1).First(&ability).Error
+
+	cmd := "`group` = ? and model = ? and enabled = 1"
+
+	if stream {
+		cmd += " and allow_streaming = 1"
 	} else {
-		err = DB.Where("`group` = ? and model = ? and enabled = 1", group, model).Order("RAND()").Limit(1).First(&ability).Error
+		cmd += " and allow_non_streaming = 1"
+	}
+
+	if common.UsingSQLite {
+		err = DB.Where(cmd, group, model).Order("RANDOM()").Limit(1).First(&ability).Error
+	} else {
+		err = DB.Where(cmd, group, model).Order("RAND()").Limit(1).First(&ability).Error
 	}
 	if err != nil {
 		return nil, err
