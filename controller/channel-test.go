@@ -64,7 +64,7 @@ func testChannel(channel *model.Channel, request ChatRequest) (error, *OpenAIErr
 
 	isStream := strings.HasPrefix(resp.Header.Get("Content-Type"), "text/event-stream")
 
-	if channel.AllowStreaming && isStream {
+	if channel.AllowStreaming == common.ChannelAllowStreamEnabled && isStream {
 		responseText := ""
 		scanner := bufio.NewScanner(resp.Body)
 		scanner.Split(func(data []byte, atEOF bool) (advance int, token []byte, err error) {
@@ -145,7 +145,7 @@ func TestChannel(c *gin.Context) {
 		})
 		return
 	}
-	testRequest := buildTestRequest(channel.AllowStreaming)
+	testRequest := buildTestRequest(channel.AllowStreaming == common.ChannelAllowStreamEnabled)
 	tik := time.Now()
 	err, _ = testChannel(channel, *testRequest)
 	tok := time.Now()
@@ -210,7 +210,7 @@ func testAllChannels(notify bool) error {
 				continue
 			}
 			tik := time.Now()
-			testRequest := buildTestRequest(channel.AllowStreaming)
+			testRequest := buildTestRequest(channel.AllowStreaming == common.ChannelAllowStreamEnabled)
 			err, openaiErr := testChannel(channel, *testRequest)
 			tok := time.Now()
 			milliseconds := tok.Sub(tik).Milliseconds()
