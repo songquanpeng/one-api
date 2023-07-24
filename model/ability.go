@@ -7,10 +7,12 @@ import (
 )
 
 type Ability struct {
-	Group     string `json:"group" gorm:"type:varchar(32);primaryKey;autoIncrement:false"`
-	Model     string `json:"model" gorm:"primaryKey;autoIncrement:false"`
-	ChannelId int    `json:"channel_id" gorm:"primaryKey;autoIncrement:false;index"`
-	Enabled   bool   `json:"enabled"`
+	Group             string `json:"group" gorm:"type:varchar(32);primaryKey;autoIncrement:false"`
+	Model             string `json:"model" gorm:"primaryKey;autoIncrement:false"`
+	ChannelId         int    `json:"channel_id" gorm:"primaryKey;autoIncrement:false;index"`
+	Enabled           bool   `json:"enabled"`
+	AllowStreaming    int    `json:"allow_streaming" gorm:"default:1"`
+	AllowNonStreaming int    `json:"allow_non_streaming" gorm:"default:1"`
 }
 
 func GetRandomSatisfiedChannel(group string, model string, stream bool) (*Channel, error) {
@@ -46,10 +48,12 @@ func (channel *Channel) AddAbilities() error {
 	for _, model := range models_ {
 		for _, group := range groups_ {
 			ability := Ability{
-				Group:     group,
-				Model:     model,
-				ChannelId: channel.Id,
-				Enabled:   channel.Status == common.ChannelStatusEnabled,
+				Group:             group,
+				Model:             model,
+				ChannelId:         channel.Id,
+				Enabled:           channel.Status == common.ChannelStatusEnabled,
+				AllowStreaming:    channel.AllowStreaming,
+				AllowNonStreaming: channel.AllowNonStreaming,
 			}
 			abilities = append(abilities, ability)
 		}
