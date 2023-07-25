@@ -22,7 +22,6 @@ type DiscordOAuthResponse struct {
 
 type DiscordUser struct {
 	Id       string `json:"id"`
-	Verified bool   `json:"verified"`
 	Username string `json:"username"`
 }
 
@@ -34,7 +33,7 @@ func getDiscordUserInfoByCode(codeFromURLParamaters string, host string) (*Disco
 	RequestClient := &http.Client{}
 
 	accessTokenBody := bytes.NewBuffer([]byte(fmt.Sprintf(
-		"client_id=%s&client_secret=%s&grant_type=authorization_code&redirect_uri=%s/oauth/discord&code=%s&scope=identify",
+		"client_id=%s&client_secret=%s&grant_type=authorization_code&redirect_uri=https://%s/oauth/discord&code=%s&scope=identify",
 		common.DiscordClientId, common.DiscordClientSecret, host, codeFromURLParamaters,
 	)))
 
@@ -88,10 +87,6 @@ func getDiscordUserInfoByCode(codeFromURLParamaters string, host string) (*Disco
 		return nil, errors.New("返回值无效，用户字段为空，请稍后再试！")
 	}
 
-	if discordUser.Verified == false {
-		return nil, errors.New("Discord 帐户未经验证！")
-	}
-
 	defer resp.Body.Close()
 
 	return &discordUser, nil
@@ -114,15 +109,7 @@ func DiscordOAuth(c *gin.Context) {
 	}
 	code := c.Query("code")
 
-	// Get protocal whether http or https and host
-	host := c.Request.Host
-	if c.Request.TLS == nil {
-		host = "http://" + host
-	} else {
-		host = "https://" + host
-	}
-
-	discordUser, err := getDiscordUserInfoByCode(code, host)
+	discordUser, err := getDiscordUserInfoByCode(code, c.Request.Host)
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
@@ -189,15 +176,7 @@ func DiscordBind(c *gin.Context) {
 	}
 	code := c.Query("code")
 
-	// Get protocal whether http or https and host
-	host := c.Request.Host
-	if c.Request.TLS == nil {
-		host = "http://" + host
-	} else {
-		host = "https://" + host
-	}
-
-	discordUser, err := getDiscordUserInfoByCode(code, host)
+	discordUser, err := getDiscordUserInfoByCode(code, c.Request.Host)
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
