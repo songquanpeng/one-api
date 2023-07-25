@@ -180,7 +180,7 @@ func (user *User) FillUserByWeChatId() error {
 }
 
 func (user *User) FillUserByGoogleId() error {
-	if user.WeChatId == "" {
+	if user.GoogleId == "" {
 		return errors.New("Google id 为空！")
 	}
 	DB.Where(User{GoogleId: user.GoogleId}).First(user)
