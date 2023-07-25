@@ -35,7 +35,7 @@ func getGoogleUserInfoByCode(codeFromURLParamaters string, host string) (*Google
 	RequestClient := &http.Client{}
 
 	accessTokenBody := bytes.NewBuffer([]byte(fmt.Sprintf(
-		"code=%s&client_id=%s&client_secret=%s&redirect_uri=%s/oauth/google&grant_type=authorization_code",
+		"code=%s&client_id=%s&client_secret=%s&redirect_uri=https://%s/oauth/google&grant_type=authorization_code",
 		codeFromURLParamaters, common.GoogleClientId, common.GoogleClientSecret, host,
 	)))
 
@@ -112,15 +112,7 @@ func GoogleOAuth(c *gin.Context) {
 	}
 	code := c.Query("code")
 
-	// Get protocal whether http or https and host
-	host := c.Request.Host
-	if c.Request.TLS == nil {
-		host = "http://" + host
-	} else {
-		host = "https://" + host
-	}
-
-	googleUser, err := getGoogleUserInfoByCode(code, host)
+	googleUser, err := getGoogleUserInfoByCode(code, c.Request.Host)
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
@@ -187,15 +179,7 @@ func GoogleBind(c *gin.Context) {
 	}
 	code := c.Query("code")
 
-	// Get protocal whether http or https and host
-	host := c.Request.Host
-	if c.Request.TLS == nil {
-		host = "http://" + host
-	} else {
-		host = "https://" + host
-	}
-
-	googleUser, err := getGoogleUserInfoByCode(code, host)
+	googleUser, err := getGoogleUserInfoByCode(code, c.Request.Host)
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
