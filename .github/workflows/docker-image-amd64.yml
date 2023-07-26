@@ -42,7 +42,7 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: |
-            justsong/one-api
+            ckt1031/one-api
             ghcr.io/${{ github.repository }}
 
       - name: Build and push Docker images

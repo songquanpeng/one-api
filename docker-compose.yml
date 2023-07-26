@@ -2,7 +2,7 @@ version: '3.4'
 
 services:
   one-api:
-    image: justsong/one-api:latest
+    image: ckt1031/one-api:latest
     container_name: one-api
     restart: always
     command: --log-dir /app/logs
