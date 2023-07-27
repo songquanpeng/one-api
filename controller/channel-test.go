@@ -61,6 +61,9 @@ func testChannel(channel *model.Channel, request ChatRequest) (error, *OpenAIErr
 		return err, nil
 	}
 	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		return errors.New(fmt.Sprintf("status code %d", resp.StatusCode)), nil
+	}
 
 	isStream := strings.HasPrefix(resp.Header.Get("Content-Type"), "text/event-stream")
 
@@ -119,7 +122,7 @@ func testChannel(channel *model.Channel, request ChatRequest) (error, *OpenAIErr
 		if responseText == "" {
 			return errors.New("Empty response"), nil
 		}
-	} else {
+	} else if channel.AllowNonStreaming == common.ChannelAllowNonStreamEnabled {
 		var response TextResponse
 		err = json.NewDecoder(resp.Body).Decode(&response)
 		if err != nil {
