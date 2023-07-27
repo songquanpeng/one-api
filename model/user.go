@@ -267,7 +267,13 @@ func GetUserEmail(id int) (email string, err error) {
 }
 
 func GetUserGroup(id int) (group string, err error) {
-	err = DB.Model(&User{}).Where("id = ?", id).Select("`group`").Find(&group).Error
+	selectItem := "`group`"
+
+	if common.UsingPostgreSQL {
+		selectItem = "\"group\""
+	}
+
+	err = DB.Model(&User{}).Where("id = ?", id).Select(selectItem).Find(&group).Error
 	return group, err
 }
 

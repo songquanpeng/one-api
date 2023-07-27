@@ -3,8 +3,9 @@ package model
 import (
 	"errors"
 	"fmt"
-	"gorm.io/gorm"
 	"one-api/common"
+
+	"gorm.io/gorm"
 )
 
 type Redemption struct {
@@ -51,7 +52,14 @@ func Redeem(key string, userId int) (quota int, err error) {
 	redemption := &Redemption{}
 
 	err = DB.Transaction(func(tx *gorm.DB) error {
-		err := tx.Set("gorm:query_option", "FOR UPDATE").Where("`key` = ?", key).First(redemption).Error
+		whereItem := "`key` = ?"
+
+		if common.UsingPostgreSQL {
+			// Make cmd compatible with PostgreSQL
+			whereItem = "\"key\" = ?"
+		}
+
+		err := tx.Set("gorm:query_option", "FOR UPDATE").Where(whereItem, key).First(redemption).Error
 		if err != nil {
 			return errors.New("无效的兑换码")
 		}

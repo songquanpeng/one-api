@@ -15,8 +15,16 @@ type Ability struct {
 func GetRandomSatisfiedChannel(group string, model string) (*Channel, error) {
 	ability := Ability{}
 	var err error = nil
-	if common.UsingSQLite {
-		err = DB.Where("`group` = ? and model = ? and enabled = 1", group, model).Order("RANDOM()").Limit(1).First(&ability).Error
+
+	cmd := "`group` = ? and model = ? and enabled = 1"
+
+	if common.UsingPostgreSQL {
+		// Make cmd compatible with PostgreSQL
+		cmd = "\"group\" = ? and model = ? and enabled = true"
+	}
+
+	if common.UsingSQLite || common.UsingPostgreSQL {
+		err = DB.Where(cmd, group, model).Order("RANDOM()").Limit(1).First(&ability).Error
 	} else {
 		err = DB.Where("`group` = ? and model = ? and enabled = 1", group, model).Order("RAND()").Limit(1).First(&ability).Error
 	}

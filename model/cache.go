@@ -21,13 +21,19 @@ var (
 
 func CacheGetTokenByKey(key string) (*Token, error) {
 	var token Token
+	whereItem := "`key` = ?"
+	if common.UsingPostgreSQL {
+		// Make cmd compatible with PostgreSQL
+		whereItem = "\"key\" = ?"
+	}
+
 	if !common.RedisEnabled {
-		err := DB.Where("`key` = ?", key).First(&token).Error
+		err := DB.Where(whereItem, key).First(&token).Error
 		return &token, err
 	}
 	tokenObjectString, err := common.RedisGet(fmt.Sprintf("token:%s", key))
 	if err != nil {
-		err := DB.Where("`key` = ?", key).First(&token).Error
+		err := DB.Where(whereItem, key).First(&token).Error
 		if err != nil {
 			return nil, err
 		}
