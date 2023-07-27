@@ -45,6 +45,7 @@ func InitDB() (err error) {
 	if os.Getenv("POSTGRES_DSN") != "" {
 		// Use PostgreSQL
 		common.SysLog("using PostgreSQL as database")
+		common.UsingPostgreSQL = true
 		db, err = gorm.Open(postgres.Open(os.Getenv("POSTGRES_DSN")), &gorm.Config{
 			PrepareStmt: true, // precompile SQL
 		})
