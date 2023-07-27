@@ -69,11 +69,11 @@ func requestOpenAI2Claude(textRequest GeneralOpenAIRequest) *ClaudeRequest {
 			prompt += fmt.Sprintf("\n\nHuman: %s", message.Content)
 		} else if message.Role == "assistant" {
 			prompt += fmt.Sprintf("\n\nAssistant: %s", message.Content)
-		} else {
-			// ignore other roles
+		} else if message.Role == "system" {
+			prompt += fmt.Sprintf("\n\nSystem: %s", message.Content)
 		}
-		prompt += "\n\nAssistant:"
 	}
+	prompt += "\n\nAssistant:"
 	claudeRequest.Prompt = prompt
 	return &claudeRequest
 }
