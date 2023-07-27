@@ -111,10 +111,21 @@ func getZhipuToken(apikey string) string {
 func requestOpenAI2Zhipu(request GeneralOpenAIRequest) *ZhipuRequest {
 	messages := make([]ZhipuMessage, 0, len(request.Messages))
 	for _, message := range request.Messages {
-		messages = append(messages, ZhipuMessage{
-			Role:    message.Role,
-			Content: message.Content,
-		})
+		if message.Role == "system" {
+			messages = append(messages, ZhipuMessage{
+				Role:    "system",
+				Content: message.Content,
+			})
+			messages = append(messages, ZhipuMessage{
+				Role:    "user",
+				Content: "Okay",
+			})
+		} else {
+			messages = append(messages, ZhipuMessage{
+				Role:    message.Role,
+				Content: message.Content,
+			})
+		}
 	}
 	return &ZhipuRequest{
 		Prompt:      messages,
