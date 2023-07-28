@@ -20,6 +20,7 @@ const (
 	APITypePaLM
 	APITypeBaidu
 	APITypeZhipu
+	APITypeAli
 )
 
 var httpClient *http.Client
@@ -94,6 +95,9 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 		apiType = APITypePaLM
 	case common.ChannelTypeZhipu:
 		apiType = APITypeZhipu
+	case common.ChannelTypeAli:
+		apiType = APITypeAli
+
 	}
 	baseURL := common.ChannelBaseURLs[channelType]
 	requestURL := c.Request.URL.String()
@@ -153,6 +157,8 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 			method = "sse-invoke"
 		}
 		fullRequestURL = fmt.Sprintf("https://open.bigmodel.cn/api/paas/v3/model-api/%s/%s", textRequest.Model, method)
+	case APITypeAli:
+		fullRequestURL = "https://dashscope.aliyuncs.com/api/v1/services/aigc/text-generation/generation"
 	}
 	var promptTokens int
 	var completionTokens int
@@ -226,6 +232,13 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 			return errorWrapper(err, "marshal_text_request_failed", http.StatusInternalServerError)
 		}
 		requestBody = bytes.NewBuffer(jsonStr)
+	case APITypeAli:
+		aliRequest := requestOpenAI2Ali(textRequest)
+		jsonStr, err := json.Marshal(aliRequest)
+		if err != nil {
+			return errorWrapper(err, "marshal_text_request_failed", http.StatusInternalServerError)
+		}
+		requestBody = bytes.NewBuffer(jsonStr)
 	}
 	req, err := http.NewRequest(c.Request.Method, fullRequestURL, requestBody)
 	if err != nil {
@@ -250,6 +263,11 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 	case APITypeZhipu:
 		token := getZhipuToken(apiKey)
 		req.Header.Set("Authorization", token)
+	case APITypeAli:
+		req.Header.Set("Authorization", "Bearer "+apiKey)
+		if textRequest.Stream {
+			req.Header.Set("X-DashScope-SSE", "enable")
+		}
 	}
 	req.Header.Set("Content-Type", c.Request.Header.Get("Content-Type"))
 	req.Header.Set("Accept", c.Request.Header.Get("Accept"))
@@ -280,7 +298,7 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 			if strings.HasPrefix(textRequest.Model, "gpt-4") {
 				completionRatio = 2
 			}
-			if isStream && apiType != APITypeBaidu && apiType != APITypeZhipu {
+			if isStream && apiType != APITypeBaidu && apiType != APITypeZhipu && apiType != APITypeAli {
 				completionTokens = countTokenText(streamResponseText, textRequest.Model)
 			} else {
 				promptTokens = textResponse.Usage.PromptTokens
@@ -407,6 +425,26 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 			return nil
 		} else {
 			err, usage := zhipuHandler(c, resp)
+			if err != nil {
+				return err
+			}
+			if usage != nil {
+				textResponse.Usage = *usage
+			}
+			return nil
+		}
+	case APITypeAli:
+		if isStream {
+			err, usage := aliStreamHandler(c, resp)
+			if err != nil {
+				return err
+			}
+			if usage != nil {
+				textResponse.Usage = *usage
+			}
+			return nil
+		} else {
+			err, usage := aliHandler(c, resp)
 			if err != nil {
 				return err
 			}
