@@ -57,15 +57,13 @@ _✨ Access all LLM through the standard OpenAI API format, easy to deploy & use
 > **Note**: The latest image pulled from Docker may be an `alpha` release. Specify the version manually if you require stability.
 
 ## Features
-1. Supports multiple API access channels:
-    + [x] Official OpenAI channel (support proxy configuration)
-    + [x] **Azure OpenAI API**
-    + [x] [API Distribute](https://api.gptjk.top/register?aff=QGxj)
-    + [x] [OpenAI-SB](https://openai-sb.com)
-    + [x] [API2D](https://api2d.com/r/197971)
-    + [x] [OhMyGPT](https://aigptx.top?aff=uFpUl2Kf)
-    + [x] [AI Proxy](https://aiproxy.io/?i=OneAPI) (invitation code: `OneAPI`)
-    + [x] Custom channel: Various third-party proxy services not included in the list
+1. Support for multiple large models:
+   + [x] [OpenAI ChatGPT Series Models](https://platform.openai.com/docs/guides/gpt/chat-completions-api) (Supports [Azure OpenAI API](https://learn.microsoft.com/en-us/azure/ai-services/openai/reference))
+   + [x] [Anthropic Claude Series Models](https://anthropic.com)
+   + [x] [Google PaLM2 Series Models](https://developers.generativeai.google)
+   + [x] [Baidu Wenxin Yiyuan Series Models](https://cloud.baidu.com/doc/WENXINWORKSHOP/index.html)
+   + [x] [Alibaba Tongyi Qianwen Series Models](https://help.aliyun.com/document_detail/2400395.html)
+   + [x] [Zhipu ChatGLM Series Models](https://bigmodel.cn)
 2. Supports access to multiple channels through **load balancing**.
 3. Supports **stream mode** that enables typewriter-like effect through stream transmission.
 4. Supports **multi-machine deployment**. [See here](#multi-machine-deployment) for more details.

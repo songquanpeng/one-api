@@ -66,7 +66,6 @@ _✨ 通过标准的 OpenAI API 格式访问所有的大模型，开箱即用 �
    + [x] [阿里通义千问系列模型](https://help.aliyun.com/document_detail/2400395.html)
    + [x] [智谱 ChatGLM 系列模型](https://bigmodel.cn)
 2. 支持配置镜像以及众多第三方代理服务：
-   + [x] [API Distribute](https://api.gptjk.top/register?aff=QGxj)
    + [x] [OpenAI-SB](https://openai-sb.com)
    + [x] [API2D](https://api2d.com/r/197971)
    + [x] [OhMyGPT](https://aigptx.top?aff=uFpUl2Kf)
