@@ -4,6 +4,8 @@ import (
 	"crypto/tls"
 	"encoding/base64"
 	"fmt"
+	"net"
+	"errors"
 	"net/smtp"
 	"strings"
 )
@@ -39,9 +41,7 @@ func SendEmail(subject string, receiver string, content string) error {
 	if SMTPFrom == "" { // for compatibility
 		SMTPFrom = SMTPAccount
 	}
-	tlsconfig := &tls.Config {
-    ServerName: host,
-}
+	
 	encodedSubject := fmt.Sprintf("=?UTF-8?B?%s?=", base64.StdEncoding.EncodeToString([]byte(subject)))
 	mail := []byte(fmt.Sprintf("To: %s\r\n"+
 		"From: %s<%s>\r\n"+
@@ -50,15 +50,17 @@ func SendEmail(subject string, receiver string, content string) error {
 		receiver, SystemName, SMTPFrom, encodedSubject, content))
 
 	//auth := smtp.PlainAuth("", SMTPAccount, SMTPToken, SMTPServer)
+	auth := LoginAuth(SMTPAccount, SMTPToken) 
 	addr := fmt.Sprintf("%s:%d", SMTPServer, SMTPPort)
 	to := strings.Split(receiver, ";")
 	var err error
 	if SMTPPort == 465 {
 		tlsConfig := &tls.Config{
-			InsecureSkipVerify: true,
+			//InsecureSkipVerify: true,
 			ServerName:         SMTPServer,
 		}
-		conn, err := tls.Dial("tcp", fmt.Sprintf("%s:%d", SMTPServer, SMTPPort), tlsConfig)
+		//conn, err := tls.Dial("tcp", fmt.Sprintf("%s:%d", SMTPServer, SMTPPort), tlsConfig)
+		conn, err := net.Dial("tcp", "smtp.office365.com:587")
 		if err != nil {
 			return err
 		}
@@ -66,14 +68,14 @@ func SendEmail(subject string, receiver string, content string) error {
 		if err != nil {
 			return err
 		}
-			if err = client.StartTLS(tlsconfig); err != nil {
-    return err
-}
-		auth := LoginAuth(SMTPAccount, SMTPToken) 
+		if err = client.StartTLS(tlsConfig); err != nil {
+    		return err
+		}
+	
 
-if err = client.Auth(auth); err != nil {
-    return err
-}
+	if err = client.Auth(auth); err != nil {
+		return err
+	}
 		defer client.Close()
 		if err = client.Auth(auth); err != nil {
 			return err
