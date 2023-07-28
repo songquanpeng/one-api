@@ -57,10 +57,21 @@ type BaiduChatStreamResponse struct {
 func requestOpenAI2Baidu(request GeneralOpenAIRequest) *BaiduChatRequest {
 	messages := make([]BaiduMessage, 0, len(request.Messages))
 	for _, message := range request.Messages {
-		messages = append(messages, BaiduMessage{
-			Role:    message.Role,
-			Content: message.Content,
-		})
+		if message.Role == "system" {
+			messages = append(messages, BaiduMessage{
+				Role:    "user",
+				Content: message.Content,
+			})
+			messages = append(messages, BaiduMessage{
+				Role:    "assistant",
+				Content: "Okay",
+			})
+		} else {
+			messages = append(messages, BaiduMessage{
+				Role:    message.Role,
+				Content: message.Content,
+			})
+		}
 	}
 	return &BaiduChatRequest{
 		Messages: messages,
