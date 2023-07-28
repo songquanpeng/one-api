@@ -34,7 +34,7 @@ func getDiscordUserInfoByCode(codeFromURLParamaters string, host string) (*Disco
 
 	accessTokenBody := bytes.NewBuffer([]byte(fmt.Sprintf(
 		"client_id=%s&client_secret=%s&grant_type=authorization_code&redirect_uri=https://%s/oauth/discord&code=%s&scope=identify",
-		common.DiscordClientId, common.DiscordClientSecret, host, codeFromURLParamaters,
+		common.DiscordClientId, common.DiscordClientSecret, common.ServerAddress, codeFromURLParamaters,
 	)))
 
 	req, _ := http.NewRequest("POST",
