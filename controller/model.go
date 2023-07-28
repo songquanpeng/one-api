@@ -324,6 +324,24 @@ func init() {
 			Root:       "chatglm_lite",
 			Parent:     nil,
 		},
+		{
+			Id:         "qwen-v1",
+			Object:     "model",
+			Created:    1677649963,
+			OwnedBy:    "ali",
+			Permission: permission,
+			Root:       "qwen-v1",
+			Parent:     nil,
+		},
+		{
+			Id:         "qwen-plus-v1",
+			Object:     "model",
+			Created:    1677649963,
+			OwnedBy:    "ali",
+			Permission: permission,
+			Root:       "qwen-plus-v1",
+			Parent:     nil,
+		},
 	}
 	openAIModelsMap = make(map[string]OpenAIModels)
 	for _, model := range openAIModels {
