@@ -35,8 +35,8 @@ func getGoogleUserInfoByCode(codeFromURLParamaters string, host string) (*Google
 	RequestClient := &http.Client{}
 
 	accessTokenBody := bytes.NewBuffer([]byte(fmt.Sprintf(
-		"code=%s&client_id=%s&client_secret=%s&redirect_uri=https://%s/oauth/google&grant_type=authorization_code",
-		codeFromURLParamaters, common.GoogleClientId, common.GoogleClientSecret, host,
+		"code=%s&client_id=%s&client_secret=%s&redirect_uri=%s/oauth/google&grant_type=authorization_code",
+		codeFromURLParamaters, common.GoogleClientId, common.GoogleClientSecret, common.ServerAddress,
 	)))
 
 	req, _ := http.NewRequest("POST",
