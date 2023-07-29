@@ -74,7 +74,7 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 	// map model name
 	modelMapping := c.GetString("model_mapping")
 	isModelMapped := false
-	if modelMapping != "" {
+	if modelMapping != "" && modelMapping != "{}" {
 		modelMap := make(map[string]string)
 		err := json.Unmarshal([]byte(modelMapping), &modelMap)
 		if err != nil {
