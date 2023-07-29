@@ -83,7 +83,7 @@ const EditToken = () => {
       if (isEdit) {
         showSuccess('令牌更新成功！');
       } else {
-        showSuccess('令牌创建成功！');
+        showSuccess('令牌创建成功，请在列表页面点击复制获取令牌！');
         setInputs(originInputs);
       }
     } else {

@@ -527,11 +527,9 @@
   "请选择可以使用该渠道的分组": "Please select the group that can use this channel",
   "请选择该渠道所支持的模型": "Please select the models supported by this channel",
   "填入": "Fill in",
-  "此项可选，用于修改请求体中的模型名称，为一个 JSON 字符串，键为请求中模型名称，值为要替换的模型名称，例如：": "This is optional, used to modify the model name in the request body, it's a JSON string, the key is the model name in the request, and the value is the model name to be replaced, for example:",
   "允许流式请求": "Allow streaming requests",
   "允许非流式请求": "Allow non-streaming requests",
   "请输入 access token，当前版本暂不支持自动刷新，请每 30 天更新一次": "Please enter the access token, the current version does not support automatic refresh, please update it every 30 days",
-  "请输入渠道对应的鉴权密钥": "Please enter the authentication key corresponding to the channel",
   "此项可选，用于通过Mirror站来进行 API 调用，请EnterMirror站地址，格式为：https://domain.com": "This is optional, used to make API calls through the Mirror site, please enter the Mirror site address, the format is: https://domain.com",
 
   "新密码": "New password",
@@ -571,5 +569,12 @@
   "失败重试次数": "Retry times",
   "保存": "Save",
   "输入您注册的 Discord OAuth APP 的 ID": "Enter the ID of your registered Discord OAuth APP",
-  "输入您注册的 Google OAuth APP 的 ID": "Enter the ID of your registered Google OAuth APP"
+  "输入您注册的 Google OAuth APP 的 ID": "Enter the ID of your registered Google OAuth APP",
+  "请为通道命名": "Please name the channel",
+  "此项可选，用于修改请求体中的模型名称，为一个 JSON 字符串，键为请求中模型名称，值为要替换的模型名称，例如：": "This is optional, used to modify the model name in the request body, it's a JSON string, the key is the model name in the request, and the value is the model name to be replaced, for example:",
+  "模型重定向": "Model redirection",
+  "请输入渠道对应的鉴权密钥": "Please enter the authentication key corresponding to the channel",
+  "注意，": "Note that, ",
+  "，图片演示。": "related image demo.",
+  "令牌创建成功，请在列表页面点击复制获取令牌！": "Token created successfully, please click copy on the list page to get the token!"
 }
