@@ -205,6 +205,10 @@ func xunfeiStreamHandler(c *gin.Context, textRequest GeneralOpenAIRequest, appId
 			}
 			dataChan <- response
 			if response.Payload.Choices.Status == 2 {
+				err := conn.Close()
+				if err != nil {
+					common.SysError("error closing websocket connection: " + err.Error())
+				}
 				break
 			}
 		}
