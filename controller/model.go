@@ -351,6 +351,15 @@ func init() {
 			Root:       "qwen-plus-v1",
 			Parent:     nil,
 		},
+		{
+			Id:         "SparkDesk",
+			Object:     "model",
+			Created:    1677649963,
+			OwnedBy:    "xunfei",
+			Permission: permission,
+			Root:       "SparkDesk",
+			Parent:     nil,
+		},
 	}
 	openAIModelsMap = make(map[string]OpenAIModels)
 	for _, model := range openAIModels {
