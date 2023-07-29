@@ -53,6 +53,9 @@ const EditChannel = () => {
         case 16:
           localModels = ['chatglm_pro', 'chatglm_std', 'chatglm_lite'];
           break;
+        case 18:
+          localModels = ['SparkDesk'];
+          break;
       }
       setInputs((inputs) => ({ ...inputs, models: localModels }));
     }
@@ -347,7 +350,7 @@ const EditChannel = () => {
                 label='密钥'
                 name='key'
                 required
-                placeholder={inputs.type === 15 ? '请输入 access token，当前版本暂不支持自动刷新，请每 30 天更新一次' : '请输入渠道对应的鉴权密钥'}
+                placeholder={inputs.type === 15 ? '请输入 access token，当前版本暂不支持自动刷新，请每 30 天更新一次' : (inputs.type === 18 ? '按照如下格式输入：APPID|APISecret|APIKey' : '请输入渠道对应的鉴权密钥')}
                 onChange={handleInputChange}
                 value={inputs.key}
                 autoComplete='new-password'
