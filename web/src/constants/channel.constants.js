@@ -5,7 +5,7 @@ export const CHANNEL_OPTIONS = [
   { key: 11, text: 'Google PaLM2', value: 11, color: 'orange' },
   { key: 15, text: '百度文心千帆', value: 15, color: 'blue' },
   { key: 17, text: '阿里通义千问', value: 17, color: 'orange' },
-  { key: 18, text: '讯飞星火认知大模型', value: 18, color: 'blue' },
+  { key: 18, text: '讯飞星火认知', value: 18, color: 'blue' },
   { key: 16, text: '智谱 ChatGLM', value: 16, color: 'violet' },
   { key: 8, text: '自定义渠道', value: 8, color: 'pink' },
   { key: 2, text: '代理：API2D', value: 2, color: 'blue' },
