@@ -78,6 +78,27 @@ func SendEmailVerification(c *gin.Context) {
 		})
 		return
 	}
+	    // 允许的邮箱后缀列表
+    allowedEmailSuffixes := []string{
+        "@163.com", "@qq.com", "@126.com", "@139.com", "@sina.com",
+        "@sohu.com", "@gmail.com", "@189.cn", "@yeah.net", "@foxmail.com",
+    } 
+
+    validSuffix := false
+    for _, suffix := range allowedEmailSuffixes {
+        if strings.HasSuffix(email, suffix) {
+            validSuffix = true
+            break
+        }
+    }
+
+    if !validSuffix {
+        c.JSON(http.StatusOK, gin.H{
+            "success": false,
+            "message": "不支持此邮箱",
+        })
+        return
+    }
 	if model.IsEmailAlreadyTaken(email) {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
