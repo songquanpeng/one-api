@@ -157,6 +157,7 @@ const (
 	ChannelTypeBaidu     = 15
 	ChannelTypeZhipu     = 16
 	ChannelTypeAli       = 17
+	ChannelTypeXunfei    = 18
 )
 
 var ChannelBaseURLs = []string{
@@ -178,4 +179,5 @@ var ChannelBaseURLs = []string{
 	"https://aip.baidubce.com",       // 15
 	"https://open.bigmodel.cn",       // 16
 	"https://dashscope.aliyuncs.com", // 17
+	"",                               // 18
 }

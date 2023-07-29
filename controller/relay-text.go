@@ -21,6 +21,7 @@ const (
 	APITypeBaidu
 	APITypeZhipu
 	APITypeAli
+	APITypeXunfei
 )
 
 var httpClient *http.Client
@@ -97,7 +98,8 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 		apiType = APITypeZhipu
 	case common.ChannelTypeAli:
 		apiType = APITypeAli
-
+	case common.ChannelTypeXunfei:
+		apiType = APITypeXunfei
 	}
 	baseURL := common.ChannelBaseURLs[channelType]
 	requestURL := c.Request.URL.String()
@@ -250,52 +252,60 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 		}
 		requestBody = bytes.NewBuffer(jsonStr)
 	}
-	req, err := http.NewRequest(c.Request.Method, fullRequestURL, requestBody)
-	if err != nil {
-		return errorWrapper(err, "new_request_failed", http.StatusInternalServerError)
-	}
-	apiKey := c.Request.Header.Get("Authorization")
-	apiKey = strings.TrimPrefix(apiKey, "Bearer ")
-	switch apiType {
-	case APITypeOpenAI:
-		if channelType == common.ChannelTypeAzure {
-			req.Header.Set("api-key", apiKey)
-		} else {
-			req.Header.Set("Authorization", c.Request.Header.Get("Authorization"))
+
+	var req *http.Request
+	var resp *http.Response
+	isStream := textRequest.Stream
+
+	if apiType != APITypeXunfei { // cause xunfei use websocket
+		req, err = http.NewRequest(c.Request.Method, fullRequestURL, requestBody)
+		if err != nil {
+			return errorWrapper(err, "new_request_failed", http.StatusInternalServerError)
 		}
-	case APITypeClaude:
-		req.Header.Set("x-api-key", apiKey)
-		anthropicVersion := c.Request.Header.Get("anthropic-version")
-		if anthropicVersion == "" {
-			anthropicVersion = "2023-06-01"
+		apiKey := c.Request.Header.Get("Authorization")
+		apiKey = strings.TrimPrefix(apiKey, "Bearer ")
+		switch apiType {
+		case APITypeOpenAI:
+			if channelType == common.ChannelTypeAzure {
+				req.Header.Set("api-key", apiKey)
+			} else {
+				req.Header.Set("Authorization", c.Request.Header.Get("Authorization"))
+			}
+		case APITypeClaude:
+			req.Header.Set("x-api-key", apiKey)
+			anthropicVersion := c.Request.Header.Get("anthropic-version")
+			if anthropicVersion == "" {
+				anthropicVersion = "2023-06-01"
+			}
+			req.Header.Set("anthropic-version", anthropicVersion)
+		case APITypeZhipu:
+			token := getZhipuToken(apiKey)
+			req.Header.Set("Authorization", token)
+		case APITypeAli:
+			req.Header.Set("Authorization", "Bearer "+apiKey)
+			if textRequest.Stream {
+				req.Header.Set("X-DashScope-SSE", "enable")
+			}
 		}
-		req.Header.Set("anthropic-version", anthropicVersion)
-	case APITypeZhipu:
-		token := getZhipuToken(apiKey)
-		req.Header.Set("Authorization", token)
-	case APITypeAli:
-		req.Header.Set("Authorization", "Bearer "+apiKey)
-		if textRequest.Stream {
-			req.Header.Set("X-DashScope-SSE", "enable")
+		req.Header.Set("Content-Type", c.Request.Header.Get("Content-Type"))
+		req.Header.Set("Accept", c.Request.Header.Get("Accept"))
+		//req.Header.Set("Connection", c.Request.Header.Get("Connection"))
+		resp, err = httpClient.Do(req)
+		if err != nil {
+			return errorWrapper(err, "do_request_failed", http.StatusInternalServerError)
 		}
+		err = req.Body.Close()
+		if err != nil {
+			return errorWrapper(err, "close_request_body_failed", http.StatusInternalServerError)
+		}
+		err = c.Request.Body.Close()
+		if err != nil {
+			return errorWrapper(err, "close_request_body_failed", http.StatusInternalServerError)
+		}
+		isStream = strings.HasPrefix(resp.Header.Get("Content-Type"), "text/event-stream")
 	}
-	req.Header.Set("Content-Type", c.Request.Header.Get("Content-Type"))
-	req.Header.Set("Accept", c.Request.Header.Get("Accept"))
-	//req.Header.Set("Connection", c.Request.Header.Get("Connection"))
-	resp, err := httpClient.Do(req)
-	if err != nil {
-		return errorWrapper(err, "do_request_failed", http.StatusInternalServerError)
-	}
-	err = req.Body.Close()
-	if err != nil {
-		return errorWrapper(err, "close_request_body_failed", http.StatusInternalServerError)
-	}
-	err = c.Request.Body.Close()
-	if err != nil {
-		return errorWrapper(err, "close_request_body_failed", http.StatusInternalServerError)
-	}
+
 	var textResponse TextResponse
-	isStream := strings.HasPrefix(resp.Header.Get("Content-Type"), "text/event-stream")
 	var streamResponseText string
 
 	defer func() {
@@ -469,6 +479,25 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 				textResponse.Usage = *usage
 			}
 			return nil
+		}
+	case APITypeXunfei:
+		if isStream {
+			auth := c.Request.Header.Get("Authorization")
+			auth = strings.TrimPrefix(auth, "Bearer ")
+			splits := strings.Split(auth, "|")
+			if len(splits) != 3 {
+				return errorWrapper(errors.New("invalid auth"), "invalid_auth", http.StatusBadRequest)
+			}
+			err, usage := xunfeiStreamHandler(c, textRequest, splits[0], splits[1], splits[2])
+			if err != nil {
+				return err
+			}
+			if usage != nil {
+				textResponse.Usage = *usage
+			}
+			return nil
+		} else {
+			return errorWrapper(errors.New("xunfei api does not support non-stream mode"), "invalid_api_type", http.StatusBadRequest)
 		}
 	default:
 		return errorWrapper(errors.New("unknown api type"), "unknown_api_type", http.StatusInternalServerError)
