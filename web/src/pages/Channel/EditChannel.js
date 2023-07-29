@@ -153,7 +153,10 @@ const EditChannel = () => {
       localInputs.base_url = localInputs.base_url.slice(0, localInputs.base_url.length - 1);
     }
     if (localInputs.type === 3 && localInputs.other === '') {
-      localInputs.other = '2023-03-15-preview';
+      localInputs.other = '2023-06-01-preview';
+    }
+    if (localInputs.model_mapping === '') {
+      localInputs.model_mapping = '{}';
     }
     let res;
     localInputs.models = localInputs.models.join(',');
@@ -213,7 +216,7 @@ const EditChannel = () => {
                   <Form.Input
                     label='默认 API 版本'
                     name='other'
-                    placeholder={'请输入默认 API 版本，例如：2023-03-15-preview，该配置可以被实际的请求查询参数所覆盖'}
+                    placeholder={'请输入默认 API 版本，例如：2023-06-01-preview，该配置可以被实际的请求查询参数所覆盖'}
                     onChange={handleInputChange}
                     value={inputs.other}
                     autoComplete='new-password'
@@ -318,7 +321,7 @@ const EditChannel = () => {
           </div>
           <Form.Field>
             <Form.TextArea
-              label='模型映射'
+              label='模型重定向'
               placeholder={`此项可选，用于修改请求体中的模型名称，为一个 JSON 字符串，键为请求中模型名称，值为要替换的模型名称，例如：\n${JSON.stringify(MODEL_MAPPING_EXAMPLE, null, 2)}`}
               name='model_mapping'
               onChange={handleInputChange}
