@@ -42,6 +42,7 @@ var ModelRatio = map[string]float64{
 	"claude-2":                30,
 	"ERNIE-Bot":               0.8572, // ￥0.012 / 1k tokens
 	"ERNIE-Bot-turbo":         0.5715, // ￥0.008 / 1k tokens
+	"Embedding-V1":            0.1429, // ￥0.002 / 1k tokens
 	"PaLM-2":                  1,
 	"chatglm_pro":             0.7143, // ￥0.01 / 1k tokens
 	"chatglm_std":             0.3572, // ￥0.005 / 1k tokens

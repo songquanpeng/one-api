@@ -139,6 +139,8 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 			fullRequestURL = "https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/eb-instant"
 		case "BLOOMZ-7B":
 			fullRequestURL = "https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/bloomz_7b1"
+		case "Embedding-V1":
+			fullRequestURL = "https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/embeddings/embedding-v1"
 		}
 		apiKey := c.Request.Header.Get("Authorization")
 		apiKey = strings.TrimPrefix(apiKey, "Bearer ")
@@ -212,12 +214,20 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 		}
 		requestBody = bytes.NewBuffer(jsonStr)
 	case APITypeBaidu:
-		baiduRequest := requestOpenAI2Baidu(textRequest)
-		jsonStr, err := json.Marshal(baiduRequest)
+		var jsonData []byte
+		var err error
+		switch relayMode {
+		case RelayModeEmbeddings:
+			baiduEmbeddingRequest := embeddingRequestOpenAI2Baidu(textRequest)
+			jsonData, err = json.Marshal(baiduEmbeddingRequest)
+		default:
+			baiduRequest := requestOpenAI2Baidu(textRequest)
+			jsonData, err = json.Marshal(baiduRequest)
+		}
 		if err != nil {
 			return errorWrapper(err, "marshal_text_request_failed", http.StatusInternalServerError)
 		}
-		requestBody = bytes.NewBuffer(jsonStr)
+		requestBody = bytes.NewBuffer(jsonData)
 	case APITypePaLM:
 		palmRequest := requestOpenAI2PaLM(textRequest)
 		jsonStr, err := json.Marshal(palmRequest)
@@ -386,7 +396,14 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 			}
 			return nil
 		} else {
-			err, usage := baiduHandler(c, resp)
+			var err *OpenAIErrorWithStatusCode
+			var usage *Usage
+			switch relayMode {
+			case RelayModeEmbeddings:
+				err, usage = baiduEmbeddingHandler(c, resp)
+			default:
+				err, usage = baiduHandler(c, resp)
+			}
 			if err != nil {
 				return err
 			}
