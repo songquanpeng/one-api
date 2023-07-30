@@ -127,7 +127,7 @@ const PersonalSetting = () => {
     }
     setLoading(true);
     const res = await API.get(
-      `/api/verification?email=${inputs.email}&turnstile=${turnstileToken}`
+      `/api/user/verification?email=${inputs.email}&turnstile=${turnstileToken}`
     );
     const { success, message } = res.data;
     if (success) {

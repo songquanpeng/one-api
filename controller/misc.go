@@ -70,7 +70,7 @@ func GetHomePageContent(c *gin.Context) {
 	return
 }
 
-func SendEmailVerification(c *gin.Context) {
+func SendEmailVerification(c *gin.Context, bypassRegisterEnabledCheck bool) {
 	email := c.Query("email")
 	if err := common.Validate.Var(email, "required,email"); err != nil {
 		c.JSON(http.StatusOK, gin.H{
@@ -86,7 +86,7 @@ func SendEmailVerification(c *gin.Context) {
 		})
 		return
 	}
-	if !common.RegisterEnabled {
+	if !common.RegisterEnabled && !bypassRegisterEnabledCheck {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
 			"message": "管理员关闭了新用户注册",
