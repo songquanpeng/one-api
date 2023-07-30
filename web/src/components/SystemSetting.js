@@ -306,6 +306,8 @@ const SystemSetting = () => {
               label='SMTP 访问凭证'
               name='SMTPToken'
               onChange={handleInputChange}
+              type='password'
+              autoComplete='new-password'
               checked={inputs.RegisterEnabled === 'true'}
               placeholder='敏感信息不会发送到前端显示'
             />
