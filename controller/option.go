@@ -51,7 +51,7 @@ func UpdateOption(c *gin.Context) {
 			return
 		}
 	case "EmailDomainRestrictionEnabled":
-		if option.Value == "true" && len(common.RestrictedEmailDomains) == 0 {
+		if option.Value == "true" && len(common.EmailDomainWhitelist) == 0 {
 			c.JSON(http.StatusOK, gin.H{
 				"success": false,
 				"message": "无法启用邮箱域名限制，请先填入限制的邮箱域名！",

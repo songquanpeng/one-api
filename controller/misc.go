@@ -81,15 +81,17 @@ func SendEmailVerification(c *gin.Context) {
 		return
 	}
 	if common.EmailDomainRestrictionEnabled {
-		allowedEmailDomains := common.RestrictedEmailDomains
-
-		// Check if email suffix is allowed
-		allowed := strings.Contains(strings.Join(allowedEmailDomains, ","), strings.Split(email, "@")[1])
-
+		allowed := false
+		for _, domain := range common.EmailDomainWhitelist {
+			if strings.HasSuffix(email, "@"+domain) {
+				allowed = true
+				break
+			}
+		}
 		if !allowed {
 			c.JSON(http.StatusOK, gin.H{
 				"success": false,
-				"message": "该邮箱地址不允许注册",
+				"message": "管理员启用了邮箱域名白名单，您的邮箱地址的域名不在白名单中",
 			})
 			return
 		}

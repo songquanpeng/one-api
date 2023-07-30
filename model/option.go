@@ -40,7 +40,7 @@ func InitOptionMap() {
 	common.OptionMap["DisplayTokenStatEnabled"] = strconv.FormatBool(common.DisplayTokenStatEnabled)
 	common.OptionMap["ChannelDisableThreshold"] = strconv.FormatFloat(common.ChannelDisableThreshold, 'f', -1, 64)
 	common.OptionMap["EmailDomainRestrictionEnabled"] = strconv.FormatBool(common.EmailDomainRestrictionEnabled)
-	common.OptionMap["RestrictedEmailDomains"] = strings.Join(common.RestrictedEmailDomains, ",")
+	common.OptionMap["EmailDomainWhitelist"] = strings.Join(common.EmailDomainWhitelist, ",")
 	common.OptionMap["SMTPServer"] = ""
 	common.OptionMap["SMTPFrom"] = ""
 	common.OptionMap["SMTPPort"] = strconv.Itoa(common.SMTPPort)
@@ -158,8 +158,8 @@ func updateOptionMap(key string, value string) (err error) {
 		}
 	}
 	switch key {
-	case "RestrictedEmailDomains":
-		common.RestrictedEmailDomains = strings.Split(value, ",")
+	case "EmailDomainWhitelist":
+		common.EmailDomainWhitelist = strings.Split(value, ",")
 	case "SMTPServer":
 		common.SMTPServer = value
 	case "SMTPPort":
