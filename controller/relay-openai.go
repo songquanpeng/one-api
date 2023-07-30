@@ -52,7 +52,9 @@ func openaiStreamHandler(c *gin.Context, resp *http.Response, relayMode int) (*O
 				}
 			}
 			if !strings.HasPrefix(data, "data:") {
-				continue
+				if data[:6] != "data: " && data[:6] != "[DONE]" {
+					continue
+				}
 			}
 			dataChan <- data
 			data = data[6:]
