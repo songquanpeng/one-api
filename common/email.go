@@ -60,7 +60,7 @@ func SendEmail(subject string, receiver string, content string) error {
 			ServerName:         SMTPServer,
 		}
 		//conn, err := tls.Dial("tcp", fmt.Sprintf("%s:%d", SMTPServer, SMTPPort), tlsConfig)
-		conn, err := net.Dial("tcp", "smtp.office365.com:587")
+		conn, err := net.Dial("tcp", fmt.Sprintf("%s:%d", SMTPServer, SMTPPort))
 		if err != nil {
 			return err
 		}
