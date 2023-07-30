@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Divider, Form, Grid, Header, Message } from 'semantic-ui-react';
-import { API, removeTrailingSlash, showError, verifyJSON } from '../helpers';
+import { Button, Divider, Form, Grid, Header, Input, Message } from 'semantic-ui-react';
+import { API, removeTrailingSlash, showError } from '../helpers';
 
 const SystemSetting = () => {
   let [inputs, setInputs] = useState({
@@ -26,9 +26,13 @@ const SystemSetting = () => {
     TurnstileSiteKey: '',
     TurnstileSecretKey: '',
     RegisterEnabled: '',
+    EmailDomainRestrictionEnabled: '',
+    RestrictedEmailDomains: ''
   });
   const [originInputs, setOriginInputs] = useState({});
   let [loading, setLoading] = useState(false);
+  const [restrictedEmailDomains, setRestrictedEmailDomains] = useState([]);
+  const [restrictedDomainInput, setRestrictedDomainInput] = useState('');
 
   const getOptions = async () => {
     const res = await API.get('/api/option/');
@@ -38,8 +42,15 @@ const SystemSetting = () => {
       data.forEach((item) => {
         newInputs[item.key] = item.value;
       });
-      setInputs(newInputs);
+      setInputs({
+        ...newInputs,
+        RestrictedEmailDomains: newInputs.RestrictedEmailDomains.split(',')
+      });
       setOriginInputs(newInputs);
+
+      setRestrictedEmailDomains(newInputs.RestrictedEmailDomains.split(',').map((item) => {
+        return { key: item, text: item, value: item };
+      }));
     } else {
       showError(message);
     }
@@ -58,6 +69,7 @@ const SystemSetting = () => {
       case 'GitHubOAuthEnabled':
       case 'WeChatAuthEnabled':
       case 'TurnstileCheckEnabled':
+      case 'EmailDomainRestrictionEnabled':
       case 'RegisterEnabled':
         value = inputs[key] === 'true' ? 'false' : 'true';
         break;
@@ -70,7 +82,12 @@ const SystemSetting = () => {
     });
     const { success, message } = res.data;
     if (success) {
-      setInputs((inputs) => ({ ...inputs, [key]: value }));
+      if (key === 'RestrictedEmailDomains') {
+        value = value.split(',');
+      }
+      setInputs((inputs) => ({
+        ...inputs, [key]: value
+      }));
     } else {
       showError(message);
     }
@@ -88,7 +105,8 @@ const SystemSetting = () => {
       name === 'WeChatServerToken' ||
       name === 'WeChatAccountQRCodeImageURL' ||
       name === 'TurnstileSiteKey' ||
-      name === 'TurnstileSecretKey'
+      name === 'TurnstileSecretKey' ||
+      name === 'RestrictedEmailDomains'
     ) {
       setInputs((inputs) => ({ ...inputs, [name]: value }));
     } else {
@@ -122,6 +140,12 @@ const SystemSetting = () => {
       inputs.SMTPToken !== ''
     ) {
       await updateOption('SMTPToken', inputs.SMTPToken);
+    }
+    if (
+      originInputs['RestrictedEmailDomains'] !== inputs.RestrictedEmailDomains.join(',') &&
+      inputs.SMTPToken !== ''
+    ) {
+      await updateOption('RestrictedEmailDomains', inputs.RestrictedEmailDomains.join(','));
     }
   };
 
@@ -282,10 +306,56 @@ const SystemSetting = () => {
               label='SMTP 访问凭证'
               name='SMTPToken'
               onChange={handleInputChange}
-              type='password'
-              autoComplete='new-password'
-              value={inputs.SMTPToken}
+              checked={inputs.RegisterEnabled === 'true'}
               placeholder='敏感信息不会发送到前端显示'
+            />
+          </Form.Group>
+          <Form.Group widths={3}>
+            <Form.Checkbox
+              label='电子邮件域名限制'
+              name='EmailDomainRestrictionEnabled'
+              onChange={handleInputChange}
+              checked={inputs.EmailDomainRestrictionEnabled === 'true'}
+            />
+          </Form.Group>
+          <Form.Group widths={3}>
+            <Form.Dropdown
+              label='受限电子邮件域名'
+              placeholder='受限电子邮件域名'
+              name='RestrictedEmailDomains'
+              required
+              fluid
+              multiple
+              selection
+              onChange={handleInputChange}
+              value={inputs.RestrictedEmailDomains}
+              autoComplete='new-password'
+              options={restrictedEmailDomains}
+            />
+            <Form.Input
+              label='添加受限电子邮件域名'
+              action={
+                <Button type='button' onClick={() => {
+                  const localDomainList = inputs.RestrictedEmailDomains;
+                  if (restrictedDomainInput !== '' && !localDomainList.includes(restrictedDomainInput)) {
+                    setRestrictedDomainInput('');
+                    setInputs({
+                      ...inputs,
+                      RestrictedEmailDomains: [...localDomainList, restrictedDomainInput],
+                    });
+                    setRestrictedEmailDomains([...restrictedEmailDomains, {
+                      key: restrictedDomainInput,
+                      text: restrictedDomainInput,
+                      value: restrictedDomainInput,
+                    }]);
+                  }
+                }}>填入</Button>
+              }
+              placeholder='输入受限电子邮件域名'
+              value={restrictedDomainInput}
+              onChange={(e, { value }) => {
+                setRestrictedDomainInput(value);
+              }}
             />
           </Form.Group>
           <Form.Button onClick={submitSMTP}>保存 SMTP 设置</Form.Button>

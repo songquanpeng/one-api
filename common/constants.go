@@ -42,6 +42,17 @@ var WeChatAuthEnabled = false
 var TurnstileCheckEnabled = false
 var RegisterEnabled = true
 
+var EmailDomainRestrictionEnabled = false
+var RestrictedEmailDomains = []string{
+	"gmail.com",
+	"163.com",
+	"qq.com",
+	"outlook.com",
+	"hotmail.com",
+	"icloud.com",
+	"yahoo.com",
+}
+
 var LogConsumeEnabled = true
 
 var SMTPServer = ""
