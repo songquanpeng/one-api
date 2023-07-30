@@ -1,35 +1,54 @@
 body {
-    margin: 0;
-    padding-top: 55px;
-    overflow-y: scroll;
-    font-family: Lato, 'Helvetica Neue', Arial, Helvetica, "Microsoft YaHei", sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    scrollbar-width: none;
+  margin: 0;
+  padding-top: 55px;
+  overflow-y: scroll;
+  font-family: Lato, 'Helvetica Neue', Arial, Helvetica, 'Microsoft YaHei',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  scrollbar-width: none;
 }
 
 body::-webkit-scrollbar {
-    display: none;
+  display: none;
 }
 
 code {
-    font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
 }
 
 .main-content {
-    padding: 4px;
+  padding: 4px;
 }
 
 .small-icon .icon {
-    font-size: 1em !important;
+  font-size: 1em !important;
 }
 
 .custom-footer {
-    font-size: 1.1em;
+  font-size: 1.1em;
 }
 
 @media only screen and (max-width: 600px) {
-    .hide-on-mobile {
-        display: none !important;
-    }
+  .hide-on-mobile {
+    display: none !important;
+  }
+}
+
+.scrollable-tabs .menu {
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+.scrollable-tabs .menu .item {
+  white-space: nowrap;
+  flex: 0 0 auto;
+}
+
+.scrollable-tabs .menu .item.active {
+  border-bottom: none;
 }
