@@ -94,7 +94,7 @@ _✨ 通过标准的 OpenAI API 格式访问所有的大模型，开箱即用 �
 19. 支持通过系统访问令牌访问管理 API。
 20. 支持 Cloudflare Turnstile 用户校验。
 21. 支持用户管理，支持**多种用户登录注册方式**：
-    + 邮箱登录注册以及通过邮箱进行密码重置。
+    + 邮箱登录注册（支持注册邮箱白名单）以及通过邮箱进行密码重置。
     + [GitHub 开放授权](https://github.com/settings/applications/new)。
     + 微信公众号授权（需要额外部署 [WeChat Server](https://github.com/songquanpeng/wechat-server)）。
 
