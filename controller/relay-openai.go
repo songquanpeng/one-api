@@ -46,7 +46,7 @@ func openaiStreamHandler(c *gin.Context, resp *http.Response, relayMode int) (*O
 					err := json.Unmarshal([]byte(data), &streamResponse)
 					if err != nil {
 						common.SysError("error unmarshalling stream response: " + err.Error())
-						return
+						continue // just ignore the error
 					}
 					for _, choice := range streamResponse.Choices {
 						responseText += choice.Delta.Content
@@ -56,7 +56,7 @@ func openaiStreamHandler(c *gin.Context, resp *http.Response, relayMode int) (*O
 					err := json.Unmarshal([]byte(data), &streamResponse)
 					if err != nil {
 						common.SysError("error unmarshalling stream response: " + err.Error())
-						return
+						continue
 					}
 					for _, choice := range streamResponse.Choices {
 						responseText += choice.Text
