@@ -2,11 +2,12 @@ package controller
 
 import (
 	"encoding/json"
-	"github.com/gin-gonic/gin"
 	"net/http"
 	"one-api/common"
 	"one-api/model"
 	"strings"
+
+	"github.com/gin-gonic/gin"
 )
 
 func GetOptions(c *gin.Context) {
@@ -46,6 +47,14 @@ func UpdateOption(c *gin.Context) {
 			c.JSON(http.StatusOK, gin.H{
 				"success": false,
 				"message": "无法启用 GitHub OAuth，请先填入 GitHub Client ID 以及 GitHub Client Secret！",
+			})
+			return
+		}
+	case "EmailDomainRestrictionEnabled":
+		if option.Value == "true" && len(common.EmailDomainWhitelist) == 0 {
+			c.JSON(http.StatusOK, gin.H{
+				"success": false,
+				"message": "无法启用邮箱域名限制，请先填入限制的邮箱域名！",
 			})
 			return
 		}
