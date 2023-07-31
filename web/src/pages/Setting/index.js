@@ -47,7 +47,7 @@ const Setting = () => {
 
   return (
     <Segment>
-      <Tab menu={{ secondary: true, pointing: true }} panes={panes} />
+      <Tab menu={{ secondary: true, pointing: true }} panes={panes} className="scrollable-tabs" />
     </Segment>
   );
 };
