@@ -521,6 +521,21 @@
   "无法复制到剪贴板，请手动复制，已将兑换码填入搜索框。": "Unable to copy to clipboard, please copy manually, the redemption code has been filled in the search box.",
   "密码重置完成": "Password reset completed",
 
+  "阿里通义千问": "Aliyun Tongyi",
+  "讯飞星火认知": "Xfyun Xinghuo",
+  "点击更新": "Click to update",
+  "配置邮箱域名白名单": "Configure email domain whitelist",
+  "用以防止恶意用户利用临时邮箱批量注册": "To prevent malicious users from registering in batches using temporary mailboxes",
+  "启用邮箱域名白名单": "Enable email domain whitelist",
+  "允许的邮箱域名": "Allowed email domain",
+  "添加新的允许的邮箱域名": "Add a new allowed email domain",
+  "输入新的允许的邮箱域名": "Enter a new allowed email domain",
+  "保存邮箱域名白名单设置": "Save email domain whitelist settings",
+  "请输入默认 API 版本，例如：2023-06-01-preview，该配置可以被实际的请求查询参数所覆盖": "Please enter the default API version, for example: 2023-06-01-preview, this configuration can be overridden by the actual request query parameters",
+  "按照如下格式输入：APPID|APISecret|APIKey": "Enter in the following format: APPID|APISecret|APIKey",
+  "管理员启用了邮箱域名白名单，您的邮箱地址的域名不在白名单中": "The administrator has enabled the email domain whitelist, and the domain name of your email address is not in the whitelist",
+  "无法启用邮箱域名限制，请先填入限制的邮箱域名！": "Unable to enable email domain restriction, please fill in the restricted email domain first!",
+
   "流式请求和非流式请求不能同时禁用！": "Streaming requests and non-streaming requests cannot be disabled at the same time!",
 
   "请为渠道命名": "Please name the channel",
