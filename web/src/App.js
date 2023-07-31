@@ -255,7 +255,6 @@ function App() {
         element={
           <Suspense fallback={<Loading></Loading>}>
             <GoogleOAuth />
-            support-google-oauth
           </Suspense>
         }
       />
