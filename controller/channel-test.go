@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 	"one-api/common"
 	"one-api/model"
@@ -64,6 +65,8 @@ func testChannel(channel *model.Channel, request ChatRequest) (error, *OpenAIErr
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
+		// Log: Channel (channel_id) Request Error (StatusCode)
+		log.Print(fmt.Sprintf("Channel (%d) Request Error (%d)", channel.Id, resp.StatusCode))
 		return errors.New(fmt.Sprintf("status code %d", resp.StatusCode)), nil
 	}
 
