@@ -35,12 +35,6 @@ func GetRandomSatisfiedChannel(group string, model string, stream bool) (*Channe
 	if common.UsingSQLite || common.UsingPostgreSQL {
 		err = DB.Where(cmd, group, model).Order("RANDOM()").Limit(1).First(&ability).Error
 	} else {
-		cmd += fmt.Sprintf(" and allow_non_streaming = %d", common.ChannelAllowNonStreamEnabled)
-	}
-
-	if common.UsingSQLite {
-		err = DB.Where(cmd, group, model).Order("RANDOM()").Limit(1).First(&ability).Error
-	} else {
 		err = DB.Where(cmd, group, model).Order("RAND()").Limit(1).First(&ability).Error
 	}
 	if err != nil {

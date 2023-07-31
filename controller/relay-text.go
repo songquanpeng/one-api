@@ -307,6 +307,7 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 	if resp.StatusCode != http.StatusOK {
 		return errorWrapper(nil, "bad_status_code", resp.StatusCode)
 	}
+
 	var textResponse TextResponse
 
 	defer func() {
