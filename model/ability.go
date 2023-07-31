@@ -26,7 +26,7 @@ func GetRandomSatisfiedChannel(group string, model string) (*Channel, error) {
 	if common.UsingSQLite || common.UsingPostgreSQL {
 		err = DB.Where(cmd, group, model).Order("RANDOM()").Limit(1).First(&ability).Error
 	} else {
-		err = DB.Where("`group` = ? and model = ? and enabled = 1", group, model).Order("RAND()").Limit(1).First(&ability).Error
+		err = DB.Where(cmd, group, model).Order("RAND()").Limit(1).First(&ability).Error
 	}
 	if err != nil {
 		return nil, err
