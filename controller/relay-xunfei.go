@@ -63,16 +63,16 @@ type XunfeiChatResponse struct {
 			Seq    int                          `json:"seq"`
 			Text   []XunfeiChatResponseTextItem `json:"text"`
 		} `json:"choices"`
+		Usage struct {
+			//Text struct {
+			//	QuestionTokens   string `json:"question_tokens"`
+			//	PromptTokens     string `json:"prompt_tokens"`
+			//	CompletionTokens string `json:"completion_tokens"`
+			//	TotalTokens      string `json:"total_tokens"`
+			//} `json:"text"`
+			Text Usage `json:"text"`
+		} `json:"usage"`
 	} `json:"payload"`
-	Usage struct {
-		//Text struct {
-		//	QuestionTokens   string `json:"question_tokens"`
-		//	PromptTokens     string `json:"prompt_tokens"`
-		//	CompletionTokens string `json:"completion_tokens"`
-		//	TotalTokens      string `json:"total_tokens"`
-		//} `json:"text"`
-		Text Usage `json:"text"`
-	} `json:"usage"`
 }
 
 func requestOpenAI2Xunfei(request GeneralOpenAIRequest, xunfeiAppId string) *XunfeiChatRequest {
@@ -123,7 +123,7 @@ func responseXunfei2OpenAI(response *XunfeiChatResponse) *OpenAITextResponse {
 		Object:  "chat.completion",
 		Created: common.GetTimestamp(),
 		Choices: []OpenAITextResponseChoice{choice},
-		Usage:   response.Usage.Text,
+		Usage:   response.Payload.Usage.Text,
 	}
 	return &fullTextResponse
 }
@@ -222,9 +222,9 @@ func xunfeiStreamHandler(c *gin.Context, textRequest GeneralOpenAIRequest, appId
 	c.Stream(func(w io.Writer) bool {
 		select {
 		case xunfeiResponse := <-dataChan:
-			usage.PromptTokens += xunfeiResponse.Usage.Text.PromptTokens
-			usage.CompletionTokens += xunfeiResponse.Usage.Text.CompletionTokens
-			usage.TotalTokens += xunfeiResponse.Usage.Text.TotalTokens
+			usage.PromptTokens += xunfeiResponse.Payload.Usage.Text.PromptTokens
+			usage.CompletionTokens += xunfeiResponse.Payload.Usage.Text.CompletionTokens
+			usage.TotalTokens += xunfeiResponse.Payload.Usage.Text.TotalTokens
 			response := streamResponseXunfei2OpenAI(&xunfeiResponse)
 			jsonResponse, err := json.Marshal(response)
 			if err != nil {
