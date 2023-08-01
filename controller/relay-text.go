@@ -102,7 +102,7 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 		apiType = APITypeXunfei
 	}
 	baseURL := common.ChannelBaseURLs[channelType]
-	requestURL := c.Request.URL.String()
+	requestURL := c.Request.URL.Path
 	if c.GetString("base_url") != "" {
 		baseURL = c.GetString("base_url")
 	}
