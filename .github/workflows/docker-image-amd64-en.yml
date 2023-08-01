@@ -27,18 +27,18 @@ jobs:
       - name: Translate
         run: |
           python ./i18n/translate.py --repository_path . --json_file_path ./i18n/en.json
-      - name: Log in to Docker Hub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+#      - name: Log in to Docker Hub
+#        uses: docker/login-action@v2
+#        with:
+#          username: ${{ secrets.DOCKERHUB_USERNAME }}
+#          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Extract metadata (tags, labels) for Docker
         id: meta
         uses: docker/metadata-action@v4
         with:
           images: |
-            justsong/one-api-en
+            pzpupu/one-api-en
 
       - name: Build and push Docker images
         uses: docker/build-push-action@v3
