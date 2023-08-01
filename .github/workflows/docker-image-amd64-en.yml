@@ -37,8 +37,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v4
         with:
-          images: |
-            pzpupu/one-api-en
+          images: ghcr.io/${{ github.repository }}-en
 
       - name: Build and push Docker images
         uses: docker/build-push-action@v3
