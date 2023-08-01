@@ -210,15 +210,16 @@ func zhipuStreamHandler(c *gin.Context, resp *http.Response) (*OpenAIErrorWithSt
 			data := scanner.Text()
 			lines := strings.Split(data, "\n")
 			for i, line := range lines {
-				if len(line) >= 5 {
-					if line[:5] == "data:" {
-						dataChan <- line[5:]
-						if i != len(lines)-1 {
-							dataChan <- "\n"
-						}
-					} else if line[:5] == "meta:" {
-						metaChan <- line[5:]
+				if len(line) < 5 {
+					continue
+				}
+				if line[:5] == "data:" {
+					dataChan <- line[5:]
+					if i != len(lines)-1 {
+						dataChan <- "\n"
 					}
+				} else if line[:5] == "meta:" {
+					metaChan <- line[5:]
 				}
 			}
 		}
