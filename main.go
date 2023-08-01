@@ -2,9 +2,6 @@ package main
 
 import (
 	"embed"
-	"github.com/gin-contrib/sessions"
-	"github.com/gin-contrib/sessions/cookie"
-	"github.com/gin-gonic/gin"
 	"one-api/common"
 	"one-api/controller"
 	"one-api/middleware"
@@ -12,6 +9,11 @@ import (
 	"one-api/router"
 	"os"
 	"strconv"
+
+	"github.com/getsentry/sentry-go"
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-contrib/sessions/cookie"
+	"github.com/gin-gonic/gin"
 )
 
 //go:embed web/build
@@ -21,6 +23,14 @@ var buildFS embed.FS
 var indexPage []byte
 
 func main() {
+	sentrDSN := os.Getenv("SENTRY_DSN")
+	if sentrDSN != "" {
+		sentry.Init(sentry.ClientOptions{
+			Dsn:              sentrDSN,
+			TracesSampleRate: 0.1,
+		})
+	}
+
 	common.SetupGinLog()
 	common.SysLog("One API " + common.Version + " started")
 	if os.Getenv("GIN_MODE") != "debug" {
