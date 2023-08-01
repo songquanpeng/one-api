@@ -173,7 +173,7 @@ If you encounter a blank page after deployment, refer to [#97](https://github.co
 <summary><strong>Deploy on Sealos</strong></summary>
 <div>
 
-Please refer to [this tutorial](https://github.com/c121914yu/FastGPT/blob/main/docs/deploy/one-api/sealos.md).
+[![](web/public/Deploy-On-Sealos-W-1x.png)](https://cloud.sealos.io/?openapp=system-fastdeploy?templateName=one-api)
 
 </div>
 </details>
