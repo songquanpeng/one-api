@@ -194,8 +194,8 @@ func zhipuStreamHandler(c *gin.Context, resp *http.Response) (*OpenAIErrorWithSt
 		if atEOF && len(data) == 0 {
 			return 0, nil, nil
 		}
-		if i := strings.Index(string(data), "\n"); i >= 0 {
-			return i + 1, data[0:i], nil
+		if i := strings.Index(string(data), "\n\n"); i >= 0 && strings.Index(string(data), ":") >= 0 {
+			return i + 2, data[0:i], nil
 		}
 		if atEOF {
 			return len(data), data, nil
@@ -208,14 +208,18 @@ func zhipuStreamHandler(c *gin.Context, resp *http.Response) (*OpenAIErrorWithSt
 	go func() {
 		for scanner.Scan() {
 			data := scanner.Text()
-			data = strings.Trim(data, "\"")
-			if len(data) < 5 { // ignore blank line or wrong format
-				continue
-			}
-			if data[:5] == "data:" {
-				dataChan <- data[5:]
-			} else if data[:5] == "meta:" {
-				metaChan <- data[5:]
+			lines := strings.Split(data, "\n")
+			for i, line := range lines {
+				if len(line) >= 5 {
+					if line[:5] == "data:" {
+						dataChan <- line[5:]
+						if i != len(lines)-1 {
+							dataChan <- "\n"
+						}
+					} else if line[:5] == "meta:" {
+						metaChan <- line[5:]
+					}
+				}
 			}
 		}
 		stopChan <- true
