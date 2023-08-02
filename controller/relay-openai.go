@@ -92,7 +92,7 @@ func openaiStreamHandler(c *gin.Context, resp *http.Response, relayMode int) (*O
 	return nil, responseText
 }
 
-func openaiHandler(c *gin.Context, resp *http.Response, consumeQuota bool) (*OpenAIErrorWithStatusCode, *Usage) {
+func openaiHandler(c *gin.Context, resp *http.Response, consumeQuota bool, promptTokens int, model string) (*OpenAIErrorWithStatusCode, *Usage) {
 	var textResponse TextResponse
 	if consumeQuota {
 		responseBody, err := io.ReadAll(resp.Body)
@@ -131,6 +131,18 @@ func openaiHandler(c *gin.Context, resp *http.Response, consumeQuota bool) (*Ope
 	err = resp.Body.Close()
 	if err != nil {
 		return errorWrapper(err, "close_response_body_failed", http.StatusInternalServerError), nil
+	}
+
+	if textResponse.Usage.TotalTokens == 0 {
+		completionTokens := 0
+		for _, choice := range textResponse.Choices {
+			completionTokens += countTokenText(choice.Message.Content, model)
+		}
+		textResponse.Usage = Usage{
+			PromptTokens:     promptTokens,
+			CompletionTokens: completionTokens,
+			TotalTokens:      promptTokens + completionTokens,
+		}
 	}
 	return nil, &textResponse.Usage
 }

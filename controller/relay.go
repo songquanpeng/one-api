@@ -81,8 +81,9 @@ type OpenAIErrorWithStatusCode struct {
 }
 
 type TextResponse struct {
-	Usage `json:"usage"`
-	Error OpenAIError `json:"error"`
+	Choices []OpenAITextResponseChoice `json:"choices"`
+	Usage   `json:"usage"`
+	Error   OpenAIError `json:"error"`
 }
 
 type OpenAITextResponseChoice struct {
