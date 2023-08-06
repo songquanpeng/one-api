@@ -153,7 +153,7 @@ sudo service nginx restart
    cd one-api/web
    npm install
    npm run build
-
+   
    # 构建后端
    cd ..
    go mod download
@@ -211,9 +211,11 @@ docker run --name chatgpt-web -d -p 3002:3002 -e OPENAI_API_BASE_URL=https://ope
 <summary><strong>部署到 Sealos </strong></summary>
 <div>
 
-> Sealos 可视化一键部署。
+> Sealos 的服务器在国外，不需要额外处理网络问题，支持高并发 & 动态伸缩。
 
-[![](https://raw.githubusercontent.com/labring-actions/templates/main/Deploy-on-Sealos.svg)](https://cloud.sealos.io/?openapp=system-fastdeploy?templateName=one-api)
+点击以下按钮一键部署：
+
+[![Deploy-on-Sealos.svg](https://raw.githubusercontent.com/labring-actions/templates/main/Deploy-on-Sealos.svg)](https://cloud.sealos.io/?openapp=system-fastdeploy?templateName=one-api)
 
 </div>
 </details>
