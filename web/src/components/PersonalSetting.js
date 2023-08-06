@@ -78,7 +78,7 @@ const PersonalSetting = () => {
       setAffLink(link);
       setSystemToken("");
       await copy(link);
-      showNotice(`邀请链接已复制到剪切板`);
+      showSuccess(`邀请链接已复制到剪切板`);
     } else {
       showError(message);
     }
@@ -87,13 +87,13 @@ const PersonalSetting = () => {
   const handleAffLinkClick = async (e) => {
     e.target.select();
     await copy(e.target.value);
-    showNotice(`邀请链接已复制到剪切板`);
+    showSuccess(`邀请链接已复制到剪切板`);
   };
 
   const handleSystemTokenClick = async (e) => {
     e.target.select();
     await copy(e.target.value);
-    showNotice(`系统令牌已复制到剪切板`);
+    showSuccess(`系统令牌已复制到剪切板`);
   };
 
   const deleteAccount = async () => {

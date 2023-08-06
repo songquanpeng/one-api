@@ -153,8 +153,8 @@ const EditToken = () => {
           <Button type={'button'} onClick={() => {
             setUnlimitedQuota();
           }}>{unlimited_quota ? '取消无限额度' : '设为无限额度'}</Button>
-          <Button positive onClick={submit}>提交</Button>
-          <Button onClick={handleCancel}>取消</Button>
+          <Button floated='right' positive onClick={submit}>提交</Button>
+          <Button floated='right' onClick={handleCancel}>取消</Button>
         </Form>
       </Segment>
     </>
