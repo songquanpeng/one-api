@@ -12,6 +12,11 @@ const COPY_OPTIONS = [
   { key: 'opencat', text: 'OpenCat', value: 'opencat' },
 ];
 
+const OPEN_LINK_OPTIONS = [
+  { key: 'ama', text: 'AMA 问天', value: 'ama' },
+  { key: 'opencat', text: 'OpenCat', value: 'opencat' },
+];
+
 function renderTimestamp(timestamp) {
   return (
     <>
@@ -87,6 +92,15 @@ const TokensTable = () => {
       serverAddress = window.location.origin;
     }
     let encodedServerAddress = encodeURIComponent(serverAddress);
+    const nextLink = localStorage.getItem('chat_link');
+    let nextUrl;
+  
+    if (nextLink) {
+      nextUrl = nextLink + `/#/?settings={"key":"sk-${key}"}`;
+    } else {
+      nextUrl = `https://chat.oneapi.pro/#/?settings={"key":"sk-${key}","url":"${serverAddress}"}`;
+    }
+
     let url;
     switch (type) {
       case 'ama':
@@ -96,7 +110,7 @@ const TokensTable = () => {
         url = `opencat://team/join?domain=${encodedServerAddress}&token=sk-${key}`;
         break;
       case 'next':
-        url = `https://chat.oneapi.pro/#/?settings=%7B%22key%22:%22sk-${key}%22,%22url%22:%22${serverAddress}%22%7D`;
+        url = nextUrl;
         break;
       default:
         url = `sk-${key}`;
@@ -108,6 +122,42 @@ const TokensTable = () => {
       setSearchKeyword(url);
     }
   };
+
+  const onOpenLink = async (type, key) => {
+    let status = localStorage.getItem('status');
+    let serverAddress = '';
+    if (status) {
+      status = JSON.parse(status);
+      serverAddress = status.server_address; 
+    }
+    if (serverAddress === '') {
+      serverAddress = window.location.origin;
+    }
+    let encodedServerAddress = encodeURIComponent(serverAddress);
+    const chatLink = localStorage.getItem('chat_link');
+    let defaultUrl;
+  
+    if (chatLink) {
+      defaultUrl = chatLink + `/#/?settings={"key":"sk-${key}"}`;
+    } else {
+      defaultUrl = `https://chat.oneapi.pro/#/?settings={"key":"sk-${key}","url":"${serverAddress}"}`;
+    }
+    let url;
+    switch (type) {
+      case 'ama':
+        url = `ama://set-api-key?server=${encodedServerAddress}&key=sk-${key}`;
+        break;
+  
+      case 'opencat':
+        url = `opencat://team/join?domain=${encodedServerAddress}&token=sk-${key}`;
+        break;
+        
+      default:
+        url = defaultUrl;
+    }
+  
+    window.open(url, '_blank');
+  }
 
   useEffect(() => {
     loadTokens(0)
@@ -274,26 +324,49 @@ const TokensTable = () => {
                   <Table.Cell>{token.expired_time === -1 ? '永不过期' : renderTimestamp(token.expired_time)}</Table.Cell>
                   <Table.Cell>
                     <div>
-                      <Button.Group color='green' size={'small'}>
+                    <Button.Group color='green' size={'small'}>
                         <Button
                           size={'small'}
                           positive
                           onClick={async () => {
                             await onCopy('', token.key);
-                          }
-                          }
+                          }}
                         >
                           复制
                         </Button>
                         <Dropdown
                           className='button icon'
                           floating
-                          options={COPY_OPTIONS}
-                          onChange={async (e, { value } = {}) => {
-                            await onCopy(value, token.key);
-                          }}
+                          options={COPY_OPTIONS.map(option => ({
+                            ...option,
+                            onClick: async () => {
+                              await onCopy(option.value, token.key);
+                            }
+                          }))}
                           trigger={<></>}
                         />
+                      </Button.Group>
+                      {' '}
+                      <Button.Group color='blue' size={'small'}>
+                        <Button
+                            size={'small'}
+                            positive
+                            onClick={() => {     
+                              onOpenLink('', token.key);       
+                            }}>
+                            对话
+                          </Button>
+                          <Dropdown   
+                            className="button icon"       
+                            floating
+                            options={OPEN_LINK_OPTIONS.map(option => ({
+                              ...option,
+                              onClick: async () => {
+                                await onOpenLink(option.value, token.key);
+                              }
+                            }))}       
+                            trigger={<></>}   
+                          />
                       </Button.Group>
                       {' '}
                       <Popup
