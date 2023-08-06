@@ -173,7 +173,7 @@ If you encounter a blank page after deployment, refer to [#97](https://github.co
 <summary><strong>Deploy on Sealos</strong></summary>
 <div>
 
-> Sealos has servers located abroad, so no VPN is needed. It supports high concurrency, dynamic scaling, and stable operations for millions of users.
+> Sealos supports high concurrency, dynamic scaling, and stable operations for millions of users.
 
 > Click the button below to deploy with one click.👇
 
