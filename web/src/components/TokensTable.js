@@ -96,7 +96,7 @@ const TokensTable = () => {
         url = `opencat://team/join?domain=${encodedServerAddress}&token=sk-${key}`;
         break;
       case 'next':
-        url = `https://chatgpt1.nextweb.fun/#/?settings=%7B%22key%22:%22sk-${key}%22,%22url%22:%22${serverAddress}%22%7D`;
+        url = `https://chat.oneapi.pro/#/?settings=%7B%22key%22:%22sk-${key}%22,%22url%22:%22${serverAddress}%22%7D`;
         break;
       default:
         url = `sk-${key}`;
