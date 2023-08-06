@@ -362,7 +362,7 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 			textResponse.Usage.CompletionTokens = countTokenText(responseText, textRequest.Model)
 			return nil
 		} else {
-			err, usage := openaiHandler(c, resp, consumeQuota)
+			err, usage := openaiHandler(c, resp, consumeQuota, promptTokens, textRequest.Model)
 			if err != nil {
 				return err
 			}
