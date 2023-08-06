@@ -302,7 +302,7 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 		if err != nil {
 			return errorWrapper(err, "close_request_body_failed", http.StatusInternalServerError)
 		}
-		isStream = strings.HasPrefix(resp.Header.Get("Content-Type"), "text/event-stream")
+		isStream = isStream || strings.HasPrefix(resp.Header.Get("Content-Type"), "text/event-stream")
 	}
 
 	var textResponse TextResponse
