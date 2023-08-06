@@ -1,10 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Form, Label, Modal, Pagination, Popup, Table, Dropdown } from 'semantic-ui-react';
+import { Button, Dropdown, Form, Label, Pagination, Popup, Table } from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
 import { API, copy, showError, showSuccess, showWarning, timestamp2string } from '../helpers';
 
 import { ITEMS_PER_PAGE } from '../constants';
 import { renderQuota } from '../helpers/render';
+
+const COPY_OPTIONS = [
+  { key: 'next', text: 'ChatGPT Next Web', value: 'next' },
+  { key: 'ama', text: 'AMA 问天', value: 'ama' },
+  { key: 'opencat', text: 'OpenCat', value: 'opencat' },
+];
 
 function renderTimestamp(timestamp) {
   return (
@@ -68,25 +74,32 @@ const TokensTable = () => {
   const refresh = async () => {
     setLoading(true);
     await loadTokens(activePage - 1);
-  }
+  };
 
-  const onCopy = async (type,key)=>{
+  const onCopy = async (type, key) => {
     let status = localStorage.getItem('status');
-    let server_address="";
+    let serverAddress = '';
     if (status) {
       status = JSON.parse(status);
-      server_address = encodeURIComponent(status.server_address)
+      serverAddress = status.server_address;
     }
+    if (serverAddress === '') {
+      serverAddress = window.location.origin;
+    }
+    let encodedServerAddress = encodeURIComponent(serverAddress);
     let url;
-    switch (type){
+    switch (type) {
       case 'ama':
-        url=`ama://set-api-key?server=${server_address}&key=sk-${key}`
+        url = `ama://set-api-key?server=${encodedServerAddress}&key=sk-${key}`;
         break;
       case 'opencat':
-        url=`opencat://team/join?domain=${server_address}&token=sk-${key}`
-        break
+        url = `opencat://team/join?domain=${encodedServerAddress}&token=sk-${key}`;
+        break;
+      case 'next':
+        url = `https://chatgpt1.nextweb.fun/#/?settings=%7B%22key%22:%22sk-${key}%22,%22url%22:%22${serverAddress}%22%7D`;
+        break;
       default:
-        url=`sk-${key}`
+        url = `sk-${key}`;
     }
     if (await copy(url)) {
       showSuccess('已复制到剪贴板！');
@@ -94,7 +107,7 @@ const TokensTable = () => {
       showWarning('无法复制到剪贴板，请手动复制，已将令牌填入搜索框。');
       setSearchKeyword(url);
     }
-  }
+  };
 
   useEffect(() => {
     loadTokens(0)
@@ -173,11 +186,6 @@ const TokensTable = () => {
     setTokens(sortedTokens);
     setLoading(false);
   };
-  const copy_actions = [
-    { key: 'ama', text: 'AMA 问天', value: 'ama' },
-    { key: 'opencat', text: 'OpenCat', value: 'opencat' },
-  ]
-
 
   return (
     <>
@@ -266,25 +274,25 @@ const TokensTable = () => {
                   <Table.Cell>{token.expired_time === -1 ? '永不过期' : renderTimestamp(token.expired_time)}</Table.Cell>
                   <Table.Cell>
                     <div>
-                      <Button.Group color='green' size={'small'} >
+                      <Button.Group color='green' size={'small'}>
                         <Button
-                            size={'small'}
-                            positive
-                            onClick={async () => {
-                              await onCopy('', token.key)
-                              }
-                            }
+                          size={'small'}
+                          positive
+                          onClick={async () => {
+                            await onCopy('', token.key);
+                          }
+                          }
                         >
                           复制
                         </Button>
                         <Dropdown
-                            className='button icon'
-                            floating
-                            options={copy_actions}
-                            onChange={async (e,{value}={})=>{
-                              await onCopy(value, token.key)
-                            }}
-                            trigger={<></>}
+                          className='button icon'
+                          floating
+                          options={COPY_OPTIONS}
+                          onChange={async (e, { value } = {}) => {
+                            await onCopy(value, token.key);
+                          }}
+                          trigger={<></>}
                         />
                       </Button.Group>
                       {' '}
