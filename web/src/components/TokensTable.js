@@ -354,7 +354,7 @@ const TokensTable = () => {
                             onClick={() => {     
                               onOpenLink('', token.key);       
                             }}>
-                            对话
+                            聊天
                           </Button>
                           <Dropdown   
                             className="button icon"       
