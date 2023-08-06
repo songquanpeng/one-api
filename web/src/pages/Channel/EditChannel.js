@@ -371,9 +371,9 @@ const EditChannel = () => {
             inputs.type !== 3 && inputs.type !== 8 && (
               <Form.Field>
                 <Form.Input
-                  label='镜像'
+                  label='代理'
                   name='base_url'
-                  placeholder={'此项可选，用于通过镜像站来进行 API 调用，请输入镜像站地址，格式为：https://domain.com'}
+                  placeholder={'此项可选，用于通过代理站来进行 API 调用，请输入代理站地址，格式为：https://domain.com'}
                   onChange={handleInputChange}
                   value={inputs.base_url}
                   autoComplete='new-password'
