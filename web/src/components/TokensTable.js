@@ -7,14 +7,12 @@ import { ITEMS_PER_PAGE } from '../constants';
 import { renderQuota } from '../helpers/render';
 
 const COPY_OPTIONS = [
-  { key: 'next', text: 'ChatGPT Next Web', value: 'next' },
-  { key: 'ama', text: 'AMA 问天', value: 'ama' },
-  { key: 'opencat', text: 'OpenCat', value: 'opencat' },
+  { key: 'next', text: 'www.gptvip.cn', value: 'next' },
 ];
 
 const OPEN_LINK_OPTIONS = [
-  { key: 'ama', text: 'AMA 问天', value: 'ama' },
-  { key: 'opencat', text: 'OpenCat', value: 'opencat' },
+  { key: 'ama', text: 'gptvip.cn', value: 'ama' },
+  { key: 'opencat', text: 'www.gptvip.cn', value: 'opencat' },
 ];
 
 function renderTimestamp(timestamp) {
@@ -98,7 +96,7 @@ const TokensTable = () => {
     if (nextLink) {
       nextUrl = nextLink + `/#/?settings={"key":"sk-${key}"}`;
     } else {
-      nextUrl = `https://chat.oneapi.pro/#/?settings={"key":"sk-${key}","url":"${serverAddress}"}`;
+      nextUrl = `https://www.gptvip.cn/#/?settings={"key":"sk-${key}","url":"${serverAddress}"}`;
     }
 
     let url;
@@ -140,7 +138,7 @@ const TokensTable = () => {
     if (chatLink) {
       defaultUrl = chatLink + `/#/?settings={"key":"sk-${key}"}`;
     } else {
-      defaultUrl = `https://chat.oneapi.pro/#/?settings={"key":"sk-${key}","url":"${serverAddress}"}`;
+      defaultUrl = `https://www.gptvip.cn/#/?settings={"key":"sk-${key}","url":"${serverAddress}"}`;
     }
     let url;
     switch (type) {
