@@ -137,7 +137,7 @@ The initial account username is `root` and password is `123456`.
    cd one-api/web
    npm install
    npm run build
-
+   
    # Build the backend
    cd ..
    go mod download
@@ -172,6 +172,10 @@ If you encounter a blank page after deployment, refer to [#97](https://github.co
 <details>
 <summary><strong>Deploy on Sealos</strong></summary>
 <div>
+
+> Sealos supports high concurrency, dynamic scaling, and stable operations for millions of users.
+
+> Click the button below to deploy with one click.👇
 
 [![](https://raw.githubusercontent.com/labring-actions/templates/main/Deploy-on-Sealos.svg)](https://cloud.sealos.io/?openapp=system-fastdeploy?templateName=one-api)
 

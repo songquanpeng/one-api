@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Form, Header, Message, Segment } from 'semantic-ui-react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { API, showError, showSuccess, timestamp2string } from '../../helpers';
 import { renderQuota, renderQuotaWithPrompt } from '../../helpers/render';
 
@@ -17,11 +17,13 @@ const EditToken = () => {
   };
   const [inputs, setInputs] = useState(originInputs);
   const { name, remain_quota, expired_time, unlimited_quota } = inputs;
-
+  const navigate = useNavigate();
   const handleInputChange = (e, { name, value }) => {
     setInputs((inputs) => ({ ...inputs, [name]: value }));
   };
-
+  const handleCancel = () => {
+    navigate("/token");
+  }
   const setExpiredTime = (month, day, hour, minute) => {
     let now = new Date();
     let timestamp = now.getTime() / 1000;
@@ -150,8 +152,9 @@ const EditToken = () => {
           </Form.Field>
           <Button type={'button'} onClick={() => {
             setUnlimitedQuota();
-          }}>{unlimited_quota ? '取消无限额度' : '设置为无限额度'}</Button>
-          <Button positive onClick={submit}>提交</Button>
+          }}>{unlimited_quota ? '取消无限额度' : '设为无限额度'}</Button>
+          <Button floated='right' positive onClick={submit}>提交</Button>
+          <Button floated='right' onClick={handleCancel}>取消</Button>
         </Form>
       </Segment>
     </>

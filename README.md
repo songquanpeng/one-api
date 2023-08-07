@@ -104,7 +104,7 @@ _✨ 通过标准的 OpenAI API 格式访问所有的大模型，开箱即用 �
 
 如果上面的镜像无法拉取，可以尝试使用 GitHub 的 Docker 镜像，将上面的 `justsong/one-api` 替换为 `ghcr.io/songquanpeng/one-api` 即可。
 
-如果你的并发量较大，推荐设置 `SQL_DSN`，详见下面[环境变量](#环境变量)一节。
+如果你的并发量较大，**务必**设置 `SQL_DSN`，详见下面[环境变量](#环境变量)一节。
 
 更新命令：`docker run --rm -v /var/run/docker.sock:/var/run/docker.sock containrrr/watchtower -cR`
 
@@ -153,7 +153,7 @@ sudo service nginx restart
    cd one-api/web
    npm install
    npm run build
-
+   
    # 构建后端
    cd ..
    go mod download
@@ -211,9 +211,11 @@ docker run --name chatgpt-web -d -p 3002:3002 -e OPENAI_API_BASE_URL=https://ope
 <summary><strong>部署到 Sealos </strong></summary>
 <div>
 
-> Sealos 可视化一键部署。
+> Sealos 的服务器在国外，不需要额外处理网络问题，支持高并发 & 动态伸缩。
 
-[![](https://raw.githubusercontent.com/labring-actions/templates/main/Deploy-on-Sealos.svg)](https://cloud.sealos.io/?openapp=system-fastdeploy?templateName=one-api)
+点击以下按钮一键部署（部署后访问出现 404 请等待 3~5 分钟）：
+
+[![Deploy-on-Sealos.svg](https://raw.githubusercontent.com/labring-actions/templates/main/Deploy-on-Sealos.svg)](https://cloud.sealos.io/?openapp=system-fastdeploy?templateName=one-api)
 
 </div>
 </details>

@@ -302,7 +302,7 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 		if err != nil {
 			return errorWrapper(err, "close_request_body_failed", http.StatusInternalServerError)
 		}
-		isStream = strings.HasPrefix(resp.Header.Get("Content-Type"), "text/event-stream")
+		isStream = isStream || strings.HasPrefix(resp.Header.Get("Content-Type"), "text/event-stream")
 	}
 	if resp.StatusCode != http.StatusOK {
 		return errorWrapper(
@@ -366,7 +366,7 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 			textResponse.Usage.CompletionTokens = countTokenText(responseText, textRequest.Model)
 			return nil
 		} else {
-			err, usage := openaiHandler(c, resp, consumeQuota)
+			err, usage := openaiHandler(c, resp, consumeQuota, promptTokens, textRequest.Model)
 			if err != nil {
 				return err
 			}
