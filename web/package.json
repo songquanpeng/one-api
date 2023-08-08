@@ -3,10 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@vitejs/plugin-react": "^4.0.3",
+    "@vitejs/plugin-react": "^4.0.4",
     "axios": "^1.4.0",
     "history": "^5.3.0",
-    "marked": "^5.1.1",
+    "marked": "^7.0.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-dropzone": "^14.2.3",
@@ -15,7 +15,7 @@
     "react-turnstile": "^1.1.1",
     "semantic-ui-css": "^2.5.0",
     "semantic-ui-react": "^2.1.4",
-    "vite": "^4.4.7",
+    "vite": "^4.4.9",
     "vite-plugin-env-compatible": "^1.1.1"
   },
   "scripts": {
@@ -41,7 +41,7 @@
     ]
   },
   "devDependencies": {
-    "prettier": "^3.0.0"
+    "prettier": "^3.0.1"
   },
   "prettier": {
     "singleQuote": true,
