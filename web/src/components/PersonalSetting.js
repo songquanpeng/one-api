@@ -378,16 +378,6 @@ const PersonalSetting = () => {
               ) : (
                 <></>
               )}
-              {turnstileEnabled ? (
-                <Turnstile
-                  sitekey={turnstileSiteKey}
-                  onVerify={(token) => {
-                    setTurnstileToken(token);
-                  }}
-                />
-              ) : (
-                <></>
-              )}
               <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '1rem' }}>
                 <Button
                   color='red'
