@@ -120,7 +120,10 @@ func responseBaidu2OpenAI(response *BaiduChatResponse) *OpenAITextResponse {
 func streamResponseBaidu2OpenAI(baiduResponse *BaiduChatStreamResponse) *ChatCompletionsStreamResponse {
 	var choice ChatCompletionsStreamResponseChoice
 	choice.Delta.Content = baiduResponse.Result
-	choice.FinishReason = "stop"
+	if baiduResponse.IsEnd {
+		finishReason := "stop"
+		choice.FinishReason = &finishReason
+	}
 	response := ChatCompletionsStreamResponse{
 		Id:      baiduResponse.Id,
 		Object:  "chat.completion.chunk",

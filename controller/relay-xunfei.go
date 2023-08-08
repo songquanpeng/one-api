@@ -138,6 +138,10 @@ func streamResponseXunfei2OpenAI(xunfeiResponse *XunfeiChatResponse) *ChatComple
 	}
 	var choice ChatCompletionsStreamResponseChoice
 	choice.Delta.Content = xunfeiResponse.Payload.Choices.Text[0].Content
+	if xunfeiResponse.Payload.Choices.Status == 2 {
+		finishReason := "stop"
+		choice.FinishReason = &finishReason
+	}
 	response := ChatCompletionsStreamResponse{
 		Object:  "chat.completion.chunk",
 		Created: common.GetTimestamp(),

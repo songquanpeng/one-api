@@ -163,7 +163,6 @@ func responseZhipu2OpenAI(response *ZhipuResponse) *OpenAITextResponse {
 func streamResponseZhipu2OpenAI(zhipuResponse string) *ChatCompletionsStreamResponse {
 	var choice ChatCompletionsStreamResponseChoice
 	choice.Delta.Content = zhipuResponse
-	choice.FinishReason = ""
 	response := ChatCompletionsStreamResponse{
 		Object:  "chat.completion.chunk",
 		Created: common.GetTimestamp(),
@@ -176,7 +175,8 @@ func streamResponseZhipu2OpenAI(zhipuResponse string) *ChatCompletionsStreamResp
 func streamMetaResponseZhipu2OpenAI(zhipuResponse *ZhipuStreamMetaResponse) (*ChatCompletionsStreamResponse, *Usage) {
 	var choice ChatCompletionsStreamResponseChoice
 	choice.Delta.Content = ""
-	choice.FinishReason = "stop"
+	finishReason := "stop"
+	choice.FinishReason = &finishReason
 	response := ChatCompletionsStreamResponse{
 		Id:      zhipuResponse.RequestId,
 		Object:  "chat.completion.chunk",

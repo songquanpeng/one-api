@@ -94,7 +94,8 @@ func streamResponsePaLM2OpenAI(palmResponse *PaLMChatResponse) *ChatCompletionsS
 	if len(palmResponse.Candidates) > 0 {
 		choice.Delta.Content = palmResponse.Candidates[0].Content
 	}
-	choice.FinishReason = "stop"
+	finishReason := "stop"
+	choice.FinishReason = &finishReason
 	var response ChatCompletionsStreamResponse
 	response.Object = "chat.completion.chunk"
 	response.Model = "palm2"
