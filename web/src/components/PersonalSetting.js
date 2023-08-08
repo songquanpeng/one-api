@@ -170,9 +170,13 @@ const PersonalSetting = () => {
 
   const bindEmail = async () => {
     if (inputs.email_verification_code === '') return;
+    if (turnstileEnabled && turnstileToken === '') {
+      showInfo('请稍后几秒重试，Turnstile 正在检查用户环境！');
+      return;
+    }
     setLoading(true);
     const res = await API.get(
-      `/api/oauth/email/bind?email=${inputs.email}&code=${inputs.email_verification_code}`
+      `/api/oauth/email/bind?email=${inputs.email}&code=${inputs.email_verification_code}&turnstile=${turnstileToken}`
     );
     const { success, message } = res.data;
     if (success) {
@@ -364,6 +368,16 @@ const PersonalSetting = () => {
                 value={inputs.self_account_deletion_confirmation}
                 onChange={handleInputChange}
               />
+              {turnstileEnabled ? (
+                <Turnstile
+                  sitekey={turnstileSiteKey}
+                  onVerify={(token) => {
+                    setTurnstileToken(token);
+                  }}
+                />
+              ) : (
+                <></>
+              )}
               {turnstileEnabled ? (
                 <Turnstile
                   sitekey={turnstileSiteKey}
