@@ -1,4 +1,4 @@
-import React, { lazy, Suspense, useContext, useEffect } from 'react';
+import React, { lazy, Suspense, useContext, useEffect, useState } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import Loading from './components/Loading';
 import User from './pages/User';
@@ -31,6 +31,7 @@ const Home = lazy(() => import('./pages/Home'));
 const About = lazy(() => import('./pages/About'));
 
 function App() {
+  const [serverStatus, setServerStatus] = useState(false);
   const [userState, userDispatch] = useContext(UserContext);
   const [statusState, statusDispatch] = useContext(StatusContext);
 
@@ -45,6 +46,7 @@ function App() {
     const res = await API.get('/api/status');
     const { success, data } = res.data;
     if (success) {
+      setServerStatus(data);
       localStorage.setItem('status', JSON.stringify(data));
       statusDispatch({ type: 'set', payload: data });
       localStorage.setItem('system_name', data.system_name);
@@ -56,15 +58,6 @@ function App() {
         localStorage.setItem('chat_link', data.chat_link);
       } else {
         localStorage.removeItem('chat_link');
-      }
-      if (
-        data.version !== process.env.REACT_APP_VERSION &&
-        data.version !== 'v0.0.0' &&
-        process.env.REACT_APP_VERSION !== ''
-      ) {
-        showNotice(
-          `新版本可用：${data.version}，请使用快捷键 Shift + F5 刷新页面`
-        );
       }
     } else {
       showError('无法正常连接至服务器！');
@@ -86,6 +79,20 @@ function App() {
       }
     }
   }, []);
+
+  useEffect(() => {
+    if (userState.user && userState.user.role === 100) {
+      if (
+        serverStatus.version !== process.env.REACT_APP_VERSION &&
+        serverStatus.version !== 'v0.0.0' &&
+        process.env.REACT_APP_VERSION !== ''
+      ) {
+        showNotice(
+          `新版本可用：${serverStatus.version}，请使用快捷键 Shift + F5 刷新页面`
+        );
+      }
+    }
+  }, [statusState, serverStatus]);
 
   return (
     <Routes>
