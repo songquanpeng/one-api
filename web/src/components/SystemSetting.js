@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Divider, Form, Grid, Header, Input, Message } from 'semantic-ui-react';
+import { Button, Divider, Form, Grid, Header, Modal, Message } from 'semantic-ui-react';
 import { API, removeTrailingSlash, showError } from '../helpers';
 
 const SystemSetting = () => {
@@ -33,6 +33,7 @@ const SystemSetting = () => {
   let [loading, setLoading] = useState(false);
   const [EmailDomainWhitelist, setEmailDomainWhitelist] = useState([]);
   const [restrictedDomainInput, setRestrictedDomainInput] = useState('');
+  const [showModal, setShowModal] = useState(false);
 
   const getOptions = async () => {
     const res = await API.get('/api/option/');
@@ -95,6 +96,10 @@ const SystemSetting = () => {
   };
 
   const handleInputChange = async (e, { name, value }) => {
+    if (name === 'PasswordLoginEnabled' && inputs[name] === 'true') {
+      setShowModal(true);
+      return; // 早些返回，暂时不更新状态
+    }
     if (
       name === 'Notice' ||
       name.startsWith('SMTP') ||
@@ -243,6 +248,32 @@ const SystemSetting = () => {
               name='PasswordLoginEnabled'
               onChange={handleInputChange}
             />
+            {
+              showModal && 
+              <Modal
+                open={showModal}
+                onClose={() => setShowModal(false)}
+                size={'tiny'}
+                style={{ maxWidth: '450px' }}
+              >
+                <Modal.Header>提示</Modal.Header>
+                <Modal.Content>
+                  <p>取消密码登录将导致未绑定其他登录方式的用户（含Root管理员）无法通过密码登录,确认取消?</p>
+                </Modal.Content>
+                <Modal.Actions>
+                  <Button onClick={() => setShowModal(false)}>取消</Button>
+                  <Button 
+                    primary 
+                    onClick={async () => {
+                      setShowModal(false);
+                      await updateOption('PasswordLoginEnabled', 'false');
+                    }}
+                  >
+                    确定
+                  </Button>
+                </Modal.Actions>
+              </Modal>
+            }
             <Form.Checkbox
               checked={inputs.PasswordRegisterEnabled === 'true'}
               label='允许通过密码进行注册'
