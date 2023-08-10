@@ -34,6 +34,9 @@ func openaiStreamHandler(c *gin.Context, resp *http.Response, relayMode int) (*O
 			if len(data) < 6 { // ignore blank line or wrong format
 				continue
 			}
+			if data[:6] != "data: " && data[:6] != "[DONE]" {
+				continue
+			}
 			dataChan <- data
 			data = data[6:]
 			if !strings.HasPrefix(data, "[DONE]") {
@@ -43,7 +46,7 @@ func openaiStreamHandler(c *gin.Context, resp *http.Response, relayMode int) (*O
 					err := json.Unmarshal([]byte(data), &streamResponse)
 					if err != nil {
 						common.SysError("error unmarshalling stream response: " + err.Error())
-						return
+						continue // just ignore the error
 					}
 					for _, choice := range streamResponse.Choices {
 						responseText += choice.Delta.Content
@@ -53,7 +56,7 @@ func openaiStreamHandler(c *gin.Context, resp *http.Response, relayMode int) (*O
 					err := json.Unmarshal([]byte(data), &streamResponse)
 					if err != nil {
 						common.SysError("error unmarshalling stream response: " + err.Error())
-						return
+						continue
 					}
 					for _, choice := range streamResponse.Choices {
 						responseText += choice.Text
@@ -89,7 +92,7 @@ func openaiStreamHandler(c *gin.Context, resp *http.Response, relayMode int) (*O
 	return nil, responseText
 }
 
-func openaiHandler(c *gin.Context, resp *http.Response, consumeQuota bool) (*OpenAIErrorWithStatusCode, *Usage) {
+func openaiHandler(c *gin.Context, resp *http.Response, consumeQuota bool, promptTokens int, model string) (*OpenAIErrorWithStatusCode, *Usage) {
 	var textResponse TextResponse
 	if consumeQuota {
 		responseBody, err := io.ReadAll(resp.Body)
@@ -128,6 +131,18 @@ func openaiHandler(c *gin.Context, resp *http.Response, consumeQuota bool) (*Ope
 	err = resp.Body.Close()
 	if err != nil {
 		return errorWrapper(err, "close_response_body_failed", http.StatusInternalServerError), nil
+	}
+
+	if textResponse.Usage.TotalTokens == 0 {
+		completionTokens := 0
+		for _, choice := range textResponse.Choices {
+			completionTokens += countTokenText(choice.Message.Content, model)
+		}
+		textResponse.Usage = Usage{
+			PromptTokens:     promptTokens,
+			CompletionTokens: completionTokens,
+			TotalTokens:      promptTokens + completionTokens,
+		}
 	}
 	return nil, &textResponse.Usage
 }

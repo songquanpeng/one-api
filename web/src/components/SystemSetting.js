@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Divider, Form, Grid, Header, Message } from 'semantic-ui-react';
-import { API, removeTrailingSlash, showError, verifyJSON } from '../helpers';
+import { Button, Divider, Form, Grid, Header, Input, Message } from 'semantic-ui-react';
+import { API, removeTrailingSlash, showError } from '../helpers';
 
 const SystemSetting = () => {
   let [inputs, setInputs] = useState({
@@ -26,9 +26,13 @@ const SystemSetting = () => {
     TurnstileSiteKey: '',
     TurnstileSecretKey: '',
     RegisterEnabled: '',
+    EmailDomainRestrictionEnabled: '',
+    EmailDomainWhitelist: ''
   });
   const [originInputs, setOriginInputs] = useState({});
   let [loading, setLoading] = useState(false);
+  const [EmailDomainWhitelist, setEmailDomainWhitelist] = useState([]);
+  const [restrictedDomainInput, setRestrictedDomainInput] = useState('');
 
   const getOptions = async () => {
     const res = await API.get('/api/option/');
@@ -38,8 +42,15 @@ const SystemSetting = () => {
       data.forEach((item) => {
         newInputs[item.key] = item.value;
       });
-      setInputs(newInputs);
+      setInputs({
+        ...newInputs,
+        EmailDomainWhitelist: newInputs.EmailDomainWhitelist.split(',')
+      });
       setOriginInputs(newInputs);
+
+      setEmailDomainWhitelist(newInputs.EmailDomainWhitelist.split(',').map((item) => {
+        return { key: item, text: item, value: item };
+      }));
     } else {
       showError(message);
     }
@@ -58,6 +69,7 @@ const SystemSetting = () => {
       case 'GitHubOAuthEnabled':
       case 'WeChatAuthEnabled':
       case 'TurnstileCheckEnabled':
+      case 'EmailDomainRestrictionEnabled':
       case 'RegisterEnabled':
         value = inputs[key] === 'true' ? 'false' : 'true';
         break;
@@ -70,7 +82,12 @@ const SystemSetting = () => {
     });
     const { success, message } = res.data;
     if (success) {
-      setInputs((inputs) => ({ ...inputs, [key]: value }));
+      if (key === 'EmailDomainWhitelist') {
+        value = value.split(',');
+      }
+      setInputs((inputs) => ({
+        ...inputs, [key]: value
+      }));
     } else {
       showError(message);
     }
@@ -88,7 +105,8 @@ const SystemSetting = () => {
       name === 'WeChatServerToken' ||
       name === 'WeChatAccountQRCodeImageURL' ||
       name === 'TurnstileSiteKey' ||
-      name === 'TurnstileSecretKey'
+      name === 'TurnstileSecretKey' ||
+      name === 'EmailDomainWhitelist'
     ) {
       setInputs((inputs) => ({ ...inputs, [name]: value }));
     } else {
@@ -122,6 +140,16 @@ const SystemSetting = () => {
       inputs.SMTPToken !== ''
     ) {
       await updateOption('SMTPToken', inputs.SMTPToken);
+    }
+  };
+
+
+  const submitEmailDomainWhitelist = async () => {
+    if (
+      originInputs['EmailDomainWhitelist'] !== inputs.EmailDomainWhitelist.join(',') &&
+      inputs.SMTPToken !== ''
+    ) {
+      await updateOption('EmailDomainWhitelist', inputs.EmailDomainWhitelist.join(','));
     }
   };
 
@@ -172,6 +200,22 @@ const SystemSetting = () => {
       await updateOption('TurnstileSecretKey', inputs.TurnstileSecretKey);
     }
   };
+
+  const submitNewRestrictedDomain = () => {
+    const localDomainList = inputs.EmailDomainWhitelist;
+    if (restrictedDomainInput !== '' && !localDomainList.includes(restrictedDomainInput)) {
+      setRestrictedDomainInput('');
+      setInputs({
+        ...inputs,
+        EmailDomainWhitelist: [...localDomainList, restrictedDomainInput],
+      });
+      setEmailDomainWhitelist([...EmailDomainWhitelist, {
+        key: restrictedDomainInput,
+        text: restrictedDomainInput,
+        value: restrictedDomainInput,
+      }]);
+    }
+  }
 
   return (
     <Grid columns={1}>
@@ -240,6 +284,54 @@ const SystemSetting = () => {
           </Form.Group>
           <Divider />
           <Header as='h3'>
+            配置邮箱域名白名单
+            <Header.Subheader>用以防止恶意用户利用临时邮箱批量注册</Header.Subheader>
+          </Header>
+          <Form.Group widths={3}>
+            <Form.Checkbox
+              label='启用邮箱域名白名单'
+              name='EmailDomainRestrictionEnabled'
+              onChange={handleInputChange}
+              checked={inputs.EmailDomainRestrictionEnabled === 'true'}
+            />
+          </Form.Group>
+          <Form.Group widths={2}>
+            <Form.Dropdown
+              label='允许的邮箱域名'
+              placeholder='允许的邮箱域名'
+              name='EmailDomainWhitelist'
+              required
+              fluid
+              multiple
+              selection
+              onChange={handleInputChange}
+              value={inputs.EmailDomainWhitelist}
+              autoComplete='new-password'
+              options={EmailDomainWhitelist}
+            />
+            <Form.Input
+              label='添加新的允许的邮箱域名'
+              action={
+                <Button type='button' onClick={() => {
+                  submitNewRestrictedDomain();
+                }}>填入</Button>
+              }
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  submitNewRestrictedDomain();
+                }
+              }}
+              autoComplete='new-password'
+              placeholder='输入新的允许的邮箱域名'
+              value={restrictedDomainInput}
+              onChange={(e, { value }) => {
+                setRestrictedDomainInput(value);
+              }}
+            />
+          </Form.Group>
+          <Form.Button onClick={submitEmailDomainWhitelist}>保存邮箱域名白名单设置</Form.Button>
+          <Divider />
+          <Header as='h3'>
             配置 SMTP
             <Header.Subheader>用以支持系统的邮件发送</Header.Subheader>
           </Header>
@@ -284,7 +376,7 @@ const SystemSetting = () => {
               onChange={handleInputChange}
               type='password'
               autoComplete='new-password'
-              value={inputs.SMTPToken}
+              checked={inputs.RegisterEnabled === 'true'}
               placeholder='敏感信息不会发送到前端显示'
             />
           </Form.Group>

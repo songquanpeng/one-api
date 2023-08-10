@@ -81,8 +81,9 @@ type OpenAIErrorWithStatusCode struct {
 }
 
 type TextResponse struct {
-	Usage `json:"usage"`
-	Error OpenAIError `json:"error"`
+	Choices []OpenAITextResponseChoice `json:"choices"`
+	Usage   `json:"usage"`
+	Error   OpenAIError `json:"error"`
 }
 
 type OpenAITextResponseChoice struct {
@@ -97,6 +98,19 @@ type OpenAITextResponse struct {
 	Created int64                      `json:"created"`
 	Choices []OpenAITextResponseChoice `json:"choices"`
 	Usage   `json:"usage"`
+}
+
+type OpenAIEmbeddingResponseItem struct {
+	Object    string    `json:"object"`
+	Index     int       `json:"index"`
+	Embedding []float64 `json:"embedding"`
+}
+
+type OpenAIEmbeddingResponse struct {
+	Object string                        `json:"object"`
+	Data   []OpenAIEmbeddingResponseItem `json:"data"`
+	Model  string                        `json:"model"`
+	Usage  `json:"usage"`
 }
 
 type ImageResponse struct {
