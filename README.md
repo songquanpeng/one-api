@@ -57,6 +57,22 @@ _✨ 通过标准的 OpenAI API 格式访问所有的大模型，开箱即用 �
 
 > **Warning**：从 `v0.3` 版本升级到 `v0.4` 版本需要手动迁移数据库，请手动执行[数据库迁移脚本](./bin/migration_v0.3-v0.4.sql)。
 
+## 此分叉版本的主要变更
+
+1. 在**登录表单和账户删除中添加Turstile验证码**，以确保最高安全性。
+2. 添加 **Discord 社交 OAuth 登录授权**。
+3. 添加 **Google 社交 OAuth 登录授权**。
+4. 为**通道测试添加更多检查**，例如 HTTP 状态代码是否为 200。
+5. 分离**通道流能力**，有些第三方镜像/通道不支持流或只支持流，分离它们可避免多余错误和时间浪费。
+6. 将所有**依赖项更新至最新版本**，以确保安全和性能。
+7. **使用 Vite 可加快前端开发**和二次开发速度。
+8. 在原来支持 MySQL 和本地 SQLite 的同时，**现在还支持 **PostgreSQL**、PostgreSQL 被认为消耗更少**，在大规模服务中运行更快，数据表之间的一致性更强。
+> 使用 `POSTGRES_DSN` 环境变量，格式如 `postgres://USER:PWD@HOST:PORT/DB_NAME`。
+> *⚠️注意事项: 本项目中的 PostgreSQL 可能会导致一些不稳定和错误，请立即报告以进行修补。*
+9. 我们拥有**最新的英语翻译，以适应上游的变化**。
+10. 现在**只向管理员显示服务器更新信息**，以减少对普通用户的干扰。
+11. 集成 Dockerfile **语言选择**： 启用翻译，使用环境变量 `RUN_ENG_TRANSLATE=1`。
+
 ## 功能
 1. 支持多种大模型：
    + [x] [OpenAI ChatGPT 系列模型](https://platform.openai.com/docs/guides/gpt/chat-completions-api)（支持 [Azure OpenAI API](https://learn.microsoft.com/en-us/azure/ai-services/openai/reference)）

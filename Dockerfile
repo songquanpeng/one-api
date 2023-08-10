@@ -1,9 +1,16 @@
+# Initial stage
+FROM python:3.11 as translator
+WORKDIR /app
+COPY . .
+RUN chmod +x ./translate-en.sh && ./translate-en.sh
+
 FROM node:16 as builder
 
 WORKDIR /build
-COPY ./web .
+COPY ./web/package*.json ./
+RUN npm ci
+COPY --from=translator ./app/web .
 COPY ./VERSION .
-RUN npm install
 RUN REACT_APP_VERSION=$(cat VERSION) npm run build
 
 FROM golang AS builder2
@@ -13,9 +20,11 @@ ENV GO111MODULE=on \
     GOOS=linux
 
 WORKDIR /build
-COPY . .
-COPY --from=builder /build/build ./web/build
+COPY go.mod .
+COPY go.sum .
 RUN go mod download
+COPY --from=translator /app .
+COPY --from=builder /build/build ./web/build
 RUN go build -ldflags "-s -w -X 'one-api/common.Version=$(cat VERSION)' -extldflags '-static'" -o one-api
 
 FROM alpine
