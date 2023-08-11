@@ -283,7 +283,7 @@ If the channel ID is not provided, load balancing will be used to distribute the
     + Double-check that your interface address and API Key are correct.
 
 ## Related Projects
-[FastGPT](https://github.com/c121914yu/FastGPT): Build an AI knowledge base in three minutes
+[FastGPT](https://github.com/labring/FastGPT): Knowledge question answering system based on the LLM
 
 ## Note
 This project is an open-source project. Please use it in compliance with OpenAI's [Terms of Use](https://openai.com/policies/terms-of-use) and **applicable laws and regulations**. It must not be used for illegal purposes.

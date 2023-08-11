@@ -333,7 +333,7 @@ https://openai.justsong.cn
    + 上游通道 429 了。
 
 ## 相关项目
-[FastGPT](https://github.com/c121914yu/FastGPT): 三分钟搭建 AI 知识库
+[FastGPT](https://github.com/labring/FastGPT): 基于 LLM 大语言模型的知识库问答系统
 
 ## 注意
 
