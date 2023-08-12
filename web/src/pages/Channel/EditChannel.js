@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Form, Header, Input, Message, Segment } from 'semantic-ui-react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { API, showError, showInfo, showSuccess, verifyJSON } from '../../helpers';
 import { CHANNEL_OPTIONS } from '../../constants';
 
@@ -12,9 +12,14 @@ const MODEL_MAPPING_EXAMPLE = {
 
 const EditChannel = () => {
   const params = useParams();
+  const navigate = useNavigate();
   const channelId = params.id;
   const isEdit = channelId !== undefined;
   const [loading, setLoading] = useState(isEdit);
+  const handleCancel = () => {
+    navigate('/channel');
+  };
+  
   const originInputs = {
     name: '',
     type: 1,
@@ -381,6 +386,7 @@ const EditChannel = () => {
               </Form.Field>
             )
           }
+          <Button onClick={handleCancel}>取消</Button>
           <Button type={isEdit ? 'button' : 'submit'} positive onClick={submit}>提交</Button>
         </Form>
       </Segment>
