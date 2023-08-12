@@ -5,13 +5,13 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/gin-gonic/gin"
 	"io"
 	"net/http"
 	"one-api/common"
 	"one-api/model"
 	"strings"
-
-	"github.com/gin-gonic/gin"
+	"time"
 )
 
 const (
@@ -25,9 +25,13 @@ const (
 )
 
 var httpClient *http.Client
+var impatientHTTPClient *http.Client
 
 func init() {
 	httpClient = &http.Client{}
+	impatientHTTPClient = &http.Client{
+		Timeout: 5 * time.Second,
+	}
 }
 
 func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
@@ -148,7 +152,7 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 		apiKey = strings.TrimPrefix(apiKey, "Bearer ")
 		var err error
 		if apiKey, err = getBaiduAccessToken(apiKey); err != nil {
-			return errorWrapper(err, "invalid_auth", http.StatusBadRequest)
+			return errorWrapper(err, "invalid_baidu_config", http.StatusInternalServerError)
 		}
 		fullRequestURL += "?access_token=" + apiKey
 	case APITypePaLM:
