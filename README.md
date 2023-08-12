@@ -227,7 +227,7 @@ docker run --name chatgpt-web -d -p 3002:3002 -e OPENAI_API_BASE_URL=https://ope
 > Zeabur 的服务器在国外，自动解决了网络的问题，同时免费的额度也足够个人使用。
 
 1. 首先 fork 一份代码。
-2. 进入 [Zeabur](https://zeabur.com/)，登录，进入控制台。
+2. 进入 [Zeabur](https://zeabur.com?referralCode=songquanpeng)，登录，进入控制台。
 3. 新建一个 Project，在 Service -> Add Service 选择 Marketplace，选择 MySQL，并记下连接参数（用户名、密码、地址、端口）。
 4. 复制链接参数，运行 ```create database `one-api` ``` 创建数据库。
 5. 然后在 Service -> Add Service，选择 Git（第一次使用需要先授权），选择你 fork 的仓库。

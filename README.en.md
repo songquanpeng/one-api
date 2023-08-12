@@ -190,7 +190,7 @@ If you encounter a blank page after deployment, refer to [#97](https://github.co
 > Zeabur's servers are located overseas, automatically solving network issues, and the free quota is sufficient for personal usage.
 
 1. First, fork the code.
-2. Go to [Zeabur](https://zeabur.com/), log in, and enter the console.
+2. Go to [Zeabur](https://zeabur.com?referralCode=songquanpeng), log in, and enter the console.
 3. Create a new project. In Service -> Add Service, select Marketplace, and choose MySQL. Note down the connection parameters (username, password, address, and port).
 4. Copy the connection parameters and run ```create database `one-api` ``` to create the database.
 5. Then, in Service -> Add Service, select Git (authorization is required for the first use) and choose your forked repository.
