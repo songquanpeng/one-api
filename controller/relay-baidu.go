@@ -2,12 +2,17 @@ package controller
 
 import (
 	"bufio"
+	"crypto/md5"
 	"encoding/json"
+	"errors"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"io"
 	"net/http"
 	"one-api/common"
 	"strings"
+	"sync"
+	"time"
 )
 
 // https://cloud.baidu.com/doc/WENXINWORKSHOP/s/flfmc9do2
@@ -72,6 +77,22 @@ type BaiduEmbeddingResponse struct {
 	Usage   Usage                `json:"usage"`
 	BaiduError
 }
+
+type BaiduAccessToken struct {
+	RefreshToken     string    `json:"refresh_token"`
+	ExpiresIn        int       `json:"expires_in"`
+	SessionKey       string    `json:"session_key"`
+	AccessToken      string    `json:"access_token"`
+	Scope            string    `json:"scope"`
+	SessionSecret    string    `json:"session_secret"`
+	Error            string    `json:"error,omitempty"`
+	ErrorDescription string    `json:"error_description,omitempty"`
+	ExpiresAt        time.Time `json:"expires_at,omitempty"`
+	SecretKey        string    `json:"secret_key,omitempty"`
+	ApiKey           string    `json:"api_key,omitempty"`
+}
+
+var baiduAccessTokens sync.Map
 
 func requestOpenAI2Baidu(request GeneralOpenAIRequest) *BaiduChatRequest {
 	messages := make([]BaiduMessage, 0, len(request.Messages))
@@ -298,4 +319,84 @@ func baiduEmbeddingHandler(c *gin.Context, resp *http.Response) (*OpenAIErrorWit
 	c.Writer.WriteHeader(resp.StatusCode)
 	_, err = c.Writer.Write(jsonResponse)
 	return nil, &fullTextResponse.Usage
+}
+
+func getBaiduAccessToken(apiKey string) (string, error) {
+	var accessToken BaiduAccessToken
+	if val, ok := baiduAccessTokens.Load(md5.Sum([]byte(apiKey))); ok {
+		if accessToken, ok = val.(BaiduAccessToken); ok {
+			// 提前1小时刷新
+			if time.Now().Add(time.Hour).After(accessToken.ExpiresAt) {
+				go refreshBaiduAccessToken(&accessToken)
+				return accessToken.AccessToken, nil
+			}
+			return accessToken.AccessToken, nil
+		}
+	}
+
+	splits := strings.Split(apiKey, "|")
+	if len(splits) == 1 {
+		accessToken.AccessToken = apiKey
+		accessToken.ExpiresAt = time.Now().Add(30 * 24 * time.Hour)
+		return apiKey, nil
+	}
+
+	var token string
+	var err error
+	if token, err = initBaiduAccessToken(splits[0], splits[1], ""); err != nil {
+		return "", err
+	}
+
+	return token, nil
+}
+
+func refreshBaiduAccessToken(accessToken *BaiduAccessToken) error {
+	if accessToken.RefreshToken == "" {
+		return nil
+	}
+	_, err := initBaiduAccessToken(accessToken.SecretKey, accessToken.ApiKey, accessToken.RefreshToken)
+	return err
+}
+
+func initBaiduAccessToken(secretKey, apiKey, refreshToken string) (string, error) {
+	url := "https://aip.baidubce.com/oauth/2.0/token?grant_type=client_credentials&client_id=" + apiKey + "&client_secret=" + secretKey
+	if refreshToken != "" {
+		url += "&refresh_token=" + refreshToken
+	}
+	req, err := http.NewRequest("POST", url, nil)
+	if err != nil {
+		return "", errors.New(fmt.Sprintf("initBaiduAccessToken err: %s", err.Error()))
+	}
+
+	req.Header.Add("Content-Type", "application/json")
+	req.Header.Add("Accept", "application/json")
+
+	client := http.Client{
+		Timeout: 5 * time.Second,
+	}
+
+	res, err := client.Do(req)
+	if err != nil {
+		return "", errors.New(fmt.Sprintf("initBaiduAccessToken request err: %s", err.Error()))
+	}
+	defer res.Body.Close()
+
+	var accessToken BaiduAccessToken
+	err = json.NewDecoder(res.Body).Decode(&accessToken)
+	if err != nil {
+		return "", errors.New(fmt.Sprintf("initBaiduAccessToken decode access token err: %s", err.Error()))
+	}
+	if accessToken.Error != "" {
+		return "", errors.New(accessToken.Error + ": " + accessToken.ErrorDescription)
+	}
+
+	if accessToken.AccessToken == "" {
+		return "", errors.New("initBaiduAccessToken get access token empty")
+	}
+
+	accessToken.ExpiresAt = time.Now().Add(time.Duration(accessToken.ExpiresIn) * time.Second)
+	accessToken.SecretKey = secretKey
+	accessToken.ApiKey = apiKey
+	baiduAccessTokens.Store(md5.Sum([]byte(secretKey+"|"+apiKey)), accessToken)
+	return accessToken.AccessToken, nil
 }
