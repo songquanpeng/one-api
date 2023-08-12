@@ -328,7 +328,6 @@ func getBaiduAccessToken(apiKey string) (string, error) {
 			// 提前1小时刷新
 			if time.Now().Add(time.Hour).After(accessToken.ExpiresAt) {
 				go refreshBaiduAccessToken(&accessToken)
-				return accessToken.AccessToken, nil
 			}
 			return accessToken.AccessToken, nil
 		}
