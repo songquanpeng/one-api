@@ -281,6 +281,11 @@ graph LR
    + 注意需要提前建立数据库 `oneapi`，无需手动建表，程序将自动建表。
    + 如果使用本地数据库：部署命令可添加 `--network="host"` 以使得容器内的程序可以访问到宿主机上的 MySQL。
    + 如果使用云数据库：如果云服务器需要验证身份，需要在连接参数中添加 `?tls=skip-verify`。
+   + 请根据你的数据库配置修改下列参数（或者保持默认值）：
+     + `SQL_MAX_IDLE_CONNS`：最大空闲连接数，默认为 `10`。
+     + `SQL_MAX_OPEN_CONNS`：最大打开连接数，默认为 `100`。
+       + 如果报错 `Error 1040: Too many connections`，请适当减小该值。
+     + `SQL_CONN_MAX_LIFETIME`：连接的最大生命周期，默认为 `60`，单位分钟。
 4. `FRONTEND_BASE_URL`：设置之后将重定向页面请求到指定的地址，仅限从服务器设置。
    + 例子：`FRONTEND_BASE_URL=https://openai.justsong.cn`
 5. `SYNC_FREQUENCY`：设置之后将定期与数据库同步配置，单位为秒，未设置则不进行同步。
