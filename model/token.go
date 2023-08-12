@@ -131,7 +131,7 @@ func IncreaseTokenQuota(id int, quota int) (err error) {
 	if quota < 0 {
 		return errors.New("quota 不能为负数！")
 	}
-	err = DB.Set("gorm:query_option", "FOR UPDATE").Model(&Token{}).Where("id = ?", id).Updates(
+	err = DB.Model(&Token{}).Where("id = ?", id).Updates(
 		map[string]interface{}{
 			"remain_quota": gorm.Expr("remain_quota + ?", quota),
 			"used_quota":   gorm.Expr("used_quota - ?", quota),
@@ -144,7 +144,7 @@ func DecreaseTokenQuota(id int, quota int) (err error) {
 	if quota < 0 {
 		return errors.New("quota 不能为负数！")
 	}
-	err = DB.Set("gorm:query_option", "FOR UPDATE").Model(&Token{}).Where("id = ?", id).Updates(
+	err = DB.Model(&Token{}).Where("id = ?", id).Updates(
 		map[string]interface{}{
 			"remain_quota": gorm.Expr("remain_quota - ?", quota),
 			"used_quota":   gorm.Expr("used_quota + ?", quota),
