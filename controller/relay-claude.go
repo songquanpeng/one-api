@@ -81,7 +81,10 @@ func requestOpenAI2Claude(textRequest GeneralOpenAIRequest) *ClaudeRequest {
 func streamResponseClaude2OpenAI(claudeResponse *ClaudeResponse) *ChatCompletionsStreamResponse {
 	var choice ChatCompletionsStreamResponseChoice
 	choice.Delta.Content = claudeResponse.Completion
-	choice.FinishReason = stopReasonClaude2OpenAI(claudeResponse.StopReason)
+	finishReason := stopReasonClaude2OpenAI(claudeResponse.StopReason)
+	if finishReason != "null" {
+		choice.FinishReason = &finishReason
+	}
 	var response ChatCompletionsStreamResponse
 	response.Object = "chat.completion.chunk"
 	response.Model = claudeResponse.Model
