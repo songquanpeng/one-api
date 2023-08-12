@@ -176,7 +176,7 @@ func Relay(c *gin.Context) {
 			c.Redirect(http.StatusTemporaryRedirect, fmt.Sprintf("%s?retry=%d", c.Request.URL.Path, retryTimes-1))
 		} else {
 			if err.StatusCode == http.StatusTooManyRequests {
-				err.OpenAIError.Message = "当前分组负载已饱和，请稍后再试，或升级账户以提升服务质量。"
+				err.OpenAIError.Message = "当前分组上游负载已饱和，请稍后再试"
 			}
 			c.JSON(err.StatusCode, gin.H{
 				"error": err.OpenAIError,
