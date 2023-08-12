@@ -108,7 +108,8 @@ _✨ 通过标准的 OpenAI API 格式访问所有的大模型，开箱即用 �
 
 更新命令：`docker run --rm -v /var/run/docker.sock:/var/run/docker.sock containrrr/watchtower -cR`
 
-`-p 3000:3000` 中的第一个 `3000` 是宿主机的端口，可以根据需要进行修改。
+
+其中，`-p 3000:3000` 中的第一个 `3000` 是宿主机的端口，可以根据需要进行修改。
 
 数据将会保存在宿主机的 `/home/ubuntu/data/one-api` 目录，请确保该目录存在且具有写入权限，或者更改为合适的目录。
 
