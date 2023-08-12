@@ -175,8 +175,7 @@ func streamResponseZhipu2OpenAI(zhipuResponse string) *ChatCompletionsStreamResp
 func streamMetaResponseZhipu2OpenAI(zhipuResponse *ZhipuStreamMetaResponse) (*ChatCompletionsStreamResponse, *Usage) {
 	var choice ChatCompletionsStreamResponseChoice
 	choice.Delta.Content = ""
-	finishReason := "stop"
-	choice.FinishReason = &finishReason
+	choice.FinishReason = &stopFinishReason
 	response := ChatCompletionsStreamResponse{
 		Id:      zhipuResponse.RequestId,
 		Object:  "chat.completion.chunk",

@@ -121,8 +121,7 @@ func streamResponseBaidu2OpenAI(baiduResponse *BaiduChatStreamResponse) *ChatCom
 	var choice ChatCompletionsStreamResponseChoice
 	choice.Delta.Content = baiduResponse.Result
 	if baiduResponse.IsEnd {
-		finishReason := "stop"
-		choice.FinishReason = &finishReason
+		choice.FinishReason = &stopFinishReason
 	}
 	response := ChatCompletionsStreamResponse{
 		Id:      baiduResponse.Id,
