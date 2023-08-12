@@ -323,7 +323,8 @@ func baiduEmbeddingHandler(c *gin.Context, resp *http.Response) (*OpenAIErrorWit
 
 func getBaiduAccessToken(apiKey string) (string, error) {
 	var accessToken BaiduAccessToken
-	if val, ok := baiduAccessTokens.Load(md5.Sum([]byte(apiKey))); ok {
+	md5Key := md5.Sum([]byte(apiKey))
+	if val, ok := baiduAccessTokens.Load(md5Key); ok {
 		if accessToken, ok = val.(BaiduAccessToken); ok {
 			// 提前1小时刷新
 			if time.Now().Add(time.Hour).After(accessToken.ExpiresAt) {
@@ -337,6 +338,7 @@ func getBaiduAccessToken(apiKey string) (string, error) {
 	if len(splits) == 1 {
 		accessToken.AccessToken = apiKey
 		accessToken.ExpiresAt = time.Now().Add(30 * 24 * time.Hour)
+		baiduAccessTokens.Store(md5Key, accessToken)
 		return apiKey, nil
 	}
 
