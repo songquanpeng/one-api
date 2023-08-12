@@ -14,10 +14,11 @@ const Home = () => {
     const { success, message, data } = res.data;
     if (success) {
       let oldNotice = localStorage.getItem('notice');
-      if (data !== oldNotice && data !== '') {
-        showNotice(data);
-        localStorage.setItem('notice', data);
-      }
+        if (data !== oldNotice && data !== '') {
+            const htmlNotice = marked(data);
+            showNotice(htmlNotice, true);
+            localStorage.setItem('notice', data);
+        }
     } else {
       showError(message);
     }

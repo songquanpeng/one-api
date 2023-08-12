@@ -4,7 +4,7 @@ WORKDIR /build
 COPY ./web .
 COPY ./VERSION .
 RUN npm install
-RUN REACT_APP_VERSION=$(cat VERSION) npm run build
+RUN DISABLE_ESLINT_PLUGIN='true' REACT_APP_VERSION=$(cat VERSION) npm run build
 
 FROM golang AS builder2
 

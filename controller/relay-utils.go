@@ -6,6 +6,8 @@ import (
 	"one-api/common"
 )
 
+var stopFinishReason = "stop"
+
 var tokenEncoderMap = map[string]*tiktoken.Tiktoken{}
 
 func getTokenEncoder(model string) *tiktoken.Tiktoken {
