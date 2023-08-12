@@ -57,6 +57,9 @@ func InitDB() (err error) {
 	}
 	common.SysLog("database connected")
 	if err == nil {
+		if common.DebugEnabled {
+			db = db.Debug()
+		}
 		DB = db
 		sqlDB, err := DB.DB()
 		if err != nil {
