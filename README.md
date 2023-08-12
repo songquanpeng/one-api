@@ -276,8 +276,10 @@ graph LR
    + 例子：`REDIS_CONN_STRING=redis://default:redispw@localhost:49153`
 2. `SESSION_SECRET`：设置之后将使用固定的会话密钥，这样系统重新启动后已登录用户的 cookie 将依旧有效。
    + 例子：`SESSION_SECRET=random_string`
-3. `SQL_DSN`：设置之后将使用指定数据库而非 SQLite，请使用 MySQL 8.0 版本。
-   + 例子：`SQL_DSN=root:123456@tcp(localhost:3306)/oneapi`
+3. `SQL_DSN`：设置之后将使用指定数据库而非 SQLite，请使用 MySQL 或 PostgreSQL。
+   + 例子：
+     + MySQL：`SQL_DSN=root:123456@tcp(localhost:3306)/oneapi`
+     + PostgreSQL：`SQL_DSN=postgres://postgres:123456@localhost:5432/oneapi`
    + 注意需要提前建立数据库 `oneapi`，无需手动建表，程序将自动建表。
    + 如果使用本地数据库：部署命令可添加 `--network="host"` 以使得容器内的程序可以访问到宿主机上的 MySQL。
    + 如果使用云数据库：如果云服务器需要验证身份，需要在连接参数中添加 `?tls=skip-verify`。
