@@ -152,7 +152,7 @@ func embeddingRequestOpenAI2Baidu(request GeneralOpenAIRequest) *BaiduEmbeddingR
 		baiduEmbeddingRequest.Input = []string{request.Input.(string)}
 	case []any:
 		for _, item := range request.Input.([]any) {
-			if str, isStr := item.(string); isStr {
+			if str, ok := item.(string); ok {
 				baiduEmbeddingRequest.Input = append(baiduEmbeddingRequest.Input, str)
 			}
 		}
