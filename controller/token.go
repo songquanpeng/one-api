@@ -109,7 +109,7 @@ func AddToken(c *gin.Context) {
 		})
 		return
 	}
-	if len(token.Name) == 0 || len(token.Name) > 30 {
+	if len(token.Name) > 30 {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
 			"message": "令牌名称过长",
@@ -171,7 +171,7 @@ func UpdateToken(c *gin.Context) {
 		})
 		return
 	}
-	if len(token.Name) == 0 || len(token.Name) > 30 {
+	if len(token.Name) > 30 {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
 			"message": "令牌名称过长",
