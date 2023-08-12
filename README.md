@@ -338,7 +338,8 @@ https://openai.justsong.cn
    + 上游通道 429 了。
 
 ## 相关项目
-[FastGPT](https://github.com/labring/FastGPT): 基于 LLM 大语言模型的知识库问答系统
+* [FastGPT](https://github.com/labring/FastGPT): 基于 LLM 大语言模型的知识库问答系统
+* [ChatGPT Next Web](https://github.com/Yidadaa/ChatGPT-Next-Web):  一键拥有你自己的跨平台 ChatGPT 应用
 
 ## 注意
 
