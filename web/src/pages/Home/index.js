@@ -65,7 +65,7 @@ const Home = () => {
                     <Card.Meta>系统信息总览</Card.Meta>
                     <Card.Description>
                       <p>名称：{statusState?.status?.system_name}</p>
-                      <p>版本：{statusState?.status?.version}</p>
+                      <p>版本：{statusState?.status?.version ? statusState?.status?.version : "unknown"}</p>
                       <p>
                         源码：
                         <a
