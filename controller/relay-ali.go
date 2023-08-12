@@ -121,7 +121,10 @@ func responseAli2OpenAI(response *AliChatResponse) *OpenAITextResponse {
 func streamResponseAli2OpenAI(aliResponse *AliChatResponse) *ChatCompletionsStreamResponse {
 	var choice ChatCompletionsStreamResponseChoice
 	choice.Delta.Content = aliResponse.Output.Text
-	choice.FinishReason = aliResponse.Output.FinishReason
+	if aliResponse.Output.FinishReason != "null" {
+		finishReason := aliResponse.Output.FinishReason
+		choice.FinishReason = &finishReason
+	}
 	response := ChatCompletionsStreamResponse{
 		Id:      aliResponse.RequestId,
 		Object:  "chat.completion.chunk",
