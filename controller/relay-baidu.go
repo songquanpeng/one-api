@@ -140,8 +140,12 @@ func embeddingRequestOpenAI2Baidu(request GeneralOpenAIRequest) *BaiduEmbeddingR
 	switch request.Input.(type) {
 	case string:
 		baiduEmbeddingRequest.Input = []string{request.Input.(string)}
-	case []string:
-		baiduEmbeddingRequest.Input = request.Input.([]string)
+	case []any:
+		for _, item := range request.Input.([]any) {
+			if str, isStr := item.(string); isStr {
+				baiduEmbeddingRequest.Input = append(baiduEmbeddingRequest.Input, str)
+			}
+		}
 	}
 	return &baiduEmbeddingRequest
 }
