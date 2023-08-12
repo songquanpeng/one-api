@@ -141,7 +141,7 @@ func UpdateChannelStatusById(id int, status int) {
 }
 
 func UpdateChannelUsedQuota(id int, quota int) {
-	err := DB.Model(&Channel{}).Where("id = ?", id).Update("used_quota", gorm.Expr("used_quota + ?", quota)).Error
+	err := DB.Set("gorm:query_option", "FOR UPDATE").Model(&Channel{}).Where("id = ?", id).Update("used_quota", gorm.Expr("used_quota + ?", quota)).Error
 	if err != nil {
 		common.SysError("failed to update channel used quota: " + err.Error())
 	}
