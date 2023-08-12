@@ -33,7 +33,7 @@ const SystemSetting = () => {
   let [loading, setLoading] = useState(false);
   const [EmailDomainWhitelist, setEmailDomainWhitelist] = useState([]);
   const [restrictedDomainInput, setRestrictedDomainInput] = useState('');
-  const [showModal, setShowModal] = useState(false);
+  const [showPasswordWarningModal, setShowPasswordWarningModal] = useState(false);
 
   const getOptions = async () => {
     const res = await API.get('/api/option/');
@@ -97,8 +97,9 @@ const SystemSetting = () => {
 
   const handleInputChange = async (e, { name, value }) => {
     if (name === 'PasswordLoginEnabled' && inputs[name] === 'true') {
-      setShowModal(true);
-      return; // 早些返回，暂时不更新状态
+      // block disabling password login
+      setShowPasswordWarningModal(true);
+      return;
     }
     if (
       name === 'Notice' ||
@@ -249,23 +250,23 @@ const SystemSetting = () => {
               onChange={handleInputChange}
             />
             {
-              showModal && 
+              showPasswordWarningModal &&
               <Modal
-                open={showModal}
-                onClose={() => setShowModal(false)}
+                open={showPasswordWarningModal}
+                onClose={() => setShowPasswordWarningModal(false)}
                 size={'tiny'}
                 style={{ maxWidth: '450px' }}
               >
-                <Modal.Header>提示</Modal.Header>
+                <Modal.Header>警告</Modal.Header>
                 <Modal.Content>
-                  <p>取消密码登录将导致未绑定其他登录方式的用户（含Root管理员）无法通过密码登录,确认取消?</p>
+                  <p>取消密码登录将导致所有未绑定其他登录方式的用户（包括管理员）无法通过密码登录，确认取消？</p>
                 </Modal.Content>
                 <Modal.Actions>
-                  <Button onClick={() => setShowModal(false)}>取消</Button>
-                  <Button 
-                    primary 
+                  <Button onClick={() => setShowPasswordWarningModal(false)}>取消</Button>
+                  <Button
+                    color='yellow'
                     onClick={async () => {
-                      setShowModal(false);
+                      setShowPasswordWarningModal(false);
                       await updateOption('PasswordLoginEnabled', 'false');
                     }}
                   >

@@ -386,8 +386,8 @@ const EditChannel = () => {
               </Form.Field>
             )
           }
-          <Button type={isEdit ? 'button' : 'submit'} positive onClick={submit}>提交</Button>
           <Button onClick={handleCancel}>取消</Button>
+          <Button type={isEdit ? 'button' : 'submit'} positive onClick={submit}>提交</Button>
         </Form>
       </Segment>
     </>
