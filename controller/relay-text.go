@@ -177,6 +177,8 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 	switch relayMode {
 	case RelayModeChatCompletions:
 		promptTokens = countTokenMessages(textRequest.Messages, textRequest.Model)
+		promptTokens += countTokenFunctions(textRequest.Functions, textRequest.Model)
+		promptTokens += countTokenFunctionCall(textRequest.FunctionCall, textRequest.Model)
 	case RelayModeCompletions:
 		promptTokens = countTokenInput(textRequest.Prompt, textRequest.Model)
 	case RelayModeModerations:
@@ -366,12 +368,19 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 	switch apiType {
 	case APITypeOpenAI:
 		if isStream {
-			err, responseText := openaiStreamHandler(c, resp, relayMode)
+			err, responseText, responseFunctionCallName, responseFunctionCallArguments := openaiStreamHandler(c, resp, relayMode)
 			if err != nil {
 				return err
 			}
 			textResponse.Usage.PromptTokens = promptTokens
 			textResponse.Usage.CompletionTokens = countTokenText(responseText, textRequest.Model)
+			if responseFunctionCallName != "" {
+				textResponse.Usage.CompletionTokens += countTokenFunctionCall(responseFunctionCallName, textRequest.Model)
+			}
+			if responseFunctionCallArguments != "" {
+				responseFunctionCallArguments = strings.Replace(responseFunctionCallArguments, "\\\"", "\"", -1)
+				textResponse.Usage.CompletionTokens += countTokenFunctionCall(responseFunctionCallArguments, textRequest.Model)
+			}
 			return nil
 		} else {
 			err, usage := openaiHandler(c, resp, consumeQuota, promptTokens, textRequest.Model)
