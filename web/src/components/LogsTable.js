@@ -187,6 +187,13 @@ const LogsTable = () => {
     setLoading(false);
   };
 
+  function formatTokenName(tokenName) {
+    if (tokenName.length <= 5) {
+      return tokenName;
+    }
+    return tokenName.slice(0, 5) + "...";
+  }
+
   return (
     <>
       <Segment>
@@ -222,7 +229,7 @@ const LogsTable = () => {
                 onClick={() => {
                   sortLog('created_time');
                 }}
-                width={3}
+                width={2}
               >
                 时间
               </Table.HeaderCell>
@@ -232,7 +239,7 @@ const LogsTable = () => {
                   onClick={() => {
                     sortLog('username');
                   }}
-                  width={1}
+                  width={2}
                 >
                   用户
                 </Table.HeaderCell>
@@ -242,7 +249,7 @@ const LogsTable = () => {
                 onClick={() => {
                   sortLog('token_name');
                 }}
-                width={1}
+                width={2}
               >
                 令牌
               </Table.HeaderCell>
@@ -296,7 +303,7 @@ const LogsTable = () => {
                 onClick={() => {
                   sortLog('content');
                 }}
-                width={isAdminUser ? 4 : 5}
+                width={3}
               >
                 详情
               </Table.HeaderCell>
@@ -319,7 +326,7 @@ const LogsTable = () => {
                         <Table.Cell>{log.username ? <Label>{log.username}</Label> : ''}</Table.Cell>
                       )
                     }
-                    <Table.Cell>{log.token_name ? <Label basic>{log.token_name}</Label> : ''}</Table.Cell>
+                    <Table.Cell>{log.token_name ? <Label basic>{formatTokenName(log.token_name)}</Label> : ''}</Table.Cell>
                     <Table.Cell>{renderType(log.type)}</Table.Cell>
                     <Table.Cell>{log.model_name ? <Label basic>{log.model_name}</Label> : ''}</Table.Cell>
                     <Table.Cell>{log.prompt_tokens ? log.prompt_tokens : ''}</Table.Cell>
