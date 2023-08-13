@@ -456,6 +456,7 @@
   "使用明细（总消耗额度：{renderQuota(stat.quota)}）": "Usage Details (Total Consumption Quota: {renderQuota(stat.quota)})",
   "用户名称": "User Name",
   "令牌名称": "Token Name",
+  "默认令牌": "Default Token",
   "留空则查询全部用户": "Leave blank to query all users",
   "留空则查询全部令牌": "Leave blank to query all tokens",
   "模型名称": "Model Name",
