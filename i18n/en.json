@@ -238,11 +238,11 @@
   "图片地址": "Image URL",
   "在此输入 Logo 图片地址": "Enter the Logo image URL here",
   "首页内容": "Home Page Content",
-  "在此输入首页内容，支持 Markdown & HTML 代码，设置后首页的状态信息将不再显示。如果输入的是一个链接，则会使用该链接作为 iframe 的 src 属性，这允许你设置任意网页作为首页": "Enter the homepage content here, supports Markdown & HTML code. Once set, the status information of the homepage will not be displayed. If a link is entered, it will be used as the src attribute of the iframe, allowing you to set any webpage as the homepage.",
+  "在此输入首页内容，支持 Markdown & HTML 代码，设置后首页的状态信息将不再显示。如果输入的是一个链接，则会使用该链接作为 iframe 的 src 属性，这允许你设置任意网页作为首页。": "Enter the homepage content here, supports Markdown & HTML code. Once set, the status information of the homepage will not be displayed. If a link is entered, it will be used as the src attribute of the iframe, allowing you to set any webpage as the homepage.",
   "保存首页内容": "Save Home Page Content",
-  "在此输入新的关于内容，支持 Markdown & HTML 代码。如果输入的是一个链接，则会使用该链接作为 iframe 的 src 属性，这允许你设置任意网页作为关于页面": "Enter new about content here, supports Markdown & HTML code. If a link is entered, it will be used as the src attribute of the iframe, allowing you to set any webpage as the about page.",
+  "在此输入新的关于内容，支持 Markdown & HTML 代码。如果输入的是一个链接，则会使用该链接作为 iframe 的 src 属性，这允许你设置任意网页作为关于页面。": "Enter new about content here, supports Markdown & HTML code. If a link is entered, it will be used as the src attribute of the iframe, allowing you to set any webpage as the about page.",
   "保存关于": "Save About",
-  "移除 One API 的版权标识必须首先获得授权，项目维护需要花费大量精力，如果本项目对你有意义，请主动支持本项目": "Removal of One API copyright mark must first be authorized. Project maintenance requires a lot of effort. If this project is meaningful to you, please actively support it.",
+  "移除 One API 的版权标识必须首先获得授权，项目维护需要花费大量精力，如果本项目对你有意义，请主动支持本项目。": "Removal of One API copyright mark must first be authorized. Project maintenance requires a lot of effort. If this project is meaningful to you, please actively support it.",
   "页脚": "Footer",
   "在此输入新的页脚，留空则使用默认页脚，支持 HTML 代码": "Enter the new footer here, leave blank to use the default footer, supports HTML code.",
   "设置页脚": "Set Footer",
@@ -355,7 +355,7 @@
   "无": "None",
   "无限制": "Unlimited",
   "永不过期": "Never expires",
-  "无法复制到剪贴板，请手动复制，已将令牌填入搜索框": "Unable to copy to clipboard, please copy manually, the token has been entered into the search box",
+  "无法复制到剪贴板，请手动复制，已将令牌填入搜索框。": "Unable to copy to clipboard, please copy manually, the token has been entered into the search box.",
   "删除令牌": "Delete Token",
   "添加新的令牌": "Add New Token",
   "普通用户": "Regular User",
@@ -601,5 +601,13 @@
   "代理": "Proxy",
   "此项可选，用于通过代理站来进行 API 调用，请输入代理站地址，格式为：https://domain.com": "This is optional, used to make API calls through the proxy site, please enter the proxy site address, the format is: https://domain.com",
   "取消密码登录将导致所有未绑定其他登录方式的用户（包括管理员）无法通过密码登录，确认取消？": "Canceling password login will cause all users (including administrators) who have not bound other login methods to be unable to log in via password, confirm cancel?",
-  "按照如下格式输入：": "Enter in the following format:"
+  "按照如下格式输入：": "Enter in the following format:",
+
+  "AMA 问天": "AMA - Ask me anything",
+  "系统令牌已复制到剪切板": "System token has been copied to clipboard",
+  "新版本可用：${serverStatus.version}，请使用快捷键 Shift + F5 刷新页面": "New version available: ${serverStatus.version}, please refresh the page using shortcut Shift + F5",
+
+  "警告": "Warning",
+  "确定": "Confirm",
+  "。": "."
 }
