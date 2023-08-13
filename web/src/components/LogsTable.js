@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Form, Header, Label, Pagination, Segment, Select, Table } from 'semantic-ui-react';
+import { Button, Form, Header, Label, Pagination, Segment, Select, Table, Popup } from 'semantic-ui-react';
 import { API, isAdmin, showError, timestamp2string } from '../helpers';
 
 import { ITEMS_PER_PAGE } from '../constants';
@@ -326,7 +326,16 @@ const LogsTable = () => {
                         <Table.Cell>{log.username ? <Label>{log.username}</Label> : ''}</Table.Cell>
                       )
                     }
-                    <Table.Cell>{log.token_name ? <Label basic>{formatTokenName(log.token_name)}</Label> : ''}</Table.Cell>
+                    <Table.Cell>
+                      {log.token_name ? (
+                        <Popup 
+                          content={log.token_name}
+                          trigger={
+                            <Label basic>{formatTokenName(log.token_name)}</Label> 
+                          }
+                        />
+                      ) : ''}
+                    </Table.Cell>
                     <Table.Cell>{renderType(log.type)}</Table.Cell>
                     <Table.Cell>{log.model_name ? <Label basic>{log.model_name}</Label> : ''}</Table.Cell>
                     <Table.Cell>{log.prompt_tokens ? log.prompt_tokens : ''}</Table.Cell>
