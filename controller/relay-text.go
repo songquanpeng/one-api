@@ -21,6 +21,7 @@ const (
 	APITypeZhipu
 	APITypeAli
 	APITypeXunfei
+	APITypeMiniMax
 )
 
 var httpClient *http.Client
@@ -62,6 +63,12 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 			return errorWrapper(errors.New("field messages is required"), "required_field_missing", http.StatusBadRequest)
 		}
 	case RelayModeEmbeddings:
+		if textRequest.Input == nil {
+			return errorWrapper(errors.New("embedding input is nil"), "error_field_input", http.StatusBadRequest)
+		}
+		if err := common.Validate.Struct(textRequest); err != nil {
+			return errorWrapper(err, "error_field_input", http.StatusBadRequest)
+		}
 	case RelayModeModerations:
 		if textRequest.Input == "" {
 			return errorWrapper(errors.New("field input is required"), "required_field_missing", http.StatusBadRequest)
@@ -99,6 +106,8 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 		apiType = APITypeAli
 	case common.ChannelTypeXunfei:
 		apiType = APITypeXunfei
+	case common.ChannelTypeMiniMax:
+		apiType = APITypeMiniMax
 	}
 	baseURL := common.ChannelBaseURLs[channelType]
 	requestURL := c.Request.URL.String()
@@ -162,6 +171,12 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 		fullRequestURL = fmt.Sprintf("https://open.bigmodel.cn/api/paas/v3/model-api/%s/%s", textRequest.Model, method)
 	case APITypeAli:
 		fullRequestURL = "https://dashscope.aliyuncs.com/api/v1/services/aigc/text-generation/generation"
+	case APITypeMiniMax:
+		groupId := c.GetString("group_id")
+		fullRequestURL = fmt.Sprintf("https://api.minimax.chat/v1/text/chatcompletion?GroupId=%s", groupId)
+		if relayMode == RelayModeEmbeddings {
+			fullRequestURL = fmt.Sprintf("https://api.minimax.chat/v1/embeddings?GroupId=%s", groupId)
+		}
 	}
 	var promptTokens int
 	var completionTokens int
@@ -172,6 +187,8 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 		promptTokens = countTokenInput(textRequest.Prompt, textRequest.Model)
 	case RelayModeModerations:
 		promptTokens = countTokenInput(textRequest.Input, textRequest.Model)
+	case RelayModeEmbeddings:
+		promptTokens = countTokenEmbeddingInput(textRequest.Input, textRequest.Model)
 	}
 	preConsumedTokens := common.PreConsumedQuota
 	if textRequest.MaxTokens != 0 {
@@ -250,6 +267,20 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 			return errorWrapper(err, "marshal_text_request_failed", http.StatusInternalServerError)
 		}
 		requestBody = bytes.NewBuffer(jsonStr)
+	case APITypeMiniMax:
+		var jsonData []byte
+		var err error
+		if relayMode == RelayModeEmbeddings {
+			minimaxRequest := embeddingRequestOpenAI2Minimax(textRequest)
+			jsonData, err = json.Marshal(minimaxRequest)
+		} else {
+			minimaxRequest := requestOpenAI2Minimax(textRequest)
+			jsonData, err = json.Marshal(minimaxRequest)
+		}
+		if err != nil {
+			return errorWrapper(err, "marshal_text_request_failed", http.StatusInternalServerError)
+		}
+		requestBody = bytes.NewBuffer(jsonData)
 	}
 
 	var req *http.Request
@@ -285,6 +316,8 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 			if textRequest.Stream {
 				req.Header.Set("X-DashScope-SSE", "enable")
 			}
+		case APITypeMiniMax:
+			req.Header.Set("Authorization", "Bearer "+apiKey)
 		}
 		req.Header.Set("Content-Type", c.Request.Header.Get("Content-Type"))
 		req.Header.Set("Accept", c.Request.Header.Get("Accept"))
@@ -501,6 +534,37 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 			return nil
 		} else {
 			return errorWrapper(errors.New("xunfei api does not support non-stream mode"), "invalid_api_type", http.StatusBadRequest)
+		}
+	case APITypeMiniMax:
+		if isStream {
+			err, usage := minimaxStreamHandler(c, resp)
+			if err != nil {
+				return err
+			}
+			if usage != nil {
+				textResponse.Usage = *usage
+			}
+			// minimax's API does not return prompt tokens & completion tokens
+			textResponse.Usage.PromptTokens = textResponse.Usage.TotalTokens
+			return nil
+		} else {
+			var err *OpenAIErrorWithStatusCode
+			var usage *Usage
+			switch relayMode {
+			case RelayModeEmbeddings:
+				err, usage = minimaxEmbeddingHandler(c, resp, promptTokens, textRequest.Model)
+			default:
+				err, usage = minimaxHandler(c, resp)
+			}
+			if err != nil {
+				return err
+			}
+			if usage != nil {
+				textResponse.Usage = *usage
+			}
+			// minimax's API does not return prompt tokens & completion tokens
+			textResponse.Usage.PromptTokens = textResponse.Usage.TotalTokens
+			return nil
 		}
 	default:
 		return errorWrapper(errors.New("unknown api type"), "unknown_api_type", http.StatusInternalServerError)

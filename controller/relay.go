@@ -37,7 +37,7 @@ type GeneralOpenAIRequest struct {
 	Temperature float64   `json:"temperature,omitempty"`
 	TopP        float64   `json:"top_p,omitempty"`
 	N           int       `json:"n,omitempty"`
-	Input       any       `json:"input,omitempty"`
+	Input       any       `json:"input,omitempty" validate:"omitempty,ValidateEmbeddingInput"`
 	Instruction string    `json:"instruction,omitempty"`
 	Size        string    `json:"size,omitempty"`
 }

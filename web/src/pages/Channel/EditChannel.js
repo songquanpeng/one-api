@@ -61,6 +61,9 @@ const EditChannel = () => {
         case 18:
           localModels = ['SparkDesk'];
           break;
+        case 19:
+          localModels = ["abab5.5-chat", "abab5-chat", "embo-01"];
+          break;
       }
       setInputs((inputs) => ({ ...inputs, models: localModels }));
     }
@@ -242,6 +245,20 @@ const EditChannel = () => {
                   placeholder={'请输入自定义渠道的 Base URL，例如：https://openai.justsong.cn'}
                   onChange={handleInputChange}
                   value={inputs.base_url}
+                  autoComplete='new-password'
+                />
+              </Form.Field>
+            )
+          }
+          {
+            inputs.type === 19 && (
+              <Form.Field>
+                <Form.Input
+                  label='Group ID'
+                  name='other'
+                  placeholder={'请输入对应的 Group ID'}
+                  onChange={handleInputChange}
+                  value={inputs.other}
                   autoComplete='new-password'
                 />
               </Form.Field>

@@ -50,6 +50,9 @@ var ModelRatio = map[string]float64{
 	"qwen-v1":                 0.8572, // TBD: https://help.aliyun.com/document_detail/2399482.html?spm=a2c4g.2399482.0.0.1ad347feilAgag
 	"qwen-plus-v1":            0.5715, // Same as above
 	"SparkDesk":               0.8572, // TBD
+	"abab5.5-chat":            1.0715, // ￥0.014 / 1k tokens
+	"abab5-chat":              1.0715, // ￥0.014 / 1k tokens
+	"embo-01":                 0.75,   // TBD: https://api.minimax.chat/document/price?id=6433f32294878d408fc8293e
 }
 
 func ModelRatio2JSONString() string {

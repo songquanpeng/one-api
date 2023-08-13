@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/pkoukk/tiktoken-go"
 	"one-api/common"
+	"reflect"
 )
 
 var stopFinishReason = "stop"
@@ -61,6 +62,22 @@ func countTokenMessages(messages []Message, model string) int {
 	}
 	tokenNum += 3 // Every reply is primed with <|start|>assistant<|message|>
 	return tokenNum
+}
+
+func countTokenEmbeddingInput(input any, model string) int {
+	tokenEncoder := getTokenEncoder(model)
+	v := reflect.ValueOf(input)
+	switch v.Kind() {
+	case reflect.String:
+		return getTokenNum(tokenEncoder, input.(string))
+	case reflect.Array, reflect.Slice:
+		ans := 0
+		for i := 0; i < v.Len(); i++ {
+			ans += countTokenEmbeddingInput(v.Index(i).Interface(), model)
+		}
+		return ans
+	}
+	return 0
 }
 
 func countTokenInput(input any, model string) int {
