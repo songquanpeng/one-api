@@ -368,7 +368,7 @@ const ChannelsTable = () => {
                       }} style={{ cursor: 'pointer' }}>
                       {renderBalance(channel.type, channel.balance)}
                     </span>}
-                      content="点击更新"
+                      content='点击更新'
                       basic
                     />
                   </Table.Cell>

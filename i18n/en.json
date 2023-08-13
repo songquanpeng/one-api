@@ -39,8 +39,8 @@
   "兑换码个数必须大于0": "The number of redemption codes must be greater than 0",
   "一次兑换码批量生成的个数不能大于 100": "The number of redemption codes generated in a batch cannot be greater than 100",
   "通过令牌「%s」使用模型 %s 消耗 %s（模型倍率 %.2f，分组倍率 %.2f）": "Using model %s with token %s consumes %s (model rate %.2f, group rate %.2f)",
-  "当前分组负载已饱和，请稍后再试，或升级账户以提升服务质量。": "The current group load is saturated, please try again later, or upgrade your account to improve service quality.",
-  "令牌名称长度必须在1-20之间": "The length of the token name must be between 1-20",
+  "当前分组上游负载已饱和，请稍后再试": "The current group load is saturated, please try again later",
+  "令牌名称过长": "Token name is too long",
   "令牌已过期，无法启用，请先修改令牌过期时间，或者设置为永不过期": "The token has expired and cannot be enabled. Please modify the expiration time of the token, or set it to never expire.",
   "令牌可用额度已用尽，无法启用，请先修改令牌剩余额度，或者设置为无限额度": "The available quota of the token has been used up and cannot be enabled. Please modify the remaining quota of the token, or set it to unlimited quota",
   "管理员关闭了密码登录": "The administrator has turned off password login",
@@ -229,7 +229,7 @@
   "已是最新版本": "Is the latest version",
   "检查更新": "Check for updates",
   "公告": "Announcement",
-  "在此输入新的公告内容": "Enter new announcement content here",
+  "在此输入新的公告内容，支持 Markdown & HTML 代码": "Enter the new announcement content here, supports Markdown & HTML code",
   "保存公告": "Save Announcement",
   "个性化设置": "Personalization Settings",
   "系统名称": "System Name",
@@ -599,5 +599,7 @@
   "，图片演示。": "related image demo.",
   "令牌创建成功，请在列表页面点击复制获取令牌！": "Token created successfully, please click copy on the list page to get the token!",
   "代理": "Proxy",
-  "此项可选，用于通过代理站来进行 API 调用，请输入代理站地址，格式为：https://domain.com": "This is optional, used to make API calls through the proxy site, please enter the proxy site address, the format is: https://domain.com"
+  "此项可选，用于通过代理站来进行 API 调用，请输入代理站地址，格式为：https://domain.com": "This is optional, used to make API calls through the proxy site, please enter the proxy site address, the format is: https://domain.com",
+  "取消密码登录将导致所有未绑定其他登录方式的用户（包括管理员）无法通过密码登录，确认取消？": "Canceling password login will cause all users (including administrators) who have not bound other login methods to be unable to log in via password, confirm cancel?",
+  "按照如下格式输入：": "Enter in the following format:"
 }

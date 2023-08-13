@@ -163,7 +163,6 @@ func responseZhipu2OpenAI(response *ZhipuResponse) *OpenAITextResponse {
 func streamResponseZhipu2OpenAI(zhipuResponse string) *ChatCompletionsStreamResponse {
 	var choice ChatCompletionsStreamResponseChoice
 	choice.Delta.Content = zhipuResponse
-	choice.FinishReason = ""
 	response := ChatCompletionsStreamResponse{
 		Object:  "chat.completion.chunk",
 		Created: common.GetTimestamp(),
@@ -176,7 +175,7 @@ func streamResponseZhipu2OpenAI(zhipuResponse string) *ChatCompletionsStreamResp
 func streamMetaResponseZhipu2OpenAI(zhipuResponse *ZhipuStreamMetaResponse) (*ChatCompletionsStreamResponse, *Usage) {
 	var choice ChatCompletionsStreamResponseChoice
 	choice.Delta.Content = ""
-	choice.FinishReason = "stop"
+	choice.FinishReason = &stopFinishReason
 	response := ChatCompletionsStreamResponse{
 		Id:      zhipuResponse.RequestId,
 		Object:  "chat.completion.chunk",
@@ -225,11 +224,7 @@ func zhipuStreamHandler(c *gin.Context, resp *http.Response) (*OpenAIErrorWithSt
 		}
 		stopChan <- true
 	}()
-	c.Writer.Header().Set("Content-Type", "text/event-stream")
-	c.Writer.Header().Set("Cache-Control", "no-cache")
-	c.Writer.Header().Set("Connection", "keep-alive")
-	c.Writer.Header().Set("Transfer-Encoding", "chunked")
-	c.Writer.Header().Set("X-Accel-Buffering", "no")
+	setEventStreamHeaders(c)
 	c.Stream(func(w io.Writer) bool {
 		select {
 		case data := <-dataChan:

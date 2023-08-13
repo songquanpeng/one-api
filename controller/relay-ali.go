@@ -121,7 +121,10 @@ func responseAli2OpenAI(response *AliChatResponse) *OpenAITextResponse {
 func streamResponseAli2OpenAI(aliResponse *AliChatResponse) *ChatCompletionsStreamResponse {
 	var choice ChatCompletionsStreamResponseChoice
 	choice.Delta.Content = aliResponse.Output.Text
-	choice.FinishReason = aliResponse.Output.FinishReason
+	if aliResponse.Output.FinishReason != "null" {
+		finishReason := aliResponse.Output.FinishReason
+		choice.FinishReason = &finishReason
+	}
 	response := ChatCompletionsStreamResponse{
 		Id:      aliResponse.RequestId,
 		Object:  "chat.completion.chunk",
@@ -163,11 +166,7 @@ func aliStreamHandler(c *gin.Context, resp *http.Response) (*OpenAIErrorWithStat
 		}
 		stopChan <- true
 	}()
-	c.Writer.Header().Set("Content-Type", "text/event-stream")
-	c.Writer.Header().Set("Cache-Control", "no-cache")
-	c.Writer.Header().Set("Connection", "keep-alive")
-	c.Writer.Header().Set("Transfer-Encoding", "chunked")
-	c.Writer.Header().Set("X-Accel-Buffering", "no")
+	setEventStreamHeaders(c)
 	lastResponseText := ""
 	c.Stream(func(w io.Writer) bool {
 		select {

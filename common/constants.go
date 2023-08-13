@@ -58,6 +58,8 @@ var EmailDomainWhitelist = []string{
 	"foxmail.com",
 }
 
+var DebugEnabled = os.Getenv("DEBUG") == "true"
+
 var LogConsumeEnabled = true
 
 var SMTPServer = ""
