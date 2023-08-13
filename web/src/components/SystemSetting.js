@@ -17,7 +17,6 @@ const SystemSetting = () => {
     SMTPFrom: '',
     SMTPToken: '',
     ServerAddress: '',
-    Footer: '',
     WeChatAuthEnabled: '',
     WeChatServerAddress: '',
     WeChatServerToken: '',

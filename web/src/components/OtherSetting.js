@@ -6,6 +6,7 @@ import { marked } from 'marked';
 const OtherSetting = () => {
   let [inputs, setInputs] = useState({
     Footer: '',
+    HeaderScript: '',
     Notice: '',
     About: '',
     SystemName: '',
@@ -64,6 +65,10 @@ const OtherSetting = () => {
 
   const submitFooter = async () => {
     await updateOption('Footer', inputs.Footer);
+  };
+
+  const submitHeaderScript = async () => {
+    await updateOption('HeaderScript', inputs.HeaderScript);
   };
 
   const submitSystemName = async () => {
@@ -165,6 +170,17 @@ const OtherSetting = () => {
             />
           </Form.Group>
           <Form.Button onClick={submitAbout}>保存关于</Form.Button>
+          <Form.Group widths='equal'>
+            <Form.TextArea
+              label='Header自定义脚本'
+              placeholder='在此输入新的header自定义脚本，支持 第三方 HTML/script 代码'
+              value={inputs.HeaderScript}
+              name='HeaderScript'
+              onChange={handleInputChange}
+              style={{ minHeight: 100 }}
+            />
+          </Form.Group>
+          <Form.Button onClick={submitHeaderScript}>设置Header自定义脚本</Form.Button>
           <Message>移除 One API 的版权标识必须首先获得授权，项目维护需要花费大量精力，如果本项目对你有意义，请主动支持本项目。</Message>
           <Form.Group widths='equal'>
             <Form.Input

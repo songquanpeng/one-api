@@ -24,6 +24,7 @@ import EditRedemption from './pages/Redemption/EditRedemption';
 import TopUp from './pages/TopUp';
 import Log from './pages/Log';
 import Chat from './pages/Chat';
+import useHeaderScript from './hooks/useHeaderScript';
 
 const Home = lazy(() => import('./pages/Home'));
 const About = lazy(() => import('./pages/About'));
@@ -48,6 +49,7 @@ function App() {
       localStorage.setItem('system_name', data.system_name);
       localStorage.setItem('logo', data.logo);
       localStorage.setItem('footer_html', data.footer_html);
+      localStorage.setItem('header_script', data.header_script || '');
       localStorage.setItem('quota_per_unit', data.quota_per_unit);
       localStorage.setItem('display_in_currency', data.display_in_currency);
       if (data.chat_link) {
@@ -84,6 +86,8 @@ function App() {
       }
     }
   }, []);
+
+  useHeaderScript();
 
   return (
     <Routes>
