@@ -14,6 +14,7 @@ import (
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 )
 
 //go:embed web/build
@@ -23,6 +24,15 @@ var buildFS embed.FS
 var indexPage []byte
 
 func main() {
+	// This will load .env file if it exists, to set environment variables instead of exporting them one by one
+	envErr := godotenv.Load()
+	if envErr != nil {
+		common.SysLog("Cannot load .env file, using environment variables, this is not an error, just a reminder")
+	}
+
+	// Sentry is a cross-platform crash reporting and aggregation platform.
+	// It provides the ability to capture, index and store exceptions generated
+	// This will only activate when SENTRY_DSN is set, if you worry about privacy, you can set it to an empty string
 	sentrDSN := os.Getenv("SENTRY_DSN")
 	if sentrDSN != "" {
 		sentry.Init(sentry.ClientOptions{

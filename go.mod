@@ -22,6 +22,8 @@ require (
 	gorm.io/gorm v1.25.3
 )
 
+require github.com/joho/godotenv v1.5.1 // indirect
+
 require (
 	github.com/bytedance/sonic v1.10.0 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
