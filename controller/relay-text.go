@@ -11,6 +11,7 @@ import (
 	"one-api/common"
 	"one-api/model"
 	"strings"
+	"time"
 )
 
 const (
@@ -25,9 +26,13 @@ const (
 )
 
 var httpClient *http.Client
+var impatientHTTPClient *http.Client
 
 func init() {
 	httpClient = &http.Client{}
+	impatientHTTPClient = &http.Client{
+		Timeout: 5 * time.Second,
+	}
 }
 
 func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
@@ -154,7 +159,11 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 		}
 		apiKey := c.Request.Header.Get("Authorization")
 		apiKey = strings.TrimPrefix(apiKey, "Bearer ")
-		fullRequestURL += "?access_token=" + apiKey // TODO: access token expire in 30 days
+		var err error
+		if apiKey, err = getBaiduAccessToken(apiKey); err != nil {
+			return errorWrapper(err, "invalid_baidu_config", http.StatusInternalServerError)
+		}
+		fullRequestURL += "?access_token=" + apiKey
 	case APITypePaLM:
 		fullRequestURL = "https://generativelanguage.googleapis.com/v1beta2/models/chat-bison-001:generateMessage"
 		if baseURL != "" {

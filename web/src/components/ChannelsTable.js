@@ -368,7 +368,7 @@ const ChannelsTable = () => {
                       }} style={{ cursor: 'pointer' }}>
                       {renderBalance(channel.type, channel.balance)}
                     </span>}
-                      content="点击更新"
+                      content='点击更新'
                       basic
                     />
                   </Table.Cell>
@@ -447,8 +447,8 @@ const ChannelsTable = () => {
               <Button size='small' loading={loading} onClick={testAllChannels}>
                 测试所有已启用通道
               </Button>
-              {/* <Button size='small' onClick={updateAllChannelsBalance}
-                      loading={loading || updatingBalance}>更新所有已启用通道余额</Button> */}
+              <Button size='small' onClick={updateAllChannelsBalance}
+                      loading={loading || updatingBalance}>更新所有已启用通道余额</Button>
               <Pagination
                 floated='right'
                 activePage={activePage}
