@@ -3,6 +3,7 @@ package model
 import (
 	"gorm.io/gorm"
 	"one-api/common"
+	"strings"
 )
 
 type Log struct {
@@ -17,6 +18,7 @@ type Log struct {
 	Quota            int    `json:"quota" gorm:"default:0"`
 	PromptTokens     int    `json:"prompt_tokens" gorm:"default:0"`
 	CompletionTokens int    `json:"completion_tokens" gorm:"default:0"`
+	TokenId          int    `json:"token_id" gorm:"default:0;index"`
 }
 
 const (
@@ -26,6 +28,11 @@ const (
 	LogTypeManage
 	LogTypeSystem
 )
+
+func GetLogByKey(key string) (logs []*Log, err error) {
+	err = DB.Joins("left join tokens on tokens.id = logs.token_id").Where("tokens.key = ?", strings.Split(key, "-")[1]).Find(&logs).Error
+	return logs, err
+}
 
 func RecordLog(userId int, logType int, content string) {
 	if logType == LogTypeConsume && !common.LogConsumeEnabled {
@@ -44,7 +51,7 @@ func RecordLog(userId int, logType int, content string) {
 	}
 }
 
-func RecordConsumeLog(userId int, promptTokens int, completionTokens int, modelName string, tokenName string, quota int, content string) {
+func RecordConsumeLog(userId int, promptTokens int, completionTokens int, modelName string, tokenName string, quota int, content string, tokenId int) {
 	if !common.LogConsumeEnabled {
 		return
 	}
@@ -59,6 +66,7 @@ func RecordConsumeLog(userId int, promptTokens int, completionTokens int, modelN
 		TokenName:        tokenName,
 		ModelName:        modelName,
 		Quota:            quota,
+		TokenId:          tokenId,
 	}
 	err := DB.Create(log).Error
 	if err != nil {

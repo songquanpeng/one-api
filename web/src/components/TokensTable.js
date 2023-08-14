@@ -235,21 +235,27 @@ const TokensTable = () => {
                   <Table.Cell>{token.expired_time === -1 ? '永不过期' : renderTimestamp(token.expired_time)}</Table.Cell>
                   <Table.Cell>
                     <div>
-                      <Button
-                        size={'small'}
-                        positive
-                        onClick={async () => {
-                          let key = "sk-" + token.key;
-                          if (await copy(key)) {
-                            showSuccess('已复制到剪贴板！');
-                          } else {
-                            showWarning('无法复制到剪贴板，请手动复制，已将令牌填入搜索框。');
-                            setSearchKeyword(key);
-                          }
-                        }}
-                      >
-                        复制
-                      </Button>
+                      <Popup
+                        trigger={
+                          <Button
+                              size={'small'}
+                              positive
+                              onClick={async () => {
+                                let key = "sk-" + token.key;
+                                if (await copy(key)) {
+                                  showSuccess('已复制到剪贴板！');
+                                } else {
+                                  showWarning('无法复制到剪贴板，请手动复制，已将令牌填入搜索框。');
+                                  setSearchKeyword(key);
+                                }
+                              }}
+                          >
+                            复制
+                          </Button>
+                        }
+                        on={'hover'}
+                        content={"sk-" + token.key}
+                        />
                       <Popup
                         trigger={
                           <Button size='small' negative>

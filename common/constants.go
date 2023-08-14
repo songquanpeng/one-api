@@ -79,6 +79,10 @@ var RequestInterval = time.Duration(requestInterval) * time.Second
 
 var SyncFrequency = 10 * 60 // unit is second, will be overwritten by SYNC_FREQUENCY
 
+var NormalPrice = 1.5
+var StablePrice = 6.0
+var BasePrice = 1.5
+
 const (
 	RoleGuestUser  = 0
 	RoleCommonUser = 1

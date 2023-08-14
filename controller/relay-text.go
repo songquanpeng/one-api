@@ -95,6 +95,33 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 	case common.ChannelTypeZhipu:
 		apiType = APITypeZhipu
 	}
+	isStable := c.GetBool("stable")
+
+	//if common.NormalPrice == -1 && strings.HasPrefix(textRequest.Model, "gpt-4") {
+	//	nowUser, err := model.GetUserById(userId, false)
+	//	if err != nil {
+	//		return errorWrapper(err, "get_user_info_failed", http.StatusInternalServerError)
+	//	}
+	//	if nowUser.StableMode {
+	//		group = "svip"
+	//		isStable = true
+	//		////stableRatio = (common.StablePrice / common.BasePrice) * modelRatio
+	//		//userMaxPrice, _ := strconv.ParseFloat(nowUser.MaxPrice, 64)
+	//		//if userMaxPrice < common.StablePrice {
+	//		//	return errorWrapper(errors.New("当前低价通道不可用，稳定渠道价格为"+strconv.FormatFloat(common.StablePrice, 'f', -1, 64)+"R/刀"), "当前低价通道不可用", http.StatusInternalServerError)
+	//		//}
+	//		//
+	//		////ratio = stableRatio * groupRatio
+	//		//channel, err := model.CacheGetRandomSatisfiedChannel("svip", textRequest.Model)
+	//		//if err != nil {
+	//		//	message := fmt.Sprintf("当前分组 %s 下对于模型 %s 无可用渠道", "svip", textRequest.Model)
+	//		//	return errorWrapper(errors.New(message), "no_available_channel", http.StatusInternalServerError)
+	//		//}
+	//		//channelType = channel.Type
+	//	} else {
+	//		return errorWrapper(errors.New("当前低价通道不可用，请稍后再试，或者在后台开启稳定模式"), "当前低价通道不可用", http.StatusInternalServerError)
+	//	}
+	//}
 	baseURL := common.ChannelBaseURLs[channelType]
 	requestURL := c.Request.URL.String()
 	if c.GetString("base_url") != "" {
@@ -168,11 +195,17 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 	if textRequest.MaxTokens != 0 {
 		preConsumedTokens = promptTokens + textRequest.MaxTokens
 	}
+	//stableRatio := common.GetStableRatio(textRequest.Model)
 	modelRatio := common.GetModelRatio(textRequest.Model)
+	stableRatio := modelRatio
 	groupRatio := common.GetGroupRatio(group)
 	ratio := modelRatio * groupRatio
 	preConsumedQuota := int(float64(preConsumedTokens) * ratio)
 	userQuota, err := model.CacheGetUserQuota(userId)
+	if isStable {
+		stableRatio = (common.StablePrice / common.BasePrice) * modelRatio
+		ratio = stableRatio * groupRatio
+	}
 	if err != nil {
 		return errorWrapper(err, "get_user_quota_failed", http.StatusInternalServerError)
 	}
@@ -301,6 +334,11 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 				// we cannot just return, because we may have to return the pre-consumed quota
 				quota = 0
 			}
+			//if strings.HasPrefix(textRequest.Model, "gpt-4") {
+			//	if quota < 5000 && quota != 0 {
+			//		quota = 5000
+			//	}
+			//}
 			quotaDelta := quota - preConsumedQuota
 			err := model.PostConsumeTokenQuota(tokenId, quotaDelta)
 			if err != nil {
@@ -312,8 +350,13 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 			}
 			if quota != 0 {
 				tokenName := c.GetString("token_name")
-				logContent := fmt.Sprintf("模型倍率 %.2f，分组倍率 %.2f", modelRatio, groupRatio)
-				model.RecordConsumeLog(userId, promptTokens, completionTokens, textRequest.Model, tokenName, quota, logContent)
+				var logContent string
+				if isStable {
+					logContent = fmt.Sprintf("（稳定模式）模型倍率 %.2f，分组倍率 %.2f", stableRatio, groupRatio)
+				} else {
+					logContent = fmt.Sprintf("模型倍率 %.2f，分组倍率 %.2f", modelRatio, groupRatio)
+				}
+				model.RecordConsumeLog(userId, promptTokens, completionTokens, textRequest.Model, tokenName, quota, logContent, tokenId)
 				model.UpdateUserUsedQuotaAndRequestCount(userId, quota)
 				channelId := c.GetInt("channel_id")
 				model.UpdateChannelUsedQuota(channelId, quota)

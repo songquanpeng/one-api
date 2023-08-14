@@ -74,6 +74,7 @@ func main() {
 		}
 		go controller.AutomaticallyTestChannels(frequency)
 	}
+	go controller.UpdateMidjourneyTask()
 
 	// Initialize HTTP server
 	server := gin.Default()

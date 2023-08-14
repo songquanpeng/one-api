@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { API, showError, showInfo, showSuccess, timestamp2string } from '../helpers';
 
 import { CHANNEL_OPTIONS, ITEMS_PER_PAGE } from '../constants';
-import { renderGroup, renderNumber } from '../helpers/render';
+import {renderGroup, renderNumber, renderQuota} from '../helpers/render';
 
 function renderTimestamp(timestamp) {
   return (
@@ -299,6 +299,7 @@ const ChannelsTable = () => {
               onClick={() => {
                 sortChannel('group');
               }}
+              width={1}
             >
               分组
             </Table.HeaderCell>
@@ -307,6 +308,7 @@ const ChannelsTable = () => {
               onClick={() => {
                 sortChannel('type');
               }}
+              width={2}
             >
               类型
             </Table.HeaderCell>
@@ -315,6 +317,7 @@ const ChannelsTable = () => {
               onClick={() => {
                 sortChannel('status');
               }}
+              width={2}
             >
               状态
             </Table.HeaderCell>
@@ -325,6 +328,15 @@ const ChannelsTable = () => {
               }}
             >
               响应时间
+            </Table.HeaderCell>
+            <Table.HeaderCell
+                style={{ cursor: 'pointer' }}
+                onClick={() => {
+                  sortChannel('used_quota');
+                }}
+                width={1}
+            >
+              已使用
             </Table.HeaderCell>
             <Table.HeaderCell
               style={{ cursor: 'pointer' }}
@@ -361,6 +373,7 @@ const ChannelsTable = () => {
                       basic
                     />
                   </Table.Cell>
+                  <Table.Cell>{renderQuota(channel.used_quota)}</Table.Cell>
                   <Table.Cell>
                     <Popup
                       content={channel.balance_updated_time ? renderTimestamp(channel.balance_updated_time) : '未更新'}

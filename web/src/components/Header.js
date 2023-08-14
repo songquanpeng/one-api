@@ -47,6 +47,11 @@ let headerButtons = [
     icon: 'book'
   },
   {
+    name: 'Midjourney',
+    to: '/midjourney',
+    icon: 'images outline'
+  },
+  {
     name: '设置',
     to: '/setting',
     icon: 'setting'

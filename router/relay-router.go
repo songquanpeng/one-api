@@ -41,4 +41,12 @@ func SetRelayRouter(router *gin.Engine) {
 		relayV1Router.DELETE("/models/:model", controller.RelayNotImplemented)
 		relayV1Router.POST("/moderations", controller.Relay)
 	}
+	relayMjRouter := router.Group("/mj")
+	relayMjRouter.Use(middleware.TokenAuth(), middleware.Distribute())
+	{
+		relayMjRouter.POST("/submit/imagine", controller.RelayMidjourney)
+		relayMjRouter.POST("/submit/change", controller.RelayMidjourney)
+		relayMjRouter.POST("/notify", controller.RelayMidjourney)
+		relayMjRouter.GET("/task/:id/fetch", controller.RelayMidjourney)
+	}
 }

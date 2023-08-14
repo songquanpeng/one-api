@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"one-api/common"
 	"one-api/model"
@@ -21,6 +22,7 @@ func Distribute() func(c *gin.Context) {
 		userGroup, _ := model.CacheGetUserGroup(userId)
 		c.Set("group", userGroup)
 		var channel *model.Channel
+		var err error
 		channelId, ok := c.Get("channelId")
 		if ok {
 			id, err := strconv.Atoi(channelId.(string))
@@ -56,19 +58,28 @@ func Distribute() func(c *gin.Context) {
 				return
 			}
 		} else {
+
 			// Select a channel for the user
 			var modelRequest ModelRequest
-			err := common.UnmarshalBodyReusable(c, &modelRequest)
-			if err != nil {
-				c.JSON(http.StatusBadRequest, gin.H{
-					"error": gin.H{
-						"message": "无效的请求",
-						"type":    "one_api_error",
-					},
-				})
-				c.Abort()
-				return
+			if strings.HasPrefix(c.Request.URL.Path, "/mj") {
+				if modelRequest.Model == "" {
+					modelRequest.Model = "midjourney"
+				}
+			} else {
+				err := common.UnmarshalBodyReusable(c, &modelRequest)
+				if err != nil {
+					log.Println(err)
+					c.JSON(http.StatusBadRequest, gin.H{
+						"error": gin.H{
+							"message": "无效的请求",
+							"type":    "one_api_error",
+						},
+					})
+					c.Abort()
+					return
+				}
 			}
+
 			if strings.HasPrefix(c.Request.URL.Path, "/v1/moderations") {
 				if modelRequest.Model == "" {
 					modelRequest.Model = "text-moderation-stable"
@@ -84,21 +95,51 @@ func Distribute() func(c *gin.Context) {
 					modelRequest.Model = "dall-e"
 				}
 			}
+			isStable := false
 			channel, err = model.CacheGetRandomSatisfiedChannel(userGroup, modelRequest.Model)
+			c.Set("stable", false)
 			if err != nil {
 				message := fmt.Sprintf("当前分组 %s 下对于模型 %s 无可用渠道", userGroup, modelRequest.Model)
-				if channel != nil {
-					common.SysError(fmt.Sprintf("渠道不存在：%d", channel.Id))
-					message = "数据库一致性已被破坏，请联系管理员"
+				if strings.HasPrefix(modelRequest.Model, "gpt-4") {
+					common.SysLog("GPT-4低价渠道宕机，正在尝试转换")
+					nowUser, err := model.GetUserById(userId, false)
+					if err == nil {
+						if nowUser.StableMode {
+							userGroup = "svip"
+							//stableRatio = (common.StablePrice / common.BasePrice) * modelRatio
+							userMaxPrice, _ := strconv.ParseFloat(nowUser.MaxPrice, 64)
+							if userMaxPrice < common.StablePrice {
+								message = "当前低价通道不可用，稳定渠道价格为" + strconv.FormatFloat(common.StablePrice, 'f', -1, 64) + "R/刀"
+							} else {
+								//common.SysLog(fmt.Sprintf("用户 %s 使用稳定渠道", nowUser.Username))
+								channel, err = model.CacheGetRandomSatisfiedChannel(userGroup, modelRequest.Model)
+								if err != nil {
+									message = "稳定渠道已经宕机，请联系管理员"
+								}
+								isStable = true
+								common.SysLog(fmt.Sprintf("用户 %s 使用稳定渠道 %v", nowUser.Username, channel))
+								c.Set("stable", true)
+							}
+
+						} else {
+							message = "当前低价通道不可用，请稍后再试，或者在后台开启稳定渠道模式"
+						}
+					}
 				}
-				c.JSON(http.StatusServiceUnavailable, gin.H{
-					"error": gin.H{
-						"message": message,
-						"type":    "one_api_error",
-					},
-				})
-				c.Abort()
-				return
+				//if channel == nil {
+				//	common.SysError(fmt.Sprintf("渠道不存在：%d", channel.Id))
+				//	message = "数据库一致性已被破坏，请联系管理员"
+				//}
+				if !isStable {
+					c.JSON(http.StatusInternalServerError, gin.H{
+						"error": gin.H{
+							"message": message,
+							"type":    "one_api_error",
+						},
+					})
+					c.Abort()
+					return
+				}
 			}
 		}
 		c.Set("channel", channel.Type)
