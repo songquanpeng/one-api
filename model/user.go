@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"gorm.io/gorm"
 	"one-api/common"
+	"strconv"
 	"strings"
 )
 
@@ -42,7 +43,11 @@ func GetAllUsers(startIdx int, num int) (users []*User, err error) {
 }
 
 func SearchUsers(keyword string) (users []*User, err error) {
-	err = DB.Omit("password").Where("id = ? or username LIKE ? or email LIKE ? or display_name LIKE ?", keyword, keyword+"%", keyword+"%", keyword+"%").Find(&users).Error
+	idKeyword, err := strconv.Atoi(keyword)
+	if err != nil {
+		idKeyword = 0
+	}
+	err = DB.Omit("password").Where("username LIKE ? or email LIKE ? or display_name LIKE ?", keyword+"%", keyword+"%", keyword+"%").Or(&User{Id: idKeyword}).Find(&users).Error
 	return users, err
 }
 
@@ -267,7 +272,7 @@ func GetUserEmail(id int) (email string, err error) {
 }
 
 func GetUserGroup(id int) (group string, err error) {
-	err = DB.Model(&User{}).Where("id = ?", id).Select("`group`").Find(&group).Error
+	err = DB.Model(&User{}).Where("id = ?", id).Select("group").Find(&group).Error
 	return group, err
 }
 

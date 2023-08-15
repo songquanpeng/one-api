@@ -1,8 +1,11 @@
 package model
 
 import (
+	"errors"
+	"math/rand"
 	"one-api/common"
 	"strings"
+	"time"
 )
 
 type Ability struct {
@@ -13,16 +16,17 @@ type Ability struct {
 }
 
 func GetRandomSatisfiedChannel(group string, model string) (*Channel, error) {
-	ability := Ability{}
+	var abilities []Ability
 	var err error = nil
-	if common.UsingSQLite {
-		err = DB.Where("`group` = ? and model = ? and enabled = 1", group, model).Order("RANDOM()").Limit(1).First(&ability).Error
-	} else {
-		err = DB.Where("`group` = ? and model = ? and enabled = 1", group, model).Order("RAND()").Limit(1).First(&ability).Error
-	}
+	err = DB.Where(&Ability{Group: group, Model: model, Enabled: true}).Find(&abilities).Error
 	if err != nil {
 		return nil, err
 	}
+	if len(abilities) == 0 {
+		return nil, errors.New("channel not found")
+	}
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	ability := abilities[r.Intn(len(abilities))]
 	channel := Channel{}
 	channel.Id = ability.ChannelId
 	err = DB.First(&channel, "id = ?", ability.ChannelId).Error

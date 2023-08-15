@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"gorm.io/gorm"
 	"one-api/common"
+	"strconv"
 )
 
 type Redemption struct {
@@ -27,7 +28,11 @@ func GetAllRedemptions(startIdx int, num int) ([]*Redemption, error) {
 }
 
 func SearchRedemptions(keyword string) (redemptions []*Redemption, err error) {
-	err = DB.Where("id = ? or name LIKE ?", keyword, keyword+"%").Find(&redemptions).Error
+	idKeyword, err := strconv.Atoi(keyword)
+	if err != nil {
+		idKeyword = 0
+	}
+	err = DB.Where("name LIKE ?", keyword+"%").Or(&Redemption{Id: idKeyword}).Find(&redemptions).Error
 	return redemptions, err
 }
 
@@ -51,7 +56,7 @@ func Redeem(key string, userId int) (quota int, err error) {
 	redemption := &Redemption{}
 
 	err = DB.Transaction(func(tx *gorm.DB) error {
-		err := tx.Set("gorm:query_option", "FOR UPDATE").Where("`key` = ?", key).First(redemption).Error
+		err := tx.Set("gorm:query_option", "FOR UPDATE").Where(&Redemption{Key: key}).First(redemption).Error
 		if err != nil {
 			return errors.New("无效的兑换码")
 		}
