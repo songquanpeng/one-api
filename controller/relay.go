@@ -34,10 +34,6 @@ type Function struct {
 	Parameters  Parameter `json:"parameters"`
 }
 
-type FunctionCall struct {
-	Name string `json:"name"`
-}
-
 const (
 	RelayModeUnknown = iota
 	RelayModeChatCompletions
@@ -145,13 +141,15 @@ type ImageResponse struct {
 	}
 }
 
+type FunctionCall struct {
+	Name      string `json:"name,omitempty"`
+	Arguments string `json:"arguments,omitempty"`
+}
+
 type ChatCompletionsStreamResponseChoice struct {
 	Delta struct {
-		Content      string `json:"content"`
-		FunctionCall struct {
-			Name      string `json:"name"`
-			Arguments string `json:"arguments"`
-		} `json:"function_call"`
+		Content      string        `json:"content"`
+		FunctionCall *FunctionCall `json:"function_call,omitempty"`
 	} `json:"delta"`
 	FinishReason *string `json:"finish_reason"`
 }
