@@ -52,8 +52,10 @@ func openaiStreamHandler(c *gin.Context, resp *http.Response, relayMode int) (*O
 					}
 					for _, choice := range streamResponse.Choices {
 						responseText += choice.Delta.Content
-						responseFunctionCallName += choice.Delta.FunctionCall.Name
-						responseFunctionCallArguments += choice.Delta.FunctionCall.Arguments
+						if choice.Delta.FunctionCall != nil {
+							responseFunctionCallName += choice.Delta.FunctionCall.Name
+							responseFunctionCallArguments += choice.Delta.FunctionCall.Arguments
+						}
 					}
 				case RelayModeCompletions:
 					var streamResponse CompletionsStreamResponse
