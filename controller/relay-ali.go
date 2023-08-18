@@ -177,9 +177,11 @@ func aliStreamHandler(c *gin.Context, resp *http.Response) (*OpenAIErrorWithStat
 				common.SysError("error unmarshalling stream response: " + err.Error())
 				return true
 			}
-			usage.PromptTokens += aliResponse.Usage.InputTokens
-			usage.CompletionTokens += aliResponse.Usage.OutputTokens
-			usage.TotalTokens += aliResponse.Usage.InputTokens + aliResponse.Usage.OutputTokens
+			if aliResponse.Usage.OutputTokens != 0 {
+				usage.PromptTokens = aliResponse.Usage.InputTokens
+				usage.CompletionTokens = aliResponse.Usage.OutputTokens
+				usage.TotalTokens = aliResponse.Usage.InputTokens + aliResponse.Usage.OutputTokens
+			}
 			response := streamResponseAli2OpenAI(&aliResponse)
 			response.Choices[0].Delta.Content = strings.TrimPrefix(response.Choices[0].Delta.Content, lastResponseText)
 			lastResponseText = aliResponse.Output.Text
