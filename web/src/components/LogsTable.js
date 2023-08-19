@@ -43,6 +43,7 @@ function renderType(type) {
 
 const LogsTable = () => {
   const [logs, setLogs] = useState([]);
+  const [showStat, setShowStat] = useState(false);
   const [loading, setLoading] = useState(true);
   const [activePage, setActivePage] = useState(1);
   const [searchKeyword, setSearchKeyword] = useState('');
@@ -92,6 +93,17 @@ const LogsTable = () => {
     }
   };
 
+  const handleEyeClick = async () => {
+    if (!showStat) {
+      if (isAdminUser) {
+        await getLogStat();
+      } else {
+        await getLogSelfStat();
+      }
+    }
+    setShowStat(!showStat);
+  };
+
   const loadLogs = async (startIdx) => {
     let url = '';
     let localStartTimestamp = Date.parse(start_timestamp) / 1000;
@@ -129,13 +141,8 @@ const LogsTable = () => {
 
   const refresh = async () => {
     setLoading(true);
-    setActivePage(1)
+    setActivePage(1);
     await loadLogs(0);
-    if (isAdminUser) {
-      getLogStat().then();
-    } else {
-      getLogSelfStat().then();
-    }
   };
 
   useEffect(() => {
@@ -169,7 +176,7 @@ const LogsTable = () => {
     if (logs.length === 0) return;
     setLoading(true);
     let sortedLogs = [...logs];
-    if (typeof sortedLogs[0][key] === 'string'){
+    if (typeof sortedLogs[0][key] === 'string') {
       sortedLogs.sort((a, b) => {
         return ('' + a[key]).localeCompare(b[key]);
       });
@@ -190,7 +197,12 @@ const LogsTable = () => {
   return (
     <>
       <Segment>
-        <Header as='h3'>使用明细（总消耗额度：{renderQuota(stat.quota)}）</Header>
+        <Header as='h3'>
+          使用明细（总消耗额度：
+          {showStat && renderQuota(stat.quota)}
+          {!showStat && <span onClick={handleEyeClick} style={{ cursor: 'pointer', color: 'gray' }}>点击查看</span>}
+          ）
+        </Header>
         <Form>
           <Form.Group>
             {

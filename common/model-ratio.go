@@ -1,6 +1,9 @@
 package common
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"strings"
+)
 
 // ModelRatio
 // https://platform.openai.com/docs/models/model-endpoint-compatibility
@@ -38,8 +41,8 @@ var ModelRatio = map[string]float64{
 	"text-moderation-stable":  0.1,
 	"text-moderation-latest":  0.1,
 	"dall-e":                  8,
-	"claude-instant-1":        0.75,
-	"claude-2":                30,
+	"claude-instant-1":        0.815,  // $1.63 / 1M tokens
+	"claude-2":                5.51,   // $11.02 / 1M tokens
 	"ERNIE-Bot":               0.8572, // ￥0.012 / 1k tokens
 	"ERNIE-Bot-turbo":         0.5715, // ￥0.008 / 1k tokens
 	"Embedding-V1":            0.1429, // ￥0.002 / 1k tokens
@@ -72,4 +75,20 @@ func GetModelRatio(name string) float64 {
 		return 30
 	}
 	return ratio
+}
+
+func GetCompletionRatio(name string) float64 {
+	if strings.HasPrefix(name, "gpt-3.5") {
+		return 1.333333
+	}
+	if strings.HasPrefix(name, "gpt-4") {
+		return 2
+	}
+	if strings.HasPrefix(name, "claude-instant-1") {
+		return 3.38
+	}
+	if strings.HasPrefix(name, "claude-2") {
+		return 2.965517
+	}
+	return 1
 }
