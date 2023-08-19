@@ -111,15 +111,14 @@ func testChannel(channel *model.Channel, request ChatRequest) (error, *OpenAIErr
 			if !strings.HasPrefix(data, "data:") {
 				continue
 			}
-			data = data[6:]
+			data = strings.TrimPrefix(data, "data:")
 			if !strings.HasPrefix(data, "[DONE]") {
 				var streamResponse ChatCompletionsStreamResponse
 				err := json.Unmarshal([]byte(data), &streamResponse)
-				if err != nil {
-					return err, nil
-				}
-				for _, choice := range streamResponse.Choices {
-					responseText += choice.Delta.Content
+				if err == nil {
+					for _, choice := range streamResponse.Choices {
+						responseText += choice.Delta.Content
+					}
 				}
 			}
 		}

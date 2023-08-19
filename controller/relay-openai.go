@@ -57,18 +57,17 @@ func openaiStreamHandler(c *gin.Context, resp *http.Response, relayMode int) (*O
 				}
 			}
 			dataChan <- data
-			data = data[6:]
+			data = strings.TrimPrefix(data, "data:")
 			if !strings.HasPrefix(data, "[DONE]") {
 				switch relayMode {
 				case RelayModeChatCompletions:
 					var streamResponse ChatCompletionsStreamResponse
 					err := json.Unmarshal([]byte(data), &streamResponse)
-					if err != nil {
-						common.SysError("error unmarshalling stream response: " + err.Error())
+					if err == nil {
+						for _, choice := range streamResponse.Choices {
+							responseText += choice.Delta.Content
+						}
 						continue // just ignore the error
-					}
-					for _, choice := range streamResponse.Choices {
-						responseText += choice.Delta.Content
 					}
 				case RelayModeCompletions:
 					var streamResponse CompletionsStreamResponse
