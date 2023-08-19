@@ -355,7 +355,7 @@ const EditChannel = () => {
                 label='密钥'
                 name='key'
                 required
-                placeholder={inputs.type === 15 ? '按照如下格式输入：APIKey|SecretKey' : (inputs.type === 18 ? '按照如下格式输入：APPID|APISecret|APIKey|v1.1或v2.1' : '请输入渠道对应的鉴权密钥')}
+                placeholder={inputs.type === 15 ? '按照如下格式输入：APIKey|SecretKey' : (inputs.type === 18 ? '按照如下格式输入：APPID|APISecret|APIKey' : '请输入渠道对应的鉴权密钥')}
                 onChange={handleInputChange}
                 value={inputs.key}
                 autoComplete='new-password'

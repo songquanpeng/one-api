@@ -176,15 +176,12 @@ func buildXunfeiAuthUrl(hostUrl string, apiKey, apiSecret string) string {
 	return callUrl
 }
 
-func xunfeiStreamHandler(c *gin.Context, textRequest GeneralOpenAIRequest, appId string, apiSecret string, apiKey string, version string) (*OpenAIErrorWithStatusCode, *Usage) {
+func xunfeiStreamHandler(c *gin.Context, textRequest GeneralOpenAIRequest, appId string, apiSecret string, apiKey string) (*OpenAIErrorWithStatusCode, *Usage) {
 	var usage Usage
 	d := websocket.Dialer{
 		HandshakeTimeout: 5 * time.Second,
 	}
 	hostUrl := "wss://aichat.xf-yun.com/v1/chat"
-    if version != "" { //换成新版的，支持v2
-		hostUrl = "wss://spark-api.xf-yun.com/" + version + "/chat"
-	}
 	conn, resp, err := d.Dial(buildXunfeiAuthUrl(hostUrl, apiKey, apiSecret), nil)
 	if err != nil || resp.StatusCode != 101 {
 		return errorWrapper(err, "dial_failed", http.StatusInternalServerError), nil

@@ -501,14 +501,11 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 			auth := c.Request.Header.Get("Authorization")
 			auth = strings.TrimPrefix(auth, "Bearer ")
 			splits := strings.Split(auth, "|")
-		    if len(splits) < 3 || len(splits) > 4 {
+			if len(splits) != 3 {
 				return errorWrapper(errors.New("invalid auth"), "invalid_auth", http.StatusBadRequest)
 			}
-			if len(splits) == 3 {
-				splits[3] = ""
-			}
-			err, usage := xunfeiStreamHandler(c, textRequest, splits[0], splits[1], splits[2], splits[3])
-            if err != nil {
+			err, usage := xunfeiStreamHandler(c, textRequest, splits[0], splits[1], splits[2])
+			if err != nil {
 				return err
 			}
 			if usage != nil {
