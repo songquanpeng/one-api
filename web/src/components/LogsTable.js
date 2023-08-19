@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Form, Header, Label, Pagination, Segment, Select, Table } from 'semantic-ui-react';
+import { Button, Form, Header, Label, Pagination, Segment, Select, Table, Icon } from 'semantic-ui-react';
 import { API, isAdmin, showError, timestamp2string } from '../helpers';
 
 import { ITEMS_PER_PAGE } from '../constants';
@@ -43,6 +43,7 @@ function renderType(type) {
 
 const LogsTable = () => {
   const [logs, setLogs] = useState([]);
+  const [showStat, setShowStat] = useState(false);
   const [loading, setLoading] = useState(true);
   const [activePage, setActivePage] = useState(1);
   const [searchKeyword, setSearchKeyword] = useState('');
@@ -92,6 +93,17 @@ const LogsTable = () => {
     }
   };
 
+  const handleEyeClick = async () => {
+    if (!showStat) {
+      if (isAdminUser) {
+        await getLogStat();
+      } else {
+        await getLogSelfStat();
+      }
+    }
+    setShowStat(!showStat);
+  };
+
   const loadLogs = async (startIdx) => {
     let url = '';
     let localStartTimestamp = Date.parse(start_timestamp) / 1000;
@@ -131,11 +143,6 @@ const LogsTable = () => {
     setLoading(true);
     setActivePage(1)
     await loadLogs(0);
-    if (isAdminUser) {
-      getLogStat().then();
-    } else {
-      getLogSelfStat().then();
-    }
   };
 
   useEffect(() => {
@@ -190,7 +197,17 @@ const LogsTable = () => {
   return (
     <>
       <Segment>
-        <Header as='h3'>使用明细（总消耗额度：{renderQuota(stat.quota)}）</Header>
+        <Header as='h3'>
+          使用明细（总消耗额度：
+          {showStat && renderQuota(stat.quota)}
+          <Icon 
+              name={showStat ? "eye slash" : "eye"} 
+              size="small" 
+              onClick={handleEyeClick} 
+              style={{ cursor: 'pointer', marginLeft: '5px', fontSize: '0.8em' }} 
+          />
+          ）
+        </Header>
         <Form>
           <Form.Group>
             {
