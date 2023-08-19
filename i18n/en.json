@@ -521,5 +521,7 @@
   "此项可选，用于通过代理站来进行 API 调用，请输入代理站地址，格式为：https://domain.com": "This is optional, used to make API calls through the proxy site, please enter the proxy site address, the format is: https://domain.com",
   "取消密码登录将导致所有未绑定其他登录方式的用户（包括管理员）无法通过密码登录，确认取消？": "Canceling password login will cause all users (including administrators) who have not bound other login methods to be unable to log in via password, confirm cancel?",
   "按照如下格式输入：": "Enter in the following format:",
+  "模型版本": "Model version",
+  "请输入星火大模型版本，注意是接口地址中的版本号，例如：v2.1": "Please enter the version of the Starfire model, note that it is the version number in the interface address, for example: v2.1",
   "点击查看": "click to view"
 }
