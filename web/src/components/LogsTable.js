@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Form, Header, Label, Pagination, Segment, Select, Table, Icon } from 'semantic-ui-react';
+import { Button, Form, Header, Label, Pagination, Segment, Select, Table } from 'semantic-ui-react';
 import { API, isAdmin, showError, timestamp2string } from '../helpers';
 
 import { ITEMS_PER_PAGE } from '../constants';
@@ -141,7 +141,7 @@ const LogsTable = () => {
 
   const refresh = async () => {
     setLoading(true);
-    setActivePage(1)
+    setActivePage(1);
     await loadLogs(0);
   };
 
@@ -176,7 +176,7 @@ const LogsTable = () => {
     if (logs.length === 0) return;
     setLoading(true);
     let sortedLogs = [...logs];
-    if (typeof sortedLogs[0][key] === 'string'){
+    if (typeof sortedLogs[0][key] === 'string') {
       sortedLogs.sort((a, b) => {
         return ('' + a[key]).localeCompare(b[key]);
       });
@@ -200,12 +200,7 @@ const LogsTable = () => {
         <Header as='h3'>
           使用明细（总消耗额度：
           {showStat && renderQuota(stat.quota)}
-          <Icon 
-              name={showStat ? "eye slash" : "eye"} 
-              size="small" 
-              onClick={handleEyeClick} 
-              style={{ cursor: 'pointer', marginLeft: '5px', fontSize: '0.8em' }} 
-          />
+          {!showStat && <span onClick={handleEyeClick} style={{ cursor: 'pointer', color: 'gray' }}>点击查看</span>}
           ）
         </Header>
         <Form>
