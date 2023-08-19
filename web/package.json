@@ -6,7 +6,7 @@
     "@vitejs/plugin-react-swc": "^3.3.2",
     "axios": "^1.4.0",
     "history": "^5.3.0",
-    "marked": "^7.0.2",
+    "marked": "^7.0.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-dropzone": "^14.2.3",
@@ -41,7 +41,7 @@
     ]
   },
   "devDependencies": {
-    "prettier": "^3.0.1"
+    "prettier": "^3.0.2"
   },
   "prettier": {
     "singleQuote": true,
