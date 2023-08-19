@@ -52,7 +52,7 @@ _✨ 標準的な OpenAI API フォーマットを通じてすべての LLM に�
 
 > **警告**: この README は ChatGPT によって翻訳されています。翻訳ミスを発見した場合は遠慮なく PR を投稿してください。
 
-> **警告**： 英語版の Docker イメージは `justsong/one-api-ja` です。
+> **警告**： 英語版の Docker イメージは `justsong/one-api-en` です。
 
 > **注**: Docker からプルされた最新のイメージは、`alpha` リリースかもしれません。安定性が必要な場合は、手動でバージョンを指定してください。
 
@@ -89,7 +89,7 @@ _✨ 標準的な OpenAI API フォーマットを通じてすべての LLM に�
 
 ## デプロイメント
 ### Docker デプロイメント
-デプロイコマンド: `docker run --name one-api -d --restart always -p 3000:3000 -e TZ=Asia/Shanghai -v /home/ubuntu/data/one-api:/data justsong/one-api-ja`。
+デプロイコマンド: `docker run --name one-api -d --restart always -p 3000:3000 -e TZ=Asia/Shanghai -v /home/ubuntu/data/one-api:/data justsong/one-api-en`。
 
 コマンドを更新する: `docker run --rm -v /var/run/docker.sock:/var/run/docker.sock containrr/watchtower -cR`。
 
