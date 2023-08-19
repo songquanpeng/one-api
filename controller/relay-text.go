@@ -330,14 +330,7 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 		go func() {
 			if consumeQuota {
 				quota := 0
-				completionRatio := 1.0
-				if strings.HasPrefix(textRequest.Model, "gpt-3.5") {
-					completionRatio = 1.333333
-				}
-				if strings.HasPrefix(textRequest.Model, "gpt-4") {
-					completionRatio = 2
-				}
-
+				completionRatio := common.GetCompletionRatio(textRequest.Model)
 				promptTokens = textResponse.Usage.PromptTokens
 				completionTokens = textResponse.Usage.CompletionTokens
 
