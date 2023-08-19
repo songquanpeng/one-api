@@ -326,6 +326,11 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 			fmt.Errorf("bad status code: %d", resp.StatusCode), "bad_status_code", resp.StatusCode)
 	}
 
+	if resp.StatusCode != http.StatusOK {
+		return errorWrapper(
+			fmt.Errorf("bad status code: %d", resp.StatusCode), "bad_status_code", resp.StatusCode)
+	}
+
 	var textResponse TextResponse
 	tokenName := c.GetString("token_name")
 	channelId := c.GetInt("channel_id")
