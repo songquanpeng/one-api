@@ -334,6 +334,13 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 					completionRatio = 2
 				}
 
+				if strings.HasPrefix(textRequest.Model, "claude-instant-1") {
+					completionRatio = 3.38
+				}
+				if strings.HasPrefix(textRequest.Model, "claude-2") {
+					completionRatio = 2.965517
+				}
+
 				promptTokens = textResponse.Usage.PromptTokens
 				completionTokens = textResponse.Usage.CompletionTokens
 
