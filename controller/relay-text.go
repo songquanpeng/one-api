@@ -315,11 +315,11 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 			return errorWrapper(err, "close_request_body_failed", http.StatusInternalServerError)
 		}
 		isStream = isStream || strings.HasPrefix(resp.Header.Get("Content-Type"), "text/event-stream")
-	}
 
-	if resp.StatusCode != http.StatusOK {
-		return errorWrapper(
-			fmt.Errorf("bad status code: %d", resp.StatusCode), "bad_status_code", resp.StatusCode)
+		if resp.StatusCode != http.StatusOK {
+			return errorWrapper(
+				fmt.Errorf("bad status code: %d", resp.StatusCode), "bad_status_code", resp.StatusCode)
+		}
 	}
 
 	var textResponse TextResponse
