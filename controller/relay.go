@@ -16,6 +16,24 @@ type Message struct {
 	Name    *string `json:"name,omitempty"`
 }
 
+type Property struct {
+	Type        string   `json:"type"`
+	Description string   `json:"description"`
+	Enum        []string `json:"enum"`
+}
+
+type Parameter struct {
+	Type       string              `json:"type"`
+	Properties map[string]Property `json:"properties"`
+	Required   []string            `json:"required"`
+}
+
+type Function struct {
+	Name        string    `json:"name"`
+	Description string    `json:"description"`
+	Parameters  Parameter `json:"parameters"`
+}
+
 const (
 	RelayModeUnknown = iota
 	RelayModeChatCompletions
@@ -29,17 +47,19 @@ const (
 // https://platform.openai.com/docs/api-reference/chat
 
 type GeneralOpenAIRequest struct {
-	Model       string    `json:"model,omitempty"`
-	Messages    []Message `json:"messages,omitempty"`
-	Prompt      any       `json:"prompt,omitempty"`
-	Stream      bool      `json:"stream,omitempty"`
-	MaxTokens   int       `json:"max_tokens,omitempty"`
-	Temperature float64   `json:"temperature,omitempty"`
-	TopP        float64   `json:"top_p,omitempty"`
-	N           int       `json:"n,omitempty"`
-	Input       any       `json:"input,omitempty"`
-	Instruction string    `json:"instruction,omitempty"`
-	Size        string    `json:"size,omitempty"`
+	Model        string      `json:"model,omitempty"`
+	Messages     []Message   `json:"messages,omitempty"`
+	Prompt       any         `json:"prompt,omitempty"`
+	Stream       bool        `json:"stream,omitempty"`
+	MaxTokens    int         `json:"max_tokens,omitempty"`
+	Temperature  float64     `json:"temperature,omitempty"`
+	TopP         float64     `json:"top_p,omitempty"`
+	N            int         `json:"n,omitempty"`
+	Input        any         `json:"input,omitempty"`
+	Instruction  string      `json:"instruction,omitempty"`
+	Size         string      `json:"size,omitempty"`
+	Functions    []Function  `json:"functions,omitempty"`
+	FunctionCall interface{} `json:"functioncall,omitempty"`
 }
 
 type ChatRequest struct {
@@ -89,7 +109,8 @@ type TextResponse struct {
 type OpenAITextResponseChoice struct {
 	Index        int `json:"index"`
 	Message      `json:"message"`
-	FinishReason string `json:"finish_reason"`
+	FinishReason string     `json:"finish_reason"`
+	Functions    []Function `json:"functions,omitempty"`
 }
 
 type OpenAITextResponse struct {
@@ -120,9 +141,15 @@ type ImageResponse struct {
 	}
 }
 
+type FunctionCall struct {
+	Name      string `json:"name,omitempty"`
+	Arguments string `json:"arguments,omitempty"`
+}
+
 type ChatCompletionsStreamResponseChoice struct {
 	Delta struct {
-		Content string `json:"content"`
+		Content      string        `json:"content"`
+		FunctionCall *FunctionCall `json:"function_call,omitempty"`
 	} `json:"delta"`
 	FinishReason *string `json:"finish_reason"`
 }
