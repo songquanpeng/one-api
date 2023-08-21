@@ -110,6 +110,9 @@ func Distribute() func(c *gin.Context) {
 		if channel.Type == common.ChannelTypeAzure || channel.Type == common.ChannelTypeXunfei {
 			c.Set("api_version", channel.Other)
 		}
+		if channel.Type == common.ChannelTypeMiniMax {
+			c.Set("group_id", channel.Other)
+		}
 		c.Next()
 	}
 }

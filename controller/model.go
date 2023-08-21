@@ -360,6 +360,33 @@ func init() {
 			Root:       "SparkDesk",
 			Parent:     nil,
 		},
+		{
+			Id:         "abab5.5-chat",
+			Object:     "model",
+			Created:    1677649963,
+			OwnedBy:    "minimax",
+			Permission: permission,
+			Root:       "abab5.5-chat",
+			Parent:     nil,
+		},
+		{
+			Id:         "abab5-chat",
+			Object:     "model",
+			Created:    1677649963,
+			OwnedBy:    "minimax",
+			Permission: permission,
+			Root:       "abab5-chat",
+			Parent:     nil,
+		},
+		{
+			Id:         "embo-01",
+			Object:     "model",
+			Created:    1677649963,
+			OwnedBy:    "minimax",
+			Permission: permission,
+			Root:       "embo-01",
+			Parent:     nil,
+		},
 	}
 	openAIModelsMap = make(map[string]OpenAIModels)
 	for _, model := range openAIModels {

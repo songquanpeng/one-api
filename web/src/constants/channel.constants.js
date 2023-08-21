@@ -7,6 +7,7 @@ export const CHANNEL_OPTIONS = [
   { key: 17, text: '阿里通义千问', value: 17, color: 'orange' },
   { key: 18, text: '讯飞星火认知', value: 18, color: 'blue' },
   { key: 16, text: '智谱 ChatGLM', value: 16, color: 'violet' },
+  { key: 19, text: 'MiniMax', value: 19, color: 'rose' },
   { key: 8, text: '自定义渠道', value: 8, color: 'pink' },
   { key: 2, text: '代理：API2D', value: 2, color: 'blue' },
   { key: 5, text: '代理：OpenAI-SB', value: 5, color: 'brown' },
