@@ -2,6 +2,7 @@ package controller
 
 import (
 	"fmt"
+	"sync"
 	"github.com/gin-gonic/gin"
 	"github.com/pkoukk/tiktoken-go"
 	"one-api/common"
@@ -10,8 +11,12 @@ import (
 var stopFinishReason = "stop"
 
 var tokenEncoderMap = map[string]*tiktoken.Tiktoken{}
+var tokenEncoderMapMux sync.Mutex
 
 func getTokenEncoder(model string) *tiktoken.Tiktoken {
+	tokenEncoderMapMux.Lock()
+	defer tokenEncoderMapMux.Unlock()
+
 	if tokenEncoder, ok := tokenEncoderMap[model]; ok {
 		return tokenEncoder
 	}
