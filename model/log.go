@@ -133,8 +133,14 @@ func SearchUserLogs(userId int, keyword string) (logs []*Log, err error) {
 	return logs, err
 }
 
-func SumUsedQuota(logType int, startTimestamp int64, endTimestamp int64, modelName string, username string, tokenName string) (quota int) {
-	tx := DB.Table("logs").Select("sum(quota)")
+type Stat struct {
+	Quota int `json:"quota"`
+	Rpm   int `json:"rpm"`
+	Tpm   int `json:"tpm"`
+}
+
+func SumUsedQuota(logType int, startTimestamp int64, endTimestamp int64, modelName string, username string, tokenName string) (stat Stat) {
+	tx := DB.Table("logs").Select("sum(quota) quota, count(*) rpm, sum(prompt_tokens) + sum(completion_tokens) tpm")
 	if username != "" {
 		tx = tx.Where("username = ?", username)
 	}
@@ -150,8 +156,8 @@ func SumUsedQuota(logType int, startTimestamp int64, endTimestamp int64, modelNa
 	if modelName != "" {
 		tx = tx.Where("model_name = ?", modelName)
 	}
-	tx.Where("type = ?", LogTypeConsume).Scan(&quota)
-	return quota
+	tx.Where("type = ?", LogTypeConsume).Scan(&stat)
+	return stat
 }
 
 func SumUsedToken(logType int, startTimestamp int64, endTimestamp int64, modelName string, username string, tokenName string) (token int) {

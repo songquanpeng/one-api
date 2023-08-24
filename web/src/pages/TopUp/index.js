@@ -184,7 +184,7 @@ const TopUp = () => {
                     <Grid.Column>
                         <Form>
                             <Form.Input
-                                placeholder='充值金额，最低10,最高400'
+                                placeholder='充值金额，最低10,最高1000'
                                 name='redemptionCount'
                                 type={'number'}
                                 value={topUpCount}
@@ -207,14 +207,14 @@ const TopUp = () => {
                                     onlineTopUp('zfb')
                                 }
                             }>
-                                支付宝（最大400元）
+                                支付宝（最大2000元）
                             </Button>
                             <Button color='green' onClick={
                                 async () => {
                                     onlineTopUp('wx')
                                 }
                             }>
-                                微信（最大600元）
+                                微信（最大2000元）
                             </Button>
                         </Form>
                     </Grid.Column>

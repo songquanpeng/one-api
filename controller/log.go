@@ -118,14 +118,15 @@ func GetLogsStat(c *gin.Context) {
 	tokenName := c.Query("token_name")
 	username := c.Query("username")
 	modelName := c.Query("model_name")
-	quotaNum := model.SumUsedQuota(logType, startTimestamp, endTimestamp, modelName, username, tokenName)
+	stat := model.SumUsedQuota(logType, startTimestamp, endTimestamp, modelName, username, tokenName)
 	//tokenNum := model.SumUsedToken(logType, startTimestamp, endTimestamp, modelName, username, "")
 	c.JSON(200, gin.H{
 		"success": true,
 		"message": "",
 		"data": gin.H{
-			"quota": quotaNum,
-			//"token": tokenNum,
+			"quota": stat.Quota,
+			"rpm":   stat.Rpm,
+			"tpm":   stat.Tpm,
 		},
 	})
 }
@@ -143,7 +144,9 @@ func GetLogsSelfStat(c *gin.Context) {
 		"success": true,
 		"message": "",
 		"data": gin.H{
-			"quota": quotaNum,
+			"quota": quotaNum.Quota,
+			"rpm":   quotaNum.Rpm,
+			"tpm":   quotaNum.Tpm,
 			//"token": tokenNum,
 		},
 	})
