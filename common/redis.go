@@ -61,3 +61,8 @@ func RedisDel(key string) error {
 	ctx := context.Background()
 	return RDB.Del(ctx, key).Err()
 }
+
+func RedisDecrease(key string, value int64) error {
+	ctx := context.Background()
+	return RDB.DecrBy(ctx, key, value).Err()
+}

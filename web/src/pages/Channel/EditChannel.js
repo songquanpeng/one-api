@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Form, Header, Input, Message, Segment } from 'semantic-ui-react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { API, showError, showInfo, showSuccess, verifyJSON } from '../../helpers';
 import { CHANNEL_OPTIONS } from '../../constants';
 
@@ -12,9 +12,14 @@ const MODEL_MAPPING_EXAMPLE = {
 
 const EditChannel = () => {
   const params = useParams();
+  const navigate = useNavigate();
   const channelId = params.id;
   const isEdit = channelId !== undefined;
   const [loading, setLoading] = useState(isEdit);
+  const handleCancel = () => {
+    navigate('/channel');
+  };
+  
   const originInputs = {
     name: '',
     type: 1,
@@ -35,6 +40,30 @@ const EditChannel = () => {
   const [customModel, setCustomModel] = useState('');
   const handleInputChange = (e, { name, value }) => {
     setInputs((inputs) => ({ ...inputs, [name]: value }));
+    if (name === 'type' && inputs.models.length === 0) {
+      let localModels = [];
+      switch (value) {
+        case 14:
+          localModels = ['claude-instant-1', 'claude-2'];
+          break;
+        case 11:
+          localModels = ['PaLM-2'];
+          break;
+        case 15:
+          localModels = ['ERNIE-Bot', 'ERNIE-Bot-turbo', 'Embedding-V1'];
+          break;
+        case 17:
+          localModels = ['qwen-v1', 'qwen-plus-v1'];
+          break;
+        case 16:
+          localModels = ['chatglm_pro', 'chatglm_std', 'chatglm_lite'];
+          break;
+        case 18:
+          localModels = ['SparkDesk'];
+          break;
+      }
+      setInputs((inputs) => ({ ...inputs, models: localModels }));
+    }
   };
 
   const loadChannel = async () => {
@@ -132,7 +161,13 @@ const EditChannel = () => {
       localInputs.base_url = localInputs.base_url.slice(0, localInputs.base_url.length - 1);
     }
     if (localInputs.type === 3 && localInputs.other === '') {
-      localInputs.other = '2023-03-15-preview';
+      localInputs.other = '2023-06-01-preview';
+    }
+    if (localInputs.type === 18 && localInputs.other === '') {
+      localInputs.other = 'v2.1';
+    }
+    if (localInputs.model_mapping === '') {
+      localInputs.model_mapping = '{}';
     }
     let res;
     localInputs.models = localInputs.models.join(',');
@@ -192,7 +227,7 @@ const EditChannel = () => {
                   <Form.Input
                     label='默认 API 版本'
                     name='other'
-                    placeholder={'请输入默认 API 版本，例如：2023-03-15-preview，该配置可以被实际的请求查询参数所覆盖'}
+                    placeholder={'请输入默认 API 版本，例如：2023-06-01-preview，该配置可以被实际的请求查询参数所覆盖'}
                     onChange={handleInputChange}
                     value={inputs.other}
                     autoComplete='new-password'
@@ -243,6 +278,20 @@ const EditChannel = () => {
               options={groupOptions}
             />
           </Form.Field>
+          {
+            inputs.type === 18 && (
+              <Form.Field>
+                <Form.Input
+                  label='模型版本'
+                  name='other'
+                  placeholder={'请输入星火大模型版本，注意是接口地址中的版本号，例如：v2.1'}
+                  onChange={handleInputChange}
+                  value={inputs.other}
+                  autoComplete='new-password'
+                />
+              </Form.Field>
+            )
+          }
           <Form.Field>
             <Form.Dropdown
               label='模型'
@@ -270,8 +319,8 @@ const EditChannel = () => {
             }}>清除所有模型</Button>
             <Input
               action={
-                <Button type={'button'} onClick={()=>{
-                  if (customModel.trim() === "") return;
+                <Button type={'button'} onClick={() => {
+                  if (customModel.trim() === '') return;
                   if (inputs.models.includes(customModel)) return;
                   let localModels = [...inputs.models];
                   localModels.push(customModel);
@@ -279,9 +328,9 @@ const EditChannel = () => {
                   localModelOptions.push({
                     key: customModel,
                     text: customModel,
-                    value: customModel,
+                    value: customModel
                   });
-                  setModelOptions(modelOptions=>{
+                  setModelOptions(modelOptions => {
                     return [...modelOptions, ...localModelOptions];
                   });
                   setCustomModel('');
@@ -297,7 +346,7 @@ const EditChannel = () => {
           </div>
           <Form.Field>
             <Form.TextArea
-              label='模型映射'
+              label='模型重定向'
               placeholder={`此项可选，用于修改请求体中的模型名称，为一个 JSON 字符串，键为请求中模型名称，值为要替换的模型名称，例如：\n${JSON.stringify(MODEL_MAPPING_EXAMPLE, null, 2)}`}
               name='model_mapping'
               onChange={handleInputChange}
@@ -323,7 +372,7 @@ const EditChannel = () => {
                 label='密钥'
                 name='key'
                 required
-                placeholder={inputs.type === 15 ? "请输入 access token，当前版本暂不支持自动刷新，请每 30 天更新一次" : '请输入渠道对应的鉴权密钥'}
+                placeholder={inputs.type === 15 ? '按照如下格式输入：APIKey|SecretKey' : (inputs.type === 18 ? '按照如下格式输入：APPID|APISecret|APIKey' : '请输入渠道对应的鉴权密钥')}
                 onChange={handleInputChange}
                 value={inputs.key}
                 autoComplete='new-password'
@@ -344,9 +393,9 @@ const EditChannel = () => {
             inputs.type !== 3 && inputs.type !== 8 && (
               <Form.Field>
                 <Form.Input
-                  label='镜像'
+                  label='代理'
                   name='base_url'
-                  placeholder={'此项可选，用于通过镜像站来进行 API 调用，请输入镜像站地址，格式为：https://domain.com'}
+                  placeholder={'此项可选，用于通过代理站来进行 API 调用，请输入代理站地址，格式为：https://domain.com'}
                   onChange={handleInputChange}
                   value={inputs.base_url}
                   autoComplete='new-password'
@@ -354,7 +403,8 @@ const EditChannel = () => {
               </Form.Field>
             )
           }
-          <Button type={isEdit ? "button" : "submit"} positive onClick={submit}>提交</Button>
+          <Button onClick={handleCancel}>取消</Button>
+          <Button type={isEdit ? 'button' : 'submit'} positive onClick={submit}>提交</Button>
         </Form>
       </Segment>
     </>

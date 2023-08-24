@@ -1,5 +1,5 @@
 <p align="right">
-    <a href="./README.md">中文</a> | <strong>English</strong>
+    <a href="./README.md">中文</a> | <strong>English</strong> | <a href="./README.ja.md">日本語</a>
 </p>
 
 <p align="center">
@@ -57,15 +57,13 @@ _✨ Access all LLM through the standard OpenAI API format, easy to deploy & use
 > **Note**: The latest image pulled from Docker may be an `alpha` release. Specify the version manually if you require stability.
 
 ## Features
-1. Supports multiple API access channels:
-    + [x] Official OpenAI channel (support proxy configuration)
-    + [x] **Azure OpenAI API**
-    + [x] [API Distribute](https://api.gptjk.top/register?aff=QGxj)
-    + [x] [OpenAI-SB](https://openai-sb.com)
-    + [x] [API2D](https://api2d.com/r/197971)
-    + [x] [OhMyGPT](https://aigptx.top?aff=uFpUl2Kf)
-    + [x] [AI Proxy](https://aiproxy.io/?i=OneAPI) (invitation code: `OneAPI`)
-    + [x] Custom channel: Various third-party proxy services not included in the list
+1. Support for multiple large models:
+   + [x] [OpenAI ChatGPT Series Models](https://platform.openai.com/docs/guides/gpt/chat-completions-api) (Supports [Azure OpenAI API](https://learn.microsoft.com/en-us/azure/ai-services/openai/reference))
+   + [x] [Anthropic Claude Series Models](https://anthropic.com)
+   + [x] [Google PaLM2 Series Models](https://developers.generativeai.google)
+   + [x] [Baidu Wenxin Yiyuan Series Models](https://cloud.baidu.com/doc/WENXINWORKSHOP/index.html)
+   + [x] [Alibaba Tongyi Qianwen Series Models](https://help.aliyun.com/document_detail/2400395.html)
+   + [x] [Zhipu ChatGLM Series Models](https://bigmodel.cn)
 2. Supports access to multiple channels through **load balancing**.
 3. Supports **stream mode** that enables typewriter-like effect through stream transmission.
 4. Supports **multi-machine deployment**. [See here](#multi-machine-deployment) for more details.
@@ -139,7 +137,7 @@ The initial account username is `root` and password is `123456`.
    cd one-api/web
    npm install
    npm run build
-
+   
    # Build the backend
    cd ..
    go mod download
@@ -175,7 +173,12 @@ If you encounter a blank page after deployment, refer to [#97](https://github.co
 <summary><strong>Deploy on Sealos</strong></summary>
 <div>
 
-Please refer to [this tutorial](https://github.com/c121914yu/FastGPT/blob/main/docs/deploy/one-api/sealos.md).
+> Sealos supports high concurrency, dynamic scaling, and stable operations for millions of users.
+
+> Click the button below to deploy with one click.👇
+
+[![](https://raw.githubusercontent.com/labring-actions/templates/main/Deploy-on-Sealos.svg)](https://cloud.sealos.io/?openapp=system-fastdeploy?templateName=one-api)
+
 
 </div>
 </details>
@@ -187,7 +190,7 @@ Please refer to [this tutorial](https://github.com/c121914yu/FastGPT/blob/main/d
 > Zeabur's servers are located overseas, automatically solving network issues, and the free quota is sufficient for personal usage.
 
 1. First, fork the code.
-2. Go to [Zeabur](https://zeabur.com/), log in, and enter the console.
+2. Go to [Zeabur](https://zeabur.com?referralCode=songquanpeng), log in, and enter the console.
 3. Create a new project. In Service -> Add Service, select Marketplace, and choose MySQL. Note down the connection parameters (username, password, address, and port).
 4. Copy the connection parameters and run ```create database `one-api` ``` to create the database.
 5. Then, in Service -> Add Service, select Git (authorization is required for the first use) and choose your forked repository.
@@ -280,7 +283,7 @@ If the channel ID is not provided, load balancing will be used to distribute the
     + Double-check that your interface address and API Key are correct.
 
 ## Related Projects
-[FastGPT](https://github.com/c121914yu/FastGPT): Build an AI knowledge base in three minutes
+[FastGPT](https://github.com/labring/FastGPT): Knowledge question answering system based on the LLM
 
 ## Note
 This project is an open-source project. Please use it in compliance with OpenAI's [Terms of Use](https://openai.com/policies/terms-of-use) and **applicable laws and regulations**. It must not be used for illegal purposes.

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Form, Header, Segment } from 'semantic-ui-react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { API, showError, showSuccess } from '../../helpers';
 import { renderQuota, renderQuotaWithPrompt } from '../../helpers/render';
 
@@ -36,7 +36,10 @@ const EditUser = () => {
       showError(error.message);
     }
   };
-
+  const navigate = useNavigate();
+  const handleCancel = () => {
+    navigate("/setting");
+  }
   const loadUser = async () => {
     let res = undefined;
     if (userId) {
@@ -176,6 +179,7 @@ const EditUser = () => {
               readOnly
             />
           </Form.Field>
+          <Button onClick={handleCancel}>取消</Button>
           <Button positive onClick={submit}>提交</Button>
         </Form>
       </Segment>

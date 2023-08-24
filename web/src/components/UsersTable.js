@@ -227,7 +227,7 @@ const UsersTable = () => {
                       content={user.email ? user.email : '未绑定邮箱地址'}
                       key={user.username}
                       header={user.display_name ? user.display_name : user.username}
-                      trigger={<span>{renderText(user.username, 10)}</span>}
+                      trigger={<span>{renderText(user.username, 15)}</span>}
                       hoverable
                     />
                   </Table.Cell>

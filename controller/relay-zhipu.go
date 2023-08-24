@@ -111,10 +111,21 @@ func getZhipuToken(apikey string) string {
 func requestOpenAI2Zhipu(request GeneralOpenAIRequest) *ZhipuRequest {
 	messages := make([]ZhipuMessage, 0, len(request.Messages))
 	for _, message := range request.Messages {
-		messages = append(messages, ZhipuMessage{
-			Role:    message.Role,
-			Content: message.Content,
-		})
+		if message.Role == "system" {
+			messages = append(messages, ZhipuMessage{
+				Role:    "system",
+				Content: message.Content,
+			})
+			messages = append(messages, ZhipuMessage{
+				Role:    "user",
+				Content: "Okay",
+			})
+		} else {
+			messages = append(messages, ZhipuMessage{
+				Role:    message.Role,
+				Content: message.Content,
+			})
+		}
 	}
 	return &ZhipuRequest{
 		Prompt:      messages,
@@ -152,7 +163,6 @@ func responseZhipu2OpenAI(response *ZhipuResponse) *OpenAITextResponse {
 func streamResponseZhipu2OpenAI(zhipuResponse string) *ChatCompletionsStreamResponse {
 	var choice ChatCompletionsStreamResponseChoice
 	choice.Delta.Content = zhipuResponse
-	choice.FinishReason = ""
 	response := ChatCompletionsStreamResponse{
 		Object:  "chat.completion.chunk",
 		Created: common.GetTimestamp(),
@@ -165,7 +175,7 @@ func streamResponseZhipu2OpenAI(zhipuResponse string) *ChatCompletionsStreamResp
 func streamMetaResponseZhipu2OpenAI(zhipuResponse *ZhipuStreamMetaResponse) (*ChatCompletionsStreamResponse, *Usage) {
 	var choice ChatCompletionsStreamResponseChoice
 	choice.Delta.Content = ""
-	choice.FinishReason = "stop"
+	choice.FinishReason = &stopFinishReason
 	response := ChatCompletionsStreamResponse{
 		Id:      zhipuResponse.RequestId,
 		Object:  "chat.completion.chunk",
@@ -183,8 +193,8 @@ func zhipuStreamHandler(c *gin.Context, resp *http.Response) (*OpenAIErrorWithSt
 		if atEOF && len(data) == 0 {
 			return 0, nil, nil
 		}
-		if i := strings.Index(string(data), "\n"); i >= 0 {
-			return i + 1, data[0:i], nil
+		if i := strings.Index(string(data), "\n\n"); i >= 0 && strings.Index(string(data), ":") >= 0 {
+			return i + 2, data[0:i], nil
 		}
 		if atEOF {
 			return len(data), data, nil
@@ -197,23 +207,24 @@ func zhipuStreamHandler(c *gin.Context, resp *http.Response) (*OpenAIErrorWithSt
 	go func() {
 		for scanner.Scan() {
 			data := scanner.Text()
-			data = strings.Trim(data, "\"")
-			if len(data) < 5 { // ignore blank line or wrong format
-				continue
-			}
-			if data[:5] == "data:" {
-				dataChan <- data[5:]
-			} else if data[:5] == "meta:" {
-				metaChan <- data[5:]
+			lines := strings.Split(data, "\n")
+			for i, line := range lines {
+				if len(line) < 5 {
+					continue
+				}
+				if line[:5] == "data:" {
+					dataChan <- line[5:]
+					if i != len(lines)-1 {
+						dataChan <- "\n"
+					}
+				} else if line[:5] == "meta:" {
+					metaChan <- line[5:]
+				}
 			}
 		}
 		stopChan <- true
 	}()
-	c.Writer.Header().Set("Content-Type", "text/event-stream")
-	c.Writer.Header().Set("Cache-Control", "no-cache")
-	c.Writer.Header().Set("Connection", "keep-alive")
-	c.Writer.Header().Set("Transfer-Encoding", "chunked")
-	c.Writer.Header().Set("X-Accel-Buffering", "no")
+	setEventStreamHeaders(c)
 	c.Stream(func(w io.Writer) bool {
 		select {
 		case data := <-dataChan:
