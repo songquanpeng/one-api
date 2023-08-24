@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Button, Divider, Form, Header, Image, Message, Modal } from 'semantic-ui-react';
+import {Button, Input, Checkbox, Divider, Form, Header, Image, Message, Modal} from 'semantic-ui-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { API, copy, showError, showInfo, showNotice, showSuccess } from '../helpers';
 import Turnstile from 'react-turnstile';
