@@ -40,6 +40,7 @@ type GeneralOpenAIRequest struct {
 	Input       any       `json:"input,omitempty"`
 	Instruction string    `json:"instruction,omitempty"`
 	Size        string    `json:"size,omitempty"`
+	Functions   any       `json:"functions,omitempty"`
 }
 
 type ChatRequest struct {
