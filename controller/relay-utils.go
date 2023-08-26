@@ -12,6 +12,24 @@ var stopFinishReason = "stop"
 
 var tokenEncoderMap = map[string]*tiktoken.Tiktoken{}
 
+func InitTokenEncoders() {
+	common.SysLog("initializing token encoders")
+	fallbackTokenEncoder, err := tiktoken.EncodingForModel("gpt-3.5-turbo")
+	if err != nil {
+		common.FatalLog(fmt.Sprintf("failed to get fallback token encoder: %s", err.Error()))
+	}
+	for model, _ := range common.ModelRatio {
+		tokenEncoder, err := tiktoken.EncodingForModel(model)
+		if err != nil {
+			common.SysError(fmt.Sprintf("using fallback encoder for model %s", model))
+			tokenEncoderMap[model] = fallbackTokenEncoder
+			continue
+		}
+		tokenEncoderMap[model] = tokenEncoder
+	}
+	common.SysLog("token encoders initialized")
+}
+
 func getTokenEncoder(model string) *tiktoken.Tiktoken {
 	if tokenEncoder, ok := tokenEncoderMap[model]; ok {
 		return tokenEncoder
