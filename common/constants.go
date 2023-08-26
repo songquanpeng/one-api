@@ -192,6 +192,7 @@ const (
 	ChannelTypeZhipu     = 16
 	ChannelTypeAli       = 17
 	ChannelTypeXunfei    = 18
+	ChannelType360       = 19
 )
 
 var ChannelBaseURLs = []string{
@@ -214,4 +215,5 @@ var ChannelBaseURLs = []string{
 	"https://open.bigmodel.cn",       // 16
 	"https://dashscope.aliyuncs.com", // 17
 	"",                               // 18
+	"https://ai.360.cn",              // 19
 }
