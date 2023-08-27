@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Form, Header, Input, Message, Segment } from 'semantic-ui-react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { API, showError, showInfo, showSuccess, verifyJSON } from '../../helpers';
 import { CHANNEL_OPTIONS } from '../../constants';
 
@@ -19,7 +19,7 @@ const EditChannel = () => {
   const handleCancel = () => {
     navigate('/channel');
   };
-  
+
   const originInputs = {
     name: '',
     type: 1,
@@ -62,7 +62,7 @@ const EditChannel = () => {
           localModels = ['SparkDesk'];
           break;
         case 19:
-          localModels = ['360GPT_S2_V9', 'embedding-bert-512-v1', 'embedding_s1_v1', 'semantic_similarity_s1_v1', '360GPT_S2_V9.4']
+          localModels = ['360GPT_S2_V9', 'embedding-bert-512-v1', 'embedding_s1_v1', 'semantic_similarity_s1_v1', '360GPT_S2_V9.4'];
           break;
       }
       setInputs((inputs) => ({ ...inputs, models: localModels }));
