@@ -64,6 +64,15 @@ func init() {
 			Parent:     nil,
 		},
 		{
+			Id:         "whisper-1",
+			Object:     "model",
+			Created:    1677649963,
+			OwnedBy:    "openai",
+			Permission: permission,
+			Root:       "whisper-1",
+			Parent:     nil,
+		},
+		{
 			Id:         "gpt-3.5-turbo",
 			Object:     "model",
 			Created:    1677649963,

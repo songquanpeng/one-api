@@ -173,26 +173,27 @@ const (
 )
 
 const (
-	ChannelTypeUnknown   = 0
-	ChannelTypeOpenAI    = 1
-	ChannelTypeAPI2D     = 2
-	ChannelTypeAzure     = 3
-	ChannelTypeCloseAI   = 4
-	ChannelTypeOpenAISB  = 5
-	ChannelTypeOpenAIMax = 6
-	ChannelTypeOhMyGPT   = 7
-	ChannelTypeCustom    = 8
-	ChannelTypeAILS      = 9
-	ChannelTypeAIProxy   = 10
-	ChannelTypePaLM      = 11
-	ChannelTypeAPI2GPT   = 12
-	ChannelTypeAIGC2D    = 13
-	ChannelTypeAnthropic = 14
-	ChannelTypeBaidu     = 15
-	ChannelTypeZhipu     = 16
-	ChannelTypeAli       = 17
-	ChannelTypeXunfei    = 18
-	ChannelType360       = 19
+	ChannelTypeUnknown    = 0
+	ChannelTypeOpenAI     = 1
+	ChannelTypeAPI2D      = 2
+	ChannelTypeAzure      = 3
+	ChannelTypeCloseAI    = 4
+	ChannelTypeOpenAISB   = 5
+	ChannelTypeOpenAIMax  = 6
+	ChannelTypeOhMyGPT    = 7
+	ChannelTypeCustom     = 8
+	ChannelTypeAILS       = 9
+	ChannelTypeAIProxy    = 10
+	ChannelTypePaLM       = 11
+	ChannelTypeAPI2GPT    = 12
+	ChannelTypeAIGC2D     = 13
+	ChannelTypeAnthropic  = 14
+	ChannelTypeBaidu      = 15
+	ChannelTypeZhipu      = 16
+	ChannelTypeAli        = 17
+	ChannelTypeXunfei     = 18
+	ChannelType360        = 19
+	ChannelTypeOpenRouter = 20
 )
 
 var ChannelBaseURLs = []string{
@@ -216,4 +217,5 @@ var ChannelBaseURLs = []string{
 	"https://dashscope.aliyuncs.com", // 17
 	"",                               // 18
 	"https://ai.360.cn",              // 19
+	"https://openrouter.ai/api",      // 20
 }

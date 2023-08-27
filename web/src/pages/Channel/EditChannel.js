@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Form, Header, Input, Message, Segment } from 'semantic-ui-react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { API, showError, showInfo, showSuccess, verifyJSON } from '../../helpers';
 import { CHANNEL_OPTIONS } from '../../constants';
 
@@ -19,7 +19,7 @@ const EditChannel = () => {
   const handleCancel = () => {
     navigate('/channel');
   };
-  
+
   const originInputs = {
     name: '',
     type: 1,
@@ -64,7 +64,7 @@ const EditChannel = () => {
           localModels = ['SparkDesk'];
           break;
         case 19:
-          localModels = ['360GPT_S2_V9', 'embedding-bert-512-v1', 'embedding_s1_v1', 'semantic_similarity_s1_v1', '360GPT_S2_V9.4']
+          localModels = ['360GPT_S2_V9', 'embedding-bert-512-v1', 'embedding_s1_v1', 'semantic_similarity_s1_v1', '360GPT_S2_V9.4'];
           break;
       }
       setInputs((inputs) => ({ ...inputs, models: localModels }));
@@ -175,6 +175,9 @@ const EditChannel = () => {
     }
     if (localInputs.type === 3 && localInputs.other === '') {
       localInputs.other = '2023-06-01-preview';
+    }
+    if (localInputs.type === 18 && localInputs.other === '') {
+      localInputs.other = 'v2.1';
     }
     if (localInputs.model_mapping === '') {
       localInputs.model_mapping = '{}';
@@ -288,6 +291,20 @@ const EditChannel = () => {
               options={groupOptions}
             />
           </Form.Field>
+          {
+            inputs.type === 18 && (
+              <Form.Field>
+                <Form.Input
+                  label='模型版本'
+                  name='other'
+                  placeholder={'请输入星火大模型版本，注意是接口地址中的版本号，例如：v2.1'}
+                  onChange={handleInputChange}
+                  value={inputs.other}
+                  autoComplete='new-password'
+                />
+              </Form.Field>
+            )
+          }
           <Form.Field>
             <Form.Dropdown
               label='模型'

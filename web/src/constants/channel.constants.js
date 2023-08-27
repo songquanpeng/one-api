@@ -9,6 +9,7 @@ export const CHANNEL_OPTIONS = [
   { key: 16, text: '智谱 ChatGLM', value: 16, color: 'violet' },
   { key: 19, text: '360 智脑', value: 19, color: 'blue' },
   { key: 8, text: '自定义渠道', value: 8, color: 'pink' },
+  { key: 20, text: '代理：OpenRouter', value: 20, color: 'black' },
   { key: 2, text: '代理：API2D', value: 2, color: 'blue' },
   { key: 5, text: '代理：OpenAI-SB', value: 5, color: 'brown' },
   { key: 7, text: '代理：OhMyGPT', value: 7, color: 'purple' },

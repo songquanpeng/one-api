@@ -24,6 +24,7 @@ const (
 	RelayModeModerations
 	RelayModeImagesGenerations
 	RelayModeEdits
+	RelayModeAudio
 )
 
 // https://platform.openai.com/docs/api-reference/chat
@@ -62,6 +63,10 @@ type ImageRequest struct {
 	Prompt string `json:"prompt"`
 	N      int    `json:"n"`
 	Size   string `json:"size"`
+}
+
+type AudioResponse struct {
+	Text string `json:"text,omitempty"`
 }
 
 type Usage struct {
@@ -160,11 +165,15 @@ func Relay(c *gin.Context) {
 		relayMode = RelayModeImagesGenerations
 	} else if strings.HasPrefix(c.Request.URL.Path, "/v1/edits") {
 		relayMode = RelayModeEdits
+	} else if strings.HasPrefix(c.Request.URL.Path, "/v1/audio") {
+		relayMode = RelayModeAudio
 	}
 	var err *OpenAIErrorWithStatusCode
 	switch relayMode {
 	case RelayModeImagesGenerations:
 		err = relayImageHelper(c, relayMode)
+	case RelayModeAudio:
+		err = relayAudioHelper(c, relayMode)
 	default:
 		err = relayTextHelper(c, relayMode)
 	}
