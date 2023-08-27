@@ -610,5 +610,8 @@
   "警告": "Warning",
   "确定": "Confirm",
   "。": ".",
-  "点击查看": "click to view"
+  "点击查看": "click to view",
+  "使用明细（总消耗额度：" : "Usage Details (Total Consumption Quota: ",
+  "）": ")",
+  "360 智脑": "360 AI"
 }
