@@ -4,11 +4,12 @@ WORKDIR /app
 COPY . .
 RUN chmod +x ./translate-en.sh && ./translate-en.sh
 
-FROM node:16 as builder
+FROM node:18 as builder
 
 WORKDIR /build
 COPY ./web/package*.json ./
-RUN npm ci
+RUN npm i -g pnpm
+RUN pnpm i
 COPY --from=translator ./app/web .
 COPY ./VERSION .
 RUN REACT_APP_VERSION=$(cat VERSION) npm run build

@@ -20,15 +20,19 @@ jobs:
         run: |
           python ./i18n/translate.py --repository_path . --json_file_path ./i18n/en.json
 
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 8
       - uses: actions/setup-node@v3
         with:
+          cache: pnpm
           node-version: 16
       - name: Build Frontend
         env:
           CI: ""
         run: |
           cd web
-          npm install
+          pnpm install
           REACT_APP_VERSION=$(git describe --tags) npm run build
           cd ..
       - name: Set up Go
