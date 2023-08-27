@@ -58,7 +58,10 @@ func Distribute() func(c *gin.Context) {
 		} else {
 			// Select a channel for the user
 			var modelRequest ModelRequest
-			err := common.UnmarshalBodyReusable(c, &modelRequest)
+			var err error
+			if !strings.HasPrefix(c.Request.URL.Path, "/v1/audio") {
+				err = common.UnmarshalBodyReusable(c, &modelRequest)
+			}
 			if err != nil {
 				c.JSON(http.StatusBadRequest, gin.H{
 					"error": gin.H{
@@ -82,6 +85,11 @@ func Distribute() func(c *gin.Context) {
 			if strings.HasPrefix(c.Request.URL.Path, "/v1/images/generations") {
 				if modelRequest.Model == "" {
 					modelRequest.Model = "dall-e"
+				}
+			}
+			if strings.HasPrefix(c.Request.URL.Path, "/v1/audio") {
+				if modelRequest.Model == "" {
+					modelRequest.Model = "whisper-1"
 				}
 			}
 			channel, err = model.CacheGetRandomSatisfiedChannel(userGroup, modelRequest.Model)
