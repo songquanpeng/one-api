@@ -23,8 +23,8 @@ const HomeStatistic = () => {
     const { success, message, data } = res.data;
     if (success) {
       setTotalQuota(data.totalQuota)
-      if (data.requestCount % 10000 >= 1000) {
-        setRequestCount(data.requestCount / 10000)
+      if (data.requestCount / 1000000 >= 10) {
+        setRequestCount(data.requestCount / 1000000)
         setUnitCount('m')
       } else {
         setRequestCount(data.requestCount)
