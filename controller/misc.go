@@ -33,6 +33,7 @@ func GetStatus(c *gin.Context) {
 			"chat_link":           common.ChatLink,
 			"quota_per_unit":      common.QuotaPerUnit,
 			"display_in_currency": common.DisplayInCurrencyEnabled,
+			"show_statistics_info":         common.StatisticsInfoEnabled,
 		},
 	})
 	return
@@ -67,6 +68,34 @@ func GetHomePageContent(c *gin.Context) {
 		"success": true,
 		"message": "",
 		"data":    common.OptionMap["HomePageContent"],
+	})
+	return
+}
+
+func GetStatisticsInfoEnabled(c *gin.Context) {
+	common.OptionMapRWMutex.RLock()
+	defer common.OptionMapRWMutex.RUnlock()
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "",
+		"data":    common.OptionMap["StatisticsInfoEnabled"],
+	})
+	return
+}
+
+func GetServerCount(c *gin.Context) {
+	result, err := model.GetTotalQuota()
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "",
+		"data":    result,
 	})
 	return
 }

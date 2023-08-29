@@ -21,6 +21,7 @@ const OperationSetting = () => {
     DisplayTokenStatEnabled: '',
     ApproximateTokenEnabled: '',
     RetryTimes: 0,
+    StatisticsInfoEnabled: '',
   });
   const [originInputs, setOriginInputs] = useState({});
   let [loading, setLoading] = useState(false);
@@ -201,6 +202,12 @@ const OperationSetting = () => {
               checked={inputs.ApproximateTokenEnabled === 'true'}
               label='使用近似的方式估算 token 数以减少计算量'
               name='ApproximateTokenEnabled'
+              onChange={handleInputChange}
+            />
+            <Form.Checkbox
+              checked={inputs.StatisticsInfoEnabled === 'true'}
+              label='首页展示统计模块'
+              name='StatisticsInfoEnabled'
               onChange={handleInputChange}
             />
           </Form.Group>

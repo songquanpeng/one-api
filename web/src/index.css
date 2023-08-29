@@ -33,3 +33,9 @@ code {
         display: none !important;
     }
 }
+
+.statistic-box {
+    display: flex;
+    justify-content: space-around;
+    flex-flow:row wrap;
+}

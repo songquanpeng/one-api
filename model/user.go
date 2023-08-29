@@ -6,6 +6,7 @@ import (
 	"gorm.io/gorm"
 	"one-api/common"
 	"strings"
+	"time"
 )
 
 // User if you add sensitive fields, don't forget to clean them in setupLogin function.
@@ -307,4 +308,19 @@ func UpdateUserUsedQuotaAndRequestCount(id int, quota int) {
 func GetUsernameById(id int) (username string) {
 	DB.Model(&User{}).Where("id = ?", id).Select("username").Find(&username)
 	return username
+}
+
+func GetTotalQuota() (map[string]interface{}, error) {
+	result := map[string]interface{}{}
+	var err error = nil
+	err = DB.Table("users").Select("sum(used_quota)/500000 as totalQuota, sum(request_count) as requestCount").Scan(&result).Error
+	if err != nil {
+		return result, err
+	}
+	startTimestamp := time.Date(time.Now().Year(), time.Now().Month(), time.Now().Day(), 0, 0, 0, 0, time.Local).Unix()
+	err = DB.Table("logs").Where("created_at >= ?", startTimestamp).Select("IFNULL(sum(quota)/500000,0) as todayQuota, count(id) as todayCount").Scan(&result).Error
+	if err != nil {
+		return result, err
+	}
+	return result, err
 }

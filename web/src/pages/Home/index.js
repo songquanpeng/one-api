@@ -3,22 +3,24 @@ import { Card, Grid, Header, Segment } from 'semantic-ui-react';
 import { API, showError, showNotice, timestamp2string } from '../../helpers';
 import { StatusContext } from '../../context/Status';
 import { marked } from 'marked';
+import HomeStatistic from '../../components/HomeStatistic';
 
 const Home = () => {
   const [statusState, statusDispatch] = useContext(StatusContext);
   const [homePageContentLoaded, setHomePageContentLoaded] = useState(false);
   const [homePageContent, setHomePageContent] = useState('');
+  const [homeStatictis, setHomeStatictis] = useState(false);
 
   const displayNotice = async () => {
     const res = await API.get('/api/notice');
     const { success, message, data } = res.data;
     if (success) {
       let oldNotice = localStorage.getItem('notice');
-        if (data !== oldNotice && data !== '') {
+      if (data !== oldNotice && data !== '') {
             const htmlNotice = marked(data);
             showNotice(htmlNotice, true);
-            localStorage.setItem('notice', data);
-        }
+        localStorage.setItem('notice', data);
+      }
     } else {
       showError(message);
     }
@@ -42,6 +44,15 @@ const Home = () => {
     setHomePageContentLoaded(true);
   };
 
+  const displayHomeStatictis = async () => {
+    const res = await API.get('/api/statistics_info');
+    const { success, message, data } = res.data;
+    if (success) {
+      setHomeStatictis(data === "true" ? true : false)
+    } else {
+      showError(message);
+    }
+  };
   const getStartTimeString = () => {
     const timestamp = statusState?.status?.start_time;
     return timestamp2string(timestamp);
@@ -50,9 +61,12 @@ const Home = () => {
   useEffect(() => {
     displayNotice().then();
     displayHomePageContent().then();
+    displayHomeStatictis().then();
   }, []);
+
   return (
     <>
+      {homeStatictis ? <HomeStatistic /> : <></>}
       {
         homePageContentLoaded && homePageContent === '' ? <>
           <Segment>
