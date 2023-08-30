@@ -15,8 +15,12 @@
     "react-turnstile": "^1.1.1",
     "semantic-ui-css": "^2.5.0",
     "semantic-ui-react": "^2.1.4",
+    "sharp": "^0.32.5",
+    "svgo": "^3.0.2",
     "vite": "^4.4.9",
-    "vite-plugin-env-compatible": "^1.1.1"
+    "vite-plugin-env-compatible": "^1.1.1",
+    "vite-plugin-html": "^3.2.0",
+    "vite-plugin-image-optimizer": "^1.1.7"
   },
   "scripts": {
     "start": "vite preview",
@@ -41,7 +45,7 @@
     ]
   },
   "devDependencies": {
-    "prettier": "^3.0.2"
+    "prettier": "^3.0.3"
   },
   "prettier": {
     "singleQuote": true,
