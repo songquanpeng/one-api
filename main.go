@@ -39,6 +39,7 @@ func main() {
 			Dsn:              sentrDSN,
 			TracesSampleRate: 0.1,
 		})
+		common.SysLog("Sentry initialized")
 	}
 
 	common.SetupGinLog()
