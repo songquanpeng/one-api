@@ -205,7 +205,7 @@ func Relay(c *gin.Context) {
 			})
 		}
 		channelId := c.GetInt("channel_id")
-		common.SysError(fmt.Sprintf("relay error (channel #%d): %s", channelId, err.Message))
+		common.SysError(fmt.Sprintf("relay error (channel #%d): %v ", channelId, err))
 		// https://platform.openai.com/docs/guides/error-codes/api-errors
 		if shouldDisableChannel(&err.OpenAIError) {
 			channelId := c.GetInt("channel_id")
@@ -259,7 +259,7 @@ func RelayMidjourney(c *gin.Context) {
 		//	channelId := c.GetInt("channel_id")
 		//	channelName := c.GetString("channel_name")
 		//	disableChannel(channelId, channelName, err.Result)
-		//}
+		//};''''''''''''''''''''''''''''''''
 	}
 }
 

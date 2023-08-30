@@ -37,22 +37,26 @@ func UpdateMidjourneyTask() {
 			jsonStr, err := json.Marshal(requestBody)
 			if err != nil {
 				log.Printf("UpdateMidjourneyTask: %v", err)
+				continue
 			}
 			req, err := http.NewRequest("POST", requestUrl, bytes.NewBuffer(jsonStr))
 			if err != nil {
 				log.Printf("UpdateMidjourneyTask: %v", err)
+				continue
 			}
 			req.Header.Set("Content-Type", "application/json")
 			req.Header.Set("mj-api-secret", "uhiftyuwadbkjshbiklahcuitguasguzhxliawodawdu")
 			resp, err := httpClient.Do(req)
 			if err != nil {
 				log.Printf("UpdateMidjourneyTask: %v", err)
+				continue
 			}
 			defer resp.Body.Close()
 			var response []Midjourney
 			err = json.NewDecoder(resp.Body).Decode(&response)
 			if err != nil {
 				log.Printf("UpdateMidjourneyTask: %v", err)
+				continue
 			}
 			for _, responseItem := range response {
 				var midjourneyTask *model.Midjourney

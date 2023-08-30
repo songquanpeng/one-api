@@ -248,6 +248,10 @@ func relayMidjourneySubmit(c *gin.Context, relayMode int) *MidjourneyResponse {
 
 	req.Header.Set("Content-Type", c.Request.Header.Get("Content-Type"))
 	req.Header.Set("Accept", c.Request.Header.Get("Accept"))
+	//mjToken := ""
+	//if c.Request.Header.Get("Authorization") != "" {
+	//	mjToken = strings.Split(c.Request.Header.Get("Authorization"), " ")[1]
+	//}
 	req.Header.Set("mj-api-secret", strings.Split(c.Request.Header.Get("Authorization"), " ")[1])
 	// print request header
 	log.Printf("request header: %s", req.Header)
@@ -353,7 +357,7 @@ func relayMidjourneySubmit(c *gin.Context, relayMode int) *MidjourneyResponse {
 		Progress:    "0%",
 		FailReason:  "",
 	}
-	if midjResponse.Code == 4 {
+	if midjResponse.Code == 4 || midjResponse.Code == 24 {
 		midjourneyTask.FailReason = midjResponse.Description
 	}
 	err = midjourneyTask.Insert()

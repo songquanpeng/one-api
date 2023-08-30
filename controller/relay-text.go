@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"io"
+	"log"
 	"net/http"
 	"one-api/common"
 	"one-api/model"
@@ -278,6 +279,10 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 
 	if apiType != APITypeXunfei { // cause xunfei use websocket
 		req, err = http.NewRequest(c.Request.Method, fullRequestURL, requestBody)
+		// 设置GetBody函数，该函数返回一个新的io.ReadCloser，该io.ReadCloser返回与原始请求体相同的数据
+		req.GetBody = func() (io.ReadCloser, error) {
+			return io.NopCloser(requestBody), nil
+		}
 		if err != nil {
 			return errorWrapper(err, "new_request_failed", http.StatusInternalServerError)
 		}
@@ -308,7 +313,9 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 		}
 		req.Header.Set("Content-Type", c.Request.Header.Get("Content-Type"))
 		req.Header.Set("Accept", c.Request.Header.Get("Accept"))
+
 		//req.Header.Set("Connection", c.Request.Header.Get("Connection"))
+		req.Close = true
 		resp, err = httpClient.Do(req)
 		if err != nil {
 			return errorWrapper(err, "do_request_failed", http.StatusInternalServerError)
@@ -324,8 +331,18 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 		isStream = isStream || strings.HasPrefix(resp.Header.Get("Content-Type"), "text/event-stream")
 
 		if resp.StatusCode != http.StatusOK {
+			//print resp body
+			body, err := io.ReadAll(resp.Body)
+			if err != nil {
+				log.Println("read resp err body failed", err)
+			}
+			log.Println("resp body:", string(body))
+			errStr := fmt.Sprintf("bad status code: %d", resp.StatusCode)
+			if resp.StatusCode == 503 {
+				errStr = string(body)
+			}
 			return errorWrapper(
-				fmt.Errorf("bad status code: %d", resp.StatusCode), "bad_status_code", resp.StatusCode)
+				fmt.Errorf(errStr), "bad_status_code", resp.StatusCode)
 		}
 	}
 
