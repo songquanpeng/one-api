@@ -86,7 +86,7 @@ func AddChannel(c *gin.Context) {
 	}
 	channel.CreatedTime = common.GetTimestamp()
 	keys := strings.Split(channel.Key, "\n")
-	channels := make([]model.Channel, 0)
+	channels := make([]model.Channel, 0, len(keys))
 	for _, key := range keys {
 		if key == "" {
 			continue
