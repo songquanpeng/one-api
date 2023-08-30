@@ -41,6 +41,7 @@ func (channel *Channel) AddAbilities() error {
 				Model:     model,
 				ChannelId: channel.Id,
 				Enabled:   channel.Status == common.ChannelStatusEnabled,
+				Priority:  channel.Priority,
 			}
 			abilities = append(abilities, ability)
 		}
