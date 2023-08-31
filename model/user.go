@@ -28,6 +28,8 @@ type User struct {
 	Group            string `json:"group" gorm:"type:varchar(32);default:'default'"`
 	AffCode          string `json:"aff_code" gorm:"type:varchar(32);column:aff_code;uniqueIndex"`
 	InviterId        int    `json:"inviter_id" gorm:"type:int;column:inviter_id;index"`
+	CreatedAt        int64  `json:"created_at"`
+	LastLoginAt      int64  `json:"last_login_at"`
 }
 
 func GetMaxUserId() int {

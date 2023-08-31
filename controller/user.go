@@ -7,6 +7,7 @@ import (
 	"one-api/common"
 	"one-api/model"
 	"strconv"
+	"time"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
@@ -79,6 +80,11 @@ func setupLogin(user *model.User, c *gin.Context) {
 		DisplayName: user.DisplayName,
 		Role:        user.Role,
 		Status:      user.Status,
+	}
+	user.LastLoginAt = time.Now().Unix()
+	err = user.Update(false)
+	if err != nil {
+		common.SysError(fmt.Sprintf("update user last_login_at err: %s", err.Error()))
 	}
 	c.JSON(http.StatusOK, gin.H{
 		"message": "",

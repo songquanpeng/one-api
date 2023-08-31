@@ -3,15 +3,8 @@ import { Button, Form, Header, Label, Pagination, Segment, Select, Table } from 
 import { API, isAdmin, showError, timestamp2string } from '../helpers';
 
 import { ITEMS_PER_PAGE } from '../constants';
-import { renderQuota } from '../helpers/render';
+import { renderQuota, renderTimestamp } from '../helpers/render';
 
-function renderTimestamp(timestamp) {
-  return (
-    <>
-      {timestamp2string(timestamp)}
-    </>
-  );
-}
 
 const MODE_OPTIONS = [
   { key: 'all', text: '全部用户', value: 'all' },

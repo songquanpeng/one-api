@@ -1,4 +1,13 @@
 import { Label } from 'semantic-ui-react';
+import {timestamp2string} from "./utils";
+
+export function renderTimestamp(timestamp, zero2emptyStr = false) {
+  return (
+    <>
+      {timestamp2string(timestamp, zero2emptyStr)}
+    </>
+  );
+}
 
 export function renderText(text, limit) {
   if (text.length > limit) {

@@ -132,7 +132,10 @@ export function removeTrailingSlash(url) {
   }
 }
 
-export function timestamp2string(timestamp) {
+export function timestamp2string(timestamp, zero2emptyStr = false) {
+  if (zero2emptyStr && timestamp === 0) {
+    return ''
+  }
   let date = new Date(timestamp * 1000);
   let year = date.getFullYear().toString();
   let month = (date.getMonth() + 1).toString();

@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { API, showError, showSuccess } from '../helpers';
 
 import { ITEMS_PER_PAGE } from '../constants';
-import { renderGroup, renderNumber, renderQuota, renderText } from '../helpers/render';
+import { renderGroup, renderNumber, renderQuota, renderText, renderTimestamp } from '../helpers/render';
 
 function renderRole(role) {
   switch (role) {
@@ -207,6 +207,22 @@ const UsersTable = () => {
             >
               状态
             </Table.HeaderCell>
+            <Table.HeaderCell
+                style={{ cursor: 'pointer' }}
+                onClick={() => {
+                  sortUser('created_at');
+                }}
+            >
+              注册时间
+            </Table.HeaderCell>
+            <Table.HeaderCell
+                style={{ cursor: 'pointer' }}
+                onClick={() => {
+                  sortUser('last_login_at');
+                }}
+            >
+              最后登录
+            </Table.HeaderCell>
             <Table.HeaderCell>操作</Table.HeaderCell>
           </Table.Row>
         </Table.Header>
@@ -242,6 +258,8 @@ const UsersTable = () => {
                   </Table.Cell>
                   <Table.Cell>{renderRole(user.role)}</Table.Cell>
                   <Table.Cell>{renderStatus(user.status)}</Table.Cell>
+                  <Table.Cell>{renderTimestamp(user.created_at, true)}</Table.Cell>
+                  <Table.Cell>{renderTimestamp(user.last_login_at, true)}</Table.Cell>
                   <Table.Cell>
                     <div>
                       <Button
