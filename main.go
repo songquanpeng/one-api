@@ -98,7 +98,7 @@ func main() {
 		}
 		go controller.AutomaticallyTestChannels(frequency)
 	}
-	controller.InitTokenEncoders()
+	// controller.InitTokenEncoders()
 
 	// Initialize HTTP server
 	server := gin.Default()
