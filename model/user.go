@@ -226,17 +226,16 @@ func IsAdmin(userId int) bool {
 	return user.Role >= common.RoleAdminUser
 }
 
-func IsUserEnabled(userId int) bool {
+func IsUserEnabled(userId int) (bool, error) {
 	if userId == 0 {
-		return false
+		return false, errors.New("user id is empty")
 	}
 	var user User
 	err := DB.Where("id = ?", userId).Select("status").Find(&user).Error
 	if err != nil {
-		common.SysError("no such user " + err.Error())
-		return false
+		return false, err
 	}
-	return user.Status == common.UserStatusEnabled
+	return user.Status == common.UserStatusEnabled, nil
 }
 
 func ValidateAccessToken(token string) (user *User) {
