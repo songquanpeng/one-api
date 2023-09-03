@@ -94,6 +94,9 @@ var RequestInterval = time.Duration(requestInterval) * time.Second
 
 var SyncFrequency = 10 * 60 // unit is second, will be overwritten by SYNC_FREQUENCY
 
+var BatchUpdateEnabled = false
+var BatchUpdateInterval = GetOrDefault("BATCH_UPDATE_INTERVAL", 5)
+
 const (
 	RoleGuestUser  = 0
 	RoleCommonUser = 1

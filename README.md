@@ -306,6 +306,10 @@ graph LR
    + 例子：`CHANNEL_TEST_FREQUENCY=1440`
 9. `POLLING_INTERVAL`：批量更新渠道余额以及测试可用性时的请求间隔，单位为秒，默认无间隔。
    + 例子：`POLLING_INTERVAL=5`
+10. `BATCH_UPDATE_ENABLED`：启用数据库批量更新聚合，会导致用户额度的更新存在一定的延迟可选值为 `true` 和 `false`，未设置则默认为 `false`。
+    + 例子：`BATCH_UPDATE_ENABLED=true`
+11. `BATCH_UPDATE_INTERVAL=5`：批量更新聚合的时间间隔，单位为秒，默认为 `5`。
+    + 例子：`BATCH_UPDATE_INTERVAL=5`
 
 ### 命令行参数
 1. `--port <port_number>`: 指定服务器监听的端口号，默认为 `3000`。

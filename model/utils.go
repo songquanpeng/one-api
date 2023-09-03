@@ -1,0 +1,75 @@
+package model
+
+import (
+	"one-api/common"
+	"sync"
+	"time"
+)
+
+const BatchUpdateTypeCount = 4 // if you add a new type, you need to add a new map and a new lock
+
+const (
+	BatchUpdateTypeUserQuota = iota
+	BatchUpdateTypeTokenQuota
+	BatchUpdateTypeUsedQuotaAndRequestCount
+	BatchUpdateTypeChannelUsedQuota
+)
+
+var batchUpdateStores []map[int]int
+var batchUpdateLocks []sync.Mutex
+
+func init() {
+	for i := 0; i < BatchUpdateTypeCount; i++ {
+		batchUpdateStores = append(batchUpdateStores, make(map[int]int))
+		batchUpdateLocks = append(batchUpdateLocks, sync.Mutex{})
+	}
+}
+
+func InitBatchUpdater() {
+	go func() {
+		for {
+			time.Sleep(time.Duration(common.BatchUpdateInterval) * time.Second)
+			batchUpdate()
+		}
+	}()
+}
+
+func addNewRecord(type_ int, id int, value int) {
+	batchUpdateLocks[type_].Lock()
+	defer batchUpdateLocks[type_].Unlock()
+	if _, ok := batchUpdateStores[type_][id]; !ok {
+		batchUpdateStores[type_][id] = value
+	} else {
+		batchUpdateStores[type_][id] += value
+	}
+}
+
+func batchUpdate() {
+	common.SysLog("batch update started")
+	for i := 0; i < BatchUpdateTypeCount; i++ {
+		batchUpdateLocks[i].Lock()
+		store := batchUpdateStores[i]
+		batchUpdateStores[i] = make(map[int]int)
+		batchUpdateLocks[i].Unlock()
+
+		for key, value := range store {
+			switch i {
+			case BatchUpdateTypeUserQuota:
+				err := increaseUserQuota(key, value)
+				if err != nil {
+					common.SysError("failed to batch update user quota: " + err.Error())
+				}
+			case BatchUpdateTypeTokenQuota:
+				err := increaseTokenQuota(key, value)
+				if err != nil {
+					common.SysError("failed to batch update token quota: " + err.Error())
+				}
+			case BatchUpdateTypeUsedQuotaAndRequestCount:
+				updateUserUsedQuotaAndRequestCount(key, value, 1) // TODO: count is incorrect
+			case BatchUpdateTypeChannelUsedQuota:
+				updateChannelUsedQuota(key, value)
+			}
+		}
+	}
+	common.SysLog("batch update finished")
+}
