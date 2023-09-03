@@ -308,6 +308,7 @@ graph LR
    + 例子：`POLLING_INTERVAL=5`
 10. `BATCH_UPDATE_ENABLED`：启用数据库批量更新聚合，会导致用户额度的更新存在一定的延迟可选值为 `true` 和 `false`，未设置则默认为 `false`。
     + 例子：`BATCH_UPDATE_ENABLED=true`
+    + 如果你遇到了数据库连接数过多的问题，可以尝试启用该选项。
 11. `BATCH_UPDATE_INTERVAL=5`：批量更新聚合的时间间隔，单位为秒，默认为 `5`。
     + 例子：`BATCH_UPDATE_INTERVAL=5`
 
