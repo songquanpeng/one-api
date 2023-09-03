@@ -311,6 +311,9 @@ graph LR
     + 如果你遇到了数据库连接数过多的问题，可以尝试启用该选项。
 11. `BATCH_UPDATE_INTERVAL=5`：批量更新聚合的时间间隔，单位为秒，默认为 `5`。
     + 例子：`BATCH_UPDATE_INTERVAL=5`
+12. 请求频率限制：
+    + `GLOBAL_API_RATE_LIMIT`：全局 API 速率限制（除中继请求外），单 ip 三分钟内的最大请求数，默认为 `180`。
+    + `GLOBAL_WEB_RATE_LIMIT`：全局 Web 速率限制，单 ip 三分钟内的最大请求数，默认为 `60`。
 
 ### 命令行参数
 1. `--port <port_number>`: 指定服务器监听的端口号，默认为 `3000`。
