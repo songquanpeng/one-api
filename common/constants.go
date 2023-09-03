@@ -41,6 +41,7 @@ var GitHubOAuthEnabled = false
 var WeChatAuthEnabled = false
 var TurnstileCheckEnabled = false
 var RegisterEnabled = true
+var StatisticsInfoEnabled = false
 
 var EmailDomainRestrictionEnabled = false
 var EmailDomainWhitelist = []string{

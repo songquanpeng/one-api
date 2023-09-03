@@ -71,6 +71,7 @@ func InitOptionMap() {
 	common.OptionMap["ChatLink"] = common.ChatLink
 	common.OptionMap["QuotaPerUnit"] = strconv.FormatFloat(common.QuotaPerUnit, 'f', -1, 64)
 	common.OptionMap["RetryTimes"] = strconv.Itoa(common.RetryTimes)
+	common.OptionMap["StatisticsInfoEnabled"] = strconv.FormatBool(common.StatisticsInfoEnabled)
 	common.OptionMapRWMutex.Unlock()
 	loadOptionsFromDatabase()
 }
@@ -155,6 +156,8 @@ func updateOptionMap(key string, value string) (err error) {
 			common.DisplayInCurrencyEnabled = boolValue
 		case "DisplayTokenStatEnabled":
 			common.DisplayTokenStatEnabled = boolValue
+		case "StatisticsInfoEnabled":
+			common.StatisticsInfoEnabled = boolValue
 		}
 	}
 	switch key {
