@@ -24,6 +24,7 @@ func GetStatus(c *gin.Context) {
 			"system_name":         common.SystemName,
 			"logo":                common.Logo,
 			"footer_html":         common.Footer,
+			"header_script":       common.HeaderScript,
 			"wechat_qrcode":       common.WeChatAccountQRCodeImageURL,
 			"wechat_login":        common.WeChatAuthEnabled,
 			"server_address":      common.ServerAddress,

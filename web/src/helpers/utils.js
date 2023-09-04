@@ -36,6 +36,10 @@ export function getFooterHTML() {
   return localStorage.getItem('footer_html');
 }
 
+export function getHeaderScript() {
+  return localStorage.getItem('header_script');
+}
+
 export async function copy(text) {
   let okay = true;
   try {
