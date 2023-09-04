@@ -612,6 +612,7 @@
   "。": ".",
   "使用明细（总消耗额度：" : "Usage Details (Total Consumption Quota: ",
   "）": ")",
+  "自定义渠道": "Custom Channel",
   "360 智脑": "360 AI",
   "模型版本": "Model version",
   "请输入星火大模型版本，注意是接口地址中的版本号，例如：v2.1": "Please enter the version of the Starfire model, note that it is the version number in the interface address, for example: v2.1",
