@@ -610,10 +610,11 @@
   "警告": "Warning",
   "确定": "Confirm",
   "。": ".",
-  "点击查看": "click to view",
   "使用明细（总消耗额度：" : "Usage Details (Total Consumption Quota: ",
   "）": ")",
   "360 智脑": "360 AI",
   "模型版本": "Model version",
-  "请输入星火大模型版本，注意是接口地址中的版本号，例如：v2.1": "Please enter the version of the Starfire model, note that it is the version number in the interface address, for example: v2.1"
+  "请输入星火大模型版本，注意是接口地址中的版本号，例如：v2.1": "Please enter the version of the Starfire model, note that it is the version number in the interface address, for example: v2.1",
+  "点击查看": "click to view",
+  "请确保已在 Azure 上创建了 gpt-35-turbo 模型，并且 apiVersion 已正确填写！": "Please make sure that the gpt-35-turbo model has been created on Azure, and the apiVersion has been filled in correctly!"
 }

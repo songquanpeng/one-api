@@ -100,7 +100,18 @@ func TokenAuth() func(c *gin.Context) {
 			c.Abort()
 			return
 		}
-		if !model.CacheIsUserEnabled(token.UserId) {
+		userEnabled, err := model.IsUserEnabled(token.UserId)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": gin.H{
+					"message": err.Error(),
+					"type":    "one_api_error",
+				},
+			})
+			c.Abort()
+			return
+		}
+		if !userEnabled {
 			c.JSON(http.StatusForbidden, gin.H{
 				"error": gin.H{
 					"message": "用户已被封禁",
