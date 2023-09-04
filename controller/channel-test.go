@@ -79,9 +79,7 @@ func testChannel(channel *model.Channel, request ChatRequest) (err error, openai
 		return errors.New(fmt.Sprintf("status code %d", resp.StatusCode)), nil
 	}
 
-	isStream := strings.HasPrefix(resp.Header.Get("Content-Type"), "text/event-stream")
-
-	if channel.AllowStreaming == common.ChannelAllowStreamEnabled && isStream {
+	if channel.AllowStreaming == common.ChannelAllowStreamEnabled {
 		responseText := ""
 		scanner := bufio.NewScanner(resp.Body)
 		scanner.Split(func(data []byte, atEOF bool) (advance int, token []byte, err error) {
