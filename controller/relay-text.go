@@ -530,24 +530,26 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 			return nil
 		}
 	case APITypeXunfei:
-		if isStream {
-			auth := c.Request.Header.Get("Authorization")
-			auth = strings.TrimPrefix(auth, "Bearer ")
-			splits := strings.Split(auth, "|")
-			if len(splits) != 3 {
-				return errorWrapper(errors.New("invalid auth"), "invalid_auth", http.StatusBadRequest)
-			}
-			err, usage := xunfeiStreamHandler(c, textRequest, splits[0], splits[1], splits[2])
-			if err != nil {
-				return err
-			}
-			if usage != nil {
-				textResponse.Usage = *usage
-			}
-			return nil
-		} else {
-			return errorWrapper(errors.New("xunfei api does not support non-stream mode"), "invalid_api_type", http.StatusBadRequest)
+		auth := c.Request.Header.Get("Authorization")
+		auth = strings.TrimPrefix(auth, "Bearer ")
+		splits := strings.Split(auth, "|")
+		if len(splits) != 3 {
+			return errorWrapper(errors.New("invalid auth"), "invalid_auth", http.StatusBadRequest)
 		}
+		var err *OpenAIErrorWithStatusCode
+		var usage *Usage
+		if isStream {
+			err, usage = xunfeiStreamHandler(c, textRequest, splits[0], splits[1], splits[2])
+		} else {
+			err, usage = xunfeiHandler(c, textRequest, splits[0], splits[1], splits[2])
+		}
+		if err != nil {
+			return err
+		}
+		if usage != nil {
+			textResponse.Usage = *usage
+		}
+		return nil
 	case APITypeAIProxyLibrary:
 		if isStream {
 			err, usage := aiProxyLibraryStreamHandler(c, resp)
