@@ -262,6 +262,13 @@ docker run --name chatgpt-web -d -p 3002:3002 -e OPENAI_API_BASE_URL=https://ope
 
 注意，具体的 API Base 的格式取决于你所使用的客户端。
 
+### OpenAI的python客户端请求方式
+
+```bash
+OPENAI_API_KEY="sk-xxxxx"
+OPENAI_API_BASE="http://<HOST>:<PORT>/v1"  
+```
+
 ```mermaid
 graph LR
     A(用户)
