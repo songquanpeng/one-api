@@ -118,7 +118,7 @@ func responseXunfei2OpenAI(response *XunfeiChatResponse) *OpenAITextResponse {
 			Role:    "assistant",
 			Content: response.Payload.Choices.Text[0].Content,
 		},
-		FinishReason: "stop",
+		FinishReason: stopFinishReason,
 	}
 	fullTextResponse := OpenAITextResponse{
 		Object:  "chat.completion",
@@ -216,22 +216,15 @@ func xunfeiHandler(c *gin.Context, textRequest GeneralOpenAIRequest, appId strin
 	var usage Usage
 	var content string
 	var xunfeiResponse XunfeiChatResponse
-	textMap := make(map[int]XunfeiChatResponseTextItem)
 	stop := false
 	for !stop {
 		select {
 		case xunfeiResponse = <-dataChan:
-			textMap[xunfeiResponse.Payload.Choices.Seq] = xunfeiResponse.Payload.Choices.Text[0]
+			content += xunfeiResponse.Payload.Choices.Text[0].Content
 			usage.PromptTokens += xunfeiResponse.Payload.Usage.Text.PromptTokens
 			usage.CompletionTokens += xunfeiResponse.Payload.Usage.Text.CompletionTokens
 			usage.TotalTokens += xunfeiResponse.Payload.Usage.Text.TotalTokens
 		case stop = <-stopChan:
-			length := len(textMap)
-			for i := 0; i < length; i++ {
-				if text, ok := textMap[i]; ok {
-					content += text.Content
-				}
-			}
 		}
 	}
 
@@ -243,8 +236,7 @@ func xunfeiHandler(c *gin.Context, textRequest GeneralOpenAIRequest, appId strin
 		return errorWrapper(err, "marshal_response_body_failed", http.StatusInternalServerError), nil
 	}
 	c.Writer.Header().Set("Content-Type", "application/json")
-	_, err = c.Writer.Write(jsonResponse)
-
+	_, _ = c.Writer.Write(jsonResponse)
 	return nil, &usage
 }
 
@@ -306,7 +298,6 @@ func getXunfeiAuthUrl(c *gin.Context, apiKey string, apiSecret string) (string, 
 	if apiVersion == "v2.1" {
 		domain = "generalv2"
 	}
-	hostUrl := fmt.Sprintf("wss://spark-api.xf-yun.com/%s/chat", apiVersion)
-	authUrl := buildXunfeiAuthUrl(hostUrl, apiKey, apiSecret)
+	authUrl := buildXunfeiAuthUrl(fmt.Sprintf("wss://spark-api.xf-yun.com/%s/chat", apiVersion), apiKey, apiSecret)
 	return domain, authUrl
 }
