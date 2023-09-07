@@ -103,7 +103,9 @@ func main() {
 		common.SysLog("batch update enabled with interval " + strconv.Itoa(common.BatchUpdateInterval) + "s")
 		model.InitBatchUpdater()
 	}
-	// controller.InitTokenEncoders()
+	if os.Getenv("TOKEN_ENCODER_STARTUP_INIT_DISABLED") != "true" {
+		controller.InitTokenEncoders()
+	}
 
 	// Initialize HTTP server
 	server := gin.Default()
