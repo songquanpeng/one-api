@@ -60,6 +60,7 @@ func Distribute() func(c *gin.Context) {
 			// Select a channel for the user
 			var modelRequest ModelRequest
 			if strings.HasPrefix(c.Request.URL.Path, "/mj") {
+				// Midjourney
 				if modelRequest.Model == "" {
 					modelRequest.Model = "midjourney"
 				}
@@ -97,7 +98,8 @@ func Distribute() func(c *gin.Context) {
 					modelRequest.Model = "whisper-1"
 				}
 			}
-			channel, err := model.CacheGetRandomSatisfiedChannel(userGroup, modelRequest.Model)
+			var err error
+			channel, err = model.CacheGetRandomSatisfiedChannel(userGroup, modelRequest.Model)
 			if err != nil {
 				message := fmt.Sprintf("当前分组 %s 下对于模型 %s 无可用渠道", userGroup, modelRequest.Model)
 				if channel != nil {
@@ -114,6 +116,7 @@ func Distribute() func(c *gin.Context) {
 				return
 			}
 		}
+		//log.Printf("Using channel %v", channel)
 		c.Set("channel", channel.Type)
 		c.Set("channel_id", channel.Id)
 		c.Set("channel_name", channel.Name)
