@@ -56,7 +56,7 @@ func InitOptionMap() {
 	common.OptionMap["PayAddress"] = ""
 	common.OptionMap["EpayId"] = ""
 	common.OptionMap["EpayKey"] = ""
-	common.OptionMap["Price"] = strconv.Itoa(common.Price)
+	common.OptionMap["Price"] = strconv.FormatFloat(common.Price, 'f', -1, 64)
 	common.OptionMap["GitHubClientId"] = ""
 	common.OptionMap["GitHubClientSecret"] = ""
 	common.OptionMap["WeChatServerAddress"] = ""
@@ -183,7 +183,7 @@ func updateOptionMap(key string, value string) (err error) {
 	case "EpayKey":
 		common.EpayKey = value
 	case "Price":
-		common.Price, _ = strconv.Atoi(value)
+		common.Price, _ = strconv.ParseFloat(value, 64)
 	case "GitHubClientId":
 		common.GitHubClientId = value
 	case "GitHubClientSecret":

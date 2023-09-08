@@ -19,7 +19,7 @@ const SystemSetting = () => {
         ServerAddress: '',
         EpayId: '',
         EpayKey: '',
-        Price: '',
+        Price: 7.3,
         PayAddress: '',
         Footer: '',
         WeChatAuthEnabled: '',
@@ -90,6 +90,9 @@ const SystemSetting = () => {
             if (key === 'EmailDomainWhitelist') {
                 value = value.split(',');
             }
+            if (key === 'Price') {
+                value = parseFloat(value);
+            }
             setInputs((inputs) => ({
                 ...inputs, [key]: value
             }));
@@ -142,7 +145,7 @@ const SystemSetting = () => {
         await updateOption('PayAddress', PayAddress);
         await updateOption('EpayId', inputs.EpayId);
         await updateOption('EpayKey', inputs.EpayKey);
-        await updateOption('Price', inputs.Price);
+        await updateOption('Price', "" + inputs.Price);
     };
 
     const submitSMTP = async () => {
@@ -289,7 +292,7 @@ const SystemSetting = () => {
                             placeholder='例如：7，就是7元/美金'
                             value={inputs.Price}
                             name='Price'
-                            type='number'
+
                             min={0}
                             onChange={handleInputChange}
                         />

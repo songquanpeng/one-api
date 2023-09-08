@@ -40,7 +40,7 @@ func GetEpayClient() *epay.Client {
 
 func GetAmount(count float64) float64 {
 	// 别问为什么用float64，问就是这么点钱没必要
-	amount := count * float64(common.Price)
+	amount := count * common.Price
 	return amount
 }
 

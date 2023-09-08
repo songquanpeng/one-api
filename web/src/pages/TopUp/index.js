@@ -132,9 +132,9 @@ const TopUp = () => {
                 if (message === 'success') {
                     setAmount(parseInt(data));
                 } else {
-                    showError(message);
+                    showError(data);
                     // setTopUpCount(parseInt(res.data.count));
-                    setAmount(parseInt(data));
+                    // setAmount(parseInt(data));
                 }
             } else {
                 showError(res);
@@ -179,12 +179,12 @@ const TopUp = () => {
                 </Grid>
             </Segment>
             <Segment>
-                <Header as='h3'>在线充值</Header>
+                <Header as='h3'>在线充值，最低1</Header>
                 <Grid columns={2} stackable>
                     <Grid.Column>
                         <Form>
                             <Form.Input
-                                placeholder='充值金额，最低10,最高1000'
+                                placeholder='充值金额，最低1'
                                 name='redemptionCount'
                                 type={'number'}
                                 value={topUpCount}
