@@ -13,46 +13,52 @@ import (
 // 1 === $0.002 / 1K tokens
 // 1 === ￥0.014 / 1k tokens
 var ModelRatio = map[string]float64{
-	"gpt-4":                   15,
-	"gpt-4-0314":              15,
-	"gpt-4-0613":              15,
-	"gpt-4-32k":               30,
-	"gpt-4-32k-0314":          30,
-	"gpt-4-32k-0613":          30,
-	"gpt-3.5-turbo":           0.75, // $0.0015 / 1K tokens
-	"gpt-3.5-turbo-0301":      0.75,
-	"gpt-3.5-turbo-0613":      0.75,
-	"gpt-3.5-turbo-16k":       1.5, // $0.003 / 1K tokens
-	"gpt-3.5-turbo-16k-0613":  1.5,
-	"text-ada-001":            0.2,
-	"text-babbage-001":        0.25,
-	"text-curie-001":          1,
-	"text-davinci-002":        10,
-	"text-davinci-003":        10,
-	"text-davinci-edit-001":   10,
-	"code-davinci-edit-001":   10,
-	"whisper-1":               10,
-	"davinci":                 10,
-	"curie":                   10,
-	"babbage":                 10,
-	"ada":                     10,
-	"text-embedding-ada-002":  0.05,
-	"text-search-ada-doc-001": 10,
-	"text-moderation-stable":  0.1,
-	"text-moderation-latest":  0.1,
-	"dall-e":                  8,
-	"claude-instant-1":        0.815,  // $1.63 / 1M tokens
-	"claude-2":                5.51,   // $11.02 / 1M tokens
-	"ERNIE-Bot":               0.8572, // ￥0.012 / 1k tokens
-	"ERNIE-Bot-turbo":         0.5715, // ￥0.008 / 1k tokens
-	"Embedding-V1":            0.1429, // ￥0.002 / 1k tokens
-	"PaLM-2":                  1,
-	"chatglm_pro":             0.7143, // ￥0.01 / 1k tokens
-	"chatglm_std":             0.3572, // ￥0.005 / 1k tokens
-	"chatglm_lite":            0.1429, // ￥0.002 / 1k tokens
-	"qwen-v1":                 0.8572, // TBD: https://help.aliyun.com/document_detail/2399482.html?spm=a2c4g.2399482.0.0.1ad347feilAgag
-	"qwen-plus-v1":            0.5715, // Same as above
-	"SparkDesk":               0.8572, // TBD
+	"gpt-4":                     15,
+	"gpt-4-0314":                15,
+	"gpt-4-0613":                15,
+	"gpt-4-32k":                 30,
+	"gpt-4-32k-0314":            30,
+	"gpt-4-32k-0613":            30,
+	"gpt-3.5-turbo":             0.75, // $0.0015 / 1K tokens
+	"gpt-3.5-turbo-0301":        0.75,
+	"gpt-3.5-turbo-0613":        0.75,
+	"gpt-3.5-turbo-16k":         1.5, // $0.003 / 1K tokens
+	"gpt-3.5-turbo-16k-0613":    1.5,
+	"text-ada-001":              0.2,
+	"text-babbage-001":          0.25,
+	"text-curie-001":            1,
+	"text-davinci-002":          10,
+	"text-davinci-003":          10,
+	"text-davinci-edit-001":     10,
+	"code-davinci-edit-001":     10,
+	"whisper-1":                 15, // $0.006 / minute -> $0.006 / 150 words -> $0.006 / 200 tokens -> $0.03 / 1k tokens
+	"davinci":                   10,
+	"curie":                     10,
+	"babbage":                   10,
+	"ada":                       10,
+	"text-embedding-ada-002":    0.05,
+	"text-search-ada-doc-001":   10,
+	"text-moderation-stable":    0.1,
+	"text-moderation-latest":    0.1,
+	"dall-e":                    8,
+	"claude-instant-1":          0.815,  // $1.63 / 1M tokens
+	"claude-2":                  5.51,   // $11.02 / 1M tokens
+	"ERNIE-Bot":                 0.8572, // ￥0.012 / 1k tokens
+	"ERNIE-Bot-turbo":           0.5715, // ￥0.008 / 1k tokens
+	"Embedding-V1":              0.1429, // ￥0.002 / 1k tokens
+	"PaLM-2":                    1,
+	"chatglm_pro":               0.7143, // ￥0.01 / 1k tokens
+	"chatglm_std":               0.3572, // ￥0.005 / 1k tokens
+	"chatglm_lite":              0.1429, // ￥0.002 / 1k tokens
+	"qwen-v1":                   0.8572, // ￥0.012 / 1k tokens
+	"qwen-plus-v1":              1,      // ￥0.014 / 1k tokens
+	"text-embedding-v1":         0.05,   // ￥0.0007 / 1k tokens
+	"SparkDesk":                 1.2858, // ￥0.018 / 1k tokens
+	"360GPT_S2_V9":              0.8572, // ¥0.012 / 1k tokens
+	"embedding-bert-512-v1":     0.0715, // ¥0.001 / 1k tokens
+	"embedding_s1_v1":           0.0715, // ¥0.001 / 1k tokens
+	"semantic_similarity_s1_v1": 0.0715, // ¥0.001 / 1k tokens
+	"360GPT_S2_V9.4":            0.8572, // ¥0.012 / 1k tokens
 }
 
 func ModelRatio2JSONString() string {

@@ -35,6 +35,29 @@ type AliChatRequest struct {
 	Parameters AliParameters `json:"parameters,omitempty"`
 }
 
+type AliEmbeddingRequest struct {
+	Model string `json:"model"`
+	Input struct {
+		Texts []string `json:"texts"`
+	} `json:"input"`
+	Parameters *struct {
+		TextType string `json:"text_type,omitempty"`
+	} `json:"parameters,omitempty"`
+}
+
+type AliEmbedding struct {
+	Embedding []float64 `json:"embedding"`
+	TextIndex int       `json:"text_index"`
+}
+
+type AliEmbeddingResponse struct {
+	Output struct {
+		Embeddings []AliEmbedding `json:"embeddings"`
+	} `json:"output"`
+	Usage AliUsage `json:"usage"`
+	AliError
+}
+
 type AliError struct {
 	Code      string `json:"code"`
 	Message   string `json:"message"`
@@ -44,6 +67,7 @@ type AliError struct {
 type AliUsage struct {
 	InputTokens  int `json:"input_tokens"`
 	OutputTokens int `json:"output_tokens"`
+	TotalTokens  int `json:"total_tokens"`
 }
 
 type AliOutput struct {
@@ -93,6 +117,70 @@ func requestOpenAI2Ali(request GeneralOpenAIRequest) *AliChatRequest {
 		//	//EnableSearch: false,
 		//},
 	}
+}
+
+func embeddingRequestOpenAI2Ali(request GeneralOpenAIRequest) *AliEmbeddingRequest {
+	return &AliEmbeddingRequest{
+		Model: "text-embedding-v1",
+		Input: struct {
+			Texts []string `json:"texts"`
+		}{
+			Texts: request.ParseInput(),
+		},
+	}
+}
+
+func aliEmbeddingHandler(c *gin.Context, resp *http.Response) (*OpenAIErrorWithStatusCode, *Usage) {
+	var aliResponse AliEmbeddingResponse
+	err := json.NewDecoder(resp.Body).Decode(&aliResponse)
+	if err != nil {
+		return errorWrapper(err, "unmarshal_response_body_failed", http.StatusInternalServerError), nil
+	}
+
+	err = resp.Body.Close()
+	if err != nil {
+		return errorWrapper(err, "close_response_body_failed", http.StatusInternalServerError), nil
+	}
+
+	if aliResponse.Code != "" {
+		return &OpenAIErrorWithStatusCode{
+			OpenAIError: OpenAIError{
+				Message: aliResponse.Message,
+				Type:    aliResponse.Code,
+				Param:   aliResponse.RequestId,
+				Code:    aliResponse.Code,
+			},
+			StatusCode: resp.StatusCode,
+		}, nil
+	}
+
+	fullTextResponse := embeddingResponseAli2OpenAI(&aliResponse)
+	jsonResponse, err := json.Marshal(fullTextResponse)
+	if err != nil {
+		return errorWrapper(err, "marshal_response_body_failed", http.StatusInternalServerError), nil
+	}
+	c.Writer.Header().Set("Content-Type", "application/json")
+	c.Writer.WriteHeader(resp.StatusCode)
+	_, err = c.Writer.Write(jsonResponse)
+	return nil, &fullTextResponse.Usage
+}
+
+func embeddingResponseAli2OpenAI(response *AliEmbeddingResponse) *OpenAIEmbeddingResponse {
+	openAIEmbeddingResponse := OpenAIEmbeddingResponse{
+		Object: "list",
+		Data:   make([]OpenAIEmbeddingResponseItem, 0, len(response.Output.Embeddings)),
+		Model:  "text-embedding-v1",
+		Usage:  Usage{TotalTokens: response.Usage.TotalTokens},
+	}
+
+	for _, item := range response.Output.Embeddings {
+		openAIEmbeddingResponse.Data = append(openAIEmbeddingResponse.Data, OpenAIEmbeddingResponseItem{
+			Object:    `embedding`,
+			Index:     item.TextIndex,
+			Embedding: item.Embedding,
+		})
+	}
+	return &openAIEmbeddingResponse
 }
 
 func responseAli2OpenAI(response *AliChatResponse) *OpenAITextResponse {

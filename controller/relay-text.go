@@ -22,6 +22,7 @@ const (
 	APITypeZhipu
 	APITypeAli
 	APITypeXunfei
+	APITypeAIProxyLibrary
 )
 
 var httpClient *http.Client
@@ -104,6 +105,8 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 		apiType = APITypeAli
 	case common.ChannelTypeXunfei:
 		apiType = APITypeXunfei
+	case common.ChannelTypeAIProxyLibrary:
+		apiType = APITypeAIProxyLibrary
 	}
 
 	baseURL := common.ChannelBaseURLs[channelType]
@@ -172,6 +175,11 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 		fullRequestURL = fmt.Sprintf("https://open.bigmodel.cn/api/paas/v3/model-api/%s/%s", textRequest.Model, method)
 	case APITypeAli:
 		fullRequestURL = "https://dashscope.aliyuncs.com/api/v1/services/aigc/text-generation/generation"
+		if relayMode == RelayModeEmbeddings {
+			fullRequestURL = "https://dashscope.aliyuncs.com/api/v1/services/embeddings/text-embedding/text-embedding"
+		}
+	case APITypeAIProxyLibrary:
+		fullRequestURL = fmt.Sprintf("%s/api/library/ask", baseURL)
 	}
 	var promptTokens int
 	var completionTokens int
@@ -258,8 +266,24 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 		}
 		requestBody = bytes.NewBuffer(jsonStr)
 	case APITypeAli:
-		aliRequest := requestOpenAI2Ali(textRequest)
-		jsonStr, err := json.Marshal(aliRequest)
+		var jsonStr []byte
+		var err error
+		switch relayMode {
+		case RelayModeEmbeddings:
+			aliEmbeddingRequest := embeddingRequestOpenAI2Ali(textRequest)
+			jsonStr, err = json.Marshal(aliEmbeddingRequest)
+		default:
+			aliRequest := requestOpenAI2Ali(textRequest)
+			jsonStr, err = json.Marshal(aliRequest)
+		}
+		if err != nil {
+			return errorWrapper(err, "marshal_text_request_failed", http.StatusInternalServerError)
+		}
+		requestBody = bytes.NewBuffer(jsonStr)
+	case APITypeAIProxyLibrary:
+		aiProxyLibraryRequest := requestOpenAI2AIProxyLibrary(textRequest)
+		aiProxyLibraryRequest.LibraryId = c.GetString("library_id")
+		jsonStr, err := json.Marshal(aiProxyLibraryRequest)
 		if err != nil {
 			return errorWrapper(err, "marshal_text_request_failed", http.StatusInternalServerError)
 		}
@@ -287,6 +311,10 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 				req.Header.Set("api-key", apiKey)
 			} else {
 				req.Header.Set("Authorization", c.Request.Header.Get("Authorization"))
+				if channelType == common.ChannelTypeOpenRouter {
+					req.Header.Set("HTTP-Referer", "https://github.com/songquanpeng/one-api")
+					req.Header.Set("X-Title", "One API")
+				}
 			}
 		case APITypeClaude:
 			req.Header.Set("x-api-key", apiKey)
@@ -303,6 +331,8 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 			if textRequest.Stream {
 				req.Header.Set("X-DashScope-SSE", "enable")
 			}
+		default:
+			req.Header.Set("Authorization", "Bearer "+apiKey)
 		}
 		req.Header.Set("Content-Type", c.Request.Header.Get("Content-Type"))
 		req.Header.Set("Accept", c.Request.Header.Get("Accept"))
@@ -365,7 +395,6 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 					logContent := fmt.Sprintf("模型倍率 %.2f，分组倍率 %.2f", modelRatio, groupRatio)
 					model.RecordConsumeLog(userId, promptTokens, completionTokens, textRequest.Model, tokenName, quota, logContent, tokenId)
 					model.UpdateUserUsedQuotaAndRequestCount(userId, quota)
-
 					model.UpdateChannelUsedQuota(channelId, quota)
 				}
 			}
@@ -491,7 +520,14 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 			}
 			return nil
 		} else {
-			err, usage := aliHandler(c, resp)
+			var err *OpenAIErrorWithStatusCode
+			var usage *Usage
+			switch relayMode {
+			case RelayModeEmbeddings:
+				err, usage = aliEmbeddingHandler(c, resp)
+			default:
+				err, usage = aliHandler(c, resp)
+			}
 			if err != nil {
 				return err
 			}
@@ -518,6 +554,26 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 			return nil
 		} else {
 			return errorWrapper(errors.New("xunfei api does not support non-stream mode"), "invalid_api_type", http.StatusBadRequest)
+		}
+	case APITypeAIProxyLibrary:
+		if isStream {
+			err, usage := aiProxyLibraryStreamHandler(c, resp)
+			if err != nil {
+				return err
+			}
+			if usage != nil {
+				textResponse.Usage = *usage
+			}
+			return nil
+		} else {
+			err, usage := aiProxyLibraryHandler(c, resp)
+			if err != nil {
+				return err
+			}
+			if usage != nil {
+				textResponse.Usage = *usage
+			}
+			return nil
 		}
 	default:
 		return errorWrapper(errors.New("unknown api type"), "unknown_api_type", http.StatusInternalServerError)

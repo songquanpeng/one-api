@@ -2,7 +2,6 @@ package controller
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"one-api/common"
 	"strconv"
@@ -29,6 +28,7 @@ const (
 	RelayModeMidjourneyChange
 	RelayModeMidjourneyNotify
 	RelayModeMidjourneyTaskFetch
+	RelayModeAudio
 )
 
 // https://platform.openai.com/docs/api-reference/chat
@@ -45,6 +45,26 @@ type GeneralOpenAIRequest struct {
 	Input       any       `json:"input,omitempty"`
 	Instruction string    `json:"instruction,omitempty"`
 	Size        string    `json:"size,omitempty"`
+	Functions   any       `json:"functions,omitempty"`
+}
+
+func (r GeneralOpenAIRequest) ParseInput() []string {
+	if r.Input == nil {
+		return nil
+	}
+	var input []string
+	switch r.Input.(type) {
+	case string:
+		input = []string{r.Input.(string)}
+	case []any:
+		input = make([]string, 0, len(r.Input.([]any)))
+		for _, item := range r.Input.([]any) {
+			if str, ok := item.(string); ok {
+				input = append(input, str)
+			}
+		}
+	}
+	return input
 }
 
 type ChatRequest struct {
@@ -65,6 +85,10 @@ type ImageRequest struct {
 	Prompt string `json:"prompt"`
 	N      int    `json:"n"`
 	Size   string `json:"size"`
+}
+
+type AudioResponse struct {
+	Text string `json:"text,omitempty"`
 }
 
 type Usage struct {
@@ -145,23 +169,6 @@ type CompletionsStreamResponse struct {
 		Text         string `json:"text"`
 		FinishReason string `json:"finish_reason"`
 	} `json:"choices"`
-}
-
-type MidjourneyRequest struct {
-	Prompt      string   `json:"prompt"`
-	NotifyHook  string   `json:"notifyHook"`
-	Action      string   `json:"action"`
-	Index       int      `json:"index"`
-	State       string   `json:"state"`
-	TaskId      string   `json:"taskId"`
-	Base64Array []string `json:"base64Array"`
-}
-
-type MidjourneyResponse struct {
-	Code        int         `json:"code"`
-	Description string      `json:"description"`
-	Properties  interface{} `json:"properties"`
-	Result      string      `json:"result"`
 }
 
 func Relay(c *gin.Context) {

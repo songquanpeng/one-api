@@ -144,20 +144,9 @@ func streamResponseBaidu2OpenAI(baiduResponse *BaiduChatStreamResponse) *ChatCom
 }
 
 func embeddingRequestOpenAI2Baidu(request GeneralOpenAIRequest) *BaiduEmbeddingRequest {
-	baiduEmbeddingRequest := BaiduEmbeddingRequest{
-		Input: nil,
+	return &BaiduEmbeddingRequest{
+		Input: request.ParseInput(),
 	}
-	switch request.Input.(type) {
-	case string:
-		baiduEmbeddingRequest.Input = []string{request.Input.(string)}
-	case []any:
-		for _, item := range request.Input.([]any) {
-			if str, ok := item.(string); ok {
-				baiduEmbeddingRequest.Input = append(baiduEmbeddingRequest.Input, str)
-			}
-		}
-	}
-	return &baiduEmbeddingRequest
 }
 
 func embeddingResponseBaidu2OpenAI(response *BaiduEmbeddingResponse) *OpenAIEmbeddingResponse {
