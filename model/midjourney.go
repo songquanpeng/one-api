@@ -17,6 +17,7 @@ type Midjourney struct {
 	Status      string `json:"status"`
 	Progress    string `json:"progress"`
 	FailReason  string `json:"fail_reason"`
+	ChannelId   int    `json:"channel_id"`
 }
 
 func GetAllUserTask(userId int, startIdx int, num int) []*Midjourney {

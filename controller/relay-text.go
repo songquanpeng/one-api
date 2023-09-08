@@ -105,7 +105,6 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 	case common.ChannelTypeXunfei:
 		apiType = APITypeXunfei
 	}
-	isStable := c.GetBool("stable")
 
 	baseURL := common.ChannelBaseURLs[channelType]
 	requestURL := c.Request.URL.String()
@@ -189,15 +188,10 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 		preConsumedTokens = promptTokens + textRequest.MaxTokens
 	}
 	modelRatio := common.GetModelRatio(textRequest.Model)
-	stableRatio := modelRatio
 	groupRatio := common.GetGroupRatio(group)
 	ratio := modelRatio * groupRatio
 	preConsumedQuota := int(float64(preConsumedTokens) * ratio)
 	userQuota, err := model.CacheGetUserQuota(userId)
-	if isStable {
-		stableRatio = (common.StablePrice / common.BasePrice) * modelRatio
-		ratio = stableRatio * groupRatio
-	}
 	if err != nil {
 		return errorWrapper(err, "get_user_quota_failed", http.StatusInternalServerError)
 	}

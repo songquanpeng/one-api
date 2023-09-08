@@ -13,6 +13,10 @@ var StartTime = time.Now().Unix() // unit: second
 var Version = "v0.0.0"            // this hard coding will be replaced automatically when building, no need to manually change
 var SystemName = "One API"
 var ServerAddress = "http://localhost:3000"
+var PayAddress = ""
+var EpayId = ""
+var EpayKey = ""
+var Price = 7
 var Footer = ""
 var Logo = ""
 var TopUpLink = ""
@@ -93,10 +97,6 @@ var requestInterval, _ = strconv.Atoi(os.Getenv("POLLING_INTERVAL"))
 var RequestInterval = time.Duration(requestInterval) * time.Second
 
 var SyncFrequency = 10 * 60 // unit is second, will be overwritten by SYNC_FREQUENCY
-
-var NormalPrice = 1.5
-var StablePrice = 6.0
-var BasePrice = 1.5
 
 const (
 	RoleGuestUser  = 0

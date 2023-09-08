@@ -53,6 +53,10 @@ func InitOptionMap() {
 	common.OptionMap["SystemName"] = common.SystemName
 	common.OptionMap["Logo"] = common.Logo
 	common.OptionMap["ServerAddress"] = ""
+	common.OptionMap["PayAddress"] = ""
+	common.OptionMap["EpayId"] = ""
+	common.OptionMap["EpayKey"] = ""
+	common.OptionMap["Price"] = strconv.Itoa(common.Price)
 	common.OptionMap["GitHubClientId"] = ""
 	common.OptionMap["GitHubClientSecret"] = ""
 	common.OptionMap["WeChatServerAddress"] = ""
@@ -71,9 +75,6 @@ func InitOptionMap() {
 	common.OptionMap["ChatLink"] = common.ChatLink
 	common.OptionMap["QuotaPerUnit"] = strconv.FormatFloat(common.QuotaPerUnit, 'f', -1, 64)
 	common.OptionMap["RetryTimes"] = strconv.Itoa(common.RetryTimes)
-	common.OptionMap["NormalPrice"] = strconv.FormatFloat(common.NormalPrice, 'f', -1, 64)
-	common.OptionMap["StablePrice"] = strconv.FormatFloat(common.StablePrice, 'f', -1, 64)
-	common.OptionMap["BasePrice"] = strconv.FormatFloat(common.BasePrice, 'f', -1, 64)
 
 	common.OptionMapRWMutex.Unlock()
 	loadOptionsFromDatabase()
@@ -157,8 +158,6 @@ func updateOptionMap(key string, value string) (err error) {
 			common.LogConsumeEnabled = boolValue
 		case "DisplayInCurrencyEnabled":
 			common.DisplayInCurrencyEnabled = boolValue
-		case "DisplayTokenStatEnabled":
-			common.DisplayTokenStatEnabled = boolValue
 		}
 	}
 	switch key {
@@ -177,6 +176,14 @@ func updateOptionMap(key string, value string) (err error) {
 		common.SMTPToken = value
 	case "ServerAddress":
 		common.ServerAddress = value
+	case "PayAddress":
+		common.PayAddress = value
+	case "EpayId":
+		common.EpayId = value
+	case "EpayKey":
+		common.EpayKey = value
+	case "Price":
+		common.Price, _ = strconv.Atoi(value)
 	case "GitHubClientId":
 		common.GitHubClientId = value
 	case "GitHubClientSecret":
@@ -217,12 +224,6 @@ func updateOptionMap(key string, value string) (err error) {
 		common.TopUpLink = value
 	case "ChatLink":
 		common.ChatLink = value
-	case "NormalPrice":
-		common.NormalPrice, _ = strconv.ParseFloat(value, 64)
-	case "BasePrice":
-		common.BasePrice, _ = strconv.ParseFloat(value, 64)
-	case "StablePrice":
-		common.StablePrice, _ = strconv.ParseFloat(value, 64)
 	case "ChannelDisableThreshold":
 		common.ChannelDisableThreshold, _ = strconv.ParseFloat(value, 64)
 	case "QuotaPerUnit":

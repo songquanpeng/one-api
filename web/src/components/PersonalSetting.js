@@ -1,23 +1,19 @@
 import React, { useContext, useEffect, useState } from 'react';
-import {Button, Input, Checkbox, Divider, Form, Header, Image, Message, Modal} from 'semantic-ui-react';
+import { Button, Divider, Form, Header, Image, Message, Modal } from 'semantic-ui-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { API, copy, showError, showInfo, showNotice, showSuccess } from '../helpers';
 import Turnstile from 'react-turnstile';
 import { UserContext } from '../context/User';
 
 const PersonalSetting = () => {
-  const [userState, userDispatch] = useContext(UserContext);
-  let navigate = useNavigate();
+    const [userState, userDispatch] = useContext(UserContext);
+    let navigate = useNavigate();
 
     const [inputs, setInputs] = useState({
         wechat_verification_code: '',
         email_verification_code: '',
         email: '',
         self_account_deletion_confirmation: ''
-    });
-    const [stableMode, setStableMode] = useState({
-        stableMode: false,
-        maxPrice: 7,
     });
     const [status, setStatus] = useState({});
     const [showWeChatBindModal, setShowWeChatBindModal] = useState(false);
@@ -29,12 +25,8 @@ const PersonalSetting = () => {
     const [loading, setLoading] = useState(false);
     const [disableButton, setDisableButton] = useState(false);
     const [countdown, setCountdown] = useState(30);
-  const [affLink, setAffLink] = useState("");
-  const [systemToken, setSystemToken] = useState("");
-
-    // setStableMode(userState.user.stableMode, userState.user.maxPrice);
-    console.log(userState.user)
-
+    const [affLink, setAffLink] = useState("");
+    const [systemToken, setSystemToken] = useState("");
 
     useEffect(() => {
         let status = localStorage.getItem('status');
@@ -46,9 +38,6 @@ const PersonalSetting = () => {
                 setTurnstileSiteKey(status.turnstile_site_key);
             }
         }
-        // if (userState.user !== undefined) {
-        //     setStableMode(userState.user.stable_mode, userState.user.max_price);
-        // }
     }, []);
 
     useEffect(() => {
@@ -64,30 +53,17 @@ const PersonalSetting = () => {
         return () => clearInterval(countdownInterval); // Clean up on unmount
     }, [disableButton, countdown]);
 
-    useEffect(() => {
-        if (userState.user !== undefined) {
-            setStableMode({
-                stableMode: userState.user.stable_mode,
-                maxPrice: userState.user.max_price
-            })
-            // if (stableMode.localMaxPrice !== userState.user.max_price) {
-            //     setStableMode({
-            //         localMaxPrice: userState.user.max_price
-            //     })
-            // }
-        }
-    }, [userState]);
-
-    const handleInputChange = (e, {name, value}) => {
-        setInputs((inputs) => ({...inputs, [name]: value}));
+    const handleInputChange = (e, { name, value }) => {
+        setInputs((inputs) => ({ ...inputs, [name]: value }));
     };
 
     const generateAccessToken = async () => {
         const res = await API.get('/api/user/token');
-        const {success, message, data} = res.data;
+        const { success, message, data } = res.data;
         if (success) {
             setSystemToken(data);
-      setAffLink("");await copy(data);
+            setAffLink("");
+            await copy(data);
             showSuccess(`令牌已重置并已复制到剪贴板`);
         } else {
             showError(message);
@@ -96,11 +72,12 @@ const PersonalSetting = () => {
 
     const getAffLink = async () => {
         const res = await API.get('/api/user/aff');
-        const {success, message, data} = res.data;
+        const { success, message, data } = res.data;
         if (success) {
             let link = `${window.location.origin}/register?aff=${data}`;
             setAffLink(link);
-      setSystemToken("");await copy(link);
+            setSystemToken("");
+            await copy(link);
             showSuccess(`邀请链接已复制到剪切板`);
         } else {
             showError(message);
@@ -108,95 +85,95 @@ const PersonalSetting = () => {
     };
 
     const handleAffLinkClick = async (e) => {
-    e.target.select();
-    await copy(e.target.value);
-    showSuccess(`邀请链接已复制到剪切板`);
-  };
+        e.target.select();
+        await copy(e.target.value);
+        showSuccess(`邀请链接已复制到剪切板`);
+    };
 
-  const handleSystemTokenClick = async (e) => {
-    e.target.select();
-    await copy(e.target.value);
-    showSuccess(`系统令牌已复制到剪切板`);
-  };const deleteAccount = async () => {
+    const handleSystemTokenClick = async (e) => {
+        e.target.select();
+        await copy(e.target.value);
+        showSuccess(`系统令牌已复制到剪切板`);
+    };
+
+    const deleteAccount = async () => {
         if (inputs.self_account_deletion_confirmation !== userState.user.username) {
             showError('请输入你的账户名以确认删除！');
             return;
         }
 
-    const res = await API.delete('/api/user/self');
-    const { success, message } = res.data;
+        const res = await API.delete('/api/user/self');
+        const { success, message } = res.data;
 
-    if (success) {
-      showSuccess('账户已删除！');
-      await API.get('/api/user/logout');
-      userDispatch({ type: 'logout' });
-      localStorage.removeItem('user');
-      navigate('/login');
-    } else {
-      showError(message);
-    }
-  };
+        if (success) {
+            showSuccess('账户已删除！');
+            await API.get('/api/user/logout');
+            userDispatch({ type: 'logout' });
+            localStorage.removeItem('user');
+            navigate('/login');
+        } else {
+            showError(message);
+        }
+    };
 
-  const bindWeChat = async () => {
-    if (inputs.wechat_verification_code === '') return;
-    const res = await API.get(
-      `/api/oauth/wechat/bind?code=${inputs.wechat_verification_code}`
-    );
-    const { success, message } = res.data;
-    if (success) {
-      showSuccess('微信账户绑定成功！');
-      setShowWeChatBindModal(false);
-    } else {
-      showError(message);
-    }
-  };
+    const bindWeChat = async () => {
+        if (inputs.wechat_verification_code === '') return;
+        const res = await API.get(
+            `/api/oauth/wechat/bind?code=${inputs.wechat_verification_code}`
+        );
+        const { success, message } = res.data;
+        if (success) {
+            showSuccess('微信账户绑定成功！');
+            setShowWeChatBindModal(false);
+        } else {
+            showError(message);
+        }
+    };
 
-  const openGitHubOAuth = () => {
-    window.open(
-      `https://github.com/login/oauth/authorize?client_id=${status.github_client_id}&scope=user:email`
-    );
-  };
+    const openGitHubOAuth = () => {
+        window.open(
+            `https://github.com/login/oauth/authorize?client_id=${status.github_client_id}&scope=user:email`
+        );
+    };
 
-  const sendVerificationCode = async () => {
-    setDisableButton(true);
-    if (inputs.email === '') return;
-    if (turnstileEnabled && turnstileToken === '') {
-      showInfo('请稍后几秒重试，Turnstile 正在检查用户环境！');
-      return;
-    }
-    setLoading(true);
-    const res = await API.get(
-      `/api/verification?email=${inputs.email}&turnstile=${turnstileToken}`
-    );
-    const { success, message } = res.data;
-    if (success) {
-      showSuccess('验证码发送成功，请检查邮箱！');
-    } else {
-      showError(message);
-    }
-    setLoading(false);
-  };
+    const sendVerificationCode = async () => {
+        setDisableButton(true);
+        if (inputs.email === '') return;
+        if (turnstileEnabled && turnstileToken === '') {
+            showInfo('请稍后几秒重试，Turnstile 正在检查用户环境！');
+            return;
+        }
+        setLoading(true);
+        const res = await API.get(
+            `/api/verification?email=${inputs.email}&turnstile=${turnstileToken}`
+        );
+        const { success, message } = res.data;
+        if (success) {
+            showSuccess('验证码发送成功，请检查邮箱！');
+        } else {
+            showError(message);
+        }
+        setLoading(false);
+    };
 
-  const bindEmail = async () => {
-    if (inputs.email_verification_code === '') return;
-    setLoading(true);
-    const res = await API.get(
-      `/api/oauth/email/bind?email=${inputs.email}&code=${inputs.email_verification_code}`
-    );
-    const { success, message } = res.data;
-    if (success) {
-      showSuccess('邮箱账户绑定成功！');
-      setShowEmailBindModal(false);
-    } else {
-      showError(message);
-    }
-    setLoading(false);
-  };
-
-    // const setStableMod = ;
+    const bindEmail = async () => {
+        if (inputs.email_verification_code === '') return;
+        setLoading(true);
+        const res = await API.get(
+            `/api/oauth/email/bind?email=${inputs.email}&code=${inputs.email_verification_code}`
+        );
+        const { success, message } = res.data;
+        if (success) {
+            showSuccess('邮箱账户绑定成功！');
+            setShowEmailBindModal(false);
+        } else {
+            showError(message);
+        }
+        setLoading(false);
+    };
 
     return (
-        <div style={{lineHeight: '40px'}}>
+        <div style={{ lineHeight: '40px' }}>
             <Header as='h3'>通用设置</Header>
             <Message>
                 注意，此处生成的令牌用于系统管理，而非用于请求 OpenAI 相关的服务，请知悉。
@@ -209,84 +186,26 @@ const PersonalSetting = () => {
             <Button onClick={() => {
                 setShowAccountDeleteModal(true);
             }}>删除个人账户</Button>
-            <Divider/>
-            <Header as='h3'>GPT-4消费设置</Header>
-            <Form>
-                <Form.Field>
-                    <Checkbox label="启用稳定模式（当低价渠道宕机时，自动选择已开启的渠道，以保证稳定性，仅影响GPT-4）"
-                              checked={stableMode.stableMode}
-                              onChange={
-                                (e, data) => {
-                                    setStableMode({
-                                        ...stableMode,
-                                        stableMode: data.checked
-                                    })
-                                }
-                              }
-                    ></Checkbox>
-                </Form.Field>
-                <Form.Field
-                    control={Input}
-                    label='最高接受价格（n元/刀）'
-                    placeholder='7'
-                    type={'number'}
-                    value={stableMode.maxPrice}
-                    onChange={
-                        (e, data) => {
-                            setStableMode({
-                                ...stableMode,
-                                maxPrice: data.value
-                            })
-                        }
-                    }
-                >
-                    {/*<label></label>*/}
-                    {/*<input placeholder='7' value= {stableMode.maxPrice}/>*/}
-                </Form.Field>
-                <Button type='submit' onClick={
-                    async (e, data) => {
-                        if (stableMode.localMaxPrice === '') return;
-                        // console.log(data)
-                        // post to /api/user/set_stable_mode
-                        const res = await API.post(`/api/user/set_stable_mode`, stableMode)
-                        const {success, message} = res.data;
-                        if (success) {
-                            // userDispatch({type: 'stable_mode', payload: stableMode})
-                            userState.user.stable_mode = stableMode.stableMode
-                            userState.user.max_price = stableMode.maxPrice
-                            localStorage.setItem('user', JSON.stringify(userState.user));
-                            showSuccess('设置成功！');
-                        } else {
-                            showError(message);
-                        }
-                    }
-                }>保存消费设置</Button>
-            </Form>
-            {/*<Checkbox label="启用稳定模式（当低价渠道宕机时，自动选择已开启的渠道，以保证稳定性）" onChange={*/}
-            {/*    (e, data) => {*/}
-            {/*        // if (inputs.email_verification_code === '') return;*/}
-            {/*        console.log(data)*/}
-            {/*    }*/}
-            {/*}></Checkbox>*/}
-            {/*<Input label="最高接受价格（n元/刀）" type="integer"></Input>*/}
+
             {systemToken && (
-        <Form.Input
-          fluid
-          readOnly
-          value={systemToken}
-          onClick={handleSystemTokenClick}
-          style={{ marginTop: '10px' }}
-        />
-      )}
-      {affLink && (
-        <Form.Input
-          fluid
-          readOnly
-          value={affLink}
-          onClick={handleAffLinkClick}
-          style={{ marginTop: '10px' }}
-        />
-      )}<Divider/>
+                <Form.Input
+                    fluid
+                    readOnly
+                    value={systemToken}
+                    onClick={handleSystemTokenClick}
+                    style={{ marginTop: '10px' }}
+                />
+            )}
+            {affLink && (
+                <Form.Input
+                    fluid
+                    readOnly
+                    value={affLink}
+                    onClick={handleAffLinkClick}
+                    style={{ marginTop: '10px' }}
+                />
+            )}
+            <Divider />
             <Header as='h3'>账号绑定</Header>
             {
                 status.wechat_login && (
@@ -307,8 +226,8 @@ const PersonalSetting = () => {
             >
                 <Modal.Content>
                     <Modal.Description>
-                        <Image src={status.wechat_qrcode} fluid/>
-                        <div style={{textAlign: 'center'}}>
+                        <Image src={status.wechat_qrcode} fluid />
+                        <div style={{ textAlign: 'center' }}>
                             <p>
                                 微信扫码关注公众号，输入「验证码」获取验证码（三分钟内有效）
                             </p>
@@ -345,7 +264,7 @@ const PersonalSetting = () => {
                 onOpen={() => setShowEmailBindModal(true)}
                 open={showEmailBindModal}
                 size={'tiny'}
-                style={{maxWidth: '450px'}}
+                style={{ maxWidth: '450px' }}
             >
                 <Modal.Header>绑定邮箱地址</Modal.Header>
                 <Modal.Content>
@@ -381,25 +300,25 @@ const PersonalSetting = () => {
                                 <></>
                             )}
                             <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '1rem' }}>
-              <Button
-                                color=''
-                                fluid
-                                size='large'
-                                onClick={bindEmail}
-                                loading={loading}
-                            >
-                                确认绑定
-                            </Button>
-                        <div style={{ width: '1rem' }}></div>
-              <Button
-                fluid
-                size='large'
-                onClick={() => setShowEmailBindModal(false)}
-              >
-                取消
-              </Button>
-              </div>
-            </Form>
+                                <Button
+                                    color=''
+                                    fluid
+                                    size='large'
+                                    onClick={bindEmail}
+                                    loading={loading}
+                                >
+                                    确认绑定
+                                </Button>
+                                <div style={{ width: '1rem' }}></div>
+                                <Button
+                                    fluid
+                                    size='large'
+                                    onClick={() => setShowEmailBindModal(false)}
+                                >
+                                    取消
+                                </Button>
+                            </div>
+                        </Form>
                     </Modal.Description>
                 </Modal.Content>
             </Modal>
@@ -408,11 +327,11 @@ const PersonalSetting = () => {
                 onOpen={() => setShowAccountDeleteModal(true)}
                 open={showAccountDeleteModal}
                 size={'tiny'}
-                style={{maxWidth: '450px'}}
+                style={{ maxWidth: '450px' }}
             >
                 <Modal.Header>危险操作</Modal.Header>
-        <Modal.Content>
-        <Message>您正在删除自己的帐户，将清空所有数据且不可恢复</Message>
+                <Modal.Content>
+                    <Message>您正在删除自己的帐户，将清空所有数据且不可恢复</Message>
                     <Modal.Description>
                         <Form size='large'>
                             <Form.Input
@@ -431,24 +350,26 @@ const PersonalSetting = () => {
                                 />
                             ) : (
                                 <></>
-                            )}<div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '1rem' }}>
-                            <Button
-                                color='red'
-                                fluid
-                                size='large'
-                                onClick={deleteAccount}
-                                loading={loading}
-                            >
-                                确认删除
-                            </Button><div style={{ width: '1rem' }}></div>
-                <Button
-                  fluid
-                  size='large'
-                  onClick={() => setShowAccountDeleteModal(false)}
-                >
-                  取消
-                </Button>
-              </div>
+                            )}
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '1rem' }}>
+                                <Button
+                                    color='red'
+                                    fluid
+                                    size='large'
+                                    onClick={deleteAccount}
+                                    loading={loading}
+                                >
+                                    确认删除
+                                </Button>
+                                <div style={{ width: '1rem' }}></div>
+                                <Button
+                                    fluid
+                                    size='large'
+                                    onClick={() => setShowAccountDeleteModal(false)}
+                                >
+                                    取消
+                                </Button>
+                            </div>
                         </Form>
                     </Modal.Description>
                 </Modal.Content>

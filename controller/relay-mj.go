@@ -356,6 +356,7 @@ func relayMidjourneySubmit(c *gin.Context, relayMode int) *MidjourneyResponse {
 		Status:      "",
 		Progress:    "0%",
 		FailReason:  "",
+		ChannelId:   c.GetInt("channel_id"),
 	}
 	if midjResponse.Code == 4 || midjResponse.Code == 24 {
 		midjourneyTask.FailReason = midjResponse.Description

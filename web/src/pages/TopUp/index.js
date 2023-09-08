@@ -78,9 +78,9 @@ const TopUp = () => {
                     form.submit()
                     document.body.removeChild(form)
                 } else {
-                    showError(message);
+                    showError(data);
                     // setTopUpCount(parseInt(res.data.count));
-                    setAmount(parseInt(data));
+                    // setAmount(parseInt(data));
                 }
             } else {
                 showError(res);
@@ -160,9 +160,9 @@ const TopUp = () => {
                                     setRedemptionCode(e.target.value);
                                 }}
                             />
-                            {/*<Button color='green' onClick={openTopUpLink}>*/}
-                            {/*  获取兑换码*/}
-                            {/*</Button>*/}
+                            <Button color='green' onClick={openTopUpLink}>
+                              获取兑换码
+                            </Button>
                             <Button color='yellow' onClick={topUp} disabled={isSubmitting}>
                                 {isSubmitting ? '兑换中...' : '兑换'}
                             </Button>
@@ -179,7 +179,7 @@ const TopUp = () => {
                 </Grid>
             </Segment>
             <Segment>
-                <Header as='h3'>在线充值（最小10刀）</Header>
+                <Header as='h3'>在线充值</Header>
                 <Grid columns={2} stackable>
                     <Grid.Column>
                         <Form>
@@ -194,27 +194,27 @@ const TopUp = () => {
                                     await getAmount(e.target.value);
                                 }}
                             />
-                            <Form.Input
-                                placeholder='充值码，如果你没有充值码，可不填写'
-                                name='redemptionCount'
-                                value={topUpCode}
-                                onChange={(e) => {
-                                    setTopUpCode(e.target.value);
-                                }}
-                            />
+                            {/*<Form.Input*/}
+                            {/*    placeholder='充值码，如果你没有充值码，可不填写'*/}
+                            {/*    name='redemptionCount'*/}
+                            {/*    value={topUpCode}*/}
+                            {/*    onChange={(e) => {*/}
+                            {/*        setTopUpCode(e.target.value);*/}
+                            {/*    }}*/}
+                            {/*/>*/}
                             <Button color='blue' onClick={
                                 async () => {
                                     onlineTopUp('zfb')
                                 }
                             }>
-                                支付宝（最大2000元）
+                                支付宝
                             </Button>
                             <Button color='green' onClick={
                                 async () => {
                                     onlineTopUp('wx')
                                 }
                             }>
-                                微信（最大2000元）
+                                微信
                             </Button>
                         </Form>
                     </Grid.Column>

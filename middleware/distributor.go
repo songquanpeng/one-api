@@ -95,51 +95,21 @@ func Distribute() func(c *gin.Context) {
 					modelRequest.Model = "dall-e"
 				}
 			}
-			isStable := false
 			channel, err = model.CacheGetRandomSatisfiedChannel(userGroup, modelRequest.Model)
-			c.Set("stable", false)
 			if err != nil {
 				message := fmt.Sprintf("当前分组 %s 下对于模型 %s 无可用渠道", userGroup, modelRequest.Model)
-				if strings.HasPrefix(modelRequest.Model, "gpt-4") {
-					common.SysLog("GPT-4低价渠道宕机，正在尝试转换")
-					nowUser, err := model.GetUserById(userId, false)
-					if err == nil {
-						if nowUser.StableMode {
-							userGroup = "svip"
-							//stableRatio = (common.StablePrice / common.BasePrice) * modelRatio
-							userMaxPrice, _ := strconv.ParseFloat(nowUser.MaxPrice, 64)
-							if userMaxPrice < common.StablePrice {
-								message = "当前低价通道不可用，稳定渠道价格为" + strconv.FormatFloat(common.StablePrice, 'f', -1, 64) + "R/刀"
-							} else {
-								//common.SysLog(fmt.Sprintf("用户 %s 使用稳定渠道", nowUser.Username))
-								channel, err = model.CacheGetRandomSatisfiedChannel(userGroup, modelRequest.Model)
-								if err != nil {
-									message = "稳定渠道已经宕机，请联系管理员"
-								}
-								isStable = true
-								common.SysLog(fmt.Sprintf("用户 %s 使用稳定渠道 %v", nowUser.Username, channel))
-								c.Set("stable", true)
-							}
-
-						} else {
-							message = "当前低价通道不可用，请稍后再试，或者在后台开启稳定渠道模式"
-						}
-					}
+				if channel != nil {
+					common.SysError(fmt.Sprintf("渠道不存在：%d", channel.Id))
+					message = "数据库一致性已被破坏，请联系管理员"
 				}
-				//if channel == nil {
-				//	common.SysError(fmt.Sprintf("渠道不存在：%d", channel.Id))
-				//	message = "数据库一致性已被破坏，请联系管理员"
-				//}
-				if !isStable {
-					c.JSON(http.StatusInternalServerError, gin.H{
-						"error": gin.H{
-							"message": message,
-							"type":    "one_api_error",
-						},
-					})
-					c.Abort()
-					return
-				}
+				c.JSON(http.StatusServiceUnavailable, gin.H{
+					"error": gin.H{
+						"message": message,
+						"type":    "one_api_error",
+					},
+				})
+				c.Abort()
+				return
 			}
 		}
 		c.Set("channel", channel.Type)

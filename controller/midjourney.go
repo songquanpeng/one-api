@@ -19,90 +19,84 @@ func UpdateMidjourneyTask() {
 	for {
 		defer func() {
 			if err := recover(); err != nil {
-				log.Printf("UpdateMidjourneyTask: %v", err)
+				log.Printf("UpdateMidjourneyTask panic: %v", err)
 			}
 		}()
 		time.Sleep(time.Duration(15) * time.Second)
 		tasks := model.GetAllUnFinishTasks()
 		if len(tasks) != 0 {
-			//log.Printf("UpdateMidjourneyTask: %v", time.Now())
-			ids := make([]string, 0)
 			for _, task := range tasks {
-				ids = append(ids, task.MjId)
-			}
-			requestUrl := "http://107.173.171.147:8080/mj/task/list-by-condition"
-			requestBody := map[string]interface{}{
-				"ids": ids,
-			}
-			jsonStr, err := json.Marshal(requestBody)
-			if err != nil {
-				log.Printf("UpdateMidjourneyTask: %v", err)
-				continue
-			}
-			req, err := http.NewRequest("POST", requestUrl, bytes.NewBuffer(jsonStr))
-			if err != nil {
-				log.Printf("UpdateMidjourneyTask: %v", err)
-				continue
-			}
-			req.Header.Set("Content-Type", "application/json")
-			req.Header.Set("mj-api-secret", "uhiftyuwadbkjshbiklahcuitguasguzhxliawodawdu")
-			resp, err := httpClient.Do(req)
-			if err != nil {
-				log.Printf("UpdateMidjourneyTask: %v", err)
-				continue
-			}
-			defer resp.Body.Close()
-			var response []Midjourney
-			err = json.NewDecoder(resp.Body).Decode(&response)
-			if err != nil {
-				log.Printf("UpdateMidjourneyTask: %v", err)
-				continue
-			}
-			for _, responseItem := range response {
-				var midjourneyTask *model.Midjourney
-				for _, mj := range tasks {
-					mj.MjId = responseItem.MjId
-					midjourneyTask = model.GetMjByuId(mj.Id)
+				midjourneyChannel, err := model.GetChannelById(task.ChannelId, true)
+				if err != nil {
+					log.Printf("UpdateMidjourneyTask: %v", err)
+					task.FailReason = fmt.Sprintf("获取渠道信息失败，请联系管理员，渠道ID：%d", task.ChannelId)
+					task.Status = "FAILURE"
+					task.Progress = "100%"
+					err := task.Update()
+					if err != nil {
+						log.Printf("UpdateMidjourneyTask error: %v", err)
+					}
+					continue
 				}
-				if midjourneyTask != nil {
-					midjourneyTask.Code = 1
-					midjourneyTask.Progress = responseItem.Progress
-					midjourneyTask.PromptEn = responseItem.PromptEn
-					midjourneyTask.State = responseItem.State
-					midjourneyTask.SubmitTime = responseItem.SubmitTime
-					midjourneyTask.StartTime = responseItem.StartTime
-					midjourneyTask.FinishTime = responseItem.FinishTime
-					midjourneyTask.ImageUrl = responseItem.ImageUrl
-					midjourneyTask.Status = responseItem.Status
-					midjourneyTask.FailReason = responseItem.FailReason
-					if midjourneyTask.Progress != "100%" && responseItem.FailReason != "" {
-						log.Println(midjourneyTask.MjId + " 构建失败，" + midjourneyTask.FailReason)
-						midjourneyTask.Progress = "100%"
-						err = model.CacheUpdateUserQuota(midjourneyTask.UserId)
-						if err != nil {
-							log.Println("error update user quota cache: " + err.Error())
-						} else {
-							modelRatio := common.GetModelRatio(imageModel)
-							groupRatio := common.GetGroupRatio("default")
-							ratio := modelRatio * groupRatio
-							quota := int(ratio * 1 * 1000)
-							if quota != 0 {
-								err := model.IncreaseUserQuota(midjourneyTask.UserId, quota)
-								if err != nil {
-									log.Println("fail to increase user quota")
-								}
-								logContent := fmt.Sprintf("%s 构图失败，补偿 %s", midjourneyTask.MjId, common.LogQuota(quota))
-								model.RecordLog(midjourneyTask.UserId, 1, logContent)
+				requestUrl := fmt.Sprintf("%s/mj/task/%s/fetch", midjourneyChannel.BaseURL, task.MjId)
+
+				req, err := http.NewRequest("GET", requestUrl, bytes.NewBuffer([]byte("")))
+				if err != nil {
+					log.Printf("UpdateMidjourneyTask error: %v", err)
+					continue
+				}
+
+				req.Header.Set("Content-Type", "application/json")
+				req.Header.Set("mj-api-secret", midjourneyChannel.Key)
+				resp, err := httpClient.Do(req)
+				if err != nil {
+					log.Printf("UpdateMidjourneyTask error: %v", err)
+					continue
+				}
+				defer resp.Body.Close()
+				var responseItem Midjourney
+				err = json.NewDecoder(resp.Body).Decode(&responseItem)
+				if err != nil {
+					log.Printf("UpdateMidjourneyTask error: %v", err)
+					continue
+				}
+				task.Code = 1
+				task.Progress = responseItem.Progress
+				task.PromptEn = responseItem.PromptEn
+				task.State = responseItem.State
+				task.SubmitTime = responseItem.SubmitTime
+				task.StartTime = responseItem.StartTime
+				task.FinishTime = responseItem.FinishTime
+				task.ImageUrl = responseItem.ImageUrl
+				task.Status = responseItem.Status
+				task.FailReason = responseItem.FailReason
+				if task.Progress != "100%" && responseItem.FailReason != "" {
+					log.Println(task.MjId + " 构建失败，" + task.FailReason)
+					task.Progress = "100%"
+					err = model.CacheUpdateUserQuota(task.UserId)
+					if err != nil {
+						log.Println("error update user quota cache: " + err.Error())
+					} else {
+						modelRatio := common.GetModelRatio(imageModel)
+						groupRatio := common.GetGroupRatio("default")
+						ratio := modelRatio * groupRatio
+						quota := int(ratio * 1 * 1000)
+						if quota != 0 {
+							err := model.IncreaseUserQuota(task.UserId, quota)
+							if err != nil {
+								log.Println("fail to increase user quota")
 							}
+							logContent := fmt.Sprintf("%s 构图失败，补偿 %s", task.MjId, common.LogQuota(quota))
+							model.RecordLog(task.UserId, 1, logContent)
 						}
 					}
-
-					err = midjourneyTask.Update()
-					if err != nil {
-						log.Printf("UpdateMidjourneyTaskFail: %v", err)
-					}
-					log.Printf("UpdateMidjourneyTask: %v", midjourneyTask)
 				}
+
+				err = task.Update()
+				if err != nil {
+					log.Printf("UpdateMidjourneyTask error: %v", err)
+				}
+				log.Printf("UpdateMidjourneyTask success: %v", task)
 			}
 		}
 	}
