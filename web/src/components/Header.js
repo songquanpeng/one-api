@@ -17,39 +17,46 @@ let headerButtons = [
     name: '渠道',
     to: '/channel',
     icon: 'sitemap',
-    admin: true
+    admin: true,
+    userOnly: true
   },
   {
     name: '令牌',
     to: '/token',
-    icon: 'key'
+    icon: 'key',
+    userOnly: true
   },
   {
     name: '兑换',
     to: '/redemption',
     icon: 'dollar sign',
-    admin: true
+    admin: true,
+    userOnly: true
   },
   {
     name: '充值',
     to: '/topup',
-    icon: 'cart'
+    icon: 'cart',
+    userOnly: true
   },
   {
     name: '用户',
     to: '/user',
     icon: 'user',
-    admin: true
+    admin: true,
+    userOnly: true
   },
   {
     name: '日志',
     to: '/log',
-    icon: 'book'
+    icon: 'book',
+    userOnly: true
   },
   {
     name: '设置',
     to: '/setting',
-    icon: 'setting'
+    icon: 'setting',
+    userOnly: true
   },
   {
     name: '关于',
@@ -90,6 +97,7 @@ const Header = () => {
   const renderButtons = (isMobile) => {
     return headerButtons.map((button) => {
       if (button.admin && !isAdmin()) return <></>;
+      if (button.userOnly && !userState.user) return <></>;
       if (isMobile) {
         return (
           <Menu.Item

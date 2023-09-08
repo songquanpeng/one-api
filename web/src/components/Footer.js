@@ -47,7 +47,10 @@ const Footer = () => {
             <a href='https://github.com/songquanpeng' target='_blank'>
               JustSong
             </a>{' '}
-            构建，源代码遵循{' '}
+            构建，由{' '}
+            <a href='https://github.com/ckt1031' target='_blank'>
+              ckt1031
+            </a>{' '}升级并进行改进，本源代码遵循{' '}
             <a href='https://opensource.org/licenses/mit-license.php'>
               MIT 协议
             </a>
