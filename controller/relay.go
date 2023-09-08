@@ -2,6 +2,7 @@ package controller
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"one-api/common"
 	"strconv"
@@ -169,6 +170,23 @@ type CompletionsStreamResponse struct {
 		Text         string `json:"text"`
 		FinishReason string `json:"finish_reason"`
 	} `json:"choices"`
+}
+
+type MidjourneyRequest struct {
+	Prompt      string   `json:"prompt"`
+	NotifyHook  string   `json:"notifyHook"`
+	Action      string   `json:"action"`
+	Index       int      `json:"index"`
+	State       string   `json:"state"`
+	TaskId      string   `json:"taskId"`
+	Base64Array []string `json:"base64Array"`
+}
+
+type MidjourneyResponse struct {
+	Code        int         `json:"code"`
+	Description string      `json:"description"`
+	Properties  interface{} `json:"properties"`
+	Result      string      `json:"result"`
 }
 
 func Relay(c *gin.Context) {

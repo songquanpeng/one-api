@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"one-api/common"
 	"one-api/model"
@@ -96,7 +97,7 @@ func Distribute() func(c *gin.Context) {
 					modelRequest.Model = "whisper-1"
 				}
 			}
-			channel, err = model.CacheGetRandomSatisfiedChannel(userGroup, modelRequest.Model)
+			channel, err := model.CacheGetRandomSatisfiedChannel(userGroup, modelRequest.Model)
 			if err != nil {
 				message := fmt.Sprintf("当前分组 %s 下对于模型 %s 无可用渠道", userGroup, modelRequest.Model)
 				if channel != nil {
