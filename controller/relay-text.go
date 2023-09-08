@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"io"
-	"log"
 	"net/http"
 	"one-api/common"
 	"one-api/model"
@@ -331,18 +330,7 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 		isStream = isStream || strings.HasPrefix(resp.Header.Get("Content-Type"), "text/event-stream")
 
 		if resp.StatusCode != http.StatusOK {
-			//print resp body
-			body, err := io.ReadAll(resp.Body)
-			if err != nil {
-				log.Println("read resp err body failed", err)
-			}
-			log.Println("resp body:", string(body))
-			errStr := fmt.Sprintf("bad status code: %d", resp.StatusCode)
-			if resp.StatusCode == 503 {
-				errStr = string(body)
-			}
-			return errorWrapper(
-				fmt.Errorf(errStr), "bad_status_code", resp.StatusCode)
+			return relayErrorHandler(resp)
 		}
 	}
 

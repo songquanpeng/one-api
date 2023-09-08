@@ -15,13 +15,13 @@ import (
 
 func UpdateMidjourneyTask() {
 	//revocer
-	defer func() {
-		if err := recover(); err != nil {
-			log.Printf("UpdateMidjourneyTask: %v", err)
-		}
-	}()
 	imageModel := "midjourney"
 	for {
+		defer func() {
+			if err := recover(); err != nil {
+				log.Printf("UpdateMidjourneyTask: %v", err)
+			}
+		}()
 		time.Sleep(time.Duration(15) * time.Second)
 		tasks := model.GetAllUnFinishTasks()
 		if len(tasks) != 0 {
