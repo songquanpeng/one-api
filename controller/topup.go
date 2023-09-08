@@ -51,6 +51,11 @@ func RequestEpay(c *gin.Context) {
 		c.JSON(200, gin.H{"message": err.Error(), "data": 10})
 		return
 	}
+	if req.Amount < 1 {
+		c.JSON(200, gin.H{"message": "充值金额不能小于1", "data": 10})
+		return
+	}
+
 	id := c.GetInt("id")
 	amount := GetAmount(float64(req.Amount))
 
@@ -155,6 +160,10 @@ func RequestAmount(c *gin.Context) {
 	err := c.ShouldBindJSON(&req)
 	if err != nil {
 		c.JSON(200, gin.H{"message": "error", "data": "参数错误"})
+		return
+	}
+	if req.Amount < 1 {
+		c.JSON(200, gin.H{"message": "error", "data": "充值金额不能小于1"})
 		return
 	}
 
