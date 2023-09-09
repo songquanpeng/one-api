@@ -21,9 +21,6 @@ const OperationSetting = () => {
         DisplayTokenStatEnabled: '',
         ApproximateTokenEnabled: '',
         RetryTimes: 0,
-        StablePrice: 6,
-        NormalPrice: 1.5,
-        BasePrice: 1.5,
     });
     const [originInputs, setOriginInputs] = useState({});
     let [loading, setLoading] = useState(false);
@@ -255,35 +252,6 @@ const OperationSetting = () => {
                     <Form.Button onClick={() => {
                         submitConfig('monitor').then();
                     }}>保存监控设置</Form.Button>
-                    <Divider/>
-                    <Header as='h3'>
-                        通道设置
-                    </Header>
-                    <Form.Group widths={3}>
-                        <Form.Input
-                            label='普通渠道价格'
-                            name='NormalPrice'
-                            onChange={handleInputChange}
-                            autoComplete='new-password'
-                            value={inputs.NormalPrice}
-                            type='number'
-                            // min='1.5'
-                            placeholder='n元/刀'
-                        />
-                        <Form.Input
-                            label='稳定渠道价格'
-                            name='StablePrice'
-                            onChange={handleInputChange}
-                            autoComplete='new-password'
-                            value={inputs.StablePrice}
-                            type='number'
-                            // min='1.5'
-                            placeholder='n元/刀'
-                        />
-                    </Form.Group>
-                    <Form.Button onClick={() => {
-                        submitConfig('stable').then();
-                    }}>保存通道设置</Form.Button>
                     <Divider/>
                     <Header as='h3'>
                         额度设置

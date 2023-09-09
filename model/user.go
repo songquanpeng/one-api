@@ -28,8 +28,6 @@ type User struct {
 	Group            string `json:"group" gorm:"type:varchar(32);default:'default'"`
 	AffCode          string `json:"aff_code" gorm:"type:varchar(32);column:aff_code;uniqueIndex"`
 	InviterId        int    `json:"inviter_id" gorm:"type:int;column:inviter_id;index"`
-	StableMode       bool   `json:"stable_mode" gorm:"type:tinyint;default:0;column:stable_mode"`
-	MaxPrice         string `json:"max_price" gorm:"type:varchar(32);default:'7'"`
 }
 
 func GetMaxUserId() int {
@@ -119,10 +117,6 @@ func (user *User) Update(updatePassword bool) error {
 		}
 	}
 	newUser := *user
-	err = DB.Model(user).UpdateColumns(map[string]interface{}{
-		"stable_mode": user.StableMode,
-		"max_price":   user.MaxPrice,
-	}).Error
 
 	DB.First(&user, user.Id)
 	err = DB.Model(user).Updates(newUser).Error

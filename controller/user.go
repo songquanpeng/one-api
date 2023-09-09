@@ -3,7 +3,6 @@ package controller
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"one-api/common"
 	"one-api/model"
@@ -80,8 +79,6 @@ func setupLogin(user *model.User, c *gin.Context) {
 		DisplayName: user.DisplayName,
 		Role:        user.Role,
 		Status:      user.Status,
-		StableMode:  user.StableMode,
-		MaxPrice:    user.MaxPrice,
 	}
 	c.JSON(http.StatusOK, gin.H{
 		"message": "",
@@ -161,8 +158,6 @@ func Register(c *gin.Context) {
 		Password:    user.Password,
 		DisplayName: user.Username,
 		InviterId:   inviterId,
-		StableMode:  user.StableMode,
-		MaxPrice:    user.MaxPrice,
 	}
 	if common.EmailVerificationEnabled {
 		cleanUser.Email = user.Email
@@ -425,8 +420,6 @@ func UpdateSelf(c *gin.Context) {
 		Username:    user.Username,
 		Password:    user.Password,
 		DisplayName: user.DisplayName,
-		StableMode:  user.StableMode,
-		MaxPrice:    user.MaxPrice,
 	}
 	if user.Password == "$I_LOVE_U" {
 		user.Password = "" // rollback to what it should be
@@ -745,55 +738,6 @@ func TopUp(c *gin.Context) {
 		"success": true,
 		"message": "",
 		"data":    quota,
-	})
-	return
-}
-
-type StableModeRequest struct {
-	StableMode bool   `json:"stableMode"`
-	MaxPrice   string `json:"maxPrice"`
-}
-
-func SetTableMode(c *gin.Context) {
-	req := &StableModeRequest{}
-	err := c.ShouldBindJSON(&req)
-	if err != nil {
-		c.JSON(http.StatusOK, gin.H{
-			"success": false,
-			"message": err.Error(),
-		})
-		return
-	}
-	log.Println(req)
-	id := c.GetInt("id")
-	user := model.User{
-		Id: id,
-	}
-	err = user.FillUserById()
-	if err != nil {
-		c.JSON(http.StatusOK, gin.H{
-			"success": false,
-			"message": err.Error(),
-		})
-		return
-	}
-	user.StableMode = req.StableMode
-	if !req.StableMode {
-		req.MaxPrice = "0"
-	}
-	user.MaxPrice = req.MaxPrice
-	err = user.Update(false)
-	if err != nil {
-		c.JSON(http.StatusOK, gin.H{
-			"success": false,
-			"message": err.Error(),
-		})
-		return
-	}
-	c.JSON(http.StatusOK, gin.H{
-		"success": true,
-		"message": "",
-		"data":    "设置成功",
 	})
 	return
 }

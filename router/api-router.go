@@ -45,7 +45,6 @@ func SetApiRouter(router *gin.Engine) {
 				selfRoute.POST("/topup", controller.TopUp)
 				selfRoute.POST("/pay", controller.RequestEpay)
 				selfRoute.POST("/amount", controller.RequestAmount)
-				selfRoute.POST("/set_stable_mode", controller.SetTableMode)
 			}
 
 			adminRoute := userRoute.Group("/")
