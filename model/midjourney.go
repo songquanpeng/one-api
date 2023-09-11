@@ -1,5 +1,7 @@
 package model
 
+import "one-api/common"
+
 type Midjourney struct {
 	Id          int    `json:"id"`
 	Code        int    `json:"code"`
@@ -27,6 +29,9 @@ func GetAllUserTask(userId int, startIdx int, num int) []*Midjourney {
 	if err != nil {
 		return nil
 	}
+	for _, task := range tasks {
+		task.ImageUrl = common.ServerAddress + "/mj/image/" + task.MjId
+	}
 	return tasks
 }
 
@@ -36,6 +41,9 @@ func GetAllTasks(startIdx int, num int) []*Midjourney {
 	err = DB.Order("id desc").Limit(num).Offset(startIdx).Find(&tasks).Error
 	if err != nil {
 		return nil
+	}
+	for _, task := range tasks {
+		task.ImageUrl = common.ServerAddress + "/mj/image/" + task.MjId
 	}
 	return tasks
 }

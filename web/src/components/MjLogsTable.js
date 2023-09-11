@@ -337,7 +337,8 @@ const LogsTable = () => {
                     <Table.Cell>
                       {
                         log.image_url ? (
-                            <Link to={log.image_url} target='_blank'>点击查看</Link>
+                            // <Link to={log.image_url} target='_blank'>点击查看</Link>
+                            <a href={log.image_url} target='_blank'>点击查看</a>
                         ) : '暂未生成图片'
                       }
                     </Table.Cell>
