@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"one-api/common"
 	"one-api/model"
+	"strconv"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -327,7 +328,7 @@ func relayMidjourneySubmit(c *gin.Context, relayMode int) *MidjourneyResponse {
 	if resp.StatusCode != 200 {
 		return &MidjourneyResponse{
 			Code:        4,
-			Description: "fail_to_fetch_midjourney",
+			Description: "fail_to_fetch_midjourney status_code: " + strconv.Itoa(resp.StatusCode),
 		}
 	}
 	if err != nil {
