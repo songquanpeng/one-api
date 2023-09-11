@@ -31,6 +31,32 @@ type Midjourney struct {
 	FailReason  string `json:"failReason"`
 }
 
+func RelayMidjourneyImage(c *gin.Context) {
+	taskId := c.Param("id")
+	midjourneyTask := model.GetByMJId(taskId)
+	if midjourneyTask == nil {
+		c.JSON(400, gin.H{
+			"error": "midjourney_task_not_found",
+		})
+		return
+	}
+	resp, err := http.Get(midjourneyTask.ImageUrl)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "http_get_image_failed",
+		})
+	}
+	defer resp.Body.Close()
+	data, err := io.ReadAll(resp.Body)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.Header("Content-Type", "image/jpeg")
+	//c.Header("Content-Length", string(rune(len(data))))
+	c.Data(http.StatusOK, "image/jpeg", data)
+}
+
 func relayMidjourneyNotify(c *gin.Context) *MidjourneyResponse {
 	var midjRequest Midjourney
 	err := common.UnmarshalBodyReusable(c, &midjRequest)
@@ -88,7 +114,7 @@ func relayMidjourneyTask(c *gin.Context, relayMode int) *MidjourneyResponse {
 	midjourneyTask.SubmitTime = originTask.SubmitTime
 	midjourneyTask.StartTime = originTask.StartTime
 	midjourneyTask.FinishTime = originTask.FinishTime
-	midjourneyTask.ImageUrl = originTask.ImageUrl
+	midjourneyTask.ImageUrl = common.ServerAddress + "/mj/image/" + originTask.MjId
 	midjourneyTask.Status = originTask.Status
 	midjourneyTask.FailReason = originTask.FailReason
 	midjourneyTask.Action = originTask.Action

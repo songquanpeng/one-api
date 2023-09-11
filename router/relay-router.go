@@ -42,6 +42,7 @@ func SetRelayRouter(router *gin.Engine) {
 		relayV1Router.POST("/moderations", controller.Relay)
 	}
 	relayMjRouter := router.Group("/mj")
+	relayMjRouter.GET("/image/:id", controller.RelayMidjourneyImage)
 	relayMjRouter.Use(middleware.TokenAuth(), middleware.Distribute())
 	{
 		relayMjRouter.POST("/submit/imagine", controller.RelayMidjourney)
@@ -49,4 +50,5 @@ func SetRelayRouter(router *gin.Engine) {
 		relayMjRouter.POST("/notify", controller.RelayMidjourney)
 		relayMjRouter.GET("/task/:id/fetch", controller.RelayMidjourney)
 	}
+	//relayMjRouter.Use()
 }
