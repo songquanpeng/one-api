@@ -58,7 +58,14 @@ _✨ 通过标准的 OpenAI API 格式访问所有的大模型，开箱即用 �
 
 > **Warning**
 > 使用 Docker 拉取的最新镜像可能是 `alpha` 版本，如果追求稳定性请手动指定版本。
-
+## 此分叉版本的主要变更
+1. 添加[Midjourney-Proxy](https://github.com/novicezk/midjourney-proxy)接口的支持：
+    + [x] /mj/submit/imagine
+    + [x] /mj/submit/change
+    + [x] /mj/task/{id}/fetch
+   + 使用方法：渠道类型选择自定义渠道，Base URL填写Midjourney-Proxy的地址（例如 http://localhost:8080 )，模型填入自定义模型midjourney，密钥填写Midjourney-Proxy的mj-api-secret（没有的话可以随便填）。
+2. 支持在线充值功能，可在系统设置中设置，当前支持的支付接口：
+    + [x] 易支付
 ## 功能
 1. 支持多种大模型：
    + [x] [OpenAI ChatGPT 系列模型](https://platform.openai.com/docs/guides/gpt/chat-completions-api)（支持 [Azure OpenAI API](https://learn.microsoft.com/en-us/azure/ai-services/openai/reference)）
