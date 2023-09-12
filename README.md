@@ -147,7 +147,9 @@ sudo certbot --nginx
 sudo service nginx restart
 ```
 
-初始账号用户名为 `root`，密码为 `123456`。
+初始账号用户名为 `root`，8位密码将会在初次启动时生成并打印出来。
+
+您可能会需要使用`docker logs CONTAINER`命令来查看密码。
 
 ### 手动部署
 1. 从 [GitHub Releases](https://github.com/songquanpeng/one-api/releases/latest) 下载可执行文件或者从源码编译：
@@ -169,7 +171,7 @@ sudo service nginx restart
    chmod u+x one-api
    ./one-api --port 3000 --log-dir ./logs
    ```
-3. 访问 [http://localhost:3000/](http://localhost:3000/) 并登录。初始账号用户名为 `root`，密码为 `123456`。
+3. 访问 [http://localhost:3000/](http://localhost:3000/) 并登录。初始账号用户名为 `root`，8位密码将会在初次启动时生成并打印出来。
 
 更加详细的部署教程[参见此处](https://iamazing.cn/page/how-to-deploy-a-website)。
 

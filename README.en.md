@@ -126,7 +126,9 @@ sudo certbot --nginx
 sudo service nginx restart
 ```
 
-The initial account username is `root` and password is `123456`.
+The initial account username is `root` and an 8-character password shall be generated and printed upon initial activation.
+
+You may need to utilize the command `docker logs CONTAINER` to inspect the password.
 
 ### Manual Deployment
 1. Download the executable file from [GitHub Releases](https://github.com/songquanpeng/one-api/releases/latest) or compile from source:
@@ -148,7 +150,7 @@ The initial account username is `root` and password is `123456`.
    chmod u+x one-api
    ./one-api --port 3000 --log-dir ./logs
    ```
-3. Access [http://localhost:3000/](http://localhost:3000/) and log in. The initial account username is `root` and password is `123456`.
+3. Access [http://localhost:3000/](http://localhost:3000/) and log in. The initial account username is `root` and an 8-character password shall be generated and printed upon initial activation.
 
 For more detailed deployment tutorials, please refer to [this page](https://iamazing.cn/page/how-to-deploy-a-website).
 

@@ -127,7 +127,9 @@ sudo certbot --nginx
 sudo service nginx restart
 ```
 
-初期アカウントのユーザー名は `root` で、パスワードは `123456` です。
+初期アカウントのユーザー名は `root` で、初回起動時には、8桁のパスワードが生成され、印刷されます。
+
+パスワードを確認するためには、`docker logs CONTAINER`コマンドを使用する必要があります。
 
 ### マニュアルデプロイ
 1. [GitHub Releases](https://github.com/songquanpeng/one-api/releases/latest) から実行ファイルをダウンロードする、もしくはソースからコンパイルする:
@@ -149,7 +151,7 @@ sudo service nginx restart
    chmod u+x one-api
    ./one-api --port 3000 --log-dir ./logs
    ```
-3. [http://localhost:3000/](http://localhost:3000/) にアクセスし、ログインする。初期アカウントのユーザー名は `root`、パスワードは `123456` である。
+3. [http://localhost:3000/](http://localhost:3000/) にアクセスし、ログインする。初期アカウントのユーザー名は `root`、初回起動時には、8桁のパスワードが生成され、印刷されます。
 
 より詳細なデプロイのチュートリアルについては、[このページ](https://iamazing.cn/page/how-to-deploy-a-website) を参照してください。
 
