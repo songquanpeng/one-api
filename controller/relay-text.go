@@ -347,6 +347,13 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 		isStream = isStream || strings.HasPrefix(resp.Header.Get("Content-Type"), "text/event-stream")
 
 		if resp.StatusCode != http.StatusOK {
+			go func() {
+				// return pre-consumed quota
+				err := model.PostConsumeTokenQuota(tokenId, -preConsumedQuota)
+				if err != nil {
+					common.SysError("error return pre-consumed quota: " + err.Error())
+				}
+			}()
 			return relayErrorHandler(resp)
 		}
 	}
