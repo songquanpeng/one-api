@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { API, copy, showError, showInfo, showNotice, showSuccess } from '../helpers';
 import Turnstile from 'react-turnstile';
 import { UserContext } from '../context/User';
+import { onGitHubOAuthClicked } from './utils';
 
 const PersonalSetting = () => {
   const [userState, userDispatch] = useContext(UserContext);
@@ -130,12 +131,6 @@ const PersonalSetting = () => {
     }
   };
 
-  const openGitHubOAuth = () => {
-    window.open(
-      `https://github.com/login/oauth/authorize?client_id=${status.github_client_id}&scope=user:email`
-    );
-  };
-
   const sendVerificationCode = async () => {
     setDisableButton(true);
     if (inputs.email === '') return;
@@ -249,7 +244,7 @@ const PersonalSetting = () => {
       </Modal>
       {
         status.github_oauth && (
-          <Button onClick={openGitHubOAuth}>绑定 GitHub 账号</Button>
+          <Button onClick={()=>{onGitHubOAuthClicked(status.github_client_id)}}>绑定 GitHub 账号</Button>
         )
       }
       <Button
