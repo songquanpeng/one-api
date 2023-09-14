@@ -7,7 +7,7 @@ RUN chmod +x ./translate-en.sh && ./translate-en.sh
 FROM oven/bun:latest as builder
 
 WORKDIR /build
-COPY ./web/package*.json ./web/bun.lockb ./web/.npmrc ./
+COPY ./web/package*.json ./web/bun.lockb ./
 RUN bun i
 COPY --from=translator ./app/web .
 COPY ./VERSION .
