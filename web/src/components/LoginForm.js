@@ -18,7 +18,10 @@ const LoginForm = () => {
   let navigate = useNavigate();
   const [status, setStatus] = useState({});
   const logo = getLogo();
-
+  let affCode = new URLSearchParams(window.location.search).get('aff');
+  if (affCode) {
+    localStorage.setItem('aff', affCode);
+  }
   useEffect(() => {
     if (searchParams.get('expired')) {
       showError('未登录或登录已过期，请重新登录！');
@@ -37,8 +40,20 @@ const LoginForm = () => {
   };
 
   const onSubmitWeChatVerificationCode = async () => {
+    // WeChat 渠道注册也能带上邀请码链接，这里检查是否之前打开过邀请码链接，通过localStorage存储来寻找
+    if (!affCode) {
+      affCode = localStorage.getItem('aff');
+    }
+      // 检查 affCode 是否有值
+    if (affCode) {
+      // 如果有值，拼接到 URL 中
+      var url = `/api/oauth/wechat?code=${inputs.wechat_verification_code}&affCode=${affCode}`;
+    } else {
+      // 如果没有值，不拼接affCode
+      var url = `/api/oauth/wechat?code=${inputs.wechat_verification_code}`;
+    }
     const res = await API.get(
-      `/api/oauth/wechat?code=${inputs.wechat_verification_code}`
+      url
     );
     const { success, message, data } = res.data;
     if (success) {

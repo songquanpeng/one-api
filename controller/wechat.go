@@ -84,8 +84,16 @@ func WeChatAuth(c *gin.Context) {
 			user.DisplayName = "WeChat User"
 			user.Role = common.RoleCommonUser
 			user.Status = common.UserStatusEnabled
-
-			if err := user.Insert(0); err != nil {
+			// 开始处理邀请码逻辑 类似 https://aiapi2d.com/login?aff=XqgY 带邀请码的链接，按照邀请码寻找邀请者。
+			affCode := c.Query("affCode") // this code is the inviter's code, not the user's own code
+			inviterId := 0 
+			if affCode == "" {
+				
+			} else {
+				inviterId, _ = model.GetUserIdByAffCode(affCode)
+			}
+			user.InviterId =  inviterId
+			if err := user.Insert(inviterId); err != nil {
 				c.JSON(http.StatusOK, gin.H{
 					"success": false,
 					"message": err.Error(),
