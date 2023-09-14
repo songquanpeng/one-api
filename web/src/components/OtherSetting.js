@@ -112,7 +112,7 @@ const OtherSetting = () => {
           <Form.Group widths='equal'>
             <Form.TextArea
               label='公告'
-              placeholder='在此输入新的公告内容'
+              placeholder='在此输入新的公告内容，支持 Markdown & HTML 代码'
               value={inputs.Notice}
               name='Notice'
               onChange={handleInputChange}

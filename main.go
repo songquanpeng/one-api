@@ -26,6 +26,9 @@ func main() {
 	if os.Getenv("GIN_MODE") != "debug" {
 		gin.SetMode(gin.ReleaseMode)
 	}
+	if common.DebugEnabled {
+		common.SysLog("running in debug mode")
+	}
 	// Initialize SQL Database
 	err := model.InitDB()
 	if err != nil {
@@ -54,6 +57,7 @@ func main() {
 		if err != nil {
 			common.FatalLog("failed to parse SYNC_FREQUENCY: " + err.Error())
 		}
+		common.SyncFrequency = frequency
 		go model.SyncOptions(frequency)
 		if common.RedisEnabled {
 			go model.SyncChannelCache(frequency)
@@ -73,6 +77,12 @@ func main() {
 		}
 		go controller.AutomaticallyTestChannels(frequency)
 	}
+	if os.Getenv("BATCH_UPDATE_ENABLED") == "true" {
+		common.BatchUpdateEnabled = true
+		common.SysLog("batch update enabled with interval " + strconv.Itoa(common.BatchUpdateInterval) + "s")
+		model.InitBatchUpdater()
+	}
+	controller.InitTokenEncoders()
 
 	// Initialize HTTP server
 	server := gin.Default()

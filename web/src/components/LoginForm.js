@@ -3,6 +3,7 @@ import { Button, Divider, Form, Grid, Header, Image, Message, Modal, Segment } f
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { UserContext } from '../context/User';
 import { API, getLogo, showError, showSuccess } from '../helpers';
+import { getOAuthState, onGitHubOAuthClicked } from './utils';
 
 const LoginForm = () => {
   const [inputs, setInputs] = useState({
@@ -30,12 +31,6 @@ const LoginForm = () => {
   }, []);
 
   const [showWeChatLoginModal, setShowWeChatLoginModal] = useState(true);
-
-  const onGitHubOAuthClicked = () => {
-    window.open(
-      `https://github.com/login/oauth/authorize?client_id=${status.github_client_id}&scope=user:email`
-    );
-  };
 
   const onWeChatLoginClicked = () => {
     setShowWeChatLoginModal(true);
@@ -131,7 +126,7 @@ const LoginForm = () => {
                 circular
                 color='black'
                 icon='github'
-                onClick={onGitHubOAuthClicked}
+                onClick={()=>onGitHubOAuthClicked(status.github_client_id)}
               />
             ) : (
               <></>

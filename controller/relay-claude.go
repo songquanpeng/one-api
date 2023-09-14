@@ -69,11 +69,11 @@ func requestOpenAI2Claude(textRequest GeneralOpenAIRequest) *ClaudeRequest {
 			prompt += fmt.Sprintf("\n\nHuman: %s", message.Content)
 		} else if message.Role == "assistant" {
 			prompt += fmt.Sprintf("\n\nAssistant: %s", message.Content)
-		} else {
-			// ignore other roles
+		} else if message.Role == "system" {
+			prompt += fmt.Sprintf("\n\nSystem: %s", message.Content)
 		}
-		prompt += "\n\nAssistant:"
 	}
+	prompt += "\n\nAssistant:"
 	claudeRequest.Prompt = prompt
 	return &claudeRequest
 }
@@ -81,7 +81,10 @@ func requestOpenAI2Claude(textRequest GeneralOpenAIRequest) *ClaudeRequest {
 func streamResponseClaude2OpenAI(claudeResponse *ClaudeResponse) *ChatCompletionsStreamResponse {
 	var choice ChatCompletionsStreamResponseChoice
 	choice.Delta.Content = claudeResponse.Completion
-	choice.FinishReason = stopReasonClaude2OpenAI(claudeResponse.StopReason)
+	finishReason := stopReasonClaude2OpenAI(claudeResponse.StopReason)
+	if finishReason != "null" {
+		choice.FinishReason = &finishReason
+	}
 	var response ChatCompletionsStreamResponse
 	response.Object = "chat.completion.chunk"
 	response.Model = claudeResponse.Model
@@ -138,11 +141,7 @@ func claudeStreamHandler(c *gin.Context, resp *http.Response) (*OpenAIErrorWithS
 		}
 		stopChan <- true
 	}()
-	c.Writer.Header().Set("Content-Type", "text/event-stream")
-	c.Writer.Header().Set("Cache-Control", "no-cache")
-	c.Writer.Header().Set("Connection", "keep-alive")
-	c.Writer.Header().Set("Transfer-Encoding", "chunked")
-	c.Writer.Header().Set("X-Accel-Buffering", "no")
+	setEventStreamHeaders(c)
 	c.Stream(func(w io.Writer) bool {
 		select {
 		case data := <-dataChan:

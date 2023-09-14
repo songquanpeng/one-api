@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { API, copy, showError, showInfo, showNotice, showSuccess } from '../helpers';
 import Turnstile from 'react-turnstile';
 import { UserContext } from '../context/User';
+import { onGitHubOAuthClicked } from './utils';
 
 const PersonalSetting = () => {
   const [userState, userDispatch] = useContext(UserContext);
@@ -25,6 +26,8 @@ const PersonalSetting = () => {
   const [loading, setLoading] = useState(false);
   const [disableButton, setDisableButton] = useState(false);
   const [countdown, setCountdown] = useState(30);
+  const [affLink, setAffLink] = useState("");
+  const [systemToken, setSystemToken] = useState("");
 
   useEffect(() => {
     let status = localStorage.getItem('status');
@@ -59,8 +62,10 @@ const PersonalSetting = () => {
     const res = await API.get('/api/user/token');
     const { success, message, data } = res.data;
     if (success) {
+      setSystemToken(data);
+      setAffLink(""); 
       await copy(data);
-      showSuccess(`令牌已重置并已复制到剪贴板：${data}`);
+      showSuccess(`令牌已重置并已复制到剪贴板`);
     } else {
       showError(message);
     }
@@ -71,11 +76,25 @@ const PersonalSetting = () => {
     const { success, message, data } = res.data;
     if (success) {
       let link = `${window.location.origin}/register?aff=${data}`;
+      setAffLink(link);
+      setSystemToken("");
       await copy(link);
-      showNotice(`邀请链接已复制到剪切板：${link}`);
+      showSuccess(`邀请链接已复制到剪切板`);
     } else {
       showError(message);
     }
+  };
+
+  const handleAffLinkClick = async (e) => {
+    e.target.select();
+    await copy(e.target.value);
+    showSuccess(`邀请链接已复制到剪切板`);
+  };
+
+  const handleSystemTokenClick = async (e) => {
+    e.target.select();
+    await copy(e.target.value);
+    showSuccess(`系统令牌已复制到剪切板`);
   };
 
   const deleteAccount = async () => {
@@ -110,12 +129,6 @@ const PersonalSetting = () => {
     } else {
       showError(message);
     }
-  };
-
-  const openGitHubOAuth = () => {
-    window.open(
-      `https://github.com/login/oauth/authorize?client_id=${status.github_client_id}&scope=user:email`
-    );
   };
 
   const sendVerificationCode = async () => {
@@ -168,6 +181,25 @@ const PersonalSetting = () => {
       <Button onClick={() => {
         setShowAccountDeleteModal(true);
       }}>删除个人账户</Button>
+      
+      {systemToken && (
+        <Form.Input 
+          fluid 
+          readOnly 
+          value={systemToken} 
+          onClick={handleSystemTokenClick}
+          style={{ marginTop: '10px' }}
+        />
+      )}
+      {affLink && (
+        <Form.Input 
+          fluid 
+          readOnly 
+          value={affLink} 
+          onClick={handleAffLinkClick}
+          style={{ marginTop: '10px' }}
+        />
+      )}
       <Divider />
       <Header as='h3'>账号绑定</Header>
       {
@@ -212,7 +244,7 @@ const PersonalSetting = () => {
       </Modal>
       {
         status.github_oauth && (
-          <Button onClick={openGitHubOAuth}>绑定 GitHub 账号</Button>
+          <Button onClick={()=>{onGitHubOAuthClicked(status.github_client_id)}}>绑定 GitHub 账号</Button>
         )
       }
       <Button
@@ -262,6 +294,7 @@ const PersonalSetting = () => {
               ) : (
                 <></>
               )}
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '1rem' }}>
               <Button
                 color=''
                 fluid
@@ -269,8 +302,17 @@ const PersonalSetting = () => {
                 onClick={bindEmail}
                 loading={loading}
               >
-                绑定
+                确认绑定
               </Button>
+              <div style={{ width: '1rem' }}></div> 
+              <Button
+                fluid
+                size='large'
+                onClick={() => setShowEmailBindModal(false)}
+              >
+                取消
+              </Button>
+              </div>
             </Form>
           </Modal.Description>
         </Modal.Content>
@@ -282,13 +324,14 @@ const PersonalSetting = () => {
         size={'tiny'}
         style={{ maxWidth: '450px' }}
       >
-        <Modal.Header>确认删除自己的帐户</Modal.Header>
+        <Modal.Header>危险操作</Modal.Header>
         <Modal.Content>
+        <Message>您正在删除自己的帐户，将清空所有数据且不可恢复</Message>
           <Modal.Description>
             <Form size='large'>
               <Form.Input
                 fluid
-                placeholder={`输入你的账户名 ${userState.user.username} 以确认删除`}
+                placeholder={`输入你的账户名 ${userState?.user?.username} 以确认删除`}
                 name='self_account_deletion_confirmation'
                 value={inputs.self_account_deletion_confirmation}
                 onChange={handleInputChange}
@@ -303,15 +346,25 @@ const PersonalSetting = () => {
               ) : (
                 <></>
               )}
-              <Button
-                color='red'
-                fluid
-                size='large'
-                onClick={deleteAccount}
-                loading={loading}
-              >
-                删除
-              </Button>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '1rem' }}>
+                <Button
+                  color='red'
+                  fluid
+                  size='large'
+                  onClick={deleteAccount}
+                  loading={loading}
+                >
+                  确认删除
+                </Button>
+                <div style={{ width: '1rem' }}></div>
+                <Button
+                  fluid
+                  size='large'
+                  onClick={() => setShowAccountDeleteModal(false)}
+                >
+                  取消
+                </Button>
+              </div>
             </Form>
           </Modal.Description>
         </Modal.Content>

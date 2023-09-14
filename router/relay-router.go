@@ -12,7 +12,7 @@ func SetRelayRouter(router *gin.Engine) {
 	modelsRouter := router.Group("/v1/models")
 	modelsRouter.Use(middleware.TokenAuth())
 	{
-		modelsRouter.GET("/", controller.ListModels)
+		modelsRouter.GET("", controller.ListModels)
 		modelsRouter.GET("/:model", controller.RetrieveModel)
 	}
 	relayV1Router := router.Group("/v1")
@@ -26,8 +26,8 @@ func SetRelayRouter(router *gin.Engine) {
 		relayV1Router.POST("/images/variations", controller.RelayNotImplemented)
 		relayV1Router.POST("/embeddings", controller.Relay)
 		relayV1Router.POST("/engines/:model/embeddings", controller.Relay)
-		relayV1Router.POST("/audio/transcriptions", controller.RelayNotImplemented)
-		relayV1Router.POST("/audio/translations", controller.RelayNotImplemented)
+		relayV1Router.POST("/audio/transcriptions", controller.Relay)
+		relayV1Router.POST("/audio/translations", controller.Relay)
 		relayV1Router.GET("/files", controller.RelayNotImplemented)
 		relayV1Router.POST("/files", controller.RelayNotImplemented)
 		relayV1Router.DELETE("/files/:id", controller.RelayNotImplemented)

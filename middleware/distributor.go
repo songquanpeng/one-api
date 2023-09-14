@@ -58,7 +58,10 @@ func Distribute() func(c *gin.Context) {
 		} else {
 			// Select a channel for the user
 			var modelRequest ModelRequest
-			err := common.UnmarshalBodyReusable(c, &modelRequest)
+			var err error
+			if !strings.HasPrefix(c.Request.URL.Path, "/v1/audio") {
+				err = common.UnmarshalBodyReusable(c, &modelRequest)
+			}
 			if err != nil {
 				c.JSON(http.StatusBadRequest, gin.H{
 					"error": gin.H{
@@ -84,6 +87,11 @@ func Distribute() func(c *gin.Context) {
 					modelRequest.Model = "dall-e"
 				}
 			}
+			if strings.HasPrefix(c.Request.URL.Path, "/v1/audio") {
+				if modelRequest.Model == "" {
+					modelRequest.Model = "whisper-1"
+				}
+			}
 			channel, err = model.CacheGetRandomSatisfiedChannel(userGroup, modelRequest.Model)
 			if err != nil {
 				message := fmt.Sprintf("当前分组 %s 下对于模型 %s 无可用渠道", userGroup, modelRequest.Model)
@@ -107,8 +115,13 @@ func Distribute() func(c *gin.Context) {
 		c.Set("model_mapping", channel.ModelMapping)
 		c.Request.Header.Set("Authorization", fmt.Sprintf("Bearer %s", channel.Key))
 		c.Set("base_url", channel.BaseURL)
-		if channel.Type == common.ChannelTypeAzure {
+		switch channel.Type {
+		case common.ChannelTypeAzure:
 			c.Set("api_version", channel.Other)
+		case common.ChannelTypeXunfei:
+			c.Set("api_version", channel.Other)
+		case common.ChannelTypeAIProxyLibrary:
+			c.Set("library_id", channel.Other)
 		}
 		c.Next()
 	}

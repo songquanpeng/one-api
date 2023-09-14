@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Form, Header, Segment } from 'semantic-ui-react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { API, downloadTextAsFile, showError, showSuccess } from '../../helpers';
 import { renderQuota, renderQuotaWithPrompt } from '../../helpers/render';
 
 const EditRedemption = () => {
   const params = useParams();
+  const navigate = useNavigate();
   const redemptionId = params.id;
   const isEdit = redemptionId !== undefined;
   const [loading, setLoading] = useState(isEdit);
@@ -17,6 +18,10 @@ const EditRedemption = () => {
   const [inputs, setInputs] = useState(originInputs);
   const { name, quota, count } = inputs;
 
+  const handleCancel = () => {
+    navigate('/redemption');
+  };
+  
   const handleInputChange = (e, { name, value }) => {
     setInputs((inputs) => ({ ...inputs, [name]: value }));
   };
@@ -113,6 +118,7 @@ const EditRedemption = () => {
             </>
           }
           <Button positive onClick={submit}>提交</Button>
+          <Button onClick={handleCancel}>取消</Button>
         </Form>
       </Segment>
     </>

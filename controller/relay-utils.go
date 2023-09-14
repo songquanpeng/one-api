@@ -1,12 +1,37 @@
 package controller
 
 import (
+	"encoding/json"
 	"fmt"
+	"github.com/gin-gonic/gin"
 	"github.com/pkoukk/tiktoken-go"
+	"io"
+	"net/http"
 	"one-api/common"
+	"strconv"
 )
 
+var stopFinishReason = "stop"
+
 var tokenEncoderMap = map[string]*tiktoken.Tiktoken{}
+
+func InitTokenEncoders() {
+	common.SysLog("initializing token encoders")
+	fallbackTokenEncoder, err := tiktoken.EncodingForModel("gpt-3.5-turbo")
+	if err != nil {
+		common.FatalLog(fmt.Sprintf("failed to get fallback token encoder: %s", err.Error()))
+	}
+	for model, _ := range common.ModelRatio {
+		tokenEncoder, err := tiktoken.EncodingForModel(model)
+		if err != nil {
+			common.SysError(fmt.Sprintf("using fallback encoder for model %s", model))
+			tokenEncoderMap[model] = fallbackTokenEncoder
+			continue
+		}
+		tokenEncoderMap[model] = tokenEncoder
+	}
+	common.SysLog("token encoders initialized")
+}
 
 func getTokenEncoder(model string) *tiktoken.Tiktoken {
 	if tokenEncoder, ok := tokenEncoderMap[model]; ok {
@@ -92,15 +117,53 @@ func errorWrapper(err error, code string, statusCode int) *OpenAIErrorWithStatus
 	}
 }
 
-func shouldDisableChannel(err *OpenAIError) bool {
+func shouldDisableChannel(err *OpenAIError, statusCode int) bool {
 	if !common.AutomaticDisableChannelEnabled {
 		return false
 	}
 	if err == nil {
 		return false
 	}
+	if statusCode == http.StatusUnauthorized {
+		return true
+	}
 	if err.Type == "insufficient_quota" || err.Code == "invalid_api_key" || err.Code == "account_deactivated" {
 		return true
 	}
 	return false
+}
+
+func setEventStreamHeaders(c *gin.Context) {
+	c.Writer.Header().Set("Content-Type", "text/event-stream")
+	c.Writer.Header().Set("Cache-Control", "no-cache")
+	c.Writer.Header().Set("Connection", "keep-alive")
+	c.Writer.Header().Set("Transfer-Encoding", "chunked")
+	c.Writer.Header().Set("X-Accel-Buffering", "no")
+}
+
+func relayErrorHandler(resp *http.Response) (openAIErrorWithStatusCode *OpenAIErrorWithStatusCode) {
+	openAIErrorWithStatusCode = &OpenAIErrorWithStatusCode{
+		StatusCode: resp.StatusCode,
+		OpenAIError: OpenAIError{
+			Message: fmt.Sprintf("bad response status code %d", resp.StatusCode),
+			Type:    "one_api_error",
+			Code:    "bad_response_status_code",
+			Param:   strconv.Itoa(resp.StatusCode),
+		},
+	}
+	responseBody, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return
+	}
+	err = resp.Body.Close()
+	if err != nil {
+		return
+	}
+	var textResponse TextResponse
+	err = json.Unmarshal(responseBody, &textResponse)
+	if err != nil {
+		return
+	}
+	openAIErrorWithStatusCode.OpenAIError = textResponse.Error
+	return
 }

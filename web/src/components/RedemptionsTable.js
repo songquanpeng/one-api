@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Form, Label, Message, Pagination, Table } from 'semantic-ui-react';
+import { Button, Form, Label, Popup, Pagination, Table } from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
 import { API, copy, showError, showInfo, showSuccess, showWarning, timestamp2string } from '../helpers';
 
@@ -240,15 +240,25 @@ const RedemptionsTable = () => {
                       >
                         复制
                       </Button>
-                      <Button
-                        size={'small'}
-                        negative
-                        onClick={() => {
-                          manageRedemption(redemption.id, 'delete', idx);
-                        }}
+                      <Popup
+                        trigger={
+                          <Button size='small' negative>
+                            删除
+                          </Button>
+                        }
+                        on='click'
+                        flowing
+                        hoverable
                       >
-                        删除
-                      </Button>
+                        <Button
+                          negative
+                          onClick={() => {
+                            manageRedemption(redemption.id, 'delete', idx);
+                          }}
+                        >
+                          确认删除
+                        </Button>
+                      </Popup>
                       <Button
                         size={'small'}
                         disabled={redemption.status === 3}  // used

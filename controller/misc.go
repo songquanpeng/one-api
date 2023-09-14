@@ -3,10 +3,12 @@ package controller
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"net/http"
 	"one-api/common"
 	"one-api/model"
+	"strings"
+
+	"github.com/gin-gonic/gin"
 )
 
 func GetStatus(c *gin.Context) {
@@ -77,6 +79,22 @@ func SendEmailVerification(c *gin.Context) {
 			"message": "无效的参数",
 		})
 		return
+	}
+	if common.EmailDomainRestrictionEnabled {
+		allowed := false
+		for _, domain := range common.EmailDomainWhitelist {
+			if strings.HasSuffix(email, "@"+domain) {
+				allowed = true
+				break
+			}
+		}
+		if !allowed {
+			c.JSON(http.StatusOK, gin.H{
+				"success": false,
+				"message": "管理员启用了邮箱域名白名单，您的邮箱地址的域名不在白名单中",
+			})
+			return
+		}
 	}
 	if model.IsEmailAlreadyTaken(email) {
 		c.JSON(http.StatusOK, gin.H{

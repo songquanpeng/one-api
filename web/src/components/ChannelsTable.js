@@ -363,9 +363,12 @@ const ChannelsTable = () => {
                   </Table.Cell>
                   <Table.Cell>
                     <Popup
-                      content={channel.balance_updated_time ? renderTimestamp(channel.balance_updated_time) : '未更新'}
-                      key={channel.id}
-                      trigger={renderBalance(channel.type, channel.balance)}
+                      trigger={<span onClick={() => {
+                        updateChannelBalance(channel.id, channel.name, idx);
+                      }} style={{ cursor: 'pointer' }}>
+                      {renderBalance(channel.type, channel.balance)}
+                    </span>}
+                      content='点击更新'
                       basic
                     />
                   </Table.Cell>
@@ -380,16 +383,16 @@ const ChannelsTable = () => {
                       >
                         测试
                       </Button>
-                      <Button
-                        size={'small'}
-                        positive
-                        loading={updatingBalance}
-                        onClick={() => {
-                          updateChannelBalance(channel.id, channel.name, idx);
-                        }}
-                      >
-                        更新余额
-                      </Button>
+                      {/*<Button*/}
+                      {/*  size={'small'}*/}
+                      {/*  positive*/}
+                      {/*  loading={updatingBalance}*/}
+                      {/*  onClick={() => {*/}
+                      {/*    updateChannelBalance(channel.id, channel.name, idx);*/}
+                      {/*  }}*/}
+                      {/*>*/}
+                      {/*  更新余额*/}
+                      {/*</Button>*/}
                       <Popup
                         trigger={
                           <Button size='small' negative>

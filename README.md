@@ -1,5 +1,5 @@
 <p align="right">
-   <strong>中文</strong> | <a href="./README.en.md">English</a>
+   <strong>中文</strong> | <a href="./README.en.md">English</a> | <a href="./README.ja.md">日本語</a>
 </p>
 
 
@@ -51,11 +51,13 @@ _✨ 通过标准的 OpenAI API 格式访问所有的大模型，开箱即用 �
   <a href="https://iamazing.cn/page/reward">赞赏支持</a>
 </p>
 
-> **Note**：本项目为开源项目，使用者必须在遵循 OpenAI 的[使用条款](https://openai.com/policies/terms-of-use)以及**法律法规**的情况下使用，不得用于非法用途。
+> **Note**
+> 本项目为开源项目，使用者必须在遵循 OpenAI 的[使用条款](https://openai.com/policies/terms-of-use)以及**法律法规**的情况下使用，不得用于非法用途。
+> 
+> 根据[《生成式人工智能服务管理暂行办法》](http://www.cac.gov.cn/2023-07/13/c_1690898327029107.htm)的要求，请勿对中国地区公众提供一切未经备案的生成式人工智能服务。
 
-> **Note**：使用 Docker 拉取的最新镜像可能是 `alpha` 版本，如果追求稳定性请手动指定版本。
-
-> **Warning**：从 `v0.3` 版本升级到 `v0.4` 版本需要手动迁移数据库，请手动执行[数据库迁移脚本](./bin/migration_v0.3-v0.4.sql)。
+> **Warning**
+> 使用 Docker 拉取的最新镜像可能是 `alpha` 版本，如果追求稳定性请手动指定版本。
 
 ## 功能
 1. 支持多种大模型：
@@ -63,14 +65,16 @@ _✨ 通过标准的 OpenAI API 格式访问所有的大模型，开箱即用 �
    + [x] [Anthropic Claude 系列模型](https://anthropic.com)
    + [x] [Google PaLM2 系列模型](https://developers.generativeai.google)
    + [x] [百度文心一言系列模型](https://cloud.baidu.com/doc/WENXINWORKSHOP/index.html)
+   + [x] [阿里通义千问系列模型](https://help.aliyun.com/document_detail/2400395.html)
+   + [x] [讯飞星火认知大模型](https://www.xfyun.cn/doc/spark/Web.html)
    + [x] [智谱 ChatGLM 系列模型](https://bigmodel.cn)
+   + [x] [360 智脑](https://ai.360.cn)
 2. 支持配置镜像以及众多第三方代理服务：
-   + [x] [API Distribute](https://api.gptjk.top/register?aff=QGxj)
    + [x] [OpenAI-SB](https://openai-sb.com)
+   + [x] [CloseAI](https://console.closeai-asia.com/r/2412)
    + [x] [API2D](https://api2d.com/r/197971)
    + [x] [OhMyGPT](https://aigptx.top?aff=uFpUl2Kf)
    + [x] [AI Proxy](https://aiproxy.io/?i=OneAPI) （邀请码：`OneAPI`）
-   + [x] [CloseAI](https://console.closeai-asia.com/r/2412)
    + [x] 自定义渠道：例如各种未收录的第三方代理服务
 3. 支持通过**负载均衡**的方式访问多个渠道。
 4. 支持 **stream 模式**，可以通过流式传输实现打字机效果。
@@ -93,7 +97,7 @@ _✨ 通过标准的 OpenAI API 格式访问所有的大模型，开箱即用 �
 19. 支持通过系统访问令牌访问管理 API。
 20. 支持 Cloudflare Turnstile 用户校验。
 21. 支持用户管理，支持**多种用户登录注册方式**：
-    + 邮箱登录注册以及通过邮箱进行密码重置。
+    + 邮箱登录注册（支持注册邮箱白名单）以及通过邮箱进行密码重置。
     + [GitHub 开放授权](https://github.com/settings/applications/new)。
     + 微信公众号授权（需要额外部署 [WeChat Server](https://github.com/songquanpeng/wechat-server)）。
 
@@ -101,15 +105,17 @@ _✨ 通过标准的 OpenAI API 格式访问所有的大模型，开箱即用 �
 ### 基于 Docker 进行部署
 部署命令：`docker run --name one-api -d --restart always -p 3000:3000 -e TZ=Asia/Shanghai -v /home/ubuntu/data/one-api:/data justsong/one-api`
 
-如果上面的镜像无法拉取，可以尝试使用 GitHub 的 Docker 镜像，将上面的 `justsong/one-api` 替换为 `ghcr.io/songquanpeng/one-api` 即可。
-
-如果你的并发量较大，推荐设置 `SQL_DSN`，详见下面[环境变量](#环境变量)一节。
-
-更新命令：`docker run --rm -v /var/run/docker.sock:/var/run/docker.sock containrrr/watchtower -cR`
-
-`-p 3000:3000` 中的第一个 `3000` 是宿主机的端口，可以根据需要进行修改。
+其中，`-p 3000:3000` 中的第一个 `3000` 是宿主机的端口，可以根据需要进行修改。
 
 数据将会保存在宿主机的 `/home/ubuntu/data/one-api` 目录，请确保该目录存在且具有写入权限，或者更改为合适的目录。
+
+如果启动失败，请添加 `--privileged=true`，具体参考 https://github.com/songquanpeng/one-api/issues/482 。
+
+如果上面的镜像无法拉取，可以尝试使用 GitHub 的 Docker 镜像，将上面的 `justsong/one-api` 替换为 `ghcr.io/songquanpeng/one-api` 即可。
+
+如果你的并发量较大，**务必**设置 `SQL_DSN`，详见下面[环境变量](#环境变量)一节。
+
+更新命令：`docker run --rm -v /var/run/docker.sock:/var/run/docker.sock containrrr/watchtower -cR`
 
 Nginx 的参考配置：
 ```
@@ -152,7 +158,7 @@ sudo service nginx restart
    cd one-api/web
    npm install
    npm run build
-
+   
    # 构建后端
    cd ..
    go mod download
@@ -205,14 +211,23 @@ docker run --name chatgpt-web -d -p 3002:3002 -e OPENAI_API_BASE_URL=https://ope
 
 注意修改端口号、`OPENAI_API_BASE_URL` 和 `OPENAI_API_KEY`。
 
+#### QChatGPT - QQ机器人
+项目主页：https://github.com/RockChinQ/QChatGPT
+
+根据文档完成部署后，在`config.py`设置配置项`openai_config`的`reverse_proxy`为 One API 后端地址，设置`api_key`为 One API 生成的key，并在配置项`completion_api_params`的`model`参数设置为 One API 支持的模型名称。
+
+可安装 [Switcher 插件](https://github.com/RockChinQ/Switcher)在运行时切换所使用的模型。
+
 ### 部署到第三方平台
 <details>
 <summary><strong>部署到 Sealos </strong></summary>
 <div>
 
-> Sealos 可视化部署，仅需 1 分钟。
+> Sealos 的服务器在国外，不需要额外处理网络问题，支持高并发 & 动态伸缩。
 
-参考这个[教程](https://github.com/c121914yu/FastGPT/blob/main/docs/deploy/one-api/sealos.md)中 1~5 步。
+点击以下按钮一键部署（部署后访问出现 404 请等待 3~5 分钟）：
+
+[![Deploy-on-Sealos.svg](https://raw.githubusercontent.com/labring-actions/templates/main/Deploy-on-Sealos.svg)](https://cloud.sealos.io/?openapp=system-fastdeploy?templateName=one-api)
 
 </div>
 </details>
@@ -224,7 +239,7 @@ docker run --name chatgpt-web -d -p 3002:3002 -e OPENAI_API_BASE_URL=https://ope
 > Zeabur 的服务器在国外，自动解决了网络的问题，同时免费的额度也足够个人使用。
 
 1. 首先 fork 一份代码。
-2. 进入 [Zeabur](https://zeabur.com/)，登录，进入控制台。
+2. 进入 [Zeabur](https://zeabur.com?referralCode=songquanpeng)，登录，进入控制台。
 3. 新建一个 Project，在 Service -> Add Service 选择 Marketplace，选择 MySQL，并记下连接参数（用户名、密码、地址、端口）。
 4. 复制链接参数，运行 ```create database `one-api` ``` 创建数据库。
 5. 然后在 Service -> Add Service，选择 Git（第一次使用需要先授权），选择你 fork 的仓库。
@@ -269,15 +284,23 @@ graph LR
 不加的话将会使用负载均衡的方式使用多个渠道。
 
 ### 环境变量
-1. `REDIS_CONN_STRING`：设置之后将使用 Redis 作为请求频率限制的存储，而非使用内存存储。
+1. `REDIS_CONN_STRING`：设置之后将使用 Redis 作为缓存使用。
    + 例子：`REDIS_CONN_STRING=redis://default:redispw@localhost:49153`
+   + 如果数据库访问延迟很低，没有必要启用 Redis，启用后反而会出现数据滞后的问题。
 2. `SESSION_SECRET`：设置之后将使用固定的会话密钥，这样系统重新启动后已登录用户的 cookie 将依旧有效。
    + 例子：`SESSION_SECRET=random_string`
-3. `SQL_DSN`：设置之后将使用指定数据库而非 SQLite，请使用 MySQL 8.0 版本。
-   + 例子：`SQL_DSN=root:123456@tcp(localhost:3306)/oneapi`
+3. `SQL_DSN`：设置之后将使用指定数据库而非 SQLite，请使用 MySQL 或 PostgreSQL。
+   + 例子：
+     + MySQL：`SQL_DSN=root:123456@tcp(localhost:3306)/oneapi`
+     + PostgreSQL：`SQL_DSN=postgres://postgres:123456@localhost:5432/oneapi`（适配中，欢迎反馈）
    + 注意需要提前建立数据库 `oneapi`，无需手动建表，程序将自动建表。
    + 如果使用本地数据库：部署命令可添加 `--network="host"` 以使得容器内的程序可以访问到宿主机上的 MySQL。
    + 如果使用云数据库：如果云服务器需要验证身份，需要在连接参数中添加 `?tls=skip-verify`。
+   + 请根据你的数据库配置修改下列参数（或者保持默认值）：
+     + `SQL_MAX_IDLE_CONNS`：最大空闲连接数，默认为 `100`。
+     + `SQL_MAX_OPEN_CONNS`：最大打开连接数，默认为 `1000`。
+       + 如果报错 `Error 1040: Too many connections`，请适当减小该值。
+     + `SQL_CONN_MAX_LIFETIME`：连接的最大生命周期，默认为 `60`，单位分钟。
 4. `FRONTEND_BASE_URL`：设置之后将重定向页面请求到指定的地址，仅限从服务器设置。
    + 例子：`FRONTEND_BASE_URL=https://openai.justsong.cn`
 5. `SYNC_FREQUENCY`：设置之后将定期与数据库同步配置，单位为秒，未设置则不进行同步。
@@ -290,6 +313,14 @@ graph LR
    + 例子：`CHANNEL_TEST_FREQUENCY=1440`
 9. `POLLING_INTERVAL`：批量更新渠道余额以及测试可用性时的请求间隔，单位为秒，默认无间隔。
    + 例子：`POLLING_INTERVAL=5`
+10. `BATCH_UPDATE_ENABLED`：启用数据库批量更新聚合，会导致用户额度的更新存在一定的延迟可选值为 `true` 和 `false`，未设置则默认为 `false`。
+    + 例子：`BATCH_UPDATE_ENABLED=true`
+    + 如果你遇到了数据库连接数过多的问题，可以尝试启用该选项。
+11. `BATCH_UPDATE_INTERVAL=5`：批量更新聚合的时间间隔，单位为秒，默认为 `5`。
+    + 例子：`BATCH_UPDATE_INTERVAL=5`
+12. 请求频率限制：
+    + `GLOBAL_API_RATE_LIMIT`：全局 API 速率限制（除中继请求外），单 ip 三分钟内的最大请求数，默认为 `180`。
+    + `GLOBAL_WEB_RATE_LIMIT`：全局 Web 速率限制，单 ip 三分钟内的最大请求数，默认为 `60`。
 
 ### 命令行参数
 1. `--port <port_number>`: 指定服务器监听的端口号，默认为 `3000`。
@@ -313,6 +344,7 @@ https://openai.justsong.cn
    + 额度 = 分组倍率 * 模型倍率 * （提示 token 数 + 补全 token 数 * 补全倍率）
    + 其中补全倍率对于 GPT3.5 固定为 1.33，GPT4 为 2，与官方保持一致。
    + 如果是非流模式，官方接口会返回消耗的总 token，但是你要注意提示和补全的消耗倍率不一样。
+   + 注意，One API 的默认倍率就是官方倍率，是已经调整过的。
 2. 账户额度足够为什么提示额度不足？
    + 请检查你的令牌额度是否足够，这个和账户额度是分开的。
    + 令牌额度仅供用户设置最大使用量，用户可自由设置。
@@ -325,11 +357,13 @@ https://openai.justsong.cn
 5. ChatGPT Next Web 报错：`Failed to fetch`
    + 部署的时候不要设置 `BASE_URL`。
    + 检查你的接口地址和 API Key 有没有填对。
+   + 检查是否启用了 HTTPS，浏览器会拦截 HTTPS 域名下的 HTTP 请求。
 6. 报错：`当前分组负载已饱和，请稍后再试`
    + 上游通道 429 了。
 
 ## 相关项目
-[FastGPT](https://github.com/c121914yu/FastGPT): 三分钟搭建 AI 知识库
+* [FastGPT](https://github.com/labring/FastGPT): 基于 LLM 大语言模型的知识库问答系统
+* [ChatGPT Next Web](https://github.com/Yidadaa/ChatGPT-Next-Web):  一键拥有你自己的跨平台 ChatGPT 应用
 
 ## 注意
 
