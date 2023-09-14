@@ -4,14 +4,14 @@ WORKDIR /app
 COPY . .
 RUN chmod +x ./translate-en.sh && ./translate-en.sh
 
-FROM oven/bun:latest as builder
+FROM node:18 as builder
 
 WORKDIR /build
-COPY ./web/package*.json ./web/bun.lockb ./
-RUN bun i
+COPY ./web/package.json ./
+RUN npm i
 COPY --from=translator ./app/web .
 COPY ./VERSION .
-RUN REACT_APP_VERSION=$(cat VERSION) bun run build
+RUN REACT_APP_VERSION=$(cat VERSION) npm run build
 
 FROM golang AS builder2
 
