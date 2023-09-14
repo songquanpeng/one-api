@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@3df4ab11eba7bda6032a0b82a6bb43b11571feac # v4.0.0
         with:
           fetch-depth: 0
 
@@ -20,23 +20,19 @@ jobs:
         run: |
           python ./i18n/translate.py --repository_path . --json_file_path ./i18n/en.json
 
-      - uses: pnpm/action-setup@v2
+      - uses: oven-sh/setup-bun@a1800f471a0bc25cddac36bb13e6f436ddf341d7 # v1
         with:
-          version: 8
-      - uses: actions/setup-node@v3
-        with:
-          cache: pnpm
-          node-version: 16
+          bun-version: latest
       - name: Build Frontend
         env:
           CI: ""
         run: |
           cd web
-          pnpm install
-          REACT_APP_VERSION=$(git describe --tags) npm run build
+          bun install
+          REACT_APP_VERSION=$(git describe --tags) bun run build
           cd ..
       - name: Set up Go
-        uses: actions/setup-go@v3
+        uses: actions/setup-go@93397bea11091df50f3d7e59dc26a7711a8bcfbe # v4.1.0
         with:
           go-version: ">=1.18.0"
       - name: Build Backend (amd64)
@@ -51,7 +47,7 @@ jobs:
           CC=aarch64-linux-gnu-gcc CGO_ENABLED=1 GOOS=linux GOARCH=arm64 go build -ldflags "-s -w -X 'one-api/common.Version=$(git describe --tags)' -extldflags '-static'" -o one-api-arm64-en
 
       - name: Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@de2c0eb89ae2a093876385947365aca7b0e5f844 # v1
         if: startsWith(github.ref, 'refs/tags/')
         with:
           files: |
