@@ -29,7 +29,7 @@ const LoginForm = () => {
     }
   }, []);
 
-  const [showWeChatLoginModal, setShowWeChatLoginModal] = useState(false);
+  const [showWeChatLoginModal, setShowWeChatLoginModal] = useState(true);
 
   const onGitHubOAuthClicked = () => {
     window.open(
