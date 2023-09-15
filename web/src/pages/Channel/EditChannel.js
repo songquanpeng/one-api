@@ -38,6 +38,7 @@ const EditChannel = () => {
     name: '',
     type: 1,
     key: '',
+    openai_organization:'',
     base_url: '',
     other: '',
     model_mapping: '',
@@ -418,6 +419,16 @@ const EditChannel = () => {
               />
             </Form.Field>
           }
+          <Form.Field>
+            <Form.Input
+                label='组织，可选，不填则为默认组织'
+                name='openai_organization'
+                placeholder='请输入组织org-xxx'
+                onChange={handleInputChange}
+                value={inputs.openai_organization}
+                autoComplete='new-password'
+            />
+          </Form.Field>
           {
             !isEdit && (
               <Form.Checkbox

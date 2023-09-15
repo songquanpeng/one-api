@@ -311,6 +311,9 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 				req.Header.Set("api-key", apiKey)
 			} else {
 				req.Header.Set("Authorization", c.Request.Header.Get("Authorization"))
+				if c.Request.Header.Get("OpenAI-Organization") != "" {
+					req.Header.Set("OpenAI-Organization", c.Request.Header.Get("OpenAI-Organization"))
+				}
 				if channelType == common.ChannelTypeOpenRouter {
 					req.Header.Set("HTTP-Referer", "https://github.com/songquanpeng/one-api")
 					req.Header.Set("X-Title", "One API")

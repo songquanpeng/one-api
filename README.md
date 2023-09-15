@@ -72,7 +72,8 @@ _✨ 通过标准的 OpenAI API 格式访问所有的大模型，开箱即用 �
     + [x] 易支付
 3. 支持用key查询使用额度:
     + 配合项目[neko-api-key-tool](https://github.com/Calcium-Ion/neko-api-key-tool)可实现用key查询使用情况，方便二次分销
-4.  渠道显示已使用额度
+4. 渠道显示已使用额度，支持指定组织访问
+5. 分页支持选择每页显示数量
 ## 功能
 1. 支持多种大模型：
    + [x] [OpenAI ChatGPT 系列模型](https://platform.openai.com/docs/guides/gpt/chat-completions-api)（支持 [Azure OpenAI API](https://learn.microsoft.com/en-us/azure/ai-services/openai/reference)）
