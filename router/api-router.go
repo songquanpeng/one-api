@@ -37,7 +37,7 @@ func SetApiRouter(router *gin.Engine) {
 			{
 				selfRoute.GET("/self", controller.GetSelf)
 				selfRoute.PUT("/self", controller.UpdateSelf)
-				selfRoute.DELETE("/self", controller.DeleteSelf)
+				//selfRoute.DELETE("/self", controller.DeleteSelf) //注释掉自我删除代码 不允许用户删除自己的账户 避免作弊 滥用免费额度。
 				selfRoute.GET("/token", controller.GenerateAccessToken)
 				selfRoute.GET("/aff", controller.GetAffCode)
 				selfRoute.POST("/topup", controller.TopUp)

@@ -75,7 +75,7 @@ const PersonalSetting = () => {
     const res = await API.get('/api/user/aff');
     const { success, message, data } = res.data;
     if (success) {
-      let link = `${window.location.origin}/register?aff=${data}`;
+      let link = `${window.location.origin}/login?aff=${data}`;
       setAffLink(link);
       setSystemToken("");
       await copy(link);
@@ -101,19 +101,6 @@ const PersonalSetting = () => {
     if (inputs.self_account_deletion_confirmation !== userState.user.username) {
       showError('请输入你的账户名以确认删除！');
       return;
-    }
-
-    const res = await API.delete('/api/user/self');
-    const { success, message } = res.data;
-
-    if (success) {
-      showSuccess('账户已删除！');
-      await API.get('/api/user/logout');
-      userDispatch({ type: 'logout' });
-      localStorage.removeItem('user');
-      navigate('/login');
-    } else {
-      showError(message);
     }
   };
 
@@ -178,9 +165,7 @@ const PersonalSetting = () => {
       </Button>
       <Button onClick={generateAccessToken}>生成系统访问令牌</Button>
       <Button onClick={getAffLink}>复制邀请链接</Button>
-      <Button onClick={() => {
-        setShowAccountDeleteModal(true);
-      }}>删除个人账户</Button>
+      
       
       {systemToken && (
         <Form.Input 
