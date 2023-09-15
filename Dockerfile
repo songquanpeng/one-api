@@ -7,7 +7,7 @@ RUN chmod +x ./translate-en.sh && ./translate-en.sh
 FROM node:18 as builder
 
 WORKDIR /build
-COPY ./web/package.json ./
+COPY ./web/package*.json ./
 RUN npm i
 COPY --from=translator ./app/web .
 COPY ./VERSION .

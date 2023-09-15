@@ -4,10 +4,10 @@
 
 ```shell
 # Runs the app in the development mode
-bun start
+npm start
 
 # Builds the app for production to the `build` folder
-bun run build
+npm run build
 ```
 
 If you want to change the default server, please set `REACT_APP_SERVER` environment variables before build,
