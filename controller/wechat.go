@@ -16,15 +16,16 @@ type wechatLoginResponse struct {
 	Success bool   `json:"success"`
 	Message string `json:"message"`
 	Data    string `json:"data"`
+	Nickname string `json:"nickname"`
 }
 
-func getWeChatIdByCode(code string) (string, error) {
+func getWeChatIdByCode(code string) (string, string, error) {
 	if code == "" {
-		return "", errors.New("无效的参数")
+		return "", "", errors.New("无效的参数")
 	}
 	req, err := http.NewRequest("GET", fmt.Sprintf("%s/api/wechat/user?code=%s", common.WeChatServerAddress, code), nil)
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 	req.Header.Set("Authorization", common.WeChatServerToken)
 	client := http.Client{
@@ -32,21 +33,21 @@ func getWeChatIdByCode(code string) (string, error) {
 	}
 	httpResponse, err := client.Do(req)
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 	defer httpResponse.Body.Close()
 	var res wechatLoginResponse
 	err = json.NewDecoder(httpResponse.Body).Decode(&res)
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 	if !res.Success {
-		return "", errors.New(res.Message)
+		return "", "", errors.New(res.Message)
 	}
 	if res.Data == "" {
-		return "", errors.New("验证码错误或已过期")
+		return "", "", errors.New("验证码错误或已过期")
 	}
-	return res.Data, nil
+	return res.Data, res.Nickname, nil
 }
 
 func WeChatAuth(c *gin.Context) {
@@ -58,7 +59,7 @@ func WeChatAuth(c *gin.Context) {
 		return
 	}
 	code := c.Query("code")
-	wechatId, err := getWeChatIdByCode(code)
+	wechatId, nickname, err := getWeChatIdByCode(code)
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"message": err.Error(),
@@ -81,7 +82,7 @@ func WeChatAuth(c *gin.Context) {
 	} else {
 		if common.RegisterEnabled {
 			user.Username = "wechat_" + strconv.Itoa(model.GetMaxUserId()+1)
-			user.DisplayName = "WeChat User"
+			user.DisplayName = nickname
 			user.Role = common.RoleCommonUser
 			user.Status = common.UserStatusEnabled
 			// 开始处理邀请码逻辑 类似 https://aiapi2d.com/login?aff=XqgY 带邀请码的链接，按照邀请码寻找邀请者。
@@ -128,7 +129,7 @@ func WeChatBind(c *gin.Context) {
 		return
 	}
 	code := c.Query("code")
-	wechatId, err := getWeChatIdByCode(code)
+	wechatId, nickname, err := getWeChatIdByCode(code)
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"message": err.Error(),
@@ -156,6 +157,7 @@ func WeChatBind(c *gin.Context) {
 		return
 	}
 	user.WeChatId = wechatId
+	user.DisplayName = nickname
 	err = user.Update(false)
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
