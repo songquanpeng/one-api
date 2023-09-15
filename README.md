@@ -64,9 +64,15 @@ _✨ 通过标准的 OpenAI API 格式访问所有的大模型，开箱即用 �
     + [x] /mj/submit/change
     + [x] /mj/image/{id} （通过此接口获取图片，**请必须在系统设置中填写服务器地址！！**）
     + [x] /mj/task/{id}/fetch （此接口返回的图片地址为经过One API转发的地址）
-   + 使用方法：渠道类型选择自定义渠道，Base URL填写Midjourney-Proxy的地址（例如 http://localhost:8080 )，模型填入自定义模型midjourney，密钥填写Midjourney-Proxy的mj-api-secret（没有的话可以随便填）。
+   + 使用方法：渠道类型选择自定义渠道
+   + Base URL填写Midjourney-Proxy的地址（例如 http://localhost:8080 )
+   + 模型填入自定义模型midjourney
+   + 密钥填写Midjourney-Proxy的mj-api-secret（没有的话可以随便填，但是不推荐）。
 2. 支持在线充值功能，可在系统设置中设置，当前支持的支付接口：
     + [x] 易支付
+3. 支持用key查询使用额度:
+    + 配合项目[neko-api-key-tool](https://github.com/Calcium-Ion/neko-api-key-tool)可实现用key查询使用情况，方便二次分销
+4.  渠道显示已使用额度
 ## 功能
 1. 支持多种大模型：
    + [x] [OpenAI ChatGPT 系列模型](https://platform.openai.com/docs/guides/gpt/chat-completions-api)（支持 [Azure OpenAI API](https://learn.microsoft.com/en-us/azure/ai-services/openai/reference)）

@@ -106,6 +106,10 @@ func countTokenText(text string, model string) int {
 }
 
 func errorWrapper(err error, code string, statusCode int) *OpenAIErrorWithStatusCode {
+	if statusCode == http.StatusInternalServerError {
+		//避免暴露内部错误
+		err = fmt.Errorf("internal server error")
+	}
 	openAIError := OpenAIError{
 		Message: err.Error(),
 		Type:    "one_api_error",
