@@ -86,10 +86,10 @@ _✨ 通过标准的 OpenAI API 格式访问所有的大模型，开箱即用 �
    + [x] [360 智脑](https://ai.360.cn)
 2. 支持配置镜像以及众多第三方代理服务：
    + [x] [OpenAI-SB](https://openai-sb.com)
+   + [x] [CloseAI](https://console.closeai-asia.com/r/2412)
    + [x] [API2D](https://api2d.com/r/197971)
    + [x] [OhMyGPT](https://aigptx.top?aff=uFpUl2Kf)
    + [x] [AI Proxy](https://aiproxy.io/?i=OneAPI) （邀请码：`OneAPI`）
-   + [x] [CloseAI](https://console.closeai-asia.com/r/2412)
    + [x] 自定义渠道：例如各种未收录的第三方代理服务
 3. 支持通过**负载均衡**的方式访问多个渠道。
 4. 支持 **stream 模式**，可以通过流式传输实现打字机效果。
@@ -225,6 +225,13 @@ docker run --name chatgpt-web -d -p 3002:3002 -e OPENAI_API_BASE_URL=https://ope
 ```
 
 注意修改端口号、`OPENAI_API_BASE_URL` 和 `OPENAI_API_KEY`。
+
+#### QChatGPT - QQ机器人
+项目主页：https://github.com/RockChinQ/QChatGPT
+
+根据文档完成部署后，在`config.py`设置配置项`openai_config`的`reverse_proxy`为 One API 后端地址，设置`api_key`为 One API 生成的key，并在配置项`completion_api_params`的`model`参数设置为 One API 支持的模型名称。
+
+可安装 [Switcher 插件](https://github.com/RockChinQ/Switcher)在运行时切换所使用的模型。
 
 ### 部署到第三方平台
 <details>
