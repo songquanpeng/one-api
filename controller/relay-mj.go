@@ -2,6 +2,7 @@ package controller
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -145,7 +146,7 @@ func relayMidjourneySubmit(c *gin.Context, relayMode int) *MidjourneyResponse {
 	userId := c.GetInt("id")
 	consumeQuota := c.GetBool("consume_quota")
 	group := c.GetString("group")
-
+	channelId := c.GetInt("channel_id")
 	var midjRequest MidjourneyRequest
 	if consumeQuota {
 		err := common.UnmarshalBodyReusable(c, &midjRequest)
@@ -308,7 +309,7 @@ func relayMidjourneySubmit(c *gin.Context, relayMode int) *MidjourneyResponse {
 	}
 	var midjResponse MidjourneyResponse
 
-	defer func() {
+	defer func(ctx context.Context) {
 		if consumeQuota {
 			err := model.PostConsumeTokenQuota(tokenId, quota)
 			if err != nil {
@@ -321,13 +322,13 @@ func relayMidjourneySubmit(c *gin.Context, relayMode int) *MidjourneyResponse {
 			if quota != 0 {
 				tokenName := c.GetString("token_name")
 				logContent := fmt.Sprintf("模型倍率 %.2f，分组倍率 %.2f", modelRatio, groupRatio)
-				model.RecordConsumeLog(userId, 0, 0, imageModel, tokenName, quota, logContent, tokenId)
+				model.RecordConsumeLog(ctx, userId, channelId, 0, 0, imageModel, tokenName, quota, logContent, tokenId)
 				model.UpdateUserUsedQuotaAndRequestCount(userId, quota)
 				channelId := c.GetInt("channel_id")
 				model.UpdateChannelUsedQuota(channelId, quota)
 			}
 		}
-	}()
+	}(c.Request.Context())
 
 	//if consumeQuota {
 	//

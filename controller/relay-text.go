@@ -372,7 +372,6 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 
 	var textResponse TextResponse
 	tokenName := c.GetString("token_name")
-	channelId := c.GetInt("channel_id")
 
 	defer func(ctx context.Context) {
 		// c.Writer.Flush()
