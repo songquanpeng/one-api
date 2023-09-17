@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Form, Label, Pagination, Popup, Table } from 'semantic-ui-react';
+import {Button, Form, Input, Label, Pagination, Popup, Table} from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
 import { API, showError, showInfo, showNotice, showSuccess, timestamp2string } from '../helpers';
 
@@ -24,7 +24,7 @@ function renderType(type) {
     }
     type2label[0] = { value: 0, text: '未知类型', color: 'grey' };
   }
-  return <Label basic color={type2label[type].color}>{type2label[type].text}</Label>;
+  return <Label basic color={type2label[type]?.color}>{type2label[type]?.text}</Label>;
 }
 
 function renderBalance(type, balance) {
@@ -96,7 +96,7 @@ const ChannelsTable = () => {
       });
   }, []);
 
-  const manageChannel = async (id, action, idx) => {
+  const manageChannel = async (id, action, idx, priority) => {
     let data = { id };
     let res;
     switch (action) {
@@ -109,6 +109,13 @@ const ChannelsTable = () => {
         break;
       case 'disable':
         data.status = 2;
+        res = await API.put('/api/channel/', data);
+        break;
+      case 'priority':
+        if (priority === '') {
+          return;
+        }
+        data.priority = parseInt(priority);
         res = await API.put('/api/channel/', data);
         break;
     }
@@ -335,6 +342,14 @@ const ChannelsTable = () => {
             >
               余额
             </Table.HeaderCell>
+            <Table.HeaderCell
+                style={{ cursor: 'pointer' }}
+                onClick={() => {
+                  sortChannel('priority');
+                }}
+            >
+              优先级
+            </Table.HeaderCell>
             <Table.HeaderCell>操作</Table.HeaderCell>
           </Table.Row>
         </Table.Header>
@@ -371,6 +386,22 @@ const ChannelsTable = () => {
                     </span>}
                       content='点击更新'
                       basic
+                    />
+                  </Table.Cell>
+                  <Table.Cell>
+                    <Popup
+                        trigger={<Input type="number"  defaultValue={channel.priority} onBlur={(event) => {
+                          manageChannel(
+                              channel.id,
+                              'priority',
+                              idx,
+                              event.target.value,
+                          );
+                        }}>
+                          <input style={{maxWidth:'60px'}} />
+                        </Input>}
+                        content='渠道选择优先级，越高越优先'
+                        basic
                     />
                   </Table.Cell>
                   <Table.Cell>
@@ -441,7 +472,7 @@ const ChannelsTable = () => {
 
         <Table.Footer>
           <Table.Row>
-            <Table.HeaderCell colSpan='8'>
+            <Table.HeaderCell colSpan='9'>
               <Button size='small' as={Link} to='/channel/add' loading={loading}>
                 添加新的渠道
               </Button>
