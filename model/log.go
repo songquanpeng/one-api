@@ -169,3 +169,8 @@ func SumUsedToken(logType int, startTimestamp int64, endTimestamp int64, modelNa
 	tx.Where("type = ?", LogTypeConsume).Scan(&token)
 	return token
 }
+
+func DeleteOldLog(targetTimestamp int64) (int64, error) {
+	result := DB.Where("created_at < ?", targetTimestamp).Delete(&Log{})
+	return result.RowsAffected, result.Error
+}
