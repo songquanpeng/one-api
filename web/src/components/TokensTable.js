@@ -96,7 +96,7 @@ const TokensTable = () => {
     let nextUrl;
   
     if (nextLink) {
-      nextUrl = nextLink + `/#/?settings={"key":"sk-${key}"}`;
+      nextUrl = nextLink + `/#/?settings={"key":"sk-${key}","url":"${serverAddress}"}`;
     } else {
       nextUrl = `https://chat.oneapi.pro/#/?settings={"key":"sk-${key}","url":"${serverAddress}"}`;
     }
