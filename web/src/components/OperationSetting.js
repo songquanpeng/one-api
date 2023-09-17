@@ -1,9 +1,9 @@
 import React, {useEffect, useState} from 'react';
 import {Divider, Form, Grid, Header} from 'semantic-ui-react';
-import {API, showError, verifyJSON} from '../helpers';
+import {API, showError, showSuccess, timestamp2string, verifyJSON} from '../helpers';
 
 const OperationSetting = () => {
-    let [inputs, setInputs] = useState({
+    let now = new Date();let [inputs, setInputs] = useState({
         QuotaForNewUser: 0,
         QuotaForInviter: 0,
         QuotaForInvitee: 0,
@@ -20,28 +20,28 @@ const OperationSetting = () => {
         DisplayInCurrencyEnabled: '',
         DisplayTokenStatEnabled: '',
         ApproximateTokenEnabled: '',
-        RetryTimes: 0,
+        RetryTimes: 0
     });
     const [originInputs, setOriginInputs] = useState({});
-    let [loading, setLoading] = useState(false);
+    let [loading, setLoading] = useState(false);let [historyTimestamp, setHistoryTimestamp] = useState(timestamp2string(now.getTime() / 1000 - 30 * 24 * 3600)); // a month ago
 
-    const getOptions = async () => {
-        const res = await API.get('/api/option/');
-        const {success, message, data} = res.data;
-        if (success) {
-            let newInputs = {};
-            data.forEach((item) => {
-                if (item.key === 'ModelRatio' || item.key === 'GroupRatio') {
-                    item.value = JSON.stringify(JSON.parse(item.value), null, 2);
-                }
-                newInputs[item.key] = item.value;
-            });
-            setInputs(newInputs);
-            setOriginInputs(newInputs);
-        } else {
-            showError(message);
+  const getOptions = async () => {
+    const res = await API.get('/api/option/');
+    const { success, message, data } = res.data;
+    if (success) {
+      let newInputs = {};
+      data.forEach((item) => {
+        if (item.key === 'ModelRatio' || item.key === 'GroupRatio') {
+          item.value = JSON.stringify(JSON.parse(item.value), null, 2);
         }
-    };
+        newInputs[item.key] = item.value;
+      });
+      setInputs(newInputs);
+      setOriginInputs(newInputs);
+    } else {
+      showError(message);
+    }
+  };
 
     useEffect(() => {
         getOptions().then();
@@ -73,72 +73,73 @@ const OperationSetting = () => {
         }
     };
 
-    const submitConfig = async (group) => {
-        switch (group) {
-            case 'monitor':
-                if (originInputs['ChannelDisableThreshold'] !== inputs.ChannelDisableThreshold) {
-                    await updateOption('ChannelDisableThreshold', inputs.ChannelDisableThreshold);
-                }
-                if (originInputs['QuotaRemindThreshold'] !== inputs.QuotaRemindThreshold) {
-                    await updateOption('QuotaRemindThreshold', inputs.QuotaRemindThreshold);
-                }
-                break;
-            case 'stable':
-                await updateOption('StablePrice', inputs.StablePrice);
-                await updateOption('NormalPrice', inputs.NormalPrice);
-                await updateOption('BasePrice', inputs.BasePrice);
-                localStorage.setItem('stable_price', inputs.StablePrice);
-                localStorage.setItem('normal_price', inputs.NormalPrice);
-                localStorage.setItem('base_price', inputs.BasePrice);
-                break;
-            case 'ratio':
-                if (originInputs['ModelRatio'] !== inputs.ModelRatio) {
-                    if (!verifyJSON(inputs.ModelRatio)) {
-                        showError('模型倍率不是合法的 JSON 字符串');
-                        return;
-                    }
-                    await updateOption('ModelRatio', inputs.ModelRatio);
-                }
-                if (originInputs['GroupRatio'] !== inputs.GroupRatio) {
-                    if (!verifyJSON(inputs.GroupRatio)) {
-                        showError('分组倍率不是合法的 JSON 字符串');
-                        return;
-                    }
-                    await updateOption('GroupRatio', inputs.GroupRatio);
-                }
-                break;
-            case 'quota':
-                if (originInputs['QuotaForNewUser'] !== inputs.QuotaForNewUser) {
-                    await updateOption('QuotaForNewUser', inputs.QuotaForNewUser);
-                }
-                if (originInputs['QuotaForInvitee'] !== inputs.QuotaForInvitee) {
-                    await updateOption('QuotaForInvitee', inputs.QuotaForInvitee);
-                }
-                if (originInputs['QuotaForInviter'] !== inputs.QuotaForInviter) {
-                    await updateOption('QuotaForInviter', inputs.QuotaForInviter);
-                }
-                if (originInputs['PreConsumedQuota'] !== inputs.PreConsumedQuota) {
-                    await updateOption('PreConsumedQuota', inputs.PreConsumedQuota);
-                }
-                break;
-            case 'general':
-                if (originInputs['TopUpLink'] !== inputs.TopUpLink) {
-                    await updateOption('TopUpLink', inputs.TopUpLink);
-                }
-                if (originInputs['ChatLink'] !== inputs.ChatLink) {
-                    await updateOption('ChatLink', inputs.ChatLink);
-                }
-                if (originInputs['QuotaPerUnit'] !== inputs.QuotaPerUnit) {
-                    await updateOption('QuotaPerUnit', inputs.QuotaPerUnit);
-                }
-                if (originInputs['RetryTimes'] !== inputs.RetryTimes) {
-                    await updateOption('RetryTimes', inputs.RetryTimes);
-                }
-                break;
+  const submitConfig = async (group) => {
+    switch (group) {
+      case 'monitor':
+        if (originInputs['ChannelDisableThreshold'] !== inputs.ChannelDisableThreshold) {
+          await updateOption('ChannelDisableThreshold', inputs.ChannelDisableThreshold);
         }
-    };
+        if (originInputs['QuotaRemindThreshold'] !== inputs.QuotaRemindThreshold) {
+          await updateOption('QuotaRemindThreshold', inputs.QuotaRemindThreshold);
+        }
+        break;
+      case 'ratio':
+        if (originInputs['ModelRatio'] !== inputs.ModelRatio) {
+          if (!verifyJSON(inputs.ModelRatio)) {
+            showError('模型倍率不是合法的 JSON 字符串');
+            return;
+          }
+          await updateOption('ModelRatio', inputs.ModelRatio);
+        }
+        if (originInputs['GroupRatio'] !== inputs.GroupRatio) {
+          if (!verifyJSON(inputs.GroupRatio)) {
+            showError('分组倍率不是合法的 JSON 字符串');
+            return;
+          }
+          await updateOption('GroupRatio', inputs.GroupRatio);
+        }
+        break;
+      case 'quota':
+        if (originInputs['QuotaForNewUser'] !== inputs.QuotaForNewUser) {
+          await updateOption('QuotaForNewUser', inputs.QuotaForNewUser);
+        }
+        if (originInputs['QuotaForInvitee'] !== inputs.QuotaForInvitee) {
+          await updateOption('QuotaForInvitee', inputs.QuotaForInvitee);
+        }
+        if (originInputs['QuotaForInviter'] !== inputs.QuotaForInviter) {
+          await updateOption('QuotaForInviter', inputs.QuotaForInviter);
+        }
+        if (originInputs['PreConsumedQuota'] !== inputs.PreConsumedQuota) {
+          await updateOption('PreConsumedQuota', inputs.PreConsumedQuota);
+        }
+        break;
+      case 'general':
+        if (originInputs['TopUpLink'] !== inputs.TopUpLink) {
+          await updateOption('TopUpLink', inputs.TopUpLink);
+        }
+        if (originInputs['ChatLink'] !== inputs.ChatLink) {
+          await updateOption('ChatLink', inputs.ChatLink);
+        }
+        if (originInputs['QuotaPerUnit'] !== inputs.QuotaPerUnit) {
+          await updateOption('QuotaPerUnit', inputs.QuotaPerUnit);
+        }
+        if (originInputs['RetryTimes'] !== inputs.RetryTimes) {
+          await updateOption('RetryTimes', inputs.RetryTimes);
+        }
+        break;
+    }
+  };
 
-    return (
+    const deleteHistoryLogs = async () => {
+    console.log(inputs);
+    const res = await API.delete(`/api/log/?target_timestamp=${Date.parse(historyTimestamp) / 1000}`);
+    const { success, message, data } = res.data;
+    if (success) {
+      showSuccess(`${data} 条日志已清理！`);
+      return;
+    }
+    showError('日志清理失败：' + message);
+  };return (
         <Grid columns={1}>
             <Grid.Column>
                 <Form loading={loading}>
@@ -187,12 +188,7 @@ const OperationSetting = () => {
                         />
                     </Form.Group>
                     <Form.Group inline>
-                        <Form.Checkbox
-                            checked={inputs.LogConsumeEnabled === 'true'}
-                            label='启用额度消费日志记录'
-                            name='LogConsumeEnabled'
-                            onChange={handleInputChange}
-                        />
+
                         <Form.Checkbox
                             checked={inputs.DisplayInCurrencyEnabled === 'true'}
                             label='以货币形式显示额度'
@@ -214,7 +210,28 @@ const OperationSetting = () => {
                     </Form.Group>
                     <Form.Button onClick={() => {
                         submitConfig('general').then();
-                    }}>保存通用设置</Form.Button>
+                    }}>保存通用设置</Form.Button><Divider />
+          <Header as='h3'>
+            日志设置
+          </Header>
+          <Form.Group inline>
+            <Form.Checkbox
+              checked={inputs.LogConsumeEnabled === 'true'}
+              label='启用额度消费日志记录'
+              name='LogConsumeEnabled'
+              onChange={handleInputChange}
+            />
+          </Form.Group>
+          <Form.Group widths={4}>
+            <Form.Input label='目标时间' value={historyTimestamp} type='datetime-local'
+                        name='history_timestamp'
+                        onChange={(e, { name, value }) => {
+                          setHistoryTimestamp(value);
+                        }} />
+          </Form.Group>
+          <Form.Button onClick={() => {
+            deleteHistoryLogs().then();
+          }}>清理历史日志</Form.Button>
                     <Divider/>
                     <Header as='h3'>
                         监控设置

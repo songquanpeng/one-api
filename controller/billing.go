@@ -29,7 +29,7 @@ func GetSubscription(c *gin.Context) {
 	if err != nil {
 		openAIError := OpenAIError{
 			Message: err.Error(),
-			Type:    "one_api_error",
+			Type:    "upstream_error",
 		}
 		c.JSON(200, gin.H{
 			"error": openAIError,

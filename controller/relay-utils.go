@@ -150,7 +150,7 @@ func relayErrorHandler(resp *http.Response) (openAIErrorWithStatusCode *OpenAIEr
 		StatusCode: resp.StatusCode,
 		OpenAIError: OpenAIError{
 			Message: fmt.Sprintf("bad response status code %d", resp.StatusCode),
-			Type:    "one_api_error",
+			Type:    "upstream_error",
 			Code:    "bad_response_status_code",
 			Param:   strconv.Itoa(resp.StatusCode),
 		},

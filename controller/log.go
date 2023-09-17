@@ -18,19 +18,21 @@ func GetAllLogs(c *gin.Context) {
 	username := c.Query("username")
 	tokenName := c.Query("token_name")
 	modelName := c.Query("model_name")
-	logs, err := model.GetAllLogs(logType, startTimestamp, endTimestamp, modelName, username, tokenName, p*common.ItemsPerPage, common.ItemsPerPage)
+	channel, _ := strconv.Atoi(c.Query("channel"))
+	logs, err := model.GetAllLogs(logType, startTimestamp, endTimestamp, modelName, username, tokenName, p*common.ItemsPerPage, common.ItemsPerPage, channel)
 	if err != nil {
-		c.JSON(200, gin.H{
+		c.JSON(http.StatusOK, gin.H{
 			"success": false,
 			"message": err.Error(),
 		})
 		return
 	}
-	c.JSON(200, gin.H{
+	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"message": "",
 		"data":    logs,
 	})
+	return
 }
 
 func GetUserLogs(c *gin.Context) {
@@ -46,34 +48,36 @@ func GetUserLogs(c *gin.Context) {
 	modelName := c.Query("model_name")
 	logs, err := model.GetUserLogs(userId, logType, startTimestamp, endTimestamp, modelName, tokenName, p*common.ItemsPerPage, common.ItemsPerPage)
 	if err != nil {
-		c.JSON(200, gin.H{
+		c.JSON(http.StatusOK, gin.H{
 			"success": false,
 			"message": err.Error(),
 		})
 		return
 	}
-	c.JSON(200, gin.H{
+	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"message": "",
 		"data":    logs,
 	})
+	return
 }
 
 func SearchAllLogs(c *gin.Context) {
 	keyword := c.Query("keyword")
 	logs, err := model.SearchAllLogs(keyword)
 	if err != nil {
-		c.JSON(200, gin.H{
+		c.JSON(http.StatusOK, gin.H{
 			"success": false,
 			"message": err.Error(),
 		})
 		return
 	}
-	c.JSON(200, gin.H{
+	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"message": "",
 		"data":    logs,
 	})
+	return
 }
 
 func SearchUserLogs(c *gin.Context) {
@@ -81,17 +85,18 @@ func SearchUserLogs(c *gin.Context) {
 	userId := c.GetInt("id")
 	logs, err := model.SearchUserLogs(userId, keyword)
 	if err != nil {
-		c.JSON(200, gin.H{
+		c.JSON(http.StatusOK, gin.H{
 			"success": false,
 			"message": err.Error(),
 		})
 		return
 	}
-	c.JSON(200, gin.H{
+	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"message": "",
 		"data":    logs,
 	})
+	return
 }
 
 func GetLogByKey(c *gin.Context) {
@@ -118,9 +123,9 @@ func GetLogsStat(c *gin.Context) {
 	tokenName := c.Query("token_name")
 	username := c.Query("username")
 	modelName := c.Query("model_name")
-	stat := model.SumUsedQuota(logType, startTimestamp, endTimestamp, modelName, username, tokenName)
+	stat := model.SumUsedQuota(logType, startTimestamp, endTimestamp, modelName, username, tokenName, channel)
 	//tokenNum := model.SumUsedToken(logType, startTimestamp, endTimestamp, modelName, username, "")
-	c.JSON(200, gin.H{
+	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"message": "",
 		"data": gin.H{
@@ -129,6 +134,7 @@ func GetLogsStat(c *gin.Context) {
 			"tpm":   stat.Tpm,
 		},
 	})
+	return
 }
 
 func GetLogsSelfStat(c *gin.Context) {
@@ -138,7 +144,8 @@ func GetLogsSelfStat(c *gin.Context) {
 	endTimestamp, _ := strconv.ParseInt(c.Query("end_timestamp"), 10, 64)
 	tokenName := c.Query("token_name")
 	modelName := c.Query("model_name")
-	quotaNum := model.SumUsedQuota(logType, startTimestamp, endTimestamp, modelName, username, tokenName)
+	channel, _ := strconv.Atoi(c.Query("channel"))
+	quotaNum := model.SumUsedQuota(logType, startTimestamp, endTimestamp, modelName, username, tokenName, channel)
 	//tokenNum := model.SumUsedToken(logType, startTimestamp, endTimestamp, modelName, username, tokenName)
 	c.JSON(200, gin.H{
 		"success": true,
@@ -150,4 +157,30 @@ func GetLogsSelfStat(c *gin.Context) {
 			//"token": tokenNum,
 		},
 	})
+	return
+}
+
+func DeleteHistoryLogs(c *gin.Context) {
+	targetTimestamp, _ := strconv.ParseInt(c.Query("target_timestamp"), 10, 64)
+	if targetTimestamp == 0 {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": "target timestamp is required",
+		})
+		return
+	}
+	count, err := model.DeleteOldLog(targetTimestamp)
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "",
+		"data":    count,
+	})
+	return
 }
