@@ -1,8 +1,12 @@
 package model
 
 import (
+	"errors"
 	"gorm.io/gorm"
+	"math/rand"
 	"one-api/common"
+	"strconv"
+	"time"
 )
 
 type Channel struct {
@@ -37,7 +41,11 @@ func GetAllChannels(startIdx int, num int, selectAll bool) ([]*Channel, error) {
 }
 
 func SearchChannels(keyword string) (channels []*Channel, err error) {
-	err = DB.Omit("key").Where("id = ? or name LIKE ? or `key` = ?", keyword, keyword+"%", keyword).Find(&channels).Error
+	idKeyword, err := strconv.Atoi(keyword)
+	if err != nil {
+		idKeyword = 0
+	}
+	err = DB.Omit("key").Where("name LIKE ?", keyword+"%").Or(&Channel{Id: idKeyword}).Or(&Channel{Key: keyword}).Find(&channels).Error
 	return channels, err
 }
 
@@ -53,13 +61,17 @@ func GetChannelById(id int, selectAll bool) (*Channel, error) {
 }
 
 func GetRandomChannel() (*Channel, error) {
-	channel := Channel{}
+	var channels []Channel
 	var err error = nil
-	if common.UsingSQLite {
-		err = DB.Where("status = ? and `group` = ?", common.ChannelStatusEnabled, "default").Order("RANDOM()").Limit(1).First(&channel).Error
-	} else {
-		err = DB.Where("status = ? and `group` = ?", common.ChannelStatusEnabled, "default").Order("RAND()").Limit(1).First(&channel).Error
+	err = DB.Where(&Channel{Status: common.ChannelStatusEnabled, Group: "default"}).Find(&channels).Error
+	if err != nil {
+		return nil, err
 	}
+	if len(channels) == 0 {
+		return nil, errors.New("no enabled channel")
+	}
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	channel := channels[r.Intn(len(channels))]
 	return &channel, err
 }
 
