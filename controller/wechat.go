@@ -172,3 +172,21 @@ func WeChatBind(c *gin.Context) {
 	})
 	return
 }
+
+func IsWeChatIdAvailable(c *gin.Context) {
+
+	wechatId := c.Query("wechat_id")
+
+	if model.IsWeChatIdAlreadyTaken(wechatId) {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": "该微信账号已被绑定，不可用",
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "该微信账号未绑定任何账号，可用",
+	})
+	return
+}
