@@ -17,7 +17,7 @@ func relayAudioHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode 
 
 	tokenId := c.GetInt("token_id")
 	channelType := c.GetInt("channel")
-	channelID := c.GetInt("channel_id")
+	channelId := c.GetInt("channel_id")
 	userId := c.GetInt("id")
 	group := c.GetString("group")
 
@@ -107,7 +107,7 @@ func relayAudioHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode 
 			if quota != 0 {
 				tokenName := c.GetString("token_name")
 				logContent := fmt.Sprintf("模型倍率 %.2f，分组倍率 %.2f", modelRatio, groupRatio)
-				model.RecordConsumeLog(userId, channelID, 0, 0, audioModel, tokenName, quota, logContent)
+				model.RecordConsumeLog(userId, channelId, 0, 0, audioModel, tokenName, quota, logContent)
 				model.UpdateUserUsedQuotaAndRequestCount(userId, quota)
 				channelId := c.GetInt("channel_id")
 				model.UpdateChannelUsedQuota(channelId, quota)

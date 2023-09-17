@@ -24,7 +24,7 @@ function renderType(type) {
     }
     type2label[0] = { value: 0, text: '未知类型', color: 'grey' };
   }
-  return <Label basic color={type2label[type].color}>{type2label[type].text}</Label>;
+  return <Label basic color={type2label[type]?.color}>{type2label[type]?.text}</Label>;
 }
 
 function renderBalance(type, balance) {
@@ -399,7 +399,7 @@ const ChannelsTable = () => {
                         }}>
                           <input style={{maxWidth:'60px'}} />
                         </Input>}
-                        content='输入优先级，越高越优先'
+                        content='渠道选择优先级，越高越优先'
                         basic
                     />
                   </Table.Cell>
@@ -471,7 +471,7 @@ const ChannelsTable = () => {
 
         <Table.Footer>
           <Table.Row>
-            <Table.HeaderCell colSpan='8'>
+            <Table.HeaderCell colSpan='9'>
               <Button size='small' as={Link} to='/channel/add' loading={loading}>
                 添加新的渠道
               </Button>

@@ -45,7 +45,7 @@ func RecordLog(userId int, logType int, content string) {
 	}
 }
 
-func RecordConsumeLog(userId int, channelID, promptTokens int, completionTokens int, modelName string, tokenName string, quota int, content string) {
+func RecordConsumeLog(userId int, channelId int, promptTokens int, completionTokens int, modelName string, tokenName string, quota int, content string) {
 	if !common.LogConsumeEnabled {
 		return
 	}
@@ -60,7 +60,7 @@ func RecordConsumeLog(userId int, channelID, promptTokens int, completionTokens 
 		TokenName:        tokenName,
 		ModelName:        modelName,
 		Quota:            quota,
-		Channel:          channelID,
+		Channel:          channelId,
 	}
 	err := DB.Create(log).Error
 	if err != nil {
@@ -97,7 +97,7 @@ func GetAllLogs(logType int, startTimestamp int64, endTimestamp int64, modelName
 	return logs, err
 }
 
-func GetUserLogs(userId int, logType int, startTimestamp int64, endTimestamp int64, modelName string, tokenName string, startIdx int, num int, channel int) (logs []*Log, err error) {
+func GetUserLogs(userId int, logType int, startTimestamp int64, endTimestamp int64, modelName string, tokenName string, startIdx int, num int) (logs []*Log, err error) {
 	var tx *gorm.DB
 	if logType == LogTypeUnknown {
 		tx = DB.Where("user_id = ?", userId)
@@ -115,9 +115,6 @@ func GetUserLogs(userId int, logType int, startTimestamp int64, endTimestamp int
 	}
 	if endTimestamp != 0 {
 		tx = tx.Where("created_at <= ?", endTimestamp)
-	}
-	if channel != 0 {
-		tx = tx.Where("channel = ?", channel)
 	}
 	err = tx.Order("id desc").Limit(num).Offset(startIdx).Omit("id").Find(&logs).Error
 	return logs, err
