@@ -39,32 +39,35 @@ func ValidateUserToken(key string) (token *Token, err error) {
 	}
 	token, err = CacheGetTokenByKey(key)
 	if err == nil {
+		if token.Status == common.TokenStatusExhausted {
+			return nil, errors.New("该令牌额度已用尽")
+		} else if token.Status == common.TokenStatusExpired {
+			return nil, errors.New("该令牌已过期")
+		}
 		if token.Status != common.TokenStatusEnabled {
 			return nil, errors.New("该令牌状态不可用")
 		}
 		if token.ExpiredTime != -1 && token.ExpiredTime < common.GetTimestamp() {
-			token.Status = common.TokenStatusExpired
-			err := token.SelectUpdate()
-			if err != nil {
-				common.SysError("failed to update token status" + err.Error())
+			if !common.RedisEnabled {
+				token.Status = common.TokenStatusExpired
+				err := token.SelectUpdate()
+				if err != nil {
+					common.SysError("failed to update token status" + err.Error())
+				}
 			}
 			return nil, errors.New("该令牌已过期")
 		}
 		if !token.UnlimitedQuota && token.RemainQuota <= 0 {
-			token.Status = common.TokenStatusExhausted
-			err := token.SelectUpdate()
-			if err != nil {
-				common.SysError("failed to update token status" + err.Error())
+			if !common.RedisEnabled {
+				// in this case, we can make sure the token is exhausted
+				token.Status = common.TokenStatusExhausted
+				err := token.SelectUpdate()
+				if err != nil {
+					common.SysError("failed to update token status" + err.Error())
+				}
 			}
 			return nil, errors.New("该令牌额度已用尽")
 		}
-		go func() {
-			token.AccessedTime = common.GetTimestamp()
-			err := token.SelectUpdate()
-			if err != nil {
-				common.SysError("failed to update token" + err.Error())
-			}
-		}()
 		return token, nil
 	}
 	return nil, errors.New("无效的令牌")
@@ -131,10 +134,19 @@ func IncreaseTokenQuota(id int, quota int) (err error) {
 	if quota < 0 {
 		return errors.New("quota 不能为负数！")
 	}
+	if common.BatchUpdateEnabled {
+		addNewRecord(BatchUpdateTypeTokenQuota, id, quota)
+		return nil
+	}
+	return increaseTokenQuota(id, quota)
+}
+
+func increaseTokenQuota(id int, quota int) (err error) {
 	err = DB.Model(&Token{}).Where("id = ?", id).Updates(
 		map[string]interface{}{
-			"remain_quota": gorm.Expr("remain_quota + ?", quota),
-			"used_quota":   gorm.Expr("used_quota - ?", quota),
+			"remain_quota":  gorm.Expr("remain_quota + ?", quota),
+			"used_quota":    gorm.Expr("used_quota - ?", quota),
+			"accessed_time": common.GetTimestamp(),
 		},
 	).Error
 	return err
@@ -144,10 +156,19 @@ func DecreaseTokenQuota(id int, quota int) (err error) {
 	if quota < 0 {
 		return errors.New("quota 不能为负数！")
 	}
+	if common.BatchUpdateEnabled {
+		addNewRecord(BatchUpdateTypeTokenQuota, id, -quota)
+		return nil
+	}
+	return decreaseTokenQuota(id, quota)
+}
+
+func decreaseTokenQuota(id int, quota int) (err error) {
 	err = DB.Model(&Token{}).Where("id = ?", id).Updates(
 		map[string]interface{}{
-			"remain_quota": gorm.Expr("remain_quota - ?", quota),
-			"used_quota":   gorm.Expr("used_quota + ?", quota),
+			"remain_quota":  gorm.Expr("remain_quota - ?", quota),
+			"used_quota":    gorm.Expr("used_quota + ?", quota),
+			"accessed_time": common.GetTimestamp(),
 		},
 	).Error
 	return err

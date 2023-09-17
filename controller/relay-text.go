@@ -2,6 +2,7 @@ package controller
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -22,6 +23,7 @@ const (
 	APITypeZhipu
 	APITypeAli
 	APITypeXunfei
+	APITypeAIProxyLibrary
 )
 
 var httpClient *http.Client
@@ -105,6 +107,8 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 		apiType = APITypeAli
 	case common.ChannelTypeXunfei:
 		apiType = APITypeXunfei
+	case common.ChannelTypeAIProxyLibrary:
+		apiType = APITypeAIProxyLibrary
 	}
 	baseURL := common.ChannelBaseURLs[channelType]
 	requestURL := c.Request.URL.String()
@@ -172,6 +176,11 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 		fullRequestURL = fmt.Sprintf("https://open.bigmodel.cn/api/paas/v3/model-api/%s/%s", textRequest.Model, method)
 	case APITypeAli:
 		fullRequestURL = "https://dashscope.aliyuncs.com/api/v1/services/aigc/text-generation/generation"
+		if relayMode == RelayModeEmbeddings {
+			fullRequestURL = "https://dashscope.aliyuncs.com/api/v1/services/embeddings/text-embedding/text-embedding"
+		}
+	case APITypeAIProxyLibrary:
+		fullRequestURL = fmt.Sprintf("%s/api/library/ask", baseURL)
 	}
 	var promptTokens int
 	var completionTokens int
@@ -203,6 +212,7 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 		// in this case, we do not pre-consume quota
 		// because the user has enough quota
 		preConsumedQuota = 0
+		common.LogInfo(c.Request.Context(), fmt.Sprintf("user %d has enough quota %d, trusted and no need to pre-consume", userId, userQuota))
 	}
 	if consumeQuota && preConsumedQuota > 0 {
 		err := model.PreConsumeTokenQuota(tokenId, preConsumedQuota)
@@ -258,8 +268,24 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 		}
 		requestBody = bytes.NewBuffer(jsonStr)
 	case APITypeAli:
-		aliRequest := requestOpenAI2Ali(textRequest)
-		jsonStr, err := json.Marshal(aliRequest)
+		var jsonStr []byte
+		var err error
+		switch relayMode {
+		case RelayModeEmbeddings:
+			aliEmbeddingRequest := embeddingRequestOpenAI2Ali(textRequest)
+			jsonStr, err = json.Marshal(aliEmbeddingRequest)
+		default:
+			aliRequest := requestOpenAI2Ali(textRequest)
+			jsonStr, err = json.Marshal(aliRequest)
+		}
+		if err != nil {
+			return errorWrapper(err, "marshal_text_request_failed", http.StatusInternalServerError)
+		}
+		requestBody = bytes.NewBuffer(jsonStr)
+	case APITypeAIProxyLibrary:
+		aiProxyLibraryRequest := requestOpenAI2AIProxyLibrary(textRequest)
+		aiProxyLibraryRequest.LibraryId = c.GetString("library_id")
+		jsonStr, err := json.Marshal(aiProxyLibraryRequest)
 		if err != nil {
 			return errorWrapper(err, "marshal_text_request_failed", http.StatusInternalServerError)
 		}
@@ -303,6 +329,8 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 			if textRequest.Stream {
 				req.Header.Set("X-DashScope-SSE", "enable")
 			}
+		default:
+			req.Header.Set("Authorization", "Bearer "+apiKey)
 		}
 		req.Header.Set("Content-Type", c.Request.Header.Get("Content-Type"))
 		req.Header.Set("Accept", c.Request.Header.Get("Accept"))
@@ -322,6 +350,15 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 		isStream = isStream || strings.HasPrefix(resp.Header.Get("Content-Type"), "text/event-stream")
 
 		if resp.StatusCode != http.StatusOK {
+			if preConsumedQuota != 0 {
+				go func(ctx context.Context) {
+					// return pre-consumed quota
+					err := model.PostConsumeTokenQuota(tokenId, -preConsumedQuota)
+					if err != nil {
+						common.LogError(ctx, "error return pre-consumed quota: "+err.Error())
+					}
+				}(c.Request.Context())
+			}
 			return relayErrorHandler(resp)
 		}
 	}
@@ -329,7 +366,7 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 	var textResponse TextResponse
 	tokenName := c.GetString("token_name")
 
-	defer func() {
+	defer func(ctx context.Context) {
 		// c.Writer.Flush()
 		go func() {
 			if consumeQuota {
@@ -352,22 +389,21 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 				quotaDelta := quota - preConsumedQuota
 				err := model.PostConsumeTokenQuota(tokenId, quotaDelta)
 				if err != nil {
-					common.SysError("error consuming token remain quota: " + err.Error())
+					common.LogError(ctx, "error consuming token remain quota: "+err.Error())
 				}
 				err = model.CacheUpdateUserQuota(userId)
 				if err != nil {
-					common.SysError("error update user quota cache: " + err.Error())
+					common.LogError(ctx, "error update user quota cache: "+err.Error())
 				}
 				if quota != 0 {
 					logContent := fmt.Sprintf("模型倍率 %.2f，分组倍率 %.2f", modelRatio, groupRatio)
-					model.RecordConsumeLog(userId, channelId, promptTokens, completionTokens, textRequest.Model, tokenName, quota, logContent)
+					model.RecordConsumeLog(ctx, userId, channelId, promptTokens, completionTokens, textRequest.Model, tokenName, quota, logContent)
 					model.UpdateUserUsedQuotaAndRequestCount(userId, quota)
-
 					model.UpdateChannelUsedQuota(channelId, quota)
 				}
 			}
 		}()
-	}()
+	}(c.Request.Context())
 	switch apiType {
 	case APITypeOpenAI:
 		if isStream {
@@ -488,7 +524,14 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 			}
 			return nil
 		} else {
-			err, usage := aliHandler(c, resp)
+			var err *OpenAIErrorWithStatusCode
+			var usage *Usage
+			switch relayMode {
+			case RelayModeEmbeddings:
+				err, usage = aliEmbeddingHandler(c, resp)
+			default:
+				err, usage = aliHandler(c, resp)
+			}
 			if err != nil {
 				return err
 			}
@@ -498,14 +541,29 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 			return nil
 		}
 	case APITypeXunfei:
+		auth := c.Request.Header.Get("Authorization")
+		auth = strings.TrimPrefix(auth, "Bearer ")
+		splits := strings.Split(auth, "|")
+		if len(splits) != 3 {
+			return errorWrapper(errors.New("invalid auth"), "invalid_auth", http.StatusBadRequest)
+		}
+		var err *OpenAIErrorWithStatusCode
+		var usage *Usage
 		if isStream {
-			auth := c.Request.Header.Get("Authorization")
-			auth = strings.TrimPrefix(auth, "Bearer ")
-			splits := strings.Split(auth, "|")
-			if len(splits) != 3 {
-				return errorWrapper(errors.New("invalid auth"), "invalid_auth", http.StatusBadRequest)
-			}
-			err, usage := xunfeiStreamHandler(c, textRequest, splits[0], splits[1], splits[2])
+			err, usage = xunfeiStreamHandler(c, textRequest, splits[0], splits[1], splits[2])
+		} else {
+			err, usage = xunfeiHandler(c, textRequest, splits[0], splits[1], splits[2])
+		}
+		if err != nil {
+			return err
+		}
+		if usage != nil {
+			textResponse.Usage = *usage
+		}
+		return nil
+	case APITypeAIProxyLibrary:
+		if isStream {
+			err, usage := aiProxyLibraryStreamHandler(c, resp)
 			if err != nil {
 				return err
 			}
@@ -514,7 +572,14 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 			}
 			return nil
 		} else {
-			return errorWrapper(errors.New("xunfei api does not support non-stream mode"), "invalid_api_type", http.StatusBadRequest)
+			err, usage := aiProxyLibraryHandler(c, resp)
+			if err != nil {
+				return err
+			}
+			if usage != nil {
+				textResponse.Usage = *usage
+			}
+			return nil
 		}
 	default:
 		return errorWrapper(errors.New("unknown api type"), "unknown_api_type", http.StatusInternalServerError)

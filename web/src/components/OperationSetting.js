@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Divider, Form, Grid, Header } from 'semantic-ui-react';
-import { API, showError, verifyJSON } from '../helpers';
+import { API, showError, showSuccess, timestamp2string, verifyJSON } from '../helpers';
 
 const OperationSetting = () => {
+  let now = new Date();
   let [inputs, setInputs] = useState({
     QuotaForNewUser: 0,
     QuotaForInviter: 0,
@@ -20,10 +21,11 @@ const OperationSetting = () => {
     DisplayInCurrencyEnabled: '',
     DisplayTokenStatEnabled: '',
     ApproximateTokenEnabled: '',
-    RetryTimes: 0,
+    RetryTimes: 0
   });
   const [originInputs, setOriginInputs] = useState({});
   let [loading, setLoading] = useState(false);
+  let [historyTimestamp, setHistoryTimestamp] = useState(timestamp2string(now.getTime() / 1000 - 30 * 24 * 3600)); // a month ago
 
   const getOptions = async () => {
     const res = await API.get('/api/option/');
@@ -130,6 +132,17 @@ const OperationSetting = () => {
     }
   };
 
+  const deleteHistoryLogs = async () => {
+    console.log(inputs);
+    const res = await API.delete(`/api/log/?target_timestamp=${Date.parse(historyTimestamp) / 1000}`);
+    const { success, message, data } = res.data;
+    if (success) {
+      showSuccess(`${data} 条日志已清理！`);
+      return;
+    }
+    showError('日志清理失败：' + message);
+  };
+
   return (
     <Grid columns={1}>
       <Grid.Column>
@@ -180,12 +193,6 @@ const OperationSetting = () => {
           </Form.Group>
           <Form.Group inline>
             <Form.Checkbox
-              checked={inputs.LogConsumeEnabled === 'true'}
-              label='启用额度消费日志记录'
-              name='LogConsumeEnabled'
-              onChange={handleInputChange}
-            />
-            <Form.Checkbox
               checked={inputs.DisplayInCurrencyEnabled === 'true'}
               label='以货币形式显示额度'
               name='DisplayInCurrencyEnabled'
@@ -207,6 +214,28 @@ const OperationSetting = () => {
           <Form.Button onClick={() => {
             submitConfig('general').then();
           }}>保存通用设置</Form.Button>
+          <Divider />
+          <Header as='h3'>
+            日志设置
+          </Header>
+          <Form.Group inline>
+            <Form.Checkbox
+              checked={inputs.LogConsumeEnabled === 'true'}
+              label='启用额度消费日志记录'
+              name='LogConsumeEnabled'
+              onChange={handleInputChange}
+            />
+          </Form.Group>
+          <Form.Group widths={4}>
+            <Form.Input label='目标时间' value={historyTimestamp} type='datetime-local'
+                        name='history_timestamp'
+                        onChange={(e, { name, value }) => {
+                          setHistoryTimestamp(value);
+                        }} />
+          </Form.Group>
+          <Form.Button onClick={() => {
+            deleteHistoryLogs().then();
+          }}>清理历史日志</Form.Button>
           <Divider />
           <Header as='h3'>
             监控设置

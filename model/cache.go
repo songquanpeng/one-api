@@ -104,23 +104,28 @@ func CacheDecreaseUserQuota(id int, quota int) error {
 	return err
 }
 
-func CacheIsUserEnabled(userId int) bool {
+func CacheIsUserEnabled(userId int) (bool, error) {
 	if !common.RedisEnabled {
 		return IsUserEnabled(userId)
 	}
 	enabled, err := common.RedisGet(fmt.Sprintf("user_enabled:%d", userId))
-	if err != nil {
-		status := common.UserStatusDisabled
-		if IsUserEnabled(userId) {
-			status = common.UserStatusEnabled
-		}
-		enabled = fmt.Sprintf("%d", status)
-		err = common.RedisSet(fmt.Sprintf("user_enabled:%d", userId), enabled, time.Duration(UserId2StatusCacheSeconds)*time.Second)
-		if err != nil {
-			common.SysError("Redis set user enabled error: " + err.Error())
-		}
+	if err == nil {
+		return enabled == "1", nil
 	}
-	return enabled == "1"
+
+	userEnabled, err := IsUserEnabled(userId)
+	if err != nil {
+		return false, err
+	}
+	enabled = "0"
+	if userEnabled {
+		enabled = "1"
+	}
+	err = common.RedisSet(fmt.Sprintf("user_enabled:%d", userId), enabled, time.Duration(UserId2StatusCacheSeconds)*time.Second)
+	if err != nil {
+		common.SysError("Redis set user enabled error: " + err.Error())
+	}
+	return userEnabled, err
 }
 
 var group2model2channels map[string]map[string][]*Channel

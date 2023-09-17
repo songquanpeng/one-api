@@ -361,6 +361,15 @@ func init() {
 			Parent:     nil,
 		},
 		{
+			Id:         "text-embedding-v1",
+			Object:     "model",
+			Created:    1677649963,
+			OwnedBy:    "ali",
+			Permission: permission,
+			Root:       "text-embedding-v1",
+			Parent:     nil,
+		},
+		{
 			Id:         "SparkDesk",
 			Object:     "model",
 			Created:    1677649963,

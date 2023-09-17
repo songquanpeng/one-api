@@ -2,6 +2,7 @@ package controller
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -92,7 +93,7 @@ func relayAudioHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode 
 	}
 	var audioResponse AudioResponse
 
-	defer func() {
+	defer func(ctx context.Context) {
 		go func() {
 			quota := countTokenText(audioResponse.Text, audioModel)
 			quotaDelta := quota - preConsumedQuota
@@ -107,13 +108,13 @@ func relayAudioHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode 
 			if quota != 0 {
 				tokenName := c.GetString("token_name")
 				logContent := fmt.Sprintf("模型倍率 %.2f，分组倍率 %.2f", modelRatio, groupRatio)
-				model.RecordConsumeLog(userId, channelId, 0, 0, audioModel, tokenName, quota, logContent)
+				model.RecordConsumeLog(ctx, userId, channelId, 0, 0, audioModel, tokenName, quota, logContent)
 				model.UpdateUserUsedQuotaAndRequestCount(userId, quota)
 				channelId := c.GetInt("channel_id")
 				model.UpdateChannelUsedQuota(channelId, quota)
 			}
 		}()
-	}()
+	}(c.Request.Context())
 
 	responseBody, err := io.ReadAll(resp.Body)
 

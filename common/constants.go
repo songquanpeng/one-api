@@ -94,6 +94,13 @@ var RequestInterval = time.Duration(requestInterval) * time.Second
 
 var SyncFrequency = 10 * 60 // unit is second, will be overwritten by SYNC_FREQUENCY
 
+var BatchUpdateEnabled = false
+var BatchUpdateInterval = GetOrDefault("BATCH_UPDATE_INTERVAL", 5)
+
+const (
+	RequestIdKey = "X-Oneapi-Request-Id"
+)
+
 const (
 	RoleGuestUser  = 0
 	RoleCommonUser = 1
@@ -111,10 +118,10 @@ var (
 // All duration's unit is seconds
 // Shouldn't larger then RateLimitKeyExpirationDuration
 var (
-	GlobalApiRateLimitNum            = 180
+	GlobalApiRateLimitNum            = GetOrDefault("GLOBAL_API_RATE_LIMIT", 180)
 	GlobalApiRateLimitDuration int64 = 3 * 60
 
-	GlobalWebRateLimitNum            = 60
+	GlobalWebRateLimitNum            = GetOrDefault("GLOBAL_WEB_RATE_LIMIT", 60)
 	GlobalWebRateLimitDuration int64 = 3 * 60
 
 	UploadRateLimitNum            = 10
@@ -154,49 +161,53 @@ const (
 )
 
 const (
-	ChannelTypeUnknown    = 0
-	ChannelTypeOpenAI     = 1
-	ChannelTypeAPI2D      = 2
-	ChannelTypeAzure      = 3
-	ChannelTypeCloseAI    = 4
-	ChannelTypeOpenAISB   = 5
-	ChannelTypeOpenAIMax  = 6
-	ChannelTypeOhMyGPT    = 7
-	ChannelTypeCustom     = 8
-	ChannelTypeAILS       = 9
-	ChannelTypeAIProxy    = 10
-	ChannelTypePaLM       = 11
-	ChannelTypeAPI2GPT    = 12
-	ChannelTypeAIGC2D     = 13
-	ChannelTypeAnthropic  = 14
-	ChannelTypeBaidu      = 15
-	ChannelTypeZhipu      = 16
-	ChannelTypeAli        = 17
-	ChannelTypeXunfei     = 18
-	ChannelType360        = 19
-	ChannelTypeOpenRouter = 20
+	ChannelTypeUnknown        = 0
+	ChannelTypeOpenAI         = 1
+	ChannelTypeAPI2D          = 2
+	ChannelTypeAzure          = 3
+	ChannelTypeCloseAI        = 4
+	ChannelTypeOpenAISB       = 5
+	ChannelTypeOpenAIMax      = 6
+	ChannelTypeOhMyGPT        = 7
+	ChannelTypeCustom         = 8
+	ChannelTypeAILS           = 9
+	ChannelTypeAIProxy        = 10
+	ChannelTypePaLM           = 11
+	ChannelTypeAPI2GPT        = 12
+	ChannelTypeAIGC2D         = 13
+	ChannelTypeAnthropic      = 14
+	ChannelTypeBaidu          = 15
+	ChannelTypeZhipu          = 16
+	ChannelTypeAli            = 17
+	ChannelTypeXunfei         = 18
+	ChannelType360            = 19
+	ChannelTypeOpenRouter     = 20
+	ChannelTypeAIProxyLibrary = 21
+	ChannelTypeFastGPT        = 22
 )
 
 var ChannelBaseURLs = []string{
-	"",                               // 0
-	"https://api.openai.com",         // 1
-	"https://oa.api2d.net",           // 2
-	"",                               // 3
-	"https://api.closeai-proxy.xyz",  // 4
-	"https://api.openai-sb.com",      // 5
-	"https://api.openaimax.com",      // 6
-	"https://api.ohmygpt.com",        // 7
-	"",                               // 8
-	"https://api.caipacity.com",      // 9
-	"https://api.aiproxy.io",         // 10
-	"",                               // 11
-	"https://api.api2gpt.com",        // 12
-	"https://api.aigc2d.com",         // 13
-	"https://api.anthropic.com",      // 14
-	"https://aip.baidubce.com",       // 15
-	"https://open.bigmodel.cn",       // 16
-	"https://dashscope.aliyuncs.com", // 17
-	"",                               // 18
-	"https://ai.360.cn",              // 19
-	"https://openrouter.ai/api",      // 20
+	"",                                // 0
+	"https://api.openai.com",          // 1
+	"https://oa.api2d.net",            // 2
+	"",                                // 3
+	"https://api.closeai-proxy.xyz",   // 4
+	"https://api.openai-sb.com",       // 5
+	"https://api.openaimax.com",       // 6
+	"https://api.ohmygpt.com",         // 7
+	"",                                // 8
+	"https://api.caipacity.com",       // 9
+	"https://api.aiproxy.io",          // 10
+	"",                                // 11
+	"https://api.api2gpt.com",         // 12
+	"https://api.aigc2d.com",          // 13
+	"https://api.anthropic.com",       // 14
+	"https://aip.baidubce.com",        // 15
+	"https://open.bigmodel.cn",        // 16
+	"https://dashscope.aliyuncs.com",  // 17
+	"",                                // 18
+	"https://ai.360.cn",               // 19
+	"https://openrouter.ai/api",       // 20
+	"https://api.aiproxy.io",          // 21
+	"https://fastgpt.run/api/openapi", // 22
 }

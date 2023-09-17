@@ -21,7 +21,7 @@ var buildFS embed.FS
 var indexPage []byte
 
 func main() {
-	common.SetupGinLog()
+	common.SetupLogger()
 	common.SysLog("One API " + common.Version + " started")
 	if os.Getenv("GIN_MODE") != "debug" {
 		gin.SetMode(gin.ReleaseMode)
@@ -77,14 +77,20 @@ func main() {
 		}
 		go controller.AutomaticallyTestChannels(frequency)
 	}
+	if os.Getenv("BATCH_UPDATE_ENABLED") == "true" {
+		common.BatchUpdateEnabled = true
+		common.SysLog("batch update enabled with interval " + strconv.Itoa(common.BatchUpdateInterval) + "s")
+		model.InitBatchUpdater()
+	}
 	controller.InitTokenEncoders()
 
 	// Initialize HTTP server
-	server := gin.Default()
+	server := gin.New()
+	server.Use(gin.Recovery())
 	// This will cause SSE not to work!!!
 	//server.Use(gzip.Gzip(gzip.DefaultCompression))
-	server.Use(middleware.CORS())
-
+	server.Use(middleware.RequestId())
+	middleware.SetUpLogger(server)
 	// Initialize session store
 	store := cookie.NewStore([]byte(common.SessionSecret))
 	server.Use(sessions.Sessions("session", store))
