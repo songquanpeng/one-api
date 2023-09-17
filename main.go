@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"one-api/common"
 	"one-api/controller"
+	"one-api/middleware"
 	"one-api/model"
 	"one-api/router"
 	"os"
@@ -84,10 +85,12 @@ func main() {
 	controller.InitTokenEncoders()
 
 	// Initialize HTTP server
-	server := gin.Default()
+	server := gin.New()
+	server.Use(gin.Recovery())
 	// This will cause SSE not to work!!!
 	//server.Use(gzip.Gzip(gzip.DefaultCompression))
-
+	server.Use(middleware.RequestId())
+	middleware.SetUpLogger(server)
 	// Initialize session store
 	store := cookie.NewStore([]byte(common.SessionSecret))
 	server.Use(sessions.Sessions("session", store))
