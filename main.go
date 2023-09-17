@@ -21,7 +21,7 @@ var buildFS embed.FS
 var indexPage []byte
 
 func main() {
-	common.SetupGinLog()
+	common.SetupLogger()
 	common.SysLog("One API " + common.Version + " started")
 	if os.Getenv("GIN_MODE") != "debug" {
 		gin.SetMode(gin.ReleaseMode)

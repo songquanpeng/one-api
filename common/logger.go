@@ -8,6 +8,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"sync"
 	"time"
 )
 
@@ -17,9 +18,24 @@ const (
 	loggerError = "ERR"
 )
 
-func SetupGinLog() {
+const maxLogCount = 1000000
+
+var logCount int
+var setupLogLock sync.Mutex
+var setupLogWorking bool
+
+func SetupLogger() {
 	if *LogDir != "" {
-		logPath := filepath.Join(*LogDir, fmt.Sprintf("oneapi-%s.log", time.Now().Format("20060102150405")))
+		ok := setupLogLock.TryLock()
+		if !ok {
+			log.Println("setup log is already working")
+			return
+		}
+		defer func() {
+			setupLogLock.Unlock()
+			setupLogWorking = false
+		}()
+		logPath := filepath.Join(*LogDir, fmt.Sprintf("oneapi-%s.log", time.Now().Format("20060102")))
 		fd, err := os.OpenFile(logPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 		if err != nil {
 			log.Fatal("failed to open log file")
@@ -59,6 +75,14 @@ func logHelper(ctx context.Context, level string, msg string) {
 	id := ctx.Value(RequestIdKey)
 	now := time.Now()
 	_, _ = fmt.Fprintf(writer, "[%s] %v | %s | %s \n", level, now.Format("2006/01/02 - 15:04:05"), id, msg)
+	logCount++ // we don't need accurate count, so no lock here
+	if logCount > maxLogCount && !setupLogWorking {
+		logCount = 0
+		setupLogWorking = true
+		go func() {
+			SetupLogger()
+		}()
+	}
 }
 
 func FatalLog(v ...any) {
