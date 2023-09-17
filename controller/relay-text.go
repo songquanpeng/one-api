@@ -212,7 +212,7 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 		// in this case, we do not pre-consume quota
 		// because the user has enough quota
 		preConsumedQuota = 0
-		common.LogInfo(c.Request.Context(), fmt.Sprintf("user %d has enough quota %d, trusted and no need to pre-consume", userId, userQuota))
+		//common.LogInfo(c.Request.Context(), fmt.Sprintf("user %d has enough quota %d, trusted and no need to pre-consume", userId, userQuota))
 	}
 	if consumeQuota && preConsumedQuota > 0 {
 		err := model.PreConsumeTokenQuota(tokenId, preConsumedQuota)

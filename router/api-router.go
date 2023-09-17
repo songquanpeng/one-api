@@ -109,7 +109,12 @@ func SetApiRouter(router *gin.Engine) {
 		logRoute.GET("/search", middleware.AdminAuth(), controller.SearchAllLogs)
 		logRoute.GET("/self", middleware.UserAuth(), controller.GetUserLogs)
 		logRoute.GET("/self/search", middleware.UserAuth(), controller.SearchUserLogs)
-		logRoute.GET("/token", controller.GetLogByKey)
+
+		logRoute.Use(middleware.CORS())
+		{
+			logRoute.GET("/token", controller.GetLogByKey)
+
+		}
 		groupRoute := apiRouter.Group("/group")
 		groupRoute.Use(middleware.AdminAuth())
 		{
