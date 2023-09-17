@@ -4,6 +4,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { UserContext } from '../context/User';
 import { API, getLogo, showError, showInfo, showSuccess } from '../helpers';
 import Turnstile from 'react-turnstile';
+import { getOAuthState, onGitHubOAuthClicked } from './utils';stream/main
 
 const LoginForm = () => {
   const [inputs, setInputs] = useState({
@@ -175,7 +176,7 @@ const LoginForm = () => {
                 circular
                 color='black'
                 icon='github'
-                onClick={onGitHubOAuthClicked}
+                onClick={()=>onGitHubOAuthClicked(status.github_client_id)}
               />
             )}
             {status.wechat_login && (

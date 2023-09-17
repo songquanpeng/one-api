@@ -13,8 +13,8 @@ const GitHubOAuth = () => {
 
   let navigate = useNavigate();
 
-  const sendCode = async (code, count) => {
-    const res = await API.get(`/api/oauth/github?code=${code}`);
+  const sendCode = async (code, state, count) => {
+    const res = await API.get(`/api/oauth/github?code=${code}&state=${state}`);
     const { success, message, data } = res.data;
     if (success) {
       if (message === 'bind') {
@@ -36,13 +36,14 @@ const GitHubOAuth = () => {
       count++;
       setPrompt(`出现错误，第 ${count} 次重试中...`);
       await new Promise((resolve) => setTimeout(resolve, count * 2000));
-      await sendCode(code, count);
+      await sendCode(code, state, count);
     }
   };
 
   useEffect(() => {
     let code = searchParams.get('code');
-    sendCode(code, 0).then();
+    let state = searchParams.get('state');
+    sendCode(code, state, 0).then();
   }, []);
 
   return (

@@ -79,6 +79,14 @@ func getGitHubUserInfoByCode(code string) (*GitHubUser, error) {
 
 func GitHubOAuth(c *gin.Context) {
 	session := sessions.Default(c)
+	state := c.Query("state")
+	if state == "" || session.Get("oauth_state") == nil || state != session.Get("oauth_state").(string) {
+		c.JSON(http.StatusForbidden, gin.H{
+			"success": false,
+			"message": "state is empty or not same",
+		})
+		return
+	}
 	username := session.Get("username")
 	if username != nil {
 		GitHubBind(c)
@@ -204,4 +212,23 @@ func GitHubBind(c *gin.Context) {
 		"message": "bind",
 	})
 	return
+}
+
+func GenerateOAuthCode(c *gin.Context) {
+	session := sessions.Default(c)
+	state := common.GetRandomString(12)
+	session.Set("oauth_state", state)
+	err := session.Save()
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "",
+		"data":    state,
+	})
 }
