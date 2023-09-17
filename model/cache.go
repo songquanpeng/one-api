@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"math/rand"
 	"one-api/common"
+	"sort"
 	"strconv"
 	"strings"
 	"sync"
@@ -165,6 +166,17 @@ func InitChannelCache() {
 			}
 		}
 	}
+
+	// sort by priority
+	for group, model2channels := range newGroup2model2channels {
+		for model, channels := range model2channels {
+			sort.Slice(channels, func(i, j int) bool {
+				return channels[i].Priority > channels[j].Priority
+			})
+			newGroup2model2channels[group][model] = channels
+		}
+	}
+
 	channelSyncLock.Lock()
 	group2model2channels = newGroup2model2channels
 	channelSyncLock.Unlock()
@@ -195,6 +207,12 @@ func CacheGetRandomSatisfiedChannel(group string, model string, stream bool) (*C
 		if (stream && channel.AllowStreaming == common.ChannelAllowStreamEnabled) || (!stream && channel.AllowNonStreaming == common.ChannelAllowNonStreamEnabled) {
 			filteredChannels = append(filteredChannels, channel)
 		}
+	}
+
+	// choose by priority
+	firstChannel := filteredChannels[0]
+	if firstChannel.Priority > 0 {
+		return firstChannel, nil
 	}
 
 	idx := rand.Intn(len(filteredChannels))

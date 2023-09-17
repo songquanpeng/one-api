@@ -290,6 +290,12 @@ docker run --name chatgpt-web -d -p 3002:3002 -e OPENAI_API_BASE_URL=https://ope
 
 注意，具体的 API Base 的格式取决于你所使用的客户端。
 
+例如对于 OpenAI 的官方库：
+```bash
+OPENAI_API_KEY="sk-xxxxxx"
+OPENAI_API_BASE="https://<HOST>:<PORT>/v1" 
+```
+
 ```mermaid
 graph LR
     A(用户)
@@ -346,7 +352,7 @@ graph LR
 ### 命令行参数
 1. `--port <port_number>`: 指定服务器监听的端口号，默认为 `3000`。
    + 例子：`--port 3000`
-2. `--log-dir <log_dir>`: 指定日志文件夹，如果没有设置，日志将不会被保存。
+2. `--log-dir <log_dir>`: 指定日志文件夹，如果没有设置，默认保存至工作目录的 `logs` 文件夹下。
    + 例子：`--log-dir ./logs`
 3. `--version`: 打印系统版本号并退出。
 4. `--help`: 查看命令的使用帮助和参数说明。

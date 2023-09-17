@@ -13,6 +13,7 @@ type Ability struct {
 	Enabled           bool   `json:"enabled"`
 	AllowStreaming    int    `json:"allow_streaming" gorm:"default:1"`
 	AllowNonStreaming int    `json:"allow_non_streaming" gorm:"default:1"`
+	Priority          int64  `json:"priority" gorm:"bigint;default:0"`
 }
 
 func GetRandomSatisfiedChannel(group string, model string, stream bool) (*Channel, error) {
@@ -33,9 +34,9 @@ func GetRandomSatisfiedChannel(group string, model string, stream bool) (*Channe
 	}
 
 	if common.UsingSQLite || common.UsingPostgreSQL {
-		err = DB.Where(cmd, group, model).Order("RANDOM()").Limit(1).First(&ability).Error
+		err = DB.Where(cmd, group, model).Order("CASE WHEN priority <> 0 THEN priority ELSE RANDOM() END DESC ").Limit(1).First(&ability).Error
 	} else {
-		err = DB.Where(cmd, group, model).Order("RAND()").Limit(1).First(&ability).Error
+		err = DB.Where(cmd, group, model).Order("CASE WHEN priority <> 0 THEN priority ELSE RAND() END DESC").Limit(1).First(&ability).Error
 	}
 	if err != nil {
 		return nil, err
@@ -59,6 +60,7 @@ func (channel *Channel) AddAbilities() error {
 				Enabled:           channel.Status == common.ChannelStatusEnabled,
 				AllowStreaming:    channel.AllowStreaming,
 				AllowNonStreaming: channel.AllowNonStreaming,
+				Priority:          channel.Priority,
 			}
 			abilities = append(abilities, ability)
 		}

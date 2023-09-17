@@ -4,7 +4,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { UserContext } from '../context/User';
 import { API, getLogo, showError, showInfo, showSuccess } from '../helpers';
 import Turnstile from 'react-turnstile';
-import { getOAuthState, onGitHubOAuthClicked } from './utils';stream/main
+import { getOAuthState, onGitHubOAuthClicked } from './utils';
 
 const LoginForm = () => {
   const [inputs, setInputs] = useState({
@@ -44,12 +44,6 @@ const LoginForm = () => {
   const openGoogleOAuth = () => {
     window.open(
       `https://accounts.google.com/o/oauth2/v2/auth?client_id=${status.google_client_id}&redirect_uri=${window.location.origin}/oauth/google&response_type=code&scope=profile`
-    );
-  };
-
-  const onGitHubOAuthClicked = () => {
-    window.open(
-      `https://github.com/login/oauth/authorize?client_id=${status.github_client_id}&scope=user:email`
     );
   };
 

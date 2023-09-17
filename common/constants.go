@@ -107,6 +107,10 @@ var BatchUpdateEnabled = false
 var BatchUpdateInterval = GetOrDefault("BATCH_UPDATE_INTERVAL", 5)
 
 const (
+	RequestIdKey = "X-Oneapi-Request-Id"
+)
+
+const (
 	RoleGuestUser  = 0
 	RoleCommonUser = 1
 	RoleAdminUser  = 10
