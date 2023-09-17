@@ -7,7 +7,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"one-api/common"
 	"one-api/controller"
-	"one-api/middleware"
 	"one-api/model"
 	"one-api/router"
 	"os"
@@ -88,7 +87,6 @@ func main() {
 	server := gin.Default()
 	// This will cause SSE not to work!!!
 	//server.Use(gzip.Gzip(gzip.DefaultCompression))
-	server.Use(middleware.CORS())
 
 	// Initialize session store
 	store := cookie.NewStore([]byte(common.SessionSecret))
