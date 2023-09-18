@@ -46,14 +46,7 @@ func Distribute() func(c *gin.Context) {
 				if modelRequest.Model == "" {
 					modelRequest.Model = "midjourney"
 				}
-			} else {
-				err := common.UnmarshalBodyReusable(c, &modelRequest)
-				if err != nil {
-					abortWithMessage(c, http.StatusBadRequest, "无效的请求")
-					return
-				}
-			}
-			if !strings.HasPrefix(c.Request.URL.Path, "/v1/audio") {
+			} else if !strings.HasPrefix(c.Request.URL.Path, "/v1/audio") {
 				err = common.UnmarshalBodyReusable(c, &modelRequest)
 			}
 			if err != nil {
