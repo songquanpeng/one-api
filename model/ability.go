@@ -19,9 +19,9 @@ func GetRandomSatisfiedChannel(group string, model string) (*Channel, error) {
 	maxPrioritySubQuery := DB.Model(&Ability{}).Select("MAX(priority)").Where("`group` = ? and model = ? and enabled = 1", group, model)
 	channelQuery := DB.Where("`group` = ? and model = ? and enabled = 1 and priority = (?)", group, model, maxPrioritySubQuery)
 	if common.UsingSQLite {
-		err = channelQuery.Order("RANDOM()").Limit(1).First(&ability).Error
+		err = channelQuery.Order("RANDOM()").First(&ability).Error
 	} else {
-		err = channelQuery.Order("RAND()").Limit(1).First(&ability).Error
+		err = channelQuery.Order("RAND()").First(&ability).Error
 	}
 	if err != nil {
 		return nil, err
