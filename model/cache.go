@@ -165,7 +165,7 @@ func InitChannelCache() {
 	for group, model2channels := range newGroup2model2channels {
 		for model, channels := range model2channels {
 			sort.Slice(channels, func(i, j int) bool {
-				return channels[i].Priority > channels[j].Priority
+				return channels[i].GetPriority() > channels[j].GetPriority()
 			})
 			newGroup2model2channels[group][model] = channels
 		}
@@ -195,11 +195,17 @@ func CacheGetRandomSatisfiedChannel(group string, model string) (*Channel, error
 	if len(channels) == 0 {
 		return nil, errors.New("channel not found")
 	}
+	endIdx := len(channels)
 	// choose by priority
 	firstChannel := channels[0]
-	if firstChannel.Priority > 0 {
-		return firstChannel, nil
+	if firstChannel.GetPriority() > 0 {
+		for i := range channels {
+			if channels[i].GetPriority() != firstChannel.GetPriority() {
+				endIdx = i
+				break
+			}
+		}
 	}
-	idx := rand.Intn(len(channels))
+	idx := rand.Intn(endIdx)
 	return channels[idx], nil
 }

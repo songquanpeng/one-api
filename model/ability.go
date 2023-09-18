@@ -10,7 +10,7 @@ type Ability struct {
 	Model     string `json:"model" gorm:"primaryKey;autoIncrement:false"`
 	ChannelId int    `json:"channel_id" gorm:"primaryKey;autoIncrement:false;index"`
 	Enabled   bool   `json:"enabled"`
-	Priority  int64  `json:"priority" gorm:"bigint;default:0"`
+	Priority  *int64 `json:"priority" gorm:"bigint;default:0"`
 }
 
 func GetRandomSatisfiedChannel(group string, model string) (*Channel, error) {
