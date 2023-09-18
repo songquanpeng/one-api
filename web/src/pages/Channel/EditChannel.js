@@ -174,7 +174,7 @@ const EditChannel = () => {
       return;
     }
     let localInputs = inputs;
-    if (localInputs.base_url.endsWith('/')) {
+    if (localInputs.base_url && localInputs.base_url.endsWith('/')) {
       localInputs.base_url = localInputs.base_url.slice(0, localInputs.base_url.length - 1);
     }
     if (localInputs.type === 3 && localInputs.other === '') {
