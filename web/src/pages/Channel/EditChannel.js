@@ -183,9 +183,6 @@ const EditChannel = () => {
     if (localInputs.type === 18 && localInputs.other === '') {
       localInputs.other = 'v2.1';
     }
-    if (localInputs.model_mapping === '') {
-      localInputs.model_mapping = '{}';
-    }
     let res;
     localInputs.models = localInputs.models.join(',');
     localInputs.group = localInputs.groups.join(',');
