@@ -13,7 +13,7 @@ type Ability struct {
 	Enabled           bool   `json:"enabled"`
 	AllowStreaming    int    `json:"allow_streaming" gorm:"default:1"`
 	AllowNonStreaming int    `json:"allow_non_streaming" gorm:"default:1"`
-	Priority          int64  `json:"priority" gorm:"bigint;default:0"`
+	Priority          *int64 `json:"priority" gorm:"bigint;default:0;index"`
 }
 
 func GetRandomSatisfiedChannel(group string, model string, stream bool) (*Channel, error) {
@@ -33,10 +33,12 @@ func GetRandomSatisfiedChannel(group string, model string, stream bool) (*Channe
 		cmd += fmt.Sprintf(" and allow_non_streaming = %d", common.ChannelAllowNonStreamEnabled)
 	}
 
+	maxPrioritySubQuery := DB.Model(&Ability{}).Select("MAX(priority)").Where(cmd, group, model)
+	channelQuery := DB.Where("`group` = ? and model = ? and enabled = 1 and priority = (?)", group, model, maxPrioritySubQuery)
 	if common.UsingSQLite || common.UsingPostgreSQL {
-		err = DB.Where(cmd, group, model).Order("CASE WHEN priority <> 0 THEN priority ELSE RANDOM() END DESC ").Limit(1).First(&ability).Error
+		err = channelQuery.Order("RANDOM()").First(&ability).Error
 	} else {
-		err = DB.Where(cmd, group, model).Order("CASE WHEN priority <> 0 THEN priority ELSE RAND() END DESC").Limit(1).First(&ability).Error
+		err = channelQuery.Order("RAND()").First(&ability).Error
 	}
 	if err != nil {
 		return nil, err
