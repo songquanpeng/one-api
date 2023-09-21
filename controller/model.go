@@ -117,6 +117,15 @@ func init() {
 			Root:       "gpt-3.5-turbo-16k-0613",
 			Parent:     nil,
 		},
+	        {
+			Id:         "gpt-3.5-turbo-instruct",
+			Object:     "model",
+			Created:    1677649963,
+			OwnedBy:    "openai",
+			Permission: permission,
+			Root:       "gpt-3.5-turbo-instruct",
+			Parent:     nil,
+		},
 		{
 			Id:         "gpt-4",
 			Object:     "model",
