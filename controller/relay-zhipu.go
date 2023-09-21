@@ -58,6 +58,25 @@ type zhipuTokenData struct {
 	ExpiryTime time.Time
 }
 
+type ZhipuEmbeddingRequest struct {
+	Prompt string `json:"prompt"`
+}
+
+type ZhipuEmbeddingResponseData struct {
+	TaskId     string    `json:"task_id"`
+	RequestId  string    `json:"request_id"`
+	TaskStatus string    `json:"task_status"`
+	Embedding  []float64 `json:"embedding"`
+	Usage      `json:"usage"`
+}
+
+type ZhipuEmbeddingResponse struct {
+	Code    int                        `json:"code"`
+	Msg     string                     `json:"msg"`
+	Success bool                       `json:"success"`
+	Data    ZhipuEmbeddingResponseData `json:"data"`
+}
+
 var zhipuTokens sync.Map
 var expSeconds int64 = 24 * 3600
 
@@ -106,6 +125,27 @@ func getZhipuToken(apikey string) string {
 	})
 
 	return tokenString
+}
+
+func embeddingRequestOpenAI2Zhipu(request GeneralOpenAIRequest) *ZhipuEmbeddingRequest {
+	return &ZhipuEmbeddingRequest{
+		Prompt: request.ParseInput()[0], // 智谱只支持一行input
+	}
+}
+
+func embeddingResponseZhipu2OpenAI(response *ZhipuEmbeddingResponse) *OpenAIEmbeddingResponse {
+	return &OpenAIEmbeddingResponse{
+		Object: "list",
+		Data: []OpenAIEmbeddingResponseItem{
+			{
+				Object:    `embedding`,
+				Index:     0,
+				Embedding: response.Data.Embedding,
+			},
+		},
+		Model: "text_embedding",
+		Usage: response.Data.Usage,
+	}
 }
 
 func requestOpenAI2Zhipu(request GeneralOpenAIRequest) *ZhipuRequest {
@@ -290,6 +330,41 @@ func zhipuHandler(c *gin.Context, resp *http.Response) (*OpenAIErrorWithStatusCo
 		}, nil
 	}
 	fullTextResponse := responseZhipu2OpenAI(&zhipuResponse)
+	jsonResponse, err := json.Marshal(fullTextResponse)
+	if err != nil {
+		return errorWrapper(err, "marshal_response_body_failed", http.StatusInternalServerError), nil
+	}
+	c.Writer.Header().Set("Content-Type", "application/json")
+	c.Writer.WriteHeader(resp.StatusCode)
+	_, err = c.Writer.Write(jsonResponse)
+	return nil, &fullTextResponse.Usage
+}
+
+func zhipuEmbeddingHandler(c *gin.Context, resp *http.Response) (*OpenAIErrorWithStatusCode, *Usage) {
+	var zhipuResponse ZhipuEmbeddingResponse
+	err := json.NewDecoder(resp.Body).Decode(&zhipuResponse)
+	if err != nil {
+		return errorWrapper(err, "unmarshal_response_body_failed", http.StatusInternalServerError), nil
+	}
+
+	err = resp.Body.Close()
+	if err != nil {
+		return errorWrapper(err, "close_response_body_failed", http.StatusInternalServerError), nil
+	}
+
+	if !zhipuResponse.Success {
+		return &OpenAIErrorWithStatusCode{
+			OpenAIError: OpenAIError{
+				Message: zhipuResponse.Msg,
+				Type:    "zhipu_error",
+				Param:   "",
+				Code:    zhipuResponse.Code,
+			},
+			StatusCode: resp.StatusCode,
+		}, nil
+	}
+
+	fullTextResponse := embeddingResponseZhipu2OpenAI(&zhipuResponse)
 	jsonResponse, err := json.Marshal(fullTextResponse)
 	if err != nil {
 		return errorWrapper(err, "marshal_response_body_failed", http.StatusInternalServerError), nil

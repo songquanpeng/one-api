@@ -343,6 +343,15 @@ func init() {
 			Parent:     nil,
 		},
 		{
+			Id:         "text_embedding",
+			Object:     "model",
+			Created:    1677649963,
+			OwnedBy:    "zhipu",
+			Permission: permission,
+			Root:       "text_embedding",
+			Parent:     nil,
+		},
+		{
 			Id:         "qwen-v1",
 			Object:     "model",
 			Created:    1677649963,

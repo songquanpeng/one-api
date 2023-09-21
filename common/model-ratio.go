@@ -50,6 +50,7 @@ var ModelRatio = map[string]float64{
 	"chatglm_pro":               0.7143, // ￥0.01 / 1k tokens
 	"chatglm_std":               0.3572, // ￥0.005 / 1k tokens
 	"chatglm_lite":              0.1429, // ￥0.002 / 1k tokens
+	"text_embedding":            0.0357, // ￥0.0005 / 1k tokens
 	"qwen-v1":                   0.8572, // ￥0.012 / 1k tokens
 	"qwen-plus-v1":              1,      // ￥0.014 / 1k tokens
 	"text-embedding-v1":         0.05,   // ￥0.0007 / 1k tokens

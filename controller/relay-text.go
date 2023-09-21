@@ -173,6 +173,9 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 		if textRequest.Stream {
 			method = "sse-invoke"
 		}
+		if relayMode == RelayModeEmbeddings {
+			method = "invoke"
+		}
 		fullRequestURL = fmt.Sprintf("https://open.bigmodel.cn/api/paas/v3/model-api/%s/%s", textRequest.Model, method)
 	case APITypeAli:
 		fullRequestURL = "https://dashscope.aliyuncs.com/api/v1/services/aigc/text-generation/generation"
@@ -261,8 +264,16 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 		}
 		requestBody = bytes.NewBuffer(jsonStr)
 	case APITypeZhipu:
-		zhipuRequest := requestOpenAI2Zhipu(textRequest)
-		jsonStr, err := json.Marshal(zhipuRequest)
+		var jsonStr []byte
+		var err error
+		switch relayMode {
+		case RelayModeEmbeddings:
+			zhipuEmbeddingRequest := embeddingRequestOpenAI2Zhipu(textRequest)
+			jsonStr, err = json.Marshal(zhipuEmbeddingRequest)
+		default:
+			zhipuRequest := requestOpenAI2Zhipu(textRequest)
+			jsonStr, err = json.Marshal(zhipuRequest)
+		}
 		if err != nil {
 			return errorWrapper(err, "marshal_text_request_failed", http.StatusInternalServerError)
 		}
@@ -502,7 +513,14 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 			textResponse.Usage.PromptTokens = textResponse.Usage.TotalTokens
 			return nil
 		} else {
-			err, usage := zhipuHandler(c, resp)
+			var err *OpenAIErrorWithStatusCode
+			var usage *Usage
+			switch relayMode {
+			case RelayModeEmbeddings:
+				err, usage = zhipuEmbeddingHandler(c, resp)
+			default:
+				err, usage = zhipuHandler(c, resp)
+			}
 			if err != nil {
 				return err
 			}
