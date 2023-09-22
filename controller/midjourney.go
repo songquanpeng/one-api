@@ -38,7 +38,7 @@ func UpdateMidjourneyTask() {
 					}
 					continue
 				}
-				requestUrl := fmt.Sprintf("%s/mj/task/%s/fetch", midjourneyChannel.BaseURL, task.MjId)
+				requestUrl := fmt.Sprintf("%s/mj/task/%s/fetch", *midjourneyChannel.BaseURL, task.MjId)
 
 				req, err := http.NewRequest("GET", requestUrl, bytes.NewBuffer([]byte("")))
 				if err != nil {
