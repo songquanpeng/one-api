@@ -255,6 +255,9 @@ func relayMidjourneySubmit(c *gin.Context, relayMode int) *MidjourneyResponse {
 	userQuota, err := model.CacheGetUserQuota(userId)
 
 	sizeRatio := 1.0
+	if midjRequest.Action == "UPSCALE" {
+		sizeRatio = 0.2
+	}
 
 	quota := int(ratio * sizeRatio * 1000)
 
