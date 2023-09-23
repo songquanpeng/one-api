@@ -10,7 +10,6 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/getsentry/sentry-go"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
@@ -28,18 +27,6 @@ func main() {
 	envErr := godotenv.Load()
 	if envErr != nil {
 		common.SysLog("Cannot load .env file, using environment variables, this is not an error, just a reminder")
-	}
-
-	// Sentry is a cross-platform crash reporting and aggregation platform.
-	// It provides the ability to capture, index and store exceptions generated
-	// This will only activate when SENTRY_DSN is set, if you worry about privacy, you can set it to an empty string
-	sentrDSN := os.Getenv("SENTRY_DSN")
-	if sentrDSN != "" {
-		sentry.Init(sentry.ClientOptions{
-			Dsn:              sentrDSN,
-			TracesSampleRate: 0.1,
-		})
-		common.SysLog("Sentry initialized")
 	}
 
 	common.SetupLogger()
