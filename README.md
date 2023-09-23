@@ -34,19 +34,19 @@ _✨ 通过标准的 OpenAI API 格式访问所有的大模型，开箱即用 �
 </p>
 
 <p align="center">
-  <a href="https://github.com/songquanpeng/one-api#部署">部署教程</a>
+  <a href="https://github.com/ckt1031/one-api#部署">部署教程</a>
   ·
-  <a href="https://github.com/songquanpeng/one-api#使用方法">使用方法</a>
+  <a href="https://github.com/ckt1031/one-api#使用方法">使用方法</a>
   ·
-  <a href="https://github.com/songquanpeng/one-api/issues">意见反馈</a>
+  <a href="https://github.com/ckt1031/one-api/issues">意见反馈</a>
   ·
-  <a href="https://github.com/songquanpeng/one-api#截图展示">截图展示</a>
+  <a href="https://github.com/ckt1031/one-api#截图展示">截图展示</a>
   ·
   <a href="https://openai.justsong.cn/">在线演示</a>
   ·
-  <a href="https://github.com/songquanpeng/one-api#常见问题">常见问题</a>
+  <a href="https://github.com/ckt1031/one-api#常见问题">常见问题</a>
   ·
-  <a href="https://github.com/songquanpeng/one-api#相关项目">相关项目</a>
+  <a href="https://github.com/ckt1031/one-api#相关项目">相关项目</a>
   ·
   <a href="https://iamazing.cn/page/reward">赞赏支持</a>
 </p>
@@ -68,16 +68,20 @@ _✨ 通过标准的 OpenAI API 格式访问所有的大模型，开箱即用 �
 5. 分离**通道流能力**，有些第三方镜像/通道不支持流或只支持流，分离它们可避免多余错误和时间浪费。
 6. 将所有**依赖项更新至最新版本**，以确保安全和性能。
 7. **使用 Vite 可加快前端开发**和二次开发速度。
-8. 在原来支持 MySQL 和本地 SQLite 的同时，**现在还支持 **PostgreSQL**、PostgreSQL 被认为消耗更少**，在大规模服务中运行更快，数据表之间的一致性更强。
+8. 在原来支持 MySQL 和本地 SQLite 的同时，现在还支持 **PostgreSQL**，PostgreSQL 被认为消耗更少**，在大规模服务中运行更快，数据表之间的一致性更强。
+
 > 使用 `POSTGRES_DSN` 环境变量，格式如 `postgres://USER:PWD@HOST:PORT/DB_NAME`。
-> *⚠️注意事项: 本项目中的 PostgreSQL 可能会导致一些不稳定和错误，请立即报告以进行修补。*
+> **⚠️注意事项**: 本项目中的 PostgreSQL 可能会导致一些不稳定和错误，请立即报告以进行修补。
+
 9. 我们拥有**最新的英语翻译，以适应上游的变化**。
 10. 现在**只向管理员显示服务器更新信息**，以减少对普通用户的干扰。
 11. 集成 Dockerfile **语言选择**： 启用翻译，使用环境变量 `RUN_ENG_TRANSLATE=1`。
 12. 现在，它会根据**配置加载**用于**本地开发的 .env 文件**或运行服务器的二进制文件。
 13. 它集成了用于错误跟踪和监控的 **Sentry** 功能。这有助于更高效地发现和解决问题。
+
 > 有关如何将 Sentry 集成到项目中的更多信息，请参阅[官方文档](https://docs.sentry.io/)。
-14: `TOKEN_ENCODER_STARTUP_INIT_DISABLED=true` 环境变量现在可以**禁用**自动将Token计数器编码器启动到内存中，禁用会减少空闲内存消耗，但对性能略有影响。
+
+14. `TOKEN_ENCODER_STARTUP_INIT_DISABLED=true` 环境变量现在可以**禁用**自动将Token计数器编码器启动到内存中，禁用会减少空闲内存消耗，但对性能略有影响。
 
 
 ## 功能
@@ -171,9 +175,9 @@ sudo service nginx restart
 初始账号用户名为 `root`，密码为 `123456`。
 
 ### 手动部署
-1. 从 [GitHub Releases](https://github.com/songquanpeng/one-api/releases/latest) 下载可执行文件或者从源码编译：
+1. 从 [GitHub Releases](https://github.com/ckt1031/one-api/releases/latest) 下载可执行文件或者从源码编译：
    ```shell
-   git clone https://github.com/songquanpeng/one-api.git
+   git clone https://github.com/ckt1031/one-api.git
    
    # 构建前端
    cd one-api/web
@@ -260,7 +264,7 @@ docker run --name chatgpt-web -d -p 3002:3002 -e OPENAI_API_BASE_URL=https://ope
 > Zeabur 的服务器在国外，自动解决了网络的问题，同时免费的额度也足够个人使用。
 
 1. 首先 fork 一份代码。
-2. 进入 [Zeabur](https://zeabur.com?referralCode=songquanpeng)，登录，进入控制台。
+2. 进入 [Zeabur](https://zeabur.com?referralCode=ckt1031)，登录，进入控制台。
 3. 新建一个 Project，在 Service -> Add Service 选择 Marketplace，选择 MySQL，并记下连接参数（用户名、密码、地址、端口）。
 4. 复制链接参数，运行 ```create database `one-api` ``` 创建数据库。
 5. 然后在 Service -> Add Service，选择 Git（第一次使用需要先授权），选择你 fork 的仓库。
