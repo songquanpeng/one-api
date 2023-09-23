@@ -51,8 +51,8 @@ var ModelRatio = map[string]float64{
 	"chatglm_pro":               0.7143, // ￥0.01 / 1k tokens
 	"chatglm_std":               0.3572, // ￥0.005 / 1k tokens
 	"chatglm_lite":              0.1429, // ￥0.002 / 1k tokens
-	"qwen-v1":                   0.8572, // ￥0.012 / 1k tokens
-	"qwen-plus-v1":              1,      // ￥0.014 / 1k tokens
+	"qwen-turbo":                0.8572, // ￥0.012 / 1k tokens
+	"qwen-plus":                 10,     // ￥0.14 / 1k tokens
 	"text-embedding-v1":         0.05,   // ￥0.0007 / 1k tokens
 	"SparkDesk":                 1.2858, // ￥0.018 / 1k tokens
 	"360GPT_S2_V9":              0.8572, // ¥0.012 / 1k tokens
