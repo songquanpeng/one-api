@@ -71,7 +71,6 @@ func RecordConsumeLog(ctx context.Context, userId int, channelId int, promptToke
 		ModelName:        modelName,
 		Quota:            quota,
 		Channel:          channelId,
-		TokenId:          tokenId,
 	}
 	err := DB.Create(log).Error
 	if err != nil {
@@ -164,7 +163,6 @@ func SumUsedQuota(logType int, startTimestamp int64, endTimestamp int64, modelNa
 	if modelName != "" {
 		tx = tx.Where("model_name = ?", modelName)
 	}
-
 	if channel != 0 {
 		tx = tx.Where("channel = ?", channel)
 	}
@@ -173,7 +171,7 @@ func SumUsedQuota(logType int, startTimestamp int64, endTimestamp int64, modelNa
 }
 
 func SumUsedToken(logType int, startTimestamp int64, endTimestamp int64, modelName string, username string, tokenName string) (token int) {
-	tx := DB.Table("logs").Select("sum(prompt_tokens) + sum(completion_tokens)")
+	tx := DB.Table("logs").Select("ifnull(sum(prompt_tokens),0) + ifnull(sum(completion_tokens),0)")
 	if username != "" {
 		tx = tx.Where("username = ?", username)
 	}
