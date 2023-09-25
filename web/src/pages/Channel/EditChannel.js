@@ -43,9 +43,12 @@ const EditChannel = () => {
     other: '',
     model_mapping: '',
     models: [],
+    auto_ban: 1,
     groups: ['default']
   };
   const [batch, setBatch] = useState(false);
+  const [autoBan, setAutoBan] = useState(true);
+  // const [autoBan, setAutoBan] = useState(true);
   const [inputs, setInputs] = useState(originInputs);
   const [originModelOptions, setOriginModelOptions] = useState([]);
   const [modelOptions, setModelOptions] = useState([]);
@@ -82,6 +85,7 @@ const EditChannel = () => {
       }
       setInputs((inputs) => ({ ...inputs, models: localModels }));
     }
+    //setAutoBan
   };
 
   const loadChannel = async () => {
@@ -102,6 +106,12 @@ const EditChannel = () => {
         data.model_mapping = JSON.stringify(JSON.parse(data.model_mapping), null, 2);
       }
       setInputs(data);
+      if (data.auto_ban === 0) {
+        setAutoBan(false);
+      } else {
+        setAutoBan(true);
+      }
+      // console.log(data);
     } else {
       showError(message);
     }
@@ -161,6 +171,11 @@ const EditChannel = () => {
     fetchGroups().then();
   }, []);
 
+  useEffect(() => {
+    setInputs((inputs) => ({ ...inputs, auto_ban: autoBan ? 1 : 0 }));
+    console.log(autoBan);
+  }, [autoBan]);
+
   const submit = async () => {
     if (!isEdit && (inputs.name === '' || inputs.key === '')) {
       showInfo('请填写渠道名称和渠道密钥！');
@@ -185,6 +200,11 @@ const EditChannel = () => {
       localInputs.other = 'v2.1';
     }
     let res;
+    if (!Array.isArray(localInputs.models)) {
+        showError('提交失败，请勿重复提交！');
+        handleCancel();
+        return;
+    }
     localInputs.models = localInputs.models.join(',');
     localInputs.group = localInputs.groups.join(',');
     if (isEdit) {
@@ -423,7 +443,20 @@ const EditChannel = () => {
                 placeholder='请输入组织org-xxx'
                 onChange={handleInputChange}
                 value={inputs.openai_organization}
-                autoComplete='new-password'
+            />
+          </Form.Field>
+          <Form.Field>
+            <Form.Checkbox
+                label='是否自动禁用（仅当自动禁用开启时有效），关闭后不会自动禁用该渠道'
+                name='auto_ban'
+                checked={autoBan}
+                onChange={
+                    () => {
+                        setAutoBan(!autoBan);
+
+                    }
+                }
+                // onChange={handleInputChange}
             />
           </Form.Field>
           {
