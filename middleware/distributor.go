@@ -87,7 +87,12 @@ func Distribute() func(c *gin.Context) {
 		c.Set("channel", channel.Type)
 		c.Set("channel_id", channel.Id)
 		c.Set("channel_name", channel.Name)
-		c.Set("auto_ban", channel.AutoBan)
+		ban := true
+		// parse *int to bool
+		if channel.AutoBan != nil && *channel.AutoBan == 0 {
+			ban = false
+		}
+		c.Set("auto_ban", ban)
 		c.Set("model_mapping", channel.GetModelMapping())
 		c.Request.Header.Set("Authorization", fmt.Sprintf("Bearer %s", channel.Key))
 		c.Set("base_url", channel.GetBaseURL())
