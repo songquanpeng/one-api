@@ -8,6 +8,7 @@ import (
 	"io"
 	"net/http"
 	"one-api/common"
+	"regexp"
 	"strconv"
 )
 
@@ -106,12 +107,18 @@ func countTokenText(text string, model string) int {
 }
 
 func errorWrapper(err error, code string, statusCode int) *OpenAIErrorWithStatusCode {
-	if statusCode == http.StatusInternalServerError {
-		//避免暴露内部错误
-		err = fmt.Errorf("internal server error")
+	text := err.Error()
+	// 定义一个正则表达式匹配URL
+	urlPattern := `http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+`
+
+	urlRegexp, reErr := regexp.Compile(urlPattern)
+	if reErr == nil {
+		text = urlRegexp.ReplaceAllString(text, "https://api.openai.com")
 	}
+	//避免暴露内部错误
+
 	openAIError := OpenAIError{
-		Message: err.Error(),
+		Message: text,
 		Type:    "one_api_error",
 		Code:    code,
 	}
