@@ -34,7 +34,7 @@ func GetAllChannels(startIdx int, num int, selectAll bool) ([]*Channel, error) {
 	if selectAll {
 		err = DB.Order("id desc").Find(&channels).Error
 	} else {
-		err = DB.Order("id desc").Limit(num).Offset(startIdx).Omit("key").Find(&channels).Error
+		err = DB.Order("id desc").Limit(num).Offset(startIdx).Omit("key").Order("priority desc").Find(&channels).Error
 	}
 	return channels, err
 }
