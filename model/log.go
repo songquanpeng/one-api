@@ -9,7 +9,7 @@ import (
 
 type Log struct {
 	Id               int    `json:"id"`
-	UserId           int    `json:"user_id"`
+	UserId           int    `json:"user_id" gorm:"index"`
 	CreatedAt        int64  `json:"created_at" gorm:"bigint;index"`
 	Type             int    `json:"type" gorm:"index"`
 	Content          string `json:"content"`
@@ -19,7 +19,7 @@ type Log struct {
 	Quota            int    `json:"quota" gorm:"default:0"`
 	PromptTokens     int    `json:"prompt_tokens" gorm:"default:0"`
 	CompletionTokens int    `json:"completion_tokens" gorm:"default:0"`
-	Channel          int    `json:"channel" gorm:"default:0"`
+	ChannelId        int    `json:"channel" gorm:"index"`
 }
 
 const (
@@ -47,7 +47,6 @@ func RecordLog(userId int, logType int, content string) {
 	}
 }
 
-
 func RecordConsumeLog(ctx context.Context, userId int, channelId int, promptTokens int, completionTokens int, modelName string, tokenName string, quota int, content string) {
 	common.LogInfo(ctx, fmt.Sprintf("record consume log: userId=%d, channelId=%d, promptTokens=%d, completionTokens=%d, modelName=%s, tokenName=%s, quota=%d, content=%s", userId, channelId, promptTokens, completionTokens, modelName, tokenName, quota, content))
 	if !common.LogConsumeEnabled {
@@ -64,7 +63,7 @@ func RecordConsumeLog(ctx context.Context, userId int, channelId int, promptToke
 		TokenName:        tokenName,
 		ModelName:        modelName,
 		Quota:            quota,
-		Channel:          channelId,
+		ChannelId:        channelId,
 	}
 	err := DB.Create(log).Error
 	if err != nil {
