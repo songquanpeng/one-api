@@ -102,7 +102,7 @@ const EditUser = () => {
               label='密码'
               name='password'
               type={'password'}
-              placeholder={'请输入新的密码'}
+              placeholder={'请输入新的密码，最短 8 位'}
               onChange={handleInputChange}
               value={password}
               autoComplete='new-password'
