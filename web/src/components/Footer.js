@@ -37,23 +37,7 @@ const Footer = () => {
           ></div>
         ) : (
           <div className='custom-footer'>
-            <a
-              href='https://github.com/songquanpeng/one-api'
-              target='_blank'
-            >
-              {systemName} {process.env.REACT_APP_VERSION}{' '}
-            </a>
-            由{' '}
-            <a href='https://github.com/songquanpeng' target='_blank'>
-              JustSong
-            </a>{' '}
-            构建，由{' '}
-            <a href='https://github.com/ckt1031' target='_blank'>
-              ckt1031
-            </a>{' '}升级并进行改进，本源代码遵循{' '}
-            <a href='https://opensource.org/licenses/mit-license.php'>
-              MIT 协议
-            </a>
+            本项目 OneAPI 原作 JustSong ，由 ckt1031 改进，本源代码遵循 MIT 协议
           </div>
         )}
       </Container>
