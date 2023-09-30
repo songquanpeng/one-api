@@ -1,7 +1,7 @@
 module one-api
 
-// +heroku goVersion go1.18
-go 1.18
+// +heroku goVersion go1.21
+go 1.21
 
 require (
 	github.com/gin-contrib/cors v1.4.0
@@ -47,6 +47,7 @@ require (
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.5 // indirect
+	github.com/knz/go-libedit v1.10.1 // indirect
 	github.com/leodido/go-urn v1.2.4 // indirect
 	github.com/mattn/go-isatty v0.0.19 // indirect
 	github.com/mattn/go-sqlite3 v2.0.3+incompatible // indirect

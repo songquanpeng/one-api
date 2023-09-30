@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@vitejs/plugin-react-swc": "^3.3.2",
-    "axios": "^1.5.0",
+    "@vitejs/plugin-react-swc": "^3.4.0",
+    "axios": "^1.5.1",
     "history": "^5.3.0",
     "marked": "^9.0.3",
     "react": "^18.2.0",
