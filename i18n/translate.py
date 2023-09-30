@@ -11,6 +11,8 @@ def list_file_paths(path):
             dirs.remove("build")
         if "i18n" in dirs:
             dirs.remove("i18n")
+        if ".git" in dirs:
+            dirs.remove(".git")
         for file in files:
             file_path = os.path.join(root, file)
             if file_path.endswith("png") or file_path.endswith("ico") or file_path.endswith("db") or file_path.endswith("exe"):
