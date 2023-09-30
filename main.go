@@ -2,6 +2,7 @@ package main
 
 import (
 	"embed"
+	"fmt"
 	"one-api/common"
 	"one-api/controller"
 	"one-api/middleware"
@@ -58,18 +59,17 @@ func main() {
 	// Initialize options
 	model.InitOptionMap()
 	if common.RedisEnabled {
+		// for compatibility with old versions
+		common.MemoryCacheEnabled = true
+	}
+	if common.MemoryCacheEnabled {
+		common.SysLog("memory cache enabled")
+		common.SysError(fmt.Sprintf("sync frequency: %d seconds", common.SyncFrequency))
 		model.InitChannelCache()
 	}
-	if os.Getenv("SYNC_FREQUENCY") != "" {
-		frequency, err := strconv.Atoi(os.Getenv("SYNC_FREQUENCY"))
-		if err != nil {
-			common.FatalLog("failed to parse SYNC_FREQUENCY: " + err.Error())
-		}
-		common.SyncFrequency = frequency
-		go model.SyncOptions(frequency)
-		if common.RedisEnabled {
-			go model.SyncChannelCache(frequency)
-		}
+	if common.MemoryCacheEnabled {
+		go model.SyncOptions(common.SyncFrequency)
+		go model.SyncChannelCache(common.SyncFrequency)
 	}
 	if os.Getenv("CHANNEL_UPDATE_FREQUENCY") != "" {
 		frequency, err := strconv.Atoi(os.Getenv("CHANNEL_UPDATE_FREQUENCY"))
