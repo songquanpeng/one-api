@@ -620,7 +620,7 @@
   "私有部署地址": "Private deployment address",
   "请输入私有部署地址，格式为：https://fastgpt.run/api/openapi": "Please enter the private deployment address, the format is: https://fastgpt.run/api/openapi",
   "请输入新的密码，最短 8 位": "Please enter a new password, at least 8 characters",
-  "理历史": "History",
+  "清理历史日志": "Clean up historical logs",
   "请输入知识库 ID，例如：123456": "Please enter the knowledge base ID, for example: 123456",
 
   "本项目 OneAPI 原作 JustSong ，由 ckt1031 改进，本源代码遵循 MIT 协议": "OneAPI by JustSong, improved by ckt1031, and follows MIT license",
