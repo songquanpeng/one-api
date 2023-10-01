@@ -127,11 +127,17 @@ _✨ 通过标准的 OpenAI API 格式访问所有的大模型，开箱即用 �
 
 ## 部署
 ### 基于 Docker 进行部署
-部署命令：`docker run --name one-api -d --restart always -p 3000:3000 -e TZ=Asia/Shanghai -v /home/ubuntu/data/one-api:/data justsong/one-api`
+```shell
+# 使用 SQLite 的部署命令：
+docker run --name one-api -d --restart always -p 3000:3000 -e TZ=Asia/Shanghai -v /home/ubuntu/data/one-api:/data justsong/one-api
+# 使用 MySQL 的部署命令，在上面的基础上添加 `-e SQL_DSN="root:123456@tcp(localhost:3306)/oneapi"`，请自行修改数据库连接参数，不清楚如何修改请参见下面环境变量一节。
+# 例如：
+docker run --name one-api -d --restart always -p 3000:3000 -e SQL_DSN="root:123456@tcp(localhost:3306)/oneapi" -e TZ=Asia/Shanghai -v /home/ubuntu/data/one-api:/data justsong/one-api
+```
 
 其中，`-p 3000:3000` 中的第一个 `3000` 是宿主机的端口，可以根据需要进行修改。
 
-数据将会保存在宿主机的 `/home/ubuntu/data/one-api` 目录，请确保该目录存在且具有写入权限，或者更改为合适的目录。
+数据和日志将会保存在宿主机的 `/home/ubuntu/data/one-api` 目录，请确保该目录存在且具有写入权限，或者更改为合适的目录。
 
 如果启动失败，请添加 `--privileged=true`，具体参考 https://github.com/songquanpeng/one-api/issues/482 。
 
@@ -260,7 +266,7 @@ docker run --name chatgpt-web -d -p 3002:3002 -e OPENAI_API_BASE_URL=https://ope
 <summary><strong>部署到 Zeabur</strong></summary>
 <div>
 
-> Zeabur 的服务器在国外，自动解决了网络的问题，同时免费的额度也足够个人使用。
+> Zeabur 的服务器在国外，自动解决了网络的问题，同时免费的额度也足够个人使用
 
 1. 首先 fork 一份代码。
 2. 进入 [Zeabur](https://zeabur.com?referralCode=ckt1031)，登录，进入控制台。
@@ -271,6 +277,17 @@ docker run --name chatgpt-web -d -p 3002:3002 -e OPENAI_API_BASE_URL=https://ope
 7. 选择 Redeploy。
 8. 进入下方 Domains，选择一个合适的域名前缀，如 "my-one-api"，最终域名为 "my-one-api.zeabur.app"，也可以 CNAME 自己的域名。
 9. 等待部署完成，点击生成的域名进入 One API。
+
+</div>
+</details>
+
+<details>
+<summary><strong>部署到 Render</strong></summary>
+<div>
+
+> Render 提供免费额度，绑卡后可以进一步提升额度
+
+Render 可以直接部署 docker 镜像，不需要 fork 仓库：https://dashboard.render.com
 
 </div>
 </details>
@@ -302,10 +319,11 @@ OPENAI_API_BASE="https://<HOST>:<PORT>/v1"
 ```mermaid
 graph LR
     A(用户)
-    A --->|请求| B(One API)
+    A --->|使用 One API 分发的 key 进行请求| B(One API)
     B -->|中继请求| C(OpenAI)
     B -->|中继请求| D(Azure)
-    B -->|中继请求| E(其他下游渠道)
+    B -->|中继请求| E(其他 OpenAI API 格式下游渠道)
+    B -->|中继并修改请求体和返回体| F(非 OpenAI API 格式下游渠道)
 ```
 
 可以通过在令牌后面添加渠道 ID 的方式指定使用哪一个渠道处理本次请求，例如：`Authorization: Bearer ONE_API_KEY-CHANNEL_ID`。
