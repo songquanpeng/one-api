@@ -202,7 +202,7 @@ const ChannelsTable = () => {
       showInfo(`通道 ${name} 测试成功，耗时 ${time.toFixed(2)} 秒。`);
     } else {
       showError(message);
-      showNotice("当前版本测试是通过按照 OpenAI API 格式使用 gpt-3.5-turbo 模型进行非流式请求实现的，因此测试报错并不一定代表通道不可用，该功能后续会修复。")
+      // showNotice("当前版本测试是通过按照 OpenAI API 格式使用 gpt-3.5-turbo 模型进行非流式请求实现的，因此测试报错并不一定代表通道不可用，该功能后续会修复。")
     }
   };
 
