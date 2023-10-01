@@ -239,7 +239,7 @@ docker run --name chatgpt-web -d -p 3002:3002 -e OPENAI_API_BASE_URL=https://ope
 <summary><strong>部署到 Zeabur</strong></summary>
 <div>
 
-> Zeabur 的服务器在国外，自动解决了网络的问题，同时免费的额度也足够个人使用。
+> Zeabur 的服务器在国外，自动解决了网络的问题，同时免费的额度也足够个人使用
 
 1. 首先 fork 一份代码。
 2. 进入 [Zeabur](https://zeabur.com?referralCode=songquanpeng)，登录，进入控制台。
@@ -250,6 +250,17 @@ docker run --name chatgpt-web -d -p 3002:3002 -e OPENAI_API_BASE_URL=https://ope
 7. 选择 Redeploy。
 8. 进入下方 Domains，选择一个合适的域名前缀，如 "my-one-api"，最终域名为 "my-one-api.zeabur.app"，也可以 CNAME 自己的域名。
 9. 等待部署完成，点击生成的域名进入 One API。
+
+</div>
+</details>
+
+<details>
+<summary><strong>部署到 Render</strong></summary>
+<div>
+
+> Render 提供免费额度，绑卡后可以进一步提升额度
+
+Render 可以直接部署 docker 镜像，不需要 fork 仓库：https://dashboard.render.com
 
 </div>
 </details>
