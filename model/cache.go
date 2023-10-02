@@ -203,25 +203,27 @@ func CacheGetRandomSatisfiedChannel(group string, model string, stream bool) (*C
 	}
 
 	var filteredChannels []*Channel
+
 	for _, channel := range channels {
-		if (stream && channel.AllowStreaming == common.ChannelAllowStreamEnabled) || (!stream && channel.AllowNonStreaming == common.ChannelAllowNonStreamEnabled) {
+		isStreaming := stream && channel.AllowStreaming == common.ChannelAllowStreamEnabled
+		isNotStreaming := !stream && channel.AllowNonStreaming == common.ChannelAllowNonStreamEnabled
+
+		if isStreaming || isNotStreaming {
 			filteredChannels = append(filteredChannels, channel)
 		}
 	}
 
-	endIdx := len(channels)
-
+	endIdx := len(filteredChannels)
 	// choose by priority
-	firstChannel := channels[0]
+	firstChannel := filteredChannels[0]
 	if firstChannel.GetPriority() > 0 {
-		for i := range channels {
-			if channels[i].GetPriority() != firstChannel.GetPriority() {
+		for i := range filteredChannels {
+			if filteredChannels[i].GetPriority() != firstChannel.GetPriority() {
 				endIdx = i
 				break
 			}
 		}
 	}
-
 	idx := rand.Intn(endIdx)
 	return filteredChannels[idx], nil
 }
