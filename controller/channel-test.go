@@ -209,7 +209,7 @@ func disableChannel(channelId int, channelName string, reason string) {
 	if common.RootUserEmail == "" {
 		common.RootUserEmail = model.GetRootUserEmail()
 	}
-	model.UpdateChannelStatusById(channelId, common.ChannelStatusDisabled)
+	model.UpdateChannelStatusById(channelId, common.ChannelStatusAutoDisabled)
 	subject := fmt.Sprintf("通道「%s」（#%d）已被禁用", channelName, channelId)
 	content := fmt.Sprintf("通道「%s」（#%d）已被禁用，原因：%s", channelName, channelId, reason)
 	err := common.SendEmail(subject, common.RootUserEmail, content)
