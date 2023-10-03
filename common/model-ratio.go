@@ -59,7 +59,6 @@ var ModelRatio = map[string]float64{
 	"embedding-bert-512-v1":     0.0715, // ¥0.001 / 1k tokens
 	"embedding_s1_v1":           0.0715, // ¥0.001 / 1k tokens
 	"semantic_similarity_s1_v1": 0.0715, // ¥0.001 / 1k tokens
-	"360GPT_S2_V9.4":            0.8572, // ¥0.012 / 1k tokens
 }
 
 func ModelRatio2JSONString() string {

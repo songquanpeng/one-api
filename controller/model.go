@@ -423,15 +423,6 @@ func init() {
 			Root:       "semantic_similarity_s1_v1",
 			Parent:     nil,
 		},
-		{
-			Id:         "360GPT_S2_V9.4",
-			Object:     "model",
-			Created:    1677649963,
-			OwnedBy:    "360",
-			Permission: permission,
-			Root:       "360GPT_S2_V9.4",
-			Parent:     nil,
-		},
 	}
 	openAIModelsMap = make(map[string]OpenAIModels)
 	for _, model := range openAIModels {
