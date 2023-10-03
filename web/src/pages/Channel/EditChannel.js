@@ -19,6 +19,8 @@ function type2secretPrompt(type) {
       return '按照如下格式输入：APPID|APISecret|APIKey';
     case 22:
       return '按照如下格式输入：APIKey-AppId，例如：fastgpt-0sp2gtvfdgyi4k30jwlgwf1i-64f335d84283f05518e9e041';
+    case 23:
+      return '按照如下格式输入：AppId|SecretId|SecretKey';
     default:
       return '请输入渠道对应的鉴权密钥';
   }
@@ -77,6 +79,9 @@ const EditChannel = () => {
           break;
         case 19:
           localModels = ['360GPT_S2_V9', 'embedding-bert-512-v1', 'embedding_s1_v1', 'semantic_similarity_s1_v1'];
+          break;
+        case 23:
+          localModels = ['hunyuan'];
           break;
       }
       setInputs((inputs) => ({ ...inputs, models: localModels }));

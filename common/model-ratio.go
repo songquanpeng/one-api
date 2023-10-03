@@ -59,6 +59,7 @@ var ModelRatio = map[string]float64{
 	"embedding-bert-512-v1":     0.0715, // ¥0.001 / 1k tokens
 	"embedding_s1_v1":           0.0715, // ¥0.001 / 1k tokens
 	"semantic_similarity_s1_v1": 0.0715, // ¥0.001 / 1k tokens
+	"hunyuan":                   7.143,  // ¥0.1 / 1k tokens  // https://cloud.tencent.com/document/product/1729/97731#e0e6be58-60c8-469f-bdeb-6c264ce3b4d0
 }
 
 func ModelRatio2JSONString() string {

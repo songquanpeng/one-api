@@ -423,6 +423,15 @@ func init() {
 			Root:       "semantic_similarity_s1_v1",
 			Parent:     nil,
 		},
+		{
+			Id:         "hunyuan",
+			Object:     "model",
+			Created:    1677649963,
+			OwnedBy:    "tencent",
+			Permission: permission,
+			Root:       "hunyuan",
+			Parent:     nil,
+		},
 	}
 	openAIModelsMap = make(map[string]OpenAIModels)
 	for _, model := range openAIModels {

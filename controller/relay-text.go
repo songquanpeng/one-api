@@ -24,6 +24,7 @@ const (
 	APITypeAli
 	APITypeXunfei
 	APITypeAIProxyLibrary
+	APITypeTencent
 )
 
 var httpClient *http.Client
@@ -109,6 +110,8 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 		apiType = APITypeXunfei
 	case common.ChannelTypeAIProxyLibrary:
 		apiType = APITypeAIProxyLibrary
+	case common.ChannelTypeTencent:
+		apiType = APITypeTencent
 	}
 	baseURL := common.ChannelBaseURLs[channelType]
 	requestURL := c.Request.URL.String()
@@ -179,6 +182,8 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 		if relayMode == RelayModeEmbeddings {
 			fullRequestURL = "https://dashscope.aliyuncs.com/api/v1/services/embeddings/text-embedding/text-embedding"
 		}
+	case APITypeTencent:
+		fullRequestURL = "https://hunyuan.cloud.tencent.com/hyllm/v1/chat/completions"
 	case APITypeAIProxyLibrary:
 		fullRequestURL = fmt.Sprintf("%s/api/library/ask", baseURL)
 	}
@@ -285,6 +290,23 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 			return errorWrapper(err, "marshal_text_request_failed", http.StatusInternalServerError)
 		}
 		requestBody = bytes.NewBuffer(jsonStr)
+	case APITypeTencent:
+		apiKey := c.Request.Header.Get("Authorization")
+		apiKey = strings.TrimPrefix(apiKey, "Bearer ")
+		appId, secretId, secretKey, err := parseTencentConfig(apiKey)
+		if err != nil {
+			return errorWrapper(err, "invalid_tencent_config", http.StatusInternalServerError)
+		}
+		tencentRequest := requestOpenAI2Tencent(textRequest)
+		tencentRequest.AppId = appId
+		tencentRequest.SecretId = secretId
+		jsonStr, err := json.Marshal(tencentRequest)
+		if err != nil {
+			return errorWrapper(err, "marshal_text_request_failed", http.StatusInternalServerError)
+		}
+		sign := getTencentSign(*tencentRequest, secretKey)
+		c.Request.Header.Set("Authorization", sign)
+		requestBody = bytes.NewBuffer(jsonStr)
 	case APITypeAIProxyLibrary:
 		aiProxyLibraryRequest := requestOpenAI2AIProxyLibrary(textRequest)
 		aiProxyLibraryRequest.LibraryId = c.GetString("library_id")
@@ -332,6 +354,8 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 			if textRequest.Stream {
 				req.Header.Set("X-DashScope-SSE", "enable")
 			}
+		case APITypeTencent:
+			req.Header.Set("Authorization", apiKey)
 		default:
 			req.Header.Set("Authorization", "Bearer "+apiKey)
 		}
@@ -576,6 +600,25 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 			return nil
 		} else {
 			err, usage := aiProxyLibraryHandler(c, resp)
+			if err != nil {
+				return err
+			}
+			if usage != nil {
+				textResponse.Usage = *usage
+			}
+			return nil
+		}
+	case APITypeTencent:
+		if isStream {
+			err, responseText := tencentStreamHandler(c, resp)
+			if err != nil {
+				return err
+			}
+			textResponse.Usage.PromptTokens = promptTokens
+			textResponse.Usage.CompletionTokens = countTokenText(responseText, textRequest.Model)
+			return nil
+		} else {
+			err, usage := tencentHandler(c, resp)
 			if err != nil {
 				return err
 			}
