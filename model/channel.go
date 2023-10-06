@@ -2,6 +2,7 @@ package model
 
 import (
 	"one-api/common"
+	"strconv"
 
 	"gorm.io/gorm"
 )
@@ -41,13 +42,9 @@ func GetAllChannels(startIdx int, num int, selectAll bool) ([]*Channel, error) {
 }
 
 func SearchChannels(keyword string) (channels []*Channel, err error) {
-	whereItem := "id = ? or name LIKE ? or `key` = ?"
+	idKeyword, err := strconv.Atoi(keyword)
 
-	if common.UsingPostgreSQL {
-		whereItem = "id = ? or name LIKE ? or \"key\" = ?"
-	}
-
-	err = DB.Omit("key").Where(whereItem, keyword, keyword+"%", keyword).Find(&channels).Error
+	err = DB.Omit("key").Where("name LIKE ?", keyword+"%").Or(&Channel{Id: idKeyword}).Or(&Channel{Key: keyword}).Find(&channels).Error
 	return channels, err
 }
 
@@ -66,11 +63,11 @@ func GetRandomChannel() (*Channel, error) {
 	channel := Channel{}
 	var err error = nil
 	if common.UsingPostgreSQL {
-		err = DB.Where("status = ? and \"group\" = ?", common.ChannelStatusEnabled, "default").Order("RANDOM()").Limit(1).First(&channel).Error
+		err = DB.Where(&Channel{Status: common.ChannelStatusEnabled, Group: "default"}).Order("RANDOM()").Limit(1).First(&channel).Error
 	} else if common.UsingSQLite {
-		err = DB.Where("status = ? and `group` = ?", common.ChannelStatusEnabled, "default").Order("RANDOM()").Limit(1).First(&channel).Error
+		err = DB.Where(&Channel{Status: common.ChannelStatusEnabled, Group: "default"}).Order("RANDOM()").Limit(1).First(&channel).Error
 	} else {
-		err = DB.Where("status = ? and `group` = ?", common.ChannelStatusEnabled, "default").Order("RAND()").Limit(1).First(&channel).Error
+		err = DB.Where(&Channel{Status: common.ChannelStatusEnabled, Group: "default"}).Order("RAND()").Limit(1).First(&channel).Error
 	}
 	return &channel, err
 }

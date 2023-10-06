@@ -1,7 +1,6 @@
 package model
 
 import (
-	"fmt"
 	"one-api/common"
 	"strings"
 )
@@ -20,21 +19,33 @@ func GetRandomSatisfiedChannel(group string, model string, stream bool) (*Channe
 	ability := Ability{}
 	var err error = nil
 
-	cmd := "`group` = ? and model = ? and enabled = 1"
-
-	if common.UsingPostgreSQL {
-		// Make cmd compatible with PostgreSQL
-		cmd = "\"group\" = ? and model = ? and enabled = true"
-	}
+	var cmdWhere *Ability
 
 	if stream {
-		cmd += fmt.Sprintf(" and allow_streaming = %d", common.ChannelAllowStreamEnabled)
+		cmdWhere = &Ability{
+			Group:          group,
+			Model:          model,
+			Enabled:        true,
+			AllowStreaming: common.ChannelAllowStreamEnabled,
+		}
 	} else {
-		cmd += fmt.Sprintf(" and allow_non_streaming = %d", common.ChannelAllowNonStreamEnabled)
+		cmdWhere = &Ability{
+			Group:             group,
+			Model:             model,
+			Enabled:           true,
+			AllowNonStreaming: common.ChannelAllowNonStreamEnabled,
+		}
 	}
 
-	maxPrioritySubQuery := DB.Model(&Ability{}).Select("MAX(priority)").Where(cmd, group, model)
-	channelQuery := DB.Where("`group` = ? and model = ? and enabled = 1 and priority = (?)", group, model, maxPrioritySubQuery)
+	maxPrioritySubQuery := DB.Model(&Ability{}).Select("MAX(priority)").Where(cmdWhere)
+
+	cmd1 := "`group` = ? and model = ? and enabled = 1 and priority = (?)"
+
+	if common.UsingPostgreSQL {
+		cmd1 = "\"group\" = ? and model = ? and enabled = 1 and priority = (?)"
+	}
+
+	channelQuery := DB.Where(cmd1, group, model, maxPrioritySubQuery)
 	if common.UsingSQLite || common.UsingPostgreSQL {
 		err = channelQuery.Order("RANDOM()").First(&ability).Error
 	} else {
