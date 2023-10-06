@@ -52,14 +52,7 @@ func Redeem(key string, userId int) (quota int, err error) {
 	redemption := &Redemption{}
 
 	err = DB.Transaction(func(tx *gorm.DB) error {
-		whereItem := "`key` = ?"
-
-		if common.UsingPostgreSQL {
-			// Make cmd compatible with PostgreSQL
-			whereItem = "\"key\" = ?"
-		}
-
-		err := tx.Set("gorm:query_option", "FOR UPDATE").Where(whereItem, key).First(redemption).Error
+		err := tx.Set("gorm:query_option", "FOR UPDATE").Where(&Redemption{Key: key}).First(redemption).Error
 		if err != nil {
 			return errors.New("无效的兑换码")
 		}
