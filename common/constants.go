@@ -56,6 +56,7 @@ var EmailDomainWhitelist = []string{
 }
 
 var DebugEnabled = os.Getenv("DEBUG") == "true"
+var MemoryCacheEnabled = os.Getenv("MEMORY_CACHE_ENABLED") == "true"
 
 var LogConsumeEnabled = true
 
@@ -92,7 +93,7 @@ var IsMasterNode = os.Getenv("NODE_TYPE") != "slave"
 var requestInterval, _ = strconv.Atoi(os.Getenv("POLLING_INTERVAL"))
 var RequestInterval = time.Duration(requestInterval) * time.Second
 
-var SyncFrequency = 10 * 60 // unit is second, will be overwritten by SYNC_FREQUENCY
+var SyncFrequency = GetOrDefault("SYNC_FREQUENCY", 10*60) // unit is second
 
 var BatchUpdateEnabled = false
 var BatchUpdateInterval = GetOrDefault("BATCH_UPDATE_INTERVAL", 5)
@@ -155,9 +156,10 @@ const (
 )
 
 const (
-	ChannelStatusUnknown  = 0
-	ChannelStatusEnabled  = 1 // don't use 0, 0 is the default value!
-	ChannelStatusDisabled = 2 // also don't use 0
+	ChannelStatusUnknown          = 0
+	ChannelStatusEnabled          = 1 // don't use 0, 0 is the default value!
+	ChannelStatusManuallyDisabled = 2 // also don't use 0
+	ChannelStatusAutoDisabled     = 3
 )
 
 const (
@@ -184,30 +186,32 @@ const (
 	ChannelTypeOpenRouter     = 20
 	ChannelTypeAIProxyLibrary = 21
 	ChannelTypeFastGPT        = 22
+	ChannelTypeTencent        = 23
 )
 
 var ChannelBaseURLs = []string{
-	"",                                // 0
-	"https://api.openai.com",          // 1
-	"https://oa.api2d.net",            // 2
-	"",                                // 3
-	"https://api.closeai-proxy.xyz",   // 4
-	"https://api.openai-sb.com",       // 5
-	"https://api.openaimax.com",       // 6
-	"https://api.ohmygpt.com",         // 7
-	"",                                // 8
-	"https://api.caipacity.com",       // 9
-	"https://api.aiproxy.io",          // 10
-	"",                                // 11
-	"https://api.api2gpt.com",         // 12
-	"https://api.aigc2d.com",          // 13
-	"https://api.anthropic.com",       // 14
-	"https://aip.baidubce.com",        // 15
-	"https://open.bigmodel.cn",        // 16
-	"https://dashscope.aliyuncs.com",  // 17
-	"",                                // 18
-	"https://ai.360.cn",               // 19
-	"https://openrouter.ai/api",       // 20
-	"https://api.aiproxy.io",          // 21
-	"https://fastgpt.run/api/openapi", // 22
+	"",                                  // 0
+	"https://api.openai.com",            // 1
+	"https://oa.api2d.net",              // 2
+	"",                                  // 3
+	"https://api.closeai-proxy.xyz",     // 4
+	"https://api.openai-sb.com",         // 5
+	"https://api.openaimax.com",         // 6
+	"https://api.ohmygpt.com",           // 7
+	"",                                  // 8
+	"https://api.caipacity.com",         // 9
+	"https://api.aiproxy.io",            // 10
+	"",                                  // 11
+	"https://api.api2gpt.com",           // 12
+	"https://api.aigc2d.com",            // 13
+	"https://api.anthropic.com",         // 14
+	"https://aip.baidubce.com",          // 15
+	"https://open.bigmodel.cn",          // 16
+	"https://dashscope.aliyuncs.com",    // 17
+	"",                                  // 18
+	"https://ai.360.cn",                 // 19
+	"https://openrouter.ai/api",         // 20
+	"https://api.aiproxy.io",            // 21
+	"https://fastgpt.run/api/openapi",   // 22
+	"https://hunyuan.cloud.tencent.com", //23
 }

@@ -25,12 +25,12 @@ func Distribute() func(c *gin.Context) {
 		if ok {
 			id, err := strconv.Atoi(channelId.(string))
 			if err != nil {
-				abortWithMessage(c, http.StatusBadRequest, "无效的渠道 ID")
+				abortWithMessage(c, http.StatusBadRequest, "无效的渠道 Id")
 				return
 			}
 			channel, err = model.GetChannelById(id, true)
 			if err != nil {
-				abortWithMessage(c, http.StatusBadRequest, "无效的渠道 ID")
+				abortWithMessage(c, http.StatusBadRequest, "无效的渠道 Id")
 				return
 			}
 			if channel.Status != common.ChannelStatusEnabled {

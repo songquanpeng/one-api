@@ -127,6 +127,23 @@ func DeleteChannel(c *gin.Context) {
 	return
 }
 
+func DeleteManuallyDisabledChannel(c *gin.Context) {
+	rows, err := model.DeleteChannelByStatus(common.ChannelStatusManuallyDisabled)
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "",
+		"data":    rows,
+	})
+	return
+}
+
 func UpdateChannel(c *gin.Context) {
 	channel := model.Channel{}
 	err := c.ShouldBindJSON(&channel)

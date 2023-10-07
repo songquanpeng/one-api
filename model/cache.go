@@ -186,7 +186,7 @@ func SyncChannelCache(frequency int) {
 }
 
 func CacheGetRandomSatisfiedChannel(group string, model string) (*Channel, error) {
-	if !common.RedisEnabled {
+	if !common.MemoryCacheEnabled {
 		return GetRandomSatisfiedChannel(group, model)
 	}
 	channelSyncLock.RLock()

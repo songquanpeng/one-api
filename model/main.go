@@ -81,6 +81,7 @@ func InitDB() (err error) {
 		if !common.IsMasterNode {
 			return nil
 		}
+		common.SysLog("database migration started")
 		err = db.AutoMigrate(&Channel{})
 		if err != nil {
 			return err

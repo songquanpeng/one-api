@@ -24,6 +24,7 @@ var ModelRatio = map[string]float64{
 	"gpt-3.5-turbo-0613":        0.75,
 	"gpt-3.5-turbo-16k":         1.5, // $0.003 / 1K tokens
 	"gpt-3.5-turbo-16k-0613":    1.5,
+	"gpt-3.5-turbo-instruct":    0.75, // $0.0015 / 1K tokens
 	"text-ada-001":              0.2,
 	"text-babbage-001":          0.25,
 	"text-curie-001":            1,
@@ -51,15 +52,15 @@ var ModelRatio = map[string]float64{
 	"chatglm_std":               0.3572, // ￥0.005 / 1k tokens
 	"chatglm_lite":              0.1429, // ￥0.002 / 1k tokens
 	"text_embedding":            0.0357, // ￥0.0005 / 1k tokens
-	"qwen-v1":                   0.8572, // ￥0.012 / 1k tokens
-	"qwen-plus-v1":              1,      // ￥0.014 / 1k tokens
+	"qwen-turbo":                0.8572, // ￥0.012 / 1k tokens
+	"qwen-plus":                 10,     // ￥0.14 / 1k tokens
 	"text-embedding-v1":         0.05,   // ￥0.0007 / 1k tokens
 	"SparkDesk":                 1.2858, // ￥0.018 / 1k tokens
 	"360GPT_S2_V9":              0.8572, // ¥0.012 / 1k tokens
 	"embedding-bert-512-v1":     0.0715, // ¥0.001 / 1k tokens
 	"embedding_s1_v1":           0.0715, // ¥0.001 / 1k tokens
 	"semantic_similarity_s1_v1": 0.0715, // ¥0.001 / 1k tokens
-	"360GPT_S2_V9.4":            0.8572, // ¥0.012 / 1k tokens
+	"hunyuan":                   7.143,  // ¥0.1 / 1k tokens  // https://cloud.tencent.com/document/product/1729/97731#e0e6be58-60c8-469f-bdeb-6c264ce3b4d0
 }
 
 func ModelRatio2JSONString() string {
