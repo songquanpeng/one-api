@@ -3,6 +3,7 @@ package controller
 import (
 	"bytes"
 	"context"
+	"crypto/tls"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -31,7 +32,13 @@ var httpClient *http.Client
 var impatientHTTPClient *http.Client
 
 func init() {
-	httpClient = &http.Client{}
+	httpClient = &http.Client{
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{
+				InsecureSkipVerify: common.InsecureSkipVerifyEnabled,
+			},
+		},
+	}
 	impatientHTTPClient = &http.Client{
 		Timeout: 5 * time.Second,
 	}
