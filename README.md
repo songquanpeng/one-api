@@ -351,6 +351,7 @@ graph LR
 13. 请求频率限制：
     + `GLOBAL_API_RATE_LIMIT`：全局 API 速率限制（除中继请求外），单 ip 三分钟内的最大请求数，默认为 `180`。
     + `GLOBAL_WEB_RATE_LIMIT`：全局 Web 速率限制，单 ip 三分钟内的最大请求数，默认为 `60`。
+14. `INSECURE_SKIP_VERIFY_ENABLED`：启用此选项后，将不再执行对服务器证书有效性的验证，可选值为 `true` 和 `false`，未设置则默认为 `false`。
 
 ### 命令行参数
 1. `--port <port_number>`: 指定服务器监听的端口号，默认为 `3000`。

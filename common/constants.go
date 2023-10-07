@@ -98,6 +98,8 @@ var SyncFrequency = GetOrDefault("SYNC_FREQUENCY", 10*60) // unit is second
 var BatchUpdateEnabled = false
 var BatchUpdateInterval = GetOrDefault("BATCH_UPDATE_INTERVAL", 5)
 
+var InsecureSkipVerifyEnabled = os.Getenv("INSECURE_SKIP_VERIFY_ENABLED") == "true"
+
 const (
 	RequestIdKey = "X-Oneapi-Request-Id"
 )
