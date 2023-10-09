@@ -239,6 +239,11 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 		requestBody = c.Request.Body
 	}
 	switch apiType {
+	case APITypeOpenAI:
+		apiKey := c.Request.Header.Get("Authorization")
+		apiKey, organization := parseOpenaiConfig(apiKey)
+		c.Request.Header.Set("Authorization", apiKey)
+		c.Request.Header.Set("OpenAI-Organization", organization)
 	case APITypeClaude:
 		claudeRequest := requestOpenAI2Claude(textRequest)
 		jsonStr, err := json.Marshal(claudeRequest)
@@ -334,6 +339,7 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 				req.Header.Set("api-key", apiKey)
 			} else {
 				req.Header.Set("Authorization", c.Request.Header.Get("Authorization"))
+				req.Header.Set("OpenAI-Organization", c.Request.Header.Get("OpenAI-Organization"))
 				if channelType == common.ChannelTypeOpenRouter {
 					req.Header.Set("HTTP-Referer", "https://github.com/songquanpeng/one-api")
 					req.Header.Set("X-Title", "One API")
