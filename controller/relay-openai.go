@@ -11,6 +11,16 @@ import (
 	"strings"
 )
 
+func parseOpenaiConfig(config string) (apiKey string, organization string) {
+	parts := strings.Split(config, "|")
+	if len(parts) != 2 {
+		parts[1] = ""
+	}
+	apiKey = parts[0]
+	organization = parts[1]
+	return
+}
+
 func openaiStreamHandler(c *gin.Context, resp *http.Response, relayMode int) (*OpenAIErrorWithStatusCode, string) {
 	responseText := ""
 	scanner := bufio.NewScanner(resp.Body)
