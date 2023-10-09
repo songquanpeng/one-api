@@ -38,7 +38,7 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: |
-            justsong/one-api-en
+            aoaostar/one-api-en
 
       - name: Build and push Docker images
         uses: docker/build-push-action@v3
