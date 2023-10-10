@@ -135,7 +135,7 @@ func shouldDisableChannel(err *OpenAIError, statusCode int) bool {
 	if err == nil {
 		return false
 	}
-	if statusCode == http.StatusUnauthorized || statusCode == http.StatusTooManyRequests {
+	if statusCode == http.StatusUnauthorized {
 		return true
 	}
 	if err.Type == "insufficient_quota" || err.Code == "invalid_api_key" || err.Code == "account_deactivated" {
