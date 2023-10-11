@@ -71,6 +71,7 @@ func RecordConsumeLog(ctx context.Context, userId int, channelId int, promptToke
 		ModelName:        modelName,
 		Quota:            quota,
 		Channel:          channelId,
+		TokenId:          tokenId,
 	}
 	err := DB.Create(log).Error
 	if err != nil {
