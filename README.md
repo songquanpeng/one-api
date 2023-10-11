@@ -58,6 +58,10 @@ _✨ 通过标准的 OpenAI API 格式访问所有的大模型，开箱即用 �
 
 > **Warning**
 > 使用 Docker 拉取的最新镜像可能是 `alpha` 版本，如果追求稳定性请手动指定版本。
+
+> **此分叉最新版Docker镜像**
+> calciumion/one-api-midjourney:latest
+
 ## 此分叉版本的主要变更
 1. 添加[Midjourney-Proxy](https://github.com/novicezk/midjourney-proxy)接口的支持：
     + [x] /mj/submit/imagine
