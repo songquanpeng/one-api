@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {Button, Form, Grid, Header, Segment, Statistic} from 'semantic-ui-react';
+import {Button, Confirm, Form, Grid, Header, Segment, Statistic} from 'semantic-ui-react';
 import {API, showError, showInfo, showSuccess} from '../../helpers';
 import {renderNumber, renderQuota} from '../../helpers/render';
 
@@ -11,6 +11,8 @@ const TopUp = () => {
     const [topUpLink, setTopUpLink] = useState('');
     const [userQuota, setUserQuota] = useState(0);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [open, setOpen] = useState(false);
+    const [payWay, setPayWay] = useState('');
 
     const topUp = async () => {
         if (redemptionCode === '') {
@@ -47,15 +49,24 @@ const TopUp = () => {
         window.open(topUpLink, '_blank');
     };
 
-    const onlineTopUp = async (payment) => {
+    const preTopUp = async (payment) => {
         if (amount === 0) {
             await getAmount();
         }
+        setPayWay(payment)
+        setOpen(true);
+    }
+
+    const onlineTopUp = async () => {
+        if (amount === 0) {
+            await getAmount();
+        }
+        setOpen(false);
         try {
             const res = await API.post('/api/user/pay', {
                 amount: parseInt(topUpCount),
                 top_up_code: topUpCode,
-                PaymentMethod: payment
+                PaymentMethod: payWay
             });
             if (res !== undefined) {
                 const {message, data} = res.data;
@@ -145,9 +156,21 @@ const TopUp = () => {
         }
     }
 
+    const handleCancel = () => {
+        setOpen(false);
+    }
+
     return (
         <div>
             <Segment>
+                <Confirm
+                    open={open}
+                    content={'充值数量：' + topUpCount + '，充值金额：' + renderAmount() + '，是否确认充值？'}
+                    cancelButton='取消充值'
+                    confirmButton="确定"
+                    onCancel={handleCancel}
+                    onConfirm={onlineTopUp}
+                />
                 <Header as='h3'>充值额度</Header>
                 <Grid columns={2} stackable>
                     <Grid.Column>
@@ -204,14 +227,14 @@ const TopUp = () => {
                             {/*/>*/}
                             <Button color='blue' onClick={
                                 async () => {
-                                    onlineTopUp('zfb')
+                                    preTopUp('zfb')
                                 }
                             }>
                                 支付宝
                             </Button>
                             <Button color='green' onClick={
                                 async () => {
-                                    onlineTopUp('wx')
+                                    preTopUp('wx')
                                 }
                             }>
                                 微信
