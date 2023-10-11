@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {Button, Divider, Form, Grid, Header, Modal, Message} from 'semantic-ui-react';
-import {API, removeTrailingSlash, showError} from '../helpers';
+import {API, removeTrailingSlash, showError, verifyJSON} from '../helpers';
 
 const SystemSetting = () => {
     let [inputs, setInputs] = useState({
@@ -20,6 +20,7 @@ const SystemSetting = () => {
         EpayId: '',
         EpayKey: '',
         Price: 7.3,
+        TopupGroupRatio: '',
         PayAddress: '',
         Footer: '',
         WeChatAuthEnabled: '',
@@ -45,6 +46,9 @@ const SystemSetting = () => {
         if (success) {
             let newInputs = {};
             data.forEach((item) => {
+                if (item.key === 'TopupGroupRatio') {
+                    item.value = JSON.stringify(JSON.parse(item.value), null, 2);
+                }
                 newInputs[item.key] = item.value;
             });
             setInputs({
@@ -123,7 +127,8 @@ const SystemSetting = () => {
             name === 'WeChatAccountQRCodeImageURL' ||
             name === 'TurnstileSiteKey' ||
             name === 'TurnstileSecretKey' ||
-            name === 'EmailDomainWhitelist'
+            name === 'EmailDomainWhitelist' ||
+            name === 'TopupGroupRatio'
         ) {
             setInputs((inputs) => ({...inputs, [name]: value}));
         } else {
@@ -140,6 +145,13 @@ const SystemSetting = () => {
         if (inputs.ServerAddress === '') {
             showError('请先填写服务器地址');
             return
+        }
+        if (originInputs['TopupGroupRatio'] !== inputs.TopupGroupRatio) {
+            if (!verifyJSON(inputs.TopupGroupRatio)) {
+                showError('充值分组倍率不是合法的 JSON 字符串');
+                return;
+            }
+            await updateOption('TopupGroupRatio', inputs.TopupGroupRatio);
         }
         let PayAddress = removeTrailingSlash(inputs.PayAddress);
         await updateOption('PayAddress', PayAddress);
@@ -297,8 +309,19 @@ const SystemSetting = () => {
                             onChange={handleInputChange}
                         />
                     </Form.Group>
+                    <Form.Group widths='equal'>
+                        <Form.TextArea
+                            label='充值分组倍率'
+                            name='TopupGroupRatio'
+                            onChange={handleInputChange}
+                            style={{minHeight: 250, fontFamily: 'JetBrains Mono, Consolas'}}
+                            autoComplete='new-password'
+                            value={inputs.TopupGroupRatio}
+                            placeholder='为一个 JSON 文本，键为组名称，值为倍率'
+                        />
+                    </Form.Group>
                     <Form.Button onClick={submitPayAddress}>
-                        更新支付地址
+                        更新支付设置
                     </Form.Button>
                     <Divider/>
                     <Header as='h3'>配置登录注册</Header>

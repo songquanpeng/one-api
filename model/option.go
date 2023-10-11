@@ -57,6 +57,7 @@ func InitOptionMap() {
 	common.OptionMap["EpayId"] = ""
 	common.OptionMap["EpayKey"] = ""
 	common.OptionMap["Price"] = strconv.FormatFloat(common.Price, 'f', -1, 64)
+	common.OptionMap["TopupGroupRatio"] = common.TopupGroupRatio2JSONString()
 	common.OptionMap["GitHubClientId"] = ""
 	common.OptionMap["GitHubClientSecret"] = ""
 	common.OptionMap["WeChatServerAddress"] = ""
@@ -184,6 +185,8 @@ func updateOptionMap(key string, value string) (err error) {
 		common.EpayKey = value
 	case "Price":
 		common.Price, _ = strconv.ParseFloat(value, 64)
+	case "TopupGroupRatio":
+		err = common.UpdateTopupGroupRatioByJSONString(value)
 	case "GitHubClientId":
 		common.GitHubClientId = value
 	case "GitHubClientSecret":

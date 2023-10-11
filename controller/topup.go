@@ -38,9 +38,13 @@ func GetEpayClient() *epay.Client {
 	return withUrl
 }
 
-func GetAmount(count float64) float64 {
+func GetAmount(count float64, user model.User) float64 {
 	// 别问为什么用float64，问就是这么点钱没必要
-	amount := count * common.Price
+	topupGroupRatio := common.GetTopupGroupRatio(user.Group)
+	if topupGroupRatio == 0 {
+		topupGroupRatio = 1
+	}
+	amount := count * common.Price * topupGroupRatio
 	return amount
 }
 
@@ -57,7 +61,8 @@ func RequestEpay(c *gin.Context) {
 	}
 
 	id := c.GetInt("id")
-	amount := GetAmount(float64(req.Amount))
+	user, _ := model.GetUserById(id, false)
+	amount := GetAmount(float64(req.Amount), *user)
 
 	if req.PaymentMethod == "zfb" {
 		req.PaymentMethod = "alipay"
@@ -148,7 +153,7 @@ func EpayNotify(c *gin.Context) {
 				return
 			}
 			log.Printf("易支付回调更新用户成功 %v", topUp)
-			model.RecordLog(topUp.UserId, model.LogTypeTopup, fmt.Sprintf("使用在线充值成功，充值金额: %v", common.LogQuota(topUp.Amount*500000)))
+			model.RecordLog(topUp.UserId, model.LogTypeTopup, fmt.Sprintf("使用在线充值成功，充值金额: %v，支付金额：%d", common.LogQuota(topUp.Amount*500000), topUp.Money))
 		}
 	} else {
 		log.Printf("易支付异常回调: %v", verifyInfo)
@@ -166,6 +171,7 @@ func RequestAmount(c *gin.Context) {
 		c.JSON(200, gin.H{"message": "error", "data": "充值金额不能小于1"})
 		return
 	}
-
-	c.JSON(200, gin.H{"message": "success", "data": GetAmount(float64(req.Amount))})
+	id := c.GetInt("id")
+	user, _ := model.GetUserById(id, false)
+	c.JSON(200, gin.H{"message": "success", "data": GetAmount(float64(req.Amount), *user)})
 }
