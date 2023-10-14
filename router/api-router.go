@@ -76,7 +76,7 @@ func SetApiRouter(router *gin.Engine) {
 			channelRoute.GET("/update_balance/:id", controller.UpdateChannelBalance)
 			channelRoute.POST("/", controller.AddChannel)
 			channelRoute.PUT("/", controller.UpdateChannel)
-			channelRoute.DELETE("/manually_disabled", controller.DeleteManuallyDisabledChannel)
+			channelRoute.DELETE("/disabled", controller.DeleteDisabledChannel)
 			channelRoute.DELETE("/:id", controller.DeleteChannel)
 		}
 		tokenRoute := apiRouter.Group("/token")

@@ -220,6 +220,9 @@ func xunfeiHandler(c *gin.Context, textRequest GeneralOpenAIRequest, appId strin
 	for !stop {
 		select {
 		case xunfeiResponse = <-dataChan:
+			if len(xunfeiResponse.Payload.Choices.Text) == 0 {
+				continue
+			}
 			content += xunfeiResponse.Payload.Choices.Text[0].Content
 			usage.PromptTokens += xunfeiResponse.Payload.Usage.Text.PromptTokens
 			usage.CompletionTokens += xunfeiResponse.Payload.Usage.Text.CompletionTokens
