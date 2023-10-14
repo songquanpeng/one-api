@@ -317,7 +317,7 @@ const ChannelsTable = () => {
           onChange={handleKeywordChange}
         />
       </Form>
-      {
+      {/* {
         showPrompt && (
           <Message onDismiss={() => {
             setShowPrompt(false);
@@ -329,7 +329,7 @@ const ChannelsTable = () => {
             另外，OpenAI 渠道已经不再支持通过 key 获取余额，因此余额显示为 0。对于支持的渠道类型，请点击余额进行刷新。
           </Message>
         )
-      }
+      } */}
       <Table basic compact size='small'>
         <Table.Header>
           <Table.Row>
