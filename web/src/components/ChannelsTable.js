@@ -240,11 +240,11 @@ const ChannelsTable = () => {
     }
   };
 
-  const deleteAllManuallyDisabledChannels = async () => {
-    const res = await API.delete(`/api/channel/manually_disabled`);
+  const deleteAllDisabledChannels = async () => {
+    const res = await API.delete(`/api/channel/disabled`);
     const { success, message, data } = res.data;
     if (success) {
-      showSuccess(`已删除所有手动禁用渠道，共计 ${data} 个`);
+      showSuccess(`已删除所有禁用渠道，共计 ${data} 个`);
       await refresh();
     } else {
       showError(message);
@@ -531,14 +531,14 @@ const ChannelsTable = () => {
               <Popup
                 trigger={
                   <Button size='small' loading={loading}>
-                    删除所有手动禁用渠道
+                    删除禁用渠道
                   </Button>
                 }
                 on='click'
                 flowing
                 hoverable
               >
-                <Button size='small' loading={loading} negative onClick={deleteAllManuallyDisabledChannels}>
+                <Button size='small' loading={loading} negative onClick={deleteAllDisabledChannels}>
                   确认删除
                 </Button>
               </Popup>
