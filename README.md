@@ -95,12 +95,13 @@ _✨ 通过标准的 OpenAI API 格式访问所有的大模型，开箱即用 �
 15. 支持模型映射，重定向用户的请求模型。
 16. 支持失败自动重试。
 17. 支持绘图接口。
-18. 支持丰富的**自定义**设置，
+18. 支持 [Cloudflare AI Gateway](https://developers.cloudflare.com/ai-gateway/providers/openai/)，渠道设置的代理部分填写 `https://gateway.ai.cloudflare.com/v1/ACCOUNT_TAG/GATEWAY/openai` 即可。
+19. 支持丰富的**自定义**设置，
     1. 支持自定义系统名称，logo 以及页脚。
     2. 支持自定义首页和关于页面，可以选择使用 HTML & Markdown 代码进行自定义，或者使用一个单独的网页通过 iframe 嵌入。
-19. 支持通过系统访问令牌访问管理 API。
-20. 支持 Cloudflare Turnstile 用户校验。
-21. 支持用户管理，支持**多种用户登录注册方式**：
+20. 支持通过系统访问令牌访问管理 API。
+21. 支持 Cloudflare Turnstile 用户校验。
+22. 支持用户管理，支持**多种用户登录注册方式**：
     + 邮箱登录注册（支持注册邮箱白名单）以及通过邮箱进行密码重置。
     + [GitHub 开放授权](https://github.com/settings/applications/new)。
     + 微信公众号授权（需要额外部署 [WeChat Server](https://github.com/songquanpeng/wechat-server)）。

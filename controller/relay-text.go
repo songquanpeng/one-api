@@ -119,6 +119,11 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 		baseURL = c.GetString("base_url")
 	}
 	fullRequestURL := fmt.Sprintf("%s%s", baseURL, requestURL)
+	if channelType == common.ChannelTypeOpenAI {
+		if strings.HasPrefix(baseURL, "https://gateway.ai.cloudflare.com") {
+			fullRequestURL = fmt.Sprintf("%s%s", baseURL, strings.TrimPrefix(requestURL, "/v1"))
+		}
+	}
 	switch apiType {
 	case APITypeOpenAI:
 		if channelType == common.ChannelTypeAzure {
