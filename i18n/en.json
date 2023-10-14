@@ -610,7 +610,10 @@
   "知识库：FastGPT": "Knowledge Base: FastGPT",
   "知识库：AI Proxy": "Knowledge Base: AI Proxy",
   "请立刻修改默认密码！": "Please change the default password immediately!",
-  "当前版本测试是通过按照 OpenAI API 格式使用 gpt-3.5-turbo 模型进行非流式请求实现的，因此测试报错并不一定代表通道不可用，该功能后续会修复。": "The current version of the test is implemented by using the gpt-3.5-turbo model for non-streaming requests in accordance with the OpenAI API format, so the test error does not necessarily mean that the channel is unavailable, and this function will be fixed later.",
+
+  "当前版本测试是通过按照 OpenAI API 格式使用 gpt-3.5-turbo": "The current version of the test is implemented by using the gpt-3.5-turbo",
+  "模型进行非流式请求实现的，因此测试报错并不一定代表通道不可用，该功能后续会修复。": "model for non-streaming requests, so the test error does not necessarily mean that the channel is not available, this function will be fixed later.",
+  "另外，OpenAI 渠道已经不再支持通过 key 获取余额，因此余额显示为 0。对于支持的渠道类型，请点击余额进行刷新。": "In addition, the OpenAI channel no longer supports getting the balance through the key, so the balance is displayed as 0. For supported channel types, please click the balance to refresh.",
   "优先级": "Priority",
   "渠道选择优先级，越高越优先": "Channel selection priority, the higher the better",
   "日志清理失败：": "Log cleaning failed: ",
@@ -627,6 +630,11 @@
   "本渠道被程序自动禁用": "This channel is automatically disabled by the program",
   "已删除所有手动禁用渠道，共计 ${data} 个": "All manually disabled channels have been deleted, a total of ${data}",
   "删除所有手动禁用渠道": "Delete all manually disabled channels",
+
+  "腾讯混元": "Tencent HunYuan",
+  "已删除所有禁用渠道，共计 ${data} 个": "All disabled channels have been deleted, a total of ${data}",
+  "页面不存在": "Page not found",
+  "请检查你的浏览器地址是否正确": "Please check if your browser address is correct",
 
   "本项目 OneAPI 原作 JustSong ，由 ckt1031 改进，本源代码遵循 MIT 协议": "OneAPI by JustSong, improved by ckt1031, and follows MIT license",
   "警告": "Warning",
