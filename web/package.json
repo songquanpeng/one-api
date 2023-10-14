@@ -6,7 +6,7 @@
     "@vitejs/plugin-react-swc": "^3.4.0",
     "axios": "^1.5.1",
     "history": "^5.3.0",
-    "marked": "^9.0.3",
+    "marked": "^9.1.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-dropzone": "^14.2.3",
@@ -15,7 +15,7 @@
     "react-turnstile": "^1.1.2",
     "semantic-ui-css": "^2.5.0",
     "semantic-ui-react": "^2.1.4",
-    "vite": "^4.4.9",
+    "vite": "^4.4.11",
     "vite-plugin-env-compatible": "^1.1.1",
     "vite-plugin-html": "^3.2.0"
   },
