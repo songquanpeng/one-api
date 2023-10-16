@@ -103,7 +103,7 @@ func TokenAuth() func(c *gin.Context) {
 			abortWithMessage(c, http.StatusUnauthorized, err.Error())
 			return
 		}
-		userEnabled, err := model.IsUserEnabled(token.UserId)
+		userEnabled, err := model.CacheIsUserEnabled(token.UserId)
 		if err != nil {
 			abortWithMessage(c, http.StatusInternalServerError, err.Error())
 			return

@@ -6,13 +6,13 @@ import (
 	"time"
 )
 
-const BatchUpdateTypeCount = 4 // if you add a new type, you need to add a new map and a new lock
-
 const (
 	BatchUpdateTypeUserQuota = iota
 	BatchUpdateTypeTokenQuota
-	BatchUpdateTypeUsedQuotaAndRequestCount
+	BatchUpdateTypeUsedQuota
 	BatchUpdateTypeChannelUsedQuota
+	BatchUpdateTypeRequestCount
+	BatchUpdateTypeCount // if you add a new type, you need to add a new map and a new lock
 )
 
 var batchUpdateStores []map[int]int
@@ -51,7 +51,7 @@ func batchUpdate() {
 		store := batchUpdateStores[i]
 		batchUpdateStores[i] = make(map[int]int)
 		batchUpdateLocks[i].Unlock()
-
+		// TODO: maybe we can combine updates with same key?
 		for key, value := range store {
 			switch i {
 			case BatchUpdateTypeUserQuota:
@@ -64,8 +64,10 @@ func batchUpdate() {
 				if err != nil {
 					common.SysError("failed to batch update token quota: " + err.Error())
 				}
-			case BatchUpdateTypeUsedQuotaAndRequestCount:
-				updateUserUsedQuotaAndRequestCount(key, value, 1) // TODO: count is incorrect
+			case BatchUpdateTypeUsedQuota:
+				updateUserUsedQuota(key, value)
+			case BatchUpdateTypeRequestCount:
+				updateUserRequestCount(key, value)
 			case BatchUpdateTypeChannelUsedQuota:
 				updateChannelUsedQuota(key, value)
 			}

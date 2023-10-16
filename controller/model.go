@@ -424,12 +424,12 @@ func init() {
 			Parent:     nil,
 		},
 		{
-			Id:         "360GPT_S2_V9.4",
+			Id:         "hunyuan",
 			Object:     "model",
 			Created:    1677649963,
-			OwnedBy:    "360",
+			OwnedBy:    "tencent",
 			Permission: permission,
-			Root:       "360GPT_S2_V9.4",
+			Root:       "hunyuan",
 			Parent:     nil,
 		},
 	}

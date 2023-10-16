@@ -187,3 +187,13 @@ export const verifyJSON = (str) => {
   }
   return true;
 };
+
+export function shouldShowPrompt(id) {
+  let prompt = localStorage.getItem(`prompt-${id}`);
+  return !prompt;
+
+}
+
+export function setPromptShown(id) {
+  localStorage.setItem(`prompt-${id}`, 'true');
+}

@@ -12,7 +12,7 @@ type Channel struct {
 	OpenAIOrganization *string `json:"openai_organization"`
 	Status             int     `json:"status" gorm:"default:1"`
 	Name               string  `json:"name" gorm:"index"`
-	Weight             int     `json:"weight"`
+	Weight             *uint   `json:"weight" gorm:"default:0"`
 	CreatedTime        int64   `json:"created_time" gorm:"bigint"`
 	TestTime           int64   `json:"test_time" gorm:"bigint"`
 	ResponseTime       int     `json:"response_time"` // in milliseconds
@@ -177,4 +177,14 @@ func updateChannelUsedQuota(id int, quota int) {
 	if err != nil {
 		common.SysError("failed to update channel used quota: " + err.Error())
 	}
+}
+
+func DeleteChannelByStatus(status int64) (int64, error) {
+	result := DB.Where("status = ?", status).Delete(&Channel{})
+	return result.RowsAffected, result.Error
+}
+
+func DeleteDisabledChannel() (int64, error) {
+	result := DB.Where("status = ? or status = ?", common.ChannelStatusAutoDisabled, common.ChannelStatusManuallyDisabled).Delete(&Channel{})
+	return result.RowsAffected, result.Error
 }

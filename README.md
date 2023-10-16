@@ -59,8 +59,8 @@ _✨ 通过标准的 OpenAI API 格式访问所有的大模型，开箱即用 �
 > **Warning**
 > 使用 Docker 拉取的最新镜像可能是 `alpha` 版本，如果追求稳定性请手动指定版本。
 
-> **此分叉最新版Docker镜像**
-> calciumion/one-api-midjourney:latest
+> **Note**
+> 此分叉最新版Docker镜像 calciumion/one-api-midjourney:latest
 
 ## 此分叉版本的主要变更
 1. 添加[Midjourney-Proxy](https://github.com/novicezk/midjourney-proxy)接口的支持：
@@ -78,6 +78,8 @@ _✨ 通过标准的 OpenAI API 格式访问所有的大模型，开箱即用 �
     + 配合项目[neko-api-key-tool](https://github.com/Calcium-Ion/neko-api-key-tool)可实现用key查询使用情况，方便二次分销
 4. 渠道显示已使用额度，支持指定组织访问
 5. 分页支持选择每页显示数量
+
+
 ## 功能
 1. 支持多种大模型：
    + [x] [OpenAI ChatGPT 系列模型](https://platform.openai.com/docs/guides/gpt/chat-completions-api)（支持 [Azure OpenAI API](https://learn.microsoft.com/en-us/azure/ai-services/openai/reference)）
@@ -88,6 +90,7 @@ _✨ 通过标准的 OpenAI API 格式访问所有的大模型，开箱即用 �
    + [x] [讯飞星火认知大模型](https://www.xfyun.cn/doc/spark/Web.html)
    + [x] [智谱 ChatGLM 系列模型](https://bigmodel.cn)
    + [x] [360 智脑](https://ai.360.cn)
+   + [x] [腾讯混元大模型](https://cloud.tencent.com/document/product/1729)
 2. 支持配置镜像以及众多第三方代理服务：
    + [x] [OpenAI-SB](https://openai-sb.com)
    + [x] [CloseAI](https://console.closeai-asia.com/r/2412)
@@ -110,23 +113,30 @@ _✨ 通过标准的 OpenAI API 格式访问所有的大模型，开箱即用 �
 15. 支持模型映射，重定向用户的请求模型。
 16. 支持失败自动重试。
 17. 支持绘图接口。
-18. 支持丰富的**自定义**设置，
+18. 支持 [Cloudflare AI Gateway](https://developers.cloudflare.com/ai-gateway/providers/openai/)，渠道设置的代理部分填写 `https://gateway.ai.cloudflare.com/v1/ACCOUNT_TAG/GATEWAY/openai` 即可。
+19. 支持丰富的**自定义**设置，
     1. 支持自定义系统名称，logo 以及页脚。
     2. 支持自定义首页和关于页面，可以选择使用 HTML & Markdown 代码进行自定义，或者使用一个单独的网页通过 iframe 嵌入。
-19. 支持通过系统访问令牌访问管理 API。
-20. 支持 Cloudflare Turnstile 用户校验。
-21. 支持用户管理，支持**多种用户登录注册方式**：
+20. 支持通过系统访问令牌访问管理 API。
+21. 支持 Cloudflare Turnstile 用户校验。
+22. 支持用户管理，支持**多种用户登录注册方式**：
     + 邮箱登录注册（支持注册邮箱白名单）以及通过邮箱进行密码重置。
     + [GitHub 开放授权](https://github.com/settings/applications/new)。
     + 微信公众号授权（需要额外部署 [WeChat Server](https://github.com/songquanpeng/wechat-server)）。
 
 ## 部署
 ### 基于 Docker 进行部署
-部署命令：`docker run --name one-api -d --restart always -p 3000:3000 -e TZ=Asia/Shanghai -v /home/ubuntu/data/one-api:/data justsong/one-api`
+```shell
+# 使用 SQLite 的部署命令：
+docker run --name one-api -d --restart always -p 3000:3000 -e TZ=Asia/Shanghai -v /home/ubuntu/data/one-api:/data justsong/one-api
+# 使用 MySQL 的部署命令，在上面的基础上添加 `-e SQL_DSN="root:123456@tcp(localhost:3306)/oneapi"`，请自行修改数据库连接参数，不清楚如何修改请参见下面环境变量一节。
+# 例如：
+docker run --name one-api -d --restart always -p 3000:3000 -e SQL_DSN="root:123456@tcp(localhost:3306)/oneapi" -e TZ=Asia/Shanghai -v /home/ubuntu/data/one-api:/data justsong/one-api
+```
 
 其中，`-p 3000:3000` 中的第一个 `3000` 是宿主机的端口，可以根据需要进行修改。
 
-数据将会保存在宿主机的 `/home/ubuntu/data/one-api` 目录，请确保该目录存在且具有写入权限，或者更改为合适的目录。
+数据和日志将会保存在宿主机的 `/home/ubuntu/data/one-api` 目录，请确保该目录存在且具有写入权限，或者更改为合适的目录。
 
 如果启动失败，请添加 `--privileged=true`，具体参考 https://github.com/songquanpeng/one-api/issues/482 。
 
@@ -270,6 +280,17 @@ docker run --name chatgpt-web -d -p 3002:3002 -e OPENAI_API_BASE_URL=https://ope
 </div>
 </details>
 
+<details>
+<summary><strong>部署到 Render</strong></summary>
+<div>
+
+> Render 提供免费额度，绑卡后可以进一步提升额度
+
+Render 可以直接部署 docker 镜像，不需要 fork 仓库：https://dashboard.render.com
+
+</div>
+</details>
+
 ## 配置
 系统本身开箱即用。
 
@@ -297,10 +318,11 @@ OPENAI_API_BASE="https://<HOST>:<PORT>/v1"
 ```mermaid
 graph LR
     A(用户)
-    A --->|请求| B(One API)
+    A --->|使用 One API 分发的 key 进行请求| B(One API)
     B -->|中继请求| C(OpenAI)
     B -->|中继请求| D(Azure)
-    B -->|中继请求| E(其他下游渠道)
+    B -->|中继请求| E(其他 OpenAI API 格式下游渠道)
+    B -->|中继并修改请求体和返回体| F(非 OpenAI API 格式下游渠道)
 ```
 
 可以通过在令牌后面添加渠道 ID 的方式指定使用哪一个渠道处理本次请求，例如：`Authorization: Bearer ONE_API_KEY-CHANNEL_ID`。
@@ -328,22 +350,24 @@ graph LR
      + `SQL_CONN_MAX_LIFETIME`：连接的最大生命周期，默认为 `60`，单位分钟。
 4. `FRONTEND_BASE_URL`：设置之后将重定向页面请求到指定的地址，仅限从服务器设置。
    + 例子：`FRONTEND_BASE_URL=https://openai.justsong.cn`
-5. `SYNC_FREQUENCY`：设置之后将定期与数据库同步配置，单位为秒，未设置则不进行同步。
+5. `MEMORY_CACHE_ENABLED`：启用内存缓存，会导致用户额度的更新存在一定的延迟，可选值为 `true` 和 `false`，未设置则默认为 `false`。
+   + 例子：`MEMORY_CACHE_ENABLED=true`
+6. `SYNC_FREQUENCY`：在启用缓存的情况下与数据库同步配置的频率，单位为秒，默认为 `600` 秒。
    + 例子：`SYNC_FREQUENCY=60`
-6. `NODE_TYPE`：设置之后将指定节点类型，可选值为 `master` 和 `slave`，未设置则默认为 `master`。
+7. `NODE_TYPE`：设置之后将指定节点类型，可选值为 `master` 和 `slave`，未设置则默认为 `master`。
    + 例子：`NODE_TYPE=slave`
-7. `CHANNEL_UPDATE_FREQUENCY`：设置之后将定期更新渠道余额，单位为分钟，未设置则不进行更新。
+8. `CHANNEL_UPDATE_FREQUENCY`：设置之后将定期更新渠道余额，单位为分钟，未设置则不进行更新。
    + 例子：`CHANNEL_UPDATE_FREQUENCY=1440`
-8. `CHANNEL_TEST_FREQUENCY`：设置之后将定期检查渠道，单位为分钟，未设置则不进行检查。
+9. `CHANNEL_TEST_FREQUENCY`：设置之后将定期检查渠道，单位为分钟，未设置则不进行检查。
    + 例子：`CHANNEL_TEST_FREQUENCY=1440`
-9. `POLLING_INTERVAL`：批量更新渠道余额以及测试可用性时的请求间隔，单位为秒，默认无间隔。
-   + 例子：`POLLING_INTERVAL=5`
-10. `BATCH_UPDATE_ENABLED`：启用数据库批量更新聚合，会导致用户额度的更新存在一定的延迟可选值为 `true` 和 `false`，未设置则默认为 `false`。
+10. `POLLING_INTERVAL`：批量更新渠道余额以及测试可用性时的请求间隔，单位为秒，默认无间隔。
+    + 例子：`POLLING_INTERVAL=5`
+11. `BATCH_UPDATE_ENABLED`：启用数据库批量更新聚合，会导致用户额度的更新存在一定的延迟可选值为 `true` 和 `false`，未设置则默认为 `false`。
     + 例子：`BATCH_UPDATE_ENABLED=true`
     + 如果你遇到了数据库连接数过多的问题，可以尝试启用该选项。
-11. `BATCH_UPDATE_INTERVAL=5`：批量更新聚合的时间间隔，单位为秒，默认为 `5`。
+12. `BATCH_UPDATE_INTERVAL=5`：批量更新聚合的时间间隔，单位为秒，默认为 `5`。
     + 例子：`BATCH_UPDATE_INTERVAL=5`
-12. 请求频率限制：
+13. 请求频率限制：
     + `GLOBAL_API_RATE_LIMIT`：全局 API 速率限制（除中继请求外），单 ip 三分钟内的最大请求数，默认为 `180`。
     + `GLOBAL_WEB_RATE_LIMIT`：全局 Web 速率限制，单 ip 三分钟内的最大请求数，默认为 `60`。
 
@@ -385,6 +409,12 @@ https://openai.justsong.cn
    + 检查是否启用了 HTTPS，浏览器会拦截 HTTPS 域名下的 HTTP 请求。
 6. 报错：`当前分组负载已饱和，请稍后再试`
    + 上游通道 429 了。
+7. 升级之后我的数据会丢失吗？
+   + 如果使用 MySQL，不会。
+   + 如果使用 SQLite，需要按照我所给的部署命令挂载 volume 持久化 one-api.db 数据库文件，否则容器重启后数据会丢失。
+8. 升级之前数据库需要做变更吗？
+   + 一般情况下不需要，系统将在初始化的时候自动调整。
+   + 如果需要的话，我会在更新日志中说明，并给出脚本。
 
 ## 相关项目
 * [FastGPT](https://github.com/labring/FastGPT): 基于 LLM 大语言模型的知识库问答系统

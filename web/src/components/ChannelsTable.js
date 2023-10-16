@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import {Button, Form, Input, Label, Pagination, Popup, Table} from 'semantic-ui-react';
+import { Button, Form, Input, Label, Message, Pagination, Popup, Table } from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
-import { API, showError, showInfo, showNotice, showSuccess, timestamp2string } from '../helpers';
+import { API, setPromptShown, shouldShowPrompt, showError, showInfo, showSuccess, timestamp2string } from '../helpers';
 
 import { CHANNEL_OPTIONS, ITEMS_PER_PAGE } from '../constants';
 import {renderGroup, renderNumber, renderQuota} from '../helpers/render';
@@ -56,6 +56,7 @@ const ChannelsTable = () => {
   const [searching, setSearching] = useState(false);
   const [updatingBalance, setUpdatingBalance] = useState(false);
   const [pageSize, setPageSize] = useState(ITEMS_PER_PAGE);
+  const [showPrompt, setShowPrompt] = useState(shouldShowPrompt("channel-test"));
 
   const loadChannels = async (startIdx) => {
     const res = await API.get(`/api/channel/?p=${startIdx}&page_size=${pageSize}`);
@@ -104,7 +105,7 @@ const ChannelsTable = () => {
       });
   }, []);
 
-  const manageChannel = async (id, action, idx, priority) => {
+  const manageChannel = async (id, action, idx, value) => {
     let data = { id };
     let res;
     switch (action) {
@@ -120,10 +121,20 @@ const ChannelsTable = () => {
         res = await API.put('/api/channel/', data);
         break;
       case 'priority':
-        if (priority === '') {
+        if (value === '') {
           return;
         }
-        data.priority = parseInt(priority);
+        data.priority = parseInt(value);
+        res = await API.put('/api/channel/', data);
+        break;
+      case 'weight':
+        if (value === '') {
+          return;
+        }
+        data.weight = parseInt(value);
+        if (data.weight < 0) {
+          data.weight = 0;
+        }
         res = await API.put('/api/channel/', data);
         break;
     }
@@ -150,9 +161,23 @@ const ChannelsTable = () => {
         return <Label basic color='green'>已启用</Label>;
       case 2:
         return (
-          <Label basic color='red'>
-            已禁用
-          </Label>
+          <Popup
+            trigger={<Label basic color='red'>
+              已禁用
+            </Label>}
+            content='本渠道被手动禁用'
+            basic
+          />
+        );
+      case 3:
+        return (
+          <Popup
+            trigger={<Label basic color='yellow'>
+              已禁用
+            </Label>}
+            content='本渠道被程序自动禁用'
+            basic
+          />
         );
       default:
         return (
@@ -210,7 +235,6 @@ const ChannelsTable = () => {
       showInfo(`通道 ${name} 测试成功，耗时 ${time.toFixed(2)} 秒。`);
     } else {
       showError(message);
-      showNotice("当前版本测试是通过按照 OpenAI API 格式使用 gpt-3.5-turbo 模型进行非流式请求实现的，因此测试报错并不一定代表通道不可用，该功能后续会修复。")
     }
   };
 
@@ -219,6 +243,17 @@ const ChannelsTable = () => {
     const { success, message } = res.data;
     if (success) {
       showInfo('已成功开始测试所有已启用通道，请刷新页面查看结果。');
+    } else {
+      showError(message);
+    }
+  };
+
+  const deleteAllDisabledChannels = async () => {
+    const res = await API.delete(`/api/channel/disabled`);
+    const { success, message, data } = res.data;
+    if (success) {
+      showSuccess(`已删除所有禁用渠道，共计 ${data} 个`);
+      await refresh();
     } else {
       showError(message);
     }
@@ -290,7 +325,19 @@ const ChannelsTable = () => {
           onChange={handleKeywordChange}
         />
       </Form>
+      {
+        showPrompt && (
+          <Message onDismiss={() => {
+            setShowPrompt(false);
+            setPromptShown("channel-test");
+          }}>
+            当前版本测试是通过按照 OpenAI API 格式使用 gpt-3.5-turbo
+            模型进行非流式请求实现的，因此测试报错并不一定代表通道不可用，该功能后续会修复。
 
+            另外，OpenAI 渠道已经不再支持通过 key 获取余额，因此余额显示为 0。对于支持的渠道类型，请点击余额进行刷新。
+          </Message>
+        )
+      }
       <Table basic compact size='small'>
         <Table.Header>
           <Table.Row>
@@ -363,10 +410,10 @@ const ChannelsTable = () => {
               余额
             </Table.HeaderCell>
             <Table.HeaderCell
-                style={{ cursor: 'pointer' }}
-                onClick={() => {
-                  sortChannel('priority');
-                }}
+              style={{ cursor: 'pointer' }}
+              onClick={() => {
+                sortChannel('priority');
+              }}
             >
               优先级
             </Table.HeaderCell>
@@ -411,18 +458,18 @@ const ChannelsTable = () => {
                   </Table.Cell>
                   <Table.Cell>
                     <Popup
-                        trigger={<Input type="number"  defaultValue={channel.priority} onBlur={(event) => {
-                          manageChannel(
-                              channel.id,
-                              'priority',
-                              idx,
-                              event.target.value,
-                          );
-                        }}>
-                          <input style={{maxWidth:'60px'}} />
-                        </Input>}
-                        content='渠道选择优先级，越高越优先'
-                        basic
+                      trigger={<Input type='number' defaultValue={channel.priority} onBlur={(event) => {
+                        manageChannel(
+                          channel.id,
+                          'priority',
+                          idx,
+                          event.target.value
+                        );
+                      }}>
+                        <input style={{ maxWidth: '60px' }} />
+                      </Input>}
+                      content='渠道选择优先级，越高越优先'
+                      basic
                     />
                   </Table.Cell>
                   <Table.Cell>
@@ -519,6 +566,31 @@ const ChannelsTable = () => {
                     }
                 />
               </div>
+              <Popup
+                trigger={
+                  <Button size='small' loading={loading}>
+                    删除禁用渠道
+                  </Button>
+                }
+                on='click'
+                flowing
+                hoverable
+              >
+                <Button size='small' loading={loading} negative onClick={deleteAllDisabledChannels}>
+                  确认删除
+                </Button>
+              </Popup>
+              <Pagination
+                floated='right'
+                activePage={activePage}
+                onPageChange={onPaginationChange}
+                size='small'
+                siblingRange={1}
+                totalPages={
+                  Math.ceil(channels.length / ITEMS_PER_PAGE) +
+                  (channels.length % ITEMS_PER_PAGE === 0 ? 1 : 0)
+                }
+              />
               <Button size='small' onClick={refresh} loading={loading}>刷新</Button>
 
             </Table.HeaderCell>
