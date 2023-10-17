@@ -21,14 +21,19 @@ var (
 )
 
 func CacheGetTokenByKey(key string) (*Token, error) {
+	keyCol := "`key`"
+	if common.UsingPG {
+		keyCol = `"key"`
+	}
+
 	var token Token
 	if !common.RedisEnabled {
-		err := DB.Where("`key` = ?", key).First(&token).Error
+		err := DB.Where(keyCol+" = ?", key).First(&token).Error
 		return &token, err
 	}
 	tokenObjectString, err := common.RedisGet(fmt.Sprintf("token:%s", key))
 	if err != nil {
-		err := DB.Where("`key` = ?", key).First(&token).Error
+		err := DB.Where(keyCol+" = ?", key).First(&token).Error
 		if err != nil {
 			return nil, err
 		}

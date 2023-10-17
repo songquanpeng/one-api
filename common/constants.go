@@ -22,6 +22,7 @@ var DisplayInCurrencyEnabled = true
 var DisplayTokenStatEnabled = true
 
 var UsingSQLite = false
+var UsingPG = false
 
 // Any options with "Secret", "Token" in its key won't be return by GetOptions
 

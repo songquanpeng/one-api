@@ -38,7 +38,12 @@ func GetAllChannels(startIdx int, num int, selectAll bool) ([]*Channel, error) {
 }
 
 func SearchChannels(keyword string) (channels []*Channel, err error) {
-	err = DB.Omit("key").Where("id = ? or name LIKE ? or `key` = ?", keyword, keyword+"%", keyword).Find(&channels).Error
+	keyCol := "`key`"
+	if common.UsingPG {
+		keyCol = `"key"`
+	}
+
+	err = DB.Omit("key").Where("id = ? or name LIKE ? or "+keyCol+" = ?", keyword, keyword+"%", keyword).Find(&channels).Error
 	return channels, err
 }
 
@@ -58,6 +63,8 @@ func GetRandomChannel() (*Channel, error) {
 	var err error = nil
 	if common.UsingSQLite {
 		err = DB.Where("status = ? and `group` = ?", common.ChannelStatusEnabled, "default").Order("RANDOM()").Limit(1).First(&channel).Error
+	} else if common.UsingPG {
+		err = DB.Where("status = ? and group = ?", common.ChannelStatusEnabled, "default").Order("RAND()").Limit(1).First(&channel).Error
 	} else {
 		err = DB.Where("status = ? and `group` = ?", common.ChannelStatusEnabled, "default").Order("RAND()").Limit(1).First(&channel).Error
 	}

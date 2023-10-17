@@ -15,9 +15,15 @@ type Ability struct {
 
 func GetRandomSatisfiedChannel(group string, model string) (*Channel, error) {
 	ability := Ability{}
+
+	groupCol := "`group`"
+	if common.UsingPG {
+		groupCol = `"group"`
+	}
+
 	var err error = nil
-	maxPrioritySubQuery := DB.Model(&Ability{}).Select("MAX(priority)").Where("`group` = ? and model = ? and enabled = 1", group, model)
-	channelQuery := DB.Where("`group` = ? and model = ? and enabled = 1 and priority = (?)", group, model, maxPrioritySubQuery)
+	maxPrioritySubQuery := DB.Model(&Ability{}).Select("MAX(priority)").Where(groupCol+" = ? and model = ? and enabled = 1", group, model)
+	channelQuery := DB.Where(groupCol+" = ? and model = ? and enabled = 1 and priority = (?)", group, model, maxPrioritySubQuery)
 	if common.UsingSQLite {
 		err = channelQuery.Order("RANDOM()").First(&ability).Error
 	} else {
