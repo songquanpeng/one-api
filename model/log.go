@@ -3,8 +3,9 @@ package model
 import (
 	"context"
 	"fmt"
-	"gorm.io/gorm"
 	"one-api/common"
+
+	"gorm.io/gorm"
 )
 
 type Log struct {
@@ -134,7 +135,14 @@ func SearchUserLogs(userId int, keyword string) (logs []*Log, err error) {
 }
 
 func SumUsedQuota(logType int, startTimestamp int64, endTimestamp int64, modelName string, username string, tokenName string, channel int) (quota int) {
-	tx := DB.Table("logs").Select("ifnull(sum(quota),0)")
+	var tx *gorm.DB
+
+	if common.UsingPostgreSQL {
+		// PostgreSQL does not support the ISNULL function
+		tx = DB.Table("logs").Select("COALESCE(sum(quota),0)")
+	} else {
+		tx = DB.Table("logs").Select("ifnull(sum(quota),0)")
+	}
 	if username != "" {
 		tx = tx.Where("username = ?", username)
 	}
