@@ -166,7 +166,14 @@ func SumUsedQuota(logType int, startTimestamp int64, endTimestamp int64, modelNa
 }
 
 func SumUsedToken(logType int, startTimestamp int64, endTimestamp int64, modelName string, username string, tokenName string) (token int) {
-	tx := DB.Table("logs").Select("ifnull(sum(prompt_tokens),0) + ifnull(sum(completion_tokens),0)")
+	var tx *gorm.DB
+	if common.UsingPostgreSQL {
+		// PostgreSQL does not support the ISNULL function
+		tx = DB.Table("logs").Select("COALESCE(sum(prompt_tokens),0) + COALESCE(sum(completion_tokens),0)")
+	} else {
+		tx = DB.Table("logs").Select("ifnull(sum(prompt_tokens),0) + ifnull(sum(completion_tokens),0)")
+	}
+
 	if username != "" {
 		tx = tx.Where("username = ?", username)
 	}
