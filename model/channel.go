@@ -45,11 +45,7 @@ func SearchChannels(keyword string) (channels []*Channel, err error) {
 func GetChannelById(id int, selectAll bool) (*Channel, error) {
 	channel := Channel{Id: id}
 	var err error = nil
-	if selectAll {
-		err = DB.First(&channel, "id = ?", id).Error
-	} else {
-		err = DB.Omit("key").First(&channel, "id = ?", id).Error
-	}
+	err = DB.First(&channel, "id = ?", id).Error
 	return &channel, err
 }
 

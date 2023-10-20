@@ -317,19 +317,6 @@ const ChannelsTable = () => {
           onChange={handleKeywordChange}
         />
       </Form>
-      {
-        showPrompt && (
-          <Message onDismiss={() => {
-            setShowPrompt(false);
-            setPromptShown("channel-test");
-          }}>
-            当前版本测试是通过按照 OpenAI API 格式使用 gpt-3.5-turbo
-            模型进行非流式请求实现的，因此测试报错并不一定代表通道不可用，该功能后续会修复。
-
-            另外，OpenAI 渠道已经不再支持通过 key 获取余额，因此余额显示为 0。对于支持的渠道类型，请点击余额进行刷新。
-          </Message>
-        )
-      }
       <Table basic compact size='small'>
         <Table.Header>
           <Table.Row>

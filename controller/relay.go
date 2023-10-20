@@ -227,7 +227,7 @@ func Relay(c *gin.Context) {
 func RelayNotImplemented(c *gin.Context) {
 	err := OpenAIError{
 		Message: "API not implemented",
-		Type:    "one_api_error",
+		Type:    "czloapi_error",
 		Param:   "",
 		Code:    "api_not_implemented",
 	}

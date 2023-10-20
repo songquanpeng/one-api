@@ -244,26 +244,6 @@ const UsersTable = () => {
                   <Table.Cell>{renderStatus(user.status)}</Table.Cell>
                   <Table.Cell>
                     <div>
-                      <Button
-                        size={'small'}
-                        positive
-                        onClick={() => {
-                          manageUser(user.username, 'promote', idx);
-                        }}
-                        disabled={user.role === 100}
-                      >
-                        提升
-                      </Button>
-                      <Button
-                        size={'small'}
-                        color={'yellow'}
-                        onClick={() => {
-                          manageUser(user.username, 'demote', idx);
-                        }}
-                        disabled={user.role === 100}
-                      >
-                        降级
-                      </Button>
                       <Popup
                         trigger={
                           <Button size='small' negative disabled={user.role === 100}>

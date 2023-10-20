@@ -22,18 +22,18 @@ export function isRoot() {
 
 export function getSystemName() {
   let system_name = localStorage.getItem('system_name');
-  if (!system_name) return 'One API';
+  if (!system_name) return 'CZL Oapi';
   return system_name;
 }
 
 export function getLogo() {
   let logo = localStorage.getItem('logo');
-  if (!logo) return '/logo.png';
+  if (!logo) return 'https://cdn-img-r2.czl.net/2023/06/20/649168ebc2b5d.png';
   return logo
 }
 
 export function getFooterHTML() {
-  return localStorage.getItem('footer_html');
+  return localStorage.getItem('');
 }
 
 export async function copy(text) {

@@ -11,7 +11,7 @@ import (
 
 var StartTime = time.Now().Unix() // unit: second
 var Version = "v0.0.0"            // this hard coding will be replaced automatically when building, no need to manually change
-var SystemName = "One API"
+var SystemName = "CZL Oapi"
 var ServerAddress = "http://localhost:3000"
 var Footer = ""
 var Logo = ""
@@ -31,7 +31,7 @@ var SQLitePath = "one-api.db"
 var OptionMap map[string]string
 var OptionMapRWMutex sync.RWMutex
 
-var ItemsPerPage = 10
+var ItemsPerPage = 20
 var MaxRecentItems = 100
 
 var PasswordLoginEnabled = true

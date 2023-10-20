@@ -6,16 +6,6 @@ import { API, copy, showError, showSuccess, showWarning, timestamp2string } from
 import { ITEMS_PER_PAGE } from '../constants';
 import { renderQuota } from '../helpers/render';
 
-const COPY_OPTIONS = [
-  { key: 'next', text: 'ChatGPT Next Web', value: 'next' },
-  { key: 'ama', text: 'AMA 问天', value: 'ama' },
-  { key: 'opencat', text: 'OpenCat', value: 'opencat' },
-];
-
-const OPEN_LINK_OPTIONS = [
-  { key: 'ama', text: 'AMA 问天', value: 'ama' },
-  { key: 'opencat', text: 'OpenCat', value: 'opencat' },
-];
 
 function renderTimestamp(timestamp) {
   return (
@@ -324,7 +314,6 @@ const TokensTable = () => {
                   <Table.Cell>{token.expired_time === -1 ? '永不过期' : renderTimestamp(token.expired_time)}</Table.Cell>
                   <Table.Cell>
                     <div>
-                    <Button.Group color='green' size={'small'}>
                         <Button
                           size={'small'}
                           positive
@@ -334,40 +323,6 @@ const TokensTable = () => {
                         >
                           复制
                         </Button>
-                        <Dropdown
-                          className='button icon'
-                          floating
-                          options={COPY_OPTIONS.map(option => ({
-                            ...option,
-                            onClick: async () => {
-                              await onCopy(option.value, token.key);
-                            }
-                          }))}
-                          trigger={<></>}
-                        />
-                      </Button.Group>
-                      {' '}
-                      <Button.Group color='blue' size={'small'}>
-                        <Button
-                            size={'small'}
-                            positive
-                            onClick={() => {     
-                              onOpenLink('', token.key);       
-                            }}>
-                            聊天
-                          </Button>
-                          <Dropdown   
-                            className="button icon"       
-                            floating
-                            options={OPEN_LINK_OPTIONS.map(option => ({
-                              ...option,
-                              onClick: async () => {
-                                await onOpenLink(option.value, token.key);
-                              }
-                            }))}       
-                            trigger={<></>}   
-                          />
-                      </Button.Group>
                       {' '}
                       <Popup
                         trigger={

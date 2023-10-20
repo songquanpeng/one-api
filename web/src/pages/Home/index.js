@@ -5,7 +5,7 @@ import { StatusContext } from '../../context/Status';
 import { marked } from 'marked';
 
 const Home = () => {
-  const [statusState, statusDispatch] = useContext(StatusContext);
+  const [statusState] = useContext(StatusContext);
   const [homePageContentLoaded, setHomePageContentLoaded] = useState(false);
   const [homePageContent, setHomePageContent] = useState('');
 
@@ -50,6 +50,13 @@ const Home = () => {
   useEffect(() => {
     displayNotice().then();
     displayHomePageContent().then();
+    const style = document.createElement('style');
+    style.type = 'text/css';
+    style.innerHTML = `.main-content{width:unset !important;padding:0;margin-top:-81px;} .ui.menu{margin-bottom:0 !important;z-index:999;position: relative;}`;
+    document.head.appendChild(style);
+    return () => {
+      document.head.removeChild(style);
+    };
   }, []);
   return (
     <>

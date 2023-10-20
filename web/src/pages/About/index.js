@@ -27,6 +27,13 @@ const About = () => {
 
   useEffect(() => {
     displayAbout().then();
+    const style = document.createElement('style');
+    style.type = 'text/css';
+    style.innerHTML = `.main-content{width:unset !important;padding:0;} .ui.menu{margin-bottom:0 !important;}`;
+    document.head.appendChild(style);
+    return () => {
+      document.head.removeChild(style);
+    };
   }, []);
 
   return (
@@ -35,11 +42,6 @@ const About = () => {
         aboutLoaded && about === '' ? <>
           <Segment>
             <Header as='h3'>关于</Header>
-            <p>可在设置页面设置关于内容，支持 HTML & Markdown</p>
-            项目仓库地址：
-            <a href='https://github.com/songquanpeng/one-api'>
-              https://github.com/songquanpeng/one-api
-            </a>
           </Segment>
         </> : <>
           {

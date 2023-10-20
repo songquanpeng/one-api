@@ -28,7 +28,7 @@ const Footer = () => {
   }, []);
 
   return (
-    <Segment vertical>
+    <Segment vertical style={{display: 'none'}}>
       <Container textAlign='center'>
         {footer ? (
           <div
@@ -37,19 +37,10 @@ const Footer = () => {
           ></div>
         ) : (
           <div className='custom-footer'>
-            <a
-              href='https://github.com/songquanpeng/one-api'
-              target='_blank'
-            >
               {systemName} {process.env.REACT_APP_VERSION}{' '}
-            </a>
             由{' '}
-            <a href='https://github.com/songquanpeng' target='_blank'>
-              JustSong
-            </a>{' '}
-            构建，源代码遵循{' '}
-            <a href='https://opensource.org/licenses/mit-license.php'>
-              MIT 协议
+            <a href='' target='_blank'>
+              {systemName} 团队
             </a>
           </div>
         )}
