@@ -352,7 +352,7 @@ graph LR
 13. 请求频率限制：
     + `GLOBAL_API_RATE_LIMIT`：全局 API 速率限制（除中继请求外），单 ip 三分钟内的最大请求数，默认为 `180`。
     + `GLOBAL_WEB_RATE_LIMIT`：全局 Web 速率限制，单 ip 三分钟内的最大请求数，默认为 `60`。
-14.缓存设置：
+14. 缓存设置：
     + TIKTOKEN_CACHE_DIR：默认程序启动时会联网下载一些通用的词元的编码，如：gpt-3.5-turbo,在一些网络环境不稳定，或者离线情况，可能会导致启动有问题，可以配置此目录缓存数据，可迁移到离线环境。
     + DATA_GYM_CACHE_DIR：目前该配置作用与TIKTOKEN_CACHE_DIR一致，但是优先级没有它高。
 ### 命令行参数
