@@ -15,6 +15,7 @@ const OperationSetting = () => {
     TopUpLink: '',
     ChatLink: '',
     QuotaPerUnit: 0,
+    AutoReEnableFailedChannel: '',
     AutomaticDisableChannelEnabled: '',
     ChannelDisableThreshold: 0,
     LogConsumeEnabled: '',
@@ -267,6 +268,12 @@ const OperationSetting = () => {
               checked={inputs.AutomaticDisableChannelEnabled === 'true'}
               label='失败时自动禁用通道'
               name='AutomaticDisableChannelEnabled'
+              onChange={handleInputChange}
+            />
+            <Form.Checkbox
+              checked={inputs.AutoReEnableFailedChannel === 'true'}
+              label='重新启用之前被自动禁用的故障通道 '
+              name='AutoReEnableFailedChannel'
               onChange={handleInputChange}
             />
           </Form.Group>

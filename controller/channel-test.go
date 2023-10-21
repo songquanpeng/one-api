@@ -218,6 +218,11 @@ func disableChannel(channelId int, channelName string, reason string) {
 	}
 }
 
+// enable
+func enableChannel(channelId int, channelName string) {
+	model.UpdateChannelStatusById(channelId, common.ChannelStatusEnabled)
+}
+
 func testAllChannels(notify bool) error {
 	if common.RootUserEmail == "" {
 		common.RootUserEmail = model.GetRootUserEmail()
@@ -250,9 +255,10 @@ func testAllChannels(notify bool) error {
 			if milliseconds > disableThreshold {
 				err = errors.New(fmt.Sprintf("响应时间 %.2fs 超过阈值 %.2fs", float64(milliseconds)/1000.0, float64(disableThreshold)/1000.0))
 				disableChannel(channel.Id, channel.Name, err.Error())
-			}
-			if shouldDisableChannel(openaiErr, -1) {
+			} else if shouldDisableChannel(openaiErr, -1) {
 				disableChannel(channel.Id, channel.Name, err.Error())
+			} else if err == nil && openaiErr == nil && channel.Status == common.ChannelStatusAutoDisabled && common.AutoReEnableFailedChannel {
+				enableChannel(channel.Id, channel.Name)
 			}
 			channel.UpdateResponseTime(milliseconds)
 			time.Sleep(common.RequestInterval)
