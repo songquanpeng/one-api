@@ -638,6 +638,8 @@
 
   "重新启用之前被自动禁用的故障通道": "Re-enable the failed channel automatically disabled before",
   "Turnstile 部件测试： (如果您的 Turnstile 模式设置为 不可见 模式，则不会显示此部件。)": "Turnstile widget test: (If your Turnstile mode is set to Invisible mode, this widget will not be displayed.)",  
+  "通道「%s」（#%d）已被重新启用": "Channel '%s' (#%d) has been re-enabled",
+  "通道「%s」（#%d）通道现在满足了服务器要求, 已被重新启用并重新开始运行": "Channel '%s' (#%d) now meets the server requirements, has been re-enabled and restarted",
 
   "本项目 OneAPI 原作 JustSong ，由 ckt1031 改进，本源代码遵循 MIT 协议": "OneAPI by JustSong, improved by ckt1031, and follows MIT license",
   "警告": "Warning",

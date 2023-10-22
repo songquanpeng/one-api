@@ -220,7 +220,16 @@ func disableChannel(channelId int, channelName string, reason string) {
 
 // enable
 func enableChannel(channelId int, channelName string) {
+	if common.RootUserEmail == "" {
+		common.RootUserEmail = model.GetRootUserEmail()
+	}
 	model.UpdateChannelStatusById(channelId, common.ChannelStatusEnabled)
+	subject := fmt.Sprintf("通道「%s」（#%d）已被重新启用", channelName, channelId)
+	content := fmt.Sprintf("通道「%s」（#%d）通道现在满足了服务器要求, 已被重新启用并重新开始运行", channelName, channelId)
+	err := common.SendEmail(subject, common.RootUserEmail, content)
+	if err != nil {
+		common.SysError(fmt.Sprintf("failed to send email: %s", err.Error()))
+	}
 }
 
 func testAllChannels(notify bool) error {
@@ -257,7 +266,7 @@ func testAllChannels(notify bool) error {
 				disableChannel(channel.Id, channel.Name, err.Error())
 			} else if shouldDisableChannel(openaiErr, -1) {
 				disableChannel(channel.Id, channel.Name, err.Error())
-			} else if err == nil && openaiErr == nil && channel.Status == common.ChannelStatusAutoDisabled && common.AutoReEnableFailedChannelEnabled {
+			} else if channel.Status == common.ChannelStatusAutoDisabled && common.AutoReEnableFailedChannelEnabled {
 				enableChannel(channel.Id, channel.Name)
 			}
 			channel.UpdateResponseTime(milliseconds)
