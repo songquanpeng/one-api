@@ -9,7 +9,6 @@ import (
 	"one-api/common"
 	"one-api/model"
 	"strconv"
-	"strings"
 	"sync"
 	"time"
 
@@ -42,25 +41,21 @@ func testChannel(channel *model.Channel, request ChatRequest) (err error, openai
 	default:
 		request.Model = "gpt-3.5-turbo"
 	}
-
-	baseURL := common.ChannelBaseURLs[channel.Type]
-	requestURL := "/v1/chat/completions" // 这是原始的请求URL路径
-	if channel.GetBaseURL() != "" {
-		baseURL = channel.GetBaseURL()
-	}
-
-	// 构建 fullRequestURL
-	fullRequestURL := fmt.Sprintf("%s%s", baseURL, requestURL)
-	if channel.Type == common.ChannelTypeOpenAI {
-		if strings.HasPrefix(baseURL, "https://gateway.ai.cloudflare.com") {
-			fullRequestURL = fmt.Sprintf("%s%s", baseURL, strings.TrimPrefix(requestURL, "/v1"))
+	requestURL := common.ChannelBaseURLs[channel.Type]
+	if channel.Type == common.ChannelTypeAzure {
+		requestURL = fmt.Sprintf("%s/openai/deployments/%s/chat/completions?api-version=2023-03-15-preview", channel.GetBaseURL(), request.Model)
+	} else {
+		if channel.GetBaseURL() != "" {
+			requestURL = channel.GetBaseURL()
 		}
+		requestURL += "/v1/chat/completions"
 	}
+
 	jsonData, err := json.Marshal(request)
 	if err != nil {
 		return err, nil
 	}
-	req, err := http.NewRequest("POST", fullRequestURL, bytes.NewBuffer(jsonData)) // 使用 fullRequestURL 替换 requestURL
+	req, err := http.NewRequest("POST", requestURL, bytes.NewBuffer(jsonData))
 	if err != nil {
 		return err, nil
 	}
