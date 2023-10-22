@@ -253,7 +253,7 @@ func testAllChannels(notify bool) error {
 	}
 	go func() {
 		for _, channel := range channels {
-			if channel.Status != common.ChannelStatusEnabled {
+			if channel.Status != common.ChannelStatusEnabled || (channel.Status == common.ChannelStatusAutoDisabled && common.AutoReEnableFailedChannelEnabled) {
 				continue
 			}
 			tik := time.Now()
@@ -264,9 +264,11 @@ func testAllChannels(notify bool) error {
 			if milliseconds > disableThreshold {
 				err = errors.New(fmt.Sprintf("响应时间 %.2fs 超过阈值 %.2fs", float64(milliseconds)/1000.0, float64(disableThreshold)/1000.0))
 				disableChannel(channel.Id, channel.Name, err.Error())
-			} else if shouldDisableChannel(openaiErr, -1) {
+			}
+			if shouldDisableChannel(openaiErr, -1) {
 				disableChannel(channel.Id, channel.Name, err.Error())
-			} else if channel.Status == common.ChannelStatusAutoDisabled && common.AutoReEnableFailedChannelEnabled {
+			}
+			if channel.Status == common.ChannelStatusAutoDisabled && common.AutoReEnableFailedChannelEnabled {
 				enableChannel(channel.Id, channel.Name)
 			}
 			channel.UpdateResponseTime(milliseconds)
