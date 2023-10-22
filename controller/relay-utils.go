@@ -178,3 +178,13 @@ func relayErrorHandler(resp *http.Response) (openAIErrorWithStatusCode *OpenAIEr
 	openAIErrorWithStatusCode.OpenAIError = textResponse.Error
 	return
 }
+
+func getFullRequestURL(baseURL string, requestURL string, channelType int) string {
+	fullRequestURL := fmt.Sprintf("%s%s", baseURL, requestURL)
+	if channelType == common.ChannelTypeOpenAI {
+		if strings.HasPrefix(baseURL, "https://gateway.ai.cloudflare.com") {
+			fullRequestURL = fmt.Sprintf("%s%s", baseURL, strings.TrimPrefix(requestURL, "/v1"))
+		}
+	}
+	return fullRequestURL
+}

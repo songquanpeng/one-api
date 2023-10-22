@@ -636,6 +636,8 @@
   "页面不存在": "Page not found",
   "请检查你的浏览器地址是否正确": "Please check if your browser address is correct",
 
+  "重新启用之前被自动禁用的故障通道": "Re-enable the failed channel automatically disabled before",
+
   "本项目 OneAPI 原作 JustSong ，由 ckt1031 改进，本源代码遵循 MIT 协议": "OneAPI by JustSong, improved by ckt1031, and follows MIT license",
   "警告": "Warning",
   "确定": "Confirm",

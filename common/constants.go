@@ -58,7 +58,7 @@ var EmailDomainWhitelist = []string{
 	"foxmail.com",
 }
 
-var AutoReEnableFailedChannel = false
+var AutoReEnableFailedChannelEnabled = false
 
 var DebugEnabled = os.Getenv("DEBUG") == "true"
 var MemoryCacheEnabled = os.Getenv("MEMORY_CACHE_ENABLED") == "true"

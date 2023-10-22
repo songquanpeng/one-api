@@ -257,7 +257,7 @@ func testAllChannels(notify bool) error {
 				disableChannel(channel.Id, channel.Name, err.Error())
 			} else if shouldDisableChannel(openaiErr, -1) {
 				disableChannel(channel.Id, channel.Name, err.Error())
-			} else if err == nil && openaiErr == nil && channel.Status == common.ChannelStatusAutoDisabled && common.AutoReEnableFailedChannel {
+			} else if err == nil && openaiErr == nil && channel.Status == common.ChannelStatusAutoDisabled && common.AutoReEnableFailedChannelEnabled {
 				enableChannel(channel.Id, channel.Name)
 			}
 			channel.UpdateResponseTime(milliseconds)
