@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Divider, Form, Grid, Header, Modal, Message } from 'semantic-ui-react';
 import { API, removeTrailingSlash, showError } from '../helpers';
+import Turnstile from 'react-turnstile';
 
 const SystemSetting = () => {
   let [inputs, setInputs] = useState({
@@ -40,6 +41,8 @@ const SystemSetting = () => {
   const [EmailDomainWhitelist, setEmailDomainWhitelist] = useState([]);
   const [restrictedDomainInput, setRestrictedDomainInput] = useState('');
   const [showPasswordWarningModal, setShowPasswordWarningModal] = useState(false);
+  const [turnstileEnabled, setTurnstileEnabled] = useState(false);
+  const [turnstileSiteKey, setTurnstileSiteKey] = useState('');
 
   const getOptions = async () => {
     const res = await API.get('/api/option/');
@@ -58,6 +61,11 @@ const SystemSetting = () => {
       setEmailDomainWhitelist(newInputs.EmailDomainWhitelist.split(',').map((item) => {
         return { key: item, text: item, value: item };
       }));
+
+      if ((newInputs.TurnstileSiteKey ?? '').length > 0) {
+        setTurnstileEnabled(true);
+        setTurnstileSiteKey(newInputs.TurnstileSiteKey);
+      }
     } else {
       showError(message);
     }
@@ -649,6 +657,18 @@ const SystemSetting = () => {
               placeholder='敏感信息不会发送到前端显示'
             />
           </Form.Group>
+          {turnstileEnabled ? (
+            <>
+              <p>
+                Turnstile 部件测试： (如果您的 Turnstile 模式设置为 不可见 模式，则不会显示此部件。)
+              </p>
+              <Turnstile
+                sitekey={turnstileSiteKey}
+              />
+            </>
+          ) : (
+            <></>
+          )}
           <Form.Button onClick={submitTurnstile}>
             保存 Turnstile 设置
           </Form.Button>
