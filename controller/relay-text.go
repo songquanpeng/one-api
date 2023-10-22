@@ -32,7 +32,14 @@ var httpClient *http.Client
 var impatientHTTPClient *http.Client
 
 func init() {
-	httpClient = &http.Client{}
+	if common.RelayTimeout == 0 {
+		httpClient = &http.Client{}
+	} else {
+		httpClient = &http.Client{
+			Timeout: time.Duration(common.RelayTimeout) * time.Second,
+		}
+	}
+
 	impatientHTTPClient = &http.Client{
 		Timeout: 5 * time.Second,
 	}

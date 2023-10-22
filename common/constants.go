@@ -95,6 +95,8 @@ var SyncFrequency = GetOrDefault("SYNC_FREQUENCY", 10*60) // unit is second
 var BatchUpdateEnabled = false
 var BatchUpdateInterval = GetOrDefault("BATCH_UPDATE_INTERVAL", 5)
 
+var RelayTimeout = GetOrDefault("RELAY_TIMEOUT", 0) // unit is second
+
 const (
 	RequestIdKey = "X-Oneapi-Request-Id"
 )
