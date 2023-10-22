@@ -22,10 +22,9 @@ var (
 
 func CacheGetTokenByKey(key string) (*Token, error) {
 	keyCol := "`key`"
-	if common.UsingPG {
+	if common.UsingPostgreSQL {
 		keyCol = `"key"`
 	}
-
 	var token Token
 	if !common.RedisEnabled {
 		err := DB.Where(keyCol+" = ?", key).First(&token).Error

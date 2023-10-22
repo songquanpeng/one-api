@@ -51,7 +51,7 @@ func Redeem(key string, userId int) (quota int, err error) {
 	redemption := &Redemption{}
 
 	keyCol := "`key`"
-	if common.UsingPG {
+	if common.UsingPostgreSQL {
 		keyCol = `"key"`
 	}
 

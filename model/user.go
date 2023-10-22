@@ -267,7 +267,7 @@ func GetUserEmail(id int) (email string, err error) {
 
 func GetUserGroup(id int) (group string, err error) {
 	groupCol := "`group`"
-	if common.UsingPG {
+	if common.UsingPostgreSQL {
 		groupCol = `"group"`
 	}
 
