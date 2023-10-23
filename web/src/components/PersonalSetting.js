@@ -176,7 +176,7 @@ const PersonalSetting = () => {
       <Button as={Link} to={`/user/edit/`}>
         更新个人信息
       </Button>
-      <Button onClick={generateAccessToken}>生成系统访问令牌</Button>
+      {/* <Button onClick={generateAccessToken}>生成系统访问令牌</Button> */}
       <Button onClick={getAffLink}>复制邀请链接</Button>
       <Button onClick={() => {
         setShowAccountDeleteModal(true);
