@@ -297,10 +297,21 @@ func getXunfeiAuthUrl(c *gin.Context, apiKey string, apiSecret string) (string, 
 		apiVersion = "v1.1"
 		common.SysLog("api_version not found, use default: " + apiVersion)
 	}
-	domain := "general"
-	if apiVersion == "v2.1" {
-		domain = "generalv2"
-	}
+
+	domain := extractApiVersion(apiVersion)
+
 	authUrl := buildXunfeiAuthUrl(fmt.Sprintf("wss://spark-api.xf-yun.com/%s/chat", apiVersion), apiKey, apiSecret)
 	return domain, authUrl
+}
+
+func extractApiVersion(version string) string {
+	version = strings.TrimPrefix(version, "v")
+
+	parts := strings.Split(version, ".")
+
+	if parts[0] == "1" {
+		return "general"
+	}
+
+	return "generalv" + parts[0]
 }
