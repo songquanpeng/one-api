@@ -170,9 +170,9 @@ const PersonalSetting = () => {
   return (
     <div style={{ lineHeight: '40px' }}>
       <Header as='h3'>通用设置</Header>
-      <Message>
+      {/* <Message>
         注意，此处生成的令牌用于系统管理，而非用于请求 OpenAI 相关的服务，请知悉。
-      </Message>
+      </Message> */}
       <Button as={Link} to={`/user/edit/`}>
         更新个人信息
       </Button>
