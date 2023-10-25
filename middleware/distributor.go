@@ -71,7 +71,13 @@ func Distribute() func(c *gin.Context) {
 			}
 			channel, err = model.CacheGetRandomSatisfiedChannel(userGroup, modelRequest.Model, modelRequest.Stream)
 			if err != nil {
-				message := fmt.Sprintf("当前分组 %s 下对于模型 %s 无可用渠道", userGroup, modelRequest.Model)
+				streamText := "非流式"
+
+				if modelRequest.Stream {
+					streamText = "流式"
+				}
+
+				message := fmt.Sprintf("当前分组 %s 下对于模型 %s 无可用渠道 (%s)", userGroup, modelRequest.Model, streamText)
 				if channel != nil {
 					common.SysError(fmt.Sprintf("渠道不存在：%d", channel.Id))
 					message = "数据库一致性已被破坏，请联系管理员"

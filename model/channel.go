@@ -59,19 +59,6 @@ func GetChannelById(id int, selectAll bool) (*Channel, error) {
 	return &channel, err
 }
 
-func GetRandomChannel() (*Channel, error) {
-	channel := Channel{}
-	var err error = nil
-	if common.UsingPostgreSQL {
-		err = DB.Where(&Channel{Status: common.ChannelStatusEnabled, Group: "default"}).Order("RANDOM()").Limit(1).First(&channel).Error
-	} else if common.UsingSQLite {
-		err = DB.Where(&Channel{Status: common.ChannelStatusEnabled, Group: "default"}).Order("RANDOM()").Limit(1).First(&channel).Error
-	} else {
-		err = DB.Where(&Channel{Status: common.ChannelStatusEnabled, Group: "default"}).Order("RAND()").Limit(1).First(&channel).Error
-	}
-	return &channel, err
-}
-
 func BatchInsertChannels(channels []Channel) error {
 	var err error
 	err = DB.Create(&channels).Error

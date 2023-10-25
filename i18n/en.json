@@ -553,6 +553,9 @@
   "请输入 access token，当前版本暂不支持自动刷新，请每 30 天更新一次": "Please enter the access token, the current version does not support automatic refresh, please update it every 30 days",
   "此项可选，用于通过Mirror站来进行 API 调用，请EnterMirror站地址，格式为：https://domain.com": "This is optional, used to make API calls through the Mirror site, please enter the Mirror site address, the format is: https://domain.com",
 
+  "非流式": "Non-streaming",
+  "流式": "Streaming",
+
   "新密码": "New password",
   "新密码已复制到剪贴板：": "New password copied to clipboard: ",
   "兑换失败，": "Redemption failed, ",

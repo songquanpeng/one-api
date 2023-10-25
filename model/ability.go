@@ -17,35 +17,25 @@ type Ability struct {
 
 func GetRandomSatisfiedChannel(group string, model string, stream bool) (*Channel, error) {
 	ability := Ability{}
+	groupCol := "`group`"
+	trueVal := "1"
+	if common.UsingPostgreSQL {
+		groupCol = `"group"`
+		trueVal = "true"
+	}
+
 	var err error = nil
 
-	var cmdWhere *Ability
+	cmdWhere := groupCol + " = ? and model = ? and enabled = " + trueVal
 
 	if stream {
-		cmdWhere = &Ability{
-			Group:          group,
-			Model:          model,
-			Enabled:        true,
-			AllowStreaming: common.ChannelAllowStreamEnabled,
-		}
+		cmdWhere += " and allow_streaming = 1"
 	} else {
-		cmdWhere = &Ability{
-			Group:             group,
-			Model:             model,
-			Enabled:           true,
-			AllowNonStreaming: common.ChannelAllowNonStreamEnabled,
-		}
+		cmdWhere += " and allow_non_streaming = 1"
 	}
 
-	maxPrioritySubQuery := DB.Model(&Ability{}).Select("MAX(priority)").Where(cmdWhere)
-
-	cmd1 := "`group` = ? and model = ? and enabled = 1 and priority = (?)"
-
-	if common.UsingPostgreSQL {
-		cmd1 = "\"group\" = ? and model = ? and enabled = 1 and priority = (?)"
-	}
-
-	channelQuery := DB.Where(cmd1, group, model, maxPrioritySubQuery)
+	maxPrioritySubQuery := DB.Model(&Ability{}).Select("MAX(priority)").Where(cmdWhere, group, model)
+	channelQuery := DB.Where(groupCol+" = ? and model = ? and enabled = "+trueVal+" and priority = (?)", group, model, maxPrioritySubQuery)
 	if common.UsingSQLite || common.UsingPostgreSQL {
 		err = channelQuery.Order("RANDOM()").First(&ability).Error
 	} else {
