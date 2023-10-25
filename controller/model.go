@@ -307,6 +307,15 @@ func init() {
 			Parent:     nil,
 		},
 		{
+			Id:         "ERNIE-Bot-4",
+			Object:     "model",
+			Created:    1677649963,
+			OwnedBy:    "baidu",
+			Permission: permission,
+			Root:       "ERNIE-Bot-4",
+			Parent:     nil,
+		},
+		{
 			Id:         "Embedding-V1",
 			Object:     "model",
 			Created:    1677649963,
