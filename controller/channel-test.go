@@ -11,6 +11,7 @@ import (
 	"strconv"
 	"sync"
 	"time"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -47,8 +48,11 @@ func testChannel(channel *model.Channel, request ChatRequest) (err error, openai
 	} else {
 		if channel.GetBaseURL() != "" {
 			requestURL = channel.GetBaseURL()
+			if !strings.HasPrefix(requestURL, "https://gateway.ai.cloudflare.com") {
+				requestURL += "/v1"
+			}
 		}
-		requestURL += "/v1/chat/completions"
+		requestURL += "/chat/completions"
 	}
 
 	jsonData, err := json.Marshal(request)
