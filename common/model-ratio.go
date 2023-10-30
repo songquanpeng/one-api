@@ -50,7 +50,6 @@ var ModelRatio = map[string]float64{
 	"Embedding-V1":              0.1429, // ￥0.002 / 1k tokens
 	"PaLM-2":                    1,
 	"chatglm_turbo":             0.3572, // ￥0.005 / 1k tokens
-	"characterglm":              0.75,   // ￥0.015 / 1k tokens
 	"chatglm_pro":               0.7143, // ￥0.01 / 1k tokens
 	"chatglm_std":               0.3572, // ￥0.005 / 1k tokens
 	"chatglm_lite":              0.1429, // ￥0.002 / 1k tokens

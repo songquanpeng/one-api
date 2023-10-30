@@ -334,15 +334,6 @@ func init() {
 			Parent:     nil,
 		},
 		{
-			Id:         "characterglm",
-			Object:     "model",
-			Created:    1677649963,
-			OwnedBy:    "zhipu",
-			Permission: permission,
-			Root:       "characterglm",
-			Parent:     nil,
-		},
-		{
 			Id:         "chatglm_turbo",
 			Object:     "model",
 			Created:    1677649963,
