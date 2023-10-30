@@ -12,6 +12,7 @@ import (
 )
 
 func openaiStreamHandler(c *gin.Context, resp *http.Response, relayMode int) (*OpenAIErrorWithStatusCode, string) {
+	// 1. 因为这个是空的
 	responseText := ""
 	scanner := bufio.NewScanner(resp.Body)
 	scanner.Split(func(data []byte, atEOF bool) (advance int, token []byte, err error) {
@@ -31,6 +32,7 @@ func openaiStreamHandler(c *gin.Context, resp *http.Response, relayMode int) (*O
 	go func() {
 		for scanner.Scan() {
 			data := scanner.Text()
+			common.LogInfo(c, "stream received: "+data)
 			if len(data) < 6 { // ignore blank line or wrong format
 				continue
 			}
@@ -85,6 +87,7 @@ func openaiStreamHandler(c *gin.Context, resp *http.Response, relayMode int) (*O
 	if err != nil {
 		return errorWrapper(err, "close_response_body_failed", http.StatusInternalServerError), ""
 	}
+	common.LogInfo(c, "stream ended, responseText: "+responseText)
 	return nil, responseText
 }
 
