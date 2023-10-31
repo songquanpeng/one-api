@@ -9,6 +9,7 @@ import (
 
 func SetDashboardRouter(router *gin.Engine) {
 	apiRouter := router.Group("/")
+	apiRouter.Use(middleware.CORS())
 	apiRouter.Use(gzip.Gzip(gzip.DefaultCompression))
 	apiRouter.Use(middleware.GlobalAPIRateLimit())
 	apiRouter.Use(middleware.TokenAuth())
