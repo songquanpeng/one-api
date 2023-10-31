@@ -97,6 +97,8 @@ var BatchUpdateInterval = GetOrDefault("BATCH_UPDATE_INTERVAL", 5)
 
 var RelayTimeout = GetOrDefault("RELAY_TIMEOUT", 0) // unit is second
 
+var LogPrompt = os.Getenv("LOG_PROMPT") == "true"
+
 const (
 	RequestIdKey = "X-Oneapi-Request-Id"
 )

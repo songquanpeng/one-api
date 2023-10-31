@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/pkoukk/tiktoken-go"
+	"gorm.io/gorm/utils"
 	"io"
 	"net/http"
 	"one-api/common"
@@ -112,6 +113,71 @@ func countTokenInput(input any, model string) int {
 func countTokenText(text string, model string) int {
 	tokenEncoder := getTokenEncoder(model)
 	return getTokenNum(tokenEncoder, text)
+}
+
+func countTokenFunctionCall(functionCall any, model string) int {
+	tokenEncoder := getTokenEncoder(model)
+	jsonBytes, err := json.Marshal(functionCall)
+	if err != nil {
+		return 0
+	}
+	return getTokenNum(tokenEncoder, string(jsonBytes))
+}
+
+func countTokenFunctions(functions []Function, model string) int {
+	// https://community.openai.com/t/how-to-know-of-tokens-beforehand-when-i-make-function-calling-chat-history-request-witn-nodejs/289060/6
+	if len(functions) == 0 {
+		return 0
+	}
+	tokenEncoder := getTokenEncoder(model)
+
+	paramSignature := func(name string, pSpec Property, pRequired []string) string {
+		var requiredString string
+		if utils.Contains(pRequired, name) == false {
+			requiredString = "?"
+		}
+		var enumString string
+		if len(pSpec.Enum) > 0 {
+			enumValues := make([]string, len(pSpec.Enum))
+			for i, v := range pSpec.Enum {
+				enumValues[i] = fmt.Sprintf("\"%s\"", v)
+			}
+			enumString = strings.Join(enumValues, " | ")
+		} else {
+			enumString = pSpec.Type
+		}
+		signature := fmt.Sprintf("%s%s: %s, ", name, requiredString, enumString)
+		if pSpec.Description != "" {
+			signature = fmt.Sprintf("// %s\n%s", pSpec.Description, signature)
+		}
+		return signature
+	}
+
+	functionSignature := func(fSpec Function) string {
+		var params []string
+		for name, p := range fSpec.Parameters.Properties {
+			params = append(params, paramSignature(name, p, fSpec.Parameters.Required))
+		}
+		var descriptionString string
+		if fSpec.Description != "" {
+			descriptionString = fmt.Sprintf("// %s\n", fSpec.Description)
+		}
+
+		var paramString string
+		if len(params) > 0 {
+			paramString = fmt.Sprintf("_: {\n%s\n}", strings.Join(params, "\n"))
+		}
+
+		return fmt.Sprintf("%stype %s = (%s) => any;", descriptionString, fSpec.Name, paramString)
+	}
+
+	var functionSignatures []string
+	for _, f := range functions {
+		functionSignatures = append(functionSignatures, functionSignature(f))
+	}
+	functionString := fmt.Sprintf("# Tools\n\n## functions\n\nnamespace functions {\n\n%s\n\n} // namespace functions", strings.Join(functionSignatures, "\n\n"))
+
+	return getTokenNum(tokenEncoder, functionString)
 }
 
 func errorWrapper(err error, code string, statusCode int) *OpenAIErrorWithStatusCode {
