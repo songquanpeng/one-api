@@ -1,12 +1,13 @@
 package controller
 
 import (
-	"github.com/gin-gonic/gin"
 	"net/http"
 	"one-api/common"
 	"one-api/model"
 	"strconv"
 	"strings"
+
+	"github.com/gin-gonic/gin"
 )
 
 func GetAllChannels(c *gin.Context) {
@@ -92,6 +93,7 @@ func AddChannel(c *gin.Context) {
 		}
 		localChannel := channel
 		localChannel.Key = key
+		localChannel.FixWeightMapping()
 		channels = append(channels, localChannel)
 	}
 	err = model.BatchInsertChannels(channels)
@@ -153,6 +155,9 @@ func UpdateChannel(c *gin.Context) {
 			"message": err.Error(),
 		})
 		return
+	}
+	if channel.Models != "" {
+		channel.FixWeightMapping()
 	}
 	err = channel.Update()
 	if err != nil {

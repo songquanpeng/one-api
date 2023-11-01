@@ -21,7 +21,8 @@ const OperationSetting = () => {
     DisplayInCurrencyEnabled: '',
     DisplayTokenStatEnabled: '',
     ApproximateTokenEnabled: '',
-    RetryTimes: 0
+    RetryTimes: 0,
+    DefaultWeight: 10
   });
   const [originInputs, setOriginInputs] = useState({});
   let [loading, setLoading] = useState(false);
@@ -128,6 +129,9 @@ const OperationSetting = () => {
         if (originInputs['RetryTimes'] !== inputs.RetryTimes) {
           await updateOption('RetryTimes', inputs.RetryTimes);
         }
+        if (originInputs['DefaultWeight'] !== inputs.DefaultWeight) {
+          await updateOption('DefaultWeight', inputs.DefaultWeight);
+        }
         break;
     }
   };
@@ -150,7 +154,7 @@ const OperationSetting = () => {
           <Header as='h3'>
             通用设置
           </Header>
-          <Form.Group widths={4}>
+          <Form.Group widths={5}>
             <Form.Input
               label='充值链接'
               name='TopUpLink'
@@ -189,6 +193,17 @@ const OperationSetting = () => {
               autoComplete='new-password'
               value={inputs.RetryTimes}
               placeholder='失败重试次数'
+            />
+            <Form.Input
+              label='默认权重'
+              name='DefaultWeight'
+              type={'number'}
+              step='1'
+              min='0'
+              onChange={handleInputChange}
+              autoComplete='new-password'
+              value={inputs.DefaultWeight}
+              placeholder='默认权重'
             />
           </Form.Group>
           <Form.Group inline>

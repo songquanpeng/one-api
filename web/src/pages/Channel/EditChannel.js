@@ -10,6 +10,12 @@ const MODEL_MAPPING_EXAMPLE = {
   'gpt-4-32k-0314': 'gpt-4-32k'
 };
 
+const WEIGHT_MAPPING_EXAMPLE = {
+    'gpt-3.5-turbo-0301': 120,
+    'gpt-4-0314': 10,
+    'gpt-4-32k-0314': 10
+};
+
 function type2secretPrompt(type) {
   // inputs.type === 15 ? '按照如下格式输入：APIKey|SecretKey' : (inputs.type === 18 ? '按照如下格式输入：APPID|APISecret|APIKey' : '请输入渠道对应的鉴权密钥')
   switch (type) {
@@ -43,6 +49,7 @@ const EditChannel = () => {
     base_url: '',
     other: '',
     model_mapping: '',
+    weight_mapping: '',
     models: [],
     groups: ['default']
   };
@@ -104,6 +111,9 @@ const EditChannel = () => {
       }
       if (data.model_mapping !== '') {
         data.model_mapping = JSON.stringify(JSON.parse(data.model_mapping), null, 2);
+      }
+      if (data.weight_mapping !== '') {
+        data.weight_mapping = JSON.stringify(JSON.parse(data.weight_mapping), null, 2);
       }
       setInputs(data);
     } else {
@@ -177,6 +187,10 @@ const EditChannel = () => {
     if (inputs.model_mapping !== '' && !verifyJSON(inputs.model_mapping)) {
       showInfo('模型映射必须是合法的 JSON 格式！');
       return;
+    }
+    if (inputs.weight_mapping !== '' && !verifyJSON(inputs.weight_mapping)) {
+        showInfo('模型权重必须是合法的 JSON 格式！');
+        return;
     }
     let localInputs = inputs;
     if (localInputs.base_url && localInputs.base_url.endsWith('/')) {
@@ -392,6 +406,17 @@ const EditChannel = () => {
               name='model_mapping'
               onChange={handleInputChange}
               value={inputs.model_mapping}
+              style={{ minHeight: 150, fontFamily: 'JetBrains Mono, Consolas' }}
+              autoComplete='new-password'
+            />
+          </Form.Field>
+          <Form.Field>
+            <Form.TextArea
+              label='模型权重'
+              placeholder={`此项可选，用于修改请求体中的模型权重，为一个 JSON 字符串，键为请求中模型名称，值为要替换的模型权重，推荐填写模型的 TPM 值，例如：\n${JSON.stringify(WEIGHT_MAPPING_EXAMPLE, null, 2)}`}
+              name='weight_mapping'
+              onChange={handleInputChange}
+              value={inputs.weight_mapping}
               style={{ minHeight: 150, fontFamily: 'JetBrains Mono, Consolas' }}
               autoComplete='new-password'
             />

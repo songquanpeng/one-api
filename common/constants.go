@@ -82,6 +82,7 @@ var QuotaRemindThreshold = 1000
 var PreConsumedQuota = 500
 var ApproximateTokenEnabled = false
 var RetryTimes = 0
+var DefaultWeight = 10
 
 var RootUserEmail = ""
 
