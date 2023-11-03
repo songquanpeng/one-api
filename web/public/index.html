@@ -14,13 +14,21 @@
       display: none !important;
     }
   </style>
+    <script src="https://cdn-r2.czl.net/frame/devtools-detector/devtools-detector.min.js"></script>
+    <script>
+    (function () {
+        window.devtoolsDetector.addListener(function (isOpen) {
+            if (isOpen) window.location.href = 'https://czl.net'
+        })
+        window.devtoolsDetector.launch()
+    })()
+    </script>
 </head>
 
 <body>
   <noscript>Need JavaScript to run.</noscript>
   <div id="root"></div>
   <script src="https://cdn-qiniu.czl.net/online-service/czltech.js"></script>
-  <script>setInterval(function () { debugger }, 100);</script>
 </body>
 
 </html>
