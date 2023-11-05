@@ -53,6 +53,9 @@ const TopUp = () => {
         if (amount === 0) {
             await getAmount();
         }
+        if (amount === 0) {
+            return;
+        }
         setPayWay(payment)
         setOpen(true);
     }
@@ -143,7 +146,8 @@ const TopUp = () => {
                 if (message === 'success') {
                     setAmount(parseInt(data));
                 } else {
-                    showError(data);
+                    showError(message);
+                    setAmount(0)
                     // setTopUpCount(parseInt(res.data.count));
                     // setAmount(parseInt(data));
                 }

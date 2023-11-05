@@ -119,6 +119,7 @@ const SystemSetting = () => {
             name === 'ServerAddress' ||
             name === 'EpayId' ||
             name === 'EpayKey' ||
+            name === 'MinCharge' ||
             name === 'Price' ||
             name === 'PayAddress' ||
             name === 'GitHubClientId' ||
@@ -159,6 +160,7 @@ const SystemSetting = () => {
         await updateOption('EpayId', inputs.EpayId);
         await updateOption('EpayKey', inputs.EpayKey);
         await updateOption('Price', "" + inputs.Price);
+        await updateOption('MinCharge', "" + inputs.MinCharge);
     };
 
     const submitSMTP = async () => {
