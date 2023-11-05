@@ -449,16 +449,6 @@ const ChannelsTable = () => {
                       >
                         测试
                       </Button>
-                      {/*<Button*/}
-                      {/*  size={'small'}*/}
-                      {/*  positive*/}
-                      {/*  loading={updatingBalance}*/}
-                      {/*  onClick={() => {*/}
-                      {/*    updateChannelBalance(channel.id, channel.name, idx);*/}
-                      {/*  }}*/}
-                      {/*>*/}
-                      {/*  更新余额*/}
-                      {/*</Button>*/}
                       <Popup
                         trigger={
                           <Button size='small' negative>

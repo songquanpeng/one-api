@@ -52,7 +52,8 @@ const EditChannel = () => {
   const [modelOptions, setModelOptions] = useState([]);
   const [groupOptions, setGroupOptions] = useState([]);
   const [basicModels, setBasicModels] = useState([]);
-  const [fullModels, setFullModels] = useState([]);
+  const [basicNoGPTModels, setBasicNoGPTModels] = useState([]);
+  const [fullOPENAIModels, setFullOPENAIModels] = useState([]);
   const [customModel, setCustomModel] = useState('');
   const handleInputChange = (e, { name, value }) => {
     setInputs((inputs) => ({ ...inputs, [name]: value }));
@@ -121,10 +122,18 @@ const EditChannel = () => {
         value: model.id
       }));
       setOriginModelOptions(localModelOptions);
-      setFullModels(res.data.data.map((model) => model.id));
-      setBasicModels(res.data.data.filter((model) => {
-        return model.id.startsWith('gpt-3') || model.id.startsWith('text-') || model.id.startsWith('dall-') || model.id.startsWith('whisper-');
+      setFullOPENAIModels(res.data.data.filter((model) => {
+        return (model.id.startsWith('gpt-') || model.id.startsWith('text-') || model.id.startsWith('dall-') || model.id.startsWith('whisper-') || model.id.startsWith('code-')) && !model.id.startsWith('text-embedding-v1');
       }).map((model) => model.id));
+      
+      setBasicModels(res.data.data.filter((model) => {
+        return (model.id.startsWith('gpt-3') || model.id.startsWith('text-') || model.id.startsWith('dall-') || model.id.startsWith('whisper-') || model.id.startsWith('code-')) && !model.id.startsWith('text-embedding-v1');
+      }).map((model) => model.id));
+      
+      setBasicNoGPTModels(res.data.data.filter((model) => {
+        return (model.id.startsWith('text-') || model.id.startsWith('dall-') || model.id.startsWith('whisper-') || model.id.startsWith('code-')) && !model.id.startsWith('text-embedding-v1');
+      }).map((model) => model.id));
+      
     } catch (error) {
       showError(error.message);
     }
@@ -361,10 +370,13 @@ const EditChannel = () => {
           <div style={{ lineHeight: '40px', marginBottom: '12px' }}>
             <Button type={'button'} onClick={() => {
               handleInputChange(null, { name: 'models', value: basicModels });
-            }}>填入基础模型</Button>
+            }}>填入基础OPENAI模型</Button>
             <Button type={'button'} onClick={() => {
-              handleInputChange(null, { name: 'models', value: fullModels });
-            }}>填入所有模型</Button>
+              handleInputChange(null, { name: 'models', value: basicNoGPTModels });
+            }}>填入基础无gpt模型</Button>
+            <Button type={'button'} onClick={() => {
+              handleInputChange(null, { name: 'models', value: fullOPENAIModels });
+            }}>填入所有OPENAI模型</Button>
             <Button type={'button'} onClick={() => {
               handleInputChange(null, { name: 'models', value: [] });
             }}>清除所有模型</Button>
