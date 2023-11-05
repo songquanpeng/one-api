@@ -20,6 +20,7 @@ const SystemSetting = () => {
         EpayId: '',
         EpayKey: '',
         Price: 7.3,
+        MinCharge: 1,
         TopupGroupRatio: '',
         PayAddress: '',
         Footer: '',
@@ -306,6 +307,15 @@ const SystemSetting = () => {
                             name='Price'
 
                             min={0}
+                            onChange={handleInputChange}
+                        />
+                        <Form.Input
+                            label='最低充值数量'
+                            placeholder='例如：10，最低10刀起'
+                            value={inputs.MinCharge}
+                            name='MinCharge'
+
+                            min={1}
                             onChange={handleInputChange}
                         />
                     </Form.Group>

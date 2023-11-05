@@ -38,14 +38,14 @@ func GetEpayClient() *epay.Client {
 	return withUrl
 }
 
-func GetAmount(count float64, user model.User) float64 {
+func GetPayMoney(amount float64, user model.User) float64 {
 	// 别问为什么用float64，问就是这么点钱没必要
 	topupGroupRatio := common.GetTopupGroupRatio(user.Group)
 	if topupGroupRatio == 0 {
 		topupGroupRatio = 1
 	}
-	amount := count * common.Price * topupGroupRatio
-	return amount
+	money := amount * common.Price * topupGroupRatio
+	return money
 }
 
 func RequestEpay(c *gin.Context) {
@@ -55,14 +55,14 @@ func RequestEpay(c *gin.Context) {
 		c.JSON(200, gin.H{"message": err.Error(), "data": 10})
 		return
 	}
-	if req.Amount < 1 {
-		c.JSON(200, gin.H{"message": "充值金额不能小于1", "data": 10})
+	if req.Amount < common.MinCharge {
+		c.JSON(200, gin.H{"message": fmt.Sprintf("最小充值数量为%d", common.MinCharge), "data": 10})
 		return
 	}
 
 	id := c.GetInt("id")
 	user, _ := model.GetUserById(id, false)
-	amount := GetAmount(float64(req.Amount), *user)
+	needToPay := GetPayMoney(float64(req.Amount), *user)
 
 	if req.PaymentMethod == "zfb" {
 		req.PaymentMethod = "alipay"
@@ -74,7 +74,6 @@ func RequestEpay(c *gin.Context) {
 	returnUrl, _ := url.Parse(common.ServerAddress + "/log")
 	notifyUrl, _ := url.Parse(common.ServerAddress + "/api/user/epay/notify")
 	tradeNo := strconv.FormatInt(time.Now().Unix(), 10)
-	payMoney := amount
 	client := GetEpayClient()
 	if client == nil {
 		c.JSON(200, gin.H{"message": "error", "data": "当前管理员未配置支付信息"})
@@ -84,7 +83,7 @@ func RequestEpay(c *gin.Context) {
 		Type:           epay.PurchaseType(req.PaymentMethod),
 		ServiceTradeNo: "A" + tradeNo,
 		Name:           "B" + tradeNo,
-		Money:          strconv.FormatFloat(payMoney, 'f', 2, 64),
+		Money:          strconv.FormatFloat(needToPay, 'f', 2, 64),
 		Device:         epay.PC,
 		NotifyUrl:      notifyUrl,
 		ReturnUrl:      returnUrl,
@@ -96,7 +95,7 @@ func RequestEpay(c *gin.Context) {
 	topUp := &model.TopUp{
 		UserId:     id,
 		Amount:     req.Amount,
-		Money:      int(amount),
+		Money:      int(needToPay),
 		TradeNo:    "A" + tradeNo,
 		CreateTime: time.Now().Unix(),
 		Status:     "pending",
@@ -167,11 +166,11 @@ func RequestAmount(c *gin.Context) {
 		c.JSON(200, gin.H{"message": "error", "data": "参数错误"})
 		return
 	}
-	if req.Amount < 1 {
-		c.JSON(200, gin.H{"message": "error", "data": "充值金额不能小于1"})
+	if req.Amount < common.MinCharge {
+		c.JSON(200, gin.H{"message": fmt.Sprintf("最小充值数量为%d", common.MinCharge), "data": 10})
 		return
 	}
 	id := c.GetInt("id")
 	user, _ := model.GetUserById(id, false)
-	c.JSON(200, gin.H{"message": "success", "data": GetAmount(float64(req.Amount), *user)})
+	c.JSON(200, gin.H{"message": "success", "data": GetPayMoney(float64(req.Amount), *user)})
 }

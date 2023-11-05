@@ -31,6 +31,7 @@ func GetStatus(c *gin.Context) {
 			"epay_id":             common.EpayId,
 			"epay_key":            common.EpayKey,
 			"price":               common.Price,
+			"min_charge":          common.MinCharge,
 			"turnstile_check":     common.TurnstileCheckEnabled,
 			"turnstile_site_key":  common.TurnstileSiteKey,
 			"top_up_link":         common.TopUpLink,

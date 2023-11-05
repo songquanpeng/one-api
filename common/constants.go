@@ -17,6 +17,7 @@ var PayAddress = ""
 var EpayId = ""
 var EpayKey = ""
 var Price = 7.3
+var MinCharge = 1
 var Footer = ""
 var Logo = ""
 var TopUpLink = ""
