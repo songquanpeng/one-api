@@ -95,14 +95,11 @@ const LogsTable = () => {
   };
 
   const handleEyeClick = async () => {
-    if (!showStat) {
-      if (isAdminUser) {
-        await getLogStat();
-      } else {
-        await getLogSelfStat();
-      }
+    if (isAdminUser) {
+      await getLogStat();
+    } else {
+      await getLogSelfStat();
     }
-    setShowStat(!showStat);
   };
 
   const loadLogs = async (startIdx) => {
@@ -144,11 +141,12 @@ const LogsTable = () => {
     setLoading(true);
     setActivePage(1);
     await loadLogs(0);
+    handleEyeClick();
   };
 
   useEffect(() => {
     refresh().then();
-  }, [logType]);
+  }, [logType,username, token_name, model_name, channel]);
 
   const searchLogs = async () => {
     if (searchKeyword === '') {
@@ -199,35 +197,34 @@ const LogsTable = () => {
     <>
       <Segment>
         <Header as='h3'>
-          使用明细（总消耗额度：
-          {showStat && renderQuota(stat.quota)}
-          {!showStat && <span onClick={handleEyeClick} style={{ cursor: 'pointer', color: 'gray' }}>点击查看</span>}
-          ）
+          使用明细【消耗额度：
+          {renderQuota(stat.quota)}】
         </Header>
+
         <Form>
           <Form.Group>
             <Form.Input fluid label={'令牌名称'} width={3} value={token_name}
-                        placeholder={'可选值'} name='token_name' onChange={handleInputChange} />
+              placeholder={'可选值'} name='token_name' onChange={handleInputChange} />
             <Form.Input fluid label='模型名称' width={3} value={model_name} placeholder='可选值'
-                        name='model_name'
-                        onChange={handleInputChange} />
+              name='model_name'
+              onChange={handleInputChange} />
             <Form.Input fluid label='起始时间' width={4} value={start_timestamp} type='datetime-local'
-                        name='start_timestamp'
-                        onChange={handleInputChange} />
+              name='start_timestamp'
+              onChange={handleInputChange} />
             <Form.Input fluid label='结束时间' width={4} value={end_timestamp} type='datetime-local'
-                        name='end_timestamp'
-                        onChange={handleInputChange} />
+              name='end_timestamp'
+              onChange={handleInputChange} />
             <Form.Button fluid label='操作' width={2} onClick={refresh}>查询</Form.Button>
           </Form.Group>
           {
             isAdminUser && <>
               <Form.Group>
                 <Form.Input fluid label={'渠道 ID'} width={3} value={channel}
-                            placeholder='可选值' name='channel'
-                            onChange={handleInputChange} />
+                  placeholder='可选值' name='channel'
+                  onChange={handleInputChange} />
                 <Form.Input fluid label={'用户名称'} width={3} value={username}
-                            placeholder={'可选值'} name='username'
-                            onChange={handleInputChange} />
+                  placeholder={'可选值'} name='username'
+                  onChange={handleInputChange} />
 
               </Form.Group>
             </>
@@ -321,15 +318,6 @@ const LogsTable = () => {
               >
                 额度
               </Table.HeaderCell>
-              {/* <Table.HeaderCell
-                style={{ cursor: 'pointer' }}
-                onClick={() => {
-                  sortLog('content');
-                }}
-                width={isAdminUser ? 4 : 6}
-              >
-                详情
-              </Table.HeaderCell> */}
             </Table.Row>
           </Table.Header>
 
