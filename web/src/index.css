@@ -1,3 +1,65 @@
+:root {
+    --toastify-color-light: var(--czl-main) !important;
+    --toastify-color-dark: var(--czl-main-dark) !important;
+    --toastify-color-info: var(--czl-info-color) !important;
+    --toastify-color-success: var(--czl-success-color) !important;
+    --toastify-color-warning: var(--czl-warning-color) !important;
+    --toastify-color-error: var(--czl-error-color) !important;
+    --toastify-icon-color-info: var(--czl-info-color) !important;
+    --toastify-icon-color-success: var(--czl-success-color) !important;
+    --toastify-icon-color-warning: var(--czl-warning-color) !important;
+    --toastify-icon-color-error: var(--czl-error-color) !important;
+    --toastify-toast-background: var(--czl-main) !important;
+    --toastify-text-color-light: var(--czl-seat) !important;
+    --toastify-text-color-dark: var(--czl-grayD) !important;
+    --toastify-text-color-info: var(--czl-info-color) !important;
+    --toastify-text-color-success: var(--czl-success-color) !important;
+    --toastify-text-color-warning: var(--czl-warning-color) !important;
+    --toastify-text-color-error: var(--czl-error-color) !important;
+    --toastify-spinner-color: var(--czl-seat) !important;
+    --toastify-spinner-color-empty-area: var(--czl-minor) !important;
+    --toastify-color-progress-light: linear-gradient(to right, var(--czl-success-color), var(--czl-primary-color-hover), var(--czl-primary-color), var(--czl-primary-color-suppl), var(--czl-chat-bg-color), var(--czl-error-color)) !important;
+    --toastify-color-progress-dark: var(--czl-primary-color-dark) !important;
+    --toastify-color-progress-info: var(--czl-info-color) !important;
+    --toastify-color-progress-success: var(--czl-success-color) !important;
+    --toastify-color-progress-warning: var(--czl-warning-color) !important;
+    --toastify-color-progress-error: var(--czl-error-color) !important;
+
+
+    /* Light Mode Colors */
+    --czl-primary-color: #2EA7E0;
+    --czl-primary-color-hover: #58c3ed;
+    --czl-primary-color-pressed: #1e83ba;
+    --czl-primary-color-suppl: #58c3ed;
+    --czl-chat-bg-color: #84ddfa;
+    --czl-success-color: #22BB33;
+    --czl-error-color: #FF3333;
+    --czl-warning-color: #FFAA00;
+    --czl-info-color: #3366FF;
+    --czl-link-color: #0645AD;
+    --czl-main: #f5f5f7;
+    --czl-routine: #DCDFE6;
+    --czl-minor: #C0C4CC;
+    --czl-seat: #666;
+    --czl-grayA: #515253;
+    --czl-grayB: #454545;
+    --czl-grayC: #414243;
+    --czl-grayD: #303030;
+
+    /* Dark Mode Colors */
+    --czl-primary-color-dark: #84ddfa;
+    --czl-primary-color-hover-dark: #b0eeff;
+    --czl-primary-color-pressed-dark: #58c3ed;
+    --czl-primary-color-suppl-dark: #b0eeff;
+    --czl-chat-bg-color-dark: #d9f8ff;
+    --czl-success-color-dark: #22BB33;
+    --czl-error-color-dark: #FF3333;
+    --czl-warning-color-dark: #FFAA00;
+    --czl-info-color-dark: #3366FF;
+    --czl-link-color-dark: #0645AD;
+    --czl-main-dark: #181818;
+}
+
 @font-face {
     font-family: 'CZL';
     src: url('https://cdn-r2.czl.net/fonts/CZL/CZL_Sans_SC_Thin.woff2') format('woff2');
@@ -8,7 +70,7 @@
 
 @font-face {
     font-family: 'CZL';
-    src: url('https://cdn-r2.czl.net/fonts/CZL/CZL_Sans_SC_Black.woff2') format('woff2');
+    src: url('https://cdn-r2.czl.net/fonts/CZL/CZL_Sans_SC_gray.woff2') format('woff2');
     font-weight: 900;
     font-style: normal;
     font-display: swap;

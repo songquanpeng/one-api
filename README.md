@@ -1,3 +1,17 @@
+## 自定义部分
+
+[x] 当用户充值达到5刀时，自动提升为vip分组，具体金额可在`web\src\pages\TopUp\index.js`调整；
+[x] 修改颜色
+[x] 日志页面新增快速筛选日期、修复渠道ID查询、自动更新消耗额度、删除日志详情（因为没有太大意义）；
+[x] 用户管理界面，支持快速设置用户组，在`web\src\components\UsersTable.js`处修改相关值；
+[x] 令牌界面，删除无用的多种复制、聊天等按钮；
+[x] 删除 系统访问令牌；
+[ ] 在个人设置页面显示分组；
+[ ] 渠道管理处，已启用渠道和禁用渠道， 启用/禁用 按钮改为不同颜色；
+
+[x] 等
+
+--- 
 <p align="right">
    <strong>中文</strong> | <a href="./README.en.md">English</a> | <a href="./README.ja.md">日本語</a>
 </p>

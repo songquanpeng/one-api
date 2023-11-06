@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Form, Label, Pagination, Popup, Table } from 'semantic-ui-react';
+import { Button, Form, Label, Pagination, Popup, Table, Dropdown } from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
 import { API, showError, showSuccess } from '../helpers';
 
@@ -11,11 +11,11 @@ function renderRole(role) {
     case 1:
       return <Label>普通用户</Label>;
     case 10:
-      return <Label color='yellow'>管理员</Label>;
+      return <Label color='var(--czl-warning-color)'>管理员</Label>;
     case 100:
-      return <Label color='orange'>超级管理员</Label>;
+      return <Label color='var(--czl-error-color)'>超级管理员</Label>;
     default:
-      return <Label color='red'>未知身份</Label>;
+      return <Label color='var(--czl-error-color)'>未知身份</Label>;
   }
 }
 
@@ -61,30 +61,40 @@ const UsersTable = () => {
       });
   }, []);
 
-  const manageUser = (username, action, idx) => {
+  const manageUser = (username, idx, newGroup) => {
     (async () => {
       const res = await API.post('/api/user/manage', {
         username,
-        action
+        newGroup
       });
+
       const { success, message } = res.data;
       if (success) {
         showSuccess('操作成功完成！');
         let user = res.data.data;
         let newUsers = [...users];
         let realIdx = (activePage - 1) * ITEMS_PER_PAGE + idx;
-        if (action === 'delete') {
-          newUsers[realIdx].deleted = true;
-        } else {
-          newUsers[realIdx].status = user.status;
-          newUsers[realIdx].role = user.role;
-        }
+        newUsers[realIdx].group = user.group; // 用新的 user.group 更新用户分组
         setUsers(newUsers);
       } else {
         showError(message);
       }
     })();
   };
+
+
+  const groupOptions = [
+    { key: 'default', value: 'default', text: '默认', color: 'var(--czl-grayA)' },
+    { key: 'vip', value: 'vip', text: 'VIP', color: 'var(--czl-success-color)' },
+    { key: 'svip', value: 'svip', text: '超级VIP', color: 'var(--czl-error-color)' },
+  ];
+
+  const groupColor = (userGroup) => {
+    const group = groupOptions.find((option) => option.value === userGroup);
+    return group ? group.color : 'inherit'; // 如果未找到分组，则返回默认颜色
+  };
+
+
 
   const renderStatus = (status) => {
     switch (status) {
@@ -175,14 +185,14 @@ const UsersTable = () => {
             >
               用户名
             </Table.HeaderCell>
-            <Table.HeaderCell
+            {/* <Table.HeaderCell
               style={{ cursor: 'pointer' }}
               onClick={() => {
                 sortUser('group');
               }}
             >
               分组
-            </Table.HeaderCell>
+            </Table.HeaderCell> */}
             <Table.HeaderCell
               style={{ cursor: 'pointer' }}
               onClick={() => {
@@ -231,10 +241,7 @@ const UsersTable = () => {
                       hoverable
                     />
                   </Table.Cell>
-                  <Table.Cell>{renderGroup(user.group)}</Table.Cell>
-                  {/*<Table.Cell>*/}
-                  {/*  {user.email ? <Popup hoverable content={user.email} trigger={<span>{renderText(user.email, 24)}</span>} /> : '无'}*/}
-                  {/*</Table.Cell>*/}
+                  {/* <Table.Cell>{renderGroup(user.group)}</Table.Cell> */}
                   <Table.Cell>
                     <Popup content='剩余额度' trigger={<Label basic>{renderQuota(user.quota)}</Label>} />
                     <Popup content='已用额度' trigger={<Label basic>{renderQuota(user.used_quota)}</Label>} />
@@ -244,6 +251,30 @@ const UsersTable = () => {
                   <Table.Cell>{renderStatus(user.status)}</Table.Cell>
                   <Table.Cell>
                     <div>
+                      <Button.Group size={'small'} style={{marginRight: '10px'}}>
+                        <Button
+                          positive
+                          size={'small'}
+                          className={`group-button ${user.group}`}
+                          style={{
+                            backgroundColor: groupColor(user.group), // 设置透明背景颜色
+                            width: '100px',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                          }}
+                        >
+                          {user.group}
+                        </Button>
+                        <Dropdown
+                          className="button icon"
+                          style={{
+                            backgroundColor: groupColor(user.group),}}
+                          floating
+                          options={groupOptions}
+                          trigger={<></>}
+                          onChange={(e, { value }) => manageUser(user.username, idx, value)}
+                        />
+                      </Button.Group>
                       <Popup
                         trigger={
                           <Button size='small' negative disabled={user.role === 100}>

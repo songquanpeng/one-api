@@ -11,52 +11,62 @@ let headerButtons = [
   {
     name: '首页',
     to: '/',
-    icon: 'home'
+    icon: 'home',
+    color: 'var(--czl-primary-color)'
   },
   {
     name: '渠道',
     to: '/channel',
     icon: 'sitemap',
+    color: 'var(--czl-primary-color)',
     admin: true
   },
   {
     name: '令牌',
     to: '/token',
-    icon: 'key'
+    icon: 'key',
+    color: 'var(--czl-primary-color)'
   },
   {
     name: '兑换',
     to: '/redemption',
     icon: 'dollar sign',
+    color: 'var(--czl-primary-color)',
     admin: true
   },
   {
     name: '充值',
     to: '/topup',
-    icon: 'cart'
+    icon: 'cart',
+    color: 'var(--czl-primary-color)'
   },
   {
     name: '用户',
     to: '/user',
     icon: 'user',
+    color: 'var(--czl-primary-color)',
     admin: true
   },
   {
     name: '日志',
     to: '/log',
-    icon: 'book'
+    icon: 'book',
+    color: 'var(--czl-primary-color)'
   },
   {
     name: '设置',
     to: '/setting',
-    icon: 'setting'
+    icon: 'setting',
+    color: 'var(--czl-primary-color)'
   },
   {
     name: '关于',
     to: '/about',
-    icon: 'info circle'
+    icon: 'info circle',
+    color: 'var(--czl-primary-color)'
   }
 ];
+
 
 if (localStorage.getItem('chat_link')) {
   headerButtons.splice(1, 0, {
@@ -148,11 +158,11 @@ const Header = () => {
         </Menu>
         {showSidebar ? (
           <Segment style={{ marginTop: 0, borderTop: '0' }}>
-            <Menu secondary vertical style={{ width: '100%', margin: 0 }}>
+            <Menu secondary vertical style={{ width: '100%', margin: 0, backgroundColor: 'var(--czl-main)' }}>
               {renderButtons(true)}
               <Menu.Item>
                 {userState.user ? (
-                  <Button onClick={logout}>注销</Button>
+                  <Button onClick={logout} style={{ backgroundColor: 'var(--czl-primary-color)' }}>注销</Button>
                 ) : (
                   <>
                     <Button
@@ -160,6 +170,7 @@ const Header = () => {
                         setShowSidebar(false);
                         navigate('/login');
                       }}
+                      style={{ backgroundColor: 'var(--czl-primary-color)' }}
                     >
                       登录
                     </Button>
@@ -168,6 +179,7 @@ const Header = () => {
                         setShowSidebar(false);
                         navigate('/register');
                       }}
+                      style={{ backgroundColor: 'var(--czl-primary-color)' }}
                     >
                       注册
                     </Button>
@@ -175,6 +187,7 @@ const Header = () => {
                 )}
               </Menu.Item>
             </Menu>
+
           </Segment>
         ) : (
           <></>

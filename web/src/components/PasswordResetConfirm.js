@@ -94,7 +94,7 @@ const PasswordResetConfirm = () => {
             />            
             )}
             <Button
-              color='green'
+              color='var(--czl-success-color)'
               fluid
               size='large'
               onClick={handleSubmit}

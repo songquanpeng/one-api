@@ -30,21 +30,22 @@ function renderType(type) {
 function renderBalance(type, balance) {
   switch (type) {
     case 1: // OpenAI
-      return <span>${balance.toFixed(2)}</span>;
+      return <span style={{ color: 'var(--czl-primary-color)' }}>${balance.toFixed(2)}</span>;
     case 4: // CloseAI
-      return <span>¥{balance.toFixed(2)}</span>;
+      return <span style={{ color: 'var(--czl-primary-color-hover)' }}>¥{balance.toFixed(2)}</span>;
     case 8: // 自定义
-      return <span>${balance.toFixed(2)}</span>;
+      return <span style={{ color: 'var(--czl-primary-color-pressed)' }}>${balance.toFixed(2)}</span>;
     case 5: // OpenAI-SB
-      return <span>¥{(balance / 10000).toFixed(2)}</span>;
+      return <span style={{ color: 'var(--czl-primary-color-suppl)' }}>¥{(balance / 10000).toFixed(2)}</span>;
     case 10: // AI Proxy
-      return <span>{renderNumber(balance)}</span>;
+      return <span style={{ color: 'var(--czl-success-color)' }}>{renderNumber(balance)}</span>;
     case 12: // API2GPT
-      return <span>¥{balance.toFixed(2)}</span>;
+      return <span style={{ color: 'var(--czl-error-color)' }}>¥{balance.toFixed(2)}</span>;
     case 13: // AIGC2D
-      return <span>{renderNumber(balance)}</span>;
+      return <span style={{ color: 'var(--czl-warning-color)' }}>{renderNumber(balance)}</span>;
     default:
-      return <span>不支持</span>;
+      return <span style={{ color: 'var(--czl-info-color)' }}>不支持</span>;
+
   }
 }
 
@@ -150,11 +151,11 @@ const ChannelsTable = () => {
   const renderStatus = (status) => {
     switch (status) {
       case 1:
-        return <Label basic color='green'>已启用</Label>;
+        return <Label basic style={{ color: 'var(--czl-success-color)' }}>已启用</Label>;
       case 2:
         return (
           <Popup
-            trigger={<Label basic color='red'>
+            trigger={<Label basic style={{ color: 'var(--czl-error-color)' }}>
               已禁用
             </Label>}
             content='本渠道被手动禁用'
@@ -164,7 +165,7 @@ const ChannelsTable = () => {
       case 3:
         return (
           <Popup
-            trigger={<Label basic color='yellow'>
+            trigger={<Label basic style={{ color: 'var(--czl-warning-color)' }}>
               已禁用
             </Label>}
             content='本渠道被程序自动禁用'
@@ -173,10 +174,11 @@ const ChannelsTable = () => {
         );
       default:
         return (
-          <Label basic color='grey'>
+          <Label basic style={{ color: 'var(--czl-grayC)' }}>
             未知状态
           </Label>
         );
+
     }
   };
 
@@ -184,15 +186,15 @@ const ChannelsTable = () => {
     let time = responseTime / 1000;
     time = time.toFixed(2) + ' 秒';
     if (responseTime === 0) {
-      return <Label basic color='grey'>未测试</Label>;
+      return <Label basic style={{ color: 'var(--czl-grayA)' }}>未测试</Label>;
     } else if (responseTime <= 1000) {
-      return <Label basic color='green'>{time}</Label>;
+      return <Label basic style={{ color: 'var(--czl-success-color)' }}>{time}</Label>;
     } else if (responseTime <= 3000) {
-      return <Label basic color='olive'>{time}</Label>;
+      return <Label basic style={{ color: 'var(--czl-primary-color)' }}>{time}</Label>;
     } else if (responseTime <= 5000) {
-      return <Label basic color='yellow'>{time}</Label>;
+      return <Label basic style={{ color: 'var(--czl-warning-color)' }}>{time}</Label>;
     } else {
-      return <Label basic color='red'>{time}</Label>;
+      return <Label basic style={{ color: 'var(--czl-error-color)' }}>{time}</Label>;
     }
   };
 
@@ -416,8 +418,8 @@ const ChannelsTable = () => {
                       trigger={<span onClick={() => {
                         updateChannelBalance(channel.id, channel.name, idx);
                       }} style={{ cursor: 'pointer' }}>
-                      {renderBalance(channel.type, channel.balance)}
-                    </span>}
+                        {renderBalance(channel.type, channel.balance)}
+                      </span>}
                       content='点击更新'
                       basic
                     />
@@ -443,6 +445,7 @@ const ChannelsTable = () => {
                       <Button
                         size={'small'}
                         positive
+                        style={{ backgroundColor: 'var(--czl-success-color)' }}
                         onClick={() => {
                           testChannel(channel.id, channel.name, idx);
                         }}
@@ -451,7 +454,7 @@ const ChannelsTable = () => {
                       </Button>
                       <Popup
                         trigger={
-                          <Button size='small' negative>
+                          <Button size='small' negative style={{ backgroundColor: 'var(--czl-error-color)' }}>
                             删除
                           </Button>
                         }
@@ -461,6 +464,7 @@ const ChannelsTable = () => {
                       >
                         <Button
                           negative
+                          style={{ backgroundColor: 'var(--czl-error-color)' }}
                           onClick={() => {
                             manageChannel(channel.id, 'delete', idx);
                           }}
@@ -469,7 +473,9 @@ const ChannelsTable = () => {
                         </Button>
                       </Popup>
                       <Button
+                      negative
                         size={'small'}
+                        style={{ backgroundColor: 'var(--czl-warning-color)' }}
                         onClick={() => {
                           manageChannel(
                             channel.id,
@@ -481,9 +487,11 @@ const ChannelsTable = () => {
                         {channel.status === 1 ? '禁用' : '启用'}
                       </Button>
                       <Button
+                      negative
                         size={'small'}
                         as={Link}
                         to={'/channel/edit/' + channel.id}
+                        style={{ backgroundColor: 'var(--czl-primary-color)' }}
                       >
                         编辑
                       </Button>
@@ -504,7 +512,7 @@ const ChannelsTable = () => {
                 测试所有已启用通道
               </Button>
               <Button size='small' onClick={updateAllChannelsBalance}
-                      loading={loading || updatingBalance}>更新所有已启用通道余额</Button>
+                loading={loading || updatingBalance}>更新所有已启用通道余额</Button>
               <Popup
                 trigger={
                   <Button size='small' loading={loading}>

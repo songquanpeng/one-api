@@ -98,6 +98,7 @@ const LoginForm = () => {
               name='username'
               value={username}
               onChange={handleChange}
+              style={{ backgroundColor: 'var(--czl-main)', color: 'var(--czl-grayA)' }}
             />
             <Form.Input
               fluid
@@ -108,22 +109,29 @@ const LoginForm = () => {
               type='password'
               value={password}
               onChange={handleChange}
+              style={{ backgroundColor: 'var(--czl-main)', color: 'var(--czl-grayA)' }}
             />
-            <Button color='green' fluid size='large' onClick={handleSubmit}>
+            <Button
+              fluid
+              size='large'
+              onClick={handleSubmit}
+              style={{ backgroundColor: 'var(--czl-success-color)', color: 'var(--czl-main)' }}
+            >
               登录
             </Button>
           </Segment>
         </Form>
         <Message>
           忘记密码？
-          <Link to='/reset' className='btn btn-link'>
+          <Link to='/reset' className='btn btn-link' style={{ color: 'var(--czl-link-color)' }}>
             点击重置
           </Link>
           ； 没有账户？
-          <Link to='/register' className='btn btn-link'>
+          <Link to='/register' className='btn btn-link' style={{ color: 'var(--czl-link-color)' }}>
             点击注册
           </Link>
         </Message>
+
         {status.github_oauth || status.wechat_login ? (
           <>
             <Divider horizontal>Or</Divider>

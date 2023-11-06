@@ -83,7 +83,7 @@ const PasswordResetForm = () => {
               <></>
             )}
             <Button
-              color='green'
+              style={{backgroundColor: 'var(--czl-success-color)', color: 'white'}}
               fluid
               size='large'
               onClick={handleSubmit}

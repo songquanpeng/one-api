@@ -18,15 +18,16 @@ function renderTimestamp(timestamp) {
 function renderStatus(status) {
   switch (status) {
     case 1:
-      return <Label basic color='green'>已启用</Label>;
+      return <Label basic style={{ color: 'var(--czl-success-color)' }}>已启用</Label>;
     case 2:
-      return <Label basic color='red'> 已禁用 </Label>;
+      return <Label basic style={{ color: 'var(--czl-error-color)' }}> 已禁用 </Label>;
     case 3:
-      return <Label basic color='yellow'> 已过期 </Label>;
+      return <Label basic style={{ color: 'var(--czl-warning-color)' }}> 已过期 </Label>;
     case 4:
-      return <Label basic color='grey'> 已耗尽 </Label>;
+      return <Label basic style={{ color: 'var(--czl-grayB)' }}> 已耗尽 </Label>;
     default:
-      return <Label basic color='black'> 未知状态 </Label>;
+      return <Label basic style={{ color: 'var(--czl-grayD)' }}> 未知状态 </Label>;
+
   }
 }
 
@@ -84,7 +85,7 @@ const TokensTable = () => {
     let encodedServerAddress = encodeURIComponent(serverAddress);
     const nextLink = localStorage.getItem('chat_link');
     let nextUrl;
-  
+
     if (nextLink) {
       nextUrl = nextLink + `/#/?settings={"key":"sk-${key}","url":"${serverAddress}"}`;
     } else {
@@ -118,7 +119,7 @@ const TokensTable = () => {
     let serverAddress = '';
     if (status) {
       status = JSON.parse(status);
-      serverAddress = status.server_address; 
+      serverAddress = status.server_address;
     }
     if (serverAddress === '') {
       serverAddress = window.location.origin;
@@ -126,7 +127,7 @@ const TokensTable = () => {
     let encodedServerAddress = encodeURIComponent(serverAddress);
     const chatLink = localStorage.getItem('chat_link');
     let defaultUrl;
-  
+
     if (chatLink) {
       defaultUrl = chatLink + `/#/?settings={"key":"sk-${key}","url":"${serverAddress}"}`;
     } else {
@@ -137,15 +138,15 @@ const TokensTable = () => {
       case 'ama':
         url = `ama://set-api-key?server=${encodedServerAddress}&key=sk-${key}`;
         break;
-  
+
       case 'opencat':
         url = `opencat://team/join?domain=${encodedServerAddress}&token=sk-${key}`;
         break;
-        
+
       default:
         url = defaultUrl;
     }
-  
+
     window.open(url, '_blank');
   }
 
@@ -314,19 +315,20 @@ const TokensTable = () => {
                   <Table.Cell>{token.expired_time === -1 ? '永不过期' : renderTimestamp(token.expired_time)}</Table.Cell>
                   <Table.Cell>
                     <div>
-                        <Button
-                          size={'small'}
-                          positive
-                          onClick={async () => {
-                            await onCopy('', token.key);
-                          }}
-                        >
-                          复制
-                        </Button>
+                      <Button
+                        size={'small'}
+                        positive
+                        onClick={async () => {
+                          await onCopy('', token.key);
+                        }}
+                        style={{ backgroundColor: 'var(--czl-success-color)', borderColor: 'var(--czl-success-color)' }}
+                      >
+                        复制
+                      </Button>
                       {' '}
                       <Popup
                         trigger={
-                          <Button size='small' negative>
+                          <Button size='small' negative style={{ backgroundColor: 'var(--czl-error-color)', borderColor: 'var(--czl-error-color)' }}>
                             删除
                           </Button>
                         }
@@ -339,6 +341,7 @@ const TokensTable = () => {
                           onClick={() => {
                             manageToken(token.id, 'delete', idx);
                           }}
+                          style={{ backgroundColor: 'var(--czl-error-color)', borderColor: 'var(--czl-error-color)' }}
                         >
                           删除令牌 {token.name}
                         </Button>
@@ -356,9 +359,11 @@ const TokensTable = () => {
                         {token.status === 1 ? '禁用' : '启用'}
                       </Button>
                       <Button
+                      negative
                         size={'small'}
                         as={Link}
                         to={'/token/edit/' + token.id}
+                        style={{ backgroundColor: 'var(--czl-primary-color)', borderColor: 'var(--czl-primary-color)' }}
                       >
                         编辑
                       </Button>
@@ -372,10 +377,17 @@ const TokensTable = () => {
         <Table.Footer>
           <Table.Row>
             <Table.HeaderCell colSpan='7'>
-              <Button size='small' as={Link} to='/token/add' loading={loading}>
+              <Button
+                size='small'
+                as={Link}
+                to='/token/add'
+                loading={loading}
+                style={{ color: "var(--czl-main)", backgroundColor: "var(--czl-link-color)" }}
+              >
                 添加新的令牌
               </Button>
               <Button size='small' onClick={refresh} loading={loading}>刷新</Button>
+
               <Pagination
                 floated='right'
                 activePage={activePage}

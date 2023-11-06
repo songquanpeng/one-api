@@ -117,7 +117,7 @@ const EditRedemption = () => {
               </Form.Field>
             </>
           }
-          <Button positive onClick={submit}>提交</Button>
+          <Button positive onClick={submit} style={{ background: 'var(--czl-success-color)' }}>提交</Button>
           <Button onClick={handleCancel}>取消</Button>
         </Form>
       </Segment>

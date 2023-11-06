@@ -142,7 +142,7 @@ const RegisterForm = () => {
                   name='email'
                   type='email'
                   action={
-                    <Button onClick={sendVerificationCode} disabled={loading}>
+                    <Button onClick={sendVerificationCode} disabled={loading} style={{ backgroundColor: 'var(--czl-primary-color)', color: '#fff' }}>
                       获取验证码
                     </Button>
                   }
@@ -170,7 +170,7 @@ const RegisterForm = () => {
               <></>
             )}
             <Button
-              color='green'
+              style={{ backgroundColor: 'var(--czl-success-color)', color: '#fff' }}
               fluid
               size='large'
               onClick={handleSubmit}
@@ -182,7 +182,7 @@ const RegisterForm = () => {
         </Form>
         <Message>
           已有账户？
-          <Link to='/login' className='btn btn-link'>
+          <Link to='/login' className='btn btn-link' style={{ color: 'var(--czl-link-color)' }}>
             点击登录
           </Link>
         </Message>

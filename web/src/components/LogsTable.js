@@ -29,15 +29,15 @@ const LOG_OPTIONS = [
 function renderType(type) {
   switch (type) {
     case 1:
-      return <Label basic color='green'> 充值 </Label>;
+      return <Label basic style={{ color: 'var(--czl-success-color)' }}> 充值 </Label>;
     case 2:
-      return <Label basic color='olive'> 消费 </Label>;
+      return <Label basic style={{ color: 'var(--czl-primary-color)' }}> 消费 </Label>;
     case 3:
-      return <Label basic color='orange'> 管理 </Label>;
+      return <Label basic style={{ color: 'var(--czl-warning-color)' }}> 管理 </Label>;
     case 4:
-      return <Label basic color='purple'> 系统 </Label>;
+      return <Label basic style={{ color: 'var(--czl-primary-color-suppl-dark)' }}> 系统 </Label>;
     default:
-      return <Label basic color='black'> 未知 </Label>;
+      return <Label basic style={{ color: 'var(--czl-primary-color-dark)' }}> 未知 </Label>;
   }
 }
 
@@ -69,6 +69,79 @@ const LogsTable = () => {
   const handleInputChange = (e, { name, value }) => {
     setInputs((inputs) => ({ ...inputs, [name]: value }));
   };
+
+  // 快速选时间
+  const handleTimePresetClick = (preset) => {
+    let start, end;
+
+    switch (preset) {
+      case 'today':
+        start = new Date();
+        start.setHours(0, 0, 0, 0);
+        end = new Date();
+        end.setHours(23, 59, 59, 999);
+        break;
+      case 'yesterday':
+        start = new Date(Date.now() - 24 * 60 * 60 * 1000);
+        start.setHours(0, 0, 0, 0);
+        end = new Date(Date.now() - 24 * 60 * 60 * 1000);
+        end.setHours(23, 59, 59, 999);
+        break;
+      case 'week':
+        start = new Date();
+        start.setDate(start.getDate() - start.getDay() + (start.getDay() === 0 ? -6 : 1));
+        start.setHours(0, 0, 0, 0);
+        end = new Date();
+        end.setHours(23, 59, 59, 999);
+        break;
+      case 'lastWeek':
+        start = new Date();
+        start.setDate(start.getDate() - start.getDay() + (start.getDay() === 0 ? -13 : -6));
+        start.setHours(0, 0, 0, 0);
+        end = new Date(start);
+        end.setDate(end.getDate() + 6);
+        end.setHours(23, 59, 59, 999);
+        break;
+      case '30days':
+        start = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+        start.setHours(0, 0, 0, 0);
+        end = new Date();
+        end.setHours(23, 59, 59, 999);
+        break;
+      case 'month':
+        start = new Date();
+        start.setDate(1);
+        start.setHours(0, 0, 0, 0);
+        end = new Date();
+        end.setHours(23, 59, 59, 999);
+        break;
+      case 'lastMonth':
+        start = new Date();
+        start.setDate(1);
+        start.setMonth(start.getMonth() - 1);
+        start.setHours(0, 0, 0, 0);
+        end = new Date(start);
+        end.setMonth(end.getMonth() + 1);
+        end.setDate(end.getDate() - 1);
+        end.setHours(23, 59, 59, 999);
+        break;
+      case 'reset':
+        start = new Date(0);
+        end = new Date(now.getTime() + 3600 * 1000);
+        break;
+      default:
+        break;
+
+    }
+
+    setInputs((inputs) => ({
+      ...inputs,
+      start_timestamp: timestamp2string(start.getTime() / 1000),
+      end_timestamp: timestamp2string(end.getTime() / 1000),
+    }));
+  };
+
+
 
   const getLogSelfStat = async () => {
     let localStartTimestamp = Date.parse(start_timestamp) / 1000;
@@ -146,7 +219,7 @@ const LogsTable = () => {
 
   useEffect(() => {
     refresh().then();
-  }, [logType,username, token_name, model_name, channel]);
+  }, [logType, username, token_name, model_name, channel, start_timestamp, end_timestamp]);
 
   const searchLogs = async () => {
     if (searchKeyword === '') {
@@ -198,7 +271,7 @@ const LogsTable = () => {
       <Segment>
         <Header as='h3'>
           使用明细【消耗额度：
-          {renderQuota(stat.quota)}】
+          <span style={{ color: 'var(--czl-primary-color)' }}>{renderQuota(stat.quota)}</span>】
         </Header>
 
         <Form>
@@ -215,20 +288,36 @@ const LogsTable = () => {
               name='end_timestamp'
               onChange={handleInputChange} />
             <Form.Button fluid label='操作' width={2} onClick={refresh}>查询</Form.Button>
+
+
           </Form.Group>
-          {
-            isAdminUser && <>
-              <Form.Group>
+          <Form.Group>
+            {isAdminUser && (
+              <>
                 <Form.Input fluid label={'渠道 ID'} width={3} value={channel}
                   placeholder='可选值' name='channel'
                   onChange={handleInputChange} />
                 <Form.Input fluid label={'用户名称'} width={3} value={username}
                   placeholder={'可选值'} name='username'
                   onChange={handleInputChange} />
+              </>
+            )}
+            {/* 将按钮组移动到这里 */}
+            <Form.Field>
+              <label>筛选时间</label>
+              <Button.Group>
+                <Button onClick={() => handleTimePresetClick('today')}>今天</Button>
+                <Button onClick={() => handleTimePresetClick('yesterday')}>昨天</Button>
+                <Button onClick={() => handleTimePresetClick('week')}>本周</Button>
+                <Button onClick={() => handleTimePresetClick('lastWeek')}>上周</Button>
+                <Button onClick={() => handleTimePresetClick('month')}>本月</Button>
+                <Button onClick={() => handleTimePresetClick('lastMonth')}>上月</Button>
+                <Button onClick={() => handleTimePresetClick('30days')}>30天内</Button>
+                <Button onClick={() => handleTimePresetClick('reset')}>重置</Button>
 
-              </Form.Group>
-            </>
-          }
+              </Button.Group>
+            </Form.Field>
+          </Form.Group>
         </Form>
         <Table basic compact size='small'>
           <Table.Header>

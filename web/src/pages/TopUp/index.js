@@ -7,7 +7,30 @@ const TopUp = () => {
   const [redemptionCode, setRedemptionCode] = useState('');
   const [topUpLink, setTopUpLink] = useState('');
   const [userQuota, setUserQuota] = useState(0);
+  const [userGroup, setUserGroup] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // 升级用户组
+  const updateUserGroupIfNecessary = async (quota) => {
+    if (userGroup === 'vip') return; // 添加这一行
+
+    if (quota >= 5*500000) {
+      try {
+        const res = await API.post('/api/user/manage', {
+          username: localStorage.getItem('username'),
+          newGroup: 'vip'
+        });
+        const { success, message } = res.data;
+        if (success) {
+          showSuccess('已成功升级为 VIP 会员！');
+        } else {
+          showError('请右下角联系客服');
+        }
+      } catch (err) {
+        showError('请右下角联系客服');
+      }
+    }
+  };
 
   const topUp = async () => {
     if (redemptionCode === '') {
@@ -23,16 +46,18 @@ const TopUp = () => {
       if (success) {
         showSuccess('充值成功！');
         setUserQuota((quota) => {
-          return quota + data;
+          const newQuota = quota + data;
+          updateUserGroupIfNecessary(newQuota);
+          return newQuota;
         });
         setRedemptionCode('');
       } else {
         showError(message);
       }
     } catch (err) {
-      showError('请求失败');
+      showError('请右下角联系客服');
     } finally {
-      setIsSubmitting(false); 
+      setIsSubmitting(false);
     }
   };
 
@@ -44,11 +69,12 @@ const TopUp = () => {
     window.open(topUpLink, '_blank');
   };
 
-  const getUserQuota = async ()=>{
-    let res  = await API.get(`/api/user/self`);
-    const {success, message, data} = res.data;
+  const getUserQuota = async () => {
+    let res = await API.get(`/api/user/self`);
+    const { success, message, data } = res.data;
     if (success) {
       setUserQuota(data.quota);
+      setUserGroup(data.group); // 添加这一行
     } else {
       showError(message);
     }
@@ -79,19 +105,21 @@ const TopUp = () => {
                 setRedemptionCode(e.target.value);
               }}
             />
-            <Button color='green' onClick={openTopUpLink}>
+            <Button negative style={{ backgroundColor: 'var(--czl-primary-color)' }} onClick={openTopUpLink}>
               获取兑换码
             </Button>
-            <Button color='yellow' onClick={topUp} disabled={isSubmitting}>
-                {isSubmitting ? '兑换中...' : '兑换'}
+            <Button negative style={{ backgroundColor: 'var(--czl-success-color)' }} onClick={topUp} disabled={isSubmitting}>
+              {isSubmitting ? '兑换中...' : '兑换'}
             </Button>
+
+
           </Form>
         </Grid.Column>
         <Grid.Column>
           <Statistic.Group widths='one'>
             <Statistic>
-              <Statistic.Value>{renderQuota(userQuota)}</Statistic.Value>
-              <Statistic.Label>剩余额度</Statistic.Label>
+              <Statistic.Value style={{ color: 'var(--czl-error-color)' }}>{renderQuota(userQuota)}</Statistic.Value>
+              <Statistic.Label style={{ color: 'var(--czl-error-color)' }}>剩余额度</Statistic.Label>
             </Statistic>
           </Statistic.Group>
         </Grid.Column>
