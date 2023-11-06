@@ -188,7 +188,7 @@ sudo service nginx restart
    
    # 构建前端
    cd one-api/web
-   npm install
+   npm ci
    npm run build
    
    # 构建后端

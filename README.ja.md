@@ -136,7 +136,7 @@ sudo service nginx restart
 
    # フロントエンドのビルド
    cd one-api/web
-   npm install
+   npm ci
    npm run build
 
    # バックエンドのビルド

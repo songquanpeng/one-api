@@ -1,0 +1,43 @@
+name: Code Checking
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  checking:
+    name: lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-node@v3
+        with:
+          cache: npm
+          node-version: 20
+
+      - uses: actions/setup-go@v4
+        with:
+          go-version: "stable"
+
+      - name: Test Build
+        env:
+          CI: ""
+        run: |
+          cd web
+          npm ci
+          npm run build
+
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v3
+        with:
+          install-mode: binary
+          version: latest
+
+      - name: Test Build of Go
+        run: go build
+        

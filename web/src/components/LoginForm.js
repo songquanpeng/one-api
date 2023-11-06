@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { Button, Divider, Form, Grid, Header, Image, Message, Modal, Segment } from 'semantic-ui-react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { UserContext } from '../context/User';
-import { API, getLogo, showError, showSuccess, showWarning } from '../helpers';
+import { API, showInfo, getLogo, showError, showSuccess, showWarning } from '../helpers';
 import Turnstile from 'react-turnstile';
 import { onGitHubOAuthClicked } from './utils';
 
@@ -21,8 +21,8 @@ const LoginForm = () => {
   const [turnstileToken, setTurnstileToken] = useState('');
   let navigate = useNavigate();
   const [status, setStatus] = useState({});
-  const logo = getLogo();
-
+  const logo = getLogo(); 
+  
   useEffect(() => {
     if (searchParams.get('expired')) {
       showError('未登录或登录已过期，请重新登录！');

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Divider, Form, Grid, Header, Message, Modal } from 'semantic-ui-react';
+import { Button, Divider, Form, Grid, Header, Modal } from 'semantic-ui-react';
 import { API, showError, showSuccess } from '../helpers';
 import { marked } from 'marked';
 

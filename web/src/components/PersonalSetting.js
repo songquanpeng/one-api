@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Button, Divider, Form, Header, Image, Message, Modal } from 'semantic-ui-react';
 import { Link, useNavigate } from 'react-router-dom';
-import { API, copy, showError, showInfo, showNotice, showSuccess } from '../helpers';
+import { API, copy, showError, showInfo, showSuccess } from '../helpers';
 import Turnstile from 'react-turnstile';
 import { UserContext } from '../context/User';
 import { onGitHubOAuthClicked } from './utils';

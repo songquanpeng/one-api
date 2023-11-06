@@ -5,7 +5,7 @@ import { StatusContext } from '../../context/Status';
 import { marked } from 'marked';
 
 const Home = () => {
-  const [statusState, statusDispatch] = useContext(StatusContext);
+  const [statusState] = useContext(StatusContext);
   const [homePageContentLoaded, setHomePageContentLoaded] = useState(false);
   const [homePageContent, setHomePageContent] = useState('');
 
@@ -70,7 +70,7 @@ const Home = () => {
                         源码：
                         <a
                           href='https://github.com/songquanpeng/one-api'
-                          target='_blank'
+                          target='_blank' rel="noreferrer"
                         >
                           https://github.com/songquanpeng/one-api
                         </a>

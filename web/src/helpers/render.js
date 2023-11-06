@@ -16,11 +16,11 @@ export function renderGroup(group) {
   return <>
     {groups.map((group) => {
       if (group === 'vip' || group === 'pro') {
-        return <Label color='yellow'>{group}</Label>;
+        return <Label key={group} color='yellow'>{group}</Label>;
       } else if (group === 'svip' || group === 'premium') {
-        return <Label color='red'>{group}</Label>;
+        return <Label key={group}color='red'>{group}</Label>;
       }
-      return <Label>{group}</Label>;
+      return <Label key={group}>{group}</Label>;
     })}
   </>;
 }

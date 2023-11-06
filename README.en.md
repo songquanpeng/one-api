@@ -135,7 +135,7 @@ The initial account username is `root` and password is `123456`.
    
    # Build the frontend
    cd one-api/web
-   npm install
+   npm ci
    npm run build
    
    # Build the backend
