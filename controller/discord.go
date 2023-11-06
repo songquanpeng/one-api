@@ -55,7 +55,11 @@ func getDiscordUserInfoByCode(codeFromURLParamaters string, host string) (*Disco
 
 	var discordOAuthResponse DiscordOAuthResponse
 
-	json.NewDecoder(resp.Body).Decode(&discordOAuthResponse)
+	err = json.NewDecoder(resp.Body).Decode(&discordOAuthResponse)
+
+	if err != nil {
+		return nil, err
+	}
 
 	accessToken := fmt.Sprintf("Bearer %s", discordOAuthResponse.AccessToken)
 
@@ -77,7 +81,7 @@ func getDiscordUserInfoByCode(codeFromURLParamaters string, host string) (*Disco
 
 	var discordUser DiscordUser
 
-	json.NewDecoder(resp.Body).Decode(&discordUser)
+	err = json.NewDecoder(resp.Body).Decode(&discordUser)
 
 	if err != nil {
 		return nil, err
@@ -219,5 +223,4 @@ func DiscordBind(c *gin.Context) {
 		"success": true,
 		"message": "bind",
 	})
-	return
 }

@@ -288,7 +288,6 @@ func UpdateChannelBalance(c *gin.Context) {
 		"message": "",
 		"balance": balance,
 	})
-	return
 }
 
 func updateAllChannelsBalance() error {
@@ -332,7 +331,6 @@ func UpdateAllChannelsBalance(c *gin.Context) {
 		"success": true,
 		"message": "",
 	})
-	return
 }
 
 func AutomaticallyUpdateChannels(frequency int) {

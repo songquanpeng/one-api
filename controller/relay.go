@@ -49,12 +49,12 @@ func (r GeneralOpenAIRequest) ParseInput() []string {
 		return nil
 	}
 	var input []string
-	switch r.Input.(type) {
+	switch v := r.Input.(type) {
 	case string:
-		input = []string{r.Input.(string)}
+		input = []string{v}
 	case []any:
-		input = make([]string, 0, len(r.Input.([]any)))
-		for _, item := range r.Input.([]any) {
+		input = make([]string, 0, len(v))
+		for _, item := range v {
 			if str, ok := item.(string); ok {
 				input = append(input, str)
 			}

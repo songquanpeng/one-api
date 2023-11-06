@@ -3,14 +3,15 @@ package controller
 import (
 	"bufio"
 	"encoding/json"
-	"github.com/gin-gonic/gin"
-	"github.com/golang-jwt/jwt"
 	"io"
 	"net/http"
 	"one-api/common"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt"
 )
 
 // https://open.bigmodel.cn/doc/api#chatglm_std
@@ -193,7 +194,7 @@ func zhipuStreamHandler(c *gin.Context, resp *http.Response) (*OpenAIErrorWithSt
 		if atEOF && len(data) == 0 {
 			return 0, nil, nil
 		}
-		if i := strings.Index(string(data), "\n\n"); i >= 0 && strings.Index(string(data), ":") >= 0 {
+		if i := strings.Index(string(data), "\n\n"); i >= 0 && strings.Contains(string(data), ":") {
 			return i + 2, data[0:i], nil
 		}
 		if atEOF {
@@ -297,5 +298,8 @@ func zhipuHandler(c *gin.Context, resp *http.Response) (*OpenAIErrorWithStatusCo
 	c.Writer.Header().Set("Content-Type", "application/json")
 	c.Writer.WriteHeader(resp.StatusCode)
 	_, err = c.Writer.Write(jsonResponse)
+	if err != nil {
+		common.SysError("error writing response: " + err.Error())
+	}
 	return nil, &fullTextResponse.Usage
 }

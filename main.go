@@ -26,8 +26,8 @@ var indexPage []byte
 func main() {
 	// This will load .env file if it exists, to set environment variables instead of exporting them one by one
 	envErr := godotenv.Load()
-	if envErr != nil {
-		common.SysLog("Cannot load .env file, using environment variables, this is not an error, just a reminder")
+	if envErr == nil {
+		common.SysLog("从 .env 文件加载环境变量")
 	}
 
 	common.SetupLogger()

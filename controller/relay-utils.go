@@ -31,7 +31,7 @@ func InitTokenEncoders() {
 	if err != nil {
 		common.FatalLog(fmt.Sprintf("failed to get gpt-4 token encoder: %s", err.Error()))
 	}
-	for model, _ := range common.ModelRatio {
+	for model := range common.ModelRatio {
 		if strings.HasPrefix(model, "gpt-3.5") {
 			tokenEncoderMap[model] = gpt35TokenEncoder
 		} else if strings.HasPrefix(model, "gpt-4") {
@@ -98,12 +98,12 @@ func countTokenMessages(messages []Message, model string) int {
 }
 
 func countTokenInput(input any, model string) int {
-	switch input.(type) {
+	switch v := input.(type) {
 	case string:
-		return countTokenText(input.(string), model)
+		return countTokenText(v, model)
 	case []string:
 		text := ""
-		for _, s := range input.([]string) {
+		for _, s := range v {
 			text += s
 		}
 		return countTokenText(text, model)

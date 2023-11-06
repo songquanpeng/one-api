@@ -3,10 +3,11 @@ package controller
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"io"
 	"net/http"
 	"one-api/common"
+
+	"github.com/gin-gonic/gin"
 )
 
 // https://developers.generativeai.google/api/rest/generativelanguage/models/generateMessage#request-body
@@ -201,5 +202,8 @@ func palmHandler(c *gin.Context, resp *http.Response, promptTokens int, model st
 	c.Writer.Header().Set("Content-Type", "application/json")
 	c.Writer.WriteHeader(resp.StatusCode)
 	_, err = c.Writer.Write(jsonResponse)
+	if err != nil {
+		common.SysError("error writing response: " + err.Error())
+	}
 	return nil, &usage
 }

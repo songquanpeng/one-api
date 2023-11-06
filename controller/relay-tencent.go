@@ -8,13 +8,14 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"io"
 	"net/http"
 	"one-api/common"
 	"sort"
 	"strconv"
 	"strings"
+
+	"github.com/gin-gonic/gin"
 )
 
 // https://cloud.tencent.com/document/product/1729/97732
@@ -244,6 +245,9 @@ func tencentHandler(c *gin.Context, resp *http.Response) (*OpenAIErrorWithStatus
 	c.Writer.Header().Set("Content-Type", "application/json")
 	c.Writer.WriteHeader(resp.StatusCode)
 	_, err = c.Writer.Write(jsonResponse)
+	if err != nil {
+		common.SysError("error writing response: " + err.Error())
+	}
 	return nil, &fullTextResponse.Usage
 }
 
@@ -277,7 +281,7 @@ func getTencentSign(req TencentChatRequest, secretKey string) string {
 	messageStr = strings.TrimSuffix(messageStr, ",")
 	params = append(params, "messages=["+messageStr+"]")
 
-	sort.Sort(sort.StringSlice(params))
+	sort.Strings(params)
 	url := "hunyuan.cloud.tencent.com/hyllm/v1/chat/completions?" + strings.Join(params, "&")
 	mac := hmac.New(sha1.New, []byte(secretKey))
 	signURL := url

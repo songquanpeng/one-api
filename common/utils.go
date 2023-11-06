@@ -2,7 +2,6 @@ package common
 
 import (
 	"fmt"
-	"github.com/google/uuid"
 	"html/template"
 	"log"
 	"math/rand"
@@ -13,6 +12,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 func OpenBrowser(url string) {
@@ -106,13 +107,13 @@ func Seconds2Time(num int) (time string) {
 }
 
 func Interface2String(inter interface{}) string {
-	switch inter.(type) {
+	switch v := inter.(type) {
 	case string:
-		return inter.(string)
+		return v
 	case int:
-		return fmt.Sprintf("%d", inter.(int))
+		return fmt.Sprintf("%d", v)
 	case float64:
-		return fmt.Sprintf("%f", inter.(float64))
+		return fmt.Sprintf("%f", v)
 	}
 	return "Not Implemented"
 }
@@ -138,14 +139,17 @@ func GetUUID() string {
 const keyChars = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 func init() {
-	rand.Seed(time.Now().UnixNano())
+	s := rand.NewSource(time.Now().UnixNano())
+	rand.New(s)
 }
 
 func GenerateKey() string {
-	rand.Seed(time.Now().UnixNano())
+	var src = rand.NewSource(time.Now().UnixNano())
+	var r = rand.New(src)
+
 	key := make([]byte, 48)
 	for i := 0; i < 16; i++ {
-		key[i] = keyChars[rand.Intn(len(keyChars))]
+		key[i] = keyChars[r.Intn(len(keyChars))]
 	}
 	uuid_ := GetUUID()
 	for i := 0; i < 32; i++ {
@@ -159,10 +163,12 @@ func GenerateKey() string {
 }
 
 func GetRandomString(length int) string {
-	rand.Seed(time.Now().UnixNano())
+	var src = rand.NewSource(time.Now().UnixNano())
+	var r = rand.New(src)
+
 	key := make([]byte, length)
 	for i := 0; i < length; i++ {
-		key[i] = keyChars[rand.Intn(len(keyChars))]
+		key[i] = keyChars[r.Intn(len(keyChars))]
 	}
 	return string(key)
 }

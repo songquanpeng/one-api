@@ -39,10 +39,6 @@ func checkWriter(writer io.Writer) stringWriter {
 var contentType = []string{"text/event-stream"}
 var noCache = []string{"no-cache"}
 
-var fieldReplacer = strings.NewReplacer(
-	"\n", "\\n",
-	"\r", "\\r")
-
 var dataReplacer = strings.NewReplacer(
 	"\n", "\ndata:",
 	"\r", "\\r")
@@ -60,9 +56,15 @@ func encode(writer io.Writer, event CustomEvent) error {
 }
 
 func writeData(w stringWriter, data interface{}) error {
-	dataReplacer.WriteString(w, fmt.Sprint(data))
+	_, err := dataReplacer.WriteString(w, fmt.Sprint(data))
+	if err != nil {
+		return err
+	}
 	if strings.HasPrefix(data.(string), "data") {
-		w.writeString("\n\n")
+		_, err := w.writeString("\n\n")
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }

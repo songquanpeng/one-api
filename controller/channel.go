@@ -28,7 +28,6 @@ func GetAllChannels(c *gin.Context) {
 		"message": "",
 		"data":    channels,
 	})
-	return
 }
 
 func SearchChannels(c *gin.Context) {
@@ -46,7 +45,6 @@ func SearchChannels(c *gin.Context) {
 		"message": "",
 		"data":    channels,
 	})
-	return
 }
 
 func GetChannel(c *gin.Context) {
@@ -71,7 +69,6 @@ func GetChannel(c *gin.Context) {
 		"message": "",
 		"data":    channel,
 	})
-	return
 }
 
 func AddChannel(c *gin.Context) {
@@ -107,7 +104,6 @@ func AddChannel(c *gin.Context) {
 		"success": true,
 		"message": "",
 	})
-	return
 }
 
 func DeleteChannel(c *gin.Context) {
@@ -125,7 +121,6 @@ func DeleteChannel(c *gin.Context) {
 		"success": true,
 		"message": "",
 	})
-	return
 }
 
 func DeleteDisabledChannel(c *gin.Context) {
@@ -142,7 +137,6 @@ func DeleteDisabledChannel(c *gin.Context) {
 		"message": "",
 		"data":    rows,
 	})
-	return
 }
 
 func UpdateChannel(c *gin.Context) {
@@ -168,5 +162,4 @@ func UpdateChannel(c *gin.Context) {
 		"message": "",
 		"data":    channel,
 	})
-	return
 }

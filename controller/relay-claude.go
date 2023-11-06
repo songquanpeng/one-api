@@ -4,11 +4,12 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"io"
 	"net/http"
 	"one-api/common"
 	"strings"
+
+	"github.com/gin-gonic/gin"
 )
 
 type ClaudeMetadata struct {
@@ -216,5 +217,8 @@ func claudeHandler(c *gin.Context, resp *http.Response, promptTokens int, model 
 	c.Writer.Header().Set("Content-Type", "application/json")
 	c.Writer.WriteHeader(resp.StatusCode)
 	_, err = c.Writer.Write(jsonResponse)
+	if err != nil {
+		common.SysError("error writing response: " + err.Error())
+	}
 	return nil, &usage
 }

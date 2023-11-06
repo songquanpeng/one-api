@@ -7,7 +7,6 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"github.com/gin-gonic/gin"
 	"net/http"
 	"one-api/common"
 	"one-api/model"
@@ -15,6 +14,8 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/gin-gonic/gin"
 )
 
 func testChannel(channel *model.Channel, request ChatRequest) (err error, openaiErr *OpenAIError) {
@@ -76,8 +77,8 @@ func testChannel(channel *model.Channel, request ChatRequest) (err error, openai
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
 		// Log: Channel (channel_id) Request Error (StatusCode)
-		log.Print(fmt.Sprintf("Channel (%d) Request Error (%d)", channel.Id, resp.StatusCode))
-		return errors.New(fmt.Sprintf("status code %d", resp.StatusCode)), nil
+		log.Printf("Channel (%d) Request Error (%d)", channel.Id, resp.StatusCode)
+		return errors.New("status code " + strconv.Itoa(resp.StatusCode)), nil
 	}
 
 	if channel.AllowStreaming == common.ChannelAllowStreamEnabled {
@@ -141,7 +142,7 @@ func testChannel(channel *model.Channel, request ChatRequest) (err error, openai
 			return err, nil
 		}
 		if response.Usage.CompletionTokens == 0 {
-			return errors.New(fmt.Sprintf("type %s, code %v, message %s", response.Error.Type, response.Error.Code, response.Error.Message)), &response.Error
+			return fmt.Errorf("type %s, code %v, message %s", response.Error.Type, response.Error.Code, response.Error.Message), &response.Error
 		}
 	}
 
@@ -156,7 +157,7 @@ func buildTestRequest(stream bool) *ChatRequest {
 	}
 	testMessage := Message{
 		Role:    "user",
-		Content: "hi",
+		Content: "Say hi only",
 	}
 	testRequest.Messages = append(testRequest.Messages, testMessage)
 	return testRequest
@@ -199,7 +200,6 @@ func TestChannel(c *gin.Context) {
 		"message": "",
 		"time":    consumedTime,
 	})
-	return
 }
 
 var testAllChannelsLock sync.Mutex
@@ -264,7 +264,7 @@ func testAllChannels(notify bool) error {
 			milliseconds := tok.Sub(tik).Milliseconds()
 			channelBeninDisabled := false
 			if milliseconds > disableThreshold {
-				err = errors.New(fmt.Sprintf("响应时间 %.2fs 超过阈值 %.2fs", float64(milliseconds)/1000.0, float64(disableThreshold)/1000.0))
+				log.Printf("响应时间 %.2fs 超过阈值 %.2fs", float64(milliseconds)/1000.0, float64(disableThreshold)/1000.0)
 				disableChannel(channel.Id, channel.Name, err.Error())
 				channelBeninDisabled = true
 			}
@@ -304,7 +304,6 @@ func TestAllChannels(c *gin.Context) {
 		"success": true,
 		"message": "",
 	})
-	return
 }
 
 func AutomaticallyTestChannels(frequency int) {

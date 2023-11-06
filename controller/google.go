@@ -57,7 +57,11 @@ func getGoogleUserInfoByCode(codeFromURLParamaters string, host string) (*Google
 
 	var googleTokenResponse GoogleAccessTokenResponse
 
-	json.NewDecoder(resp.Body).Decode(&googleTokenResponse)
+	err = json.NewDecoder(resp.Body).Decode(&googleTokenResponse)
+
+	if err != nil {
+		return nil, err
+	}
 
 	accessToken := "Bearer " + googleTokenResponse.AccessToken
 
@@ -222,5 +226,4 @@ func GoogleBind(c *gin.Context) {
 		"success": true,
 		"message": "bind",
 	})
-	return
 }

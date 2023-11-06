@@ -2,9 +2,10 @@ package common
 
 import (
 	"embed"
-	"github.com/gin-contrib/static"
 	"io/fs"
 	"net/http"
+
+	"github.com/gin-contrib/static"
 )
 
 // Credit: https://github.com/gin-contrib/static/issues/19
@@ -15,10 +16,7 @@ type embedFileSystem struct {
 
 func (e embedFileSystem) Exists(prefix string, path string) bool {
 	_, err := e.Open(path)
-	if err != nil {
-		return false
-	}
-	return true
+	return err == nil
 }
 
 func EmbedFolder(fsEmbed embed.FS, targetPath string) static.ServeFileSystem {

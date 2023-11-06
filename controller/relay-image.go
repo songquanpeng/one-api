@@ -6,11 +6,12 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"io"
 	"net/http"
 	"one-api/common"
 	"one-api/model"
+
+	"github.com/gin-gonic/gin"
 )
 
 func relayImageHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
@@ -81,6 +82,10 @@ func relayImageHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode 
 	groupRatio := common.GetGroupRatio(group)
 	ratio := modelRatio * groupRatio
 	userQuota, err := model.CacheGetUserQuota(userId)
+
+	if err != nil {
+		return errorWrapper(err, "get_user_quota_failed", http.StatusInternalServerError)
+	}
 
 	sizeRatio := 1.0
 	// Size
