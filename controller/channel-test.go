@@ -49,7 +49,7 @@ func testChannel(channel *model.Channel, request ChatRequest) (err error, openai
 			requestURL = channel.GetBaseURL()
 		}
 
-		requestURL = getFullRequestURL(channel.GetBaseURL(), "/v1/chat/completions", channel.Type)
+		requestURL = getFullRequestURL(requestURL, "/v1/chat/completions", channel.Type)
 	}
 	jsonData, err := json.Marshal(request)
 	if err != nil {
