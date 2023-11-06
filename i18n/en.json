@@ -69,7 +69,8 @@
   "无权进行此操作，access token 无效": "No permission to perform this operation, access token is invalid",
   "无权进行此操作，权限不足": "No permission to perform this operation, insufficient permissions",
   "普通用户不支持指定渠道": "Ordinary users do not support specifying channels",
-  "无效的渠道 ID": "Invalid channel ID",
+  "无效的渠道 Id": "Invalid channel ID",
+  "参考文档：": "Reference document: ",
   "该渠道已被禁用": "The channel has been disabled",
   "无效的请求": "Invalid request",
   "无可用渠道": "No available channels",
@@ -527,6 +528,8 @@
   "无法复制到剪贴板，请手动复制，已将兑换码填入搜索框。": "Unable to copy to clipboard, please copy manually, the redemption code has been filled in the search box.",
   "密码重置完成": "Password reset completed",
 
+  "无法启用 GitHub OAuth，请先填入 GitHub Client Id 以及 GitHub Client Secret！": "Unable to enable GitHub OAuth, please fill in the GitHub Client Id and GitHub Client Secret first!",
+  
   "阿里通义千问": "Aliyun Tongyi",
   "讯飞星火认知": "Xfyun Xinghuo",
   "点击更新": "Click to update",

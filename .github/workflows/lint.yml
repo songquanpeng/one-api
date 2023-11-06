@@ -41,3 +41,7 @@ jobs:
       - name: Test Build of Go
         run: go build
         
+      - name: Check English Translation Coverage
+        run: |
+          python ./i18n/translate.py --repository_path . --json_file_path ./i18n/en.json
+          python ./i18n/check-if-chn-exists.py .
