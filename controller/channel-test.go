@@ -5,14 +5,14 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"net/http"
 	"one-api/common"
 	"one-api/model"
 	"strconv"
-	"strings"
 	"sync"
 	"time"
+
+	"github.com/gin-gonic/gin"
 )
 
 func testChannel(channel *model.Channel, request ChatRequest) (err error, openaiErr *OpenAIError) {
@@ -43,16 +43,14 @@ func testChannel(channel *model.Channel, request ChatRequest) (err error, openai
 	}
 	requestURL := common.ChannelBaseURLs[channel.Type]
 	if channel.Type == common.ChannelTypeAzure {
-		requestURL = fmt.Sprintf("%s/openai/deployments/%s/chat/completions?api-version=2023-03-15-preview", channel.GetBaseURL(), request.Model)
+		requestURL = getFullRequestURL(channel.GetBaseURL(), fmt.Sprintf("/openai/deployments/%s/chat/completions?api-version=2023-03-15-preview", request.Model), channel.Type)
 	} else {
 		if channel.GetBaseURL() != "" {
 			requestURL = channel.GetBaseURL()
 		}
-		requestURL += "/v1/chat/completions"
-	}
-	// for Cloudflare AI gateway: https://github.com/songquanpeng/one-api/pull/639
-	requestURL = strings.Replace(requestURL, "/v1/v1", "/v1", 1)
 
+		requestURL = getFullRequestURL(requestURL, "/v1/chat/completions", channel.Type)
+	}
 	jsonData, err := json.Marshal(request)
 	if err != nil {
 		return err, nil
