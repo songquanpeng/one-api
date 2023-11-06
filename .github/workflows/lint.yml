@@ -36,6 +36,7 @@ jobs:
         with:
           install-mode: binary
           version: latest
+          args: --timeout=10m
 
       - name: Test Build of Go
         run: go build
