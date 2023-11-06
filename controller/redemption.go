@@ -1,11 +1,12 @@
 package controller
 
 import (
-	"github.com/gin-gonic/gin"
 	"net/http"
 	"one-api/common"
 	"one-api/model"
 	"strconv"
+
+	"github.com/gin-gonic/gin"
 )
 
 func GetAllRedemptions(c *gin.Context) {
@@ -26,7 +27,6 @@ func GetAllRedemptions(c *gin.Context) {
 		"message": "",
 		"data":    redemptions,
 	})
-	return
 }
 
 func SearchRedemptions(c *gin.Context) {
@@ -44,7 +44,6 @@ func SearchRedemptions(c *gin.Context) {
 		"message": "",
 		"data":    redemptions,
 	})
-	return
 }
 
 func GetRedemption(c *gin.Context) {
@@ -69,7 +68,6 @@ func GetRedemption(c *gin.Context) {
 		"message": "",
 		"data":    redemption,
 	})
-	return
 }
 
 func AddRedemption(c *gin.Context) {
@@ -129,7 +127,6 @@ func AddRedemption(c *gin.Context) {
 		"message": "",
 		"data":    keys,
 	})
-	return
 }
 
 func DeleteRedemption(c *gin.Context) {
@@ -146,7 +143,6 @@ func DeleteRedemption(c *gin.Context) {
 		"success": true,
 		"message": "",
 	})
-	return
 }
 
 func UpdateRedemption(c *gin.Context) {
@@ -188,5 +184,4 @@ func UpdateRedemption(c *gin.Context) {
 		"message": "",
 		"data":    cleanRedemption,
 	})
-	return
 }

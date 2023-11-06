@@ -218,6 +218,9 @@ func PreConsumeTokenQuota(tokenId int, quota int) (err error) {
 
 func PostConsumeTokenQuota(tokenId int, quota int) (err error) {
 	token, err := GetTokenById(tokenId)
+	if err != nil {
+		return err
+	}
 	if quota > 0 {
 		err = DecreaseUserQuota(token.UserId, quota)
 	} else {

@@ -39,7 +39,6 @@ func GetStatus(c *gin.Context) {
 			"display_in_currency": common.DisplayInCurrencyEnabled,
 		},
 	})
-	return
 }
 
 func GetNotice(c *gin.Context) {
@@ -50,7 +49,6 @@ func GetNotice(c *gin.Context) {
 		"message": "",
 		"data":    common.OptionMap["Notice"],
 	})
-	return
 }
 
 func GetAbout(c *gin.Context) {
@@ -61,7 +59,6 @@ func GetAbout(c *gin.Context) {
 		"message": "",
 		"data":    common.OptionMap["About"],
 	})
-	return
 }
 
 func GetHomePageContent(c *gin.Context) {
@@ -72,7 +69,6 @@ func GetHomePageContent(c *gin.Context) {
 		"message": "",
 		"data":    common.OptionMap["HomePageContent"],
 	})
-	return
 }
 
 func SendEmailVerification(c *gin.Context) {
@@ -125,7 +121,6 @@ func SendEmailVerification(c *gin.Context) {
 		"success": true,
 		"message": "",
 	})
-	return
 }
 
 func SendPasswordResetEmail(c *gin.Context) {
@@ -164,7 +159,6 @@ func SendPasswordResetEmail(c *gin.Context) {
 		"success": true,
 		"message": "",
 	})
-	return
 }
 
 type PasswordResetRequest struct {
@@ -212,5 +206,4 @@ func ResetPassword(c *gin.Context) {
 		"message": "",
 		"data":    password,
 	})
-	return
 }

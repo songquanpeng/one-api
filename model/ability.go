@@ -24,7 +24,7 @@ func GetRandomSatisfiedChannel(group string, model string, stream bool) (*Channe
 		trueVal = "true"
 	}
 
-	var err error = nil
+	var err error
 
 	cmdWhere := groupCol + " = ? and model = ? and enabled = " + trueVal
 
