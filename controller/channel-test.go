@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"github.com/gin-gonic/gin"
 	"net/http"
 	"one-api/common"
 	"one-api/model"
@@ -14,8 +15,6 @@ import (
 	"strings"
 	"sync"
 	"time"
-
-	"github.com/gin-gonic/gin"
 )
 
 func testChannel(channel *model.Channel, request ChatRequest) (err error, openaiErr *OpenAIError) {
@@ -53,6 +52,8 @@ func testChannel(channel *model.Channel, request ChatRequest) (err error, openai
 		}
 		requestURL += "/v1/chat/completions"
 	}
+	// for Cloudflare AI gateway: https://github.com/songquanpeng/one-api/pull/639
+	requestURL = strings.Replace(requestURL, "/v1/v1", "/v1", 1)
 
 	jsonData, err := json.Marshal(request)
 	if err != nil {
