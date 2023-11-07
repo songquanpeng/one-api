@@ -14,7 +14,8 @@ import (
 )
 
 func relayImageHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
-	imageModel := "dall-e"
+	imageModel := "dall-e-2"
+	requestSize := "1024x1024"
 
 	tokenId := c.GetInt("token_id")
 	channelType := c.GetInt("channel")
@@ -24,6 +25,7 @@ func relayImageHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode 
 	group := c.GetString("group")
 
 	var imageRequest ImageRequest
+
 	if consumeQuota {
 		err := common.UnmarshalBodyReusable(c, &imageRequest)
 		if err != nil {
@@ -31,19 +33,19 @@ func relayImageHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode 
 		}
 	}
 
+	// Model validation
+	if imageRequest.Model != "" || imageRequest.Model != "dall-e-3" {
+		imageModel = "dall-e-2"
+	}
+
+	// Size validation
+	if imageRequest.Size != "" {
+		requestSize = imageRequest.Size
+	}
+
 	// Prompt validation
 	if imageRequest.Prompt == "" {
 		return errorWrapper(errors.New("prompt is required"), "required_field_missing", http.StatusBadRequest)
-	}
-
-	// Not "256x256", "512x512", or "1024x1024"
-	if imageRequest.Size != "" && imageRequest.Size != "256x256" && imageRequest.Size != "512x512" && imageRequest.Size != "1024x1024" {
-		return errorWrapper(errors.New("size must be one of 256x256, 512x512, or 1024x1024"), "invalid_field_value", http.StatusBadRequest)
-	}
-
-	// N should between 1 and 10
-	if imageRequest.N != 0 && (imageRequest.N < 1 || imageRequest.N > 10) {
-		return errorWrapper(errors.New("n must be between 1 and 10"), "invalid_field_value", http.StatusBadRequest)
 	}
 
 	// map model name
@@ -83,14 +85,17 @@ func relayImageHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode 
 	userQuota, err := model.CacheGetUserQuota(userId)
 
 	sizeRatio := 1.0
-	// Size
-	if imageRequest.Size == "256x256" {
-		sizeRatio = 1
-	} else if imageRequest.Size == "512x512" {
-		sizeRatio = 1.125
-	} else if imageRequest.Size == "1024x1024" {
-		sizeRatio = 1.25
+
+	if ratios, ok := common.DalleSizeRatios[imageModel]; ok {
+		if ratio, ok := ratios[requestSize]; ok {
+			sizeRatio = ratio
+
+			if imageRequest.Quality == "hd" {
+				sizeRatio = ratio * 2
+			}
+		}
 	}
+
 	quota := int(ratio*sizeRatio*1000) * imageRequest.N
 
 	if consumeQuota && userQuota-quota < 0 {
