@@ -5,6 +5,19 @@ import (
 	"strings"
 )
 
+var DalleSizeRatios = map[string]map[string]float64{
+	"dall-e-2": {
+		"256x256":   1,
+		"512x512":   1.125,
+		"1024x1024": 1.25,
+	},
+	"dall-e-3": {
+		"1024x1024": 1,
+		"1024×1792": 2,
+		"1792×1024": 2,
+	},
+}
+
 // ModelRatio
 // https://platform.openai.com/docs/models/model-endpoint-compatibility
 // https://cloud.baidu.com/doc/WENXINWORKSHOP/s/Blfmc9dlf
@@ -41,7 +54,8 @@ var ModelRatio = map[string]float64{
 	"text-search-ada-doc-001":   10,
 	"text-moderation-stable":    0.1,
 	"text-moderation-latest":    0.1,
-	"dall-e":                    8,
+	"dall-e-2":                  8,      // $0.016 - $0.020 / image
+	"dall-e-3":                  20,     // ￥0.040 - ￥0.120 / image
 	"claude-instant-1":          0.815,  // $1.63 / 1M tokens
 	"claude-2":                  5.51,   // $11.02 / 1M tokens
 	"ERNIE-Bot":                 0.8572, // ￥0.012 / 1k tokens
