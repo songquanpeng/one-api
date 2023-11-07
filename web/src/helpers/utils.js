@@ -28,7 +28,7 @@ export function getSystemName() {
 
 export function getLogo() {
   let logo = localStorage.getItem('logo');
-  if (!logo) return 'https://cdn-img-r2.czl.net/2023/06/20/649168ebc2b5d.png';
+  if (!logo) return '/logo.png';
   return logo
 }
 

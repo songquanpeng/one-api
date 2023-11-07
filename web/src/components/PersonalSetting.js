@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Button, Divider, Form, Header, Image, Message, Modal } from 'semantic-ui-react';
+import { Button, Divider, Form, Header, Image, Message, Modal, Label } from 'semantic-ui-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { API, copy, showError, showInfo, showNotice, showSuccess } from '../helpers';
 import Turnstile from 'react-turnstile';
@@ -19,7 +19,6 @@ const PersonalSetting = () => {
   const [status, setStatus] = useState({});
   const [showWeChatBindModal, setShowWeChatBindModal] = useState(false);
   const [showEmailBindModal, setShowEmailBindModal] = useState(false);
-  const [showAccountDeleteModal, setShowAccountDeleteModal] = useState(false);
   const [turnstileEnabled, setTurnstileEnabled] = useState(false);
   const [turnstileSiteKey, setTurnstileSiteKey] = useState('');
   const [turnstileToken, setTurnstileToken] = useState('');
@@ -28,6 +27,13 @@ const PersonalSetting = () => {
   const [countdown, setCountdown] = useState(30);
   const [affLink, setAffLink] = useState("");
   const [systemToken, setSystemToken] = useState("");
+  const [userGroup, setUserGroup] = useState(null);
+  const [quota, setQuota] = useState(null);
+  const [usedQuota, setUsedQuota] = useState(null);
+  const [requestCount, setRequestCount] = useState(null);
+  const [githubID, setGithubID] = useState(null);
+
+
 
   useEffect(() => {
     let status = localStorage.getItem('status');
@@ -40,6 +46,50 @@ const PersonalSetting = () => {
       }
     }
   }, []);
+
+  // Get user group
+  useEffect(() => {
+    (async () => {
+      const res = await API.get(`/api/user/self`);
+      if (res.data.success) {
+        setUserGroup(res.data.data.group);
+        setQuota(res.data.data.quota);
+        setUsedQuota(res.data.data.used_quota);
+        setRequestCount(res.data.data.request_count);
+        setGithubID(res.data.data.github_id);
+      } else {
+        // Handle the error here
+      }
+    })();
+  }, []);
+  const quotaPerUnit = parseInt(localStorage.getItem("quota_per_unit"));
+
+
+  const transformUserGroup = (group) => {
+    switch (group) {
+      case 'default':
+        return '默认用户';
+      case 'vip':
+        return 'VIP用户';
+      case 'svip':
+        return 'SVIP用户';
+      default:
+        return group;
+    }
+  };
+  const getUserGroupColor = (group) => {
+    switch (group) {
+      case 'default':
+        return 'var(--czl-grayA)';
+      case 'vip':
+        return 'var(--czl-success-color)';
+      case 'svip':
+        return 'var(--czl-error-color)';
+      default:
+        return '';
+    }
+  };
+
 
   useEffect(() => {
     let countdownInterval = null;
@@ -56,19 +106,6 @@ const PersonalSetting = () => {
 
   const handleInputChange = (e, { name, value }) => {
     setInputs((inputs) => ({ ...inputs, [name]: value }));
-  };
-
-  const generateAccessToken = async () => {
-    const res = await API.get('/api/user/token');
-    const { success, message, data } = res.data;
-    if (success) {
-      setSystemToken(data);
-      setAffLink(""); 
-      await copy(data);
-      showSuccess(`令牌已重置并已复制到剪贴板`);
-    } else {
-      showError(message);
-    }
   };
 
   const getAffLink = async () => {
@@ -169,6 +206,26 @@ const PersonalSetting = () => {
 
   return (
     <div style={{ lineHeight: '40px' }}>
+      <Header as='h3'>使用信息</Header>
+      {userGroup && (
+        <Label basic style={{ color: getUserGroupColor(userGroup), borderColor: getUserGroupColor(userGroup) }}>
+          用户组：{transformUserGroup(userGroup)}
+        </Label>
+      )}
+      {quota !== null && quotaPerUnit && (
+        <Label basic style={{ color: getUserGroupColor(userGroup), borderColor: getUserGroupColor(userGroup) }}>
+          额度：${(quota / quotaPerUnit).toFixed(2)}</Label>
+      )}
+      {usedQuota !== null && quotaPerUnit && (
+        <Label basic style={{ color: getUserGroupColor(userGroup), borderColor: getUserGroupColor(userGroup) }}>
+          已用额度：${(usedQuota / quotaPerUnit).toFixed(2)}</Label>
+      )}
+      {requestCount !== null && <Label basic style={{ color: getUserGroupColor(userGroup), borderColor: getUserGroupColor(userGroup) }}>
+        调用次数：{requestCount}</Label>}
+      <Label basic style={{ color: getUserGroupColor(userGroup), borderColor: getUserGroupColor(userGroup) }}>
+        GitHub 账号：{githubID ? githubID : "未绑定"}
+        </Label>
+      <Divider />
       <Header as='h3'>通用设置</Header>
       {/* <Message>
         注意，此处生成的令牌用于系统管理，而非用于请求 OpenAI 相关的服务，请知悉。
@@ -178,24 +235,21 @@ const PersonalSetting = () => {
       </Button>
       {/* <Button onClick={generateAccessToken}>生成系统访问令牌</Button> */}
       <Button onClick={getAffLink}>复制邀请链接</Button>
-      <Button onClick={() => {
-        setShowAccountDeleteModal(true);
-      }}>删除个人账户</Button>
-      
+
       {systemToken && (
-        <Form.Input 
-          fluid 
-          readOnly 
-          value={systemToken} 
+        <Form.Input
+          fluid
+          readOnly
+          value={systemToken}
           onClick={handleSystemTokenClick}
           style={{ marginTop: '10px' }}
         />
       )}
       {affLink && (
-        <Form.Input 
-          fluid 
-          readOnly 
-          value={affLink} 
+        <Form.Input
+          fluid
+          readOnly
+          value={affLink}
           onClick={handleAffLinkClick}
           style={{ marginTop: '10px' }}
         />
@@ -244,7 +298,7 @@ const PersonalSetting = () => {
       </Modal>
       {
         status.github_oauth && (
-          <Button onClick={()=>{onGitHubOAuthClicked(status.github_client_id)}}>绑定 GitHub 账号</Button>
+          <Button onClick={() => { onGitHubOAuthClicked(status.github_client_id) }}>绑定 GitHub 账号</Button>
         )
       }
       <Button
@@ -295,72 +349,20 @@ const PersonalSetting = () => {
                 <></>
               )}
               <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '1rem' }}>
-              <Button
-                color=''
-                fluid
-                size='large'
-                onClick={bindEmail}
-                loading={loading}
-              >
-                确认绑定
-              </Button>
-              <div style={{ width: '1rem' }}></div> 
-              <Button
-                fluid
-                size='large'
-                onClick={() => setShowEmailBindModal(false)}
-              >
-                取消
-              </Button>
-              </div>
-            </Form>
-          </Modal.Description>
-        </Modal.Content>
-      </Modal>
-      <Modal
-        onClose={() => setShowAccountDeleteModal(false)}
-        onOpen={() => setShowAccountDeleteModal(true)}
-        open={showAccountDeleteModal}
-        size={'tiny'}
-        style={{ maxWidth: '450px' }}
-      >
-        <Modal.Header>危险操作</Modal.Header>
-        <Modal.Content>
-        <Message>您正在删除自己的帐户，将清空所有数据且不可恢复</Message>
-          <Modal.Description>
-            <Form size='large'>
-              <Form.Input
-                fluid
-                placeholder={`输入你的账户名 ${userState?.user?.username} 以确认删除`}
-                name='self_account_deletion_confirmation'
-                value={inputs.self_account_deletion_confirmation}
-                onChange={handleInputChange}
-              />
-              {turnstileEnabled ? (
-                <Turnstile
-                  sitekey={turnstileSiteKey}
-                  onVerify={(token) => {
-                    setTurnstileToken(token);
-                  }}
-                />
-              ) : (
-                <></>
-              )}
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '1rem' }}>
                 <Button
-                  color='red'
+                  color=''
                   fluid
                   size='large'
-                  onClick={deleteAccount}
+                  onClick={bindEmail}
                   loading={loading}
                 >
-                  确认删除
+                  确认绑定
                 </Button>
                 <div style={{ width: '1rem' }}></div>
                 <Button
                   fluid
                   size='large'
-                  onClick={() => setShowAccountDeleteModal(false)}
+                  onClick={() => setShowEmailBindModal(false)}
                 >
                   取消
                 </Button>

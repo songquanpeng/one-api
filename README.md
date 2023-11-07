@@ -6,7 +6,7 @@
 - [x] 用户管理界面，支持快速设置用户组，在`web\src\components\UsersTable.js`处修改相关值；
 - [x] 令牌界面，删除无用的多种复制、聊天等按钮；
 - [x] 删除系统访问令牌；
-- [ ] 在个人设置页面显示分组；
+- [x] 在个人设置页面显示分组,使用信息等；
 - [ ] 渠道管理处，已启用渠道和禁用渠道，启用/禁用按钮改为不同颜色；
 
 - [x] 等
@@ -18,7 +18,7 @@
 
 
 <p align="center">
-  <a href="https://github.com/songquanpeng/one-api"><img src="https://raw.githubusercontent.com/songquanpeng/one-api/main/web/publichttps://cdn-img-r2.czl.net/2023/06/20/649168ebc2b5d.png" width="150" height="150" alt="one-api logo"></a>
+  <a href="https://github.com/songquanpeng/one-api"><img src="https://raw.githubusercontent.com/songquanpeng/one-api/main/web/public/logo.png" width="150" height="150" alt="one-api logo"></a>
 </p>
 
 <div align="center">

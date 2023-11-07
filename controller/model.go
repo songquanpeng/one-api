@@ -64,6 +64,15 @@ func init() {
 			Parent:     nil,
 		},
 		{
+			Id:         "dall-e-3",
+			Object:     "model",
+			Created:    1677649963,
+			OwnedBy:    "openai",
+			Permission: permission,
+			Root:       "dall-e-3",
+			Parent:     nil,
+		},
+		{
 			Id:         "whisper-1",
 			Object:     "model",
 			Created:    1677649963,

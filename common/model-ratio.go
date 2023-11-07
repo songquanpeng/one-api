@@ -45,6 +45,7 @@ var ModelRatio = map[string]float64{
 	"text-moderation-stable":    0.1,
 	"text-moderation-latest":    0.1,
 	"dall-e":                    8,
+	"dall-e-3":                  20,
 	"claude-instant-1":          0.815,  // $1.63 / 1M tokens
 	"claude-2":                  5.51,   // $11.02 / 1M tokens
 	"ERNIE-Bot":                 0.8572, // ￥0.012 / 1k tokens

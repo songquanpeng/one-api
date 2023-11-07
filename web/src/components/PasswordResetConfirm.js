@@ -64,7 +64,7 @@ const PasswordResetConfirm = () => {
     <Grid textAlign='center' style={{ marginTop: '48px' }}>
       <Grid.Column style={{ maxWidth: 450 }}>
         <Header as='h2' color='' textAlign='center'>
-          <Image src='https://cdn-img-r2.czl.net/2023/06/20/649168ebc2b5d.png' /> 密码重置确认
+          <Image src='/logo.png' /> 密码重置确认
         </Header>
         <Form size='large'>
           <Segment>
