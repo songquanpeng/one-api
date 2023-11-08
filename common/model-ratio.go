@@ -88,9 +88,6 @@ func GetModelRatio(name string) float64 {
 }
 
 func GetCompletionRatio(name string) float64 {
-	if strings.HasPrefix(name, "gpt-3.5") {
-		return 1.333333
-	}
 	if strings.HasPrefix(name, "gpt-4") {
 		return 2
 	}
@@ -102,6 +99,9 @@ func GetCompletionRatio(name string) float64 {
 	}
 	if strings.HasPrefix(name, "gpt-3.5-turbo-1106") {
 		return 2 // Input: $0.0010 / 1K tokens	Output: $0.0020 / 1K tokens
+	}
+	if strings.HasPrefix(name, "gpt-3.5") {
+		return 1.333333
 	}
 	return 1
 }
