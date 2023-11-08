@@ -1,5 +1,10 @@
 ## 自定义部分
 
+``` bash
+#镜像地址
+docker pull woodchen/czloapi
+```
+
 - [x] 当用户充值达到5刀时，自动提升为vip分组，具体金额可在`web\src\pages\TopUp\index.js`调整；
 - [x] 修改颜色
 - [x] 日志页面新增快速筛选日期、修复渠道ID查询、自动更新消耗额度、删除日志详情（因为没有太大意义）；
