@@ -208,9 +208,3 @@ code {
         display: none !important;
     }
 }
-
-@media only screen and (min-width: 1200px) {
-   .ui.container {
-        width: 1200px !important;
-    }
-}
