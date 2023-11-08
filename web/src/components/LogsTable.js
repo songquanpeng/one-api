@@ -407,6 +407,15 @@ const LogsTable = () => {
               >
                 额度
               </Table.HeaderCell>
+              <Table.HeaderCell
+                style={{ cursor: 'pointer' }}
+                onClick={() => {
+                  sortLog('content');
+                }}
+                width={isAdminUser ? 4 : 6}
+              >
+                详情
+              </Table.HeaderCell>
             </Table.Row>
           </Table.Header>
 
@@ -437,7 +446,7 @@ const LogsTable = () => {
                     <Table.Cell>{log.prompt_tokens ? log.prompt_tokens : ''}</Table.Cell>
                     <Table.Cell>{log.completion_tokens ? log.completion_tokens : ''}</Table.Cell>
                     <Table.Cell>{log.quota ? renderQuota(log.quota, 6) : ''}</Table.Cell>
-                    {/* <Table.Cell>{log.content}</Table.Cell> */}
+                    <Table.Cell>{log.content}</Table.Cell>
                   </Table.Row>
                 );
               })}
