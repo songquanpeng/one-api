@@ -208,3 +208,13 @@ code {
         display: none !important;
     }
 }
+@media only screen and (min-width: 1600px){
+.main-content {
+    width: 1300px !important;
+}
+.ui.menu .ui.container {
+    width: 1608px !important; /* 或者你想要设置的宽度 */
+    /* padding: 0 !important; */
+  }
+}
+  

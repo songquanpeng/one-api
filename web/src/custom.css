@@ -1,0 +1,9 @@
+.custom-width .ui.container {
+    width: 100vw !important;
+    padding: 0 !important;
+  }
+  
+  .custom-width .ui.menu {
+    margin-bottom: 0 !important;
+  }
+  

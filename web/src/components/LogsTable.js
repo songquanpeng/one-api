@@ -376,7 +376,7 @@ const LogsTable = () => {
                 onClick={() => {
                   sortLog('model_name');
                 }}
-                width={2}
+                width={3}
               >
                 模型
               </Table.HeaderCell>
@@ -412,7 +412,7 @@ const LogsTable = () => {
                 onClick={() => {
                   sortLog('content');
                 }}
-                width={isAdminUser ? 4 : 6}
+                width={isAdminUser ? 3 : 5}
               >
                 详情
               </Table.HeaderCell>
