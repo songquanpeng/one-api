@@ -292,9 +292,7 @@ const ChannelsTable = () => {
       });
     } else {
       sortedChannels.sort((a, b) => {
-        if (a[key] === b[key]) return 0;
-        if (a[key] > b[key]) return -1;
-        if (a[key] < b[key]) return 1;
+        return a[key] - b[key];
       });
     }
     if (sortedChannels[0].id === channels[0].id) {
@@ -303,6 +301,7 @@ const ChannelsTable = () => {
     setChannels(sortedChannels);
     setLoading(false);
   };
+
 
   return (
     <>
