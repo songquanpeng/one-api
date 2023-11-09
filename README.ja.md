@@ -190,6 +190,8 @@ Please refer to the [environment variables](#environment-variables) section for 
 
 > Zeabur のサーバーは海外にあるため、ネットワークの問題は自動的に解決されます。
 
+[![Deploy on Zeabur](https://zeabur.com/button.svg)](https://zeabur.com/templates/7Q0KO3)
+
 1. まず、コードをフォークする。
 2. [Zeabur](https://zeabur.com?referralCode=songquanpeng) にアクセスしてログインし、コンソールに入る。
 3. 新しいプロジェクトを作成します。Service -> Add ServiceでMarketplace を選択し、MySQL を選択する。接続パラメータ（ユーザー名、パスワード、アドレス、ポート）をメモします。
