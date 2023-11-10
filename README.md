@@ -107,7 +107,6 @@ _✨ 通过标准的 OpenAI API 格式访问所有的大模型，开箱即用 �
     + 微信公众号授权（需要额外部署 [WeChat Server](https://github.com/songquanpeng/wechat-server)）。
 
 ## 部署
-
 ### 基于 Docker 进行部署
 ```shell
 # 使用 SQLite 的部署命令：
@@ -162,12 +161,12 @@ sudo service nginx restart
 初始账号用户名为 `root`，密码为 `123456`。
 
 
-### 基于 Docker-compose 进行部署（快速启动）
+### 基于 Docker Compose 进行部署
 
-> 仅启动方式不同，参数设置不变，请参考Docker部署部分。
+> 仅启动方式不同，参数设置不变，请参考基于 Docker 部署部分
 
 ```shell
-# 目前支持 MySQL 启动，数据存储在 ./data/mysql 文件夹内。
+# 目前支持 MySQL 启动，数据存储在 ./data/mysql 文件夹内
 docker-compose up -d
 
 # 查看部署状态
