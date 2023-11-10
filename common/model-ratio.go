@@ -19,12 +19,15 @@ var ModelRatio = map[string]float64{
 	"gpt-4-32k":                 30,
 	"gpt-4-32k-0314":            30,
 	"gpt-4-32k-0613":            30,
-	"gpt-3.5-turbo":             0.75, // $0.0015 / 1K tokens
+	"gpt-3.5-turbo":             0.75, // $0.0015 / 1K tokens // TODO: Currently points to gpt-3.5-turbo-0613. Will point to gpt-3.5-turbo-1106 starting Dec 11, 2023.
 	"gpt-3.5-turbo-0301":        0.75,
 	"gpt-3.5-turbo-0613":        0.75,
-	"gpt-3.5-turbo-16k":         1.5, // $0.003 / 1K tokens
+	"gpt-3.5-turbo-16k":         1.5, // $0.003 / 1K tokens // TODO: Currently points to gpt-3.5-turbo-0613. Will point to gpt-3.5-turbo-1106 starting Dec 11, 2023.
 	"gpt-3.5-turbo-16k-0613":    1.5,
 	"gpt-3.5-turbo-instruct":    0.75, // $0.0015 / 1K tokens
+	"gpt-3.5-turbo-1106":        0.5,  // $0.001 / 1K tokens
+	"gpt-4-1106-preview":        5,    // $0.01 / 1K tokens
+	"gpt-4-vision-preview":      5,    // $0.01 / 1K tokens
 	"text-ada-001":              0.2,
 	"text-babbage-001":          0.25,
 	"text-curie-001":            1,
@@ -88,9 +91,16 @@ func GetModelRatio(name string) float64 {
 
 func GetCompletionRatio(name string) float64 {
 	if strings.HasPrefix(name, "gpt-3.5") {
+		// TODO Dec 11, 2023
+		if strings.HasSuffix(name, "1106") {
+			return 2
+		}
 		return 1.333333
 	}
 	if strings.HasPrefix(name, "gpt-4") {
+		if strings.HasSuffix(name, "preview") {
+			return 3
+		}
 		return 2
 	}
 	if strings.HasPrefix(name, "claude-instant-1") {
