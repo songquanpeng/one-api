@@ -7,30 +7,7 @@ const TopUp = () => {
   const [redemptionCode, setRedemptionCode] = useState('');
   const [topUpLink, setTopUpLink] = useState('');
   const [userQuota, setUserQuota] = useState(0);
-  const [userGroup, setUserGroup] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  // 升级用户组
-  const updateUserGroupIfNecessary = async (quota) => {
-    if (userGroup === 'vip') return; // 添加这一行
-
-    if (quota >= 5*500000) {
-      try {
-        const res = await API.post('/api/user/manage', {
-          username: localStorage.getItem('username'),
-          newGroup: 'vip'
-        });
-        const { success, message } = res.data;
-        if (success) {
-          showSuccess('已成功升级为 VIP 会员！');
-        } else {
-          showError('请右下角联系客服');
-        }
-      } catch (err) {
-        showError('请右下角联系客服');
-      }
-    }
-  };
 
   const topUp = async () => {
     if (redemptionCode === '') {
@@ -42,12 +19,15 @@ const TopUp = () => {
       const res = await API.post('/api/user/topup', {
         key: redemptionCode
       });
-      const { success, message, data } = res.data;
+      const { success, message, data ,upgradedToVIP } = res.data;
       if (success) {
-        showSuccess('充值成功！');
+        if (upgradedToVIP) {  // 如果用户成功升级为 VIP
+          showSuccess('充值成功，升级为 VIP 会员');
+        } else {
+          showSuccess('充值成功');
+        }
         setUserQuota((quota) => {
           const newQuota = quota + data;
-          updateUserGroupIfNecessary(newQuota);
           return newQuota;
         });
         setRedemptionCode('');
@@ -55,7 +35,7 @@ const TopUp = () => {
         showError(message);
       }
     } catch (err) {
-      showError('请右下角联系客服');
+      showError('失败，请右下角联系客服');
     } finally {
       setIsSubmitting(false);
     }
@@ -74,7 +54,7 @@ const TopUp = () => {
     const { success, message, data } = res.data;
     if (success) {
       setUserQuota(data.quota);
-      setUserGroup(data.group); // 添加这一行
+
     } else {
       showError(message);
     }

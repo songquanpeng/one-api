@@ -327,7 +327,7 @@ const LogsTable = () => {
                 onClick={() => {
                   sortLog('created_time');
                 }}
-                width={3}
+                width={2}
               >
                 时间
               </Table.HeaderCell>
@@ -412,9 +412,9 @@ const LogsTable = () => {
                 onClick={() => {
                   sortLog('content');
                 }}
-                width={isAdminUser ? 3 : 5}
+                width={isAdminUser ? 4 : 6}
               >
-                详情
+                详情(1=$0.002/1K tokens)
               </Table.HeaderCell>
             </Table.Row>
           </Table.Header>
