@@ -87,12 +87,13 @@ func relayImageHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode 
 
 	sizeRatio := 1.0
 
-	if ratios, ok := common.DalleSizeRatios[imageModel]; ok {
-		if ratio, ok := ratios[requestSize]; ok {
-			sizeRatio = ratio
-
-			if imageRequest.Quality == "hd" {
-				sizeRatio = ratio * 2
+	if ratio, ok := common.DalleSizeRatios[imageModel][requestSize]; ok {
+		sizeRatio = ratio
+		if imageRequest.Quality == "hd" && imageRequest.Model == "dall-e-3" {
+			if requestSize == "1024x1024" {
+				sizeRatio *= 2
+			} else {
+				sizeRatio *= 1.5
 			}
 		}
 	}
