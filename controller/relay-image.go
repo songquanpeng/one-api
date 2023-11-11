@@ -6,11 +6,12 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"io"
 	"net/http"
 	"one-api/common"
 	"one-api/model"
+
+	"github.com/gin-gonic/gin"
 )
 
 func relayImageHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
@@ -34,7 +35,7 @@ func relayImageHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode 
 	}
 
 	// Model validation
-	if imageRequest.Model != "" || imageRequest.Model != "dall-e-3" {
+	if imageRequest.Model != "" && imageRequest.Model != "dall-e-3" {
 		imageModel = "dall-e-2"
 	}
 
