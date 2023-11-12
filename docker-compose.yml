@@ -47,3 +47,5 @@ services:
       MYSQL_USER: oneapi   # 创建专用用户
       MYSQL_PASSWORD: '123456'    # 设置专用用户密码
       MYSQL_DATABASE: one-api   # 自动创建数据库
+      MYSQL_CHARSET: utf8       # 设置数据库为utf8
+      MYSQL_COLLATION: utf8_bin   
