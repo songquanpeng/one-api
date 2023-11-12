@@ -228,7 +228,13 @@ const TokensTable = () => {
     setLoading(true);
     let sortedTokens = [...tokens];
     sortedTokens.sort((a, b) => {
-      return ('' + a[key]).localeCompare(b[key]);
+      if (!isNaN(a[key])) {
+        // If the value is numeric, subtract to sort
+        return a[key] - b[key];
+      } else {
+        // If the value is not numeric, sort as strings
+        return ('' + a[key]).localeCompare(b[key]);
+      }
     });
     if (sortedTokens[0].id === tokens[0].id) {
       sortedTokens.reverse();
