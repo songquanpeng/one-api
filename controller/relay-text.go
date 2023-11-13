@@ -46,6 +46,7 @@ func init() {
 }
 
 func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
+
 	channelType := c.GetInt("channel")
 	channelId := c.GetInt("channel_id")
 	tokenId := c.GetInt("token_id")
@@ -126,6 +127,11 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 	if c.GetString("base_url") != "" {
 		baseURL = c.GetString("base_url")
 	}
+	Organization := ""
+	if c.GetString("openai_organization") != "" {
+		Organization = c.GetString("openai_organization")
+	}
+
 	fullRequestURL := getFullRequestURL(baseURL, requestURL, channelType)
 	switch apiType {
 	case APITypeOpenAI:
@@ -347,6 +353,9 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 				if channelType == common.ChannelTypeOpenRouter {
 					req.Header.Set("HTTP-Referer", "https://github.com/songquanpeng/one-api")
 					req.Header.Set("X-Title", "One API")
+				}
+				if Organization != "" {
+					req.Header.Set("OpenAI-Organization", Organization)
 				}
 			}
 		case APITypeClaude:

@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Form, Header, Input, Message, Segment } from 'semantic-ui-react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { API, showError, showInfo, showSuccess, verifyJSON } from '../../helpers';
+import { Button, Form, Header, Input, Message, Segment } from 'semantic-ui-react';
 import { CHANNEL_OPTIONS } from '../../constants';
+import { API, showError, showInfo, showSuccess, verifyJSON } from '../../helpers';
 
 const MODEL_MAPPING_EXAMPLE = {
   'gpt-3.5-turbo-0301': 'gpt-3.5-turbo',
@@ -41,6 +41,7 @@ const EditChannel = () => {
     type: 1,
     key: '',
     base_url: '',
+    openai_organization: '',
     other: '',
     model_mapping: '',
     models: [],
@@ -315,6 +316,20 @@ const EditChannel = () => {
               options={groupOptions}
             />
           </Form.Field>
+          {
+            inputs.type === 1 && (
+              <Form.Field>
+                <Form.Input
+                  label='组织ID'
+                  name='openai_organization'
+                  placeholder={'请输入 OpenAI Organization'}
+                  onChange={handleInputChange}
+                  value={inputs.openai_organization}
+                  autoComplete='new-password'
+                />
+              </Form.Field>
+            )
+          }
           {
             inputs.type === 18 && (
               <Form.Field>
