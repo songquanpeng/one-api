@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"math"
 	"net/http"
 	"one-api/common"
 	"one-api/model"
@@ -423,9 +424,7 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 				completionRatio := common.GetCompletionRatio(textRequest.Model)
 				promptTokens = textResponse.Usage.PromptTokens
 				completionTokens = textResponse.Usage.CompletionTokens
-
-				quota = promptTokens + int(float64(completionTokens)*completionRatio)
-				quota = int(float64(quota) * ratio)
+				quota = int(math.Ceil((float64(promptTokens) + float64(completionTokens)*completionRatio) * ratio))
 				if ratio != 0 && quota <= 0 {
 					quota = 1
 				}
