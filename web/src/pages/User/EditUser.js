@@ -50,6 +50,8 @@ const EditUser = () => {
     const { success, message, data } = res.data;
     if (success) {
       data.password = '';
+      let quotaPerUnit = parseFloat(localStorage.getItem('quota_per_unit'));
+      data.quota = data.quota / quotaPerUnit;
       setInputs(data);
     } else {
       showError(message);
@@ -67,6 +69,8 @@ const EditUser = () => {
     let res = undefined;
     if (userId) {
       let data = { ...inputs, id: parseInt(userId) };
+      let quotaPerUnit = parseFloat(localStorage.getItem('quota_per_unit'));
+      data.quota = Math.ceil(parseFloat(data.quota) * quotaPerUnit);
       if (typeof data.quota === 'string') {
         data.quota = parseInt(data.quota);
       }
@@ -138,7 +142,7 @@ const EditUser = () => {
               </Form.Field>
               <Form.Field>
                 <Form.Input
-                  label={`剩余额度${renderQuotaWithPrompt(quota)}`}
+                  label={`剩余额度(单位:美金)`}
                   name='quota'
                   placeholder={'请输入新的剩余额度'}
                   onChange={handleInputChange}

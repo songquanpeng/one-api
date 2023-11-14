@@ -37,22 +37,26 @@ export function renderNumber(num) {
   }
 }
 
-export function renderQuota(quota, digits = 2) {
+export function renderQuota(quota, digits = 10) {
   let quotaPerUnit = localStorage.getItem('quota_per_unit');
   let displayInCurrency = localStorage.getItem('display_in_currency');
   quotaPerUnit = parseFloat(quotaPerUnit);
   displayInCurrency = displayInCurrency === 'true';
   if (displayInCurrency) {
-    return '$' + (quota / quotaPerUnit).toFixed(digits);
+    let displayValue = (quota / quotaPerUnit).toFixed(digits);
+    // 去除尾部多余的零
+    displayValue = parseFloat(displayValue).toString();
+    return '$' + displayValue;
   }
   return renderNumber(quota);
 }
+
 
 export function renderQuotaWithPrompt(quota, digits) {
   let displayInCurrency = localStorage.getItem('display_in_currency');
   displayInCurrency = displayInCurrency === 'true';
   if (displayInCurrency) {
-    return `（等价金额：${renderQuota(quota, digits)}）`;
+    return `（金额：${renderQuota(quota, digits)}）`;
   }
   return '';
 }

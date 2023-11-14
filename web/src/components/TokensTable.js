@@ -109,7 +109,7 @@ const TokensTable = () => {
     if (await copy(url)) {
       showSuccess('已复制到剪贴板！');
     } else {
-      showWarning('无法复制到剪贴板，请手动复制，已将令牌填入搜索框。');
+      showWarning('无法复制到剪贴板，请手动复制，已将Key填入搜索框。');
       setSearchKeyword(url);
     }
   };
@@ -241,7 +241,7 @@ const TokensTable = () => {
           icon='search'
           fluid
           iconPosition='left'
-          placeholder='搜索令牌的名称 ...'
+          placeholder='搜索Key的名称 ...'
           value={searchKeyword}
           loading={searching}
           onChange={handleKeywordChange}
@@ -349,7 +349,7 @@ const TokensTable = () => {
                           }}
                           style={{ backgroundColor: 'var(--czl-error-color)', borderColor: 'var(--czl-error-color)' }}
                         >
-                          删除令牌 {token.name}
+                          删除Key {token.name}
                         </Button>
                       </Popup>
                       <Button
@@ -390,7 +390,7 @@ const TokensTable = () => {
                 loading={loading}
                 style={{ color: "var(--czl-main)", backgroundColor: "var(--czl-link-color)" }}
               >
-                添加新的令牌
+                添加新的Key
               </Button>
               <Button size='small' onClick={refresh} loading={loading}>刷新</Button>
 

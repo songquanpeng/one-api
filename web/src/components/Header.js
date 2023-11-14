@@ -22,7 +22,7 @@ let headerButtons = [
     admin: true
   },
   {
-    name: '令牌',
+    name: 'Key',
     to: '/token',
     icon: 'key',
     color: 'var(--czl-primary-color)'

@@ -53,6 +53,7 @@ const EditChannel = () => {
   const [groupOptions, setGroupOptions] = useState([]);
   const [basicModels, setBasicModels] = useState([]);
   const [basicNoGPTModels, setBasicNoGPTModels] = useState([]);
+  const [fullNo32KOPENAIModels, setfullNo32KOPENAIModels] = useState([]);
   const [fullOPENAIModels, setFullOPENAIModels] = useState([]);
   const [customModel, setCustomModel] = useState('');
   const handleInputChange = (e, { name, value }) => {
@@ -126,6 +127,10 @@ const EditChannel = () => {
         return (model.id.startsWith('gpt-') || model.id.startsWith('text-') || model.id.startsWith('dall-') || model.id.startsWith('whisper-') || model.id.startsWith('code-')) && !model.id.startsWith('text-embedding-v1');
       }).map((model) => model.id));
       
+      setfullNo32KOPENAIModels(res.data.data.filter((model) => {
+        return (model.id.startsWith('gpt-') || model.id.startsWith('text-') || model.id.startsWith('dall-') || model.id.startsWith('whisper-') || model.id.startsWith('code-')) && !model.id.startsWith('text-embedding-v1') && !model.id.startsWith('gpt-4-32k');
+      }).map((model) => model.id));
+
       setBasicModels(res.data.data.filter((model) => {
         return (model.id.startsWith('gpt-3') || model.id.startsWith('text-') || model.id.startsWith('dall-') || model.id.startsWith('whisper-') || model.id.startsWith('code-')) && !model.id.startsWith('text-embedding-v1');
       }).map((model) => model.id));
@@ -368,18 +373,21 @@ const EditChannel = () => {
             />
           </Form.Field>
           <div style={{ lineHeight: '40px', marginBottom: '12px' }}>
+          <Button type={'button'} onClick={() => {
+              handleInputChange(null, { name: 'models', value: basicNoGPTModels });
+            }}>基础无gpt模型</Button>
             <Button type={'button'} onClick={() => {
               handleInputChange(null, { name: 'models', value: basicModels });
-            }}>填入基础OPENAI模型</Button>
+            }}>基础OPENAI模型</Button>
             <Button type={'button'} onClick={() => {
-              handleInputChange(null, { name: 'models', value: basicNoGPTModels });
-            }}>填入基础无gpt模型</Button>
+              handleInputChange(null, { name: 'models', value: fullNo32KOPENAIModels });
+            }}>无32K OPENAI模型</Button>
             <Button type={'button'} onClick={() => {
               handleInputChange(null, { name: 'models', value: fullOPENAIModels });
-            }}>填入所有OPENAI模型</Button>
+            }}>OPENAI模型</Button>
             <Button type={'button'} onClick={() => {
               handleInputChange(null, { name: 'models', value: [] });
-            }}>清除所有模型</Button>
+            }}>清除</Button>
             <Input
               action={
                 <Button type={'button'} onClick={addCustomModel}>填入</Button>

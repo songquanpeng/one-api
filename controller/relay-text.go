@@ -437,7 +437,7 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 				if quota != 0 {
 					// logContent := fmt.Sprintf("模型倍率 %.4f", modelRatio)
 					ratio = ratio * 0.002
-					logContent := fmt.Sprintf("提示: $%.10g/1k tokens", ratio)
+					logContent := fmt.Sprintf("输入: $%.10g/1k tokens", ratio)
 					model.RecordConsumeLog(ctx, userId, channelId, promptTokens, completionTokens, textRequest.Model, tokenName, quota, logContent)
 					model.UpdateUserUsedQuotaAndRequestCount(userId, quota)
 					model.UpdateChannelUsedQuota(channelId, quota)

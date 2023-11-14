@@ -12,7 +12,7 @@ const EditRedemption = () => {
   const [loading, setLoading] = useState(isEdit);
   const originInputs = {
     name: '',
-    quota: 100000,
+    quota: 100,
     count: 1
   };
   const [inputs, setInputs] = useState(originInputs);
@@ -21,7 +21,7 @@ const EditRedemption = () => {
   const handleCancel = () => {
     navigate('/redemption');
   };
-  
+
   const handleInputChange = (e, { name, value }) => {
     setInputs((inputs) => ({ ...inputs, [name]: value }));
   };
@@ -30,6 +30,8 @@ const EditRedemption = () => {
     let res = await API.get(`/api/redemption/${redemptionId}`);
     const { success, message, data } = res.data;
     if (success) {
+      let quotaPerUnit = parseFloat(localStorage.getItem('quota_per_unit'));
+      data.quota = data.quota / quotaPerUnit;
       setInputs(data);
     } else {
       showError(message);
@@ -46,7 +48,8 @@ const EditRedemption = () => {
     if (!isEdit && inputs.name === '') return;
     let localInputs = inputs;
     localInputs.count = parseInt(localInputs.count);
-    localInputs.quota = parseInt(localInputs.quota);
+    let quotaPerUnit = parseFloat(localStorage.getItem('quota_per_unit'));
+    localInputs.quota = Math.ceil(parseFloat(localInputs.quota) * quotaPerUnit);
     let res;
     if (isEdit) {
       res = await API.put(`/api/redemption/`, { ...localInputs, id: parseInt(redemptionId) });
@@ -93,7 +96,8 @@ const EditRedemption = () => {
           </Form.Field>
           <Form.Field>
             <Form.Input
-              label={`额度${renderQuotaWithPrompt(quota)}`}
+              label={`额度(单位:美金)`}
+              // ${renderQuotaWithPrompt(quota)}
               name='quota'
               placeholder={'请输入单个兑换码中包含的额度'}
               onChange={handleInputChange}

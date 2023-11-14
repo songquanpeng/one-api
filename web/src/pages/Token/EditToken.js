@@ -11,7 +11,7 @@ const EditToken = () => {
   const [loading, setLoading] = useState(isEdit);
   const originInputs = {
     name: '',
-    remain_quota: isEdit ? 0 : 500000,
+    remain_quota: isEdit ? 0 : renderQuota(500000),
     expired_time: -1,
     unlimited_quota: false
   };
@@ -50,6 +50,8 @@ const EditToken = () => {
       if (data.expired_time !== -1) {
         data.expired_time = timestamp2string(data.expired_time);
       }
+      let quotaPerUnit = parseFloat(localStorage.getItem('quota_per_unit'));
+      data.remain_quota = data.remain_quota / quotaPerUnit;
       setInputs(data);
     } else {
       showError(message);
@@ -65,7 +67,8 @@ const EditToken = () => {
   const submit = async () => {
     if (!isEdit && inputs.name === '') return;
     let localInputs = inputs;
-    localInputs.remain_quota = parseInt(localInputs.remain_quota);
+    let quotaPerUnit = parseFloat(localStorage.getItem('quota_per_unit'));
+    localInputs.remain_quota = Math.ceil(parseFloat(localInputs.remain_quota) * quotaPerUnit);
     if (localInputs.expired_time !== -1) {
       let time = Date.parse(localInputs.expired_time);
       if (isNaN(time)) {
@@ -83,9 +86,9 @@ const EditToken = () => {
     const { success, message } = res.data;
     if (success) {
       if (isEdit) {
-        showSuccess('令牌更新成功！');
+        showSuccess('Key更新成功！');
       } else {
-        showSuccess('令牌创建成功，请在列表页面点击复制获取令牌！');
+        showSuccess('Key创建成功，请在列表页面点击复制获取Key！');
         setInputs(originInputs);
       }
     } else {
@@ -96,7 +99,7 @@ const EditToken = () => {
   return (
     <>
       <Segment loading={loading}>
-        <Header as='h3'>{isEdit ? '更新令牌信息' : '创建新的令牌'}</Header>
+        <Header as='h3'>{isEdit ? '更新Key信息' : '创建新的Key'}</Header>
         <Form autoComplete='new-password'>
           <Form.Field>
             <Form.Input
@@ -137,10 +140,10 @@ const EditToken = () => {
               setExpiredTime(0, 0, 0, 1);
             }}>一分钟后过期</Button>
           </div>
-          <Message>注意，令牌的额度仅用于限制令牌本身的最大额度使用量，实际的使用受到账户的剩余额度限制。</Message>
+          <Message>注意，Key的额度仅用于限制Key本身的最大额度使用量，实际的使用受到账户的剩余额度限制。</Message>
           <Form.Field>
             <Form.Input
-              label={`额度${renderQuotaWithPrompt(remain_quota)}`}
+              label={`额度(单位:美金)`}
               name='remain_quota'
               placeholder={'请输入额度'}
               onChange={handleInputChange}

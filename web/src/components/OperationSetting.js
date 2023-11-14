@@ -200,7 +200,7 @@ const OperationSetting = () => {
             />
             <Form.Checkbox
               checked={inputs.DisplayTokenStatEnabled === 'true'}
-              label='Billing 相关 API 显示令牌额度而非用户额度'
+              label='Billing 相关 API 显示Key额度而非用户额度'
               name='DisplayTokenStatEnabled'
               onChange={handleInputChange}
             />

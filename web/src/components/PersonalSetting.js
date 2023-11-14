@@ -131,7 +131,7 @@ const PersonalSetting = () => {
   const handleSystemTokenClick = async (e) => {
     e.target.select();
     await copy(e.target.value);
-    showSuccess(`系统令牌已复制到剪切板`);
+    showSuccess(`系统Key已复制到剪切板`);
   };
 
   const deleteAccount = async () => {
@@ -228,12 +228,12 @@ const PersonalSetting = () => {
       <Divider />
       <Header as='h3'>通用设置</Header>
       {/* <Message>
-        注意，此处生成的令牌用于系统管理，而非用于请求 OpenAI 相关的服务，请知悉。
+        注意，此处生成的Key用于系统管理，而非用于请求 OpenAI 相关的服务，请知悉。
       </Message> */}
       <Button as={Link} to={`/user/edit/`}>
         更新个人信息
       </Button>
-      {/* <Button onClick={generateAccessToken}>生成系统访问令牌</Button> */}
+      {/* <Button onClick={generateAccessToken}>生成系统访问Key</Button> */}
       <Button onClick={getAffLink}>复制邀请链接</Button>
 
       {systemToken && (
