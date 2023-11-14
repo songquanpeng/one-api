@@ -37,20 +37,16 @@ export function renderNumber(num) {
   }
 }
 
-export function renderQuota(quota, digits = 10) {
+export function renderQuota(quota, digits = 3) {
   let quotaPerUnit = localStorage.getItem('quota_per_unit');
   let displayInCurrency = localStorage.getItem('display_in_currency');
   quotaPerUnit = parseFloat(quotaPerUnit);
   displayInCurrency = displayInCurrency === 'true';
   if (displayInCurrency) {
-    let displayValue = (quota / quotaPerUnit).toFixed(digits);
-    // 去除尾部多余的零
-    displayValue = parseFloat(displayValue).toString();
-    return '$' + displayValue;
+    return '$' + (quota / quotaPerUnit).toFixed(digits);
   }
   return renderNumber(quota);
 }
-
 
 export function renderQuotaWithPrompt(quota, digits) {
   let displayInCurrency = localStorage.getItem('display_in_currency');
