@@ -414,7 +414,7 @@ const LogsTable = () => {
                 }}
                 width={isAdminUser ? 4 : 6}
               >
-                详情(1=$0.002/1K tokens)
+                详情
               </Table.HeaderCell>
             </Table.Row>
           </Table.Header>
