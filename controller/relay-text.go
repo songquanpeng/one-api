@@ -435,9 +435,15 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 					common.LogError(ctx, "error update user quota cache: "+err.Error())
 				}
 				if quota != 0 {
-					// logContent := fmt.Sprintf("模型倍率 %.4f", modelRatio)
-					ratio = ratio * 0.002
-					logContent := fmt.Sprintf("输入: $%.10g/1k tokens", ratio)
+					inputPrice := ratio * 0.002
+					var logContent string
+
+					if completionRatio == 1 {
+						logContent = fmt.Sprintf("单价: $%.6g/1k tokens", inputPrice)
+					} else {
+						outputPrice := inputPrice * completionRatio
+						logContent = fmt.Sprintf("输入: $%.6g/1k tokens, 输出: $%.6g/1k tokens", inputPrice, outputPrice)
+					}
 					model.RecordConsumeLog(ctx, userId, channelId, promptTokens, completionTokens, textRequest.Model, tokenName, quota, logContent)
 					model.UpdateUserUsedQuotaAndRequestCount(userId, quota)
 					model.UpdateChannelUsedQuota(channelId, quota)
