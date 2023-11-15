@@ -96,6 +96,8 @@ func relayImageHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode 
 				sizeRatio *= 1.5
 			}
 		}
+	} else {
+		return errorWrapper(errors.New("size not supported"), "size_not_supported", http.StatusBadRequest)
 	}
 
 	quota := int(ratio*sizeRatio*1000) * imageRequest.N
