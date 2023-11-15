@@ -319,7 +319,9 @@ const UsersTable = () => {
                           onClick={() => {
                             manageUser(user.username, 'delete', idx);
                           }}
-                        />
+                        >
+                          确认删除{user.username}
+                          </Button>
                       </Popup>
                       <Button
                         size={'small'}

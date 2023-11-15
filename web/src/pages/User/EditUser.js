@@ -91,6 +91,16 @@ const EditUser = () => {
       <Segment loading={loading}>
         <Header as='h3'>更新用户信息</Header>
         <Form autoComplete='new-password'>
+        <Form.Field>
+            <Form.Input
+              label='昵称'
+              name='display_name'
+              placeholder={'请输入新的昵称'}
+              onChange={handleInputChange}
+              value={display_name}
+              autoComplete='new-password'
+            />
+          </Form.Field>
           <Form.Field>
             <Form.Input
               label='用户名'
@@ -112,16 +122,7 @@ const EditUser = () => {
               autoComplete='new-password'
             />
           </Form.Field>
-          <Form.Field>
-            <Form.Input
-              label='显示名称'
-              name='display_name'
-              placeholder={'请输入新的显示名称'}
-              onChange={handleInputChange}
-              value={display_name}
-              autoComplete='new-password'
-            />
-          </Form.Field>
+          
           {
             userId && <>
               <Form.Field>
@@ -153,7 +154,7 @@ const EditUser = () => {
               </Form.Field>
             </>
           }
-          <Form.Field>
+          {/* <Form.Field>
             <Form.Input
               label='已绑定的 GitHub 账户'
               name='github_id'
@@ -162,8 +163,8 @@ const EditUser = () => {
               placeholder='此项只读，需要用户通过个人设置页面的相关绑定按钮进行绑定，不可直接修改'
               readOnly
             />
-          </Form.Field>
-          <Form.Field>
+          </Form.Field> */}
+          {/* <Form.Field>
             <Form.Input
               label='已绑定的微信账户'
               name='wechat_id'
@@ -172,8 +173,8 @@ const EditUser = () => {
               placeholder='此项只读，需要用户通过个人设置页面的相关绑定按钮进行绑定，不可直接修改'
               readOnly
             />
-          </Form.Field>
-          <Form.Field>
+          </Form.Field> */}
+          {/* <Form.Field>
             <Form.Input
               label='已绑定的邮箱账户'
               name='email'
@@ -182,7 +183,7 @@ const EditUser = () => {
               placeholder='此项只读，需要用户通过个人设置页面的相关绑定按钮进行绑定，不可直接修改'
               readOnly
             />
-          </Form.Field>
+          </Form.Field> */}
           <Button onClick={handleCancel}>取消</Button>
           <Button positive onClick={submit}>提交</Button>
         </Form>

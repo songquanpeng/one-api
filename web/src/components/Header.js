@@ -6,6 +6,8 @@ import { Button, Container, Dropdown, Icon, Menu, Segment } from 'semantic-ui-re
 import { API, getLogo, getSystemName, isAdmin, isMobile, showSuccess } from '../helpers';
 import '../index.css';
 
+
+
 // Header Buttons
 let headerButtons = [
   {
@@ -83,6 +85,8 @@ const Header = () => {
   const [showSidebar, setShowSidebar] = useState(false);
   const systemName = getSystemName();
   const logo = getLogo();
+  const [activeItem, setActiveItem] = useState(null);
+
 
   async function logout() {
     setShowSidebar(false);
@@ -100,6 +104,7 @@ const Header = () => {
   const renderButtons = (isMobile) => {
     return headerButtons.map((button) => {
       if (button.admin && !isAdmin()) return <></>;
+      const isActive = activeItem === button.name;
       if (isMobile) {
         return (
           <Menu.Item
@@ -113,13 +118,21 @@ const Header = () => {
         );
       }
       return (
-        <Menu.Item key={button.name} as={Link} to={button.to}>
-          <Icon name={button.icon} />
-          {button.name}
+        <Menu.Item
+          key={button.name}
+          as={Link}
+          to={button.to}
+          onClick={() => setActiveItem(button.name)}
+        >
+          <div className={isActive ? 'active-menu-item' : ''}>
+            {button.icon && <Icon name={button.icon} />}
+            {button.name}
+          </div>
         </Menu.Item>
       );
     });
   };
+
 
   if (isMobile()) {
     return (

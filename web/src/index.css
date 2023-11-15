@@ -188,7 +188,7 @@ body::-webkit-scrollbar {
 }
 
 code {
-    font-family: "CZL",source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+    font-family: "CZL", source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
 }
 
 .main-content {
@@ -199,24 +199,43 @@ code {
     font-size: 1em !important;
 }
 
-.custom-footer {
+/* .custom-footer {
     font-size: 1.1em;
-}
+} */
+
+
+
 
 @media only screen and (max-width: 600px) {
     .hide-on-mobile {
         display: none !important;
     }
 }
-@media only screen and (min-width: 1600px){
-.main-content {
-    width: 1300px !important;
-}
-.ui.menu .ui.container {
-    width: 1608px !important; /* 或者你想要设置的宽度 */
-    /* padding: 0 !important; */
-  }
+
+@media only screen and (min-width: 1200px) {
+    .main-content {
+        width: 1300px !important;
+    }
+
+    .ui.menu .ui.container {
+        height: 80px;
+        font-size: 1em;
+        width: 90% !important;
+        /* 或者你想要设置的宽度 */
+        /* padding: 0 !important; */
+    }
+
+    .ui.menu .item>img:not(.ui) {
+        width: 4.5rem !important;
+    }
 }
 
 
-  
+.active-menu-item {
+    background-color: var(--czl-grayD) !important;
+    color: white !important;
+    border-radius: 16px !important;
+    padding: 10px 16px !important;
+    display: flex;
+    align-items: center;
+}

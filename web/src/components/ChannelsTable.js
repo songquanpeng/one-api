@@ -466,7 +466,7 @@ const ChannelsTable = () => {
                             manageChannel(channel.id, 'delete', idx);
                           }}
                         >
-                          删除渠道 {channel.name}
+                          确认删除 {channel.name}
                         </Button>
                       </Popup>
 

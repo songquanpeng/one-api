@@ -10,7 +10,7 @@ const EditToken = () => {
   const isEdit = tokenId !== undefined;
   const [loading, setLoading] = useState(isEdit);
   const originInputs = {
-    name: '',
+    name: '默认key',
     remain_quota: isEdit ? 0 : 100,
     expired_time: -1,
     unlimited_quota: false
@@ -86,11 +86,12 @@ const EditToken = () => {
     const { success, message } = res.data;
     if (success) {
       if (isEdit) {
-        showSuccess('Key更新成功！');
+        showSuccess('Key更新成功');
       } else {
-        showSuccess('Key创建成功，请在列表页面点击复制获取Key！');
+        showSuccess('Key创建成功');
         setInputs(originInputs);
       }
+      navigate("/token"); // 在这里添加导航到 "/token"
     } else {
       showError(message);
     }

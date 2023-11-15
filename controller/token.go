@@ -174,7 +174,7 @@ func UpdateToken(c *gin.Context) {
 	if len(token.Name) > 30 {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
-			"message": "Key名称过长",
+			"message": "Key名称过长,不能超过30位",
 		})
 		return
 	}

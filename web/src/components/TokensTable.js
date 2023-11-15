@@ -365,7 +365,8 @@ const TokensTable = () => {
                             manageToken(token.id, 'delete', idx);
                           }}
                           style={{ backgroundColor: 'var(--czl-error-color)', borderColor: 'var(--czl-error-color)' }}
-                        />
+                        >
+                          确认删除key: {token.name}</Button>
                       </Popup>
                       <Button
                         size={'small'}

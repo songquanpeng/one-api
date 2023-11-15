@@ -86,7 +86,7 @@ func Redeem(key string, userId int) (quota int, upgradedToVIP bool, err error) {
     }
 
     // 检查是否需要升级为 VIP
-    if user.Group != "vip" && user.Quota >= 5*500000 {
+    if user.Group != "vip" && user.Group != "svip" && user.Quota >= 5*500000 {
         // 升级用户到 VIP
         err = DB.Model(&User{}).Where("id = ?", userId).Update("group", "vip").Error
         if err != nil {
