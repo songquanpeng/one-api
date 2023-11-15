@@ -65,6 +65,11 @@ func relayImageHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode 
 		return errorWrapper(errors.New("invalud value of n"), "number_of_generated_images_not_within_range", http.StatusBadRequest)
 	}
 
+	// Check prompt length
+	if len(imageRequest.Prompt) > common.DalleImagePromptLengthLimitations[imageModel] {
+		return errorWrapper(errors.New("prompt is too long"), "prompt_too_long", http.StatusBadRequest)
+	}
+
 	// map model name
 	modelMapping := c.GetString("model_mapping")
 	isModelMapped := false
