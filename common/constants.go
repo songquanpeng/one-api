@@ -83,6 +83,7 @@ var PreConsumedQuota = 500
 var ApproximateTokenEnabled = false
 var RetryTimes = 0
 
+var RetryInterval = 0 // unit is millisecond
 var RootUserEmail = ""
 
 var IsMasterNode = os.Getenv("NODE_TYPE") != "slave"
