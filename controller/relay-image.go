@@ -15,12 +15,12 @@ import (
 )
 
 func isWithinRange(element string, value int) bool {
-	if _, ok := common.DalleGenerationImageAmountRatios[element]; !ok {
+	if _, ok := common.DalleGenerationImageAmounts[element]; !ok {
 		return false
 	}
 
-	min := common.DalleGenerationImageAmountRatios[element][0]
-	max := common.DalleGenerationImageAmountRatios[element][1]
+	min := common.DalleGenerationImageAmounts[element][0]
+	max := common.DalleGenerationImageAmounts[element][1]
 
 	return value >= min && value <= max
 }
