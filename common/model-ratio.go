@@ -13,8 +13,8 @@ var DalleSizeRatios = map[string]map[string]float64{
 	},
 	"dall-e-3": {
 		"1024x1024": 1,
-		"1024×1792": 2,
-		"1792×1024": 2,
+		"1024x1792": 2,
+		"1792x1024": 2,
 	},
 }
 
