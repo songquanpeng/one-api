@@ -46,8 +46,13 @@ func relayImageHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode 
 	}
 
 	// Model validation
-	if imageRequest.Model != "" && imageRequest.Model != "dall-e-3" {
-		imageModel = "dall-e-2"
+	if imageRequest.Model != "" {
+		// Check if model is supported
+		if _, ok := common.DalleSizeRatios[imageRequest.Model]; !ok {
+			return errorWrapper(errors.New("model not supported"), "model_not_supported", http.StatusBadRequest)
+		}
+
+		imageModel = imageRequest.Model
 	}
 
 	// Size validation
@@ -117,8 +122,6 @@ func relayImageHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode 
 				sizeRatio *= 1.5
 			}
 		}
-	} else {
-		return errorWrapper(errors.New("size not supported"), "size_not_supported", http.StatusBadRequest)
 	}
 
 	quota := int(ratio*sizeRatio*1000) * imageRequest.N
