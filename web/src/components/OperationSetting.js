@@ -21,7 +21,8 @@ const OperationSetting = () => {
     DisplayInCurrencyEnabled: '',
     DisplayTokenStatEnabled: '',
     ApproximateTokenEnabled: '',
-    RetryTimes: 0
+    RetryTimes: 0,
+    RetryInterval: 0,
   });
   const [originInputs, setOriginInputs] = useState({});
   let [loading, setLoading] = useState(false);
@@ -128,6 +129,9 @@ const OperationSetting = () => {
         if (originInputs['RetryTimes'] !== inputs.RetryTimes) {
           await updateOption('RetryTimes', inputs.RetryTimes);
         }
+        if (originInputs['RetryInterval'] !== inputs.RetryInterval) {
+          await updateOption('RetryInterval', inputs.RetryInterval);
+        }
         break;
     }
   };
@@ -190,6 +194,19 @@ const OperationSetting = () => {
               value={inputs.RetryTimes}
               placeholder='失败重试次数'
             />
+
+            <Form.Input
+                label='失败重试间隔(毫秒)'
+                name='RetryInterval'
+                type={'number'}
+                step='1'
+                min='0'
+                onChange={handleInputChange}
+                autoComplete='new-password'
+                value={inputs.RetryInterval}
+                placeholder='失败重试间隔'
+            />
+
           </Form.Group>
           <Form.Group inline>
             <Form.Checkbox

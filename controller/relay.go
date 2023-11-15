@@ -1,10 +1,11 @@
 package controller
 
 import (
+	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"one-api/common"
-	"strconv"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -197,13 +198,26 @@ func Relay(c *gin.Context) {
 	}
 	if err != nil {
 		requestId := c.GetString(common.RequestIdKey)
-		retryTimesStr := c.Query("retry")
-		retryTimes, _ := strconv.Atoi(retryTimesStr)
-		if retryTimesStr == "" {
-			retryTimes = common.RetryTimes
-		}
+		go func() {
+			defer func() {
+				if r := recover(); r != nil {
+					//ignore
+				}
+			}()
+			channelId := c.GetInt("channel_id")
+			common.LogError(c.Request.Context(), fmt.Sprintf("relay error (channel #%d): %s", channelId, err.Message))
+			// https://platform.openai.com/docs/guides/error-codes/api-errors
+			if shouldDisableChannel(&err.OpenAIError, err.StatusCode) {
+				channelId := c.GetInt("channel_id")
+				channelName := c.GetString("channel_name")
+				disableChannel(channelId, channelName, err.Message)
+			}
+		}()
+		retryTimes := c.GetInt("retry")
 		if retryTimes > 0 {
-			c.Redirect(http.StatusTemporaryRedirect, fmt.Sprintf("%s?retry=%d", c.Request.URL.Path, retryTimes-1))
+			openaiErr, _ := json.Marshal(err.OpenAIError)
+			_ = c.Error(errors.New(string(openaiErr)))
+			return
 		} else {
 			if err.StatusCode == http.StatusTooManyRequests {
 				err.OpenAIError.Message = "当前分组上游负载已饱和，请稍后再试"
@@ -212,14 +226,6 @@ func Relay(c *gin.Context) {
 			c.JSON(err.StatusCode, gin.H{
 				"error": err.OpenAIError,
 			})
-		}
-		channelId := c.GetInt("channel_id")
-		common.LogError(c.Request.Context(), fmt.Sprintf("relay error (channel #%d): %s", channelId, err.Message))
-		// https://platform.openai.com/docs/guides/error-codes/api-errors
-		if shouldDisableChannel(&err.OpenAIError, err.StatusCode) {
-			channelId := c.GetInt("channel_id")
-			channelName := c.GetString("channel_name")
-			disableChannel(channelId, channelName, err.Message)
 		}
 	}
 }
