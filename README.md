@@ -1,10 +1,5 @@
 ## 自定义部分
 
-``` bash
-#镜像地址
-docker pull woodchen/czloapi
-```
-
 - [x] 当用户充值达到5刀时，自动提升为vip分组；
 - [x] 修改颜色
 - [x] 日志页面新增快速筛选日期、修复渠道ID查询、自动更新消耗额度、修改日志详情；
@@ -13,21 +8,6 @@ docker pull woodchen/czloapi
 - [x] 删除系统访问Key；
 - [x] 在个人设置页面显示分组,使用信息等；
 - [x] 前端全部以美金展示；
-- [ ] 渠道管理处，已启用渠道和禁用渠道，启用/禁用按钮改为不同颜色；
-
-- [x] 等
-
-![image](https://github.com/woodchen-ink/one-api/assets/95951386/10581e00-debc-4696-b6d2-ca92b93c465b)
-
-![image](https://github.com/woodchen-ink/one-api/assets/95951386/e3a94b54-095c-4f02-bc5e-e1c509c44c90)
-
-![image](https://github.com/woodchen-ink/one-api/assets/95951386/8cf7c259-0ff6-4314-85ac-07ffc7456aab)
-![image](https://github.com/woodchen-ink/one-api/assets/95951386/db096b49-ce9f-4b6b-97c9-7f38ec52bb8b)
-![image](https://github.com/woodchen-ink/one-api/assets/95951386/a6046e22-bfbc-48ac-aeef-81592385d0ea)
-![image](https://github.com/woodchen-ink/one-api/assets/95951386/add043da-85f6-4e16-bca3-1a3e305877ab)
-![image](https://github.com/woodchen-ink/one-api/assets/95951386/29848d8d-bcf4-4a3e-8163-d0ac402fc4ef)
-![image](https://github.com/woodchen-ink/one-api/assets/95951386/eaa57d95-ac96-4b76-a1b2-9b0d712e576b)
-
 --- 
 <p align="right">
    <strong>中文</strong> | <a href="./README.en.md">English</a> | <a href="./README.ja.md">日本語</a>
