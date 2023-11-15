@@ -442,20 +442,18 @@ const ChannelsTable = () => {
                   <Table.Cell>
                     <div>
                       <Button
+                        icon='play' // 示例图标
                         size={'small'}
                         positive
                         style={{ backgroundColor: 'var(--czl-success-color)' }}
                         onClick={() => {
                           testChannel(channel.id, channel.name, idx);
                         }}
-                      >
-                        测试
-                      </Button>
+                      />
+
                       <Popup
                         trigger={
-                          <Button size='small' negative style={{ backgroundColor: 'var(--czl-error-color)' }}>
-                            删除
-                          </Button>
+                          <Button icon='trash' size='small' negative style={{ backgroundColor: 'var(--czl-error-color)' }} />
                         }
                         on='click'
                         flowing
@@ -471,9 +469,11 @@ const ChannelsTable = () => {
                           删除渠道 {channel.name}
                         </Button>
                       </Popup>
+
                       <Button
-                      negative
+                        icon={channel.status === 1 ? 'ban' : 'check'} // 示例图标
                         size={'small'}
+                        negative
                         style={{ backgroundColor: 'var(--czl-warning-color)' }}
                         onClick={() => {
                           manageChannel(
@@ -482,20 +482,18 @@ const ChannelsTable = () => {
                             idx
                           );
                         }}
-                      >
-                        {channel.status === 1 ? '禁用' : '启用'}
-                      </Button>
+                      />
+
                       <Button
-                      negative
+                        icon='edit' // 示例图标
                         size={'small'}
                         as={Link}
                         to={'/channel/edit/' + channel.id}
                         style={{ backgroundColor: 'var(--czl-primary-color)' }}
-                      >
-                        编辑
-                      </Button>
+                      />
                     </div>
                   </Table.Cell>
+
                 </Table.Row>
               );
             })}

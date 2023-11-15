@@ -19,7 +19,7 @@ const TopUp = () => {
       const res = await API.post('/api/user/topup', {
         key: redemptionCode
       });
-      const { success, message, data ,upgradedToVIP } = res.data;
+      const { success, message, data, upgradedToVIP } = res.data;
       if (success) {
         if (upgradedToVIP) {  // 如果用户成功升级为 VIP
           showSuccess('充值成功，升级为 VIP 会员');
@@ -85,13 +85,23 @@ const TopUp = () => {
                 setRedemptionCode(e.target.value);
               }}
             />
-            <Button negative style={{ backgroundColor: 'var(--czl-primary-color)' }} onClick={openTopUpLink}>
-              获取兑换码
-            </Button>
-            <Button negative style={{ backgroundColor: 'var(--czl-success-color)' }} onClick={topUp} disabled={isSubmitting}>
-              {isSubmitting ? '兑换中...' : '兑换'}
-            </Button>
-
+            <Button
+              negative
+              icon='shop'
+              labelPosition='left'
+              content='获取兑换码'
+              style={{ backgroundColor: 'var(--czl-primary-color)' }}
+              onClick={openTopUpLink}
+            />
+            <Button
+              negative
+              icon='exchange'
+              labelPosition='left'
+              content={isSubmitting ? '兑换中...' : '兑换'}
+              style={{ backgroundColor: 'var(--czl-success-color)' }}
+              onClick={topUp}
+              disabled={isSubmitting}
+            />
 
           </Form>
         </Grid.Column>

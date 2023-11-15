@@ -476,6 +476,8 @@ const LogsTable = () => {
                     Math.ceil(logs.length / ITEMS_PER_PAGE) +
                     (logs.length % ITEMS_PER_PAGE === 0 ? 1 : 0)
                   }
+                  firstItem={null}  // 不显示第一页按钮
+                  lastItem={null}  // 不显示最后一页按钮
                 />
               </Table.HeaderCell>
             </Table.Row>

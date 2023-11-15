@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Dropdown, Form, Label, Pagination, Popup, Table } from 'semantic-ui-react';
+// import { Icon } from 'semantic-ui-react';
+
 import { Link } from 'react-router-dom';
 import { API, copy, showError, showSuccess, showWarning, timestamp2string } from '../helpers';
 
 import { ITEMS_PER_PAGE } from '../constants';
 import { renderQuota } from '../helpers/render';
+
 
 
 function renderTimestamp(timestamp) {
@@ -234,6 +237,14 @@ const TokensTable = () => {
     setLoading(false);
   };
 
+  // 对key脱敏
+  function renderKey(key) {
+    // 使用固定数量的星号（例如8个）
+    const fixedNumberOfAsterisks = '********';
+    return `sk-${key.substring(0, 4)}${fixedNumberOfAsterisks}${key.substring(key.length - 4)}`;
+  }
+
+
   return (
     <>
       <Form onSubmit={searchTokens}>
@@ -258,6 +269,14 @@ const TokensTable = () => {
               }}
             >
               名称
+            </Table.HeaderCell>
+            <Table.HeaderCell
+              style={{ cursor: 'pointer' }}
+              onClick={() => {
+                sortToken('key');
+              }}
+            >
+              Key
             </Table.HeaderCell>
             <Table.HeaderCell
               style={{ cursor: 'pointer' }}
@@ -314,6 +333,7 @@ const TokensTable = () => {
               return (
                 <Table.Row key={token.id}>
                   <Table.Cell>{token.name ? token.name : '无'}</Table.Cell>
+                  <Table.Cell>{renderKey(token.key)}</Table.Cell>
                   <Table.Cell>{renderStatus(token.status)}</Table.Cell>
                   <Table.Cell>{renderQuota(token.used_quota)}</Table.Cell>
                   <Table.Cell>{token.unlimited_quota ? '无限制' : renderQuota(token.remain_quota, 2)}</Table.Cell>
@@ -323,20 +343,16 @@ const TokensTable = () => {
                     <div>
                       <Button
                         size={'small'}
+                        icon="copy"
                         positive
                         onClick={async () => {
                           await onCopy('', token.key);
                         }}
                         style={{ backgroundColor: 'var(--czl-success-color)', borderColor: 'var(--czl-success-color)' }}
-                      >
-                        复制
-                      </Button>
-                      {' '}
+                      />
                       <Popup
                         trigger={
-                          <Button size='small' negative style={{ backgroundColor: 'var(--czl-error-color)', borderColor: 'var(--czl-error-color)' }}>
-                            删除
-                          </Button>
+                          <Button size='small' icon="delete" negative style={{ backgroundColor: 'var(--czl-error-color)', borderColor: 'var(--czl-error-color)' }} />
                         }
                         on='click'
                         flowing
@@ -344,16 +360,20 @@ const TokensTable = () => {
                       >
                         <Button
                           negative
+                          icon="delete"
                           onClick={() => {
                             manageToken(token.id, 'delete', idx);
                           }}
                           style={{ backgroundColor: 'var(--czl-error-color)', borderColor: 'var(--czl-error-color)' }}
-                        >
-                          删除Key {token.name}
-                        </Button>
+                        />
                       </Popup>
                       <Button
                         size={'small'}
+                        negative
+                        icon={token.status === 1 ? 'ban' : 'check'}
+                        style={{
+                          backgroundColor: token.status === 1 ? 'var(--czl-warning-color)' : 'var(--czl-success-color)',
+                        }}
                         onClick={() => {
                           manageToken(
                             token.id,
@@ -361,20 +381,19 @@ const TokensTable = () => {
                             idx
                           );
                         }}
-                      >
-                        {token.status === 1 ? '禁用' : '启用'}
-                      </Button>
+                      />
+
                       <Button
-                      negative
+                        negative
                         size={'small'}
+                        icon="edit"
                         as={Link}
                         to={'/token/edit/' + token.id}
                         style={{ backgroundColor: 'var(--czl-primary-color)', borderColor: 'var(--czl-primary-color)' }}
-                      >
-                        编辑
-                      </Button>
+                      />
                     </div>
                   </Table.Cell>
+
                 </Table.Row>
               );
             })}
@@ -382,7 +401,7 @@ const TokensTable = () => {
 
         <Table.Footer>
           <Table.Row>
-            <Table.HeaderCell colSpan='7'>
+            <Table.HeaderCell colSpan='8'>
               <Button
                 size='small'
                 as={Link}
@@ -390,7 +409,7 @@ const TokensTable = () => {
                 loading={loading}
                 style={{ color: "var(--czl-main)", backgroundColor: "var(--czl-link-color)" }}
               >
-                添加新的Key
+                创建Key
               </Button>
               <Button size='small' onClick={refresh} loading={loading}>刷新</Button>
 
@@ -399,12 +418,16 @@ const TokensTable = () => {
                 activePage={activePage}
                 onPageChange={onPaginationChange}
                 size='small'
-                siblingRange={1}
+                siblingRange={0}  // 不显示邻近页码
                 totalPages={
                   Math.ceil(tokens.length / ITEMS_PER_PAGE) +
                   (tokens.length % ITEMS_PER_PAGE === 0 ? 1 : 0)
                 }
+                ellipsisItem={null}  // 不显示省略号
+                firstItem={null}  // 不显示第一页按钮
+                lastItem={null}  // 不显示最后一页按钮
               />
+
             </Table.HeaderCell>
           </Table.Row>
         </Table.Footer>

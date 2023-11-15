@@ -32,6 +32,12 @@ const PersonalSetting = () => {
   const [usedQuota, setUsedQuota] = useState(null);
   const [requestCount, setRequestCount] = useState(null);
   const [githubID, setGithubID] = useState(null);
+  const [username, setUsername] = useState(null);
+  const [display_name, setDisplay_name] = useState(null);
+  const [email, setEmail] = useState(null);
+
+  const [modelsByOwner, setModelsByOwner] = useState({});
+  const [key, setKey] = useState("");
 
 
 
@@ -52,7 +58,10 @@ const PersonalSetting = () => {
     (async () => {
       const res = await API.get(`/api/user/self`);
       if (res.data.success) {
+        setDisplay_name(res.data.data.display_name);
+        setUsername(res.data.data.username);
         setUserGroup(res.data.data.group);
+        setEmail(res.data.data.email);
         setQuota(res.data.data.quota);
         setUsedQuota(res.data.data.used_quota);
         setRequestCount(res.data.data.request_count);
@@ -63,6 +72,66 @@ const PersonalSetting = () => {
     })();
   }, []);
   const quotaPerUnit = parseInt(localStorage.getItem("quota_per_unit"));
+
+  // useEffect(() => {
+  //   // 获取用户的第一个key
+  //   const fetchFirstKey = async () => {
+  //     try {
+  //       const tokenRes = await API.get('/api/token/?p=0');
+  //       if (tokenRes.data.success && tokenRes.data.data.length > 0) {
+  //         const firstKey = tokenRes.data.data[0].key;
+  //         setKey(firstKey);
+  //         fetchModels(firstKey);
+  //       } else {
+  //         // 如果没有获取到key，显示提示消息
+  //         showError('请先创建一个key');
+  //       }
+  //     } catch (error) {
+  //       showError('获取key失败');
+  //     }
+  //   };
+
+  //   // 获取模型信息
+  //   const fetchModels = async (key) => {
+  //     try {
+  //       const modelsRes = await API.get('/v1/models', {
+  //         headers: { Authorization: `Bearer sk-${key}` },
+  //       });
+  //       if (modelsRes.data && modelsRes.data.data) {
+  //         const models = modelsRes.data.data;
+  //         const groupedByOwner = models.reduce((acc, model) => {
+  //           const owner = model.owned_by.toUpperCase();
+  //           if (!acc[owner]) {
+  //             acc[owner] = [];
+  //           }
+  //           acc[owner].push(model.id);
+  //           return acc;
+  //         }, {});
+
+  //         // 对owners进行排序
+  //         const sortedOwners = Object.keys(groupedByOwner).sort();
+  //         const sortedGroupedByOwner = {};
+  //         sortedOwners.forEach(owner => {
+  //           // 对每个owner的models进行排序
+  //           sortedGroupedByOwner[owner] = groupedByOwner[owner].sort();
+  //         });
+  //         setModelsByOwner(sortedGroupedByOwner);
+  //       }
+  //     } catch (error) {
+  //       showError('获取模型失败');
+  //     }
+  //   };
+
+  //   fetchFirstKey();
+  // }, []);
+
+  // // 定义一个固定宽度的label样式
+  // const fixedWidthLabelStyle = {
+  //   display: 'inline-block',
+  //   minWidth: '150px', // 根据需要调整宽度
+  //   textAlign: 'center',
+  //   margin: '5px',
+  // };
 
 
   const transformUserGroup = (group) => {
@@ -207,25 +276,69 @@ const PersonalSetting = () => {
   return (
     <div style={{ lineHeight: '40px' }}>
       <Header as='h3'>使用信息</Header>
-      {userGroup && (
-        <Label basic style={{ color: getUserGroupColor(userGroup), borderColor: getUserGroupColor(userGroup) }}>
-          用户组：{transformUserGroup(userGroup)}
-        </Label>
+<div style={{ marginBottom: '1em' }}>
+  {display_name && (
+    <Label basic style={{ margin: '0.5em', color: getUserGroupColor(userGroup), borderColor: getUserGroupColor(userGroup) }}>
+      昵称：{transformUserGroup(display_name)}
+    </Label>
+  )}
+  {username && (
+    <Label basic style={{ margin: '0.5em', color: getUserGroupColor(userGroup), borderColor: getUserGroupColor(userGroup) }}>
+      用户名：{transformUserGroup(username)}
+    </Label>
+  )}
+  <Label basic style={{ margin: '0.5em', color: getUserGroupColor(userGroup), borderColor: getUserGroupColor(userGroup) }}>
+    邮箱：{email ? email : "未绑定"}
+  </Label>
+  <Label basic style={{ margin: '0.5em', color: getUserGroupColor(userGroup), borderColor: getUserGroupColor(userGroup) }}>
+    GitHub 账号：{githubID ? githubID : "未绑定"}
+  </Label>
+  <br></br>
+  {userGroup && (
+    <Label basic style={{ margin: '0.5em', color: getUserGroupColor(userGroup), borderColor: getUserGroupColor(userGroup) }}>
+      用户组：{transformUserGroup(userGroup)}
+    </Label>
+  )}
+  {quota !== null && quotaPerUnit && (
+    <Label basic style={{ margin: '0.5em', color: getUserGroupColor(userGroup), borderColor: getUserGroupColor(userGroup) }}>
+      额度：${(quota / quotaPerUnit).toFixed(2)}
+    </Label>
+  )}
+  {usedQuota !== null && quotaPerUnit && (
+    <Label basic style={{ margin: '0.5em', color: getUserGroupColor(userGroup), borderColor: getUserGroupColor(userGroup) }}>
+      已用额度：${(usedQuota / quotaPerUnit).toFixed(2)}
+    </Label>
+  )}
+  {requestCount !== null && (
+    <Label basic style={{ margin: '0.5em', color: getUserGroupColor(userGroup), borderColor: getUserGroupColor(userGroup) }}>
+      调用次数：{requestCount}
+    </Label>
+  )}
+</div>
+
+
+        <Divider />
+      {/* <Header as='h3'>模型支持度</Header>
+      {Object.keys(modelsByOwner).length > 0 ? (
+        Object.entries(modelsByOwner).map(([owner, models], index) => (
+          <div key={index}>
+            <Header as='h4'>{owner}</Header>
+            <div>
+              {models.map((modelId, index) => (
+                <Label key={index} style={fixedWidthLabelStyle}>
+                  {modelId}
+                </Label>
+              ))}
+            </div>
+          </div>
+        ))
+      ) : (
+        <Message info>
+          <Message.Header>尚未绑定模型</Message.Header>
+          <p>请先创建一个key</p>
+        </Message>
       )}
-      {quota !== null && quotaPerUnit && (
-        <Label basic style={{ color: getUserGroupColor(userGroup), borderColor: getUserGroupColor(userGroup) }}>
-          额度：${(quota / quotaPerUnit).toFixed(2)}</Label>
-      )}
-      {usedQuota !== null && quotaPerUnit && (
-        <Label basic style={{ color: getUserGroupColor(userGroup), borderColor: getUserGroupColor(userGroup) }}>
-          已用额度：${(usedQuota / quotaPerUnit).toFixed(2)}</Label>
-      )}
-      {requestCount !== null && <Label basic style={{ color: getUserGroupColor(userGroup), borderColor: getUserGroupColor(userGroup) }}>
-        调用次数：{requestCount}</Label>}
-      <Label basic style={{ color: getUserGroupColor(userGroup), borderColor: getUserGroupColor(userGroup) }}>
-        GitHub 账号：{githubID ? githubID : "未绑定"}
-        </Label>
-      <Divider />
+      <Divider /> */}
       <Header as='h3'>通用设置</Header>
       {/* <Message>
         注意，此处生成的Key用于系统管理，而非用于请求 OpenAI 相关的服务，请知悉。

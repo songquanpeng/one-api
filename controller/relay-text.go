@@ -442,7 +442,7 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 						logContent = fmt.Sprintf("单价: $%.6g/1k tokens", inputPrice)
 					} else {
 						outputPrice := inputPrice * completionRatio
-						logContent = fmt.Sprintf("输入: $%.6g/1k tokens, 输出: $%.6g/1k tokens", inputPrice, outputPrice)
+						logContent = fmt.Sprintf("输入:$%.6g/1k tokens, 输出:$%.6g/1k tokens", inputPrice, outputPrice)
 					}
 					model.RecordConsumeLog(ctx, userId, channelId, promptTokens, completionTokens, textRequest.Model, tokenName, quota, logContent)
 					model.UpdateUserUsedQuotaAndRequestCount(userId, quota)

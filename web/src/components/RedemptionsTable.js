@@ -17,13 +17,13 @@ function renderTimestamp(timestamp) {
 function renderStatus(status) {
   switch (status) {
     case 1:
-      return <Label basic style={{color: 'var(--czl-primary-color)'}}>未使用</Label>;
+      return <Label basic style={{ color: 'var(--czl-primary-color)' }}>未使用</Label>;
     case 2:
-      return <Label basic style={{color: 'var(--czl-error-color)'}}> 已禁用 </Label>;
+      return <Label basic style={{ color: 'var(--czl-error-color)' }}> 已禁用 </Label>;
     case 3:
-      return <Label basic style={{color: 'var(--czl-success-color)'}}> 已使用 </Label>;
+      return <Label basic style={{ color: 'var(--czl-success-color)' }}> 已使用 </Label>;
     default:
-      return <Label basic style={{color: 'var(--czl-grayD)'}}> 未知状态 </Label>;
+      return <Label basic style={{ color: 'var(--czl-grayD)' }}> 未知状态 </Label>;
   }
 }
 
@@ -232,66 +232,67 @@ const RedemptionsTable = () => {
                   <Table.Cell>{redemption.redeemed_time ? renderTimestamp(redemption.redeemed_time) : "尚未兑换"} </Table.Cell>
                   <Table.Cell>
                     <div>
-                    <Button
-  size={'small'}
-  positive
-  onClick={async () => {
-    if (await copy(redemption.key)) {
-      showSuccess('已复制到剪贴板！');
-    } else {
-      showWarning('无法复制到剪贴板，请手动复制，已将兑换码填入搜索框。')
-      setSearchKeyword(redemption.key);
-    }
-  }}
-  style={{ backgroundColor: "var(--czl-success-color)", color: "white"}}
->
-  复制
-</Button>
-<Popup
-  trigger={
-    <Button size='small' negative style={{ backgroundColor: "var(--czl-error-color)", color: "white"}}>
-      删除
-    </Button>
-  }
-  on='click'
-  flowing
-  hoverable
->
-  <Button
-    negative
-    onClick={() => {
-      manageRedemption(redemption.id, 'delete', idx);
-    }}
-    style={{ backgroundColor: "var(--czl-error-color)", color: "white"}}
-  >
-    确认删除
-  </Button>
-</Popup>
-<Button
-  size={'small'}
-  disabled={redemption.status === 3}  // used
-  onClick={() => {
-    manageRedemption(
-      redemption.id,
-      redemption.status === 1 ? 'disable' : 'enable',
-      idx
-    );
-  }}
-  style={{ backgroundColor: "var(--czl-link-color)", color: "white"}}
->
-  {redemption.status === 1 ? '禁用' : '启用'}
-</Button>
-<Button
-  size={'small'}
-  as={Link}
-  to={'/redemption/edit/' + redemption.id}
-  style={{ backgroundColor: "var(--czl-primary-color)", color: "white"}}
->
-  编辑
-</Button>
-
+                      <Button
+                        size={'small'}
+                        icon='copy' // 选择了一个代表复制的图标
+                        positive
+                        onClick={async () => {
+                          if (await copy(redemption.key)) {
+                            showSuccess('已复制到剪贴板！');
+                          } else {
+                            showWarning('无法复制到剪贴板，请手动复制，已将兑换码填入搜索框。')
+                            setSearchKeyword(redemption.key);
+                          }
+                        }}
+                        style={{ backgroundColor: "var(--czl-success-color)", color: "white" }}
+                      />
+                      <Popup
+                        trigger={
+                          <Button
+                            size='small'
+                            icon='delete'
+                            negative
+                            style={{ backgroundColor: "var(--czl-error-color)", color: "white" }}
+                          />
+                        }
+                        on='click'
+                        flowing
+                        hoverable
+                      >
+                        <Button
+                          negative
+                          icon='delete'
+                          onClick={() => {
+                            manageRedemption(redemption.id, 'delete', idx);
+                          }}
+                          style={{ backgroundColor: "var(--czl-error-color)", color: "white" }}
+                        >
+                          确认删除
+                        </Button>
+                      </Popup>
+                      <Button
+                        size={'small'}
+                        icon={redemption.status === 1 ? 'ban' : 'check'} // 根据状态选择对应的图标
+                        disabled={redemption.status === 3}  // used
+                        onClick={() => {
+                          manageRedemption(
+                            redemption.id,
+                            redemption.status === 1 ? 'disable' : 'enable',
+                            idx
+                          );
+                        }}
+                        style={{ backgroundColor: "var(--czl-link-color)", color: "white" }}
+                      />
+                      <Button
+                        size={'small'}
+                        icon='edit' // 选择了一个代表编辑的图标
+                        as={Link}
+                        to={'/redemption/edit/' + redemption.id}
+                        style={{ backgroundColor: "var(--czl-primary-color)", color: "white" }}
+                      />
                     </div>
                   </Table.Cell>
+
                 </Table.Row>
               );
             })}
@@ -313,6 +314,8 @@ const RedemptionsTable = () => {
                   Math.ceil(redemptions.length / ITEMS_PER_PAGE) +
                   (redemptions.length % ITEMS_PER_PAGE === 0 ? 1 : 0)
                 }
+                firstItem={null}  // 不显示第一页按钮
+                lastItem={null}  // 不显示最后一页按钮
               />
             </Table.HeaderCell>
           </Table.Row>

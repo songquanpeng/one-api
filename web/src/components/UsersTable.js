@@ -61,26 +61,48 @@ const UsersTable = () => {
       });
   }, []);
 
-  const manageUser = (username, idx, newGroup) => {
+  const manageUser = (username, action, idx, value = null) => {
     (async () => {
-      const res = await API.post('/api/user/manage', {
+      let dataToSend = {
         username,
-        newGroup
-      });
+        action
+      };
 
-      const { success, message } = res.data;
+      // 如果是修改用户组，需要在请求体中包含新的组别信息
+      if (action === 'changeGroup' && value !== null) {
+        dataToSend.newGroup = value;
+      }
+
+      const res = await API.post('/api/user/manage', dataToSend);
+      const { success, message, data } = res.data;
+
       if (success) {
         showSuccess('操作成功完成！');
-        let user = res.data.data;
         let newUsers = [...users];
         let realIdx = (activePage - 1) * ITEMS_PER_PAGE + idx;
-        newUsers[realIdx].group = user.group; // 用新的 user.group 更新用户分组
+
+        switch (action) {
+          case 'delete':
+            newUsers[realIdx].deleted = true;
+            break;
+          case 'disable':
+          case 'enable':
+            newUsers[realIdx].status = data.status; // 假设API返回了新的状态
+            break;
+          case 'changeGroup':
+            newUsers[realIdx].group = data.group; // 假设API返回了新的用户组信息
+            break;
+          default:
+            console.error('未知的操作类型');
+        }
+
         setUsers(newUsers);
       } else {
         showError(message);
       }
     })();
   };
+
 
 
   const groupOptions = [
@@ -257,13 +279,13 @@ const UsersTable = () => {
                   <Table.Cell>{renderStatus(user.status)}</Table.Cell>
                   <Table.Cell>
                     <div>
-                      <Button.Group size={'small'} style={{marginRight: '10px'}}>
+                      <Button.Group size={'small'} style={{ marginRight: '10px' }}>
                         <Button
                           positive
                           size={'small'}
                           className={`group-button ${user.group}`}
                           style={{
-                            backgroundColor: groupColor(user.group), // 设置透明背景颜色
+                            backgroundColor: groupColor(user.group),
                             width: '100px',
                             overflow: 'hidden',
                             textOverflow: 'ellipsis',
@@ -274,18 +296,18 @@ const UsersTable = () => {
                         <Dropdown
                           className="button icon"
                           style={{
-                            backgroundColor: groupColor(user.group),}}
+                            backgroundColor: groupColor(user.group),
+                          }}
                           floating
                           options={groupOptions}
                           trigger={<></>}
-                          onChange={(e, { value }) => manageUser(user.username, idx, value)}
+                          onChange={(e, { value }) => manageUser(user.username, 'changeGroup', idx, value)}
                         />
+
                       </Button.Group>
                       <Popup
                         trigger={
-                          <Button size='small' negative disabled={user.role === 100}>
-                            删除
-                          </Button>
+                          <Button size='small' negative icon='delete' disabled={user.role === 100} />
                         }
                         on='click'
                         flowing
@@ -293,15 +315,19 @@ const UsersTable = () => {
                       >
                         <Button
                           negative
+                          icon='delete'
                           onClick={() => {
                             manageUser(user.username, 'delete', idx);
                           }}
-                        >
-                          删除用户 {user.username}
-                        </Button>
+                        />
                       </Popup>
                       <Button
                         size={'small'}
+                        negative
+                        icon={user.status === 1 ? 'ban' : 'check'}
+                        style={{
+                          backgroundColor: user.status === 1 ? 'var(--czl-warning-color)' : 'var(--czl-success-color)',
+                        }}
                         onClick={() => {
                           manageUser(
                             user.username,
@@ -310,18 +336,18 @@ const UsersTable = () => {
                           );
                         }}
                         disabled={user.role === 100}
-                      >
-                        {user.status === 1 ? '禁用' : '启用'}
-                      </Button>
+                      />
                       <Button
                         size={'small'}
+                        icon="edit"
+                        style={{ backgroundColor: 'var(--czl-primary-color)' }}
                         as={Link}
                         to={'/user/edit/' + user.id}
-                      >
-                        编辑
-                      </Button>
+                      />
+
                     </div>
                   </Table.Cell>
+
                 </Table.Row>
               );
             })}
@@ -343,6 +369,8 @@ const UsersTable = () => {
                   Math.ceil(users.length / ITEMS_PER_PAGE) +
                   (users.length % ITEMS_PER_PAGE === 0 ? 1 : 0)
                 }
+                firstItem={null}  // 不显示第一页按钮
+                lastItem={null}  // 不显示最后一页按钮
               />
             </Table.HeaderCell>
           </Table.Row>

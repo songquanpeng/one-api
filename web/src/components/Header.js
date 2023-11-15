@@ -43,7 +43,7 @@ let headerButtons = [
   {
     name: '用户',
     to: '/user',
-    icon: 'user',
+    icon: 'users',
     color: 'var(--czl-primary-color)',
     admin: true
   },
@@ -54,9 +54,9 @@ let headerButtons = [
     color: 'var(--czl-primary-color)'
   },
   {
-    name: '设置',
+    name: '个人',
     to: '/setting',
-    icon: 'setting',
+    icon: 'user',
     color: 'var(--czl-primary-color)'
   },
   {
