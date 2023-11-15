@@ -18,6 +18,12 @@ var DalleSizeRatios = map[string]map[string]float64{
 	},
 }
 
+// Array in values, of maxmium and minimum
+var DalleGenerationImageAmountRatios = map[string][2]int{
+	"dall-e-2": {1, 10},
+	"dall-e-3": {1, 1}, // OpenAI allows n=1 currently.
+}
+
 // ModelRatio
 // https://platform.openai.com/docs/models/model-endpoint-compatibility
 // https://cloud.baidu.com/doc/WENXINWORKSHOP/s/Blfmc9dlf

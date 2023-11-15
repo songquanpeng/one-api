@@ -14,6 +14,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+func isWithinRange(element string, value int) bool {
+	if _, ok := common.DalleGenerationImageAmountRatios[element]; !ok {
+		return false
+	}
+
+	min := common.DalleGenerationImageAmountRatios[element][0]
+	max := common.DalleGenerationImageAmountRatios[element][1]
+
+	return value >= min && value <= max
+}
+
 func relayImageHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 	imageModel := "dall-e-2"
 	requestSize := "1024x1024"
@@ -47,6 +58,11 @@ func relayImageHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode 
 	// Prompt validation
 	if imageRequest.Prompt == "" {
 		return errorWrapper(errors.New("prompt is required"), "required_field_missing", http.StatusBadRequest)
+	}
+
+	// Number of generated images validation
+	if isWithinRange(imageModel, imageRequest.N) == false {
+		return errorWrapper(errors.New("invalud value of n"), "number_of_generated_images_not_within_range", http.StatusBadRequest)
 	}
 
 	// map model name
