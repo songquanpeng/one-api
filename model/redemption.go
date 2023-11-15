@@ -2,7 +2,8 @@ package model
 
 import (
 	"errors"
-	_ "gorm.io/driver/sqlite"
+	"fmt"
+	"gorm.io/gorm"
 	"one-api/common"
 )
 
@@ -48,25 +49,33 @@ func Redeem(key string, userId int) (quota int, err error) {
 		return 0, errors.New("无效的 user id")
 	}
 	redemption := &Redemption{}
-	err = DB.Where("`key` = ?", key).First(redemption).Error
-	if err != nil {
-		return 0, errors.New("无效的兑换码")
+
+	keyCol := "`key`"
+	if common.UsingPostgreSQL {
+		keyCol = `"key"`
 	}
-	if redemption.Status != common.RedemptionCodeStatusEnabled {
-		return 0, errors.New("该兑换码已被使用")
-	}
-	err = IncreaseUserQuota(userId, redemption.Quota)
-	if err != nil {
-		return 0, err
-	}
-	go func() {
+
+	err = DB.Transaction(func(tx *gorm.DB) error {
+		err := tx.Set("gorm:query_option", "FOR UPDATE").Where(keyCol+" = ?", key).First(redemption).Error
+		if err != nil {
+			return errors.New("无效的兑换码")
+		}
+		if redemption.Status != common.RedemptionCodeStatusEnabled {
+			return errors.New("该兑换码已被使用")
+		}
+		err = tx.Model(&User{}).Where("id = ?", userId).Update("quota", gorm.Expr("quota + ?", redemption.Quota)).Error
+		if err != nil {
+			return err
+		}
 		redemption.RedeemedTime = common.GetTimestamp()
 		redemption.Status = common.RedemptionCodeStatusUsed
-		err := redemption.SelectUpdate()
-		if err != nil {
-			common.SysError("更新兑换码状态失败：" + err.Error())
-		}
-	}()
+		err = tx.Save(redemption).Error
+		return err
+	})
+	if err != nil {
+		return 0, errors.New("兑换失败，" + err.Error())
+	}
+	RecordLog(userId, LogTypeTopup, fmt.Sprintf("通过兑换码充值 %s", common.LogQuota(redemption.Quota)))
 	return redemption.Quota, nil
 }
 
@@ -84,7 +93,7 @@ func (redemption *Redemption) SelectUpdate() error {
 // Update Make sure your token's fields is completed, because this will update non-zero values
 func (redemption *Redemption) Update() error {
 	var err error
-	err = DB.Model(redemption).Select("name", "status", "redeemed_time").Updates(redemption).Error
+	err = DB.Model(redemption).Select("name", "status", "quota", "redeemed_time").Updates(redemption).Error
 	return err
 }
 

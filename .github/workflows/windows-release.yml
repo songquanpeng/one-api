@@ -6,6 +6,7 @@ on:
   push:
     tags:
       - '*'
+      - '!*-alpha*'
 jobs:
   release:
     runs-on: windows-latest

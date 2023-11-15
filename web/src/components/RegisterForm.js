@@ -1,13 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import {
-  Button,
-  Form,
-  Grid,
-  Header,
-  Image,
-  Message,
-  Segment,
-} from 'semantic-ui-react';
+import { Button, Form, Grid, Header, Image, Message, Segment } from 'semantic-ui-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { API, getLogo, showError, showInfo, showSuccess } from '../helpers';
 import Turnstile from 'react-turnstile';
@@ -18,7 +10,7 @@ const RegisterForm = () => {
     password: '',
     password2: '',
     email: '',
-    verification_code: '',
+    verification_code: ''
   });
   const { username, password, password2 } = inputs;
   const [showEmailVerification, setShowEmailVerification] = useState(false);
@@ -27,6 +19,10 @@ const RegisterForm = () => {
   const [turnstileToken, setTurnstileToken] = useState('');
   const [loading, setLoading] = useState(false);
   const logo = getLogo();
+  let affCode = new URLSearchParams(window.location.search).get('aff');
+  if (affCode) {
+    localStorage.setItem('aff', affCode);
+  }
 
   useEffect(() => {
     let status = localStorage.getItem('status');
@@ -63,6 +59,10 @@ const RegisterForm = () => {
         return;
       }
       setLoading(true);
+      if (!affCode) {
+        affCode = localStorage.getItem('aff');
+      }
+      inputs.aff_code = affCode;
       const res = await API.post(
         `/api/user/register?turnstile=${turnstileToken}`,
         inputs
@@ -170,7 +170,7 @@ const RegisterForm = () => {
               <></>
             )}
             <Button
-              color=''
+              color='green'
               fluid
               size='large'
               onClick={handleSubmit}

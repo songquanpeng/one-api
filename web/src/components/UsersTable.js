@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { API, showError, showSuccess } from '../helpers';
 
 import { ITEMS_PER_PAGE } from '../constants';
-import { renderText } from '../helpers/render';
+import { renderGroup, renderNumber, renderQuota, renderText } from '../helpers/render';
 
 function renderRole(role) {
   switch (role) {
@@ -133,7 +133,13 @@ const UsersTable = () => {
     setLoading(true);
     let sortedUsers = [...users];
     sortedUsers.sort((a, b) => {
-      return ('' + a[key]).localeCompare(b[key]);
+      if (!isNaN(a[key])) {
+        // If the value is numeric, subtract to sort
+        return a[key] - b[key];
+      } else {
+        // If the value is not numeric, sort as strings
+        return ('' + a[key]).localeCompare(b[key]);
+      }
     });
     if (sortedUsers[0].id === users[0].id) {
       sortedUsers.reverse();
@@ -156,7 +162,7 @@ const UsersTable = () => {
         />
       </Form>
 
-      <Table basic>
+      <Table basic compact size='small'>
         <Table.Header>
           <Table.Row>
             <Table.HeaderCell
@@ -178,10 +184,10 @@ const UsersTable = () => {
             <Table.HeaderCell
               style={{ cursor: 'pointer' }}
               onClick={() => {
-                sortUser('email');
+                sortUser('group');
               }}
             >
-              邮箱地址
+              分组
             </Table.HeaderCell>
             <Table.HeaderCell
               style={{ cursor: 'pointer' }}
@@ -189,7 +195,7 @@ const UsersTable = () => {
                 sortUser('quota');
               }}
             >
-              剩余额度
+              统计信息
             </Table.HeaderCell>
             <Table.HeaderCell
               style={{ cursor: 'pointer' }}
@@ -225,14 +231,21 @@ const UsersTable = () => {
                   <Table.Cell>
                     <Popup
                       content={user.email ? user.email : '未绑定邮箱地址'}
-                      key={user.display_name}
+                      key={user.username}
                       header={user.display_name ? user.display_name : user.username}
-                      trigger={<span>{renderText(user.username, 10)}</span>}
+                      trigger={<span>{renderText(user.username, 15)}</span>}
                       hoverable
                     />
                   </Table.Cell>
-                  <Table.Cell>{user.email ? renderText(user.email, 30) : '无'}</Table.Cell>
-                  <Table.Cell>{user.quota}</Table.Cell>
+                  <Table.Cell>{renderGroup(user.group)}</Table.Cell>
+                  {/*<Table.Cell>*/}
+                  {/*  {user.email ? <Popup hoverable content={user.email} trigger={<span>{renderText(user.email, 24)}</span>} /> : '无'}*/}
+                  {/*</Table.Cell>*/}
+                  <Table.Cell>
+                    <Popup content='剩余额度' trigger={<Label basic>{renderQuota(user.quota)}</Label>} />
+                    <Popup content='已用额度' trigger={<Label basic>{renderQuota(user.used_quota)}</Label>} />
+                    <Popup content='请求次数' trigger={<Label basic>{renderNumber(user.request_count)}</Label>} />
+                  </Table.Cell>
                   <Table.Cell>{renderRole(user.role)}</Table.Cell>
                   <Table.Cell>{renderStatus(user.status)}</Table.Cell>
                   <Table.Cell>
@@ -293,7 +306,6 @@ const UsersTable = () => {
                         size={'small'}
                         as={Link}
                         to={'/user/edit/' + user.id}
-                        disabled={user.role === 100}
                       >
                         编辑
                       </Button>

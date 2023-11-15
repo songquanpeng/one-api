@@ -5,3 +5,5 @@ upload
 *.db
 build
 *.db-journal
+logs
+data

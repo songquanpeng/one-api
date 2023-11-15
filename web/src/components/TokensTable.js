@@ -1,9 +1,21 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Form, Label, Modal, Pagination, Popup, Table } from 'semantic-ui-react';
+import { Button, Dropdown, Form, Label, Pagination, Popup, Table } from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
 import { API, copy, showError, showSuccess, showWarning, timestamp2string } from '../helpers';
 
 import { ITEMS_PER_PAGE } from '../constants';
+import { renderQuota } from '../helpers/render';
+
+const COPY_OPTIONS = [
+  { key: 'next', text: 'ChatGPT Next Web', value: 'next' },
+  { key: 'ama', text: 'AMA 问天', value: 'ama' },
+  { key: 'opencat', text: 'OpenCat', value: 'opencat' },
+];
+
+const OPEN_LINK_OPTIONS = [
+  { key: 'ama', text: 'AMA 问天', value: 'ama' },
+  { key: 'opencat', text: 'OpenCat', value: 'opencat' },
+];
 
 function renderTimestamp(timestamp) {
   return (
@@ -44,8 +56,8 @@ const TokensTable = () => {
       if (startIdx === 0) {
         setTokens(data);
       } else {
-        let newTokens = tokens;
-        newTokens.push(...data);
+        let newTokens = [...tokens];
+        newTokens.splice(startIdx * ITEMS_PER_PAGE, data.length, ...data);
         setTokens(newTokens);
       }
     } else {
@@ -66,7 +78,85 @@ const TokensTable = () => {
 
   const refresh = async () => {
     setLoading(true);
-    await loadTokens(0);
+    await loadTokens(activePage - 1);
+  };
+
+  const onCopy = async (type, key) => {
+    let status = localStorage.getItem('status');
+    let serverAddress = '';
+    if (status) {
+      status = JSON.parse(status);
+      serverAddress = status.server_address;
+    }
+    if (serverAddress === '') {
+      serverAddress = window.location.origin;
+    }
+    let encodedServerAddress = encodeURIComponent(serverAddress);
+    const nextLink = localStorage.getItem('chat_link');
+    let nextUrl;
+  
+    if (nextLink) {
+      nextUrl = nextLink + `/#/?settings={"key":"sk-${key}","url":"${serverAddress}"}`;
+    } else {
+      nextUrl = `https://chat.oneapi.pro/#/?settings={"key":"sk-${key}","url":"${serverAddress}"}`;
+    }
+
+    let url;
+    switch (type) {
+      case 'ama':
+        url = `ama://set-api-key?server=${encodedServerAddress}&key=sk-${key}`;
+        break;
+      case 'opencat':
+        url = `opencat://team/join?domain=${encodedServerAddress}&token=sk-${key}`;
+        break;
+      case 'next':
+        url = nextUrl;
+        break;
+      default:
+        url = `sk-${key}`;
+    }
+    if (await copy(url)) {
+      showSuccess('已复制到剪贴板！');
+    } else {
+      showWarning('无法复制到剪贴板，请手动复制，已将令牌填入搜索框。');
+      setSearchKeyword(url);
+    }
+  };
+
+  const onOpenLink = async (type, key) => {
+    let status = localStorage.getItem('status');
+    let serverAddress = '';
+    if (status) {
+      status = JSON.parse(status);
+      serverAddress = status.server_address; 
+    }
+    if (serverAddress === '') {
+      serverAddress = window.location.origin;
+    }
+    let encodedServerAddress = encodeURIComponent(serverAddress);
+    const chatLink = localStorage.getItem('chat_link');
+    let defaultUrl;
+  
+    if (chatLink) {
+      defaultUrl = chatLink + `/#/?settings={"key":"sk-${key}","url":"${serverAddress}"}`;
+    } else {
+      defaultUrl = `https://chat.oneapi.pro/#/?settings={"key":"sk-${key}","url":"${serverAddress}"}`;
+    }
+    let url;
+    switch (type) {
+      case 'ama':
+        url = `ama://set-api-key?server=${encodedServerAddress}&key=sk-${key}`;
+        break;
+  
+      case 'opencat':
+        url = `opencat://team/join?domain=${encodedServerAddress}&token=sk-${key}`;
+        break;
+        
+      default:
+        url = defaultUrl;
+    }
+  
+    window.open(url, '_blank');
   }
 
   useEffect(() => {
@@ -138,7 +228,13 @@ const TokensTable = () => {
     setLoading(true);
     let sortedTokens = [...tokens];
     sortedTokens.sort((a, b) => {
-      return ('' + a[key]).localeCompare(b[key]);
+      if (!isNaN(a[key])) {
+        // If the value is numeric, subtract to sort
+        return a[key] - b[key];
+      } else {
+        // If the value is not numeric, sort as strings
+        return ('' + a[key]).localeCompare(b[key]);
+      }
     });
     if (sortedTokens[0].id === tokens[0].id) {
       sortedTokens.reverse();
@@ -154,24 +250,16 @@ const TokensTable = () => {
           icon='search'
           fluid
           iconPosition='left'
-          placeholder='搜索令牌的 ID 和名称 ...'
+          placeholder='搜索令牌的名称 ...'
           value={searchKeyword}
           loading={searching}
           onChange={handleKeywordChange}
         />
       </Form>
 
-      <Table basic>
+      <Table basic compact size='small'>
         <Table.Header>
           <Table.Row>
-            <Table.HeaderCell
-              style={{ cursor: 'pointer' }}
-              onClick={() => {
-                sortToken('id');
-              }}
-            >
-              ID
-            </Table.HeaderCell>
             <Table.HeaderCell
               style={{ cursor: 'pointer' }}
               onClick={() => {
@@ -191,10 +279,18 @@ const TokensTable = () => {
             <Table.HeaderCell
               style={{ cursor: 'pointer' }}
               onClick={() => {
+                sortToken('used_quota');
+              }}
+            >
+              已用额度
+            </Table.HeaderCell>
+            <Table.HeaderCell
+              style={{ cursor: 'pointer' }}
+              onClick={() => {
                 sortToken('remain_quota');
               }}
             >
-              额度
+              剩余额度
             </Table.HeaderCell>
             <Table.HeaderCell
               style={{ cursor: 'pointer' }}
@@ -226,28 +322,59 @@ const TokensTable = () => {
               if (token.deleted) return <></>;
               return (
                 <Table.Row key={token.id}>
-                  <Table.Cell>{token.id}</Table.Cell>
                   <Table.Cell>{token.name ? token.name : '无'}</Table.Cell>
                   <Table.Cell>{renderStatus(token.status)}</Table.Cell>
-                  <Table.Cell>{token.unlimited_quota ? '无限制' : token.remain_quota}</Table.Cell>
+                  <Table.Cell>{renderQuota(token.used_quota)}</Table.Cell>
+                  <Table.Cell>{token.unlimited_quota ? '无限制' : renderQuota(token.remain_quota, 2)}</Table.Cell>
                   <Table.Cell>{renderTimestamp(token.created_time)}</Table.Cell>
                   <Table.Cell>{token.expired_time === -1 ? '永不过期' : renderTimestamp(token.expired_time)}</Table.Cell>
                   <Table.Cell>
                     <div>
-                      <Button
-                        size={'small'}
-                        positive
-                        onClick={async () => {
-                          if (await copy(token.key)) {
-                            showSuccess('已复制到剪贴板！');
-                          } else {
-                            showWarning('无法复制到剪贴板，请手动复制，已将令牌填入搜索框。');
-                            setSearchKeyword(token.key);
-                          }
-                        }}
-                      >
-                        复制
-                      </Button>
+                    <Button.Group color='green' size={'small'}>
+                        <Button
+                          size={'small'}
+                          positive
+                          onClick={async () => {
+                            await onCopy('', token.key);
+                          }}
+                        >
+                          复制
+                        </Button>
+                        <Dropdown
+                          className='button icon'
+                          floating
+                          options={COPY_OPTIONS.map(option => ({
+                            ...option,
+                            onClick: async () => {
+                              await onCopy(option.value, token.key);
+                            }
+                          }))}
+                          trigger={<></>}
+                        />
+                      </Button.Group>
+                      {' '}
+                      <Button.Group color='blue' size={'small'}>
+                        <Button
+                            size={'small'}
+                            positive
+                            onClick={() => {     
+                              onOpenLink('', token.key);       
+                            }}>
+                            聊天
+                          </Button>
+                          <Dropdown   
+                            className="button icon"       
+                            floating
+                            options={OPEN_LINK_OPTIONS.map(option => ({
+                              ...option,
+                              onClick: async () => {
+                                await onOpenLink(option.value, token.key);
+                              }
+                            }))}       
+                            trigger={<></>}   
+                          />
+                      </Button.Group>
+                      {' '}
                       <Popup
                         trigger={
                           <Button size='small' negative>
@@ -295,7 +422,7 @@ const TokensTable = () => {
 
         <Table.Footer>
           <Table.Row>
-            <Table.HeaderCell colSpan='8'>
+            <Table.HeaderCell colSpan='7'>
               <Button size='small' as={Link} to='/token/add' loading={loading}>
                 添加新的令牌
               </Button>

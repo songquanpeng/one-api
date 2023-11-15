@@ -85,7 +85,7 @@ func AddChannel(c *gin.Context) {
 	}
 	channel.CreatedTime = common.GetTimestamp()
 	keys := strings.Split(channel.Key, "\n")
-	channels := make([]model.Channel, 0)
+	channels := make([]model.Channel, 0, len(keys))
 	for _, key := range keys {
 		if key == "" {
 			continue
@@ -123,6 +123,23 @@ func DeleteChannel(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"message": "",
+	})
+	return
+}
+
+func DeleteDisabledChannel(c *gin.Context) {
+	rows, err := model.DeleteDisabledChannel()
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "",
+		"data":    rows,
 	})
 	return
 }

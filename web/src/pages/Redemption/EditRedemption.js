@@ -1,21 +1,27 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Form, Header, Segment } from 'semantic-ui-react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { API, downloadTextAsFile, showError, showSuccess } from '../../helpers';
+import { renderQuota, renderQuotaWithPrompt } from '../../helpers/render';
 
 const EditRedemption = () => {
   const params = useParams();
+  const navigate = useNavigate();
   const redemptionId = params.id;
   const isEdit = redemptionId !== undefined;
   const [loading, setLoading] = useState(isEdit);
   const originInputs = {
     name: '',
-    quota: 100,
+    quota: 100000,
     count: 1
   };
   const [inputs, setInputs] = useState(originInputs);
   const { name, quota, count } = inputs;
 
+  const handleCancel = () => {
+    navigate('/redemption');
+  };
+  
   const handleInputChange = (e, { name, value }) => {
     setInputs((inputs) => ({ ...inputs, [name]: value }));
   };
@@ -87,7 +93,7 @@ const EditRedemption = () => {
           </Form.Field>
           <Form.Field>
             <Form.Input
-              label='额度'
+              label={`额度${renderQuotaWithPrompt(quota)}`}
               name='quota'
               placeholder={'请输入单个兑换码中包含的额度'}
               onChange={handleInputChange}
@@ -112,6 +118,7 @@ const EditRedemption = () => {
             </>
           }
           <Button positive onClick={submit}>提交</Button>
+          <Button onClick={handleCancel}>取消</Button>
         </Form>
       </Segment>
     </>

@@ -2,12 +2,12 @@ package main
 
 import (
 	"embed"
+	"fmt"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
-	"github.com/gin-contrib/sessions/redis"
 	"github.com/gin-gonic/gin"
-	"log"
 	"one-api/common"
+	"one-api/controller"
 	"one-api/middleware"
 	"one-api/model"
 	"one-api/router"
@@ -22,54 +22,78 @@ var buildFS embed.FS
 var indexPage []byte
 
 func main() {
-	common.SetupGinLog()
+	common.SetupLogger()
 	common.SysLog("One API " + common.Version + " started")
 	if os.Getenv("GIN_MODE") != "debug" {
 		gin.SetMode(gin.ReleaseMode)
 	}
+	if common.DebugEnabled {
+		common.SysLog("running in debug mode")
+	}
 	// Initialize SQL Database
 	err := model.InitDB()
 	if err != nil {
-		common.FatalLog(err)
+		common.FatalLog("failed to initialize database: " + err.Error())
 	}
 	defer func() {
 		err := model.CloseDB()
 		if err != nil {
-			common.FatalLog(err)
+			common.FatalLog("failed to close database: " + err.Error())
 		}
 	}()
 
 	// Initialize Redis
 	err = common.InitRedisClient()
 	if err != nil {
-		common.FatalLog(err)
+		common.FatalLog("failed to initialize Redis: " + err.Error())
 	}
 
 	// Initialize options
 	model.InitOptionMap()
-	if os.Getenv("SYNC_FREQUENCY") != "" {
-		frequency, err := strconv.Atoi(os.Getenv("SYNC_FREQUENCY"))
-		if err != nil {
-			common.FatalLog(err)
-		}
-		go model.SyncOptions(frequency)
+	if common.RedisEnabled {
+		// for compatibility with old versions
+		common.MemoryCacheEnabled = true
 	}
+	if common.MemoryCacheEnabled {
+		common.SysLog("memory cache enabled")
+		common.SysError(fmt.Sprintf("sync frequency: %d seconds", common.SyncFrequency))
+		model.InitChannelCache()
+	}
+	if common.MemoryCacheEnabled {
+		go model.SyncOptions(common.SyncFrequency)
+		go model.SyncChannelCache(common.SyncFrequency)
+	}
+	if os.Getenv("CHANNEL_UPDATE_FREQUENCY") != "" {
+		frequency, err := strconv.Atoi(os.Getenv("CHANNEL_UPDATE_FREQUENCY"))
+		if err != nil {
+			common.FatalLog("failed to parse CHANNEL_UPDATE_FREQUENCY: " + err.Error())
+		}
+		go controller.AutomaticallyUpdateChannels(frequency)
+	}
+	if os.Getenv("CHANNEL_TEST_FREQUENCY") != "" {
+		frequency, err := strconv.Atoi(os.Getenv("CHANNEL_TEST_FREQUENCY"))
+		if err != nil {
+			common.FatalLog("failed to parse CHANNEL_TEST_FREQUENCY: " + err.Error())
+		}
+		go controller.AutomaticallyTestChannels(frequency)
+	}
+	if os.Getenv("BATCH_UPDATE_ENABLED") == "true" {
+		common.BatchUpdateEnabled = true
+		common.SysLog("batch update enabled with interval " + strconv.Itoa(common.BatchUpdateInterval) + "s")
+		model.InitBatchUpdater()
+	}
+	controller.InitTokenEncoders()
 
 	// Initialize HTTP server
-	server := gin.Default()
+	server := gin.New()
+	server.Use(gin.Recovery())
 	// This will cause SSE not to work!!!
 	//server.Use(gzip.Gzip(gzip.DefaultCompression))
-	server.Use(middleware.CORS())
-
+	server.Use(middleware.RequestId())
+	middleware.SetUpLogger(server)
 	// Initialize session store
-	if common.RedisEnabled {
-		opt := common.ParseRedisOption()
-		store, _ := redis.NewStore(opt.MinIdleConns, opt.Network, opt.Addr, opt.Password, []byte(common.SessionSecret))
-		server.Use(sessions.Sessions("session", store))
-	} else {
-		store := cookie.NewStore([]byte(common.SessionSecret))
-		server.Use(sessions.Sessions("session", store))
-	}
+	store := cookie.NewStore([]byte(common.SessionSecret))
+	server.Use(sessions.Sessions("session", store))
 
 	router.SetRouter(server, buildFS, indexPage)
 	var port = os.Getenv("PORT")
@@ -78,6 +102,6 @@ func main() {
 	}
 	err = server.Run(":" + port)
 	if err != nil {
-		log.Println(err)
+		common.FatalLog("failed to start HTTP server: " + err.Error())
 	}
 }

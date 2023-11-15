@@ -2,12 +2,14 @@ package controller
 
 import (
 	"encoding/json"
-	"github.com/gin-contrib/sessions"
-	"github.com/gin-gonic/gin"
+	"fmt"
 	"net/http"
 	"one-api/common"
 	"one-api/model"
 	"strconv"
+
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-gonic/gin"
 )
 
 type LoginRequest struct {
@@ -149,15 +151,18 @@ func Register(c *gin.Context) {
 			return
 		}
 	}
+	affCode := user.AffCode // this code is the inviter's code, not the user's own code
+	inviterId, _ := model.GetUserIdByAffCode(affCode)
 	cleanUser := model.User{
 		Username:    user.Username,
 		Password:    user.Password,
 		DisplayName: user.Username,
+		InviterId:   inviterId,
 	}
 	if common.EmailVerificationEnabled {
 		cleanUser.Email = user.Email
 	}
-	if err := cleanUser.Insert(); err != nil {
+	if err := cleanUser.Insert(inviterId); err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
 			"message": err.Error(),
@@ -228,7 +233,7 @@ func GetUser(c *gin.Context) {
 		return
 	}
 	myRole := c.GetInt("role")
-	if myRole <= user.Role {
+	if myRole <= user.Role && myRole != common.RoleRootUser {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
 			"message": "无权获取同级或更高等级用户的信息",
@@ -255,7 +260,7 @@ func GenerateAccessToken(c *gin.Context) {
 	}
 	user.AccessToken = common.GetUUID()
 
-	if model.DB.Where("token = ?", user.AccessToken).First(user).RowsAffected != 0 {
+	if model.DB.Where("access_token = ?", user.AccessToken).First(user).RowsAffected != 0 {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
 			"message": "请重试，系统生成的 UUID 竟然重复了！",
@@ -275,6 +280,34 @@ func GenerateAccessToken(c *gin.Context) {
 		"success": true,
 		"message": "",
 		"data":    user.AccessToken,
+	})
+	return
+}
+
+func GetAffCode(c *gin.Context) {
+	id := c.GetInt("id")
+	user, err := model.GetUserById(id, true)
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+	if user.AffCode == "" {
+		user.AffCode = common.GetRandomString(4)
+		if err := user.Update(false); err != nil {
+			c.JSON(http.StatusOK, gin.H{
+				"success": false,
+				"message": err.Error(),
+			})
+			return
+		}
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "",
+		"data":    user.AffCode,
 	})
 	return
 }
@@ -326,14 +359,14 @@ func UpdateUser(c *gin.Context) {
 		return
 	}
 	myRole := c.GetInt("role")
-	if myRole <= originUser.Role {
+	if myRole <= originUser.Role && myRole != common.RoleRootUser {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
 			"message": "无权更新同权限等级或更高权限等级的用户信息",
 		})
 		return
 	}
-	if myRole <= updatedUser.Role {
+	if myRole <= updatedUser.Role && myRole != common.RoleRootUser {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
 			"message": "无权将其他用户权限等级提升到大于等于自己的权限等级",
@@ -350,6 +383,9 @@ func UpdateUser(c *gin.Context) {
 			"message": err.Error(),
 		})
 		return
+	}
+	if originUser.Quota != updatedUser.Quota {
+		model.RecordLog(originUser.Id, model.LogTypeManage, fmt.Sprintf("管理员将用户额度从 %s修改为 %s", common.LogQuota(originUser.Quota), common.LogQuota(updatedUser.Quota)))
 	}
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
@@ -442,6 +478,16 @@ func DeleteUser(c *gin.Context) {
 
 func DeleteSelf(c *gin.Context) {
 	id := c.GetInt("id")
+	user, _ := model.GetUserById(id, false)
+
+	if user.Role == common.RoleRootUser {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": "不能删除超级管理员账户",
+		})
+		return
+	}
+
 	err := model.DeleteUserById(id)
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
@@ -491,7 +537,7 @@ func CreateUser(c *gin.Context) {
 		Password:    user.Password,
 		DisplayName: user.DisplayName,
 	}
-	if err := cleanUser.Insert(); err != nil {
+	if err := cleanUser.Insert(0); err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
 			"message": err.Error(),
@@ -654,6 +700,9 @@ func EmailBind(c *gin.Context) {
 			"message": err.Error(),
 		})
 		return
+	}
+	if user.Role == common.RoleRootUser {
+		common.RootUserEmail = email
 	}
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,

@@ -1,6 +1,11 @@
 import { toast } from 'react-toastify';
 import { toastConstants } from '../constants';
+import React from 'react';
 
+const HTMLToastContent = ({ htmlContent }) => {
+  return <div dangerouslySetInnerHTML={{ __html: htmlContent }} />;
+};
+export default HTMLToastContent;
 export function isAdmin() {
   let user = localStorage.getItem('user');
   if (!user) return false;
@@ -107,8 +112,12 @@ export function showInfo(message) {
   toast.info(message, showInfoOptions);
 }
 
-export function showNotice(message) {
-  toast.info(message, showNoticeOptions);
+export function showNotice(message, isHTML = false) {
+  if (isHTML) {
+    toast(<HTMLToastContent htmlContent={message} />, showNoticeOptions);
+  } else {
+    toast.info(message, showNoticeOptions);
+  }
 }
 
 export function openPage(url) {
@@ -178,3 +187,13 @@ export const verifyJSON = (str) => {
   }
   return true;
 };
+
+export function shouldShowPrompt(id) {
+  let prompt = localStorage.getItem(`prompt-${id}`);
+  return !prompt;
+
+}
+
+export function setPromptShown(id) {
+  localStorage.setItem(`prompt-${id}`, 'true');
+}

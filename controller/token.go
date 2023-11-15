@@ -109,17 +109,17 @@ func AddToken(c *gin.Context) {
 		})
 		return
 	}
-	if len(token.Name) == 0 || len(token.Name) > 20 {
+	if len(token.Name) > 30 {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
-			"message": "令牌名称长度必须在1-20之间",
+			"message": "令牌名称过长",
 		})
 		return
 	}
 	cleanToken := model.Token{
 		UserId:         c.GetInt("id"),
 		Name:           token.Name,
-		Key:            common.GetUUID(),
+		Key:            common.GenerateKey(),
 		CreatedTime:    common.GetTimestamp(),
 		AccessedTime:   common.GetTimestamp(),
 		ExpiredTime:    token.ExpiredTime,
@@ -171,6 +171,13 @@ func UpdateToken(c *gin.Context) {
 		})
 		return
 	}
+	if len(token.Name) > 30 {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": "令牌名称过长",
+		})
+		return
+	}
 	cleanToken, err := model.GetTokenByIds(token.Id, userId)
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
@@ -180,10 +187,10 @@ func UpdateToken(c *gin.Context) {
 		return
 	}
 	if token.Status == common.TokenStatusEnabled {
-		if cleanToken.Status == common.TokenStatusExpired && cleanToken.ExpiredTime <= common.GetTimestamp() {
+		if cleanToken.Status == common.TokenStatusExpired && cleanToken.ExpiredTime <= common.GetTimestamp() && cleanToken.ExpiredTime != -1 {
 			c.JSON(http.StatusOK, gin.H{
 				"success": false,
-				"message": "令牌已过期，无法启用，请先修改令牌过期时间",
+				"message": "令牌已过期，无法启用，请先修改令牌过期时间，或者设置为永不过期",
 			})
 			return
 		}

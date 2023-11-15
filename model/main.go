@@ -2,10 +2,13 @@ package model
 
 import (
 	"gorm.io/driver/mysql"
+	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"one-api/common"
 	"os"
+	"strings"
+	"time"
 )
 
 var DB *gorm.DB
@@ -33,29 +36,54 @@ func createRootAccountIfNeed() error {
 	return nil
 }
 
-func CountTable(tableName string) (num int64) {
-	DB.Table(tableName).Count(&num)
-	return
+func chooseDB() (*gorm.DB, error) {
+	if os.Getenv("SQL_DSN") != "" {
+		dsn := os.Getenv("SQL_DSN")
+		if strings.HasPrefix(dsn, "postgres://") {
+			// Use PostgreSQL
+			common.SysLog("using PostgreSQL as database")
+			common.UsingPostgreSQL = true
+			return gorm.Open(postgres.New(postgres.Config{
+				DSN:                  dsn,
+				PreferSimpleProtocol: true, // disables implicit prepared statement usage
+			}), &gorm.Config{
+				PrepareStmt: true, // precompile SQL
+			})
+		}
+		// Use MySQL
+		common.SysLog("using MySQL as database")
+		return gorm.Open(mysql.Open(dsn), &gorm.Config{
+			PrepareStmt: true, // precompile SQL
+		})
+	}
+	// Use SQLite
+	common.SysLog("SQL_DSN not set, using SQLite as database")
+	common.UsingSQLite = true
+	return gorm.Open(sqlite.Open(common.SQLitePath), &gorm.Config{
+		PrepareStmt: true, // precompile SQL
+	})
 }
 
 func InitDB() (err error) {
-	var db *gorm.DB
-	if os.Getenv("SQL_DSN") != "" {
-		// Use MySQL
-		db, err = gorm.Open(mysql.Open(os.Getenv("SQL_DSN")), &gorm.Config{
-			PrepareStmt: true, // precompile SQL
-		})
-	} else {
-		// Use SQLite
-		common.UsingSQLite = true
-		db, err = gorm.Open(sqlite.Open(common.SQLitePath), &gorm.Config{
-			PrepareStmt: true, // precompile SQL
-		})
-		common.SysLog("SQL_DSN not set, using SQLite as database")
-	}
+	db, err := chooseDB()
 	if err == nil {
+		if common.DebugEnabled {
+			db = db.Debug()
+		}
 		DB = db
-		err := db.AutoMigrate(&Channel{})
+		sqlDB, err := DB.DB()
+		if err != nil {
+			return err
+		}
+		sqlDB.SetMaxIdleConns(common.GetOrDefault("SQL_MAX_IDLE_CONNS", 100))
+		sqlDB.SetMaxOpenConns(common.GetOrDefault("SQL_MAX_OPEN_CONNS", 1000))
+		sqlDB.SetConnMaxLifetime(time.Second * time.Duration(common.GetOrDefault("SQL_MAX_LIFETIME", 60)))
+
+		if !common.IsMasterNode {
+			return nil
+		}
+		common.SysLog("database migration started")
+		err = db.AutoMigrate(&Channel{})
 		if err != nil {
 			return err
 		}
@@ -75,6 +103,15 @@ func InitDB() (err error) {
 		if err != nil {
 			return err
 		}
+		err = db.AutoMigrate(&Ability{})
+		if err != nil {
+			return err
+		}
+		err = db.AutoMigrate(&Log{})
+		if err != nil {
+			return err
+		}
+		common.SysLog("database migrated")
 		err = createRootAccountIfNeed()
 		return err
 	} else {

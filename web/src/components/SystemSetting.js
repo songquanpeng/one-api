@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Divider, Form, Grid, Header, Message } from 'semantic-ui-react';
-import { API, removeTrailingSlash, showError, verifyJSON } from '../helpers';
+import { Button, Divider, Form, Grid, Header, Modal, Message } from 'semantic-ui-react';
+import { API, removeTrailingSlash, showError } from '../helpers';
 
 const SystemSetting = () => {
   let [inputs, setInputs] = useState({
@@ -26,16 +26,14 @@ const SystemSetting = () => {
     TurnstileSiteKey: '',
     TurnstileSecretKey: '',
     RegisterEnabled: '',
-    QuotaForNewUser: 0,
-    QuotaRemindThreshold: 0,
-    PreConsumedQuota: 0,
-    ModelRatio: '',
-    TopUpLink: '',
-    AutomaticDisableChannelEnabled: '',
-    ChannelDisableThreshold: 0,
+    EmailDomainRestrictionEnabled: '',
+    EmailDomainWhitelist: ''
   });
   const [originInputs, setOriginInputs] = useState({});
   let [loading, setLoading] = useState(false);
+  const [EmailDomainWhitelist, setEmailDomainWhitelist] = useState([]);
+  const [restrictedDomainInput, setRestrictedDomainInput] = useState('');
+  const [showPasswordWarningModal, setShowPasswordWarningModal] = useState(false);
 
   const getOptions = async () => {
     const res = await API.get('/api/option/');
@@ -45,8 +43,15 @@ const SystemSetting = () => {
       data.forEach((item) => {
         newInputs[item.key] = item.value;
       });
-      setInputs(newInputs);
+      setInputs({
+        ...newInputs,
+        EmailDomainWhitelist: newInputs.EmailDomainWhitelist.split(',')
+      });
       setOriginInputs(newInputs);
+
+      setEmailDomainWhitelist(newInputs.EmailDomainWhitelist.split(',').map((item) => {
+        return { key: item, text: item, value: item };
+      }));
     } else {
       showError(message);
     }
@@ -65,8 +70,8 @@ const SystemSetting = () => {
       case 'GitHubOAuthEnabled':
       case 'WeChatAuthEnabled':
       case 'TurnstileCheckEnabled':
+      case 'EmailDomainRestrictionEnabled':
       case 'RegisterEnabled':
-      case 'AutomaticDisableChannelEnabled':
         value = inputs[key] === 'true' ? 'false' : 'true';
         break;
       default:
@@ -78,7 +83,12 @@ const SystemSetting = () => {
     });
     const { success, message } = res.data;
     if (success) {
-      setInputs((inputs) => ({ ...inputs, [key]: value }));
+      if (key === 'EmailDomainWhitelist') {
+        value = value.split(',');
+      }
+      setInputs((inputs) => ({
+        ...inputs, [key]: value
+      }));
     } else {
       showError(message);
     }
@@ -86,6 +96,11 @@ const SystemSetting = () => {
   };
 
   const handleInputChange = async (e, { name, value }) => {
+    if (name === 'PasswordLoginEnabled' && inputs[name] === 'true') {
+      // block disabling password login
+      setShowPasswordWarningModal(true);
+      return;
+    }
     if (
       name === 'Notice' ||
       name.startsWith('SMTP') ||
@@ -97,11 +112,7 @@ const SystemSetting = () => {
       name === 'WeChatAccountQRCodeImageURL' ||
       name === 'TurnstileSiteKey' ||
       name === 'TurnstileSecretKey' ||
-      name === 'QuotaForNewUser' ||
-      name === 'QuotaRemindThreshold' ||
-      name === 'PreConsumedQuota' ||
-      name === 'ModelRatio' ||
-      name === 'TopUpLink'
+      name === 'EmailDomainWhitelist'
     ) {
       setInputs((inputs) => ({ ...inputs, [name]: value }));
     } else {
@@ -112,28 +123,6 @@ const SystemSetting = () => {
   const submitServerAddress = async () => {
     let ServerAddress = removeTrailingSlash(inputs.ServerAddress);
     await updateOption('ServerAddress', ServerAddress);
-  };
-
-  const submitOperationConfig = async () => {
-    if (originInputs['QuotaForNewUser'] !== inputs.QuotaForNewUser) {
-      await updateOption('QuotaForNewUser', inputs.QuotaForNewUser);
-    }
-    if (originInputs['QuotaRemindThreshold'] !== inputs.QuotaRemindThreshold) {
-      await updateOption('QuotaRemindThreshold', inputs.QuotaRemindThreshold);
-    }
-    if (originInputs['PreConsumedQuota'] !== inputs.PreConsumedQuota) {
-      await updateOption('PreConsumedQuota', inputs.PreConsumedQuota);
-    }
-    if (originInputs['ModelRatio'] !== inputs.ModelRatio) {
-      if (!verifyJSON(inputs.ModelRatio)) {
-        showError('模型倍率不是合法的 JSON 字符串');
-        return;
-      }
-      await updateOption('ModelRatio', inputs.ModelRatio);
-    }
-    if (originInputs['TopUpLink'] !== inputs.TopUpLink) {
-      await updateOption('TopUpLink', inputs.TopUpLink);
-    }
   };
 
   const submitSMTP = async () => {
@@ -157,6 +146,16 @@ const SystemSetting = () => {
       inputs.SMTPToken !== ''
     ) {
       await updateOption('SMTPToken', inputs.SMTPToken);
+    }
+  };
+
+
+  const submitEmailDomainWhitelist = async () => {
+    if (
+      originInputs['EmailDomainWhitelist'] !== inputs.EmailDomainWhitelist.join(',') &&
+      inputs.SMTPToken !== ''
+    ) {
+      await updateOption('EmailDomainWhitelist', inputs.EmailDomainWhitelist.join(','));
     }
   };
 
@@ -208,6 +207,22 @@ const SystemSetting = () => {
     }
   };
 
+  const submitNewRestrictedDomain = () => {
+    const localDomainList = inputs.EmailDomainWhitelist;
+    if (restrictedDomainInput !== '' && !localDomainList.includes(restrictedDomainInput)) {
+      setRestrictedDomainInput('');
+      setInputs({
+        ...inputs,
+        EmailDomainWhitelist: [...localDomainList, restrictedDomainInput],
+      });
+      setEmailDomainWhitelist([...EmailDomainWhitelist, {
+        key: restrictedDomainInput,
+        text: restrictedDomainInput,
+        value: restrictedDomainInput,
+      }]);
+    }
+  }
+
   return (
     <Grid columns={1}>
       <Grid.Column>
@@ -234,6 +249,32 @@ const SystemSetting = () => {
               name='PasswordLoginEnabled'
               onChange={handleInputChange}
             />
+            {
+              showPasswordWarningModal &&
+              <Modal
+                open={showPasswordWarningModal}
+                onClose={() => setShowPasswordWarningModal(false)}
+                size={'tiny'}
+                style={{ maxWidth: '450px' }}
+              >
+                <Modal.Header>警告</Modal.Header>
+                <Modal.Content>
+                  <p>取消密码登录将导致所有未绑定其他登录方式的用户（包括管理员）无法通过密码登录，确认取消？</p>
+                </Modal.Content>
+                <Modal.Actions>
+                  <Button onClick={() => setShowPasswordWarningModal(false)}>取消</Button>
+                  <Button
+                    color='yellow'
+                    onClick={async () => {
+                      setShowPasswordWarningModal(false);
+                      await updateOption('PasswordLoginEnabled', 'false');
+                    }}
+                  >
+                    确定
+                  </Button>
+                </Modal.Actions>
+              </Modal>
+            }
             <Form.Checkbox
               checked={inputs.PasswordRegisterEnabled === 'true'}
               label='允许通过密码进行注册'
@@ -275,85 +316,52 @@ const SystemSetting = () => {
           </Form.Group>
           <Divider />
           <Header as='h3'>
-            运营设置
-          </Header>
-          <Form.Group widths={4}>
-            <Form.Input
-              label='新用户初始配额'
-              name='QuotaForNewUser'
-              onChange={handleInputChange}
-              autoComplete='new-password'
-              value={inputs.QuotaForNewUser}
-              type='number'
-              min='0'
-              placeholder='例如：100'
-            />
-            <Form.Input
-              label='充值链接'
-              name='TopUpLink'
-              onChange={handleInputChange}
-              autoComplete='new-password'
-              value={inputs.TopUpLink}
-              type='link'
-              placeholder='例如发卡网站的购买链接'
-            />
-            <Form.Input
-              label='额度提醒阈值'
-              name='QuotaRemindThreshold'
-              onChange={handleInputChange}
-              autoComplete='new-password'
-              value={inputs.QuotaRemindThreshold}
-              type='number'
-              min='0'
-              placeholder='低于此额度时将发送邮件提醒用户'
-            />
-            <Form.Input
-              label='请求预扣费额度'
-              name='PreConsumedQuota'
-              onChange={handleInputChange}
-              autoComplete='new-password'
-              value={inputs.PreConsumedQuota}
-              type='number'
-              min='0'
-              placeholder='请求结束后多退少补'
-            />
-          </Form.Group>
-          <Form.Group widths='equal'>
-            <Form.TextArea
-              label='模型倍率'
-              name='ModelRatio'
-              onChange={handleInputChange}
-              style={{ minHeight: 250, fontFamily: 'JetBrains Mono, Consolas' }}
-              autoComplete='new-password'
-              value={inputs.ModelRatio}
-              placeholder='为一个 JSON 文本，键为模型名称，值为倍率'
-            />
-          </Form.Group>
-          <Form.Button onClick={submitOperationConfig}>保存运营设置</Form.Button>
-          <Divider />
-          <Header as='h3'>
-            监控设置
+            配置邮箱域名白名单
+            <Header.Subheader>用以防止恶意用户利用临时邮箱批量注册</Header.Subheader>
           </Header>
           <Form.Group widths={3}>
-            <Form.Input
-              label='最长响应时间'
-              name='ChannelDisableThreshold'
-              onChange={handleInputChange}
-              autoComplete='new-password'
-              value={inputs.ChannelDisableThreshold}
-              type='number'
-              min='0'
-              placeholder='单位秒，当运行通道全部测试时，超过此时间将自动禁用通道'
-            />
-          </Form.Group>
-          <Form.Group inline>
             <Form.Checkbox
-              checked={inputs.AutomaticDisableChannelEnabled === 'true'}
-              label='失败时自动禁用通道'
-              name='AutomaticDisableChannelEnabled'
+              label='启用邮箱域名白名单'
+              name='EmailDomainRestrictionEnabled'
               onChange={handleInputChange}
+              checked={inputs.EmailDomainRestrictionEnabled === 'true'}
             />
           </Form.Group>
+          <Form.Group widths={2}>
+            <Form.Dropdown
+              label='允许的邮箱域名'
+              placeholder='允许的邮箱域名'
+              name='EmailDomainWhitelist'
+              required
+              fluid
+              multiple
+              selection
+              onChange={handleInputChange}
+              value={inputs.EmailDomainWhitelist}
+              autoComplete='new-password'
+              options={EmailDomainWhitelist}
+            />
+            <Form.Input
+              label='添加新的允许的邮箱域名'
+              action={
+                <Button type='button' onClick={() => {
+                  submitNewRestrictedDomain();
+                }}>填入</Button>
+              }
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  submitNewRestrictedDomain();
+                }
+              }}
+              autoComplete='new-password'
+              placeholder='输入新的允许的邮箱域名'
+              value={restrictedDomainInput}
+              onChange={(e, { value }) => {
+                setRestrictedDomainInput(value);
+              }}
+            />
+          </Form.Group>
+          <Form.Button onClick={submitEmailDomainWhitelist}>保存邮箱域名白名单设置</Form.Button>
           <Divider />
           <Header as='h3'>
             配置 SMTP
@@ -400,7 +408,7 @@ const SystemSetting = () => {
               onChange={handleInputChange}
               type='password'
               autoComplete='new-password'
-              value={inputs.SMTPToken}
+              checked={inputs.RegisterEnabled === 'true'}
               placeholder='敏感信息不会发送到前端显示'
             />
           </Form.Group>
