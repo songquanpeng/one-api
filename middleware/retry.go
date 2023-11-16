@@ -3,7 +3,6 @@ package middleware
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"io"
 	"net/http"
@@ -56,16 +55,14 @@ func RetryHandler(group *gin.RouterGroup) gin.HandlerFunc {
 		maxRetryStr := c.Query("retry")
 		maxRetry, err := strconv.Atoi(maxRetryStr)
 		if err != nil || maxRetryStr == "" || maxRetry < 0 || maxRetry > common.RetryTimes {
-			maxRetry = common.RetryTimes
+			maxRetry = common.Max(common.RetryTimes+1, 1)
 		}
 		retryDelay := time.Duration(common.RetryInterval) * time.Millisecond
-		var openaiErr *OpenAIErrorWithStatusCode
 		for i := 0; i < maxRetry; i++ {
 			if i == 0 {
 				// 第一次请求, 直接执行使用c.Next()调用后续中间件, 防止直接使用handler 内部调用c.Next() 导致重复执行
 				// First request, execute next middleware
 				c.Next()
-				fmt.Println("c.Next()")
 			} else {
 				// Clear errors to avoid confusion in next middleware
 				c.Errors = c.Errors[:0]
@@ -89,10 +86,19 @@ func RetryHandler(group *gin.RouterGroup) gin.HandlerFunc {
 			// If errors, retry after delay
 			time.Sleep(retryDelay)
 		}
-		_ = json.Unmarshal([]byte(c.Errors.Last().Error()), &openaiErr)
+		if len(c.Errors) == 0 {
+			return
+		}
+		var openaiErr *OpenAIErrorWithStatusCode
+		err = json.Unmarshal([]byte(c.Errors.Last().Error()), &openaiErr)
+		if err != nil {
+			abortWithMessage(c, http.StatusInternalServerError, c.Errors.Last().Error())
+			return
+		}
 		c.JSON(openaiErr.StatusCode, gin.H{
 			"error": openaiErr.OpenAIError,
 		})
 	}
+	group.Handlers = append(group.Handlers, retryHandler)
 	return retryHandler
 }
