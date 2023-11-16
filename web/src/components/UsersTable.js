@@ -133,7 +133,13 @@ const UsersTable = () => {
     setLoading(true);
     let sortedUsers = [...users];
     sortedUsers.sort((a, b) => {
-      return ('' + a[key]).localeCompare(b[key]);
+      if (!isNaN(a[key])) {
+        // If the value is numeric, subtract to sort
+        return a[key] - b[key];
+      } else {
+        // If the value is not numeric, sort as strings
+        return ('' + a[key]).localeCompare(b[key]);
+      }
     });
     if (sortedUsers[0].id === users[0].id) {
       sortedUsers.reverse();
