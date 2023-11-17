@@ -304,6 +304,16 @@ const ChannelsTable = () => {
     setLoading(false);
   };
 
+  function truncateString(str, num) {
+    if (str.length <= num) return str;
+    return str.slice(0, num) + "...";
+  }
+
+  function formatUsedQuota(usedQuota) {
+    const quotaPerUnit = localStorage.getItem('quota_per_unit') || 500000; // 如果未设置，则使用 1 作为默认值
+    return `$${(usedQuota / quotaPerUnit).toFixed(2)}`;
+  }
+
 
   return (
     <>
@@ -372,6 +382,30 @@ const ChannelsTable = () => {
             <Table.HeaderCell
               style={{ cursor: 'pointer' }}
               onClick={() => {
+                sortChannel('base_url');
+              }}
+            >
+              Base URL
+            </Table.HeaderCell>
+            <Table.HeaderCell
+              style={{ cursor: 'pointer' }}
+              onClick={() => {
+                sortChannel('models');
+              }}
+            >
+              模型
+            </Table.HeaderCell>
+            <Table.HeaderCell
+              style={{ cursor: 'pointer' }}
+              onClick={() => {
+                sortChannel('used_quota');
+              }}
+            >
+              已用额度
+            </Table.HeaderCell>
+            <Table.HeaderCell
+              style={{ cursor: 'pointer' }}
+              onClick={() => {
                 sortChannel('balance');
               }}
             >
@@ -412,6 +446,23 @@ const ChannelsTable = () => {
                       basic
                     />
                   </Table.Cell>
+
+
+                  <Table.Cell>
+                    <Popup
+                      content={channel.base_url}
+                      trigger={<span>{truncateString(channel.base_url.replace(/^https?:\/\//, ''), 20)}</span>}
+                      basic
+                    />
+                  </Table.Cell>
+                  <Table.Cell>
+                    <Popup
+                      content={channel.models}
+                      trigger={<span>{truncateString(channel.models, 20)}</span>}
+                      basic
+                    />
+                  </Table.Cell>
+                  <Table.Cell>{formatUsedQuota(channel.used_quota)}</Table.Cell>
                   <Table.Cell>
                     <Popup
                       trigger={<span onClick={() => {
@@ -501,7 +552,7 @@ const ChannelsTable = () => {
 
         <Table.Footer>
           <Table.Row>
-            <Table.HeaderCell colSpan='9'>
+            <Table.HeaderCell colSpan='12'>
               <Button size='small' as={Link} to='/channel/add' loading={loading}>
                 添加新的渠道
               </Button>
