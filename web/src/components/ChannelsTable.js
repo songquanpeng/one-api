@@ -118,6 +118,7 @@ const ChannelsTable = () => {
     setLoading(false);
   };
 
+  // 翻页
   const onPaginationChange = (e, { activePage }) => {
     (async () => {
       if (activePage === Math.ceil(channels.length / ITEMS_PER_PAGE) + 1) {
@@ -125,6 +126,7 @@ const ChannelsTable = () => {
         await loadChannels(activePage - 1);
       }
       setActivePage(activePage);
+      await refresh();
     })();
   };
 
