@@ -37,7 +37,6 @@ func relayImageHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode 
 	group := c.GetString("group")
 
 	var imageRequest ImageRequest
-
 	if consumeQuota {
 		err := common.UnmarshalBodyReusable(c, &imageRequest)
 		if err != nil {
@@ -82,7 +81,7 @@ func relayImageHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode 
 
 	// Number of generated images validation
 	if isWithinRange(imageModel, imageRequest.N) == false {
-		return errorWrapper(errors.New("invalud value of n"), "n_not_within_range", http.StatusBadRequest)
+		return errorWrapper(errors.New("invalid value of n"), "n_not_within_range", http.StatusBadRequest)
 	}
 
 	// map model name
