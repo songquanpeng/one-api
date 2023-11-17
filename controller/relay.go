@@ -77,10 +77,16 @@ type TextRequest struct {
 	//Stream   bool      `json:"stream"`
 }
 
+// ImageRequest docs: https://platform.openai.com/docs/api-reference/images/create
 type ImageRequest struct {
-	Prompt string `json:"prompt"`
-	N      int    `json:"n"`
-	Size   string `json:"size"`
+	Model          string `json:"model"`
+	Prompt         string `json:"prompt" binding:"required"`
+	N              int    `json:"n"`
+	Size           string `json:"size"`
+	Quality        string `json:"quality"`
+	ResponseFormat string `json:"response_format"`
+	Style          string `json:"style"`
+	User           string `json:"user"`
 }
 
 type AudioResponse struct {

@@ -55,12 +55,21 @@ func init() {
 	// https://platform.openai.com/docs/models/model-endpoint-compatibility
 	openAIModels = []OpenAIModels{
 		{
-			Id:         "dall-e",
+			Id:         "dall-e-2",
 			Object:     "model",
 			Created:    1677649963,
 			OwnedBy:    "openai",
 			Permission: permission,
-			Root:       "dall-e",
+			Root:       "dall-e-2",
+			Parent:     nil,
+		},
+		{
+			Id:         "dall-e-3",
+			Object:     "model",
+			Created:    1677649963,
+			OwnedBy:    "openai",
+			Permission: permission,
+			Root:       "dall-e-3",
 			Parent:     nil,
 		},
 		{
