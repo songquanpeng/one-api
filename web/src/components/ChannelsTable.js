@@ -57,18 +57,61 @@ const ChannelsTable = () => {
   const [searching, setSearching] = useState(false);
   const [updatingBalance, setUpdatingBalance] = useState(false);
   const [showPrompt, setShowPrompt] = useState(shouldShowPrompt("channel-test"));
+  const [monthlyQuotas, setMonthlyQuotas] = useState({});
 
+  // 获取本月的开始和结束时间戳
+  function getMonthStartAndEndTimestamps() {
+    const now = new Date();
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999); // 设置到月末的最后一刻
+
+    // 将日期转换为UNIX时间戳（秒数）
+    const startTimestamp = Math.floor(startOfMonth.getTime() / 1000);
+    const endTimestamp = Math.floor(endOfMonth.getTime() / 1000);
+
+    return { startTimestamp, endTimestamp };
+  }
+
+  // 获取本月的配额
+  const fetchMonthlyQuotasAndChannels = async (fetchedChannels) => {
+    const { startTimestamp, endTimestamp } = getMonthStartAndEndTimestamps();
+    
+    const quotaRequests = fetchedChannels.map(channel => (
+      API.get(`/api/log/stat?type=0&start_timestamp=${startTimestamp}&end_timestamp=${endTimestamp}&channel=${channel.id}`)
+    ));
+  
+    try {
+      const quotaResponses = await Promise.all(quotaRequests);
+      const quotaPerUnit = localStorage.getItem('quota_per_unit') || 500000;
+      const newMonthlyQuotas = quotaResponses.reduce((acc, response, index) => {
+        const quota = (response.data.data.quota / quotaPerUnit).toFixed(3);
+        const channelId = fetchedChannels[index].id;
+        acc[channelId] = parseFloat(quota);
+        return acc;
+      }, {});
+    
+      setMonthlyQuotas(newMonthlyQuotas);
+    } catch (error) {
+      console.error('获取月度配额失败:', error);
+    }
+  };
+  
+  // 加载频道列表
   const loadChannels = async (startIdx) => {
     const res = await API.get(`/api/channel/?p=${startIdx}`);
     const { success, message, data } = res.data;
     if (success) {
+      const fetchedChannels = data;
+  
       if (startIdx === 0) {
-        setChannels(data);
+        setChannels(fetchedChannels);
       } else {
         let newChannels = [...channels];
-        newChannels.splice(startIdx * ITEMS_PER_PAGE, data.length, ...data);
+        newChannels.splice(startIdx * ITEMS_PER_PAGE, fetchedChannels.length, ...fetchedChannels);
         setChannels(newChannels);
       }
+  
+      fetchMonthlyQuotasAndChannels(fetchedChannels); // 在这里调用函数
     } else {
       showError(message);
     }
@@ -97,6 +140,9 @@ const ChannelsTable = () => {
         showError(reason);
       });
   }, []);
+  
+  
+
 
   const manageChannel = async (id, action, idx, value) => {
     let data = { id };
@@ -304,15 +350,20 @@ const ChannelsTable = () => {
     setLoading(false);
   };
 
+  // Truncate string
   function truncateString(str, num) {
     if (str.length <= num) return str;
     return str.slice(0, num) + "...";
   }
-
+  // 总已用额度
   function formatUsedQuota(usedQuota) {
     const quotaPerUnit = localStorage.getItem('quota_per_unit') || 500000; // 如果未设置，则使用 1 作为默认值
-    return `$${(usedQuota / quotaPerUnit).toFixed(2)}`;
+    return `$${(usedQuota / quotaPerUnit).toFixed(3)}`;
   }
+
+
+
+
 
 
   return (
@@ -401,7 +452,7 @@ const ChannelsTable = () => {
                 sortChannel('used_quota');
               }}
             >
-              已用额度
+              本月已用额度
             </Table.HeaderCell>
             <Table.HeaderCell
               style={{ cursor: 'pointer' }}
@@ -462,7 +513,13 @@ const ChannelsTable = () => {
                       basic
                     />
                   </Table.Cell>
-                  <Table.Cell>{formatUsedQuota(channel.used_quota)}</Table.Cell>
+                  <Table.Cell>
+                    <Popup
+                      trigger={<span>${monthlyQuotas[channel.id]}</span>}
+                      content={`总: ${formatUsedQuota(channel.used_quota)}`}
+                      basic
+                    />
+                  </Table.Cell>
                   <Table.Cell>
                     <Popup
                       trigger={<span onClick={() => {
