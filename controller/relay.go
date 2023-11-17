@@ -154,11 +154,25 @@ type OpenAIEmbeddingResponse struct {
 	Usage  `json:"usage"`
 }
 
-type ImageResponse struct {
+type OpenAIImageResponse struct {
 	Created int `json:"created"`
 	Data    []struct {
 		Url string `json:"url"`
+	} `json:"data"`
+}
+
+type AzureDalle2ResultData struct {
+	Data []struct {
+		Url string `json:"url"`
 	}
+}
+
+type AzureDalle2Response struct {
+	Created int                   `json:"created"`
+	Expires int                   `json:"expires"`
+	ID      string                `json:"id"`
+	Result  AzureDalle2ResultData `json:"result"`
+	Status  string                `json:"status"`
 }
 
 type ChatCompletionsStreamResponseChoice struct {
