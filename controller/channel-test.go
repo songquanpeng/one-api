@@ -45,7 +45,10 @@ func testChannel(channel *model.Channel, request ChatRequest) (err error, openai
 	if channel.Type == common.ChannelTypeAzure {
 		requestURL = fmt.Sprintf("%s/openai/deployments/%s/chat/completions?api-version=2023-03-15-preview", channel.GetBaseURL(), request.Model)
 	} else {
-		requestURL = getFullRequestURL(channel.GetBaseURL(), "/v1/chat/completions", channel.Type)
+		if baseURL := channel.GetBaseURL(); len(baseURL) > 0 {
+			requestURL = baseURL
+		}
+		requestURL = getFullRequestURL(requestURL, "/v1/chat/completions", channel.Type)
 	}
 
 	jsonData, err := json.Marshal(request)
@@ -74,7 +77,7 @@ func testChannel(channel *model.Channel, request ChatRequest) (err error, openai
 	}
 	err = json.Unmarshal(body, &response)
 	if err != nil {
-		return fmt.Errorf("%s\nResp body: %s", err, body), nil
+		return fmt.Errorf("Error: %s\nResp body: %s", err, body), nil
 	}
 	if response.Usage.CompletionTokens == 0 {
 		return errors.New(fmt.Sprintf("type %s, code %v, message %s", response.Error.Type, response.Error.Code, response.Error.Message)), &response.Error
