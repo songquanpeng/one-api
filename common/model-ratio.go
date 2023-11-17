@@ -6,6 +6,29 @@ import (
 	"time"
 )
 
+var DalleSizeRatios = map[string]map[string]float64{
+	"dall-e-2": {
+		"256x256":   1,
+		"512x512":   1.125,
+		"1024x1024": 1.25,
+	},
+	"dall-e-3": {
+		"1024x1024": 1,
+		"1024x1792": 2,
+		"1792x1024": 2,
+	},
+}
+
+var DalleGenerationImageAmounts = map[string][2]int{
+	"dall-e-2": {1, 10},
+	"dall-e-3": {1, 1}, // OpenAI allows n=1 currently.
+}
+
+var DalleImagePromptLengthLimitations = map[string]int{
+	"dall-e-2": 1000,
+	"dall-e-3": 4000,
+}
+
 // ModelRatio
 // https://platform.openai.com/docs/models/model-endpoint-compatibility
 // https://cloud.baidu.com/doc/WENXINWORKSHOP/s/Blfmc9dlf
@@ -36,7 +59,11 @@ var ModelRatio = map[string]float64{
 	"text-davinci-003":          10,
 	"text-davinci-edit-001":     10,
 	"code-davinci-edit-001":     10,
-	"whisper-1":                 15, 
+	"whisper-1":                 15,  
+	"tts-1":                     7.5, // $0.015 / 1K characters
+	"tts-1-1106":                7.5,
+	"tts-1-hd":                  15, // $0.030 / 1K characters
+	"tts-1-hd-1106":             15,
 	"davinci":                   10,
 	"curie":                     10,
 	"babbage":                   10,
@@ -45,7 +72,8 @@ var ModelRatio = map[string]float64{
 	"text-search-ada-doc-001":   10,
 	"text-moderation-stable":    0.1,
 	"text-moderation-latest":    0.1,
-	"dall-e":                    8,
+	"dall-e-2":                  8,      // $0.016 - $0.020 / image
+	"dall-e-3":                  20,     // $0.040 - $0.120 / image
 	"dall-e-3":                  20,
 	"claude-instant-1":          0.815,  
 	"claude-2":                  5.51,   
