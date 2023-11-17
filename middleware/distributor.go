@@ -41,7 +41,7 @@ func Distribute() func(c *gin.Context) {
 			// Select a channel for the user
 			var modelRequest ModelRequest
 			var err error
-			if !strings.HasPrefix(c.Request.URL.Path, "/v1/audio") {
+			if !strings.HasPrefix(c.Request.URL.Path, "/v1/audio/transcriptions") && !strings.HasPrefix(c.Request.URL.Path, "/v1/audio/translations") {
 				err = common.UnmarshalBodyReusable(c, &modelRequest)
 			}
 			if err != nil {
@@ -63,7 +63,7 @@ func Distribute() func(c *gin.Context) {
 					modelRequest.Model = "dall-e"
 				}
 			}
-			if strings.HasPrefix(c.Request.URL.Path, "/v1/audio") {
+			if strings.HasPrefix(c.Request.URL.Path, "/v1/audio/transcriptions") || strings.HasPrefix(c.Request.URL.Path, "/v1/audio/translations") {
 				if modelRequest.Model == "" {
 					modelRequest.Model = "whisper-1"
 				}
