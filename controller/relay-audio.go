@@ -5,14 +5,11 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
+	"github.com/gin-gonic/gin"
 	"io"
 	"net/http"
 	"one-api/common"
 	"one-api/model"
-	"path"
-
-	"github.com/gin-gonic/gin"
 )
 
 func relayAudioHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
@@ -23,24 +20,17 @@ func relayAudioHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode 
 	channelId := c.GetInt("channel_id")
 	userId := c.GetInt("id")
 	group := c.GetString("group")
-
-	// Get last path of request URL
-	// Example: v1/audio/speech -> speech
-	requestPath := path.Base(c.Request.URL.Path) // speech
+	tokenName := c.GetString("token_name")
 
 	var ttsRequest TextToSpeechRequest
-
-	if requestPath == "speech" {
+	if relayMode == RelayModeAudioSpeech {
 		// Read JSON
 		err := common.UnmarshalBodyReusable(c, &ttsRequest)
-
 		// Check if JSON is valid
 		if err != nil {
 			return errorWrapper(err, "invalid_json", http.StatusBadRequest)
 		}
-
 		audioModel = ttsRequest.Model
-
 		// Check if text is too long 4096
 		if len(ttsRequest.Input) > 4096 {
 			return errorWrapper(errors.New("input is too long (over 4096 characters)"), "text_too_long", http.StatusBadRequest)
@@ -53,19 +43,14 @@ func relayAudioHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode 
 	ratio := modelRatio * groupRatio
 	preConsumedQuota := int(float64(preConsumedTokens) * ratio)
 	userQuota, err := model.CacheGetUserQuota(userId)
-
 	if err != nil {
 		return errorWrapper(err, "get_user_quota_failed", http.StatusInternalServerError)
 	}
 
 	quota := 0
-
 	// Check if user quota is enough
-	if requestPath == "speech" {
+	if relayMode == RelayModeAudioSpeech {
 		quota = int(float64(len(ttsRequest.Input)) * modelRatio * groupRatio)
-
-		fmt.Print(len(ttsRequest.Input), quota)
-
 		if quota > userQuota {
 			return errorWrapper(errors.New("user quota is not enough"), "insufficient_user_quota", http.StatusForbidden)
 		}
@@ -134,72 +119,31 @@ func relayAudioHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode 
 		return errorWrapper(err, "close_request_body_failed", http.StatusInternalServerError)
 	}
 
-	responseBody, err := io.ReadAll(resp.Body)
-
-	if err != nil {
-		return errorWrapper(err, "read_response_body_failed", http.StatusInternalServerError)
-	}
-	err = resp.Body.Close()
-	if err != nil {
-		return errorWrapper(err, "close_response_body_failed", http.StatusInternalServerError)
-	}
-
-	if requestPath == "speech" {
+	if relayMode == RelayModeAudioSpeech {
 		defer func(ctx context.Context) {
-			go func(quota int) {
-				err := model.PostConsumeTokenQuota(tokenId, quota)
-				if err != nil {
-					common.SysError("error consuming token remain quota: " + err.Error())
-				}
-				err = model.CacheUpdateUserQuota(userId)
-				if err != nil {
-					common.SysError("error update user quota cache: " + err.Error())
-				}
-				if quota != 0 {
-					tokenName := c.GetString("token_name")
-					logContent := fmt.Sprintf("模型倍率 %.2f，分组倍率 %.2f", modelRatio, groupRatio)
-					model.RecordConsumeLog(ctx, userId, channelId, 0, 0, audioModel, tokenName, quota, logContent)
-					model.UpdateUserUsedQuotaAndRequestCount(userId, quota)
-					channelId := c.GetInt("channel_id")
-					model.UpdateChannelUsedQuota(channelId, quota)
-				}
-			}(quota)
+			go postConsumeQuota(ctx, tokenId, quota, userId, channelId, modelRatio, groupRatio, audioModel, tokenName)
 		}(c.Request.Context())
 	} else {
+		responseBody, err := io.ReadAll(resp.Body)
+		if err != nil {
+			return errorWrapper(err, "read_response_body_failed", http.StatusInternalServerError)
+		}
+		err = resp.Body.Close()
+		if err != nil {
+			return errorWrapper(err, "close_response_body_failed", http.StatusInternalServerError)
+		}
 		var whisperResponse WhisperResponse
-
-		defer func(ctx context.Context) {
-			go func() {
-				quota := countTokenText(whisperResponse.Text, audioModel)
-				quotaDelta := quota - preConsumedQuota
-				err := model.PostConsumeTokenQuota(tokenId, quotaDelta)
-				if err != nil {
-					common.SysError("error consuming token remain quota: " + err.Error())
-				}
-				err = model.CacheUpdateUserQuota(userId)
-				if err != nil {
-					common.SysError("error update user quota cache: " + err.Error())
-				}
-				if quota != 0 {
-					tokenName := c.GetString("token_name")
-					logContent := fmt.Sprintf("模型倍率 %.2f，分组倍率 %.2f", modelRatio, groupRatio)
-					model.RecordConsumeLog(ctx, userId, channelId, 0, 0, audioModel, tokenName, quota, logContent)
-					model.UpdateUserUsedQuotaAndRequestCount(userId, quota)
-					channelId := c.GetInt("channel_id")
-					model.UpdateChannelUsedQuota(channelId, quota)
-				}
-			}()
-		}(c.Request.Context())
-
 		err = json.Unmarshal(responseBody, &whisperResponse)
-
 		if err != nil {
 			return errorWrapper(err, "unmarshal_response_body_failed", http.StatusInternalServerError)
 		}
+		defer func(ctx context.Context) {
+			quota := countTokenText(whisperResponse.Text, audioModel)
+			quotaDelta := quota - preConsumedQuota
+			go postConsumeQuota(ctx, tokenId, quotaDelta, userId, channelId, modelRatio, groupRatio, audioModel, tokenName)
+		}(c.Request.Context())
+		resp.Body = io.NopCloser(bytes.NewBuffer(responseBody))
 	}
-
-	resp.Body = io.NopCloser(bytes.NewBuffer(responseBody))
-
 	for k, v := range resp.Header {
 		c.Writer.Header().Set(k, v[0])
 	}
