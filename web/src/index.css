@@ -212,24 +212,21 @@ code {
     }
 }
 
-@media only screen and (min-width: 1200px) {
+@media only screen and (min-width: 1400px) {
     .main-content {
-        width: 1300px !important;
+        width: 1400px !important;
     }
 
     .ui.menu .ui.container {
         height: 80px;
         font-size: 1em;
-        width: 90% !important;
-        /* 或者你想要设置的宽度 */
-        /* padding: 0 !important; */
+        width: 92% !important;
     }
 
     .ui.menu .item>img:not(.ui) {
         width: 4.5rem !important;
     }
 }
-
 
 .active-menu-item {
     background-color: var(--czl-grayD) !important;

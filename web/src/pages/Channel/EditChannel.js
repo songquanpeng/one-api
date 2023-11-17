@@ -124,19 +124,19 @@ const EditChannel = () => {
       }));
       setOriginModelOptions(localModelOptions);
       setFullOPENAIModels(res.data.data.filter((model) => {
-        return (model.id.startsWith('gpt-') || model.id.startsWith('text-') || model.id.startsWith('dall-') || model.id.startsWith('whisper-') || model.id.startsWith('code-')) && !model.id.startsWith('text-embedding-v1');
+        return (model.id.startsWith('gpt-') || model.id.startsWith('text-') || model.id.startsWith('dall-') || model.id.startsWith('whisper-') || model.id.startsWith('code-') || model.id.startsWith('tts-')) && !model.id.startsWith('text-embedding-v1');
       }).map((model) => model.id));
       
       setfullNo32KOPENAIModels(res.data.data.filter((model) => {
-        return (model.id.startsWith('gpt-') || model.id.startsWith('text-') || model.id.startsWith('dall-') || model.id.startsWith('whisper-') || model.id.startsWith('code-')) && !model.id.startsWith('text-embedding-v1') && !model.id.startsWith('gpt-4-32k');
+        return (model.id.startsWith('gpt-') || model.id.startsWith('text-') || model.id.startsWith('dall-') || model.id.startsWith('whisper-') || model.id.startsWith('tts-') || model.id.startsWith('code-')) && !model.id.startsWith('text-embedding-v1') && !model.id.startsWith('gpt-4-32k');
       }).map((model) => model.id));
 
       setBasicModels(res.data.data.filter((model) => {
-        return (model.id.startsWith('gpt-3') || model.id.startsWith('text-') || model.id.startsWith('dall-') || model.id.startsWith('whisper-') || model.id.startsWith('code-')) && !model.id.startsWith('text-embedding-v1');
+        return (model.id.startsWith('gpt-3') || model.id.startsWith('text-') || model.id.startsWith('dall-') || model.id.startsWith('whisper-') || model.id.startsWith('tts-') || model.id.startsWith('code-')) && !model.id.startsWith('text-embedding-v1');
       }).map((model) => model.id));
       
       setBasicNoGPTModels(res.data.data.filter((model) => {
-        return (model.id.startsWith('text-') || model.id.startsWith('dall-') || model.id.startsWith('whisper-') || model.id.startsWith('code-')) && !model.id.startsWith('text-embedding-v1');
+        return (model.id.startsWith('text-') || model.id.startsWith('dall-') || model.id.startsWith('whisper-') || model.id.startsWith('tts-') || model.id.startsWith('code-')) && !model.id.startsWith('text-embedding-v1');
       }).map((model) => model.id));
       
     } catch (error) {
