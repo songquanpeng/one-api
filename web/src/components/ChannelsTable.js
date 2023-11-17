@@ -82,7 +82,7 @@ const ChannelsTable = () => {
   
     try {
       const quotaResponses = await Promise.all(quotaRequests);
-      const quotaPerUnit = localStorage.getItem('quota_per_unit') || 500000;
+      const quotaPerUnit = localStorage.getItem('quota_per_unit')  || 500000;
       const newMonthlyQuotas = quotaResponses.reduce((acc, response, index) => {
         const quota = (response.data.data.quota / quotaPerUnit).toFixed(3);
         const channelId = fetchedChannels[index].id;
@@ -110,7 +110,6 @@ const ChannelsTable = () => {
         newChannels.splice(startIdx * ITEMS_PER_PAGE, fetchedChannels.length, ...fetchedChannels);
         setChannels(newChannels);
       }
-  
       fetchMonthlyQuotasAndChannels(fetchedChannels); // 在这里调用函数
     } else {
       showError(message);
@@ -118,7 +117,6 @@ const ChannelsTable = () => {
     setLoading(false);
   };
 
-  // 翻页
   const onPaginationChange = (e, { activePage }) => {
     (async () => {
       if (activePage === Math.ceil(channels.length / ITEMS_PER_PAGE) + 1) {
@@ -126,7 +124,6 @@ const ChannelsTable = () => {
         await loadChannels(activePage - 1);
       }
       setActivePage(activePage);
-      await refresh();
     })();
   };
 
@@ -142,6 +139,12 @@ const ChannelsTable = () => {
         showError(reason);
       });
   }, []);
+  // 监听频道列表变化
+  useEffect(() => {
+    if (channels.length > 0) {
+      fetchMonthlyQuotasAndChannels(channels);
+    }
+  }, [channels]);
   
   
 
