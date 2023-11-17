@@ -8,13 +8,14 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"io"
 	"net/http"
 	"one-api/common"
 	"sort"
 	"strconv"
 	"strings"
+
+	"github.com/gin-gonic/gin"
 )
 
 // https://cloud.tencent.com/document/product/1729/97732
@@ -84,7 +85,7 @@ func requestOpenAI2Tencent(request GeneralOpenAIRequest) *TencentChatRequest {
 		if message.Role == "system" {
 			messages = append(messages, TencentMessage{
 				Role:    "user",
-				Content: message.Content,
+				Content: message.Content.(string),
 			})
 			messages = append(messages, TencentMessage{
 				Role:    "assistant",
@@ -93,7 +94,7 @@ func requestOpenAI2Tencent(request GeneralOpenAIRequest) *TencentChatRequest {
 			continue
 		}
 		messages = append(messages, TencentMessage{
-			Content: message.Content,
+			Content: message.Content.(string),
 			Role:    message.Role,
 		})
 	}

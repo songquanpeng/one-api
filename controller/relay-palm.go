@@ -3,10 +3,11 @@ package controller
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"io"
 	"net/http"
 	"one-api/common"
+
+	"github.com/gin-gonic/gin"
 )
 
 // https://developers.generativeai.google/api/rest/generativelanguage/models/generateMessage#request-body
@@ -59,7 +60,7 @@ func requestOpenAI2PaLM(textRequest GeneralOpenAIRequest) *PaLMChatRequest {
 	}
 	for _, message := range textRequest.Messages {
 		palmMessage := PaLMChatMessage{
-			Content: message.Content,
+			Content: message.Content.(string),
 		}
 		if message.Role == "user" {
 			palmMessage.Author = "0"

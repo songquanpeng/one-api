@@ -6,14 +6,15 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"github.com/gin-gonic/gin"
-	"github.com/gorilla/websocket"
 	"io"
 	"net/http"
 	"net/url"
 	"one-api/common"
 	"strings"
 	"time"
+
+	"github.com/gin-gonic/gin"
+	"github.com/gorilla/websocket"
 )
 
 // https://console.xfyun.cn/services/cbm
@@ -81,7 +82,7 @@ func requestOpenAI2Xunfei(request GeneralOpenAIRequest, xunfeiAppId string, doma
 		if message.Role == "system" {
 			messages = append(messages, XunfeiMessage{
 				Role:    "user",
-				Content: message.Content,
+				Content: message.Content.(string),
 			})
 			messages = append(messages, XunfeiMessage{
 				Role:    "assistant",
@@ -90,7 +91,7 @@ func requestOpenAI2Xunfei(request GeneralOpenAIRequest, xunfeiAppId string, doma
 		} else {
 			messages = append(messages, XunfeiMessage{
 				Role:    message.Role,
-				Content: message.Content,
+				Content: message.Content.(string),
 			})
 		}
 	}

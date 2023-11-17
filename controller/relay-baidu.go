@@ -5,13 +5,14 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"io"
 	"net/http"
 	"one-api/common"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/gin-gonic/gin"
 )
 
 // https://cloud.baidu.com/doc/WENXINWORKSHOP/s/flfmc9do2
@@ -89,7 +90,7 @@ func requestOpenAI2Baidu(request GeneralOpenAIRequest) *BaiduChatRequest {
 		if message.Role == "system" {
 			messages = append(messages, BaiduMessage{
 				Role:    "user",
-				Content: message.Content,
+				Content: message.Content.(string),
 			})
 			messages = append(messages, BaiduMessage{
 				Role:    "assistant",
@@ -98,7 +99,7 @@ func requestOpenAI2Baidu(request GeneralOpenAIRequest) *BaiduChatRequest {
 		} else {
 			messages = append(messages, BaiduMessage{
 				Role:    message.Role,
-				Content: message.Content,
+				Content: message.Content.(string),
 			})
 		}
 	}

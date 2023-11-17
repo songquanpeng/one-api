@@ -3,14 +3,15 @@ package controller
 import (
 	"bufio"
 	"encoding/json"
-	"github.com/gin-gonic/gin"
-	"github.com/golang-jwt/jwt"
 	"io"
 	"net/http"
 	"one-api/common"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt"
 )
 
 // https://open.bigmodel.cn/doc/api#chatglm_std
@@ -114,7 +115,7 @@ func requestOpenAI2Zhipu(request GeneralOpenAIRequest) *ZhipuRequest {
 		if message.Role == "system" {
 			messages = append(messages, ZhipuMessage{
 				Role:    "system",
-				Content: message.Content,
+				Content: message.Content.(string),
 			})
 			messages = append(messages, ZhipuMessage{
 				Role:    "user",
@@ -123,7 +124,7 @@ func requestOpenAI2Zhipu(request GeneralOpenAIRequest) *ZhipuRequest {
 		} else {
 			messages = append(messages, ZhipuMessage{
 				Role:    message.Role,
-				Content: message.Content,
+				Content: message.Content.(string),
 			})
 		}
 	}

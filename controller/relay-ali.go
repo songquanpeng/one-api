@@ -3,11 +3,12 @@ package controller
 import (
 	"bufio"
 	"encoding/json"
-	"github.com/gin-gonic/gin"
 	"io"
 	"net/http"
 	"one-api/common"
 	"strings"
+
+	"github.com/gin-gonic/gin"
 )
 
 // https://help.aliyun.com/document_detail/613695.html?spm=a2c4g.2399480.0.0.1adb778fAdzP9w#341800c0f8w0r
@@ -88,18 +89,18 @@ func requestOpenAI2Ali(request GeneralOpenAIRequest) *AliChatRequest {
 		message := request.Messages[i]
 		if message.Role == "system" {
 			messages = append(messages, AliMessage{
-				User: message.Content,
+				User: message.Content.(string),
 				Bot:  "Okay",
 			})
 			continue
 		} else {
 			if i == len(request.Messages)-1 {
-				prompt = message.Content
+				prompt = message.Content.(string)
 				break
 			}
 			messages = append(messages, AliMessage{
-				User: message.Content,
-				Bot:  request.Messages[i+1].Content,
+				User: message.Content.(string),
+				Bot:  request.Messages[i+1].Content.(string),
 			})
 			i++
 		}

@@ -4,11 +4,12 @@ import (
 	"bufio"
 	"bytes"
 	"encoding/json"
-	"github.com/gin-gonic/gin"
 	"io"
 	"net/http"
 	"one-api/common"
 	"strings"
+
+	"github.com/gin-gonic/gin"
 )
 
 func openaiStreamHandler(c *gin.Context, resp *http.Response, relayMode int) (*OpenAIErrorWithStatusCode, string) {
@@ -132,7 +133,9 @@ func openaiHandler(c *gin.Context, resp *http.Response, consumeQuota bool, promp
 	if textResponse.Usage.TotalTokens == 0 {
 		completionTokens := 0
 		for _, choice := range textResponse.Choices {
-			completionTokens += countTokenText(choice.Message.Content, model)
+			if content, ok := choice.Message.Content.(string); ok {
+				completionTokens += countTokenText(content, model)
+			}
 		}
 		textResponse.Usage = Usage{
 			PromptTokens:     promptTokens,

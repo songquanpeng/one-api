@@ -4,12 +4,13 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"io"
 	"net/http"
 	"one-api/common"
 	"strconv"
 	"strings"
+
+	"github.com/gin-gonic/gin"
 )
 
 // https://docs.aiproxy.io/dev/library#使用已经定制好的知识库进行对话问答
@@ -48,7 +49,7 @@ type AIProxyLibraryStreamResponse struct {
 func requestOpenAI2AIProxyLibrary(request GeneralOpenAIRequest) *AIProxyLibraryRequest {
 	query := ""
 	if len(request.Messages) != 0 {
-		query = request.Messages[len(request.Messages)-1].Content
+		query = request.Messages[len(request.Messages)-1].Content.(string)
 	}
 	return &AIProxyLibraryRequest{
 		Model:  request.Model,

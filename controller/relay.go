@@ -10,10 +10,24 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+type MessageImage struct {
+	URL    string `json:"url"`
+	Detail string `json:"detail"`
+}
+
+type MessageContent struct {
+	Type     string       `json:"type"`
+	Text     string       `json:"text"`
+	ImageURL MessageImage `json:"image_url"`
+}
+
+type ContentInterface interface{}
+
 type Message struct {
-	Role    string  `json:"role"`
-	Content string  `json:"content"`
-	Name    *string `json:"name,omitempty"`
+	Role string `json:"role"`
+	// Content string or MessageContent
+	Content ContentInterface `json:"content"`
+	Name    *string          `json:"name,omitempty"`
 }
 
 const (

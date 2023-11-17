@@ -3,13 +3,14 @@ package controller
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/gin-gonic/gin"
-	"github.com/pkoukk/tiktoken-go"
 	"io"
 	"net/http"
 	"one-api/common"
 	"strconv"
 	"strings"
+
+	"github.com/gin-gonic/gin"
+	"github.com/pkoukk/tiktoken-go"
 )
 
 var stopFinishReason = "stop"
@@ -84,7 +85,17 @@ func countTokenMessages(messages []Message, model string) int {
 	tokenNum := 0
 	for _, message := range messages {
 		tokenNum += tokensPerMessage
-		tokenNum += getTokenNum(tokenEncoder, message.Content)
+
+		if content, ok := message.Content.(string); ok {
+			tokenNum += getTokenNum(tokenEncoder, content)
+		} else if content, ok := message.Content.([]MessageContent); ok {
+			for _, item := range content {
+				if item.Type == "text" {
+					tokenNum += getTokenNum(tokenEncoder, item.Text)
+				}
+			}
+		}
+
 		tokenNum += getTokenNum(tokenEncoder, message.Role)
 		if message.Name != nil {
 			tokenNum += tokensPerName
