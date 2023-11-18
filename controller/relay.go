@@ -201,9 +201,9 @@ func Relay(c *gin.Context) {
 		relayMode = RelayModeEdits
 	} else if strings.HasPrefix(c.Request.URL.Path, "/v1/audio/speech") {
 		relayMode = RelayModeAudioSpeech
-	} else if strings.HasPrefix(c.Request.URL.Path, "/v1/audio/transcription") {
+	} else if strings.HasPrefix(c.Request.URL.Path, "/v1/audio/transcriptions") {
 		relayMode = RelayModeAudioTranscription
-	} else if strings.HasPrefix(c.Request.URL.Path, "/v1/audio/translation") {
+	} else if strings.HasPrefix(c.Request.URL.Path, "/v1/audio/translations") {
 		relayMode = RelayModeAudioTranslation
 	}
 	var err *OpenAIErrorWithStatusCode
