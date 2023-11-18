@@ -369,6 +369,8 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 			}
 		case APITypeTencent:
 			req.Header.Set("Authorization", apiKey)
+		case APITypePaLM:
+			// do not set Authorization header
 		default:
 			req.Header.Set("Authorization", "Bearer "+apiKey)
 		}

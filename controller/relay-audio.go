@@ -5,7 +5,6 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"io"
 	"net/http"
@@ -21,6 +20,22 @@ func relayAudioHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode 
 	channelId := c.GetInt("channel_id")
 	userId := c.GetInt("id")
 	group := c.GetString("group")
+	tokenName := c.GetString("token_name")
+
+	var ttsRequest TextToSpeechRequest
+	if relayMode == RelayModeAudioSpeech {
+		// Read JSON
+		err := common.UnmarshalBodyReusable(c, &ttsRequest)
+		// Check if JSON is valid
+		if err != nil {
+			return errorWrapper(err, "invalid_json", http.StatusBadRequest)
+		}
+		audioModel = ttsRequest.Model
+		// Check if text is too long 4096
+		if len(ttsRequest.Input) > 4096 {
+			return errorWrapper(errors.New("input is too long (over 4096 characters)"), "text_too_long", http.StatusBadRequest)
+		}
+	}
 
 	preConsumedTokens := common.PreConsumedQuota
 	modelRatio := common.GetModelRatio(audioModel)
@@ -31,22 +46,32 @@ func relayAudioHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode 
 	if err != nil {
 		return errorWrapper(err, "get_user_quota_failed", http.StatusInternalServerError)
 	}
-	if userQuota-preConsumedQuota < 0 {
-		return errorWrapper(errors.New("user quota is not enough"), "insufficient_user_quota", http.StatusForbidden)
-	}
-	err = model.CacheDecreaseUserQuota(userId, preConsumedQuota)
-	if err != nil {
-		return errorWrapper(err, "decrease_user_quota_failed", http.StatusInternalServerError)
-	}
-	if userQuota > 100*preConsumedQuota {
-		// in this case, we do not pre-consume quota
-		// because the user has enough quota
-		preConsumedQuota = 0
-	}
-	if preConsumedQuota > 0 {
-		err := model.PreConsumeTokenQuota(tokenId, preConsumedQuota)
+
+	quota := 0
+	// Check if user quota is enough
+	if relayMode == RelayModeAudioSpeech {
+		quota = int(float64(len(ttsRequest.Input)) * modelRatio * groupRatio)
+		if quota > userQuota {
+			return errorWrapper(errors.New("user quota is not enough"), "insufficient_user_quota", http.StatusForbidden)
+		}
+	} else {
+		if userQuota-preConsumedQuota < 0 {
+			return errorWrapper(errors.New("user quota is not enough"), "insufficient_user_quota", http.StatusForbidden)
+		}
+		err = model.CacheDecreaseUserQuota(userId, preConsumedQuota)
 		if err != nil {
-			return errorWrapper(err, "pre_consume_token_quota_failed", http.StatusForbidden)
+			return errorWrapper(err, "decrease_user_quota_failed", http.StatusInternalServerError)
+		}
+		if userQuota > 100*preConsumedQuota {
+			// in this case, we do not pre-consume quota
+			// because the user has enough quota
+			preConsumedQuota = 0
+		}
+		if preConsumedQuota > 0 {
+			err := model.PreConsumeTokenQuota(tokenId, preConsumedQuota)
+			if err != nil {
+				return errorWrapper(err, "pre_consume_token_quota_failed", http.StatusForbidden)
+			}
 		}
 	}
 
@@ -93,47 +118,32 @@ func relayAudioHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode 
 	if err != nil {
 		return errorWrapper(err, "close_request_body_failed", http.StatusInternalServerError)
 	}
-	var audioResponse AudioResponse
 
-	defer func(ctx context.Context) {
-		go func() {
-			quota := countTokenText(audioResponse.Text, audioModel)
+	if relayMode == RelayModeAudioSpeech {
+		defer func(ctx context.Context) {
+			go postConsumeQuota(ctx, tokenId, quota, userId, channelId, modelRatio, groupRatio, audioModel, tokenName)
+		}(c.Request.Context())
+	} else {
+		responseBody, err := io.ReadAll(resp.Body)
+		if err != nil {
+			return errorWrapper(err, "read_response_body_failed", http.StatusInternalServerError)
+		}
+		err = resp.Body.Close()
+		if err != nil {
+			return errorWrapper(err, "close_response_body_failed", http.StatusInternalServerError)
+		}
+		var whisperResponse WhisperResponse
+		err = json.Unmarshal(responseBody, &whisperResponse)
+		if err != nil {
+			return errorWrapper(err, "unmarshal_response_body_failed", http.StatusInternalServerError)
+		}
+		defer func(ctx context.Context) {
+			quota := countTokenText(whisperResponse.Text, audioModel)
 			quotaDelta := quota - preConsumedQuota
-			err := model.PostConsumeTokenQuota(tokenId, quotaDelta)
-			if err != nil {
-				common.SysError("error consuming token remain quota: " + err.Error())
-			}
-			err = model.CacheUpdateUserQuota(userId)
-			if err != nil {
-				common.SysError("error update user quota cache: " + err.Error())
-			}
-			if quota != 0 {
-				tokenName := c.GetString("token_name")
-				logContent := fmt.Sprintf("模型倍率 %.2f，分组倍率 %.2f", modelRatio, groupRatio)
-				model.RecordConsumeLog(ctx, userId, channelId, 0, 0, audioModel, tokenName, quota, logContent)
-				model.UpdateUserUsedQuotaAndRequestCount(userId, quota)
-				channelId := c.GetInt("channel_id")
-				model.UpdateChannelUsedQuota(channelId, quota)
-			}
-		}()
-	}(c.Request.Context())
-
-	responseBody, err := io.ReadAll(resp.Body)
-
-	if err != nil {
-		return errorWrapper(err, "read_response_body_failed", http.StatusInternalServerError)
+			go postConsumeQuota(ctx, tokenId, quotaDelta, userId, channelId, modelRatio, groupRatio, audioModel, tokenName)
+		}(c.Request.Context())
+		resp.Body = io.NopCloser(bytes.NewBuffer(responseBody))
 	}
-	err = resp.Body.Close()
-	if err != nil {
-		return errorWrapper(err, "close_response_body_failed", http.StatusInternalServerError)
-	}
-	err = json.Unmarshal(responseBody, &audioResponse)
-	if err != nil {
-		return errorWrapper(err, "unmarshal_response_body_failed", http.StatusInternalServerError)
-	}
-
-	resp.Body = io.NopCloser(bytes.NewBuffer(responseBody))
-
 	for k, v := range resp.Header {
 		c.Writer.Header().Set(k, v[0])
 	}

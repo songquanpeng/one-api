@@ -130,7 +130,13 @@ const RedemptionsTable = () => {
     setLoading(true);
     let sortedRedemptions = [...redemptions];
     sortedRedemptions.sort((a, b) => {
-      return ('' + a[key]).localeCompare(b[key]);
+      if (!isNaN(a[key])) {
+        // If the value is numeric, subtract to sort
+        return a[key] - b[key];
+      } else {
+        // If the value is not numeric, sort as strings
+        return ('' + a[key]).localeCompare(b[key]);
+      }
     });
     if (sortedRedemptions[0].id === redemptions[0].id) {
       sortedRedemptions.reverse();
