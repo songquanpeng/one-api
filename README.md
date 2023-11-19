@@ -92,7 +92,7 @@ _✨ 通过标准的 OpenAI API 格式访问所有的大模型，开箱即用 �
 12. 支持**用户邀请奖励**。
 13. 支持以美元为单位显示额度。
 14. 支持发布公告，设置充值链接，设置新用户初始额度。
-15. 支持模型映射，重定向用户的请求模型。
+15. 支持模型映射，重定向用户的请求模型，如无必要请不要设置，设置之后会导致请求体被重新构造而非直接透传，会导致部分还未正式支持的字段无法传递成功。
 16. 支持失败自动重试。
 17. 支持绘图接口。
 18. 支持 [Cloudflare AI Gateway](https://developers.cloudflare.com/ai-gateway/providers/openai/)，渠道设置的代理部分填写 `https://gateway.ai.cloudflare.com/v1/ACCOUNT_TAG/GATEWAY/openai` 即可。
