@@ -87,7 +87,7 @@ func countTokenMessages(messages []Message, model string) int {
 	tokenNum := 0
 	for _, message := range messages {
 		tokenNum += tokensPerMessage
-		tokenNum += getTokenNum(tokenEncoder, message.Content)
+		tokenNum += getTokenNum(tokenEncoder, message.StringContent())
 		tokenNum += getTokenNum(tokenEncoder, message.Role)
 		if message.Name != nil {
 			tokenNum += tokensPerName
