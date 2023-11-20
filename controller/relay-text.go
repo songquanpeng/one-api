@@ -141,15 +141,13 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 			requestURL = fmt.Sprintf("%s?api-version=%s", requestURL, apiVersion)
 			baseURL = c.GetString("base_url")
 			task := strings.TrimPrefix(requestURL, "/v1/")
-			model_ := textRequest.Model
-			model_ = strings.Replace(model_, ".", "", -1)
-			// https://github.com/songquanpeng/one-api/issues/67
-			model_ = strings.TrimSuffix(model_, "-0301")
-			model_ = strings.TrimSuffix(model_, "-0314")
-			model_ = strings.TrimSuffix(model_, "-0613")
 
-			requestURL = fmt.Sprintf("/openai/deployments/%s/%s", model_, task)
-			fullRequestURL = getFullRequestURL(baseURL, requestURL, channelType)
+			deploymentMapping := c.GetStringMapString("deployment_mapping")
+			deployment := deploymentMapping[textRequest.Model]
+			if deployment == "" {
+				deployment = model.ModelToDeployment(textRequest.Model)
+			}
+			fullRequestURL = fmt.Sprintf("%s/openai/deployments/%s/%s", baseURL, deployment, task)
 		}
 	case APITypeClaude:
 		fullRequestURL = "https://api.anthropic.com/v1/complete"

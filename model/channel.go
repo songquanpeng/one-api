@@ -1,8 +1,11 @@
 package model
 
 import (
-	"gorm.io/gorm"
+	"encoding/json"
 	"one-api/common"
+	"strings"
+
+	"gorm.io/gorm"
 )
 
 type Channel struct {
@@ -24,6 +27,7 @@ type Channel struct {
 	UsedQuota          int64   `json:"used_quota" gorm:"bigint;default:0"`
 	ModelMapping       *string `json:"model_mapping" gorm:"type:varchar(1024);default:''"`
 	Priority           *int64  `json:"priority" gorm:"bigint;default:0"`
+	DeploymentMapping  *string `json:"deployment_mapping" gorm:"type:varchar(1024);default:''"`
 }
 
 func GetAllChannels(startIdx int, num int, selectAll bool) ([]*Channel, error) {
@@ -70,6 +74,35 @@ func BatchInsertChannels(channels []Channel) error {
 		}
 	}
 	return nil
+}
+
+func (channel *Channel) GetDeploymentMapping() (deploymentMapping map[string]string) {
+	if channel.DeploymentMapping == nil || *channel.DeploymentMapping == "" {
+		return
+	}
+	err := json.Unmarshal([]byte(*channel.DeploymentMapping), &deploymentMapping)
+	if err != nil {
+		common.SysError("failed to unmarshal deployment mapping: " + err.Error())
+	}
+	return
+}
+
+func (channel *Channel) GetDeployment(model string) string {
+	deploymentMapping := channel.GetDeploymentMapping()
+	deployment, ok := deploymentMapping[model]
+	if !ok {
+		return ModelToDeployment(model)
+	}
+	return deployment
+}
+
+func ModelToDeployment(model string) string {
+	model = strings.Replace(model, ".", "", -1)
+	// https://github.com/songquanpeng/one-api/issues/67
+	model = strings.TrimSuffix(model, "-0301")
+	model = strings.TrimSuffix(model, "-0314")
+	model = strings.TrimSuffix(model, "-0613")
+	return model
 }
 
 func (channel *Channel) GetPriority() int64 {
