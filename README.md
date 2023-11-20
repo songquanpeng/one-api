@@ -75,7 +75,7 @@ _✨ 通过标准的 OpenAI API 格式访问所有的大模型，开箱即用 �
    + [x] [腾讯混元大模型](https://cloud.tencent.com/document/product/1729)
 2. 支持配置镜像以及众多第三方代理服务：
    + [x] [OpenAI-SB](https://openai-sb.com)
-   + [x] [CloseAI](https://console.closeai-asia.com/r/2412)
+   + [x] [CloseAI](https://referer.shadowai.xyz/r/2412)
    + [x] [API2D](https://api2d.com/r/197971)
    + [x] [OhMyGPT](https://aigptx.top?aff=uFpUl2Kf)
    + [x] [AI Proxy](https://aiproxy.io/?i=OneAPI) （邀请码：`OneAPI`）
@@ -92,15 +92,16 @@ _✨ 通过标准的 OpenAI API 格式访问所有的大模型，开箱即用 �
 12. 支持**用户邀请奖励**。
 13. 支持以美元为单位显示额度。
 14. 支持发布公告，设置充值链接，设置新用户初始额度。
-15. 支持模型映射，重定向用户的请求模型。
+15. 支持模型映射，重定向用户的请求模型，如无必要请不要设置，设置之后会导致请求体被重新构造而非直接透传，会导致部分还未正式支持的字段无法传递成功。
 16. 支持失败自动重试。
 17. 支持绘图接口。
-18. 支持丰富的**自定义**设置，
+18. 支持 [Cloudflare AI Gateway](https://developers.cloudflare.com/ai-gateway/providers/openai/)，渠道设置的代理部分填写 `https://gateway.ai.cloudflare.com/v1/ACCOUNT_TAG/GATEWAY/openai` 即可。
+19. 支持丰富的**自定义**设置，
     1. 支持自定义系统名称，logo 以及页脚。
     2. 支持自定义首页和关于页面，可以选择使用 HTML & Markdown 代码进行自定义，或者使用一个单独的网页通过 iframe 嵌入。
-19. 支持通过系统访问令牌访问管理 API。
-20. 支持 Cloudflare Turnstile 用户校验。
-21. 支持用户管理，支持**多种用户登录注册方式**：
+20. 支持通过系统访问令牌访问管理 API（bearer token，用以替代 cookie，你可以自行抓包来查看 API 的用法）。
+21. 支持 Cloudflare Turnstile 用户校验。
+22. 支持用户管理，支持**多种用户登录注册方式**：
     + 邮箱登录注册（支持注册邮箱白名单）以及通过邮箱进行密码重置。
     + [GitHub 开放授权](https://github.com/settings/applications/new)。
     + 微信公众号授权（需要额外部署 [WeChat Server](https://github.com/songquanpeng/wechat-server)）。
@@ -158,6 +159,19 @@ sudo service nginx restart
 ```
 
 初始账号用户名为 `root`，密码为 `123456`。
+
+
+### 基于 Docker Compose 进行部署
+
+> 仅启动方式不同，参数设置不变，请参考基于 Docker 部署部分
+
+```shell
+# 目前支持 MySQL 启动，数据存储在 ./data/mysql 文件夹内
+docker-compose up -d
+
+# 查看部署状态
+docker-compose ps
+```
 
 ### 手动部署
 1. 从 [GitHub Releases](https://github.com/songquanpeng/one-api/releases/latest) 下载可执行文件或者从源码编译：
@@ -247,6 +261,8 @@ docker run --name chatgpt-web -d -p 3002:3002 -e OPENAI_API_BASE_URL=https://ope
 <div>
 
 > Zeabur 的服务器在国外，自动解决了网络的问题，同时免费的额度也足够个人使用
+
+[![Deploy on Zeabur](https://zeabur.com/button.svg)](https://zeabur.com/templates/7Q0KO3)
 
 1. 首先 fork 一份代码。
 2. 进入 [Zeabur](https://zeabur.com?referralCode=songquanpeng)，登录，进入控制台。
@@ -351,6 +367,10 @@ graph LR
 13. 请求频率限制：
     + `GLOBAL_API_RATE_LIMIT`：全局 API 速率限制（除中继请求外），单 ip 三分钟内的最大请求数，默认为 `180`。
     + `GLOBAL_WEB_RATE_LIMIT`：全局 Web 速率限制，单 ip 三分钟内的最大请求数，默认为 `60`。
+14. 编码器缓存设置：
+    + `TIKTOKEN_CACHE_DIR`：默认程序启动时会联网下载一些通用的词元的编码，如：`gpt-3.5-turbo`，在一些网络环境不稳定，或者离线情况，可能会导致启动有问题，可以配置此目录缓存数据，可迁移到离线环境。
+    + `DATA_GYM_CACHE_DIR`：目前该配置作用与 `TIKTOKEN_CACHE_DIR` 一致，但是优先级没有它高。
+15. `RELAY_TIMEOUT`：中继超时设置，单位为秒，默认不设置超时时间。
 
 ### 命令行参数
 1. `--port <port_number>`: 指定服务器监听的端口号，默认为 `3000`。

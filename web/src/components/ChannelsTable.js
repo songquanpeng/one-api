@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Form, Input, Label, Pagination, Popup, Table } from 'semantic-ui-react';
+import { Button, Form, Input, Label, Message, Pagination, Popup, Table } from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
-import { API, showError, showInfo, showNotice, showSuccess, timestamp2string } from '../helpers';
+import { API, setPromptShown, shouldShowPrompt, showError, showInfo, showSuccess, timestamp2string } from '../helpers';
 
 import { CHANNEL_OPTIONS, ITEMS_PER_PAGE } from '../constants';
 import { renderGroup, renderNumber } from '../helpers/render';
@@ -55,6 +55,7 @@ const ChannelsTable = () => {
   const [searchKeyword, setSearchKeyword] = useState('');
   const [searching, setSearching] = useState(false);
   const [updatingBalance, setUpdatingBalance] = useState(false);
+  const [showPrompt, setShowPrompt] = useState(shouldShowPrompt("channel-test"));
 
   const loadChannels = async (startIdx) => {
     const res = await API.get(`/api/channel/?p=${startIdx}`);
@@ -226,7 +227,6 @@ const ChannelsTable = () => {
       showInfo(`通道 ${name} 测试成功，耗时 ${time.toFixed(2)} 秒。`);
     } else {
       showError(message);
-      showNotice('当前版本测试是通过按照 OpenAI API 格式使用 gpt-3.5-turbo 模型进行非流式请求实现的，因此测试报错并不一定代表通道不可用，该功能后续会修复。');
     }
   };
 
@@ -240,11 +240,11 @@ const ChannelsTable = () => {
     }
   };
 
-  const deleteAllManuallyDisabledChannels = async () => {
-    const res = await API.delete(`/api/channel/manually_disabled`);
+  const deleteAllDisabledChannels = async () => {
+    const res = await API.delete(`/api/channel/disabled`);
     const { success, message, data } = res.data;
     if (success) {
-      showSuccess(`已删除所有手动禁用渠道，共计 ${data} 个`);
+      showSuccess(`已删除所有禁用渠道，共计 ${data} 个`);
       await refresh();
     } else {
       showError(message);
@@ -286,23 +286,22 @@ const ChannelsTable = () => {
     if (channels.length === 0) return;
     setLoading(true);
     let sortedChannels = [...channels];
-    if (typeof sortedChannels[0][key] === 'string') {
-      sortedChannels.sort((a, b) => {
+    sortedChannels.sort((a, b) => {
+      if (!isNaN(a[key])) {
+        // If the value is numeric, subtract to sort
+        return a[key] - b[key];
+      } else {
+        // If the value is not numeric, sort as strings
         return ('' + a[key]).localeCompare(b[key]);
-      });
-    } else {
-      sortedChannels.sort((a, b) => {
-        if (a[key] === b[key]) return 0;
-        if (a[key] > b[key]) return -1;
-        if (a[key] < b[key]) return 1;
-      });
-    }
+      }
+    });
     if (sortedChannels[0].id === channels[0].id) {
       sortedChannels.reverse();
     }
     setChannels(sortedChannels);
     setLoading(false);
   };
+
 
   return (
     <>
@@ -317,7 +316,19 @@ const ChannelsTable = () => {
           onChange={handleKeywordChange}
         />
       </Form>
+      {
+        showPrompt && (
+          <Message onDismiss={() => {
+            setShowPrompt(false);
+            setPromptShown("channel-test");
+          }}>
+            当前版本测试是通过按照 OpenAI API 格式使用 gpt-3.5-turbo
+            模型进行非流式请求实现的，因此测试报错并不一定代表通道不可用，该功能后续会修复。
 
+            另外，OpenAI 渠道已经不再支持通过 key 获取余额，因此余额显示为 0。对于支持的渠道类型，请点击余额进行刷新。
+          </Message>
+        )
+      }
       <Table basic compact size='small'>
         <Table.Header>
           <Table.Row>
@@ -519,14 +530,14 @@ const ChannelsTable = () => {
               <Popup
                 trigger={
                   <Button size='small' loading={loading}>
-                    删除所有手动禁用渠道
+                    删除禁用渠道
                   </Button>
                 }
                 on='click'
                 flowing
                 hoverable
               >
-                <Button size='small' loading={loading} negative onClick={deleteAllManuallyDisabledChannels}>
+                <Button size='small' loading={loading} negative onClick={deleteAllDisabledChannels}>
                   确认删除
                 </Button>
               </Popup>

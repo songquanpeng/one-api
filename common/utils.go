@@ -199,3 +199,11 @@ func GetOrDefault(env string, defaultValue int) int {
 func MessageWithRequestId(message string, id string) string {
 	return fmt.Sprintf("%s (request id: %s)", message, id)
 }
+
+func String2Int(str string) int {
+	num, err := strconv.Atoi(str)
+	if err != nil {
+		return 0
+	}
+	return num
+}

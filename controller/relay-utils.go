@@ -1,15 +1,18 @@
 package controller
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/gin-gonic/gin"
-	"github.com/pkoukk/tiktoken-go"
 	"io"
 	"net/http"
 	"one-api/common"
+	"one-api/model"
 	"strconv"
 	"strings"
+
+	"github.com/gin-gonic/gin"
+	"github.com/pkoukk/tiktoken-go"
 )
 
 var stopFinishReason = "stop"
@@ -84,7 +87,7 @@ func countTokenMessages(messages []Message, model string) int {
 	tokenNum := 0
 	for _, message := range messages {
 		tokenNum += tokensPerMessage
-		tokenNum += getTokenNum(tokenEncoder, message.Content)
+		tokenNum += getTokenNum(tokenEncoder, message.StringContent())
 		tokenNum += getTokenNum(tokenEncoder, message.Role)
 		if message.Name != nil {
 			tokenNum += tokensPerName
@@ -175,4 +178,36 @@ func relayErrorHandler(resp *http.Response) (openAIErrorWithStatusCode *OpenAIEr
 	}
 	openAIErrorWithStatusCode.OpenAIError = textResponse.Error
 	return
+}
+
+func getFullRequestURL(baseURL string, requestURL string, channelType int) string {
+	fullRequestURL := fmt.Sprintf("%s%s", baseURL, requestURL)
+
+	if strings.HasPrefix(baseURL, "https://gateway.ai.cloudflare.com") {
+		switch channelType {
+		case common.ChannelTypeOpenAI:
+			fullRequestURL = fmt.Sprintf("%s%s", baseURL, strings.TrimPrefix(requestURL, "/v1"))
+		case common.ChannelTypeAzure:
+			fullRequestURL = fmt.Sprintf("%s%s", baseURL, strings.TrimPrefix(requestURL, "/openai/deployments"))
+		}
+	}
+
+	return fullRequestURL
+}
+
+func postConsumeQuota(ctx context.Context, tokenId int, quota int, userId int, channelId int, modelRatio float64, groupRatio float64, modelName string, tokenName string) {
+	err := model.PostConsumeTokenQuota(tokenId, quota)
+	if err != nil {
+		common.SysError("error consuming token remain quota: " + err.Error())
+	}
+	err = model.CacheUpdateUserQuota(userId)
+	if err != nil {
+		common.SysError("error update user quota cache: " + err.Error())
+	}
+	if quota != 0 {
+		logContent := fmt.Sprintf("模型倍率 %.2f，分组倍率 %.2f", modelRatio, groupRatio)
+		model.RecordConsumeLog(ctx, userId, channelId, 0, 0, modelName, tokenName, quota, logContent)
+		model.UpdateUserUsedQuotaAndRequestCount(userId, quota)
+		model.UpdateChannelUsedQuota(channelId, quota)
+	}
 }

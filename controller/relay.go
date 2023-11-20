@@ -12,8 +12,47 @@ import (
 
 type Message struct {
 	Role    string  `json:"role"`
-	Content string  `json:"content"`
+	Content any     `json:"content"`
 	Name    *string `json:"name,omitempty"`
+}
+
+type ImageURL struct {
+	Url    string `json:"url,omitempty"`
+	Detail string `json:"detail,omitempty"`
+}
+
+type TextContent struct {
+	Type string `json:"type,omitempty"`
+	Text string `json:"text,omitempty"`
+}
+
+type ImageContent struct {
+	Type     string    `json:"type,omitempty"`
+	ImageURL *ImageURL `json:"image_url,omitempty"`
+}
+
+func (m Message) StringContent() string {
+	content, ok := m.Content.(string)
+	if ok {
+		return content
+	}
+	contentList, ok := m.Content.([]any)
+	if ok {
+		var contentStr string
+		for _, contentItem := range contentList {
+			contentMap, ok := contentItem.(map[string]any)
+			if !ok {
+				continue
+			}
+			if contentMap["type"] == "text" {
+				if subStr, ok := contentMap["text"].(string); ok {
+					contentStr += subStr
+				}
+			}
+		}
+		return contentStr
+	}
+	return ""
 }
 
 const (
@@ -24,24 +63,37 @@ const (
 	RelayModeModerations
 	RelayModeImagesGenerations
 	RelayModeEdits
-	RelayModeAudio
+	RelayModeAudioSpeech
+	RelayModeAudioTranscription
+	RelayModeAudioTranslation
 )
 
 // https://platform.openai.com/docs/api-reference/chat
 
+type ResponseFormat struct {
+	Type string `json:"type,omitempty"`
+}
+
 type GeneralOpenAIRequest struct {
-	Model       string    `json:"model,omitempty"`
-	Messages    []Message `json:"messages,omitempty"`
-	Prompt      any       `json:"prompt,omitempty"`
-	Stream      bool      `json:"stream,omitempty"`
-	MaxTokens   int       `json:"max_tokens,omitempty"`
-	Temperature float64   `json:"temperature,omitempty"`
-	TopP        float64   `json:"top_p,omitempty"`
-	N           int       `json:"n,omitempty"`
-	Input       any       `json:"input,omitempty"`
-	Instruction string    `json:"instruction,omitempty"`
-	Size        string    `json:"size,omitempty"`
-	Functions   any       `json:"functions,omitempty"`
+	Model            string          `json:"model,omitempty"`
+	Messages         []Message       `json:"messages,omitempty"`
+	Prompt           any             `json:"prompt,omitempty"`
+	Stream           bool            `json:"stream,omitempty"`
+	MaxTokens        int             `json:"max_tokens,omitempty"`
+	Temperature      float64         `json:"temperature,omitempty"`
+	TopP             float64         `json:"top_p,omitempty"`
+	N                int             `json:"n,omitempty"`
+	Input            any             `json:"input,omitempty"`
+	Instruction      string          `json:"instruction,omitempty"`
+	Size             string          `json:"size,omitempty"`
+	Functions        any             `json:"functions,omitempty"`
+	FrequencyPenalty float64         `json:"frequency_penalty,omitempty"`
+	PresencePenalty  float64         `json:"presence_penalty,omitempty"`
+	ResponseFormat   *ResponseFormat `json:"response_format,omitempty"`
+	Seed             float64         `json:"seed,omitempty"`
+	Tools            any             `json:"tools,omitempty"`
+	ToolChoice       any             `json:"tool_choice,omitempty"`
+	User             string          `json:"user,omitempty"`
 }
 
 func (r GeneralOpenAIRequest) ParseInput() []string {
@@ -77,14 +129,28 @@ type TextRequest struct {
 	//Stream   bool      `json:"stream"`
 }
 
+// ImageRequest docs: https://platform.openai.com/docs/api-reference/images/create
 type ImageRequest struct {
-	Prompt string `json:"prompt"`
-	N      int    `json:"n"`
-	Size   string `json:"size"`
+	Model          string `json:"model"`
+	Prompt         string `json:"prompt" binding:"required"`
+	N              int    `json:"n"`
+	Size           string `json:"size"`
+	Quality        string `json:"quality"`
+	ResponseFormat string `json:"response_format"`
+	Style          string `json:"style"`
+	User           string `json:"user"`
 }
 
-type AudioResponse struct {
+type WhisperResponse struct {
 	Text string `json:"text,omitempty"`
+}
+
+type TextToSpeechRequest struct {
+	Model          string  `json:"model" binding:"required"`
+	Input          string  `json:"input" binding:"required"`
+	Voice          string  `json:"voice" binding:"required"`
+	Speed          float64 `json:"speed"`
+	ResponseFormat string  `json:"response_format"`
 }
 
 type Usage struct {
@@ -183,14 +249,22 @@ func Relay(c *gin.Context) {
 		relayMode = RelayModeImagesGenerations
 	} else if strings.HasPrefix(c.Request.URL.Path, "/v1/edits") {
 		relayMode = RelayModeEdits
-	} else if strings.HasPrefix(c.Request.URL.Path, "/v1/audio") {
-		relayMode = RelayModeAudio
+	} else if strings.HasPrefix(c.Request.URL.Path, "/v1/audio/speech") {
+		relayMode = RelayModeAudioSpeech
+	} else if strings.HasPrefix(c.Request.URL.Path, "/v1/audio/transcriptions") {
+		relayMode = RelayModeAudioTranscription
+	} else if strings.HasPrefix(c.Request.URL.Path, "/v1/audio/translations") {
+		relayMode = RelayModeAudioTranslation
 	}
 	var err *OpenAIErrorWithStatusCode
 	switch relayMode {
 	case RelayModeImagesGenerations:
 		err = relayImageHelper(c, relayMode)
-	case RelayModeAudio:
+	case RelayModeAudioSpeech:
+		fallthrough
+	case RelayModeAudioTranslation:
+		fallthrough
+	case RelayModeAudioTranscription:
 		err = relayAudioHelper(c, relayMode)
 	default:
 		err = relayTextHelper(c, relayMode)

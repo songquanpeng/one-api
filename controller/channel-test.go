@@ -5,13 +5,15 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/gin-gonic/gin"
+	"io"
 	"net/http"
 	"one-api/common"
 	"one-api/model"
 	"strconv"
 	"sync"
 	"time"
+
+	"github.com/gin-gonic/gin"
 )
 
 func testChannel(channel *model.Channel, request ChatRequest) (err error, openaiErr *OpenAIError) {
@@ -42,14 +44,14 @@ func testChannel(channel *model.Channel, request ChatRequest) (err error, openai
 	}
 	requestURL := common.ChannelBaseURLs[channel.Type]
 	if channel.Type == common.ChannelTypeAzure {
-		requestURL = fmt.Sprintf("%s/openai/deployments/%s/chat/completions?api-version=2023-03-15-preview", channel.GetBaseURL(), request.Model)
+		requestURL = getFullRequestURL(channel.GetBaseURL(), fmt.Sprintf("/openai/deployments/%s/chat/completions?api-version=2023-03-15-preview", request.Model), channel.Type)
 	} else {
-		if channel.GetBaseURL() != "" {
-			requestURL = channel.GetBaseURL()
+		if baseURL := channel.GetBaseURL(); len(baseURL) > 0 {
+			requestURL = baseURL
 		}
-		requestURL += "/v1/chat/completions"
-	}
 
+		requestURL = getFullRequestURL(requestURL, "/v1/chat/completions", channel.Type)
+	}
 	jsonData, err := json.Marshal(request)
 	if err != nil {
 		return err, nil
@@ -70,9 +72,13 @@ func testChannel(channel *model.Channel, request ChatRequest) (err error, openai
 	}
 	defer resp.Body.Close()
 	var response TextResponse
-	err = json.NewDecoder(resp.Body).Decode(&response)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return err, nil
+	}
+	err = json.Unmarshal(body, &response)
+	if err != nil {
+		return fmt.Errorf("Error: %s\nResp body: %s", err, body), nil
 	}
 	if response.Usage.CompletionTokens == 0 {
 		return errors.New(fmt.Sprintf("type %s, code %v, message %s", response.Error.Type, response.Error.Code, response.Error.Message)), &response.Error

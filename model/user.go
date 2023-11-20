@@ -266,7 +266,12 @@ func GetUserEmail(id int) (email string, err error) {
 }
 
 func GetUserGroup(id int) (group string, err error) {
-	err = DB.Model(&User{}).Where("id = ?", id).Select("`group`").Find(&group).Error
+	groupCol := "`group`"
+	if common.UsingPostgreSQL {
+		groupCol = `"group"`
+	}
+
+	err = DB.Model(&User{}).Where("id = ?", id).Select(groupCol).Find(&group).Error
 	return group, err
 }
 
@@ -309,7 +314,8 @@ func GetRootUserEmail() (email string) {
 
 func UpdateUserUsedQuotaAndRequestCount(id int, quota int) {
 	if common.BatchUpdateEnabled {
-		addNewRecord(BatchUpdateTypeUsedQuotaAndRequestCount, id, quota)
+		addNewRecord(BatchUpdateTypeUsedQuota, id, quota)
+		addNewRecord(BatchUpdateTypeRequestCount, id, 1)
 		return
 	}
 	updateUserUsedQuotaAndRequestCount(id, quota, 1)
@@ -324,6 +330,24 @@ func updateUserUsedQuotaAndRequestCount(id int, quota int, count int) {
 	).Error
 	if err != nil {
 		common.SysError("failed to update user used quota and request count: " + err.Error())
+	}
+}
+
+func updateUserUsedQuota(id int, quota int) {
+	err := DB.Model(&User{}).Where("id = ?", id).Updates(
+		map[string]interface{}{
+			"used_quota": gorm.Expr("used_quota + ?", quota),
+		},
+	).Error
+	if err != nil {
+		common.SysError("failed to update user used quota: " + err.Error())
+	}
+}
+
+func updateUserRequestCount(id int, count int) {
+	err := DB.Model(&User{}).Where("id = ?", id).Update("request_count", gorm.Expr("request_count + ?", count)).Error
+	if err != nil {
+		common.SysError("failed to update user request count: " + err.Error())
 	}
 }
 

@@ -38,7 +38,11 @@ func GetAllChannels(startIdx int, num int, selectAll bool) ([]*Channel, error) {
 }
 
 func SearchChannels(keyword string) (channels []*Channel, err error) {
-	err = DB.Omit("key").Where("id = ? or name LIKE ? or `key` = ?", keyword, keyword+"%", keyword).Find(&channels).Error
+	keyCol := "`key`"
+	if common.UsingPostgreSQL {
+		keyCol = `"key"`
+	}
+	err = DB.Omit("key").Where("id = ? or name LIKE ? or "+keyCol+" = ?", common.String2Int(keyword), keyword+"%", keyword).Find(&channels).Error
 	return channels, err
 }
 
@@ -49,17 +53,6 @@ func GetChannelById(id int, selectAll bool) (*Channel, error) {
 		err = DB.First(&channel, "id = ?", id).Error
 	} else {
 		err = DB.Omit("key").First(&channel, "id = ?", id).Error
-	}
-	return &channel, err
-}
-
-func GetRandomChannel() (*Channel, error) {
-	channel := Channel{}
-	var err error = nil
-	if common.UsingSQLite {
-		err = DB.Where("status = ? and `group` = ?", common.ChannelStatusEnabled, "default").Order("RANDOM()").Limit(1).First(&channel).Error
-	} else {
-		err = DB.Where("status = ? and `group` = ?", common.ChannelStatusEnabled, "default").Order("RAND()").Limit(1).First(&channel).Error
 	}
 	return &channel, err
 }
@@ -179,5 +172,10 @@ func updateChannelUsedQuota(id int, quota int) {
 
 func DeleteChannelByStatus(status int64) (int64, error) {
 	result := DB.Where("status = ?", status).Delete(&Channel{})
+	return result.RowsAffected, result.Error
+}
+
+func DeleteDisabledChannel() (int64, error) {
+	result := DB.Where("status = ? or status = ?", common.ChannelStatusAutoDisabled, common.ChannelStatusManuallyDisabled).Delete(&Channel{})
 	return result.RowsAffected, result.Error
 }
