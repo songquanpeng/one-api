@@ -5,11 +5,13 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"io"
 	"net/http"
 	"one-api/common"
 	"one-api/model"
+	"strings"
 )
 
 func relayAudioHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
@@ -95,13 +97,33 @@ func relayAudioHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode 
 	}
 
 	fullRequestURL := getFullRequestURL(baseURL, requestURL, channelType)
+	if relayMode == RelayModeAudioTranscription && channelType == common.ChannelTypeAzure {
+		// https://learn.microsoft.com/en-us/azure/ai-services/openai/whisper-quickstart?tabs=command-line#rest-api
+		query := c.Request.URL.Query()
+		apiVersion := query.Get("api-version")
+		if apiVersion == "" {
+			apiVersion = c.GetString("api_version")
+		}
+		baseURL = c.GetString("base_url")
+		fullRequestURL = fmt.Sprintf("%s/openai/deployments/%s/audio/transcriptions?api-version=%s", baseURL, audioModel, apiVersion)
+	}
+
 	requestBody := c.Request.Body
 
 	req, err := http.NewRequest(c.Request.Method, fullRequestURL, requestBody)
 	if err != nil {
 		return errorWrapper(err, "new_request_failed", http.StatusInternalServerError)
 	}
-	req.Header.Set("Authorization", c.Request.Header.Get("Authorization"))
+
+	if relayMode == RelayModeAudioTranscription && channelType == common.ChannelTypeAzure {
+		// https://learn.microsoft.com/en-us/azure/ai-services/openai/whisper-quickstart?tabs=command-line#rest-api
+		apiKey := c.Request.Header.Get("Authorization")
+		apiKey = strings.TrimPrefix(apiKey, "Bearer ")
+		req.Header.Set("api-key", apiKey)
+		req.ContentLength = c.Request.ContentLength
+	} else {
+		req.Header.Set("Authorization", c.Request.Header.Get("Authorization"))
+	}
 	req.Header.Set("Content-Type", c.Request.Header.Get("Content-Type"))
 	req.Header.Set("Accept", c.Request.Header.Get("Accept"))
 
