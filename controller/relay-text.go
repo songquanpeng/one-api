@@ -143,7 +143,8 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 			} else {
 				deployment = model.ModelToDeployment(textRequest.Model)
 			}
-			fullRequestURL = fmt.Sprintf("%s/openai/deployments/%s/%s", baseURL, deployment, task)
+			requestURL = fmt.Sprintf("/openai/deployments/%s/%s", deployment, task)
+			fullRequestURL = getFullRequestURL(baseURL, requestURL, channelType)
 		}
 	case APITypeClaude:
 		fullRequestURL = "https://api.anthropic.com/v1/complete"
