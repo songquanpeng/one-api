@@ -85,7 +85,6 @@ func Distribute() func(c *gin.Context) {
 		switch channel.Type {
 		case common.ChannelTypeAzure:
 			c.Set("api_version", channel.Other)
-			c.Set("deployment_mapping", channel.GetDeploymentMapping())
 		case common.ChannelTypeXunfei:
 			c.Set("api_version", channel.Other)
 		case common.ChannelTypeAIProxyLibrary:

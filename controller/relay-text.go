@@ -90,18 +90,12 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 		}
 	}
 	// map model name
-	modelMapping := c.GetString("model_mapping")
+	modelMapping := c.GetStringMapString("model_mapping")
 	isModelMapped := false
-	if modelMapping != "" && modelMapping != "{}" {
-		modelMap := make(map[string]string)
-		err := json.Unmarshal([]byte(modelMapping), &modelMap)
-		if err != nil {
-			return errorWrapper(err, "unmarshal_model_mapping_failed", http.StatusInternalServerError)
-		}
-		if modelMap[textRequest.Model] != "" {
-			textRequest.Model = modelMap[textRequest.Model]
-			isModelMapped = true
-		}
+	originalModel := textRequest.Model
+	if modelMapping[textRequest.Model] != "" {
+		textRequest.Model = modelMapping[textRequest.Model]
+		isModelMapped = true
 	}
 	apiType := APITypeOpenAI
 	switch channelType {
@@ -142,9 +136,11 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 			baseURL = c.GetString("base_url")
 			task := strings.TrimPrefix(requestURL, "/v1/")
 
-			deploymentMapping := c.GetStringMapString("deployment_mapping")
-			deployment := deploymentMapping[textRequest.Model]
-			if deployment == "" {
+			var deployment string
+			if isModelMapped {
+				deployment = textRequest.Model
+				textRequest.Model = originalModel
+			} else {
 				deployment = model.ModelToDeployment(textRequest.Model)
 			}
 			fullRequestURL = fmt.Sprintf("%s/openai/deployments/%s/%s", baseURL, deployment, task)

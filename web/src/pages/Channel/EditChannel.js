@@ -7,12 +7,8 @@ import { CHANNEL_OPTIONS } from '../../constants';
 const MODEL_MAPPING_EXAMPLE = {
   'gpt-3.5-turbo-0301': 'gpt-3.5-turbo',
   'gpt-4-0314': 'gpt-4',
-  'gpt-4-32k-0314': 'gpt-4-32k'
-};
-
-const DEPLOYMENT_MAPPING_EXAMPLE = {
-    'gpt-3.5-turbo': 'gpt-35-turbo',
-    'gpt-4': 'custom-gpt4'
+  'gpt-4-32k-0314': 'gpt-4-32k',
+  'gpt-4': 'azure-deployment-1',
 };
 
 function type2secretPrompt(type) {
@@ -394,7 +390,7 @@ const EditChannel = () => {
           <Form.Field>
             <Form.TextArea
               label='模型重定向'
-              placeholder={`此项可选，用于修改请求体中的模型名称，为一个 JSON 字符串，键为请求中模型名称，值为要替换的模型名称，例如：\n${JSON.stringify(MODEL_MAPPING_EXAMPLE, null, 2)}`}
+              placeholder={`此项可选，用于修改请求体中的模型名称，为一个 JSON 字符串，键为请求中模型名称，值为要替换的模型名称，如果是 Azure OpenAI 则替换为 deployment 名称，例如：\n${JSON.stringify(MODEL_MAPPING_EXAMPLE, null, 2)}`}
               name='model_mapping'
               onChange={handleInputChange}
               value={inputs.model_mapping}
@@ -402,23 +398,6 @@ const EditChannel = () => {
               autoComplete='new-password'
             />
           </Form.Field>
-          {
-            inputs.type === 3 && (
-              <>
-                <Form.Field>
-                    <Form.TextArea
-                    label='部署映射'
-                    placeholder={`此项可选，为一个 JSON 字符串，键为请求中模型名称，值为要替换的部署名称，用于修改 Azure OpenAI 的 deployment 参数。如果不填此参数，则部署名称必须与模型名称一致，例如 gpt-3.5-turbo 模型对应的部署名称应该为 gpt-35-turbo。若实际的部署名称不满足此规则，则可以通过该参数自定义。例如：\n${JSON.stringify(DEPLOYMENT_MAPPING_EXAMPLE, null, 2)}`}
-                    name='deployment_mapping'
-                    onChange={handleInputChange}
-                    value={inputs.deployment_mapping}
-                    style={{ minHeight: 150, fontFamily: 'JetBrains Mono, Consolas' }}
-                    autoComplete='new-password'
-                    />
-                </Form.Field>
-              </>
-            )
-          }
           {
             batch ? <Form.Field>
               <Form.TextArea

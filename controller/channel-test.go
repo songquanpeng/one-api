@@ -35,7 +35,7 @@ func testChannel(channel *model.Channel, request ChatRequest) (err error, openai
 	case common.ChannelTypeAzure:
 		defer func() {
 			if err != nil {
-				err = errors.New("请确保已在 Azure 上创建了 gpt-35-turbo 模型，或正确配置部署映射，并且 apiVersion 已正确填写！")
+				err = errors.New("请确保已在 Azure 上创建了 gpt-35-turbo 模型，或正确配置模型映射，并且 apiVersion 已正确填写！")
 			}
 		}()
 		fallthrough
@@ -44,8 +44,11 @@ func testChannel(channel *model.Channel, request ChatRequest) (err error, openai
 	}
 	requestURL := common.ChannelBaseURLs[channel.Type]
 	if channel.Type == common.ChannelTypeAzure {
-		deployment := channel.GetDeployment(request.Model)
-		requestURL = fmt.Sprintf("%s/openai/deployments/%s/chat/completions?api-version=%s", channel.GetBaseURL(), deployment, channel.Other)
+		modelMap := channel.GetModelMapping()
+		if modelMap[request.Model] != "" {
+			request.Model = modelMap[request.Model]
+		}
+		requestURL = getFullRequestURL(channel.GetBaseURL(), fmt.Sprintf("/openai/deployments/%s/chat/completions?api-version=%s", request.Model, channel.Other), channel.Type)
 	} else {
 		if baseURL := channel.GetBaseURL(); len(baseURL) > 0 {
 			requestURL = baseURL

@@ -27,7 +27,6 @@ type Channel struct {
 	UsedQuota          int64   `json:"used_quota" gorm:"bigint;default:0"`
 	ModelMapping       *string `json:"model_mapping" gorm:"type:varchar(1024);default:''"`
 	Priority           *int64  `json:"priority" gorm:"bigint;default:0"`
-	DeploymentMapping  *string `json:"deployment_mapping" gorm:"type:varchar(1024);default:''"`
 }
 
 func GetAllChannels(startIdx int, num int, selectAll bool) ([]*Channel, error) {
@@ -76,26 +75,6 @@ func BatchInsertChannels(channels []Channel) error {
 	return nil
 }
 
-func (channel *Channel) GetDeploymentMapping() (deploymentMapping map[string]string) {
-	if channel.DeploymentMapping == nil || *channel.DeploymentMapping == "" {
-		return
-	}
-	err := json.Unmarshal([]byte(*channel.DeploymentMapping), &deploymentMapping)
-	if err != nil {
-		common.SysError("failed to unmarshal deployment mapping: " + err.Error())
-	}
-	return
-}
-
-func (channel *Channel) GetDeployment(model string) string {
-	deploymentMapping := channel.GetDeploymentMapping()
-	deployment, ok := deploymentMapping[model]
-	if !ok {
-		return ModelToDeployment(model)
-	}
-	return deployment
-}
-
 func ModelToDeployment(model string) string {
 	model = strings.Replace(model, ".", "", -1)
 	// https://github.com/songquanpeng/one-api/issues/67
@@ -119,11 +98,15 @@ func (channel *Channel) GetBaseURL() string {
 	return *channel.BaseURL
 }
 
-func (channel *Channel) GetModelMapping() string {
+func (channel *Channel) GetModelMapping() (m map[string]string) {
 	if channel.ModelMapping == nil {
-		return ""
+		return
 	}
-	return *channel.ModelMapping
+	err := json.Unmarshal([]byte(*channel.ModelMapping), &m)
+	if err != nil {
+		common.SysError("failed to unmarshal model mapping: " + err.Error())
+	}
+	return
 }
 
 func (channel *Channel) Insert() error {
