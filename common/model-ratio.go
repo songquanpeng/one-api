@@ -76,6 +76,8 @@ var ModelRatio = map[string]float64{
 	"dall-e-3":                  20,     // $0.040 - $0.120 / image
 	"claude-instant-1":          0.815,  
 	"claude-2":                  5.51,   
+	"claude-2.0":                5.51,   
+	"claude-2.1":                5.51,   
 	"ERNIE-Bot":                 0.8572, 
 	"ERNIE-Bot-turbo":           0.5715, 
 	"ERNIE-Bot-4":               8.572,  

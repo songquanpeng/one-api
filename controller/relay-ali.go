@@ -88,18 +88,18 @@ func requestOpenAI2Ali(request GeneralOpenAIRequest) *AliChatRequest {
 		message := request.Messages[i]
 		if message.Role == "system" {
 			messages = append(messages, AliMessage{
-				User: message.Content,
+				User: message.StringContent(),
 				Bot:  "Okay",
 			})
 			continue
 		} else {
 			if i == len(request.Messages)-1 {
-				prompt = message.Content
+				prompt = message.StringContent()
 				break
 			}
 			messages = append(messages, AliMessage{
-				User: message.Content,
-				Bot:  request.Messages[i+1].Content,
+				User: message.StringContent(),
+				Bot:  request.Messages[i+1].StringContent(),
 			})
 			i++
 		}
