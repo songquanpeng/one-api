@@ -1,6 +1,7 @@
 package common
 
 import (
+	"crypto/rand"
 	"crypto/tls"
 	"encoding/base64"
 	"fmt"
@@ -13,15 +14,32 @@ func SendEmail(subject string, receiver string, content string) error {
 		SMTPFrom = SMTPAccount
 	}
 	encodedSubject := fmt.Sprintf("=?UTF-8?B?%s?=", base64.StdEncoding.EncodeToString([]byte(subject)))
+
+	// Extract domain from SMTPFrom
+	parts := strings.Split(SMTPFrom, "@")
+	var domain string
+	if len(parts) > 1 {
+		domain = parts[1]
+	}
+	// Generate a unique Message-ID
+	buf := make([]byte, 16)
+	_, err := rand.Read(buf)
+	if err != nil {
+		return err
+	}
+	messageId := fmt.Sprintf("<%x@%s>", buf, domain)
+
 	mail := []byte(fmt.Sprintf("To: %s\r\n"+
 		"From: %s<%s>\r\n"+
 		"Subject: %s\r\n"+
+		"Message-ID: %s\r\n"+ // add Message-ID header to avoid being treated as spam, RFC 5322
 		"Content-Type: text/html; charset=UTF-8\r\n\r\n%s\r\n",
-		receiver, SystemName, SMTPFrom, encodedSubject, content))
+		receiver, SystemName, SMTPFrom, encodedSubject, messageId, content))
+
 	auth := smtp.PlainAuth("", SMTPAccount, SMTPToken, SMTPServer)
 	addr := fmt.Sprintf("%s:%d", SMTPServer, SMTPPort)
 	to := strings.Split(receiver, ";")
-	var err error
+
 	if SMTPPort == 465 {
 		tlsConfig := &tls.Config{
 			InsecureSkipVerify: true,
