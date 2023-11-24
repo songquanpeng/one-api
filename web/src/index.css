@@ -1,4 +1,15 @@
 :root {
+    --czl-blue-50: #f1f9fe;
+    --czl-blue-100: #e2f2fc;
+    --czl-blue-200: #bfe3f8;
+    --czl-blue-300: #87cef2;
+    --czl-blue-400: #48b5e8;
+    --czl-blue-500: #2ea7e0;
+    --czl-blue-600: #127db7;
+    --czl-blue-700: #106494;
+    --czl-blue-800: #11557b;
+    --czl-blue-900: #144766;
+    --czl-blue-950: #0d2d44;
     --toastify-color-light: var(--czl-main) !important;
     --toastify-color-dark: var(--czl-main-dark) !important;
     --toastify-color-info: var(--czl-info-color) !important;
@@ -229,7 +240,7 @@ code {
 }
 
 .active-menu-item {
-    background-color: var(--czl-grayD) !important;
+    background-color: var(--czl-blue-950) !important;
     color: white !important;
     border-radius: 16px !important;
     padding: 10px 16px !important;

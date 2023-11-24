@@ -90,7 +90,7 @@ const TopUp = () => {
               icon='shop'
               labelPosition='left'
               content='获取兑换码'
-              style={{ backgroundColor: 'var(--czl-primary-color)' }}
+              style={{ backgroundColor: 'var(--czl-blue-700)' }}
               onClick={openTopUpLink}
             />
             <Button
@@ -98,7 +98,7 @@ const TopUp = () => {
               icon='exchange'
               labelPosition='left'
               content={isSubmitting ? '兑换中...' : '兑换'}
-              style={{ backgroundColor: 'var(--czl-success-color)' }}
+              style={{ backgroundColor: '#FFFFFF00',color: 'var(--czl-blue-700)',border: '1px solid var(--czl-blue-200)' }}
               onClick={topUp}
               disabled={isSubmitting}
             />
@@ -108,8 +108,8 @@ const TopUp = () => {
         <Grid.Column>
           <Statistic.Group widths='one'>
             <Statistic>
-              <Statistic.Value style={{ color: 'var(--czl-error-color)' }}>{renderQuota(userQuota)}</Statistic.Value>
-              <Statistic.Label style={{ color: 'var(--czl-error-color)' }}>剩余额度</Statistic.Label>
+              <Statistic.Value style={{ color: 'var(--czl-blue-800)' }}>{renderQuota(userQuota)}</Statistic.Value>
+              <Statistic.Label style={{ color: 'var(--czl-blue-800)' }}>剩余额度</Statistic.Label>
             </Statistic>
           </Statistic.Group>
         </Grid.Column>

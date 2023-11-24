@@ -21,7 +21,7 @@ function renderTimestamp(timestamp) {
 function renderStatus(status) {
   switch (status) {
     case 1:
-      return <Label basic style={{ color: 'var(--czl-success-color)' }}>已启用</Label>;
+      return <Label basic style={{ color: 'var(--czl-blue-500)' }}>已启用</Label>;
     case 2:
       return <Label basic style={{ color: 'var(--czl-error-color)' }}> 已禁用 </Label>;
     case 3:

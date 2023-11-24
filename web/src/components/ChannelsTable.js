@@ -34,7 +34,7 @@ function renderBalance(type, balance) {
     case 4: // CloseAI
       return <span style={{ color: 'var(--czl-primary-color-hover)' }}>¥{balance.toFixed(2)}</span>;
     case 8: // 自定义
-      return <span style={{ color: 'var(--czl-primary-color-pressed)' }}>${balance.toFixed(2)}</span>;
+      return <span style={{ color: 'var(--czl-success-color)' }}>${balance.toFixed(2)}</span>;
     case 5: // OpenAI-SB
       return <span style={{ color: 'var(--czl-primary-color-suppl)' }}>¥{(balance / 10000).toFixed(2)}</span>;
     case 10: // AI Proxy
@@ -457,7 +457,15 @@ const ChannelsTable = () => {
                 sortChannel('used_quota');
               }}
             >
-              本月已用额度
+              本月
+            </Table.HeaderCell>
+            <Table.HeaderCell
+              style={{ cursor: 'pointer' }}
+              onClick={() => {
+                sortChannel('used_quota');
+              }}
+            >
+              总共
             </Table.HeaderCell>
             <Table.HeaderCell
               style={{ cursor: 'pointer' }}
@@ -507,23 +515,22 @@ const ChannelsTable = () => {
                   <Table.Cell>
                     <Popup
                       content={channel.base_url}
-                      trigger={<span>{truncateString(channel.base_url.replace(/^https?:\/\//, ''), 20)}</span>}
+                      trigger={<span>{truncateString(channel.base_url.replace(/^https?:\/\//, ''), 10)}</span>}
                       basic
                     />
                   </Table.Cell>
                   <Table.Cell>
                     <Popup
                       content={channel.models}
-                      trigger={<span>{truncateString(channel.models, 20)}</span>}
+                      trigger={<span>{truncateString(channel.models, 10)}</span>}
                       basic
                     />
                   </Table.Cell>
                   <Table.Cell>
-                    <Popup
-                      trigger={<span>${monthlyQuotas[channel.id]}</span>}
-                      content={`总: ${formatUsedQuota(channel.used_quota)}`}
-                      basic
-                    />
+                  <Label basic style={{ color: 'var(--czl-blue-500)',border:'1px solid var(--czl-blue-500)' }}>${monthlyQuotas[channel.id]}</Label>
+                  </Table.Cell>
+                  <Table.Cell>
+                    <Label basic style={{ color: 'var(--czl-blue-800)',border:'1px solid var(--czl-blue-800)' }}>{formatUsedQuota(channel.used_quota)}</Label>
                   </Table.Cell>
                   <Table.Cell>
                     <Popup
@@ -614,7 +621,7 @@ const ChannelsTable = () => {
 
         <Table.Footer>
           <Table.Row>
-            <Table.HeaderCell colSpan='12'>
+            <Table.HeaderCell colSpan='13'>
               <Button size='small' as={Link} to='/channel/add' loading={loading}>
                 添加新的渠道
               </Button>
