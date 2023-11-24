@@ -13,6 +13,8 @@ const MODEL_MAPPING_EXAMPLE = {
 function type2secretPrompt(type) {
   // inputs.type === 15 ? '按照如下格式输入：APIKey|SecretKey' : (inputs.type === 18 ? '按照如下格式输入：APPID|APISecret|APIKey' : '请输入渠道对应的鉴权密钥')
   switch (type) {
+    case 1:
+      return '按照如下格式输入：APIKey 或者 APIKey|OpenAI-Organization';
     case 15:
       return '按照如下格式输入：APIKey|SecretKey';
     case 18:

@@ -63,7 +63,9 @@ func testChannel(channel *model.Channel, request ChatRequest) (err error, openai
 	if channel.Type == common.ChannelTypeAzure {
 		req.Header.Set("api-key", channel.Key)
 	} else {
-		req.Header.Set("Authorization", "Bearer "+channel.Key)
+		apiKey, organization := parseOpenaiConfig(channel.Key)
+		req.Header.Set("Authorization", "Bearer "+apiKey)
+		req.Header.Set("OpenAI-Organization", organization)
 	}
 	req.Header.Set("Content-Type", "application/json")
 	resp, err := httpClient.Do(req)

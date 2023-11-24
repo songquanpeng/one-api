@@ -101,7 +101,14 @@ func relayAudioHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode 
 	if err != nil {
 		return errorWrapper(err, "new_request_failed", http.StatusInternalServerError)
 	}
+
+	apiKey := c.Request.Header.Get("Authorization")
+	apiKey, organization := parseOpenaiConfig(apiKey)
+	c.Request.Header.Set("Authorization", apiKey)
+	c.Request.Header.Set("OpenAI-Organization", organization)
+
 	req.Header.Set("Authorization", c.Request.Header.Get("Authorization"))
+	req.Header.Set("OpenAI-Organization", c.Request.Header.Get("OpenAI-Organization"))
 	req.Header.Set("Content-Type", c.Request.Header.Get("Content-Type"))
 	req.Header.Set("Accept", c.Request.Header.Get("Accept"))
 
