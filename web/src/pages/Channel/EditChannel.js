@@ -60,7 +60,7 @@ const EditChannel = () => {
       let localModels = [];
       switch (value) {
         case 14:
-          localModels = ['claude-instant-1', 'claude-2'];
+          localModels = ['claude-instant-1', 'claude-2', 'claude-2.0', 'claude-2.1'];
           break;
         case 11:
           localModels = ['PaLM-2'];
