@@ -48,7 +48,7 @@ type AIProxyLibraryStreamResponse struct {
 func requestOpenAI2AIProxyLibrary(request GeneralOpenAIRequest) *AIProxyLibraryRequest {
 	query := ""
 	if len(request.Messages) != 0 {
-		query = request.Messages[len(request.Messages)-1].Content
+		query = request.Messages[len(request.Messages)-1].StringContent()
 	}
 	return &AIProxyLibraryRequest{
 		Model:  request.Model,
