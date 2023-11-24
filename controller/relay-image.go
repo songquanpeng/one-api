@@ -148,23 +148,22 @@ func relayImageHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode 
 	var textResponse ImageResponse
 
 	defer func(ctx context.Context) {
-		if consumeQuota {
-			err := model.PostConsumeTokenQuota(tokenId, quota)
-			if err != nil {
-				common.SysError("error consuming token remain quota: " + err.Error())
-			}
-			err = model.CacheUpdateUserQuota(userId)
-			if err != nil {
-				common.SysError("error update user quota cache: " + err.Error())
-			}
-			if quota != 0 {
-				tokenName := c.GetString("token_name")
-				logContent := fmt.Sprintf("费用：0.002* %.2f", modelRatio)
-				model.RecordConsumeLog(ctx, userId, channelId, 0, 0, imageModel, tokenName, quota, logContent)
-				model.UpdateUserUsedQuotaAndRequestCount(userId, quota)
-				channelId := c.GetInt("channel_id")
-				model.UpdateChannelUsedQuota(channelId, quota)
-			}
+		err := model.PostConsumeTokenQuota(tokenId, quota)
+		if err != nil {
+			common.SysError("error consuming token remain quota: " + err.Error())
+		}
+		err = model.CacheUpdateUserQuota(userId)
+		if err != nil {
+			common.SysError("error update user quota cache: " + err.Error())
+		}
+		if quota != 0 {
+			tokenName := c.GetString("token_name")
+			outputPrice := ratio * 0.002
+			logContent := fmt.Sprintf("单价: $%.6g", outputPrice)
+			model.RecordConsumeLog(ctx, userId, channelId, 0, 0, imageModel, tokenName, quota, logContent)
+			model.UpdateUserUsedQuotaAndRequestCount(userId, quota)
+			channelId := c.GetInt("channel_id")
+			model.UpdateChannelUsedQuota(channelId, quota)
 		}
 	}(c.Request.Context())
 
