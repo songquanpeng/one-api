@@ -72,7 +72,7 @@ func RecordConsumeLog(ctx context.Context, userId int, channelId int, promptToke
 	}
 }
 
-func GetAllLogs(logType int, startTimestamp int64, endTimestamp int64, modelName string, username string, tokenName string, startIdx int, num int, channel int) (logs []*Log, err error) {
+func GetAllLogs(logType int, startTimestamp int64, endTimestamp int64, modelName string, username string, tokenName string, startIdx int, num int, channels []int) (logs []*Log, err error) {
 	var tx *gorm.DB
 	if logType == LogTypeUnknown {
 		tx = DB
@@ -94,9 +94,12 @@ func GetAllLogs(logType int, startTimestamp int64, endTimestamp int64, modelName
 	if endTimestamp != 0 {
 		tx = tx.Where("created_at <= ?", endTimestamp)
 	}
-	if channel != 0 {
-		tx = tx.Where("channel_id = ?", channel)
+	if len(channels) > 1 {
+		tx = tx.Where("channel_id IN ?", channels)
+	} else if len(channels) == 1 && channels[0] != 0 {
+		tx = tx.Where("channel_id = ?", channels[0])
 	}
+
 	err = tx.Order("id desc").Limit(num).Offset(startIdx).Find(&logs).Error
 	return logs, err
 }
@@ -134,7 +137,7 @@ func SearchUserLogs(userId int, keyword string) (logs []*Log, err error) {
 	return logs, err
 }
 
-func SumUsedQuota(logType int, startTimestamp int64, endTimestamp int64, modelName string, username string, tokenName string, channel int) (quota int) {
+func SumUsedQuota(logType int, startTimestamp int64, endTimestamp int64, modelName string, username string, tokenName string, channels []int) (quota int) {
 	tx := DB.Table("logs").Select("ifnull(sum(quota),0)")
 	if username != "" {
 		tx = tx.Where("username = ?", username)
@@ -151,8 +154,10 @@ func SumUsedQuota(logType int, startTimestamp int64, endTimestamp int64, modelNa
 	if modelName != "" {
 		tx = tx.Where("model_name = ?", modelName)
 	}
-	if channel != 0 {
-		tx = tx.Where("channel_id = ?", channel)
+	if len(channels) > 1 {
+		tx = tx.Where("channel_id IN ?", channels)
+	} else if len(channels) == 1 && channels[0] != 0 {
+		tx = tx.Where("channel_id = ?", channels[0])
 	}
 	tx.Where("type = ?", LogTypeConsume).Scan(&quota)
 	return quota
