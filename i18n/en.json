@@ -330,6 +330,7 @@
   "通常和邮箱地址保持一致": "Usually consistent with the email address",
   "SMTP 访问凭证": "SMTP Access Credential",
   "敏感信息不会发送到前端显示": "Sensitive information will not be displayed in the frontend",
+  "使用 SMTP LOGIN 认证方式": "Use LOGIN as SMTP authentication method",
   "保存 SMTP 设置": "Save SMTP Settings",
   "配置 GitHub OAuth App": "Configure GitHub OAuth App",
   "用以支持通过 GitHub 进行登录注册": "To support login & registration via GitHub",

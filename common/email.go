@@ -4,11 +4,38 @@ import (
 	"crypto/rand"
 	"crypto/tls"
 	"encoding/base64"
+	"errors"
 	"fmt"
 	"net/smtp"
 	"strings"
 	"time"
 )
+
+type loginAuth struct {
+	username, password string
+}
+
+func LoginAuth(username, password string) smtp.Auth {
+	return &loginAuth{username, password}
+}
+
+func (a *loginAuth) Start(_ *smtp.ServerInfo) (string, []byte, error) {
+	return "LOGIN", []byte(a.username), nil
+}
+
+func (a *loginAuth) Next(fromServer []byte, more bool) ([]byte, error) {
+	if more {
+		switch string(fromServer) {
+		case "Username:":
+			return []byte(a.username), nil
+		case "Password:":
+			return []byte(a.password), nil
+		default:
+			return nil, errors.New("unknown command from server during login auth")
+		}
+	}
+	return nil, nil
+}
 
 func SendEmail(subject string, receiver string, content string) error {
 	if SMTPFrom == "" { // for compatibility
@@ -37,7 +64,13 @@ func SendEmail(subject string, receiver string, content string) error {
 		"Date: %s\r\n"+
 		"Content-Type: text/html; charset=UTF-8\r\n\r\n%s\r\n",
 		receiver, SystemName, SMTPFrom, encodedSubject, messageId, time.Now().Format(time.RFC1123Z), content))
-	auth := smtp.PlainAuth("", SMTPAccount, SMTPToken, SMTPServer)
+
+	var auth smtp.Auth
+	if SMTPAuthLoginEnabled {
+		auth = LoginAuth(SMTPAccount, SMTPToken)
+	} else {
+		auth = smtp.PlainAuth("", SMTPAccount, SMTPToken, SMTPServer)
+	}
 	addr := fmt.Sprintf("%s:%d", SMTPServer, SMTPPort)
 	to := strings.Split(receiver, ";")
 
