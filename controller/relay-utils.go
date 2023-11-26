@@ -195,8 +195,9 @@ func getFullRequestURL(baseURL string, requestURL string, channelType int) strin
 	return fullRequestURL
 }
 
-func postConsumeQuota(ctx context.Context, tokenId int, quota int, userId int, channelId int, modelRatio float64, groupRatio float64, modelName string, tokenName string) {
-	err := model.PostConsumeTokenQuota(tokenId, quota)
+func postConsumeQuota(ctx context.Context, tokenId int, quotaDelta int, totalQuota int, userId int, channelId int, modelRatio float64, groupRatio float64, modelName string, tokenName string) {
+	// quotaDelta is remaining quota to be consumed
+	err := model.PostConsumeTokenQuota(tokenId, quotaDelta)
 	if err != nil {
 		common.SysError("error consuming token remain quota: " + err.Error())
 	}
@@ -204,10 +205,14 @@ func postConsumeQuota(ctx context.Context, tokenId int, quota int, userId int, c
 	if err != nil {
 		common.SysError("error update user quota cache: " + err.Error())
 	}
-	if quota != 0 {
+	// totalQuota is total quota consumed
+	if totalQuota != 0 {
 		logContent := fmt.Sprintf("模型倍率 %.2f，分组倍率 %.2f", modelRatio, groupRatio)
-		model.RecordConsumeLog(ctx, userId, channelId, 0, 0, modelName, tokenName, quota, logContent)
-		model.UpdateUserUsedQuotaAndRequestCount(userId, quota)
-		model.UpdateChannelUsedQuota(channelId, quota)
+		model.RecordConsumeLog(ctx, userId, channelId, totalQuota, 0, modelName, tokenName, totalQuota, logContent)
+		model.UpdateUserUsedQuotaAndRequestCount(userId, totalQuota)
+		model.UpdateChannelUsedQuota(channelId, totalQuota)
+	}
+	if totalQuota <= 0 {
+		common.LogError(ctx, fmt.Sprintf("totalQuota consumed is %d, something is wrong", totalQuota))
 	}
 }
