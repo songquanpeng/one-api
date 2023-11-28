@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net/smtp"
 	"strings"
+	"time"
 )
 
 func SendEmail(subject string, receiver string, content string) error {
@@ -33,9 +34,9 @@ func SendEmail(subject string, receiver string, content string) error {
 		"From: %s<%s>\r\n"+
 		"Subject: %s\r\n"+
 		"Message-ID: %s\r\n"+ // add Message-ID header to avoid being treated as spam, RFC 5322
+		"Date: %s\r\n"+
 		"Content-Type: text/html; charset=UTF-8\r\n\r\n%s\r\n",
-		receiver, SystemName, SMTPFrom, encodedSubject, messageId, content))
-
+		receiver, SystemName, SMTPFrom, encodedSubject, messageId, time.Now().Format(time.RFC1123Z), content))
 	auth := smtp.PlainAuth("", SMTPAccount, SMTPToken, SMTPServer)
 	addr := fmt.Sprintf("%s:%d", SMTPServer, SMTPPort)
 	to := strings.Split(receiver, ";")

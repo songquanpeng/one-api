@@ -35,15 +35,12 @@ func relayImageHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode 
 	channelId := c.GetInt("channel_id")
 	apiVersion := c.GetString("api_version")
 	userId := c.GetInt("id")
-	consumeQuota := c.GetBool("consume_quota")
 	group := c.GetString("group")
 
 	var imageRequest ImageRequest
-	if consumeQuota {
-		err := common.UnmarshalBodyReusable(c, &imageRequest)
-		if err != nil {
-			return errorWrapper(err, "bind_request_body_failed", http.StatusBadRequest)
-		}
+	err := common.UnmarshalBodyReusable(c, &imageRequest)
+	if err != nil {
+		return errorWrapper(err, "bind_request_body_failed", http.StatusBadRequest)
 	}
 
 	// Size validation
@@ -131,7 +128,7 @@ func relayImageHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode 
 
 	quota := int(ratio*imageCostRatio*1000) * imageRequest.N
 
-	if consumeQuota && userQuota-quota < 0 {
+	if userQuota-quota < 0 {
 		return errorWrapper(errors.New("user quota is not enough"), "insufficient_user_quota", http.StatusForbidden)
 	}
 
@@ -166,43 +163,39 @@ func relayImageHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode 
 	var textResponse ImageResponse
 
 	defer func(ctx context.Context) {
-		if consumeQuota {
-			err := model.PostConsumeTokenQuota(tokenId, quota)
-			if err != nil {
-				common.SysError("error consuming token remain quota: " + err.Error())
-			}
-			err = model.CacheUpdateUserQuota(userId)
-			if err != nil {
-				common.SysError("error update user quota cache: " + err.Error())
-			}
-			if quota != 0 {
-				tokenName := c.GetString("token_name")
-				logContent := fmt.Sprintf("模型倍率 %.2f，分组倍率 %.2f", modelRatio, groupRatio)
-				model.RecordConsumeLog(ctx, userId, channelId, 0, 0, imageModel, tokenName, quota, logContent)
-				model.UpdateUserUsedQuotaAndRequestCount(userId, quota)
-				channelId := c.GetInt("channel_id")
-				model.UpdateChannelUsedQuota(channelId, quota)
-			}
+		err := model.PostConsumeTokenQuota(tokenId, quota)
+		if err != nil {
+			common.SysError("error consuming token remain quota: " + err.Error())
+		}
+		err = model.CacheUpdateUserQuota(userId)
+		if err != nil {
+			common.SysError("error update user quota cache: " + err.Error())
+		}
+		if quota != 0 {
+			tokenName := c.GetString("token_name")
+			logContent := fmt.Sprintf("模型倍率 %.2f，分组倍率 %.2f", modelRatio, groupRatio)
+			model.RecordConsumeLog(ctx, userId, channelId, 0, 0, imageModel, tokenName, quota, logContent)
+			model.UpdateUserUsedQuotaAndRequestCount(userId, quota)
+			channelId := c.GetInt("channel_id")
+			model.UpdateChannelUsedQuota(channelId, quota)
 		}
 	}(c.Request.Context())
 
-	if consumeQuota {
-		responseBody, err := io.ReadAll(resp.Body)
+	responseBody, err := io.ReadAll(resp.Body)
 
-		if err != nil {
-			return errorWrapper(err, "read_response_body_failed", http.StatusInternalServerError)
-		}
-		err = resp.Body.Close()
-		if err != nil {
-			return errorWrapper(err, "close_response_body_failed", http.StatusInternalServerError)
-		}
-		err = json.Unmarshal(responseBody, &textResponse)
-		if err != nil {
-			return errorWrapper(err, "unmarshal_response_body_failed", http.StatusInternalServerError)
-		}
-
-		resp.Body = io.NopCloser(bytes.NewBuffer(responseBody))
+	if err != nil {
+		return errorWrapper(err, "read_response_body_failed", http.StatusInternalServerError)
 	}
+	err = resp.Body.Close()
+	if err != nil {
+		return errorWrapper(err, "close_response_body_failed", http.StatusInternalServerError)
+	}
+	err = json.Unmarshal(responseBody, &textResponse)
+	if err != nil {
+		return errorWrapper(err, "unmarshal_response_body_failed", http.StatusInternalServerError)
+	}
+
+	resp.Body = io.NopCloser(bytes.NewBuffer(responseBody))
 
 	for k, v := range resp.Header {
 		c.Writer.Header().Set(k, v[0])
