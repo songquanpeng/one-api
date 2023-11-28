@@ -205,7 +205,9 @@ func postConsumeQuota(ctx context.Context, tokenId int, quota int, userId int, c
 		common.SysError("error update user quota cache: " + err.Error())
 	}
 	if quota != 0 {
-		logContent := fmt.Sprintf("模型倍率 %.2f，分组倍率 %.2f", modelRatio, groupRatio)
+		outputPrice := modelRatio * 0.002
+		var logContent string
+		logContent = fmt.Sprintf("单价: $%.6g/1k tokens", outputPrice)
 		model.RecordConsumeLog(ctx, userId, channelId, 0, 0, modelName, tokenName, quota, logContent)
 		model.UpdateUserUsedQuotaAndRequestCount(userId, quota)
 		model.UpdateChannelUsedQuota(channelId, quota)
