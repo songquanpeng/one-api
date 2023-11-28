@@ -1,8 +1,9 @@
 package model
 
 import (
-	"gorm.io/gorm"
 	"one-api/common"
+
+	"gorm.io/gorm"
 )
 
 type Channel struct {

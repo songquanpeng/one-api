@@ -92,7 +92,7 @@ func GetResponseBody(method, url string, channel *model.Channel, headers http.He
 	for k := range headers {
 		req.Header.Add(k, headers.Get(k))
 	}
-	res, err := httpClient.Do(req)
+	res, err := common.HttpClient.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -204,6 +204,7 @@ func updateChannelBalance(channel *model.Channel) (float64, error) {
 	if channel.GetBaseURL() == "" {
 		channel.BaseURL = &baseURL
 	}
+
 	switch channel.Type {
 	case common.ChannelTypeOpenAI:
 		if channel.GetBaseURL() != "" {

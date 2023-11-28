@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"one-api/common"
+	"one-api/types"
 	"strconv"
 	"strings"
 
@@ -234,41 +235,46 @@ type CompletionsStreamResponse struct {
 }
 
 func Relay(c *gin.Context) {
-	relayMode := RelayModeUnknown
+	var err *types.OpenAIErrorWithStatusCode
+
+	// relayMode := RelayModeUnknown
 	if strings.HasPrefix(c.Request.URL.Path, "/v1/chat/completions") {
-		relayMode = RelayModeChatCompletions
+		err = relayChatHelper(c)
+		// relayMode = RelayModeChatCompletions
 	} else if strings.HasPrefix(c.Request.URL.Path, "/v1/completions") {
-		relayMode = RelayModeCompletions
+		err = relayCompletionHelper(c)
+		// relayMode = RelayModeCompletions
 	} else if strings.HasPrefix(c.Request.URL.Path, "/v1/embeddings") {
-		relayMode = RelayModeEmbeddings
-	} else if strings.HasSuffix(c.Request.URL.Path, "embeddings") {
-		relayMode = RelayModeEmbeddings
-	} else if strings.HasPrefix(c.Request.URL.Path, "/v1/moderations") {
-		relayMode = RelayModeModerations
-	} else if strings.HasPrefix(c.Request.URL.Path, "/v1/images/generations") {
-		relayMode = RelayModeImagesGenerations
-	} else if strings.HasPrefix(c.Request.URL.Path, "/v1/edits") {
-		relayMode = RelayModeEdits
-	} else if strings.HasPrefix(c.Request.URL.Path, "/v1/audio/speech") {
-		relayMode = RelayModeAudioSpeech
-	} else if strings.HasPrefix(c.Request.URL.Path, "/v1/audio/transcriptions") {
-		relayMode = RelayModeAudioTranscription
-	} else if strings.HasPrefix(c.Request.URL.Path, "/v1/audio/translations") {
-		relayMode = RelayModeAudioTranslation
+		err = relayEmbeddingsHelper(c)
 	}
-	var err *OpenAIErrorWithStatusCode
-	switch relayMode {
-	case RelayModeImagesGenerations:
-		err = relayImageHelper(c, relayMode)
-	case RelayModeAudioSpeech:
-		fallthrough
-	case RelayModeAudioTranslation:
-		fallthrough
-	case RelayModeAudioTranscription:
-		err = relayAudioHelper(c, relayMode)
-	default:
-		err = relayTextHelper(c, relayMode)
-	}
+	// relayMode = RelayModeEmbeddings
+	// } else if strings.HasSuffix(c.Request.URL.Path, "embeddings") {
+	// 	relayMode = RelayModeEmbeddings
+	// } else if strings.HasPrefix(c.Request.URL.Path, "/v1/moderations") {
+	// 	relayMode = RelayModeModerations
+	// } else if strings.HasPrefix(c.Request.URL.Path, "/v1/images/generations") {
+	// 	relayMode = RelayModeImagesGenerations
+	// } else if strings.HasPrefix(c.Request.URL.Path, "/v1/edits") {
+	// 	relayMode = RelayModeEdits
+	// } else if strings.HasPrefix(c.Request.URL.Path, "/v1/audio/speech") {
+	// 	relayMode = RelayModeAudioSpeech
+	// } else if strings.HasPrefix(c.Request.URL.Path, "/v1/audio/transcriptions") {
+	// 	relayMode = RelayModeAudioTranscription
+	// } else if strings.HasPrefix(c.Request.URL.Path, "/v1/audio/translations") {
+	// 	relayMode = RelayModeAudioTranslation
+	// }
+	// switch relayMode {
+	// case RelayModeImagesGenerations:
+	// 	err = relayImageHelper(c, relayMode)
+	// case RelayModeAudioSpeech:
+	// 	fallthrough
+	// case RelayModeAudioTranslation:
+	// 	fallthrough
+	// case RelayModeAudioTranscription:
+	// 	err = relayAudioHelper(c, relayMode)
+	// default:
+	// 	err = relayTextHelper(c, relayMode)
+	// }
 	if err != nil {
 		requestId := c.GetString(common.RequestIdKey)
 		retryTimesStr := c.Query("retry")

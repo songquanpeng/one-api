@@ -1,14 +1,13 @@
 package controller
 
 import (
-	"bytes"
-	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
 	"net/http"
+	"net/http/httptest"
 	"one-api/common"
 	"one-api/model"
+	"one-api/types"
 	"strconv"
 	"sync"
 	"time"
@@ -16,86 +15,81 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func testChannel(channel *model.Channel, request ChatRequest) (err error, openaiErr *OpenAIError) {
+func testChannel(channel *model.Channel, request types.ChatCompletionRequest) (err error, openaiErr *types.OpenAIError) {
+	// 创建一个 http.Request
+	req, err := http.NewRequest("POST", "/v1/chat/completions", nil)
+	if err != nil {
+		return err, nil
+	}
+	req.Header.Set("Content-Type", "application/json")
+
+	w := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(w)
+	c.Request = req
+	c.Set("channel", channel.Type)
+	c.Set("channel_id", channel.Id)
+	c.Set("channel_name", channel.Name)
+	c.Set("model_mapping", channel.GetModelMapping())
+	c.Set("api_key", channel.Key)
+	c.Set("base_url", channel.GetBaseURL())
+
 	switch channel.Type {
 	case common.ChannelTypePaLM:
-		fallthrough
+		request.Model = "PaLM-2"
 	case common.ChannelTypeAnthropic:
-		fallthrough
+		request.Model = "claude-2"
 	case common.ChannelTypeBaidu:
-		fallthrough
+		request.Model = "ERNIE-Bot"
 	case common.ChannelTypeZhipu:
-		fallthrough
+		request.Model = "chatglm_lite"
 	case common.ChannelTypeAli:
-		fallthrough
+		request.Model = "qwen-turbo"
 	case common.ChannelType360:
-		fallthrough
+		request.Model = "360GPT_S2_V9"
 	case common.ChannelTypeXunfei:
-		return errors.New("该渠道类型当前版本不支持测试，请手动测试"), nil
+		request.Model = "SparkDesk"
+		c.Set("api_version", channel.Other)
+	case common.ChannelTypeTencent:
+		request.Model = "hunyuan"
 	case common.ChannelTypeAzure:
-		request.Model = "gpt-35-turbo"
-		defer func() {
-			if err != nil {
-				err = errors.New("请确保已在 Azure 上创建了 gpt-35-turbo 模型，并且 apiVersion 已正确填写！")
-			}
-		}()
+		request.Model = "gpt-3.5-turbo"
+		c.Set("api_version", channel.Other)
 	default:
 		request.Model = "gpt-3.5-turbo"
 	}
-	requestURL := common.ChannelBaseURLs[channel.Type]
-	if channel.Type == common.ChannelTypeAzure {
-		requestURL = getFullRequestURL(channel.GetBaseURL(), fmt.Sprintf("/openai/deployments/%s/chat/completions?api-version=2023-03-15-preview", request.Model), channel.Type)
-	} else {
-		if baseURL := channel.GetBaseURL(); len(baseURL) > 0 {
-			requestURL = baseURL
-		}
 
-		requestURL = getFullRequestURL(requestURL, "/v1/chat/completions", channel.Type)
-	}
-	jsonData, err := json.Marshal(request)
+	chatProvider := GetChatProvider(channel.Type, c)
+	isModelMapped := false
+	modelMap, err := parseModelMapping(c.GetString("model_mapping"))
 	if err != nil {
 		return err, nil
 	}
-	req, err := http.NewRequest("POST", requestURL, bytes.NewBuffer(jsonData))
-	if err != nil {
-		return err, nil
+	if modelMap != nil && modelMap[request.Model] != "" {
+		request.Model = modelMap[request.Model]
+		isModelMapped = true
 	}
-	if channel.Type == common.ChannelTypeAzure {
-		req.Header.Set("api-key", channel.Key)
-	} else {
-		req.Header.Set("Authorization", "Bearer "+channel.Key)
+
+	promptTokens := common.CountTokenMessages(request.Messages, request.Model)
+	_, openAIErrorWithStatusCode := chatProvider.ChatCompleteResponse(&request, isModelMapped, promptTokens)
+	if openAIErrorWithStatusCode != nil {
+		return nil, &openAIErrorWithStatusCode.OpenAIError
 	}
-	req.Header.Set("Content-Type", "application/json")
-	resp, err := httpClient.Do(req)
-	if err != nil {
-		return err, nil
-	}
-	defer resp.Body.Close()
-	var response TextResponse
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return err, nil
-	}
-	err = json.Unmarshal(body, &response)
-	if err != nil {
-		return fmt.Errorf("Error: %s\nResp body: %s", err, body), nil
-	}
-	if response.Usage.CompletionTokens == 0 {
-		return errors.New(fmt.Sprintf("type %s, code %v, message %s", response.Error.Type, response.Error.Code, response.Error.Message)), &response.Error
-	}
+
 	return nil, nil
 }
 
-func buildTestRequest() *ChatRequest {
-	testRequest := &ChatRequest{
-		Model:     "", // this will be set later
+func buildTestRequest() *types.ChatCompletionRequest {
+	testRequest := &types.ChatCompletionRequest{
+		Messages: []types.ChatCompletionMessage{
+			{
+				Role:    "user",
+				Content: "You just need to output 'hi' next.",
+			},
+		},
+		Model:     "",
 		MaxTokens: 1,
+		Stream:    false,
 	}
-	testMessage := Message{
-		Role:    "user",
-		Content: "hi",
-	}
-	testRequest.Messages = append(testRequest.Messages, testMessage)
 	return testRequest
 }
 

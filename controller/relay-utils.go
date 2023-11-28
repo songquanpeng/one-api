@@ -3,133 +3,16 @@ package controller
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
-	"io"
+	"math"
 	"net/http"
 	"one-api/common"
 	"one-api/model"
-	"strconv"
-	"strings"
-
-	"github.com/gin-gonic/gin"
-	"github.com/pkoukk/tiktoken-go"
+	"one-api/types"
 )
 
-var stopFinishReason = "stop"
-
-// tokenEncoderMap won't grow after initialization
-var tokenEncoderMap = map[string]*tiktoken.Tiktoken{}
-var defaultTokenEncoder *tiktoken.Tiktoken
-
-func InitTokenEncoders() {
-	common.SysLog("initializing token encoders")
-	gpt35TokenEncoder, err := tiktoken.EncodingForModel("gpt-3.5-turbo")
-	if err != nil {
-		common.FatalLog(fmt.Sprintf("failed to get gpt-3.5-turbo token encoder: %s", err.Error()))
-	}
-	defaultTokenEncoder = gpt35TokenEncoder
-	gpt4TokenEncoder, err := tiktoken.EncodingForModel("gpt-4")
-	if err != nil {
-		common.FatalLog(fmt.Sprintf("failed to get gpt-4 token encoder: %s", err.Error()))
-	}
-	for model, _ := range common.ModelRatio {
-		if strings.HasPrefix(model, "gpt-3.5") {
-			tokenEncoderMap[model] = gpt35TokenEncoder
-		} else if strings.HasPrefix(model, "gpt-4") {
-			tokenEncoderMap[model] = gpt4TokenEncoder
-		} else {
-			tokenEncoderMap[model] = nil
-		}
-	}
-	common.SysLog("token encoders initialized")
-}
-
-func getTokenEncoder(model string) *tiktoken.Tiktoken {
-	tokenEncoder, ok := tokenEncoderMap[model]
-	if ok && tokenEncoder != nil {
-		return tokenEncoder
-	}
-	if ok {
-		tokenEncoder, err := tiktoken.EncodingForModel(model)
-		if err != nil {
-			common.SysError(fmt.Sprintf("failed to get token encoder for model %s: %s, using encoder for gpt-3.5-turbo", model, err.Error()))
-			tokenEncoder = defaultTokenEncoder
-		}
-		tokenEncoderMap[model] = tokenEncoder
-		return tokenEncoder
-	}
-	return defaultTokenEncoder
-}
-
-func getTokenNum(tokenEncoder *tiktoken.Tiktoken, text string) int {
-	if common.ApproximateTokenEnabled {
-		return int(float64(len(text)) * 0.38)
-	}
-	return len(tokenEncoder.Encode(text, nil, nil))
-}
-
-func countTokenMessages(messages []Message, model string) int {
-	tokenEncoder := getTokenEncoder(model)
-	// Reference:
-	// https://github.com/openai/openai-cookbook/blob/main/examples/How_to_count_tokens_with_tiktoken.ipynb
-	// https://github.com/pkoukk/tiktoken-go/issues/6
-	//
-	// Every message follows <|start|>{role/name}\n{content}<|end|>\n
-	var tokensPerMessage int
-	var tokensPerName int
-	if model == "gpt-3.5-turbo-0301" {
-		tokensPerMessage = 4
-		tokensPerName = -1 // If there's a name, the role is omitted
-	} else {
-		tokensPerMessage = 3
-		tokensPerName = 1
-	}
-	tokenNum := 0
-	for _, message := range messages {
-		tokenNum += tokensPerMessage
-		tokenNum += getTokenNum(tokenEncoder, message.StringContent())
-		tokenNum += getTokenNum(tokenEncoder, message.Role)
-		if message.Name != nil {
-			tokenNum += tokensPerName
-			tokenNum += getTokenNum(tokenEncoder, *message.Name)
-		}
-	}
-	tokenNum += 3 // Every reply is primed with <|start|>assistant<|message|>
-	return tokenNum
-}
-
-func countTokenInput(input any, model string) int {
-	switch input.(type) {
-	case string:
-		return countTokenText(input.(string), model)
-	case []string:
-		text := ""
-		for _, s := range input.([]string) {
-			text += s
-		}
-		return countTokenText(text, model)
-	}
-	return 0
-}
-
-func countTokenText(text string, model string) int {
-	tokenEncoder := getTokenEncoder(model)
-	return getTokenNum(tokenEncoder, text)
-}
-
-func errorWrapper(err error, code string, statusCode int) *OpenAIErrorWithStatusCode {
-	openAIError := OpenAIError{
-		Message: err.Error(),
-		Type:    "one_api_error",
-		Code:    code,
-	}
-	return &OpenAIErrorWithStatusCode{
-		OpenAIError: openAIError,
-		StatusCode:  statusCode,
-	}
-}
-
-func shouldDisableChannel(err *OpenAIError, statusCode int) bool {
+func shouldDisableChannel(err *types.OpenAIError, statusCode int) bool {
 	if !common.AutomaticDisableChannelEnabled {
 		return false
 	}
@@ -143,56 +26,6 @@ func shouldDisableChannel(err *OpenAIError, statusCode int) bool {
 		return true
 	}
 	return false
-}
-
-func setEventStreamHeaders(c *gin.Context) {
-	c.Writer.Header().Set("Content-Type", "text/event-stream")
-	c.Writer.Header().Set("Cache-Control", "no-cache")
-	c.Writer.Header().Set("Connection", "keep-alive")
-	c.Writer.Header().Set("Transfer-Encoding", "chunked")
-	c.Writer.Header().Set("X-Accel-Buffering", "no")
-}
-
-func relayErrorHandler(resp *http.Response) (openAIErrorWithStatusCode *OpenAIErrorWithStatusCode) {
-	openAIErrorWithStatusCode = &OpenAIErrorWithStatusCode{
-		StatusCode: resp.StatusCode,
-		OpenAIError: OpenAIError{
-			Message: fmt.Sprintf("bad response status code %d", resp.StatusCode),
-			Type:    "upstream_error",
-			Code:    "bad_response_status_code",
-			Param:   strconv.Itoa(resp.StatusCode),
-		},
-	}
-	responseBody, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return
-	}
-	err = resp.Body.Close()
-	if err != nil {
-		return
-	}
-	var textResponse TextResponse
-	err = json.Unmarshal(responseBody, &textResponse)
-	if err != nil {
-		return
-	}
-	openAIErrorWithStatusCode.OpenAIError = textResponse.Error
-	return
-}
-
-func getFullRequestURL(baseURL string, requestURL string, channelType int) string {
-	fullRequestURL := fmt.Sprintf("%s%s", baseURL, requestURL)
-
-	if strings.HasPrefix(baseURL, "https://gateway.ai.cloudflare.com") {
-		switch channelType {
-		case common.ChannelTypeOpenAI:
-			fullRequestURL = fmt.Sprintf("%s%s", baseURL, strings.TrimPrefix(requestURL, "/v1"))
-		case common.ChannelTypeAzure:
-			fullRequestURL = fmt.Sprintf("%s%s", baseURL, strings.TrimPrefix(requestURL, "/openai/deployments"))
-		}
-	}
-
-	return fullRequestURL
 }
 
 func postConsumeQuota(ctx context.Context, tokenId int, quota int, userId int, channelId int, modelRatio float64, groupRatio float64, modelName string, tokenName string) {
@@ -210,4 +43,111 @@ func postConsumeQuota(ctx context.Context, tokenId int, quota int, userId int, c
 		model.UpdateUserUsedQuotaAndRequestCount(userId, quota)
 		model.UpdateChannelUsedQuota(channelId, quota)
 	}
+}
+
+func parseModelMapping(modelMapping string) (map[string]string, error) {
+	if modelMapping == "" || modelMapping == "{}" {
+		return nil, nil
+	}
+	modelMap := make(map[string]string)
+	err := json.Unmarshal([]byte(modelMapping), &modelMap)
+	if err != nil {
+		return nil, err
+	}
+	return modelMap, nil
+}
+
+type QuotaInfo struct {
+	modelName         string
+	promptTokens      int
+	preConsumedTokens int
+	modelRatio        float64
+	groupRatio        float64
+	ratio             float64
+	preConsumedQuota  int
+	userId            int
+	channelId         int
+	tokenId           int
+}
+
+func (q *QuotaInfo) initQuotaInfo(groupName string) {
+	modelRatio := common.GetModelRatio(q.modelName)
+	groupRatio := common.GetGroupRatio(groupName)
+	preConsumedTokens := common.PreConsumedQuota
+	ratio := modelRatio * groupRatio
+	preConsumedQuota := int(float64(q.promptTokens+preConsumedTokens) * ratio)
+
+	q.preConsumedTokens = preConsumedTokens
+	q.modelRatio = modelRatio
+	q.groupRatio = groupRatio
+	q.ratio = ratio
+	q.preConsumedQuota = preConsumedQuota
+
+	return
+}
+
+func (q *QuotaInfo) preQuotaConsumption() *types.OpenAIErrorWithStatusCode {
+	userQuota, err := model.CacheGetUserQuota(q.userId)
+	if err != nil {
+		return types.ErrorWrapper(err, "get_user_quota_failed", http.StatusInternalServerError)
+	}
+
+	if userQuota < q.preConsumedQuota {
+		return types.ErrorWrapper(errors.New("user quota is not enough"), "insufficient_user_quota", http.StatusForbidden)
+	}
+
+	err = model.CacheDecreaseUserQuota(q.userId, q.preConsumedQuota)
+	if err != nil {
+		return types.ErrorWrapper(err, "decrease_user_quota_failed", http.StatusInternalServerError)
+	}
+
+	if userQuota > 100*q.preConsumedQuota {
+		// in this case, we do not pre-consume quota
+		// because the user has enough quota
+		q.preConsumedQuota = 0
+		// common.LogInfo(c.Request.Context(), fmt.Sprintf("user %d has enough quota %d, trusted and no need to pre-consume", userId, userQuota))
+	}
+
+	if q.preConsumedQuota > 0 {
+		err := model.PreConsumeTokenQuota(q.tokenId, q.preConsumedQuota)
+		if err != nil {
+			return types.ErrorWrapper(err, "pre_consume_token_quota_failed", http.StatusForbidden)
+		}
+	}
+
+	return nil
+}
+
+func (q *QuotaInfo) completedQuotaConsumption(usage *types.Usage, tokenName string, ctx context.Context) error {
+	quota := 0
+	completionRatio := common.GetCompletionRatio(q.modelName)
+	promptTokens := usage.PromptTokens
+	completionTokens := usage.CompletionTokens
+	quota = int(math.Ceil((float64(promptTokens) + float64(completionTokens)*completionRatio) * q.ratio))
+	if q.ratio != 0 && quota <= 0 {
+		quota = 1
+	}
+	totalTokens := promptTokens + completionTokens
+	if totalTokens == 0 {
+		// in this case, must be some error happened
+		// we cannot just return, because we may have to return the pre-consumed quota
+		quota = 0
+	}
+	quotaDelta := quota - q.preConsumedQuota
+	err := model.PostConsumeTokenQuota(q.tokenId, quotaDelta)
+	if err != nil {
+		return errors.New("error consuming token remain quota: " + err.Error())
+	}
+	err = model.CacheUpdateUserQuota(q.userId)
+	if err != nil {
+		return errors.New("error consuming token remain quota: " + err.Error())
+	}
+	if quota != 0 {
+		logContent := fmt.Sprintf("模型倍率 %.2f，分组倍率 %.2f", q.modelRatio, q.groupRatio)
+		model.RecordConsumeLog(ctx, q.userId, q.channelId, promptTokens, completionTokens, q.modelName, tokenName, quota, logContent)
+		model.UpdateUserUsedQuotaAndRequestCount(q.userId, quota)
+		model.UpdateChannelUsedQuota(q.channelId, quota)
+	}
+
+	return nil
 }
