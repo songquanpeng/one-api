@@ -27,11 +27,15 @@ func openaiStreamHandler(c *gin.Context, resp *http.Response, relayMode int) (*O
 		}
 		return 0, nil, nil
 	})
-	dataChan := make(chan string)
-	stopChan := make(chan bool)
+	dataChan := make(chan string, 5)
+	stopChan := make(chan bool, 2)
+	defer close(stopChan)
+	defer close(dataChan)
+
 	var wg sync.WaitGroup
 	go func() {
 		wg.Add(1)
+		defer wg.Done()
 		var streamItems []string
 		for scanner.Scan() {
 			data := scanner.Text()
@@ -74,7 +78,6 @@ func openaiStreamHandler(c *gin.Context, resp *http.Response, relayMode int) (*O
 				}
 			}
 		}
-		wg.Done()
 		stopChan <- true
 	}()
 	setEventStreamHeaders(c)
