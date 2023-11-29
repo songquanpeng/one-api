@@ -56,19 +56,6 @@ func (m Message) StringContent() string {
 	return ""
 }
 
-const (
-	RelayModeUnknown = iota
-	RelayModeChatCompletions
-	RelayModeCompletions
-	RelayModeEmbeddings
-	RelayModeModerations
-	RelayModeImagesGenerations
-	RelayModeEdits
-	RelayModeAudioSpeech
-	RelayModeAudioTranscription
-	RelayModeAudioTranslation
-)
-
 // https://platform.openai.com/docs/api-reference/chat
 
 type ResponseFormat struct {
@@ -237,21 +224,18 @@ type CompletionsStreamResponse struct {
 func Relay(c *gin.Context) {
 	var err *types.OpenAIErrorWithStatusCode
 
-	relayMode := RelayModeUnknown
+	relayMode := common.RelayModeUnknown
 	if strings.HasPrefix(c.Request.URL.Path, "/v1/chat/completions") {
-		// err = relayChatHelper(c)
-		relayMode = RelayModeChatCompletions
+		relayMode = common.RelayModeChatCompletions
 	} else if strings.HasPrefix(c.Request.URL.Path, "/v1/completions") {
-		// err = relayCompletionHelper(c)
-		relayMode = RelayModeCompletions
+		relayMode = common.RelayModeCompletions
 	} else if strings.HasPrefix(c.Request.URL.Path, "/v1/embeddings") {
-		// err = relayEmbeddingsHelper(c)
-		relayMode = RelayModeEmbeddings
+		relayMode = common.RelayModeEmbeddings
 	} else if strings.HasSuffix(c.Request.URL.Path, "embeddings") {
-		relayMode = RelayModeEmbeddings
+		relayMode = common.RelayModeEmbeddings
+	} else if strings.HasPrefix(c.Request.URL.Path, "/v1/moderations") {
+		relayMode = common.RelayModeModerations
 	}
-	// } else if strings.HasPrefix(c.Request.URL.Path, "/v1/moderations") {
-	// 	relayMode = RelayModeModerations
 	// } else if strings.HasPrefix(c.Request.URL.Path, "/v1/images/generations") {
 	// 	relayMode = RelayModeImagesGenerations
 	// } else if strings.HasPrefix(c.Request.URL.Path, "/v1/edits") {

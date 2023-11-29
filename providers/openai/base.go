@@ -34,6 +34,7 @@ func CreateOpenAIProvider(c *gin.Context, baseURL string) *OpenAIProvider {
 			Completions:         "/v1/completions",
 			ChatCompletions:     "/v1/chat/completions",
 			Embeddings:          "/v1/embeddings",
+			Moderation:          "/v1/moderations",
 			AudioSpeech:         "/v1/audio/speech",
 			AudioTranscriptions: "/v1/audio/transcriptions",
 			AudioTranslations:   "/v1/audio/translations",

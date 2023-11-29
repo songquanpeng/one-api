@@ -21,3 +21,8 @@ type OpenAIProviderEmbeddingsResponse struct {
 	types.EmbeddingResponse
 	types.OpenAIErrorResponse
 }
+
+type OpenAIProviderModerationResponse struct {
+	types.ModerationResponse
+	types.OpenAIErrorResponse
+}

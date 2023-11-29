@@ -11,6 +11,7 @@ type ProviderInterface interface {
 	GetBaseURL() string
 	GetFullRequestURL(requestURL string, modelName string) string
 	GetRequestHeaders() (headers map[string]string)
+	SupportAPI(relayMode int) bool
 }
 
 // 完成接口
@@ -29,6 +30,12 @@ type ChatInterface interface {
 type EmbeddingsInterface interface {
 	ProviderInterface
 	EmbeddingsAction(request *types.EmbeddingRequest, isModelMapped bool, promptTokens int) (usage *types.Usage, errWithCode *types.OpenAIErrorWithStatusCode)
+}
+
+// 审查接口
+type ModerationInterface interface {
+	ProviderInterface
+	ModerationAction(request *types.ModerationRequest, isModelMapped bool, promptTokens int) (usage *types.Usage, errWithCode *types.OpenAIErrorWithStatusCode)
 }
 
 // 余额接口

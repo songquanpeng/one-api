@@ -21,6 +21,7 @@ type BaseProvider struct {
 	ChatCompletions     string
 	Embeddings          string
 	AudioSpeech         string
+	Moderation          string
 	AudioTranscriptions string
 	AudioTranslations   string
 	Proxy               string
@@ -124,4 +125,25 @@ func (p *BaseProvider) HandleErrorResp(resp *http.Response) (openAIErrorWithStat
 		openAIErrorWithStatusCode.OpenAIError.Message = string(responseBody)
 	}
 	return
+}
+
+func (p *BaseProvider) SupportAPI(relayMode int) bool {
+	switch relayMode {
+	case common.RelayModeChatCompletions:
+		return p.ChatCompletions != ""
+	case common.RelayModeCompletions:
+		return p.Completions != ""
+	case common.RelayModeEmbeddings:
+		return p.Embeddings != ""
+	case common.RelayModeAudioSpeech:
+		return p.AudioSpeech != ""
+	case common.RelayModeAudioTranscription:
+		return p.AudioTranscriptions != ""
+	case common.RelayModeAudioTranslation:
+		return p.AudioTranslations != ""
+	case common.RelayModeModerations:
+		return p.Moderation != ""
+	default:
+		return false
+	}
 }
