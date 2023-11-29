@@ -95,6 +95,35 @@ func (p *BaseProvider) SendRequest(req *http.Request, response ProviderResponseH
 	return nil
 }
 
+func (p *BaseProvider) SendRequestRaw(req *http.Request) (openAIErrorWithStatusCode *types.OpenAIErrorWithStatusCode) {
+
+	// 发送请求
+	resp, err := common.HttpClient.Do(req)
+	if err != nil {
+		return types.ErrorWrapper(err, "http_request_failed", http.StatusInternalServerError)
+	}
+
+	defer resp.Body.Close()
+
+	// 处理响应
+	if common.IsFailureStatusCode(resp) {
+		return p.HandleErrorResp(resp)
+	}
+
+	for k, v := range resp.Header {
+		p.Context.Writer.Header().Set(k, v[0])
+	}
+
+	p.Context.Writer.WriteHeader(resp.StatusCode)
+
+	_, err = io.Copy(p.Context.Writer, resp.Body)
+	if err != nil {
+		return types.ErrorWrapper(err, "write_response_body_failed", http.StatusInternalServerError)
+	}
+
+	return nil
+}
+
 // 处理错误响应
 func (p *BaseProvider) HandleErrorResp(resp *http.Response) (openAIErrorWithStatusCode *types.OpenAIErrorWithStatusCode) {
 	openAIErrorWithStatusCode = &types.OpenAIErrorWithStatusCode{

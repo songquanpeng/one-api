@@ -103,6 +103,15 @@ func (c *Client) SendRequest(req *http.Request, response any) error {
 	return nil
 }
 
+func (c *Client) SendRequestRaw(req *http.Request) (body io.ReadCloser, err error) {
+	resp, err := HttpClient.Do(req)
+	if err != nil {
+		return
+	}
+
+	return resp.Body, nil
+}
+
 func IsFailureStatusCode(resp *http.Response) bool {
 	return resp.StatusCode < http.StatusOK || resp.StatusCode >= http.StatusBadRequest
 }

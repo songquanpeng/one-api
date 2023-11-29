@@ -38,6 +38,12 @@ type ModerationInterface interface {
 	ModerationAction(request *types.ModerationRequest, isModelMapped bool, promptTokens int) (usage *types.Usage, errWithCode *types.OpenAIErrorWithStatusCode)
 }
 
+// 文字转语音接口
+type SpeechInterface interface {
+	ProviderInterface
+	SpeechAction(request *types.SpeechAudioRequest, isModelMapped bool, promptTokens int) (usage *types.Usage, errWithCode *types.OpenAIErrorWithStatusCode)
+}
+
 // 余额接口
 type BalanceInterface interface {
 	BalanceAction(channel *model.Channel) (float64, error)

@@ -13,7 +13,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func relayTextHelper(c *gin.Context, relayMode int) *types.OpenAIErrorWithStatusCode {
+func relayHelper(c *gin.Context, relayMode int) *types.OpenAIErrorWithStatusCode {
 	// 获取请求参数
 	channelType := c.GetInt("channel")
 	channelId := c.GetInt("channel_id")
@@ -36,10 +36,9 @@ func relayTextHelper(c *gin.Context, relayMode int) *types.OpenAIErrorWithStatus
 		return types.ErrorWrapper(err, "unmarshal_model_mapping_failed", http.StatusInternalServerError)
 	}
 
-	var promptTokens int
 	quotaInfo := &QuotaInfo{
 		modelName:    "",
-		promptTokens: promptTokens,
+		promptTokens: 0,
 		userId:       userId,
 		channelId:    channelId,
 		tokenId:      tokenId,
@@ -57,6 +56,8 @@ func relayTextHelper(c *gin.Context, relayMode int) *types.OpenAIErrorWithStatus
 		usage, openAIErrorWithStatusCode = handleEmbeddings(c, provider, modelMap, quotaInfo, group)
 	case common.RelayModeModerations:
 		usage, openAIErrorWithStatusCode = handleModerations(c, provider, modelMap, quotaInfo, group)
+	case common.RelayModeAudioSpeech:
+		usage, openAIErrorWithStatusCode = handleSpeech(c, provider, modelMap, quotaInfo, group)
 	default:
 		return types.ErrorWrapper(errors.New("invalid relay mode"), "invalid_relay_mode", http.StatusBadRequest)
 	}
@@ -112,6 +113,7 @@ func handleChatCompletions(c *gin.Context, provider providers_base.ProviderInter
 	promptTokens := common.CountTokenMessages(chatRequest.Messages, chatRequest.Model)
 
 	quotaInfo.modelName = chatRequest.Model
+	quotaInfo.promptTokens = promptTokens
 	quotaInfo.initQuotaInfo(group)
 	quota_err := quotaInfo.preQuotaConsumption()
 	if quota_err != nil {
@@ -144,6 +146,7 @@ func handleCompletions(c *gin.Context, provider providers_base.ProviderInterface
 	promptTokens := common.CountTokenInput(completionRequest.Prompt, completionRequest.Model)
 
 	quotaInfo.modelName = completionRequest.Model
+	quotaInfo.promptTokens = promptTokens
 	quotaInfo.initQuotaInfo(group)
 	quota_err := quotaInfo.preQuotaConsumption()
 	if quota_err != nil {
@@ -176,6 +179,7 @@ func handleEmbeddings(c *gin.Context, provider providers_base.ProviderInterface,
 	promptTokens := common.CountTokenInput(embeddingsRequest.Input, embeddingsRequest.Model)
 
 	quotaInfo.modelName = embeddingsRequest.Model
+	quotaInfo.promptTokens = promptTokens
 	quotaInfo.initQuotaInfo(group)
 	quota_err := quotaInfo.preQuotaConsumption()
 	if quota_err != nil {
@@ -212,10 +216,44 @@ func handleModerations(c *gin.Context, provider providers_base.ProviderInterface
 	promptTokens := common.CountTokenInput(moderationRequest.Input, moderationRequest.Model)
 
 	quotaInfo.modelName = moderationRequest.Model
+	quotaInfo.promptTokens = promptTokens
 	quotaInfo.initQuotaInfo(group)
 	quota_err := quotaInfo.preQuotaConsumption()
 	if quota_err != nil {
 		return nil, quota_err
 	}
 	return moderationProvider.ModerationAction(&moderationRequest, isModelMapped, promptTokens)
+}
+
+func handleSpeech(c *gin.Context, provider providers_base.ProviderInterface, modelMap map[string]string, quotaInfo *QuotaInfo, group string) (*types.Usage, *types.OpenAIErrorWithStatusCode) {
+	var speechRequest types.SpeechAudioRequest
+	isModelMapped := false
+	speechProvider, ok := provider.(providers_base.SpeechInterface)
+	if !ok {
+		return nil, types.ErrorWrapper(errors.New("channel not implemented"), "channel_not_implemented", http.StatusNotImplemented)
+	}
+
+	err := common.UnmarshalBodyReusable(c, &speechRequest)
+	if err != nil {
+		return nil, types.ErrorWrapper(err, "bind_request_body_failed", http.StatusBadRequest)
+	}
+
+	if speechRequest.Input == "" {
+		return nil, types.ErrorWrapper(errors.New("field input is required"), "required_field_missing", http.StatusBadRequest)
+	}
+
+	if modelMap != nil && modelMap[speechRequest.Model] != "" {
+		speechRequest.Model = modelMap[speechRequest.Model]
+		isModelMapped = true
+	}
+	promptTokens := len(speechRequest.Input)
+
+	quotaInfo.modelName = speechRequest.Model
+	quotaInfo.promptTokens = promptTokens
+	quotaInfo.initQuotaInfo(group)
+	quota_err := quotaInfo.preQuotaConsumption()
+	if quota_err != nil {
+		return nil, quota_err
+	}
+	return speechProvider.SpeechAction(&speechRequest, isModelMapped, promptTokens)
 }
