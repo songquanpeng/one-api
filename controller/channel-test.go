@@ -7,6 +7,8 @@ import (
 	"net/http/httptest"
 	"one-api/common"
 	"one-api/model"
+	"one-api/providers"
+	providers_base "one-api/providers/base"
 	"one-api/types"
 	"strconv"
 	"sync"
@@ -58,7 +60,15 @@ func testChannel(channel *model.Channel, request types.ChatCompletionRequest) (e
 		request.Model = "gpt-3.5-turbo"
 	}
 
-	chatProvider := GetChatProvider(channel.Type, c)
+	provider := providers.GetProvider(channel.Type, c)
+	if provider == nil {
+		return errors.New("channel not implemented"), nil
+	}
+	chatProvider, ok := provider.(providers_base.ChatInterface)
+	if !ok {
+		return errors.New("channel not implemented"), nil
+	}
+
 	isModelMapped := false
 	modelMap, err := parseModelMapping(c.GetString("model_mapping"))
 	if err != nil {
@@ -180,7 +190,7 @@ func testAllChannels(notify bool) error {
 			tok := time.Now()
 			milliseconds := tok.Sub(tik).Milliseconds()
 			if milliseconds > disableThreshold {
-				err = errors.New(fmt.Sprintf("响应时间 %.2fs 超过阈值 %.2fs", float64(milliseconds)/1000.0, float64(disableThreshold)/1000.0))
+				err = fmt.Errorf("响应时间 %.2fs 超过阈值 %.2fs", float64(milliseconds)/1000.0, float64(disableThreshold)/1000.0)
 				disableChannel(channel.Id, channel.Name, err.Error())
 			}
 			if shouldDisableChannel(openaiErr, -1) {
@@ -215,7 +225,6 @@ func TestAllChannels(c *gin.Context) {
 		"success": true,
 		"message": "",
 	})
-	return
 }
 
 func AutomaticallyTestChannels(frequency int) {
