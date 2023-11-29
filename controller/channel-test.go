@@ -70,7 +70,7 @@ func testChannel(channel *model.Channel, request types.ChatCompletionRequest) (e
 	}
 
 	promptTokens := common.CountTokenMessages(request.Messages, request.Model)
-	_, openAIErrorWithStatusCode := chatProvider.ChatCompleteResponse(&request, isModelMapped, promptTokens)
+	_, openAIErrorWithStatusCode := chatProvider.ChatAction(&request, isModelMapped, promptTokens)
 	if openAIErrorWithStatusCode != nil {
 		return nil, &openAIErrorWithStatusCode.OpenAIError
 	}

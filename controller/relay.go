@@ -237,19 +237,19 @@ type CompletionsStreamResponse struct {
 func Relay(c *gin.Context) {
 	var err *types.OpenAIErrorWithStatusCode
 
-	// relayMode := RelayModeUnknown
+	relayMode := RelayModeUnknown
 	if strings.HasPrefix(c.Request.URL.Path, "/v1/chat/completions") {
-		err = relayChatHelper(c)
-		// relayMode = RelayModeChatCompletions
+		// err = relayChatHelper(c)
+		relayMode = RelayModeChatCompletions
 	} else if strings.HasPrefix(c.Request.URL.Path, "/v1/completions") {
-		err = relayCompletionHelper(c)
-		// relayMode = RelayModeCompletions
+		// err = relayCompletionHelper(c)
+		relayMode = RelayModeCompletions
 	} else if strings.HasPrefix(c.Request.URL.Path, "/v1/embeddings") {
-		err = relayEmbeddingsHelper(c)
+		// err = relayEmbeddingsHelper(c)
+		relayMode = RelayModeEmbeddings
+	} else if strings.HasSuffix(c.Request.URL.Path, "embeddings") {
+		relayMode = RelayModeEmbeddings
 	}
-	// relayMode = RelayModeEmbeddings
-	// } else if strings.HasSuffix(c.Request.URL.Path, "embeddings") {
-	// 	relayMode = RelayModeEmbeddings
 	// } else if strings.HasPrefix(c.Request.URL.Path, "/v1/moderations") {
 	// 	relayMode = RelayModeModerations
 	// } else if strings.HasPrefix(c.Request.URL.Path, "/v1/images/generations") {
@@ -263,7 +263,7 @@ func Relay(c *gin.Context) {
 	// } else if strings.HasPrefix(c.Request.URL.Path, "/v1/audio/translations") {
 	// 	relayMode = RelayModeAudioTranslation
 	// }
-	// switch relayMode {
+	switch relayMode {
 	// case RelayModeImagesGenerations:
 	// 	err = relayImageHelper(c, relayMode)
 	// case RelayModeAudioSpeech:
@@ -272,9 +272,9 @@ func Relay(c *gin.Context) {
 	// 	fallthrough
 	// case RelayModeAudioTranscription:
 	// 	err = relayAudioHelper(c, relayMode)
-	// default:
-	// 	err = relayTextHelper(c, relayMode)
-	// }
+	default:
+		err = relayTextHelper(c, relayMode)
+	}
 	if err != nil {
 		requestId := c.GetString(common.RequestIdKey)
 		retryTimesStr := c.Query("retry")
