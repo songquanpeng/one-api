@@ -1,14 +1,16 @@
 package model
 
 import (
-	"gorm.io/driver/mysql"
-	"gorm.io/driver/postgres"
-	"gorm.io/driver/sqlite"
-	"gorm.io/gorm"
+	"fmt"
 	"one-api/common"
 	"os"
 	"strings"
 	"time"
+
+	"gorm.io/driver/mysql"
+	"gorm.io/driver/postgres"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
 )
 
 var DB *gorm.DB
@@ -82,38 +84,14 @@ func InitDB() (err error) {
 		if !common.IsMasterNode {
 			return nil
 		}
-		common.SysLog("database migration started")
-		err = db.AutoMigrate(&Channel{})
-		if err != nil {
-			return err
-		}
-		err = db.AutoMigrate(&Token{})
-		if err != nil {
-			return err
-		}
-		err = db.AutoMigrate(&User{})
-		if err != nil {
-			return err
-		}
-		err = db.AutoMigrate(&Option{})
-		if err != nil {
-			return err
-		}
-		err = db.AutoMigrate(&Redemption{})
-		if err != nil {
-			return err
-		}
-		err = db.AutoMigrate(&Ability{})
-		if err != nil {
-			return err
-		}
-		err = db.AutoMigrate(&Log{})
-		if err != nil {
-			return err
-		}
-		common.SysLog("database migrated")
-		err = createRootAccountIfNeed()
-		return err
+
+		// migrate database in the background, to avoid blocking application startup
+		go func() {
+			err = migrateDB(db)
+			if err != nil {
+				common.FatalLog(fmt.Errorf("migrateDB error: %v", err))
+			}
+		}()
 	} else {
 		common.FatalLog(err)
 	}
@@ -126,5 +104,41 @@ func CloseDB() error {
 		return err
 	}
 	err = sqlDB.Close()
+	return err
+}
+
+func migrateDB(db *gorm.DB) error {
+	common.SysLog("database migration started")
+	var err error
+	err = db.AutoMigrate(&Channel{})
+	if err != nil {
+		return err
+	}
+	err = db.AutoMigrate(&Token{})
+	if err != nil {
+		return err
+	}
+	err = db.AutoMigrate(&User{})
+	if err != nil {
+		return err
+	}
+	err = db.AutoMigrate(&Option{})
+	if err != nil {
+		return err
+	}
+	err = db.AutoMigrate(&Redemption{})
+	if err != nil {
+		return err
+	}
+	err = db.AutoMigrate(&Ability{})
+	if err != nil {
+		return err
+	}
+	err = db.AutoMigrate(&Log{})
+	if err != nil {
+		return err
+	}
+	common.SysLog("database migrated")
+	err = createRootAccountIfNeed()
 	return err
 }
