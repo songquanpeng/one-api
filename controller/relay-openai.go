@@ -10,6 +10,7 @@ import (
 	"one-api/common"
 	"strings"
 	"sync"
+	"time"
 )
 
 func openaiStreamHandler(c *gin.Context, resp *http.Response, relayMode int) (*OpenAIErrorWithStatusCode, string) {
@@ -77,6 +78,10 @@ func openaiStreamHandler(c *gin.Context, resp *http.Response, relayMode int) (*O
 					responseTextBuilder.WriteString(choice.Text)
 				}
 			}
+		}
+		if len(dataChan) > 0 {
+			// wait data out
+			time.Sleep(2 * time.Second)
 		}
 		stopChan <- true
 	}()
