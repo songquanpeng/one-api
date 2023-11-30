@@ -219,15 +219,15 @@ const ChannelsTable = () => {
     const res = await API.get(`/api/channel/test/${id}/`);
     const { success, message, time } = res.data;
     if (success) {
-      let newChannels = [...channels];
-      let realIdx = (activePage - 1) * ITEMS_PER_PAGE + idx;
-      newChannels[realIdx].response_time = time * 1000;
-      newChannels[realIdx].test_time = Date.now() / 1000;
-      setChannels(newChannels);
       showInfo(`通道 ${name} 测试成功，耗时 ${time.toFixed(2)} 秒。`);
     } else {
       showError(message);
     }
+    let newChannels = [...channels];
+    let realIdx = (activePage - 1) * ITEMS_PER_PAGE + idx;
+    newChannels[realIdx].response_time = time * 1000;
+    newChannels[realIdx].test_time = Date.now() / 1000;
+    setChannels(newChannels);
   };
 
   const testAllChannels = async () => {

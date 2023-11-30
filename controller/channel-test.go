@@ -45,10 +45,13 @@ func testChannel(channel *model.Channel, request ChatRequest) (err error, openai
 	requestURL := common.ChannelBaseURLs[channel.Type]
 	if channel.Type == common.ChannelTypeAzure {
 		modelMap := channel.GetModelMapping()
+		var deployment string
 		if modelMap[request.Model] != "" {
-			request.Model = modelMap[request.Model]
+			deployment = modelMap[request.Model]
+		} else {
+			deployment = model.ModelToDeployment(request.Model)
 		}
-		requestURL = getFullRequestURL(channel.GetBaseURL(), fmt.Sprintf("/openai/deployments/%s/chat/completions?api-version=%s", request.Model, channel.Other), channel.Type)
+		requestURL = getFullRequestURL(channel.GetBaseURL(), fmt.Sprintf("/openai/deployments/%s/chat/completions?api-version=%s", deployment, channel.Other), channel.Type)
 	} else {
 		if baseURL := channel.GetBaseURL(); len(baseURL) > 0 {
 			requestURL = baseURL
@@ -125,6 +128,9 @@ func TestChannel(c *gin.Context) {
 	err, _ = testChannel(channel, *testRequest)
 	tok := time.Now()
 	milliseconds := tok.Sub(tik).Milliseconds()
+	if err != nil {
+		milliseconds = 0
+	}
 	go channel.UpdateResponseTime(milliseconds)
 	consumedTime := float64(milliseconds) / 1000.0
 	if err != nil {

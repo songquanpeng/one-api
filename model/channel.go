@@ -99,7 +99,7 @@ func (channel *Channel) GetBaseURL() string {
 }
 
 func (channel *Channel) GetModelMapping() (m map[string]string) {
-	if channel.ModelMapping == nil {
+	if channel.ModelMapping == nil || *channel.ModelMapping == "" {
 		return
 	}
 	err := json.Unmarshal([]byte(*channel.ModelMapping), &m)
