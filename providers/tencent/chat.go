@@ -111,7 +111,7 @@ func (p *TencentProvider) ChatAction(request *types.ChatCompletionRequest, isMod
 
 	} else {
 		tencentResponse := &TencentChatResponse{}
-		errWithCode = p.SendRequest(req, tencentResponse)
+		errWithCode = p.SendRequest(req, tencentResponse, false)
 		if errWithCode != nil {
 			return
 		}
@@ -147,7 +147,7 @@ func (p *TencentProvider) sendStreamRequest(req *http.Request) (*types.OpenAIErr
 	}
 
 	if common.IsFailureStatusCode(resp) {
-		return p.HandleErrorResp(resp), ""
+		return common.HandleErrorResp(resp), ""
 	}
 
 	defer resp.Body.Close()

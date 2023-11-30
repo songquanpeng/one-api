@@ -116,7 +116,7 @@ func (p *AliProvider) ChatAction(request *types.ChatCompletionRequest, isModelMa
 
 	} else {
 		aliResponse := &AliChatResponse{}
-		errWithCode = p.SendRequest(req, aliResponse)
+		errWithCode = p.SendRequest(req, aliResponse, false)
 		if errWithCode != nil {
 			return
 		}
@@ -159,7 +159,7 @@ func (p *AliProvider) sendStreamRequest(req *http.Request) (usage *types.Usage, 
 	}
 
 	if common.IsFailureStatusCode(resp) {
-		return nil, p.HandleErrorResp(resp)
+		return nil, common.HandleErrorResp(resp)
 	}
 
 	defer resp.Body.Close()

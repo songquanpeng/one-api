@@ -108,7 +108,7 @@ func (p *ClaudeProvider) ChatAction(request *types.ChatCompletionRequest, isMode
 				PromptTokens: promptTokens,
 			},
 		}
-		errWithCode = p.SendRequest(req, claudeResponse)
+		errWithCode = p.SendRequest(req, claudeResponse, false)
 		if errWithCode != nil {
 			return
 		}
@@ -141,7 +141,7 @@ func (p *ClaudeProvider) sendStreamRequest(req *http.Request) (*types.OpenAIErro
 	}
 
 	if common.IsFailureStatusCode(resp) {
-		return p.HandleErrorResp(resp), ""
+		return common.HandleErrorResp(resp), ""
 	}
 
 	defer resp.Body.Close()

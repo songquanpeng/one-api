@@ -95,7 +95,7 @@ func (p *BaiduProvider) ChatAction(request *types.ChatCompletionRequest, isModel
 
 	} else {
 		baiduChatRequest := &BaiduChatResponse{}
-		errWithCode = p.SendRequest(req, baiduChatRequest)
+		errWithCode = p.SendRequest(req, baiduChatRequest, false)
 		if errWithCode != nil {
 			return
 		}
@@ -132,7 +132,7 @@ func (p *BaiduProvider) sendStreamRequest(req *http.Request) (usage *types.Usage
 	}
 
 	if common.IsFailureStatusCode(resp) {
-		return nil, p.HandleErrorResp(resp)
+		return nil, common.HandleErrorResp(resp)
 	}
 
 	defer resp.Body.Close()

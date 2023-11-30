@@ -6,7 +6,7 @@ import (
 	"one-api/types"
 )
 
-func (c *OpenAIProviderChatResponse) responseHandler(resp *http.Response) (errWithCode *types.OpenAIErrorWithStatusCode) {
+func (c *OpenAIProviderChatResponse) ResponseHandler(resp *http.Response) (OpenAIResponse any, errWithCode *types.OpenAIErrorWithStatusCode) {
 	if c.Error.Type != "" {
 		errWithCode = &types.OpenAIErrorWithStatusCode{
 			OpenAIError: c.Error,
@@ -14,7 +14,7 @@ func (c *OpenAIProviderChatResponse) responseHandler(resp *http.Response) (errWi
 		}
 		return
 	}
-	return nil
+	return nil, nil
 }
 
 func (c *OpenAIProviderChatStreamResponse) responseStreamHandler() (responseText string) {
@@ -59,7 +59,7 @@ func (p *OpenAIProvider) ChatAction(request *types.ChatCompletionRequest, isMode
 
 	} else {
 		openAIProviderChatResponse := &OpenAIProviderChatResponse{}
-		errWithCode = p.sendRequest(req, openAIProviderChatResponse)
+		errWithCode = p.SendRequest(req, openAIProviderChatResponse, true)
 		if errWithCode != nil {
 			return
 		}

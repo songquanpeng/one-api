@@ -6,7 +6,7 @@ import (
 	"one-api/types"
 )
 
-func (c *OpenAIProviderModerationResponse) responseHandler(resp *http.Response) (errWithCode *types.OpenAIErrorWithStatusCode) {
+func (c *OpenAIProviderModerationResponse) ResponseHandler(resp *http.Response) (OpenAIResponse any, errWithCode *types.OpenAIErrorWithStatusCode) {
 	if c.Error.Type != "" {
 		errWithCode = &types.OpenAIErrorWithStatusCode{
 			OpenAIError: c.Error,
@@ -14,7 +14,7 @@ func (c *OpenAIProviderModerationResponse) responseHandler(resp *http.Response) 
 		}
 		return
 	}
-	return nil
+	return nil, nil
 }
 
 func (p *OpenAIProvider) ModerationAction(request *types.ModerationRequest, isModelMapped bool, promptTokens int) (usage *types.Usage, errWithCode *types.OpenAIErrorWithStatusCode) {
@@ -34,7 +34,7 @@ func (p *OpenAIProvider) ModerationAction(request *types.ModerationRequest, isMo
 	}
 
 	openAIProviderModerationResponse := &OpenAIProviderModerationResponse{}
-	errWithCode = p.sendRequest(req, openAIProviderModerationResponse)
+	errWithCode = p.SendRequest(req, openAIProviderModerationResponse, true)
 	if errWithCode != nil {
 		return
 	}

@@ -103,7 +103,7 @@ func (p *PalmProvider) ChatAction(request *types.ChatCompletionRequest, isModelM
 				PromptTokens: promptTokens,
 			},
 		}
-		errWithCode = p.SendRequest(req, palmChatResponse)
+		errWithCode = p.SendRequest(req, palmChatResponse, false)
 		if errWithCode != nil {
 			return
 		}
@@ -135,7 +135,7 @@ func (p *PalmProvider) sendStreamRequest(req *http.Request) (*types.OpenAIErrorW
 	}
 
 	if common.IsFailureStatusCode(resp) {
-		return p.HandleErrorResp(resp), ""
+		return common.HandleErrorResp(resp), ""
 	}
 
 	defer resp.Body.Close()

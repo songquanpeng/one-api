@@ -101,7 +101,7 @@ func (p *ZhipuProvider) ChatAction(request *types.ChatCompletionRequest, isModel
 
 	} else {
 		zhipuResponse := &ZhipuResponse{}
-		errWithCode = p.SendRequest(req, zhipuResponse)
+		errWithCode = p.SendRequest(req, zhipuResponse, false)
 		if errWithCode != nil {
 			return
 		}
@@ -146,7 +146,7 @@ func (p *ZhipuProvider) sendStreamRequest(req *http.Request) (*types.OpenAIError
 	}
 
 	if common.IsFailureStatusCode(resp) {
-		return p.HandleErrorResp(resp), nil
+		return common.HandleErrorResp(resp), nil
 	}
 
 	defer resp.Body.Close()

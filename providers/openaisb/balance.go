@@ -21,9 +21,9 @@ func (p *OpenaiSBProvider) Balance(channel *model.Channel) (float64, error) {
 
 	// 发送请求
 	var response OpenAISBUsageResponse
-	err = client.SendRequest(req, &response)
+	_, errWithCode := common.SendRequest(req, &response, false)
 	if err != nil {
-		return 0, err
+		return 0, errors.New(errWithCode.OpenAIError.Message)
 	}
 
 	if response.Data == nil {

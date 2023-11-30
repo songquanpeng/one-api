@@ -59,7 +59,7 @@ func (p *BaiduProvider) EmbeddingsAction(request *types.EmbeddingRequest, isMode
 	}
 
 	baiduEmbeddingResponse := &BaiduEmbeddingResponse{}
-	errWithCode = p.SendRequest(req, baiduEmbeddingResponse)
+	errWithCode = p.SendRequest(req, baiduEmbeddingResponse, false)
 	if errWithCode != nil {
 		return
 	}

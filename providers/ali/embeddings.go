@@ -63,7 +63,7 @@ func (p *AliProvider) EmbeddingsAction(request *types.EmbeddingRequest, isModelM
 	}
 
 	aliEmbeddingResponse := &AliEmbeddingResponse{}
-	errWithCode = p.SendRequest(req, aliEmbeddingResponse)
+	errWithCode = p.SendRequest(req, aliEmbeddingResponse, false)
 	if errWithCode != nil {
 		return
 	}

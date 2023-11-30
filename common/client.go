@@ -1,10 +1,13 @@
 package common
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
+	"one-api/types"
+	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -79,28 +82,74 @@ func (c *Client) NewRequest(method, url string, setters ...requestOption) (*http
 	return req, nil
 }
 
-func (c *Client) SendRequest(req *http.Request, response any) error {
-
+func SendRequest(req *http.Request, response any, outputResp bool) (*http.Response, *types.OpenAIErrorWithStatusCode) {
 	// 发送请求
 	resp, err := HttpClient.Do(req)
 	if err != nil {
-		return err
+		return nil, types.ErrorWrapper(err, "http_request_failed", http.StatusInternalServerError)
 	}
 
-	defer resp.Body.Close()
+	if !outputResp {
+		defer resp.Body.Close()
+	}
 
 	// 处理响应
 	if IsFailureStatusCode(resp) {
-		return fmt.Errorf("status code: %d", resp.StatusCode)
+		return nil, HandleErrorResp(resp)
 	}
 
 	// 解析响应
-	err = DecodeResponse(resp.Body, response)
+	if outputResp {
+		var buf bytes.Buffer
+		tee := io.TeeReader(resp.Body, &buf)
+		err = DecodeResponse(tee, response)
+
+		// 将响应体重新写入 resp.Body
+		resp.Body = io.NopCloser(&buf)
+	} else {
+		err = DecodeResponse(resp.Body, nil)
+	}
 	if err != nil {
-		return err
+		return nil, types.ErrorWrapper(err, "decode_response_failed", http.StatusInternalServerError)
 	}
 
-	return nil
+	if outputResp {
+		return resp, nil
+	}
+
+	return nil, nil
+}
+
+// 处理错误响应
+func HandleErrorResp(resp *http.Response) (openAIErrorWithStatusCode *types.OpenAIErrorWithStatusCode) {
+	openAIErrorWithStatusCode = &types.OpenAIErrorWithStatusCode{
+		StatusCode: resp.StatusCode,
+		OpenAIError: types.OpenAIError{
+			Message: fmt.Sprintf("bad response status code %d", resp.StatusCode),
+			Type:    "upstream_error",
+			Code:    "bad_response_status_code",
+			Param:   strconv.Itoa(resp.StatusCode),
+		},
+	}
+	responseBody, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return
+	}
+	err = resp.Body.Close()
+	if err != nil {
+		return
+	}
+	var errorResponse types.OpenAIErrorResponse
+	err = json.Unmarshal(responseBody, &errorResponse)
+	if err != nil {
+		return
+	}
+	if errorResponse.Error.Type != "" {
+		openAIErrorWithStatusCode.OpenAIError = errorResponse.Error
+	} else {
+		openAIErrorWithStatusCode.OpenAIError.Message = string(responseBody)
+	}
+	return
 }
 
 func (c *Client) SendRequestRaw(req *http.Request) (body io.ReadCloser, err error) {
