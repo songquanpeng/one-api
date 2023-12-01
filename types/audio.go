@@ -3,16 +3,16 @@ package types
 import "mime/multipart"
 
 type SpeechAudioRequest struct {
-	Model          string  `json:"model"`
-	Input          string  `json:"input"`
-	Voice          string  `json:"voice"`
+	Model          string  `json:"model" binding:"required"`
+	Input          string  `json:"input" binding:"required"`
+	Voice          string  `json:"voice" binding:"required"`
 	ResponseFormat string  `json:"response_format,omitempty"`
 	Speed          float64 `json:"speed,omitempty"`
 }
 
 type AudioRequest struct {
-	File           *multipart.FileHeader `form:"file"`
-	Model          string                `form:"model"`
+	File           *multipart.FileHeader `form:"file" binding:"required"`
+	Model          string                `form:"model" binding:"required"`
 	Language       string                `form:"language"`
 	Prompt         string                `form:"prompt"`
 	ResponseFormat string                `form:"response_format"`

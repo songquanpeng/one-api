@@ -26,7 +26,7 @@ func (p *XunfeiProvider) sendRequest(request *types.ChatCompletionRequest, authU
 	usage = &types.Usage{}
 	dataChan, stopChan, err := p.xunfeiMakeRequest(request, authUrl)
 	if err != nil {
-		return nil, types.ErrorWrapper(err, "make xunfei request err", http.StatusInternalServerError)
+		return nil, common.ErrorWrapper(err, "make xunfei request err", http.StatusInternalServerError)
 	}
 
 	var content string
@@ -51,7 +51,7 @@ func (p *XunfeiProvider) sendRequest(request *types.ChatCompletionRequest, authU
 	response := p.responseXunfei2OpenAI(&xunfeiResponse)
 	jsonResponse, err := json.Marshal(response)
 	if err != nil {
-		return nil, types.ErrorWrapper(err, "marshal_response_body_failed", http.StatusInternalServerError)
+		return nil, common.ErrorWrapper(err, "marshal_response_body_failed", http.StatusInternalServerError)
 	}
 	p.Context.Writer.Header().Set("Content-Type", "application/json")
 	_, _ = p.Context.Writer.Write(jsonResponse)
@@ -62,7 +62,7 @@ func (p *XunfeiProvider) sendStreamRequest(request *types.ChatCompletionRequest,
 	usage = &types.Usage{}
 	dataChan, stopChan, err := p.xunfeiMakeRequest(request, authUrl)
 	if err != nil {
-		return nil, types.ErrorWrapper(err, "make xunfei request err", http.StatusInternalServerError)
+		return nil, common.ErrorWrapper(err, "make xunfei request err", http.StatusInternalServerError)
 	}
 	common.SetEventStreamHeaders(p.Context)
 	p.Context.Stream(func(w io.Writer) bool {

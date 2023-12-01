@@ -3,7 +3,7 @@ package types
 import "mime/multipart"
 
 type ImageRequest struct {
-	Prompt         string `json:"prompt,omitempty"`
+	Prompt         string `json:"prompt,omitempty" binding:"required"`
 	Model          string `json:"model,omitempty"`
 	N              int    `json:"n,omitempty"`
 	Quality        string `json:"quality,omitempty"`
@@ -25,7 +25,7 @@ type ImageResponseDataInner struct {
 }
 
 type ImageEditRequest struct {
-	Image          *multipart.FileHeader `form:"image"`
+	Image          *multipart.FileHeader `form:"image" binding:"required"`
 	Mask           *multipart.FileHeader `form:"mask"`
 	Model          string                `form:"model"`
 	Prompt         string                `form:"prompt"`

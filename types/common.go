@@ -22,19 +22,3 @@ type OpenAIErrorWithStatusCode struct {
 type OpenAIErrorResponse struct {
 	Error OpenAIError `json:"error,omitempty"`
 }
-
-func ErrorWrapper(err error, code string, statusCode int) *OpenAIErrorWithStatusCode {
-	openAIError := OpenAIError{
-		Message: err.Error(),
-		Type:    "one_api_error",
-		Code:    code,
-	}
-	return &OpenAIErrorWithStatusCode{
-		OpenAIError: openAIError,
-		StatusCode:  statusCode,
-	}
-}
-
-// type GeneralErrorHandling interface {
-// 	HandleError(resp *http.Response) (openAIErrorWithStatusCode *OpenAIErrorWithStatusCode)
-// }

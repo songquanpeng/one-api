@@ -10,7 +10,7 @@ func (p *OpenAIProvider) SpeechAction(request *types.SpeechAudioRequest, isModel
 
 	requestBody, err := p.GetRequestBody(&request, isModelMapped)
 	if err != nil {
-		return nil, types.ErrorWrapper(err, "json_marshal_failed", http.StatusInternalServerError)
+		return nil, common.ErrorWrapper(err, "json_marshal_failed", http.StatusInternalServerError)
 	}
 
 	fullRequestURL := p.GetFullRequestURL(p.AudioSpeech, request.Model)
@@ -19,7 +19,7 @@ func (p *OpenAIProvider) SpeechAction(request *types.SpeechAudioRequest, isModel
 	client := common.NewClient()
 	req, err := client.NewRequest(p.Context.Request.Method, fullRequestURL, common.WithBody(requestBody), common.WithHeader(headers))
 	if err != nil {
-		return nil, types.ErrorWrapper(err, "new_request_failed", http.StatusInternalServerError)
+		return nil, common.ErrorWrapper(err, "new_request_failed", http.StatusInternalServerError)
 	}
 
 	errWithCode = p.SendRequestRaw(req)

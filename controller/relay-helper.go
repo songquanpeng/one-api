@@ -25,16 +25,16 @@ func relayHelper(c *gin.Context, relayMode int) *types.OpenAIErrorWithStatusCode
 	// 获取 Provider
 	provider := providers.GetProvider(channelType, c)
 	if provider == nil {
-		return types.ErrorWrapper(errors.New("channel not found"), "channel_not_found", http.StatusNotImplemented)
+		return common.ErrorWrapper(errors.New("channel not found"), "channel_not_found", http.StatusNotImplemented)
 	}
 
 	if !provider.SupportAPI(relayMode) {
-		return types.ErrorWrapper(errors.New("channel does not support this API"), "channel_not_support_api", http.StatusNotImplemented)
+		return common.ErrorWrapper(errors.New("channel does not support this API"), "channel_not_support_api", http.StatusNotImplemented)
 	}
 
 	modelMap, err := parseModelMapping(c.GetString("model_mapping"))
 	if err != nil {
-		return types.ErrorWrapper(err, "unmarshal_model_mapping_failed", http.StatusInternalServerError)
+		return common.ErrorWrapper(err, "unmarshal_model_mapping_failed", http.StatusInternalServerError)
 	}
 
 	quotaInfo := &QuotaInfo{
@@ -70,7 +70,7 @@ func relayHelper(c *gin.Context, relayMode int) *types.OpenAIErrorWithStatusCode
 	case common.RelayModeImagesVariations:
 		usage, openAIErrorWithStatusCode = handleImageEdits(c, provider, modelMap, quotaInfo, group, "variation")
 	default:
-		return types.ErrorWrapper(errors.New("invalid relay mode"), "invalid_relay_mode", http.StatusBadRequest)
+		return common.ErrorWrapper(errors.New("invalid relay mode"), "invalid_relay_mode", http.StatusBadRequest)
 	}
 
 	if openAIErrorWithStatusCode != nil {
@@ -105,16 +105,16 @@ func handleChatCompletions(c *gin.Context, provider providers_base.ProviderInter
 
 	chatProvider, ok := provider.(providers_base.ChatInterface)
 	if !ok {
-		return nil, types.ErrorWrapper(errors.New("channel not implemented"), "channel_not_implemented", http.StatusNotImplemented)
+		return nil, common.ErrorWrapper(errors.New("channel not implemented"), "channel_not_implemented", http.StatusNotImplemented)
 	}
 
 	err := common.UnmarshalBodyReusable(c, &chatRequest)
 	if err != nil {
-		return nil, types.ErrorWrapper(err, "bind_request_body_failed", http.StatusBadRequest)
+		return nil, common.ErrorWrapper(err, "bind_request_body_failed", http.StatusBadRequest)
 	}
 
 	if chatRequest.Messages == nil || len(chatRequest.Messages) == 0 {
-		return nil, types.ErrorWrapper(errors.New("field messages is required"), "required_field_missing", http.StatusBadRequest)
+		return nil, common.ErrorWrapper(errors.New("field messages is required"), "required_field_missing", http.StatusBadRequest)
 	}
 
 	if modelMap != nil && modelMap[chatRequest.Model] != "" {
@@ -138,16 +138,16 @@ func handleCompletions(c *gin.Context, provider providers_base.ProviderInterface
 	isModelMapped := false
 	completionProvider, ok := provider.(providers_base.CompletionInterface)
 	if !ok {
-		return nil, types.ErrorWrapper(errors.New("channel not implemented"), "channel_not_implemented", http.StatusNotImplemented)
+		return nil, common.ErrorWrapper(errors.New("channel not implemented"), "channel_not_implemented", http.StatusNotImplemented)
 	}
 
 	err := common.UnmarshalBodyReusable(c, &completionRequest)
 	if err != nil {
-		return nil, types.ErrorWrapper(err, "bind_request_body_failed", http.StatusBadRequest)
+		return nil, common.ErrorWrapper(err, "bind_request_body_failed", http.StatusBadRequest)
 	}
 
 	if completionRequest.Prompt == "" {
-		return nil, types.ErrorWrapper(errors.New("field prompt is required"), "required_field_missing", http.StatusBadRequest)
+		return nil, common.ErrorWrapper(errors.New("field prompt is required"), "required_field_missing", http.StatusBadRequest)
 	}
 
 	if modelMap != nil && modelMap[completionRequest.Model] != "" {
@@ -171,16 +171,16 @@ func handleEmbeddings(c *gin.Context, provider providers_base.ProviderInterface,
 	isModelMapped := false
 	embeddingsProvider, ok := provider.(providers_base.EmbeddingsInterface)
 	if !ok {
-		return nil, types.ErrorWrapper(errors.New("channel not implemented"), "channel_not_implemented", http.StatusNotImplemented)
+		return nil, common.ErrorWrapper(errors.New("channel not implemented"), "channel_not_implemented", http.StatusNotImplemented)
 	}
 
 	err := common.UnmarshalBodyReusable(c, &embeddingsRequest)
 	if err != nil {
-		return nil, types.ErrorWrapper(err, "bind_request_body_failed", http.StatusBadRequest)
+		return nil, common.ErrorWrapper(err, "bind_request_body_failed", http.StatusBadRequest)
 	}
 
 	if embeddingsRequest.Input == "" {
-		return nil, types.ErrorWrapper(errors.New("field input is required"), "required_field_missing", http.StatusBadRequest)
+		return nil, common.ErrorWrapper(errors.New("field input is required"), "required_field_missing", http.StatusBadRequest)
 	}
 
 	if modelMap != nil && modelMap[embeddingsRequest.Model] != "" {
@@ -204,16 +204,16 @@ func handleModerations(c *gin.Context, provider providers_base.ProviderInterface
 	isModelMapped := false
 	moderationProvider, ok := provider.(providers_base.ModerationInterface)
 	if !ok {
-		return nil, types.ErrorWrapper(errors.New("channel not implemented"), "channel_not_implemented", http.StatusNotImplemented)
+		return nil, common.ErrorWrapper(errors.New("channel not implemented"), "channel_not_implemented", http.StatusNotImplemented)
 	}
 
 	err := common.UnmarshalBodyReusable(c, &moderationRequest)
 	if err != nil {
-		return nil, types.ErrorWrapper(err, "bind_request_body_failed", http.StatusBadRequest)
+		return nil, common.ErrorWrapper(err, "bind_request_body_failed", http.StatusBadRequest)
 	}
 
 	if moderationRequest.Input == "" {
-		return nil, types.ErrorWrapper(errors.New("field input is required"), "required_field_missing", http.StatusBadRequest)
+		return nil, common.ErrorWrapper(errors.New("field input is required"), "required_field_missing", http.StatusBadRequest)
 	}
 
 	if moderationRequest.Model == "" {
@@ -241,16 +241,16 @@ func handleSpeech(c *gin.Context, provider providers_base.ProviderInterface, mod
 	isModelMapped := false
 	speechProvider, ok := provider.(providers_base.SpeechInterface)
 	if !ok {
-		return nil, types.ErrorWrapper(errors.New("channel not implemented"), "channel_not_implemented", http.StatusNotImplemented)
+		return nil, common.ErrorWrapper(errors.New("channel not implemented"), "channel_not_implemented", http.StatusNotImplemented)
 	}
 
 	err := common.UnmarshalBodyReusable(c, &speechRequest)
 	if err != nil {
-		return nil, types.ErrorWrapper(err, "bind_request_body_failed", http.StatusBadRequest)
+		return nil, common.ErrorWrapper(err, "bind_request_body_failed", http.StatusBadRequest)
 	}
 
 	if speechRequest.Input == "" {
-		return nil, types.ErrorWrapper(errors.New("field input is required"), "required_field_missing", http.StatusBadRequest)
+		return nil, common.ErrorWrapper(errors.New("field input is required"), "required_field_missing", http.StatusBadRequest)
 	}
 
 	if modelMap != nil && modelMap[speechRequest.Model] != "" {
@@ -274,17 +274,17 @@ func handleTranscriptions(c *gin.Context, provider providers_base.ProviderInterf
 	isModelMapped := false
 	speechProvider, ok := provider.(providers_base.TranscriptionsInterface)
 	if !ok {
-		return nil, types.ErrorWrapper(errors.New("channel not implemented"), "channel_not_implemented", http.StatusNotImplemented)
+		return nil, common.ErrorWrapper(errors.New("channel not implemented"), "channel_not_implemented", http.StatusNotImplemented)
 	}
 
 	err := common.UnmarshalBodyReusable(c, &audioRequest)
 	if err != nil {
-		return nil, types.ErrorWrapper(err, "bind_request_body_failed", http.StatusBadRequest)
+		return nil, common.ErrorWrapper(err, "bind_request_body_failed", http.StatusBadRequest)
 	}
 
 	if audioRequest.File == nil {
 		fmt.Println(audioRequest)
-		return nil, types.ErrorWrapper(errors.New("field file is required"), "required_field_missing", http.StatusBadRequest)
+		return nil, common.ErrorWrapper(errors.New("field file is required"), "required_field_missing", http.StatusBadRequest)
 	}
 
 	if modelMap != nil && modelMap[audioRequest.Model] != "" {
@@ -308,17 +308,17 @@ func handleTranslations(c *gin.Context, provider providers_base.ProviderInterfac
 	isModelMapped := false
 	speechProvider, ok := provider.(providers_base.TranslationInterface)
 	if !ok {
-		return nil, types.ErrorWrapper(errors.New("channel not implemented"), "channel_not_implemented", http.StatusNotImplemented)
+		return nil, common.ErrorWrapper(errors.New("channel not implemented"), "channel_not_implemented", http.StatusNotImplemented)
 	}
 
 	err := common.UnmarshalBodyReusable(c, &audioRequest)
 	if err != nil {
-		return nil, types.ErrorWrapper(err, "bind_request_body_failed", http.StatusBadRequest)
+		return nil, common.ErrorWrapper(err, "bind_request_body_failed", http.StatusBadRequest)
 	}
 
 	if audioRequest.File == nil {
 		fmt.Println(audioRequest)
-		return nil, types.ErrorWrapper(errors.New("field file is required"), "required_field_missing", http.StatusBadRequest)
+		return nil, common.ErrorWrapper(errors.New("field file is required"), "required_field_missing", http.StatusBadRequest)
 	}
 
 	if modelMap != nil && modelMap[audioRequest.Model] != "" {
@@ -342,12 +342,12 @@ func handleImageGenerations(c *gin.Context, provider providers_base.ProviderInte
 	isModelMapped := false
 	imageGenerationsProvider, ok := provider.(providers_base.ImageGenerationsInterface)
 	if !ok {
-		return nil, types.ErrorWrapper(errors.New("channel not implemented"), "channel_not_implemented", http.StatusNotImplemented)
+		return nil, common.ErrorWrapper(errors.New("channel not implemented"), "channel_not_implemented", http.StatusNotImplemented)
 	}
 
 	err := common.UnmarshalBodyReusable(c, &imageRequest)
 	if err != nil {
-		return nil, types.ErrorWrapper(err, "bind_request_body_failed", http.StatusBadRequest)
+		return nil, common.ErrorWrapper(err, "bind_request_body_failed", http.StatusBadRequest)
 	}
 
 	if imageRequest.Model == "" {
@@ -368,7 +368,7 @@ func handleImageGenerations(c *gin.Context, provider providers_base.ProviderInte
 	}
 	promptTokens, err := common.CountTokenImage(imageRequest)
 	if err != nil {
-		return nil, types.ErrorWrapper(err, "count_token_image_failed", http.StatusInternalServerError)
+		return nil, common.ErrorWrapper(err, "count_token_image_failed", http.StatusInternalServerError)
 	}
 
 	quotaInfo.modelName = imageRequest.Model
@@ -390,18 +390,18 @@ func handleImageEdits(c *gin.Context, provider providers_base.ProviderInterface,
 	if imageType == "edit" {
 		imageEditsProvider, ok = provider.(providers_base.ImageEditsInterface)
 		if !ok {
-			return nil, types.ErrorWrapper(errors.New("channel not implemented"), "channel_not_implemented", http.StatusNotImplemented)
+			return nil, common.ErrorWrapper(errors.New("channel not implemented"), "channel_not_implemented", http.StatusNotImplemented)
 		}
 	} else {
 		imageVariations, ok = provider.(providers_base.ImageVariationsInterface)
 		if !ok {
-			return nil, types.ErrorWrapper(errors.New("channel not implemented"), "channel_not_implemented", http.StatusNotImplemented)
+			return nil, common.ErrorWrapper(errors.New("channel not implemented"), "channel_not_implemented", http.StatusNotImplemented)
 		}
 	}
 
 	err := common.UnmarshalBodyReusable(c, &imageEditRequest)
 	if err != nil {
-		return nil, types.ErrorWrapper(err, "bind_request_body_failed", http.StatusBadRequest)
+		return nil, common.ErrorWrapper(err, "bind_request_body_failed", http.StatusBadRequest)
 	}
 
 	if imageEditRequest.Model == "" {
@@ -418,7 +418,7 @@ func handleImageEdits(c *gin.Context, provider providers_base.ProviderInterface,
 	}
 	promptTokens, err := common.CountTokenImage(imageEditRequest)
 	if err != nil {
-		return nil, types.ErrorWrapper(err, "count_token_image_failed", http.StatusInternalServerError)
+		return nil, common.ErrorWrapper(err, "count_token_image_failed", http.StatusInternalServerError)
 	}
 
 	quotaInfo.modelName = imageEditRequest.Model

@@ -106,7 +106,7 @@ func (p *OpenAIProvider) sendStreamRequest(req *http.Request, response OpenAIPro
 
 	resp, err := common.HttpClient.Do(req)
 	if err != nil {
-		return types.ErrorWrapper(err, "http_request_failed", http.StatusInternalServerError), ""
+		return common.ErrorWrapper(err, "http_request_failed", http.StatusInternalServerError), ""
 	}
 
 	if common.IsFailureStatusCode(resp) {

@@ -97,7 +97,7 @@ func (p *AliProvider) ChatAction(request *types.ChatCompletionRequest, isModelMa
 	client := common.NewClient()
 	req, err := client.NewRequest(p.Context.Request.Method, fullRequestURL, common.WithBody(requestBody), common.WithHeader(headers))
 	if err != nil {
-		return nil, types.ErrorWrapper(err, "new_request_failed", http.StatusInternalServerError)
+		return nil, common.ErrorWrapper(err, "new_request_failed", http.StatusInternalServerError)
 	}
 
 	if request.Stream {
@@ -157,7 +157,7 @@ func (p *AliProvider) sendStreamRequest(req *http.Request) (usage *types.Usage, 
 	// 发送请求
 	resp, err := common.HttpClient.Do(req)
 	if err != nil {
-		return nil, types.ErrorWrapper(err, "http_request_failed", http.StatusInternalServerError)
+		return nil, common.ErrorWrapper(err, "http_request_failed", http.StatusInternalServerError)
 	}
 
 	if common.IsFailureStatusCode(resp) {

@@ -96,7 +96,7 @@ func SendRequest(req *http.Request, response any, outputResp bool) (*http.Respon
 	// 发送请求
 	resp, err := HttpClient.Do(req)
 	if err != nil {
-		return nil, types.ErrorWrapper(err, "http_request_failed", http.StatusInternalServerError)
+		return nil, ErrorWrapper(err, "http_request_failed", http.StatusInternalServerError)
 	}
 
 	if !outputResp {
@@ -120,7 +120,7 @@ func SendRequest(req *http.Request, response any, outputResp bool) (*http.Respon
 		err = DecodeResponse(resp.Body, response)
 	}
 	if err != nil {
-		return nil, types.ErrorWrapper(err, "decode_response_failed", http.StatusInternalServerError)
+		return nil, ErrorWrapper(err, "decode_response_failed", http.StatusInternalServerError)
 	}
 
 	if outputResp {

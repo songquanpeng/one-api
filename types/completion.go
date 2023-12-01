@@ -1,8 +1,8 @@
 package types
 
 type CompletionRequest struct {
-	Model            string   `json:"model"`
-	Prompt           any      `json:"prompt,omitempty"`
+	Model            string   `json:"model" binding:"required"`
+	Prompt           any      `json:"prompt" binding:"required"`
 	Suffix           string   `json:"suffix,omitempty"`
 	MaxTokens        int      `json:"max_tokens,omitempty"`
 	Temperature      float32  `json:"temperature,omitempty"`

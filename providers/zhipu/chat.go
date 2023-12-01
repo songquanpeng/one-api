@@ -90,7 +90,7 @@ func (p *ZhipuProvider) ChatAction(request *types.ChatCompletionRequest, isModel
 	client := common.NewClient()
 	req, err := client.NewRequest(p.Context.Request.Method, fullRequestURL, common.WithBody(requestBody), common.WithHeader(headers))
 	if err != nil {
-		return nil, types.ErrorWrapper(err, "new_request_failed", http.StatusInternalServerError)
+		return nil, common.ErrorWrapper(err, "new_request_failed", http.StatusInternalServerError)
 	}
 
 	if request.Stream {
@@ -144,7 +144,7 @@ func (p *ZhipuProvider) sendStreamRequest(req *http.Request) (*types.OpenAIError
 	// 发送请求
 	resp, err := common.HttpClient.Do(req)
 	if err != nil {
-		return types.ErrorWrapper(err, "http_request_failed", http.StatusInternalServerError), nil
+		return common.ErrorWrapper(err, "http_request_failed", http.StatusInternalServerError), nil
 	}
 
 	if common.IsFailureStatusCode(resp) {

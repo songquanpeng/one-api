@@ -19,7 +19,7 @@ func (p *OpenAIProvider) ImageVariationsAction(request *types.ImageEditRequest, 
 	if isModelMapped {
 		builder := client.CreateFormBuilder(&formBody)
 		if err := imagesEditsMultipartForm(request, builder); err != nil {
-			return nil, types.ErrorWrapper(err, "create_form_builder_failed", http.StatusInternalServerError)
+			return nil, common.ErrorWrapper(err, "create_form_builder_failed", http.StatusInternalServerError)
 		}
 		req, err = client.NewRequest(p.Context.Request.Method, fullRequestURL, common.WithBody(&formBody), common.WithHeader(headers), common.WithContentType(builder.FormDataContentType()))
 		req.ContentLength = int64(formBody.Len())
@@ -30,7 +30,7 @@ func (p *OpenAIProvider) ImageVariationsAction(request *types.ImageEditRequest, 
 	}
 
 	if err != nil {
-		return nil, types.ErrorWrapper(err, "new_request_failed", http.StatusInternalServerError)
+		return nil, common.ErrorWrapper(err, "new_request_failed", http.StatusInternalServerError)
 	}
 
 	openAIProviderImageResponseResponse := &OpenAIProviderImageResponseResponse{}

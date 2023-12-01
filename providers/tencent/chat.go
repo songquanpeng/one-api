@@ -82,7 +82,7 @@ func (p *TencentProvider) ChatAction(request *types.ChatCompletionRequest, isMod
 	requestBody := p.getChatRequestBody(request)
 	sign := p.getTencentSign(*requestBody)
 	if sign == "" {
-		return nil, types.ErrorWrapper(errors.New("get tencent sign failed"), "get_tencent_sign_failed", http.StatusInternalServerError)
+		return nil, common.ErrorWrapper(errors.New("get tencent sign failed"), "get_tencent_sign_failed", http.StatusInternalServerError)
 	}
 
 	fullRequestURL := p.GetFullRequestURL(p.ChatCompletions, request.Model)
@@ -95,7 +95,7 @@ func (p *TencentProvider) ChatAction(request *types.ChatCompletionRequest, isMod
 	client := common.NewClient()
 	req, err := client.NewRequest(p.Context.Request.Method, fullRequestURL, common.WithBody(requestBody), common.WithHeader(headers))
 	if err != nil {
-		return nil, types.ErrorWrapper(err, "new_request_failed", http.StatusInternalServerError)
+		return nil, common.ErrorWrapper(err, "new_request_failed", http.StatusInternalServerError)
 	}
 
 	if request.Stream {
@@ -144,7 +144,7 @@ func (p *TencentProvider) sendStreamRequest(req *http.Request) (*types.OpenAIErr
 	// 发送请求
 	resp, err := common.HttpClient.Do(req)
 	if err != nil {
-		return types.ErrorWrapper(err, "http_request_failed", http.StatusInternalServerError), ""
+		return common.ErrorWrapper(err, "http_request_failed", http.StatusInternalServerError), ""
 	}
 
 	if common.IsFailureStatusCode(resp) {

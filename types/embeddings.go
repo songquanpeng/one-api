@@ -1,8 +1,8 @@
 package types
 
 type EmbeddingRequest struct {
-	Model          string `json:"model"`
-	Input          any    `json:"input"`
+	Model          string `json:"model" binding:"required"`
+	Input          any    `json:"input" binding:"required"`
 	EncodingFormat string `json:"encoding_format,omitempty"`
 	User           string `json:"user,omitempty"`
 }

@@ -73,7 +73,7 @@ func (p *BaiduProvider) ChatAction(request *types.ChatCompletionRequest, isModel
 	requestBody := p.getChatRequestBody(request)
 	fullRequestURL := p.GetFullRequestURL(p.ChatCompletions, request.Model)
 	if fullRequestURL == "" {
-		return nil, types.ErrorWrapper(nil, "invalid_baidu_config", http.StatusInternalServerError)
+		return nil, common.ErrorWrapper(nil, "invalid_baidu_config", http.StatusInternalServerError)
 	}
 
 	headers := p.GetRequestHeaders()
@@ -84,7 +84,7 @@ func (p *BaiduProvider) ChatAction(request *types.ChatCompletionRequest, isModel
 	client := common.NewClient()
 	req, err := client.NewRequest(p.Context.Request.Method, fullRequestURL, common.WithBody(requestBody), common.WithHeader(headers))
 	if err != nil {
-		return nil, types.ErrorWrapper(err, "new_request_failed", http.StatusInternalServerError)
+		return nil, common.ErrorWrapper(err, "new_request_failed", http.StatusInternalServerError)
 	}
 
 	if request.Stream {
@@ -130,7 +130,7 @@ func (p *BaiduProvider) sendStreamRequest(req *http.Request) (usage *types.Usage
 	// 发送请求
 	resp, err := common.HttpClient.Do(req)
 	if err != nil {
-		return nil, types.ErrorWrapper(err, "http_request_failed", http.StatusInternalServerError)
+		return nil, common.ErrorWrapper(err, "http_request_failed", http.StatusInternalServerError)
 	}
 
 	if common.IsFailureStatusCode(resp) {

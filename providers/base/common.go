@@ -79,19 +79,19 @@ func (p *BaseProvider) SendRequest(req *http.Request, response ProviderResponseH
 		p.Context.Writer.WriteHeader(resp.StatusCode)
 		_, err := io.Copy(p.Context.Writer, resp.Body)
 		if err != nil {
-			return types.ErrorWrapper(err, "copy_response_body_failed", http.StatusInternalServerError)
+			return common.ErrorWrapper(err, "copy_response_body_failed", http.StatusInternalServerError)
 		}
 	} else {
 		jsonResponse, err := json.Marshal(openAIResponse)
 		if err != nil {
-			return types.ErrorWrapper(err, "marshal_response_body_failed", http.StatusInternalServerError)
+			return common.ErrorWrapper(err, "marshal_response_body_failed", http.StatusInternalServerError)
 		}
 		p.Context.Writer.Header().Set("Content-Type", "application/json")
 		p.Context.Writer.WriteHeader(resp.StatusCode)
 		_, err = p.Context.Writer.Write(jsonResponse)
 
 		if err != nil {
-			return types.ErrorWrapper(err, "write_response_body_failed", http.StatusInternalServerError)
+			return common.ErrorWrapper(err, "write_response_body_failed", http.StatusInternalServerError)
 		}
 	}
 
@@ -104,7 +104,7 @@ func (p *BaseProvider) SendRequestRaw(req *http.Request) (openAIErrorWithStatusC
 	// 发送请求
 	resp, err := common.HttpClient.Do(req)
 	if err != nil {
-		return types.ErrorWrapper(err, "http_request_failed", http.StatusInternalServerError)
+		return common.ErrorWrapper(err, "http_request_failed", http.StatusInternalServerError)
 	}
 
 	defer resp.Body.Close()
@@ -122,7 +122,7 @@ func (p *BaseProvider) SendRequestRaw(req *http.Request) (openAIErrorWithStatusC
 
 	_, err = io.Copy(p.Context.Writer, resp.Body)
 	if err != nil {
-		return types.ErrorWrapper(err, "write_response_body_failed", http.StatusInternalServerError)
+		return common.ErrorWrapper(err, "write_response_body_failed", http.StatusInternalServerError)
 	}
 
 	return nil
