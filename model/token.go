@@ -10,6 +10,7 @@ import (
 type Token struct {
 	Id             int    `json:"id"`
 	UserId         int    `json:"user_id"`
+	Tag               string  `json:"tag" gorm:"index"`
 	Key            string `json:"key" gorm:"type:char(48);uniqueIndex"`
 	Status         int    `json:"status" gorm:"default:1"`
 	Name           string `json:"name" gorm:"index" `
@@ -102,7 +103,7 @@ func (token *Token) Insert() error {
 // Update Make sure your token's fields is completed, because this will update non-zero values
 func (token *Token) Update() error {
 	var err error
-	err = DB.Model(token).Select("name", "status", "expired_time", "remain_quota", "unlimited_quota").Updates(token).Error
+	err = DB.Model(token).Select("name", "status", "expired_time", "remain_quota", "unlimited_quota", "tag").Updates(token).Error
 	return err
 }
 

@@ -213,3 +213,23 @@ func CacheGetRandomSatisfiedChannel(group string, model string) (*Channel, error
 	idx := rand.Intn(endIdx)
 	return channels[idx], nil
 }
+
+func CacheGetChannelByTag(group string, model string, tag string) (*Channel, error){
+	if !common.MemoryCacheEnabled {
+		return GetRandomSatisfiedChannelByTag(group, model, tag)
+	}
+	channelSyncLock.RLock()
+	defer channelSyncLock.RUnlock()
+	channels := group2model2channels[group][model]
+	if len(channels) == 0 {
+		return nil, errors.New("channel not found")
+	}
+
+	for i := range channels {
+		if channels[i].Tag == tag{
+			return channels[i], nil
+		}
+	}
+
+	return nil, errors.New("channel not found")
+}
