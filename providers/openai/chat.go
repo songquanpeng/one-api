@@ -26,7 +26,7 @@ func (c *OpenAIProviderChatStreamResponse) responseStreamHandler() (responseText
 }
 
 func (p *OpenAIProvider) ChatAction(request *types.ChatCompletionRequest, isModelMapped bool, promptTokens int) (usage *types.Usage, errWithCode *types.OpenAIErrorWithStatusCode) {
-	requestBody, err := p.getRequestBody(&request, isModelMapped)
+	requestBody, err := p.GetRequestBody(&request, isModelMapped)
 	if err != nil {
 		return nil, types.ErrorWrapper(err, "json_marshal_failed", http.StatusInternalServerError)
 	}

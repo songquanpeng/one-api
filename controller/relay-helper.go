@@ -63,6 +63,8 @@ func relayHelper(c *gin.Context, relayMode int) *types.OpenAIErrorWithStatusCode
 		usage, openAIErrorWithStatusCode = handleTranscriptions(c, provider, modelMap, quotaInfo, group)
 	case common.RelayModeAudioTranslation:
 		usage, openAIErrorWithStatusCode = handleTranslations(c, provider, modelMap, quotaInfo, group)
+	case common.RelayModeImagesGenerations:
+		usage, openAIErrorWithStatusCode = handleImageGenerations(c, provider, modelMap, quotaInfo, group)
 	default:
 		return types.ErrorWrapper(errors.New("invalid relay mode"), "invalid_relay_mode", http.StatusBadRequest)
 	}
@@ -329,4 +331,48 @@ func handleTranslations(c *gin.Context, provider providers_base.ProviderInterfac
 		return nil, quota_err
 	}
 	return speechProvider.TranslationAction(&audioRequest, isModelMapped, promptTokens)
+}
+
+func handleImageGenerations(c *gin.Context, provider providers_base.ProviderInterface, modelMap map[string]string, quotaInfo *QuotaInfo, group string) (*types.Usage, *types.OpenAIErrorWithStatusCode) {
+	var imageRequest types.ImageRequest
+	isModelMapped := false
+	speechProvider, ok := provider.(providers_base.ImageGenerationsInterface)
+	if !ok {
+		return nil, types.ErrorWrapper(errors.New("channel not implemented"), "channel_not_implemented", http.StatusNotImplemented)
+	}
+
+	err := common.UnmarshalBodyReusable(c, &imageRequest)
+	if err != nil {
+		return nil, types.ErrorWrapper(err, "bind_request_body_failed", http.StatusBadRequest)
+	}
+
+	if imageRequest.Model == "" {
+		imageRequest.Model = "dall-e-2"
+	}
+
+	if imageRequest.Size == "" {
+		imageRequest.Size = "1024x1024"
+	}
+
+	if imageRequest.Quality == "" {
+		imageRequest.Quality = "standard"
+	}
+
+	if modelMap != nil && modelMap[imageRequest.Model] != "" {
+		imageRequest.Model = modelMap[imageRequest.Model]
+		isModelMapped = true
+	}
+	promptTokens, err := common.CountTokenImage(imageRequest)
+	if err != nil {
+		return nil, types.ErrorWrapper(err, "count_token_image_failed", http.StatusInternalServerError)
+	}
+
+	quotaInfo.modelName = imageRequest.Model
+	quotaInfo.promptTokens = promptTokens
+	quotaInfo.initQuotaInfo(group)
+	quota_err := quotaInfo.preQuotaConsumption()
+	if quota_err != nil {
+		return nil, quota_err
+	}
+	return speechProvider.ImageGenerationsAction(&imageRequest, isModelMapped, promptTokens)
 }

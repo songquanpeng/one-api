@@ -19,7 +19,7 @@ func (c *OpenAIProviderModerationResponse) ResponseHandler(resp *http.Response) 
 
 func (p *OpenAIProvider) ModerationAction(request *types.ModerationRequest, isModelMapped bool, promptTokens int) (usage *types.Usage, errWithCode *types.OpenAIErrorWithStatusCode) {
 
-	requestBody, err := p.getRequestBody(&request, isModelMapped)
+	requestBody, err := p.GetRequestBody(&request, isModelMapped)
 	if err != nil {
 		return nil, types.ErrorWrapper(err, "json_marshal_failed", http.StatusInternalServerError)
 	}

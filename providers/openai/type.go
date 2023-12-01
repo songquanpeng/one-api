@@ -37,3 +37,8 @@ type OpenAIProviderTranscriptionsTextResponse string
 func (a *OpenAIProviderTranscriptionsTextResponse) GetString() *string {
 	return (*string)(a)
 }
+
+type OpenAIProviderImageResponseResponse struct {
+	types.ImageResponse
+	types.OpenAIErrorResponse
+}

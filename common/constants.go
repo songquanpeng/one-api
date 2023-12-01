@@ -222,6 +222,8 @@ const (
 	RelayModeEmbeddings
 	RelayModeModerations
 	RelayModeImagesGenerations
+	RelayModeImagesEdit
+	RelayModeImagesVariations
 	RelayModeEdits
 	RelayModeAudioSpeech
 	RelayModeAudioTranscription

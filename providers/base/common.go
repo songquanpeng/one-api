@@ -23,6 +23,9 @@ type BaseProvider struct {
 	Moderation          string
 	AudioTranscriptions string
 	AudioTranslations   string
+	ImagesGenerations   string
+	ImagesEdit          string
+	ImagesVariations    string
 	Proxy               string
 	Context             *gin.Context
 }
@@ -141,6 +144,12 @@ func (p *BaseProvider) SupportAPI(relayMode int) bool {
 		return p.AudioTranslations != ""
 	case common.RelayModeModerations:
 		return p.Moderation != ""
+	case common.RelayModeImagesGenerations:
+		return p.ImagesGenerations != ""
+	case common.RelayModeImagesEdit:
+		return p.ImagesEdit != ""
+	case common.RelayModeImagesVariations:
+		return p.ImagesVariations != ""
 	default:
 		return false
 	}

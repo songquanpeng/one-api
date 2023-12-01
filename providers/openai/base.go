@@ -38,6 +38,9 @@ func CreateOpenAIProvider(c *gin.Context, baseURL string) *OpenAIProvider {
 			AudioSpeech:         "/v1/audio/speech",
 			AudioTranscriptions: "/v1/audio/transcriptions",
 			AudioTranslations:   "/v1/audio/translations",
+			ImagesGenerations:   "/v1/images/generations",
+			ImagesEdit:          "/v1/images/edit",
+			ImagesVariations:    "/v1/images/variations",
 			Context:             c,
 		},
 		IsAzure: false,
@@ -50,7 +53,13 @@ func (p *OpenAIProvider) GetFullRequestURL(requestURL string, modelName string) 
 
 	if p.IsAzure {
 		apiVersion := p.Context.GetString("api_version")
-		requestURL = fmt.Sprintf("/openai/deployments/%s%s?api-version=%s", modelName, requestURL, apiVersion)
+		if modelName == "dall-e-2" {
+			// 因为dall-e-3需要api-version=2023-12-01-preview，但是该版本
+			// 已经没有dall-e-2了，所以暂时写死
+			requestURL = fmt.Sprintf("/openai/%s:submit?api-version=2023-09-01-preview", requestURL)
+		} else {
+			requestURL = fmt.Sprintf("/openai/deployments/%s%s?api-version=%s", modelName, requestURL, apiVersion)
+		}
 	}
 
 	if strings.HasPrefix(baseURL, "https://gateway.ai.cloudflare.com") {
@@ -78,7 +87,7 @@ func (p *OpenAIProvider) GetRequestHeaders() (headers map[string]string) {
 }
 
 // 获取请求体
-func (p *OpenAIProvider) getRequestBody(request any, isModelMapped bool) (requestBody io.Reader, err error) {
+func (p *OpenAIProvider) GetRequestBody(request any, isModelMapped bool) (requestBody io.Reader, err error) {
 	if isModelMapped {
 		jsonStr, err := json.Marshal(request)
 		if err != nil {

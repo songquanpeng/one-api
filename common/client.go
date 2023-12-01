@@ -117,7 +117,7 @@ func SendRequest(req *http.Request, response any, outputResp bool) (*http.Respon
 		// 将响应体重新写入 resp.Body
 		resp.Body = io.NopCloser(&buf)
 	} else {
-		err = DecodeResponse(resp.Body, nil)
+		err = DecodeResponse(resp.Body, response)
 	}
 	if err != nil {
 		return nil, types.ErrorWrapper(err, "decode_response_failed", http.StatusInternalServerError)

@@ -1,6 +1,7 @@
 package common
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 
@@ -106,4 +107,22 @@ func CountTokenInput(input any, model string) int {
 func CountTokenText(text string, model string) int {
 	tokenEncoder := getTokenEncoder(model)
 	return getTokenNum(tokenEncoder, text)
+}
+
+func CountTokenImage(imageRequest types.ImageRequest) (int, error) {
+	imageCostRatio, hasValidSize := DalleSizeRatios[imageRequest.Model][imageRequest.Size]
+
+	if hasValidSize {
+		if imageRequest.Quality == "hd" && imageRequest.Model == "dall-e-3" {
+			if imageRequest.Size == "1024x1024" {
+				imageCostRatio *= 2
+			} else {
+				imageCostRatio *= 1.5
+			}
+		}
+	} else {
+		return 0, errors.New("size not supported for this image model")
+	}
+
+	return int(imageCostRatio*1000) * imageRequest.N, nil
 }

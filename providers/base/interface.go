@@ -50,9 +50,15 @@ type TranscriptionsInterface interface {
 	TranscriptionsAction(request *types.AudioRequest, isModelMapped bool, promptTokens int) (usage *types.Usage, errWithCode *types.OpenAIErrorWithStatusCode)
 }
 
+// 语音翻译接口
 type TranslationInterface interface {
 	ProviderInterface
 	TranslationAction(request *types.AudioRequest, isModelMapped bool, promptTokens int) (usage *types.Usage, errWithCode *types.OpenAIErrorWithStatusCode)
+}
+
+type ImageGenerationsInterface interface {
+	ProviderInterface
+	ImageGenerationsAction(request *types.ImageRequest, isModelMapped bool, promptTokens int) (usage *types.Usage, errWithCode *types.OpenAIErrorWithStatusCode)
 }
 
 // 余额接口
