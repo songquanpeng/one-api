@@ -222,7 +222,7 @@ const (
 	RelayModeEmbeddings
 	RelayModeModerations
 	RelayModeImagesGenerations
-	RelayModeImagesEdit
+	RelayModeImagesEdits
 	RelayModeImagesVariations
 	RelayModeEdits
 	RelayModeAudioSpeech

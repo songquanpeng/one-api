@@ -244,6 +244,10 @@ func Relay(c *gin.Context) {
 		relayMode = common.RelayModeAudioTranslation
 	} else if strings.HasPrefix(c.Request.URL.Path, "/v1/images/generations") {
 		relayMode = common.RelayModeImagesGenerations
+	} else if strings.HasPrefix(c.Request.URL.Path, "/v1/images/edits") {
+		relayMode = common.RelayModeImagesEdits
+	} else if strings.HasPrefix(c.Request.URL.Path, "/v1/images/variations") {
+		relayMode = common.RelayModeImagesVariations
 	}
 	// } else if strings.HasPrefix(c.Request.URL.Path, "/v1/edits") {
 	// 	relayMode = RelayModeEdits

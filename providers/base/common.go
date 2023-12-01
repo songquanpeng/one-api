@@ -146,7 +146,7 @@ func (p *BaseProvider) SupportAPI(relayMode int) bool {
 		return p.Moderation != ""
 	case common.RelayModeImagesGenerations:
 		return p.ImagesGenerations != ""
-	case common.RelayModeImagesEdit:
+	case common.RelayModeImagesEdits:
 		return p.ImagesEdit != ""
 	case common.RelayModeImagesVariations:
 		return p.ImagesVariations != ""

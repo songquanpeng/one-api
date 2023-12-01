@@ -56,9 +56,21 @@ type TranslationInterface interface {
 	TranslationAction(request *types.AudioRequest, isModelMapped bool, promptTokens int) (usage *types.Usage, errWithCode *types.OpenAIErrorWithStatusCode)
 }
 
+// 图片生成接口
 type ImageGenerationsInterface interface {
 	ProviderInterface
 	ImageGenerationsAction(request *types.ImageRequest, isModelMapped bool, promptTokens int) (usage *types.Usage, errWithCode *types.OpenAIErrorWithStatusCode)
+}
+
+// 图片编辑接口
+type ImageEditsInterface interface {
+	ProviderInterface
+	ImageEditsAction(request *types.ImageEditRequest, isModelMapped bool, promptTokens int) (usage *types.Usage, errWithCode *types.OpenAIErrorWithStatusCode)
+}
+
+type ImageVariationsInterface interface {
+	ProviderInterface
+	ImageVariationsAction(request *types.ImageEditRequest, isModelMapped bool, promptTokens int) (usage *types.Usage, errWithCode *types.OpenAIErrorWithStatusCode)
 }
 
 // 余额接口

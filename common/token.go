@@ -109,12 +109,25 @@ func CountTokenText(text string, model string) int {
 	return getTokenNum(tokenEncoder, text)
 }
 
-func CountTokenImage(imageRequest types.ImageRequest) (int, error) {
-	imageCostRatio, hasValidSize := DalleSizeRatios[imageRequest.Model][imageRequest.Size]
+func CountTokenImage(input interface{}) (int, error) {
+	switch v := input.(type) {
+	case types.ImageRequest:
+		// 处理 ImageRequest
+		return calculateToken(v.Model, v.Size, v.N, v.Quality)
+	case types.ImageEditRequest:
+		// 处理 ImageEditsRequest
+		return calculateToken(v.Model, v.Size, v.N, "")
+	default:
+		return 0, errors.New("unsupported type")
+	}
+}
+
+func calculateToken(model string, size string, n int, quality string) (int, error) {
+	imageCostRatio, hasValidSize := DalleSizeRatios[model][size]
 
 	if hasValidSize {
-		if imageRequest.Quality == "hd" && imageRequest.Model == "dall-e-3" {
-			if imageRequest.Size == "1024x1024" {
+		if quality == "hd" && model == "dall-e-3" {
+			if size == "1024x1024" {
 				imageCostRatio *= 2
 			} else {
 				imageCostRatio *= 1.5
@@ -124,5 +137,5 @@ func CountTokenImage(imageRequest types.ImageRequest) (int, error) {
 		return 0, errors.New("size not supported for this image model")
 	}
 
-	return int(imageCostRatio*1000) * imageRequest.N, nil
+	return int(imageCostRatio*1000) * n, nil
 }
