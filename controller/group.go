@@ -1,9 +1,10 @@
 package controller
 
 import (
-	"github.com/gin-gonic/gin"
 	"net/http"
 	"one-api/common"
+
+	"github.com/gin-gonic/gin"
 )
 
 func GetGroups(c *gin.Context) {

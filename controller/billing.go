@@ -1,9 +1,11 @@
 package controller
 
 import (
-	"github.com/gin-gonic/gin"
 	"one-api/common"
 	"one-api/model"
+	"one-api/types"
+
+	"github.com/gin-gonic/gin"
 )
 
 func GetSubscription(c *gin.Context) {
@@ -21,13 +23,23 @@ func GetSubscription(c *gin.Context) {
 	} else {
 		userId := c.GetInt("id")
 		remainQuota, err = model.GetUserQuota(userId)
+		if err != nil {
+			openAIError := types.OpenAIError{
+				Message: err.Error(),
+				Type:    "upstream_error",
+			}
+			c.JSON(200, gin.H{
+				"error": openAIError,
+			})
+			return
+		}
 		usedQuota, err = model.GetUserUsedQuota(userId)
 	}
 	if expiredTime <= 0 {
 		expiredTime = 0
 	}
 	if err != nil {
-		openAIError := OpenAIError{
+		openAIError := types.OpenAIError{
 			Message: err.Error(),
 			Type:    "upstream_error",
 		}
@@ -53,7 +65,6 @@ func GetSubscription(c *gin.Context) {
 		AccessUntil:        expiredTime,
 	}
 	c.JSON(200, subscription)
-	return
 }
 
 func GetUsage(c *gin.Context) {
@@ -69,7 +80,7 @@ func GetUsage(c *gin.Context) {
 		quota, err = model.GetUserUsedQuota(userId)
 	}
 	if err != nil {
-		openAIError := OpenAIError{
+		openAIError := types.OpenAIError{
 			Message: err.Error(),
 			Type:    "one_api_error",
 		}
@@ -87,5 +98,4 @@ func GetUsage(c *gin.Context) {
 		TotalUsage: amount * 100,
 	}
 	c.JSON(200, usage)
-	return
 }

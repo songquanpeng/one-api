@@ -52,7 +52,7 @@ func (p *OpenAIProvider) ImageEditsAction(request *types.ImageEditRequest, isMod
 func imagesEditsMultipartForm(request *types.ImageEditRequest, b common.FormBuilder) error {
 	err := b.CreateFormFile("image", request.Image)
 	if err != nil {
-		return fmt.Errorf("creating form file: %w", err)
+		return fmt.Errorf("creating form image: %w", err)
 	}
 
 	err = b.WriteField("prompt", request.Prompt)
@@ -68,7 +68,7 @@ func imagesEditsMultipartForm(request *types.ImageEditRequest, b common.FormBuil
 	if request.Mask != nil {
 		err = b.CreateFormFile("mask", request.Mask)
 		if err != nil {
-			return fmt.Errorf("writing format: %w", err)
+			return fmt.Errorf("writing mask: %w", err)
 		}
 	}
 
@@ -80,23 +80,23 @@ func imagesEditsMultipartForm(request *types.ImageEditRequest, b common.FormBuil
 	}
 
 	if request.N != 0 {
-		err = b.WriteField("n", fmt.Sprintf("%.2f", request.N))
+		err = b.WriteField("n", fmt.Sprintf("%d", request.N))
 		if err != nil {
-			return fmt.Errorf("writing temperature: %w", err)
+			return fmt.Errorf("writing n: %w", err)
 		}
 	}
 
 	if request.Size != "" {
 		err = b.WriteField("size", request.Size)
 		if err != nil {
-			return fmt.Errorf("writing language: %w", err)
+			return fmt.Errorf("writing size: %w", err)
 		}
 	}
 
 	if request.User != "" {
 		err = b.WriteField("user", request.User)
 		if err != nil {
-			return fmt.Errorf("writing language: %w", err)
+			return fmt.Errorf("writing user: %w", err)
 		}
 	}
 
