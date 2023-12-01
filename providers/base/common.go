@@ -54,6 +54,7 @@ func (p *BaseProvider) CommonRequestHeaders(headers map[string]string) {
 
 // 发送请求
 func (p *BaseProvider) SendRequest(req *http.Request, response ProviderResponseHandler, rawOutput bool) (openAIErrorWithStatusCode *types.OpenAIErrorWithStatusCode) {
+	defer req.Body.Close()
 
 	resp, openAIErrorWithStatusCode := common.SendRequest(req, response, true)
 	if openAIErrorWithStatusCode != nil {
@@ -95,6 +96,7 @@ func (p *BaseProvider) SendRequest(req *http.Request, response ProviderResponseH
 }
 
 func (p *BaseProvider) SendRequestRaw(req *http.Request) (openAIErrorWithStatusCode *types.OpenAIErrorWithStatusCode) {
+	defer req.Body.Close()
 
 	// 发送请求
 	resp, err := common.HttpClient.Do(req)

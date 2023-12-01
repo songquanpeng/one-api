@@ -128,6 +128,8 @@ func (p *PalmProvider) streamResponsePaLM2OpenAI(palmResponse *PaLMChatResponse)
 }
 
 func (p *PalmProvider) sendStreamRequest(req *http.Request) (*types.OpenAIErrorWithStatusCode, string) {
+	defer req.Body.Close()
+
 	// 发送请求
 	resp, err := common.HttpClient.Do(req)
 	if err != nil {

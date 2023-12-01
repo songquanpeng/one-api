@@ -124,6 +124,8 @@ func (p *BaiduProvider) streamResponseBaidu2OpenAI(baiduResponse *BaiduChatStrea
 }
 
 func (p *BaiduProvider) sendStreamRequest(req *http.Request) (usage *types.Usage, errWithCode *types.OpenAIErrorWithStatusCode) {
+	defer req.Body.Close()
+
 	usage = &types.Usage{}
 	// 发送请求
 	resp, err := common.HttpClient.Do(req)

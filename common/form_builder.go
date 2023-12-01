@@ -4,12 +4,11 @@ import (
 	"fmt"
 	"io"
 	"mime/multipart"
-	"os"
 	"path"
 )
 
 type FormBuilder interface {
-	CreateFormFile(fieldname string, file *os.File) error
+	CreateFormFile(fieldname string, fileHeader *multipart.FileHeader) error
 	CreateFormFileReader(fieldname string, r io.Reader, filename string) error
 	WriteField(fieldname, value string) error
 	Close() error
@@ -26,8 +25,15 @@ func NewFormBuilder(body io.Writer) *DefaultFormBuilder {
 	}
 }
 
-func (fb *DefaultFormBuilder) CreateFormFile(fieldname string, file *os.File) error {
-	return fb.createFormFile(fieldname, file, file.Name())
+func (fb *DefaultFormBuilder) CreateFormFile(fieldname string, fileHeader *multipart.FileHeader) error {
+	file, err := fileHeader.Open()
+	if err != nil {
+		return err
+	}
+
+	defer file.Close()
+
+	return fb.createFormFile(fieldname, file, fileHeader.Filename)
 }
 
 func (fb *DefaultFormBuilder) CreateFormFileReader(fieldname string, r io.Reader, filename string) error {

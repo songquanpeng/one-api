@@ -93,6 +93,7 @@ func (p *OpenAIProvider) getRequestBody(request any, isModelMapped bool) (reques
 
 // 发送流式请求
 func (p *OpenAIProvider) sendStreamRequest(req *http.Request, response OpenAIProviderStreamResponseHandler) (openAIErrorWithStatusCode *types.OpenAIErrorWithStatusCode, responseText string) {
+	defer req.Body.Close()
 
 	resp, err := common.HttpClient.Do(req)
 	if err != nil {

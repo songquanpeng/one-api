@@ -27,13 +27,13 @@ func init() {
 
 type Client struct {
 	requestBuilder    RequestBuilder
-	createFormBuilder func(io.Writer) FormBuilder
+	CreateFormBuilder func(io.Writer) FormBuilder
 }
 
 func NewClient() *Client {
 	return &Client{
 		requestBuilder: NewRequestBuilder(),
-		createFormBuilder: func(body io.Writer) FormBuilder {
+		CreateFormBuilder: func(body io.Writer) FormBuilder {
 			return NewFormBuilder(body)
 		},
 	}
@@ -46,6 +46,10 @@ type requestOptions struct {
 
 type requestOption func(*requestOptions)
 
+type Stringer interface {
+	GetString() *string
+}
+
 func WithBody(body any) requestOption {
 	return func(args *requestOptions) {
 		args.body = body
@@ -57,6 +61,12 @@ func WithHeader(header map[string]string) requestOption {
 		for k, v := range header {
 			args.header.Set(k, v)
 		}
+	}
+}
+
+func WithContentType(contentType string) requestOption {
+	return func(args *requestOptions) {
+		args.header.Set("Content-Type", contentType)
 	}
 }
 
@@ -173,6 +183,11 @@ func DecodeResponse(body io.Reader, v any) error {
 	if result, ok := v.(*string); ok {
 		return DecodeString(body, result)
 	}
+
+	if stringer, ok := v.(Stringer); ok {
+		return DecodeString(body, stringer.GetString())
+	}
+
 	return json.NewDecoder(body).Decode(v)
 }
 

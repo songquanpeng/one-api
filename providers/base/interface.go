@@ -44,6 +44,12 @@ type SpeechInterface interface {
 	SpeechAction(request *types.SpeechAudioRequest, isModelMapped bool, promptTokens int) (usage *types.Usage, errWithCode *types.OpenAIErrorWithStatusCode)
 }
 
+// 语音转文字接口
+type TranscriptionsInterface interface {
+	ProviderInterface
+	TranscriptionsAction(request *types.AudioRequest, isModelMapped bool, promptTokens int) (usage *types.Usage, errWithCode *types.OpenAIErrorWithStatusCode)
+}
+
 // 余额接口
 type BalanceInterface interface {
 	BalanceAction(channel *model.Channel) (float64, error)

@@ -139,6 +139,8 @@ func (p *ZhipuProvider) streamMetaResponseZhipu2OpenAI(zhipuResponse *ZhipuStrea
 }
 
 func (p *ZhipuProvider) sendStreamRequest(req *http.Request) (*types.OpenAIErrorWithStatusCode, *types.Usage) {
+	defer req.Body.Close()
+
 	// 发送请求
 	resp, err := common.HttpClient.Do(req)
 	if err != nil {
@@ -221,6 +223,5 @@ func (p *ZhipuProvider) sendStreamRequest(req *http.Request) (*types.OpenAIError
 			return false
 		}
 	})
-
 	return nil, usage
 }

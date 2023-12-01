@@ -26,3 +26,14 @@ type OpenAIProviderModerationResponse struct {
 	types.ModerationResponse
 	types.OpenAIErrorResponse
 }
+
+type OpenAIProviderTranscriptionsResponse struct {
+	types.AudioResponse
+	types.OpenAIErrorResponse
+}
+
+type OpenAIProviderTranscriptionsTextResponse string
+
+func (a *OpenAIProviderTranscriptionsTextResponse) GetString() *string {
+	return (*string)(a)
+}

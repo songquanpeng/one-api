@@ -140,6 +140,7 @@ func (p *TencentProvider) streamResponseTencent2OpenAI(TencentResponse *TencentC
 }
 
 func (p *TencentProvider) sendStreamRequest(req *http.Request) (*types.OpenAIErrorWithStatusCode, string) {
+	defer req.Body.Close()
 	// 发送请求
 	resp, err := common.HttpClient.Do(req)
 	if err != nil {
@@ -208,6 +209,5 @@ func (p *TencentProvider) sendStreamRequest(req *http.Request) (*types.OpenAIErr
 			return false
 		}
 	})
-
 	return nil, responseText
 }
