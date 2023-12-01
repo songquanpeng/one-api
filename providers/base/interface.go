@@ -50,6 +50,11 @@ type TranscriptionsInterface interface {
 	TranscriptionsAction(request *types.AudioRequest, isModelMapped bool, promptTokens int) (usage *types.Usage, errWithCode *types.OpenAIErrorWithStatusCode)
 }
 
+type TranslationInterface interface {
+	ProviderInterface
+	TranslationAction(request *types.AudioRequest, isModelMapped bool, promptTokens int) (usage *types.Usage, errWithCode *types.OpenAIErrorWithStatusCode)
+}
+
 // 余额接口
 type BalanceInterface interface {
 	BalanceAction(channel *model.Channel) (float64, error)

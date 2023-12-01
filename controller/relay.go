@@ -240,15 +240,14 @@ func Relay(c *gin.Context) {
 		relayMode = common.RelayModeAudioSpeech
 	} else if strings.HasPrefix(c.Request.URL.Path, "/v1/audio/transcriptions") {
 		relayMode = common.RelayModeAudioTranscription
+	} else if strings.HasPrefix(c.Request.URL.Path, "/v1/audio/translations") {
+		relayMode = common.RelayModeAudioTranslation
 	}
 	// } else if strings.HasPrefix(c.Request.URL.Path, "/v1/images/generations") {
 	// 	relayMode = RelayModeImagesGenerations
 	// } else if strings.HasPrefix(c.Request.URL.Path, "/v1/edits") {
 	// 	relayMode = RelayModeEdits
 
-	// } else if strings.HasPrefix(c.Request.URL.Path, "/v1/audio/translations") {
-	// 	relayMode = RelayModeAudioTranslation
-	// }
 	switch relayMode {
 	// case RelayModeImagesGenerations:
 	// 	err = relayImageHelper(c, relayMode)

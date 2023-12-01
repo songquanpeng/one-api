@@ -61,6 +61,8 @@ func relayHelper(c *gin.Context, relayMode int) *types.OpenAIErrorWithStatusCode
 		usage, openAIErrorWithStatusCode = handleSpeech(c, provider, modelMap, quotaInfo, group)
 	case common.RelayModeAudioTranscription:
 		usage, openAIErrorWithStatusCode = handleTranscriptions(c, provider, modelMap, quotaInfo, group)
+	case common.RelayModeAudioTranslation:
+		usage, openAIErrorWithStatusCode = handleTranslations(c, provider, modelMap, quotaInfo, group)
 	default:
 		return types.ErrorWrapper(errors.New("invalid relay mode"), "invalid_relay_mode", http.StatusBadRequest)
 	}
@@ -293,4 +295,38 @@ func handleTranscriptions(c *gin.Context, provider providers_base.ProviderInterf
 		return nil, quota_err
 	}
 	return speechProvider.TranscriptionsAction(&audioRequest, isModelMapped, promptTokens)
+}
+
+func handleTranslations(c *gin.Context, provider providers_base.ProviderInterface, modelMap map[string]string, quotaInfo *QuotaInfo, group string) (*types.Usage, *types.OpenAIErrorWithStatusCode) {
+	var audioRequest types.AudioRequest
+	isModelMapped := false
+	speechProvider, ok := provider.(providers_base.TranslationInterface)
+	if !ok {
+		return nil, types.ErrorWrapper(errors.New("channel not implemented"), "channel_not_implemented", http.StatusNotImplemented)
+	}
+
+	err := common.UnmarshalBodyReusable(c, &audioRequest)
+	if err != nil {
+		return nil, types.ErrorWrapper(err, "bind_request_body_failed", http.StatusBadRequest)
+	}
+
+	if audioRequest.File == nil {
+		fmt.Println(audioRequest)
+		return nil, types.ErrorWrapper(errors.New("field file is required"), "required_field_missing", http.StatusBadRequest)
+	}
+
+	if modelMap != nil && modelMap[audioRequest.Model] != "" {
+		audioRequest.Model = modelMap[audioRequest.Model]
+		isModelMapped = true
+	}
+	promptTokens := 0
+
+	quotaInfo.modelName = audioRequest.Model
+	quotaInfo.promptTokens = promptTokens
+	quotaInfo.initQuotaInfo(group)
+	quota_err := quotaInfo.preQuotaConsumption()
+	if quota_err != nil {
+		return nil, quota_err
+	}
+	return speechProvider.TranslationAction(&audioRequest, isModelMapped, promptTokens)
 }
