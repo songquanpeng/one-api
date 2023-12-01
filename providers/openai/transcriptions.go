@@ -42,9 +42,11 @@ func (p *OpenAIProvider) TranscriptionsAction(request *types.AudioRequest, isMod
 			return nil, types.ErrorWrapper(err, "create_form_builder_failed", http.StatusInternalServerError)
 		}
 		req, err = client.NewRequest(p.Context.Request.Method, fullRequestURL, common.WithBody(&formBody), common.WithHeader(headers), common.WithContentType(builder.FormDataContentType()))
+		req.ContentLength = int64(formBody.Len())
 
 	} else {
 		req, err = client.NewRequest(p.Context.Request.Method, fullRequestURL, common.WithBody(p.Context.Request.Body), common.WithHeader(headers), common.WithContentType(p.Context.Request.Header.Get("Content-Type")))
+		req.ContentLength = p.Context.Request.ContentLength
 	}
 
 	if err != nil {
