@@ -6,6 +6,7 @@ import (
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
+	"net/http"
 	"one-api/common"
 	"one-api/controller"
 	"one-api/middleware"
@@ -13,6 +14,8 @@ import (
 	"one-api/router"
 	"os"
 	"strconv"
+
+	_ "net/http/pprof"
 )
 
 //go:embed web/build
@@ -29,6 +32,16 @@ func main() {
 	}
 	if common.DebugEnabled {
 		common.SysLog("running in debug mode")
+	}
+	if os.Getenv("ENABLE_PPROF") == "true" {
+		go func() {
+			err := http.ListenAndServe("0.0.0.0:8005", nil)
+			if err != nil {
+				common.FatalLog("pprof enabled failed: " + err.Error())
+			} else {
+				common.SysLog("pprof enabled")
+			}
+		}()
 	}
 	// Initialize SQL Database
 	err := model.InitDB()
