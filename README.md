@@ -51,15 +51,15 @@ _✨ 通过标准的 OpenAI API 格式访问所有的大模型，开箱即用 �
   <a href="https://iamazing.cn/page/reward">赞赏支持</a>
 </p>
 
-> **Note**
+> [!NOTE]
 > 本项目为开源项目，使用者必须在遵循 OpenAI 的[使用条款](https://openai.com/policies/terms-of-use)以及**法律法规**的情况下使用，不得用于非法用途。
 > 
 > 根据[《生成式人工智能服务管理暂行办法》](http://www.cac.gov.cn/2023-07/13/c_1690898327029107.htm)的要求，请勿对中国地区公众提供一切未经备案的生成式人工智能服务。
 
-> **Warning**
+> [!WARNING]
 > 使用 Docker 拉取的最新镜像可能是 `alpha` 版本，如果追求稳定性请手动指定版本。
 
-> **Warning**
+> [!WARNING]
 > 使用 root 用户初次登录系统后，务必修改默认密码 `123456`！
 
 ## 功能
@@ -92,14 +92,14 @@ _✨ 通过标准的 OpenAI API 格式访问所有的大模型，开箱即用 �
 12. 支持**用户邀请奖励**。
 13. 支持以美元为单位显示额度。
 14. 支持发布公告，设置充值链接，设置新用户初始额度。
-15. 支持模型映射，重定向用户的请求模型。
+15. 支持模型映射，重定向用户的请求模型，如无必要请不要设置，设置之后会导致请求体被重新构造而非直接透传，会导致部分还未正式支持的字段无法传递成功。
 16. 支持失败自动重试。
 17. 支持绘图接口。
 18. 支持 [Cloudflare AI Gateway](https://developers.cloudflare.com/ai-gateway/providers/openai/)，渠道设置的代理部分填写 `https://gateway.ai.cloudflare.com/v1/ACCOUNT_TAG/GATEWAY/openai` 即可。
 19. 支持丰富的**自定义**设置，
     1. 支持自定义系统名称，logo 以及页脚。
     2. 支持自定义首页和关于页面，可以选择使用 HTML & Markdown 代码进行自定义，或者使用一个单独的网页通过 iframe 嵌入。
-20. 支持通过系统访问令牌访问管理 API。
+20. 支持通过系统访问令牌访问管理 API（bearer token，用以替代 cookie，你可以自行抓包来查看 API 的用法）。
 21. 支持 Cloudflare Turnstile 用户校验。
 22. 支持用户管理，支持**多种用户登录注册方式**：
     + 邮箱登录注册（支持注册邮箱白名单）以及通过邮箱进行密码重置。

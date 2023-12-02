@@ -40,10 +40,7 @@ func Distribute() func(c *gin.Context) {
 		} else {
 			// Select a channel for the user
 			var modelRequest ModelRequest
-			var err error
-			if !strings.HasPrefix(c.Request.URL.Path, "/v1/audio") {
-				err = common.UnmarshalBodyReusable(c, &modelRequest)
-			}
+			err := common.UnmarshalBodyReusable(c, &modelRequest)
 			if err != nil {
 				abortWithMessage(c, http.StatusBadRequest, "无效的请求")
 				return
@@ -60,10 +57,10 @@ func Distribute() func(c *gin.Context) {
 			}
 			if strings.HasPrefix(c.Request.URL.Path, "/v1/images/generations") {
 				if modelRequest.Model == "" {
-					modelRequest.Model = "dall-e"
+					modelRequest.Model = "dall-e-2"
 				}
 			}
-			if strings.HasPrefix(c.Request.URL.Path, "/v1/audio") {
+			if strings.HasPrefix(c.Request.URL.Path, "/v1/audio/transcriptions") || strings.HasPrefix(c.Request.URL.Path, "/v1/audio/translations") {
 				if modelRequest.Model == "" {
 					modelRequest.Model = "whisper-1"
 				}
