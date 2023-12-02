@@ -13,13 +13,12 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var baiduTokenStore sync.Map
+// 定义供应商工厂
+type BaiduProviderFactory struct{}
 
-type BaiduProvider struct {
-	base.BaseProvider
-}
+// 创建 BaiduProvider
 
-func CreateBaiduProvider(c *gin.Context) *BaiduProvider {
+func (f BaiduProviderFactory) Create(c *gin.Context) base.ProviderInterface {
 	return &BaiduProvider{
 		BaseProvider: base.BaseProvider{
 			BaseURL:         "https://aip.baidubce.com",
@@ -28,6 +27,12 @@ func CreateBaiduProvider(c *gin.Context) *BaiduProvider {
 			Context:         c,
 		},
 	}
+}
+
+var baiduTokenStore sync.Map
+
+type BaiduProvider struct {
+	base.BaseProvider
 }
 
 // 获取完整请求 URL

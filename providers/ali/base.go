@@ -8,13 +8,12 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type AliProvider struct {
-	base.BaseProvider
-}
+// 定义供应商工厂
+type AliProviderFactory struct{}
 
+// 创建 AliProvider
 // https://dashscope.aliyuncs.com/api/v1/services/aigc/text-generation/generation
-// 创建 AliAIProvider
-func CreateAliAIProvider(c *gin.Context) *AliProvider {
+func (f AliProviderFactory) Create(c *gin.Context) base.ProviderInterface {
 	return &AliProvider{
 		BaseProvider: base.BaseProvider{
 			BaseURL:         "https://dashscope.aliyuncs.com",
@@ -23,6 +22,10 @@ func CreateAliAIProvider(c *gin.Context) *AliProvider {
 			Context:         c,
 		},
 	}
+}
+
+type AliProvider struct {
+	base.BaseProvider
 }
 
 // 获取请求头

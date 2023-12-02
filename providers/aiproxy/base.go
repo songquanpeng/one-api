@@ -1,18 +1,20 @@
 package aiproxy
 
 import (
+	"one-api/providers/base"
 	"one-api/providers/openai"
 
 	"github.com/gin-gonic/gin"
 )
 
-type AIProxyProvider struct {
-	*openai.OpenAIProvider
-}
+type AIProxyProviderFactory struct{}
 
-// 创建 CreateAIProxyProvider
-func CreateAIProxyProvider(c *gin.Context) *AIProxyProvider {
+func (f AIProxyProviderFactory) Create(c *gin.Context) base.ProviderInterface {
 	return &AIProxyProvider{
 		OpenAIProvider: openai.CreateOpenAIProvider(c, "https://api.aiproxy.io"),
 	}
+}
+
+type AIProxyProvider struct {
+	*openai.OpenAIProvider
 }

@@ -15,12 +15,10 @@ import (
 var zhipuTokens sync.Map
 var expSeconds int64 = 24 * 3600
 
-type ZhipuProvider struct {
-	base.BaseProvider
-}
+type ZhipuProviderFactory struct{}
 
 // 创建 ZhipuProvider
-func CreateZhipuProvider(c *gin.Context) *ZhipuProvider {
+func (f ZhipuProviderFactory) Create(c *gin.Context) base.ProviderInterface {
 	return &ZhipuProvider{
 		BaseProvider: base.BaseProvider{
 			BaseURL:         "https://open.bigmodel.cn",
@@ -28,6 +26,10 @@ func CreateZhipuProvider(c *gin.Context) *ZhipuProvider {
 			Context:         c,
 		},
 	}
+}
+
+type ZhipuProvider struct {
+	base.BaseProvider
 }
 
 // 获取请求头

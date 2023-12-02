@@ -6,11 +6,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type ClaudeProvider struct {
-	base.BaseProvider
-}
+type ClaudeProviderFactory struct{}
 
-func CreateClaudeProvider(c *gin.Context) *ClaudeProvider {
+// 创建 ClaudeProvider
+func (f ClaudeProviderFactory) Create(c *gin.Context) base.ProviderInterface {
 	return &ClaudeProvider{
 		BaseProvider: base.BaseProvider{
 			BaseURL:         "https://api.anthropic.com",
@@ -18,6 +17,10 @@ func CreateClaudeProvider(c *gin.Context) *ClaudeProvider {
 			Context:         c,
 		},
 	}
+}
+
+type ClaudeProvider struct {
+	base.BaseProvider
 }
 
 // 获取请求头

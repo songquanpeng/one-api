@@ -8,12 +8,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type PalmProvider struct {
-	base.BaseProvider
-}
+type PalmProviderFactory struct{}
 
 // 创建 PalmProvider
-func CreatePalmProvider(c *gin.Context) *PalmProvider {
+func (f PalmProviderFactory) Create(c *gin.Context) base.ProviderInterface {
 	return &PalmProvider{
 		BaseProvider: base.BaseProvider{
 			BaseURL:         "https://generativelanguage.googleapis.com",
@@ -21,6 +19,10 @@ func CreatePalmProvider(c *gin.Context) *PalmProvider {
 			Context:         c,
 		},
 	}
+}
+
+type PalmProvider struct {
+	base.BaseProvider
 }
 
 // 获取请求头

@@ -7,12 +7,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type AzureProvider struct {
-	openai.OpenAIProvider
-}
+type AzureProviderFactory struct{}
 
-// 创建 OpenAIProvider
-func CreateAzureProvider(c *gin.Context) *AzureProvider {
+// 创建 AzureProvider
+func (f AzureProviderFactory) Create(c *gin.Context) base.ProviderInterface {
 	return &AzureProvider{
 		OpenAIProvider: openai.OpenAIProvider{
 			BaseProvider: base.BaseProvider{
@@ -31,4 +29,8 @@ func CreateAzureProvider(c *gin.Context) *AzureProvider {
 			IsAzure: true,
 		},
 	}
+}
+
+type AzureProvider struct {
+	openai.OpenAIProvider
 }

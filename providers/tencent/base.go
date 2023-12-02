@@ -14,12 +14,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type TencentProvider struct {
-	base.BaseProvider
-}
+type TencentProviderFactory struct{}
 
 // 创建 TencentProvider
-func CreateTencentProvider(c *gin.Context) *TencentProvider {
+func (f TencentProviderFactory) Create(c *gin.Context) base.ProviderInterface {
 	return &TencentProvider{
 		BaseProvider: base.BaseProvider{
 			BaseURL:         "https://hunyuan.cloud.tencent.com",
@@ -27,6 +25,10 @@ func CreateTencentProvider(c *gin.Context) *TencentProvider {
 			Context:         c,
 		},
 	}
+}
+
+type TencentProvider struct {
+	base.BaseProvider
 }
 
 // 获取请求头

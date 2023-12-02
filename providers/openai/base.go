@@ -16,6 +16,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+type OpenAIProviderFactory struct{}
+
+// 创建 OpenAIProvider
+func (f OpenAIProviderFactory) Create(c *gin.Context) base.ProviderInterface {
+	return CreateOpenAIProvider(c, "")
+}
+
 type OpenAIProvider struct {
 	base.BaseProvider
 	IsAzure bool

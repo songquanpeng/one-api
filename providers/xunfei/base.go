@@ -14,15 +14,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// https://www.xfyun.cn/doc/spark/Web.html
-type XunfeiProvider struct {
-	base.BaseProvider
-	domain string
-	apiId  string
-}
+type XunfeiProviderFactory struct{}
 
 // 创建 XunfeiProvider
-func CreateXunfeiProvider(c *gin.Context) *XunfeiProvider {
+func (f XunfeiProviderFactory) Create(c *gin.Context) base.ProviderInterface {
 	return &XunfeiProvider{
 		BaseProvider: base.BaseProvider{
 			BaseURL:         "wss://spark-api.xf-yun.com",
@@ -30,6 +25,13 @@ func CreateXunfeiProvider(c *gin.Context) *XunfeiProvider {
 			Context:         c,
 		},
 	}
+}
+
+// https://www.xfyun.cn/doc/spark/Web.html
+type XunfeiProvider struct {
+	base.BaseProvider
+	domain string
+	apiId  string
 }
 
 // 获取请求头
