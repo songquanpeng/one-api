@@ -3,6 +3,7 @@ package controller
 import (
 	"errors"
 	"net/http"
+	"net/http/httptest"
 	"one-api/common"
 	"one-api/model"
 	"one-api/providers"
@@ -46,7 +47,18 @@ type OpenAIUsageResponse struct {
 }
 
 func updateChannelBalance(channel *model.Channel) (float64, error) {
-	provider := providers.GetProvider(channel.Type, nil)
+	req, err := http.NewRequest("POST", "/balance", nil)
+	if err != nil {
+		return 0, err
+	}
+	w := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(w)
+	c.Request = req
+
+	setChannelToContext(c, channel)
+	req.Header.Set("Content-Type", "application/json")
+
+	provider := providers.GetProvider(channel.Type, c)
 	if provider == nil {
 		return 0, errors.New("provider not found")
 	}
@@ -56,7 +68,7 @@ func updateChannelBalance(channel *model.Channel) (float64, error) {
 		return 0, errors.New("provider not implemented")
 	}
 
-	return balanceProvider.BalanceAction(channel)
+	return balanceProvider.Balance(channel)
 
 }
 

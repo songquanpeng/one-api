@@ -2,9 +2,11 @@ package providers
 
 import (
 	"one-api/common"
+	"one-api/providers/aigc2d"
 	"one-api/providers/aiproxy"
 	"one-api/providers/ali"
 	"one-api/providers/api2d"
+	"one-api/providers/api2gpt"
 	"one-api/providers/azure"
 	"one-api/providers/baidu"
 	"one-api/providers/base"
@@ -43,6 +45,9 @@ func init() {
 	providerFactories[common.ChannelTypeAPI2D] = api2d.Api2dProviderFactory{}
 	providerFactories[common.ChannelTypeCloseAI] = closeai.CloseaiProviderFactory{}
 	providerFactories[common.ChannelTypeOpenAISB] = openaisb.OpenaiSBProviderFactory{}
+	providerFactories[common.ChannelTypeAIGC2D] = aigc2d.Aigc2dProviderFactory{}
+	providerFactories[common.ChannelTypeAPI2GPT] = api2gpt.Api2gptProviderFactory{}
+
 }
 
 // 获取供应商

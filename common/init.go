@@ -6,6 +6,8 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+
+	"github.com/joho/godotenv"
 )
 
 var (
@@ -23,6 +25,11 @@ func printHelp() {
 }
 
 func init() {
+	// 加载.env文件
+	err := godotenv.Load()
+	if err != nil {
+		SysLog("failed to load .env file: " + err.Error())
+	}
 	flag.Parse()
 
 	if *PrintVersion {

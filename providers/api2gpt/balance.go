@@ -1,4 +1,4 @@
-package api2d
+package api2gpt
 
 import (
 	"errors"
@@ -7,7 +7,7 @@ import (
 	"one-api/providers/base"
 )
 
-func (p *Api2dProvider) Balance(channel *model.Channel) (float64, error) {
+func (p *Api2gptProvider) Balance(channel *model.Channel) (float64, error) {
 	fullRequestURL := p.GetFullRequestURL("/dashboard/billing/credit_grants", "")
 	headers := p.GetRequestHeaders()
 
@@ -26,5 +26,5 @@ func (p *Api2dProvider) Balance(channel *model.Channel) (float64, error) {
 
 	channel.UpdateBalance(response.TotalAvailable)
 
-	return response.TotalAvailable, nil
+	return response.TotalRemaining, nil
 }

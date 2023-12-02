@@ -75,7 +75,7 @@ type ImageVariationsInterface interface {
 
 // 余额接口
 type BalanceInterface interface {
-	BalanceAction(channel *model.Channel) (float64, error)
+	Balance(channel *model.Channel) (float64, error)
 }
 
 type ProviderResponseHandler interface {
