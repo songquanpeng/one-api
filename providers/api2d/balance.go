@@ -1,4 +1,4 @@
-package closeai
+package api2d
 
 import (
 	"errors"
@@ -6,8 +6,8 @@ import (
 	"one-api/model"
 )
 
-func (p *CloseaiProxyProvider) Balance(channel *model.Channel) (float64, error) {
-	fullRequestURL := p.GetFullRequestURL("/dashboard/billing/credit_grants", "")
+func (p *Api2dProvider) Balance(channel *model.Channel) (float64, error) {
+	fullRequestURL := "https://api.aigc2d.com/dashboard/billing/credit_grants"
 	headers := p.GetRequestHeaders()
 
 	client := common.NewClient()
@@ -17,7 +17,7 @@ func (p *CloseaiProxyProvider) Balance(channel *model.Channel) (float64, error) 
 	}
 
 	// 发送请求
-	var response OpenAICreditGrants
+	var response APGC2DGPTUsageResponse
 	_, errWithCode := common.SendRequest(req, &response, false)
 	if errWithCode != nil {
 		return 0, errors.New(errWithCode.OpenAIError.Message)

@@ -14,7 +14,7 @@ func (p *OpenaiSBProvider) Balance(channel *model.Channel) (float64, error) {
 	headers := p.GetRequestHeaders()
 
 	client := common.NewClient()
-	req, err := client.NewRequest("GET", fullRequestURL, common.WithBody(nil), common.WithHeader(headers))
+	req, err := client.NewRequest("GET", fullRequestURL, common.WithHeader(headers))
 	if err != nil {
 		return 0, err
 	}
