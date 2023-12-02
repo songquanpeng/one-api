@@ -54,10 +54,10 @@ func RetryHandler(group *gin.RouterGroup) gin.HandlerFunc {
 		// Retry
 		maxRetryStr := c.Query("retry")
 		maxRetry, err := strconv.Atoi(maxRetryStr)
-		if err != nil || maxRetryStr == "" || maxRetry < 0 || maxRetry > common.RetryTimes {
+		if err != nil || maxRetryStr == "" || maxRetry < 1 || maxRetry > common.RetryTimes {
 			maxRetry = common.Max(common.RetryTimes+1, 1)
 		}
-		retryDelay := time.Duration(common.RetryInterval) * time.Millisecond
+		retryDelay := time.Duration(common.Max(common.RetryInterval, 0)) * time.Millisecond
 		for i := 0; i < maxRetry; i++ {
 			if i == 0 {
 				// 第一次请求, 直接执行使用c.Next()调用后续中间件, 防止直接使用handler 内部调用c.Next() 导致重复执行
@@ -85,9 +85,6 @@ func RetryHandler(group *gin.RouterGroup) gin.HandlerFunc {
 			c.Abort()
 			// If errors, retry after delay
 			time.Sleep(retryDelay)
-		}
-		if len(c.Errors) == 0 {
-			return
 		}
 		var openaiErr *OpenAIErrorWithStatusCode
 		err = json.Unmarshal([]byte(c.Errors.Last().Error()), &openaiErr)
