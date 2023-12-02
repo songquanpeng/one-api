@@ -31,13 +31,22 @@ func GetValidFieldName(err error, obj interface{}) string {
 	return err.Error()
 }
 
-func fetchChannel(c *gin.Context, modelName string) (*model.Channel, bool) {
+func fetchChannel(c *gin.Context, modelName string) (channel *model.Channel, pass bool) {
 	channelId, ok := c.Get("channelId")
 	if ok {
-		return fetchChannelById(c, channelId.(int))
-	}
-	return fetchChannelByModel(c, modelName)
+		channel, pass = fetchChannelById(c, channelId.(int))
+		if pass {
+			return
+		}
 
+	}
+	channel, pass = fetchChannelByModel(c, modelName)
+	if pass {
+		return
+	}
+
+	setChannelToContext(c, channel)
+	return
 }
 
 func fetchChannelById(c *gin.Context, channelId any) (*model.Channel, bool) {
@@ -91,10 +100,9 @@ func getProvider(c *gin.Context, channelType int, relayMode int) (providersBase.
 }
 
 func setChannelToContext(c *gin.Context, channel *model.Channel) {
-	c.Set("channel", channel.Type)
+	// c.Set("channel", channel.Type)
 	c.Set("channel_id", channel.Id)
 	c.Set("channel_name", channel.Name)
-	c.Set("model_mapping", channel.GetModelMapping())
 	c.Set("api_key", channel.Key)
 	c.Set("base_url", channel.GetBaseURL())
 	switch channel.Type {

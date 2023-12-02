@@ -24,12 +24,9 @@ func RelayCompletions(c *gin.Context) {
 		return
 	}
 
-	// 写入渠道信息
-	setChannelToContext(c, channel)
-
 	// 解析模型映射
 	var isModelMapped bool
-	modelMap, err := parseModelMapping(c.GetString("model_mapping"))
+	modelMap, err := parseModelMapping(channel.GetModelMapping())
 	if err != nil {
 		common.AbortWithMessage(c, http.StatusInternalServerError, err.Error())
 		return

@@ -28,12 +28,8 @@ func testChannel(channel *model.Channel, request types.ChatCompletionRequest) (e
 	w := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(w)
 	c.Request = req
-	c.Set("channel", channel.Type)
-	c.Set("channel_id", channel.Id)
-	c.Set("channel_name", channel.Name)
-	c.Set("model_mapping", channel.GetModelMapping())
-	c.Set("api_key", channel.Key)
-	c.Set("base_url", channel.GetBaseURL())
+
+	setChannelToContext(c, channel)
 
 	switch channel.Type {
 	case common.ChannelTypePaLM:
@@ -70,7 +66,7 @@ func testChannel(channel *model.Channel, request types.ChatCompletionRequest) (e
 	}
 
 	isModelMapped := false
-	modelMap, err := parseModelMapping(c.GetString("model_mapping"))
+	modelMap, err := parseModelMapping(channel.GetModelMapping())
 	if err != nil {
 		return err, nil
 	}
