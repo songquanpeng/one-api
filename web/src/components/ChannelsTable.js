@@ -231,6 +231,16 @@ const ChannelsTable = () => {
   };
 
   const testAllChannels = async () => {
+    const res = await API.get(`/api/channel/testAll`);
+    const { success, message } = res.data;
+    if (success) {
+      showInfo('已成功开始测试所有通道，请刷新页面查看结果。');
+    } else {
+      showError(message);
+    }
+  };
+
+  const testAllEnableChannels = async () => {
     const res = await API.get(`/api/channel/test`);
     const { success, message } = res.data;
     if (success) {
@@ -523,6 +533,9 @@ const ChannelsTable = () => {
                 添加新的渠道
               </Button>
               <Button size='small' loading={loading} onClick={testAllChannels}>
+                测试所有通道
+              </Button>
+              <Button size='small' loading={loading} onClick={testAllEnableChannels}>
                 测试所有已启用通道
               </Button>
               <Button size='small' onClick={updateAllChannelsBalance}

@@ -80,7 +80,7 @@ func testChannel(channel *model.Channel, request ChatRequest) (err error, openai
 	if err != nil {
 		return fmt.Errorf("Error: %s\nResp body: %s", err, body), nil
 	}
-	if response.Usage.CompletionTokens == 0 {
+	if response.Usage.CompletionTokens == 0 && (response.Error.Type != "" && response.Error.Code != "" && response.Error.Message != "") {
 		return errors.New(fmt.Sprintf("type %s, code %v, message %s", response.Error.Type, response.Error.Code, response.Error.Message)), &response.Error
 	}
 	return nil, nil
@@ -156,7 +156,73 @@ func disableChannel(channelId int, channelName string, reason string) {
 	}
 }
 
+// enable & notify
+func enableChannel(channelId int, channelName string) {
+	if common.RootUserEmail == "" {
+		common.RootUserEmail = model.GetRootUserEmail()
+	}
+	model.UpdateChannelStatusById(channelId, common.ChannelStatusEnabled)
+	subject := fmt.Sprintf("通道「%s」（#%d）已被启用", channelName, channelId)
+	content := fmt.Sprintf("通道「%s」（#%d）现在已被启用", channelName, channelId)
+	err := common.SendEmail(subject, common.RootUserEmail, content)
+	if err != nil {
+		common.SysError(fmt.Sprintf("failed to send email: %s", err.Error()))
+	}
+}
+
 func testAllChannels(notify bool) error {
+	if common.RootUserEmail == "" {
+		common.RootUserEmail = model.GetRootUserEmail()
+	}
+	testAllChannelsLock.Lock()
+	if testAllChannelsRunning {
+		testAllChannelsLock.Unlock()
+		return errors.New("测试已在运行中")
+	}
+	testAllChannelsRunning = true
+	testAllChannelsLock.Unlock()
+	channels, err := model.GetAllChannels(0, 0, true)
+	if err != nil {
+		return err
+	}
+	testRequest := buildTestRequest()
+	var disableThreshold = int64(common.ChannelDisableThreshold * 1000)
+	if disableThreshold == 0 {
+		disableThreshold = 10000000 // a impossible value
+	}
+	go func() {
+		for _, channel := range channels {
+			tik := time.Now()
+			err, openaiErr := testChannel(channel, *testRequest)
+			tok := time.Now()
+			milliseconds := tok.Sub(tik).Milliseconds()
+			if milliseconds > disableThreshold {
+				err = errors.New(fmt.Sprintf("响应时间 %.2fs 超过阈值 %.2fs", float64(milliseconds)/1000.0, float64(disableThreshold)/1000.0))
+				disableChannel(channel.Id, channel.Name, err.Error())
+			}
+			if shouldDisableChannel(openaiErr, -1) {
+				disableChannel(channel.Id, channel.Name, err.Error())
+			}
+			if shouldEnableChannel(channel.Status, err, openaiErr, -1) {
+				enableChannel(channel.Id, channel.Name)
+			}
+			channel.UpdateResponseTime(milliseconds)
+			time.Sleep(common.RequestInterval)
+		}
+		testAllChannelsLock.Lock()
+		testAllChannelsRunning = false
+		testAllChannelsLock.Unlock()
+		if notify {
+			err := common.SendEmail("通道测试完成", common.RootUserEmail, "通道测试完成，如果没有收到启用/禁用通知，说明所有通道都正常")
+			if err != nil {
+				common.SysError(fmt.Sprintf("failed to send email: %s", err.Error()))
+			}
+		}
+	}()
+	return nil
+}
+
+func testAllEnableChannels(notify bool) error {
 	if common.RootUserEmail == "" {
 		common.RootUserEmail = model.GetRootUserEmail()
 	}
@@ -210,6 +276,22 @@ func testAllChannels(notify bool) error {
 
 func TestAllChannels(c *gin.Context) {
 	err := testAllChannels(true)
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "",
+	})
+	return
+}
+
+func TestAllEnableChannels(c *gin.Context) {
+	err := testAllEnableChannels(true)
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
