@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - private
+      - new
   
 env:
   # github.repository as <account>/<repo>
@@ -43,6 +44,7 @@ jobs:
           # generate Docker tags based on the following events/attributes
           tags: |
             type=raw,value=latest,enable=${{ github.ref == 'refs/heads/private' }}
+            type=raw,value=new,enable=${{ github.ref == 'refs/heads/new' }}
 
       - name: Build and push
         uses: docker/build-push-action@v4
