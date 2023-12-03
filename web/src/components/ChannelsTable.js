@@ -234,7 +234,7 @@ const ChannelsTable = () => {
     const res = await API.get(`/api/channel/test`);
     const { success, message } = res.data;
     if (success) {
-      showInfo('已成功开始测试所有已启用通道，请刷新页面查看结果。');
+      showInfo('已成功开始测试所有通道，请刷新页面查看结果。');
     } else {
       showError(message);
     }
