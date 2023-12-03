@@ -192,11 +192,6 @@ func getFullRequestURL(baseURL string, requestURL string, channelType int) strin
 		}
 	}
 
-	// Azure dall-e model compatibility
-	if channelType == common.ChannelTypeAzure && requestURL == "/v1/images/generations" {
-		fullRequestURL = fmt.Sprintf("%s%s", baseURL, "/openai/deployments")
-	}
-
 	return fullRequestURL
 }
 

@@ -133,12 +133,12 @@ type TextRequest struct {
 type ImageRequest struct {
 	Model          string `json:"model"`
 	Prompt         string `json:"prompt" binding:"required"`
-	N              int    `json:"n,omitempty"`
-	Size           string `json:"size,omitempty"`
-	Quality        string `json:"quality,omitempty"`
-	ResponseFormat string `json:"response_format,omitempty"`
-	Style          string `json:"style,omitempty"`
-	User           string `json:"user,omitempty"`
+	N              int    `json:"n"`
+	Size           string `json:"size"`
+	Quality        string `json:"quality"`
+	ResponseFormat string `json:"response_format"`
+	Style          string `json:"style"`
+	User           string `json:"user"`
 }
 
 type WhisperResponse struct {
