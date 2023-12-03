@@ -21,7 +21,7 @@ func (f XunfeiProviderFactory) Create(c *gin.Context) base.ProviderInterface {
 	return &XunfeiProvider{
 		BaseProvider: base.BaseProvider{
 			BaseURL:         "wss://spark-api.xf-yun.com",
-			ChatCompletions: "",
+			ChatCompletions: "true",
 			Context:         c,
 		},
 	}
