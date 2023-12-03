@@ -191,12 +191,6 @@ func getFullRequestURL(baseURL string, requestURL string, channelType int) strin
 			fullRequestURL = fmt.Sprintf("%s%s", baseURL, strings.TrimPrefix(requestURL, "/openai/deployments"))
 		}
 	}
-
-	// Azure dall-e model compatibility
-	if channelType == common.ChannelTypeAzure && requestURL == "/v1/images/generations" {
-		fullRequestURL = fmt.Sprintf("%s%s", baseURL, "/openai/deployments")
-	}
-
 	return fullRequestURL
 }
 
@@ -220,4 +214,13 @@ func postConsumeQuota(ctx context.Context, tokenId int, quotaDelta int, totalQuo
 	if totalQuota <= 0 {
 		common.LogError(ctx, fmt.Sprintf("totalQuota consumed is %d, something is wrong", totalQuota))
 	}
+}
+
+func GetAPIVersion(c *gin.Context) string {
+	query := c.Request.URL.Query()
+	apiVersion := query.Get("api-version")
+	if apiVersion == "" {
+		apiVersion = c.GetString("api_version")
+	}
+	return apiVersion
 }

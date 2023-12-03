@@ -33,7 +33,6 @@ func relayImageHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode 
 	tokenId := c.GetInt("token_id")
 	channelType := c.GetInt("channel")
 	channelId := c.GetInt("channel_id")
-	apiVersion := c.GetString("api_version")
 	userId := c.GetInt("id")
 	group := c.GetString("group")
 
@@ -103,11 +102,11 @@ func relayImageHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode 
 		baseURL = c.GetString("base_url")
 	}
 	fullRequestURL := getFullRequestURL(baseURL, requestURL, channelType)
-
-	// make Azure channel requestURL
-	if channelType == common.ChannelTypeAzure {
-		// url https://{resource_name}.openai.azure.com/openai/deployments/dall-e-3/images/generations?api-version=2023-06-01-preview
-		fullRequestURL = fmt.Sprintf("%s/%s%s?api-version=%s", fullRequestURL, imageModel, "/images/generations", apiVersion)
+	if channelType == common.ChannelTypeAzure && relayMode == RelayModeImagesGenerations {
+		// https://learn.microsoft.com/en-us/azure/ai-services/openai/dall-e-quickstart?tabs=dalle3%2Ccommand-line&pivots=rest-api
+		apiVersion := GetAPIVersion(c)
+		// https://{resource_name}.openai.azure.com/openai/deployments/dall-e-3/images/generations?api-version=2023-06-01-preview
+		fullRequestURL = fmt.Sprintf("%s/openai/deployments/%s/images/generations?api-version=%s", baseURL, imageModel, apiVersion)
 	}
 
 	var requestBody io.Reader

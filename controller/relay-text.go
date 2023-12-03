@@ -129,11 +129,7 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 	case APITypeOpenAI:
 		if channelType == common.ChannelTypeAzure {
 			// https://learn.microsoft.com/en-us/azure/cognitive-services/openai/chatgpt-quickstart?pivots=rest-api&tabs=command-line#rest-api
-			query := c.Request.URL.Query()
-			apiVersion := query.Get("api-version")
-			if apiVersion == "" {
-				apiVersion = c.GetString("api_version")
-			}
+			apiVersion := GetAPIVersion(c)
 			requestURL := strings.Split(requestURL, "?")[0]
 			requestURL = fmt.Sprintf("%s?api-version=%s", requestURL, apiVersion)
 			baseURL = c.GetString("base_url")
