@@ -145,17 +145,11 @@ func shouldDisableChannel(err *OpenAIError, statusCode int) bool {
 	return false
 }
 
-func shouldEnableChannel(status int, err error, openAIErr *OpenAIError, statusCode int) bool {
-	if status == common.ChannelStatusEnabled {
-		return false
-	}
+func shouldEnableChannel(err error, openAIErr *OpenAIError) bool {
 	if !common.AutomaticEnableChannelEnabled {
 		return false
 	}
 	if err != nil {
-		return false
-	}
-	if statusCode == http.StatusUnauthorized {
 		return false
 	}
 	if openAIErr != nil {
