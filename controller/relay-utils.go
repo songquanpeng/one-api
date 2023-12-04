@@ -219,7 +219,9 @@ func postConsumeQuota(ctx context.Context, tokenId int, quotaDelta int, totalQuo
 	}
 	// totalQuota is total quota consumed
 	if totalQuota != 0 {
-		logContent := fmt.Sprintf("模型倍率 %.2f，分组倍率 %.2f", modelRatio, groupRatio)
+		outputPrice := modelRatio * 0.002
+		var logContent string
+		logContent = fmt.Sprintf("单价: $%.6g/1k tokens", outputPrice)
 		model.RecordConsumeLog(ctx, userId, channelId, totalQuota, 0, modelName, tokenName, totalQuota, logContent)
 		model.UpdateUserUsedQuotaAndRequestCount(userId, totalQuota)
 		model.UpdateChannelUsedQuota(channelId, totalQuota)
