@@ -145,6 +145,19 @@ func shouldDisableChannel(err *OpenAIError, statusCode int) bool {
 	return false
 }
 
+func shouldEnableChannel(err error, openAIErr *OpenAIError) bool {
+	if !common.AutomaticEnableChannelEnabled {
+		return false
+	}
+	if err != nil {
+		return false
+	}
+	if openAIErr != nil {
+		return false
+	}
+	return true
+}
+
 func setEventStreamHeaders(c *gin.Context) {
 	c.Writer.Header().Set("Content-Type", "text/event-stream")
 	c.Writer.Header().Set("Cache-Control", "no-cache")
@@ -191,12 +204,12 @@ func getFullRequestURL(baseURL string, requestURL string, channelType int) strin
 			fullRequestURL = fmt.Sprintf("%s%s", baseURL, strings.TrimPrefix(requestURL, "/openai/deployments"))
 		}
 	}
-
 	return fullRequestURL
 }
 
-func postConsumeQuota(ctx context.Context, tokenId int, quota int, userId int, channelId int, modelRatio float64, groupRatio float64, modelName string, tokenName string) {
-	err := model.PostConsumeTokenQuota(tokenId, quota)
+func postConsumeQuota(ctx context.Context, tokenId int, quotaDelta int, totalQuota int, userId int, channelId int, modelRatio float64, groupRatio float64, modelName string, tokenName string) {
+	// quotaDelta is remaining quota to be consumed
+	err := model.PostConsumeTokenQuota(tokenId, quotaDelta)
 	if err != nil {
 		common.SysError("error consuming token remain quota: " + err.Error())
 	}
@@ -204,12 +217,23 @@ func postConsumeQuota(ctx context.Context, tokenId int, quota int, userId int, c
 	if err != nil {
 		common.SysError("error update user quota cache: " + err.Error())
 	}
-	if quota != 0 {
-		outputPrice := modelRatio * 0.002
-		var logContent string
-		logContent = fmt.Sprintf("单价: $%.6g/1k tokens", outputPrice)
-		model.RecordConsumeLog(ctx, userId, channelId, 0, 0, modelName, tokenName, quota, logContent)
-		model.UpdateUserUsedQuotaAndRequestCount(userId, quota)
-		model.UpdateChannelUsedQuota(channelId, quota)
+	// totalQuota is total quota consumed
+	if totalQuota != 0 {
+		logContent := fmt.Sprintf("模型倍率 %.2f，分组倍率 %.2f", modelRatio, groupRatio)
+		model.RecordConsumeLog(ctx, userId, channelId, totalQuota, 0, modelName, tokenName, totalQuota, logContent)
+		model.UpdateUserUsedQuotaAndRequestCount(userId, totalQuota)
+		model.UpdateChannelUsedQuota(channelId, totalQuota)
 	}
+	if totalQuota <= 0 {
+		common.LogError(ctx, fmt.Sprintf("totalQuota consumed is %d, something is wrong", totalQuota))
+	}
+}
+
+func GetAPIVersion(c *gin.Context) string {
+	query := c.Request.URL.Query()
+	apiVersion := query.Get("api-version")
+	if apiVersion == "" {
+		apiVersion = c.GetString("api_version")
+	}
+	return apiVersion
 }

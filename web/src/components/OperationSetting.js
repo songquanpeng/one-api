@@ -16,6 +16,7 @@ const OperationSetting = () => {
     ChatLink: '',
     QuotaPerUnit: 0,
     AutomaticDisableChannelEnabled: '',
+    AutomaticEnableChannelEnabled: '',
     ChannelDisableThreshold: 0,
     LogConsumeEnabled: '',
     DisplayInCurrencyEnabled: '',
@@ -268,6 +269,12 @@ const OperationSetting = () => {
               label='失败时自动禁用通道'
               name='AutomaticDisableChannelEnabled'
               onChange={handleInputChange}
+            />
+            <Form.Checkbox
+                checked={inputs.AutomaticEnableChannelEnabled === 'true'}
+                label='成功时自动启用通道'
+                name='AutomaticEnableChannelEnabled'
+                onChange={handleInputChange}
             />
           </Form.Group>
           <Form.Button onClick={() => {
