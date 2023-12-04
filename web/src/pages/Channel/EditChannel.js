@@ -83,6 +83,9 @@ const EditChannel = () => {
         case 23:
           localModels = ['hunyuan'];
           break;
+        case 24:
+          localModels = ['llama-2-7b-chat-fp16','llama-2-7b-chat-int8','mistral-7b-instruct-v0.1'];
+          break;
       }
       setInputs((inputs) => ({ ...inputs, models: localModels }));
     }

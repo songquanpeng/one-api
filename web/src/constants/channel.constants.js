@@ -21,5 +21,6 @@ export const CHANNEL_OPTIONS = [
   { key: 6, text: '代理：OpenAI Max', value: 6, color: 'violet' },
   { key: 9, text: '代理：AI.LS', value: 9, color: 'yellow' },
   { key: 12, text: '代理：API2GPT', value: 12, color: 'blue' },
-  { key: 13, text: '代理：AIGC2D', value: 13, color: 'purple' }
+  { key: 13, text: '代理：AIGC2D', value: 13, color: 'purple' },
+  { key: 24, text: 'Cloudflare Ai', value: 24, color: 'blue' }
 ];

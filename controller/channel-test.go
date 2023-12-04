@@ -10,6 +10,7 @@ import (
 	"one-api/common"
 	"one-api/model"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 
@@ -39,12 +40,28 @@ func testChannel(channel *model.Channel, request ChatRequest) (err error, openai
 				err = errors.New("请确保已在 Azure 上创建了 gpt-35-turbo 模型，并且 apiVersion 已正确填写！")
 			}
 		}()
+	case common.ChannelTypeCloudflare:
+		request.Model = "llama-2-7b-chat-fp16"
 	default:
 		request.Model = "gpt-3.5-turbo"
 	}
 	requestURL := common.ChannelBaseURLs[channel.Type]
 	if channel.Type == common.ChannelTypeAzure {
 		requestURL = getFullRequestURL(channel.GetBaseURL(), fmt.Sprintf("/openai/deployments/%s/chat/completions?api-version=2023-03-15-preview", request.Model), channel.Type)
+	} else if channel.Type == common.ChannelTypeCloudflare { // CF New Add
+		apiKey := channel.Key
+		accountID, err := getCloudflareAccountID(apiKey)
+		if err != nil {
+			return err, nil
+		}
+		baseURL := channel.GetBaseURL()
+		if !(strings.HasPrefix(baseURL, "https://gateway.ai.cloudflare.com") && strings.HasSuffix(baseURL, "/workers-ai")) {
+			// Cloudflare Ai Gateway on workers-ai URL: https://gateway.ai.cloudflare.com/v1/[ACCOUNT_ID]/cftest/workers-ai
+			baseURL = fmt.Sprintf("https://api.cloudflare.com/client/v4/accounts/%s/ai/run", accountID)
+		}
+		requestURL = fmt.Sprintf("%s/@cf/meta/llama-2-7b-chat-fp16", baseURL)
+		request.Messages[0].Content = "Hello What's Your Name"
+		request.MaxTokens = 256
 	} else {
 		if baseURL := channel.GetBaseURL(); len(baseURL) > 0 {
 			requestURL = baseURL
@@ -62,6 +79,13 @@ func testChannel(channel *model.Channel, request ChatRequest) (err error, openai
 	}
 	if channel.Type == common.ChannelTypeAzure {
 		req.Header.Set("api-key", channel.Key)
+	} else if channel.Type == common.ChannelTypeCloudflare { // CF New Add
+		apiKey := channel.Key
+		API_Token, err := getCloudflareAPI_Token(apiKey)
+		if err != nil {
+			return err, nil
+		}
+		req.Header.Set("Authorization", "Bearer "+API_Token)
 	} else {
 		req.Header.Set("Authorization", "Bearer "+channel.Key)
 	}
@@ -76,10 +100,24 @@ func testChannel(channel *model.Channel, request ChatRequest) (err error, openai
 	if err != nil {
 		return err, nil
 	}
-	err = json.Unmarshal(body, &response)
-	if err != nil {
-		return fmt.Errorf("Error: %s\nResp body: %s", err, body), nil
+	if channel.Type == common.ChannelTypeCloudflare { // CF New Add
+		var cloudflareResponse CloudflareResponse
+		err = json.Unmarshal(body, &cloudflareResponse)
+		if err != nil {
+			return fmt.Errorf("Error: %s\nResp body: %s", err, body), nil
+		}
+		cloudflareConverResponse := responseCloudflare2OpenAI(&cloudflareResponse)
+		response = TextResponse{
+			Choices: cloudflareConverResponse.Choices,
+			Usage:   cloudflareConverResponse.Usage,
+		}
+	} else {
+		err = json.Unmarshal(body, &response)
+		if err != nil {
+			return fmt.Errorf("Error: %s\nResp body: %s", err, body), nil
+		}
 	}
+
 	if response.Usage.CompletionTokens == 0 {
 		if response.Error.Message == "" {
 			response.Error.Message = "补全 tokens 非预期返回 0"

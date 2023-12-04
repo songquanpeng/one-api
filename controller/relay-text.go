@@ -27,6 +27,7 @@ const (
 	APITypeXunfei
 	APITypeAIProxyLibrary
 	APITypeTencent
+	APITypeCloudflare
 )
 
 var httpClient *http.Client
@@ -118,7 +119,10 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 		apiType = APITypeAIProxyLibrary
 	case common.ChannelTypeTencent:
 		apiType = APITypeTencent
+	case common.ChannelTypeCloudflare:
+		apiType = APITypeCloudflare
 	}
+
 	baseURL := common.ChannelBaseURLs[channelType]
 	requestURL := c.Request.URL.String()
 	if c.GetString("base_url") != "" {
@@ -192,6 +196,28 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 		fullRequestURL = "https://hunyuan.cloud.tencent.com/hyllm/v1/chat/completions"
 	case APITypeAIProxyLibrary:
 		fullRequestURL = fmt.Sprintf("%s/api/library/ask", baseURL)
+	case APITypeCloudflare:
+		// Cloudflare Workers Ai request URL need input ACCOUNT_ID
+		// https://developers.cloudflare.com/workers-ai/get-started/rest-api/#2-run-a-model-via-api
+		apiKey := c.Request.Header.Get("Authorization")
+		apiKey = strings.TrimPrefix(apiKey, "Bearer ")
+		accountID, err := getCloudflareAccountID(apiKey)
+		if err != nil {
+			return errorWrapper(err, "invalid_cloudflare_config", http.StatusInternalServerError)
+		}
+		baseURL = c.GetString("base_url")
+		if !(strings.HasPrefix(baseURL, "https://gateway.ai.cloudflare.com") && strings.HasSuffix(baseURL, "/workers-ai")) {
+			// Cloudflare Ai Gateway on workers-ai URL: https://gateway.ai.cloudflare.com/v1/[ACCOUNT_ID]/cftest/workers-ai
+			baseURL = fmt.Sprintf("https://api.cloudflare.com/client/v4/accounts/%s/ai/run", accountID)
+		}
+		switch textRequest.Model {
+		case "llama-2-7b-chat-fp16":
+			fullRequestURL = fmt.Sprintf("%s/@cf/meta/llama-2-7b-chat-fp16", baseURL)
+		case "llama-2-7b-chat-int8":
+			fullRequestURL = fmt.Sprintf("%s/@cf/meta/llama-2-7b-chat-int8", baseURL)
+		case "mistral-7b-instruct-v0.1":
+			fullRequestURL = fmt.Sprintf("%s/@cf/mistral/mistral-7b-instruct-v0.1", baseURL)
+		}
 	}
 	var promptTokens int
 	var completionTokens int
@@ -321,6 +347,13 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 			return errorWrapper(err, "marshal_text_request_failed", http.StatusInternalServerError)
 		}
 		requestBody = bytes.NewBuffer(jsonStr)
+	case APITypeCloudflare:
+		cloudflareRequest := requestOpenAI2Cloudflare(textRequest)
+		jsonStr, err := json.Marshal(cloudflareRequest)
+		if err != nil {
+			return errorWrapper(err, "marshal_text_request_failed", http.StatusInternalServerError)
+		}
+		requestBody = bytes.NewBuffer(jsonStr)
 	}
 
 	var req *http.Request
@@ -364,6 +397,12 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 			req.Header.Set("Authorization", apiKey)
 		case APITypePaLM:
 			// do not set Authorization header
+		case APITypeCloudflare:
+			API_Token, err := getCloudflareAPI_Token(c.Request.Header.Get("Authorization"))
+			if err != nil {
+				return errorWrapper(err, "cloudflare_token_split_error", http.StatusInternalServerError)
+			}
+			req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", API_Token))
 		default:
 			req.Header.Set("Authorization", "Bearer "+apiKey)
 		}
@@ -627,6 +666,25 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 			return nil
 		} else {
 			err, usage := tencentHandler(c, resp)
+			if err != nil {
+				return err
+			}
+			if usage != nil {
+				textResponse.Usage = *usage
+			}
+			return nil
+		}
+	case APITypeCloudflare:
+		if isStream {
+			err, responseText := cloudflareStreamHandler(c, resp)
+			if err != nil {
+				return err
+			}
+			textResponse.Usage.PromptTokens = promptTokens
+			textResponse.Usage.CompletionTokens = countTokenText(responseText, textRequest.Model)
+			return nil
+		} else {
+			err, usage := cloudflareHandler(c, resp, promptTokens, textRequest.Model)
 			if err != nil {
 				return err
 			}

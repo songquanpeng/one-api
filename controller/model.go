@@ -540,6 +540,33 @@ func init() {
 			Root:       "hunyuan",
 			Parent:     nil,
 		},
+		{
+			Id:         "llama-2-7b-chat-fp16",
+			Object:     "model",
+			Created:    1677649963,
+			OwnedBy:    "cloudflare",
+			Permission: permission,
+			Root:       "cloudflare",
+			Parent:     nil,
+		},
+		{
+			Id:         "llama-2-7b-chat-int8",
+			Object:     "model",
+			Created:    1677649963,
+			OwnedBy:    "cloudflare",
+			Permission: permission,
+			Root:       "cloudflare",
+			Parent:     nil,
+		},
+		{
+			Id:         "mistral-7b-instruct-v0.1",
+			Object:     "model",
+			Created:    1677649963,
+			OwnedBy:    "cloudflare",
+			Permission: permission,
+			Root:       "cloudflare",
+			Parent:     nil,
+		},
 	}
 	openAIModelsMap = make(map[string]OpenAIModels)
 	for _, model := range openAIModels {
