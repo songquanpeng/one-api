@@ -3,8 +3,9 @@ package model
 import (
 	"context"
 	"fmt"
-	"gorm.io/gorm"
 	"one-api/common"
+
+	"gorm.io/gorm"
 )
 
 type Log struct {
@@ -134,7 +135,7 @@ func SearchUserLogs(userId int, keyword string) (logs []*Log, err error) {
 }
 
 func SumUsedQuota(logType int, startTimestamp int64, endTimestamp int64, modelName string, username string, tokenName string, channel int) (quota int) {
-	tx := DB.Table("logs").Select("ifnull(sum(quota),0)")
+	tx := DB.Table("logs").Select(assembleSumSelectStr("quota"))
 	if username != "" {
 		tx = tx.Where("username = ?", username)
 	}
@@ -158,7 +159,7 @@ func SumUsedQuota(logType int, startTimestamp int64, endTimestamp int64, modelNa
 }
 
 func SumUsedToken(logType int, startTimestamp int64, endTimestamp int64, modelName string, username string, tokenName string) (token int) {
-	tx := DB.Table("logs").Select("ifnull(sum(prompt_tokens),0) + ifnull(sum(completion_tokens),0)")
+	tx := DB.Table("logs").Select(assembleSumSelectStr("prompt_tokens") + " + " + assembleSumSelectStr("completion_tokens"))
 	if username != "" {
 		tx = tx.Where("username = ?", username)
 	}
@@ -181,4 +182,16 @@ func SumUsedToken(logType int, startTimestamp int64, endTimestamp int64, modelNa
 func DeleteOldLog(targetTimestamp int64) (int64, error) {
 	result := DB.Where("created_at < ?", targetTimestamp).Delete(&Log{})
 	return result.RowsAffected, result.Error
+}
+
+func assembleSumSelectStr(selectStr string) string {
+	sumSelectStr := "%s(sum(%s),0)"
+	nullfunc := "ifnull"
+	if common.UsingPostgreSQL {
+		nullfunc = "coalesce"
+	}
+
+	sumSelectStr = fmt.Sprintf(sumSelectStr, nullfunc, selectStr)
+
+	return sumSelectStr
 }
