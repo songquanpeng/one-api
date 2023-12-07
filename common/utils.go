@@ -2,7 +2,6 @@ package common
 
 import (
 	"fmt"
-	"github.com/google/uuid"
 	"html/template"
 	"log"
 	"math/rand"
@@ -13,6 +12,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 func OpenBrowser(url string) {
@@ -137,15 +138,23 @@ func GetUUID() string {
 
 const keyChars = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
-func init() {
-	rand.Seed(time.Now().UnixNano())
+// Remove this function as it's no longer needed. (depcrecated)
+// Note: This function required go 1.20+
+// func init() {
+// 	rand.Seed(time.Now().UnixNano())
+// }
+
+// newRand creates a new instance of a random generator.
+func newRand() *rand.Rand {
+	return rand.New(rand.NewSource(time.Now().UnixNano()))
 }
 
+// GenerateKey creates a new key string.
 func GenerateKey() string {
-	rand.Seed(time.Now().UnixNano())
+	localRand := newRand() // Use the local random generator
 	key := make([]byte, 48)
 	for i := 0; i < 16; i++ {
-		key[i] = keyChars[rand.Intn(len(keyChars))]
+		key[i] = keyChars[localRand.Intn(len(keyChars))]
 	}
 	uuid_ := GetUUID()
 	for i := 0; i < 32; i++ {
@@ -158,11 +167,12 @@ func GenerateKey() string {
 	return string(key)
 }
 
+// GetRandomString generates a random string of a specified length.
 func GetRandomString(length int) string {
-	rand.Seed(time.Now().UnixNano())
+	localRand := newRand() // Use the local random generator
 	key := make([]byte, length)
 	for i := 0; i < length; i++ {
-		key[i] = keyChars[rand.Intn(len(keyChars))]
+		key[i] = keyChars[localRand.Intn(len(keyChars))]
 	}
 	return string(key)
 }
