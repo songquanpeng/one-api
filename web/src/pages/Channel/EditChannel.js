@@ -357,6 +357,20 @@ const EditChannel = () => {
               </Form.Field>
             )
           }
+          {
+            inputs.type === 17 && (
+              <Form.Field>
+                <Form.Input
+                  label='插件参数'
+                  name='other'
+                  placeholder={'请输入插件参数，即 X-DashScope-Plugin 请求头的取值'}
+                  onChange={handleInputChange}
+                  value={inputs.other}
+                  autoComplete='new-password'
+                />
+              </Form.Field>
+            )
+          }
           <Form.Field>
             <Form.Dropdown
               label='模型'

@@ -360,6 +360,9 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 			if textRequest.Stream {
 				req.Header.Set("X-DashScope-SSE", "enable")
 			}
+			if c.GetString("plugin") != "" {
+				req.Header.Set("X-DashScope-Plugin", c.GetString("plugin"))
+			}
 		case APITypeTencent:
 			req.Header.Set("Authorization", apiKey)
 		case APITypePaLM:
