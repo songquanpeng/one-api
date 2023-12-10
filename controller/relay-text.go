@@ -410,6 +410,10 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 	defer func(ctx context.Context) {
 		// c.Writer.Flush()
 		go func() {
+			if promptTokens != textResponse.PromptTokens {
+				common.SysError(fmt.Sprintf("prompt tokens not match, expected %d, actual %d", promptTokens, textResponse.PromptTokens))
+			}
+
 			quota := 0
 			completionRatio := common.GetCompletionRatio(textRequest.Model)
 			promptTokens = textResponse.Usage.PromptTokens
