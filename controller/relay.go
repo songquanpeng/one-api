@@ -141,16 +141,16 @@ type ImageRequest struct {
 	User           string `json:"user,omitempty"`
 }
 
-type WhisperJsonResponse struct {
+type WhisperJSONResponse struct {
 	Text string `json:"text,omitempty"`
 }
 
-type WhisperVerboseJsonResponse struct {
-	Task     string    `json:"task"`
-	Language string    `json:"language"`
-	Duration float64   `json:"duration"`
-	Text     string    `json:"text"`
-	Segments []Segment `json:"segments"`
+type WhisperVerboseJSONResponse struct {
+	Task     string    `json:"task,omitempty"`
+	Language string    `json:"language,omitempty"`
+	Duration float64   `json:"duration,omitempty"`
+	Text     string    `json:"text,omitempty"`
+	Segments []Segment `json:"segments,omitempty"`
 }
 
 type Segment struct {

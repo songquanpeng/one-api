@@ -155,24 +155,24 @@ func relayAudioHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode 
 		var openAIErr TextResponse
 		if err = json.Unmarshal(responseBody, &openAIErr); err == nil {
 			if openAIErr.Error.Message != "" {
-				return errorWrapper(errors.New(fmt.Sprintf("type %s, code %v, message %s", openAIErr.Error.Type, openAIErr.Error.Code, openAIErr.Error.Message)), "request_error", http.StatusInternalServerError)
+				return errorWrapper(fmt.Errorf("type %s, code %v, message %s", openAIErr.Error.Type, openAIErr.Error.Code, openAIErr.Error.Message), "request_error", http.StatusInternalServerError)
 			}
 		}
 
 		var text string
 		switch responseFormat {
 		case "json":
-			text, err = getTextFromJson(responseBody)
+			text, err = getTextFromJSON(responseBody)
 		case "text":
 			text, err = getTextFromText(responseBody)
 		case "srt":
-			text, err = getTextFromSrt(responseBody)
+			text, err = getTextFromSRT(responseBody)
 		case "verbose_json":
-			text, err = getTextFromVerboseJson(responseBody)
+			text, err = getTextFromVerboseJSON(responseBody)
 		case "vtt":
-			text, err = getTextFromVtt(responseBody)
+			text, err = getTextFromVTT(responseBody)
 		default:
-			return errorWrapper(errors.New("not_support_response_format"), "not_support_response_format", http.StatusInternalServerError)
+			return errorWrapper(errors.New("unexpected_response_format"), "unexpected_response_format", http.StatusInternalServerError)
 		}
 		if err != nil {
 			return errorWrapper(err, "get_text_from_body_err", http.StatusInternalServerError)
@@ -216,19 +216,19 @@ func relayAudioHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode 
 	return nil
 }
 
-func getTextFromVtt(body []byte) (string, error) {
-	return getTextFromSrt(body)
+func getTextFromVTT(body []byte) (string, error) {
+	return getTextFromSRT(body)
 }
 
-func getTextFromVerboseJson(body []byte) (string, error) {
-	var whisperResponse WhisperVerboseJsonResponse
+func getTextFromVerboseJSON(body []byte) (string, error) {
+	var whisperResponse WhisperVerboseJSONResponse
 	if err := json.Unmarshal(body, &whisperResponse); err != nil {
 		return "", fmt.Errorf("unmarshal_response_body_failed err :%w", err)
 	}
 	return whisperResponse.Text, nil
 }
 
-func getTextFromSrt(body []byte) (string, error) {
+func getTextFromSRT(body []byte) (string, error) {
 	scanner := bufio.NewScanner(strings.NewReader(string(body)))
 	var builder strings.Builder
 	var textLine bool
@@ -253,8 +253,8 @@ func getTextFromText(body []byte) (string, error) {
 	return strings.TrimSuffix(string(body), "\n"), nil
 }
 
-func getTextFromJson(body []byte) (string, error) {
-	var whisperResponse WhisperJsonResponse
+func getTextFromJSON(body []byte) (string, error) {
+	var whisperResponse WhisperJSONResponse
 	if err := json.Unmarshal(body, &whisperResponse); err != nil {
 		return "", fmt.Errorf("unmarshal_response_body_failed err :%w", err)
 	}
