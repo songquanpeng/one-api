@@ -34,15 +34,28 @@ func GetAllChannels(startIdx int, num int, selectAll bool) ([]*Channel, error) {
 	} else {
 		err = DB.Order("id desc").Limit(num).Offset(startIdx).Omit("key").Find(&channels).Error
 	}
+	for i, v := range channels {
+		if v.Type == common.ChannelTypeOpenAI {
+			channels[i].Balance = v.Balance - float64(v.UsedQuota)/500000.0
+			if channels[i].Balance < 0 {
+				channels[i].Balance = 0
+			}
+		}
+	}
 	return channels, err
 }
-
 func SearchChannels(keyword string) (channels []*Channel, err error) {
 	keyCol := "`key`"
 	if common.UsingPostgreSQL {
 		keyCol = `"key"`
 	}
 	err = DB.Omit("key").Where("id = ? or name LIKE ? or "+keyCol+" = ?", common.String2Int(keyword), keyword+"%", keyword).Find(&channels).Error
+	for i, v := range channels {
+		channels[i].Balance = v.Balance - float64(v.UsedQuota)/500000.0
+		if channels[i].Balance < 0 {
+			channels[i].Balance = 0
+		}
+	}
 	return channels, err
 }
 
@@ -53,6 +66,10 @@ func GetChannelById(id int, selectAll bool) (*Channel, error) {
 		err = DB.First(&channel, "id = ?", id).Error
 	} else {
 		err = DB.Omit("key").First(&channel, "id = ?", id).Error
+	}
+	channel.Balance = channel.Balance - float64(channel.UsedQuota)/500000.0
+	if channel.Balance < 0 {
+		channel.Balance = 0
 	}
 	return &channel, err
 }

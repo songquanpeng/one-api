@@ -44,7 +44,8 @@ const EditChannel = () => {
     other: '',
     model_mapping: '',
     models: [],
-    groups: ['default']
+    groups: ['default'],
+    balance: 0.0
   };
   const [batch, setBatch] = useState(false);
   const [inputs, setInputs] = useState(originInputs);
@@ -194,6 +195,7 @@ const EditChannel = () => {
     let res;
     localInputs.models = localInputs.models.join(',');
     localInputs.group = localInputs.groups.join(',');
+    localInputs.balance = parseFloat(localInputs.balance);
     if (isEdit) {
       res = await API.put(`/api/channel/`, { ...localInputs, id: parseInt(channelId) });
     } else {
@@ -375,6 +377,20 @@ const EditChannel = () => {
               options={modelOptions}
             />
           </Form.Field>
+          {
+            !isEdit && (
+              <Form.Field>
+                <Form.Input
+                    label='余额'
+                    name='balance'
+                    placeholder={'请输入余额'}
+                    onChange={handleInputChange}
+                    value={inputs.balance}
+                    autoComplete='new-password'
+                />
+              </Form.Field>
+            )
+          }
           <div style={{ lineHeight: '40px', marginBottom: '12px' }}>
             <Button type={'button'} onClick={() => {
               handleInputChange(null, { name: 'models', value: basicModels });
