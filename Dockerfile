@@ -2,6 +2,7 @@ FROM node:16 as builder
 
 WORKDIR /build
 COPY web/package.json .
+RUN npm npm config set registry https://registry.npmmirror.com/
 RUN npm install
 COPY ./web .
 COPY ./VERSION .
@@ -15,6 +16,8 @@ ENV GO111MODULE=on \
 
 WORKDIR /build
 ADD go.mod go.sum ./
+RUN go env -w GO111MODULE=on
+RUN go env -w GOPROXY=https://goproxy.cn,direct
 RUN go mod download
 COPY . .
 COPY --from=builder /build/build ./web/build
