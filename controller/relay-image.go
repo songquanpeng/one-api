@@ -19,6 +19,9 @@ func isWithinRange(element string, value int) bool {
 	if _, ok := common.DalleGenerationImageAmounts[element]; !ok {
 		return false
 	}
+	if element == "dall-e-3" && value == 0 {
+		value = 1
+	}
 
 	min := common.DalleGenerationImageAmounts[element][0]
 	max := common.DalleGenerationImageAmounts[element][1]
