@@ -27,6 +27,7 @@ const (
 	APITypeXunfei
 	APITypeAIProxyLibrary
 	APITypeTencent
+	APITypeGeminiChat
 )
 
 var httpClient *http.Client
@@ -177,6 +178,20 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 		apiKey := c.Request.Header.Get("Authorization")
 		apiKey = strings.TrimPrefix(apiKey, "Bearer ")
 		fullRequestURL += "?key=" + apiKey
+	case APITypeGeminiChat:
+		requestURLSuffix := "/v1beta/models/gemini-pro:generateContent"
+		switch textRequest.Model {
+		case "gemini-pro":
+			requestURLSuffix = "/v1beta/models/gemini-pro:generateContent"
+		}
+		if baseURL != "" {
+			fullRequestURL = fmt.Sprintf("%s%s", baseURL, requestURLSuffix)
+		} else {
+			fullRequestURL = fmt.Sprintf("https://generativelanguage.googleapis.com%s", requestURLSuffix)
+		}
+		apiKey := c.Request.Header.Get("Authorization")
+		apiKey = strings.TrimPrefix(apiKey, "Bearer ")
+		fullRequestURL += "?key=" + apiKey
 	case APITypeZhipu:
 		method := "invoke"
 		if textRequest.Stream {
@@ -274,6 +289,13 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 			return errorWrapper(err, "marshal_text_request_failed", http.StatusInternalServerError)
 		}
 		requestBody = bytes.NewBuffer(jsonStr)
+	case APITypeGeminiChat:
+		geminiChatRequest := requestOpenAI2GeminiChat(textRequest)
+		jsonStr, err := json.Marshal(geminiChatRequest)
+		if err != nil {
+			return errorWrapper(err, "marshal_text_request_failed", http.StatusInternalServerError)
+		}
+		requestBody = bytes.NewBuffer(jsonStr)
 	case APITypeZhipu:
 		zhipuRequest := requestOpenAI2Zhipu(textRequest)
 		jsonStr, err := json.Marshal(zhipuRequest)
@@ -366,6 +388,8 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 		case APITypeTencent:
 			req.Header.Set("Authorization", apiKey)
 		case APITypePaLM:
+			// do not set Authorization header
+		case APITypeGeminiChat:
 			// do not set Authorization header
 		default:
 			req.Header.Set("Authorization", "Bearer "+apiKey)
@@ -519,6 +543,25 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 			return nil
 		} else {
 			err, usage := palmHandler(c, resp, promptTokens, textRequest.Model)
+			if err != nil {
+				return err
+			}
+			if usage != nil {
+				textResponse.Usage = *usage
+			}
+			return nil
+		}
+	case APITypeGeminiChat:
+		if textRequest.Stream { // Gemini API does not support stream
+			err, responseText := geminiChatStreamHandler(c, resp)
+			if err != nil {
+				return err
+			}
+			textResponse.Usage.PromptTokens = promptTokens
+			textResponse.Usage.CompletionTokens = countTokenText(responseText, textRequest.Model)
+			return nil
+		} else {
+			err, usage := geminiChatHandler(c, resp, promptTokens, textRequest.Model)
 			if err != nil {
 				return err
 			}
