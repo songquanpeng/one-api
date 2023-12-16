@@ -119,6 +119,8 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 		apiType = APITypeAIProxyLibrary
 	case common.ChannelTypeTencent:
 		apiType = APITypeTencent
+	case common.ChannelTypeGeminiChat:
+		apiType = APITypeGeminiChat
 	}
 	baseURL := common.ChannelBaseURLs[channelType]
 	requestURL := c.Request.URL.String()
@@ -179,15 +181,9 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 		apiKey = strings.TrimPrefix(apiKey, "Bearer ")
 		fullRequestURL += "?key=" + apiKey
 	case APITypeGeminiChat:
-		requestURLSuffix := "/v1beta/models/gemini-pro:generateContent"
 		switch textRequest.Model {
 		case "gemini-pro":
-			requestURLSuffix = "/v1beta/models/gemini-pro:generateContent"
-		}
-		if baseURL != "" {
-			fullRequestURL = fmt.Sprintf("%s%s", baseURL, requestURLSuffix)
-		} else {
-			fullRequestURL = fmt.Sprintf("https://generativelanguage.googleapis.com%s", requestURLSuffix)
+			fullRequestURL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent"
 		}
 		apiKey := c.Request.Header.Get("Authorization")
 		apiKey = strings.TrimPrefix(apiKey, "Bearer ")

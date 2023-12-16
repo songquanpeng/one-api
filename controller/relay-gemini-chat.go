@@ -12,25 +12,31 @@ import (
 
 type GeminiChatRequest struct {
 	Contents         []GeminiChatContents       `json:"contents"`
-	SafetySettings   []GeminiChatSafetySettings `json:"safety_settings"`
-	GenerationConfig GeminiChatGenerationConfig `json:"generation_config"`
+	SafetySettings   []GeminiChatSafetySettings `json:"safety_settings,omitempty"`
+	GenerationConfig GeminiChatGenerationConfig `json:"generation_config,omitempty"`
+	Tools            []GeminiChatTools          `json:"tools,omitempty"`
 }
 type GeminiChatParts struct {
 	Text string `json:"text"`
 }
 type GeminiChatContents struct {
-	Role  string          `json:"role"`
-	Parts GeminiChatParts `json:"parts"`
+	Role  string            `json:"role"`
+	Parts []GeminiChatParts `json:"parts"`
 }
 type GeminiChatSafetySettings struct {
 	Category  string `json:"category"`
 	Threshold string `json:"threshold"`
 }
+type GeminiChatTools struct {
+	FunctionDeclarations any `json:"functionDeclarations,omitempty"`
+}
 type GeminiChatGenerationConfig struct {
-	Temperature     float64 `json:"temperature"`
-	TopP            float64 `json:"topP"`
-	TopK            int     `json:"topK"`
-	MaxOutputTokens int     `json:"maxOutputTokens"`
+	Temperature     float64  `json:"temperature,omitempty"`
+	TopP            float64  `json:"topP,omitempty"`
+	TopK            float64  `json:"topK,omitempty"`
+	MaxOutputTokens int      `json:"maxOutputTokens,omitempty"`
+	CandidateCount  int      `json:"candidateCount,omitempty"`
+	StopSequences   []string `json:"stopSequences,omitempty"`
 }
 
 // Setting safety to the lowest possible values since Gemini is already powerless enough
@@ -58,19 +64,44 @@ func requestOpenAI2GeminiChat(textRequest GeneralOpenAIRequest) *GeminiChatReque
 		GenerationConfig: GeminiChatGenerationConfig{
 			Temperature:     textRequest.Temperature,
 			TopP:            textRequest.TopP,
-			TopK:            textRequest.MaxTokens,
 			MaxOutputTokens: textRequest.MaxTokens,
 		},
+		Tools: []GeminiChatTools{
+			{
+				FunctionDeclarations: textRequest.Functions,
+			},
+		},
 	}
+	systemPrompt := ""
 	for _, message := range textRequest.Messages {
 		content := GeminiChatContents{
 			Role: message.Role,
-			Parts: GeminiChatParts{
-				Text: message.StringContent(),
+			Parts: []GeminiChatParts{
+				{
+					Text: message.StringContent(),
+				},
 			},
+		}
+		// there's no assistant role in gemini and API shall vomit if Role is not user or model
+		if content.Role == "assistant" {
+			content.Role = "model"
+		}
+		// Converting system prompt to prompt from user for the same reason
+		if content.Role == "system" {
+			systemPrompt = message.StringContent()
+			continue
+		}
+		if content.Role == "user" && systemPrompt != "" {
+			content.Parts = []GeminiChatParts{
+				{
+					Text: systemPrompt + "\n\nHuman: " + message.StringContent(),
+				},
+			}
+			systemPrompt = ""
 		}
 		geminiRequest.Contents = append(geminiRequest.Contents, content)
 	}
+
 	return &geminiRequest
 }
 
