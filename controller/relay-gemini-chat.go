@@ -195,9 +195,7 @@ func geminiChatStreamHandler(c *gin.Context, resp *http.Response) (*OpenAIErrorW
 		fullTextResponse := streamResponseGeminiChat2OpenAI(&geminiResponse)
 		fullTextResponse.Id = responseId
 		fullTextResponse.Created = createdTime
-		if len(geminiResponse.Candidates) > 0 {
-			responseText = geminiResponse.Candidates[0].Content.Parts[0].Text
-		}
+		responseText = geminiResponse.Candidates[0].Content.Parts[0].Text
 		jsonResponse, err := json.Marshal(fullTextResponse)
 		if err != nil {
 			common.SysError("error marshalling stream response: " + err.Error())
