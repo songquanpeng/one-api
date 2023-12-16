@@ -13,13 +13,13 @@ import (
 // https://help.aliyun.com/document_detail/613695.html?spm=a2c4g.2399480.0.0.1adb778fAdzP9w#341800c0f8w0r
 
 type AliMessage struct {
-	User string `json:"user"`
-	Bot  string `json:"bot"`
+	Content string `json:"content"`
+	Role    string `json:"role"`
 }
 
 type AliInput struct {
-	Prompt  string       `json:"prompt"`
-	History []AliMessage `json:"history"`
+	//Prompt   string       `json:"prompt"`
+	Messages []AliMessage `json:"messages"`
 }
 
 type AliParameters struct {
@@ -83,32 +83,78 @@ type AliChatResponse struct {
 
 func requestOpenAI2Ali(request GeneralOpenAIRequest) *AliChatRequest {
 	messages := make([]AliMessage, 0, len(request.Messages))
-	prompt := ""
-	for i := 0; i < len(request.Messages); i++ {
-		message := request.Messages[i]
-		if message.Role == "system" {
-			messages = append(messages, AliMessage{
-				User: message.StringContent(),
-				Bot:  "Okay",
-			})
-			continue
-		} else {
-			if i == len(request.Messages)-1 {
-				prompt = message.StringContent()
-				break
+	if len(messages) == 1 {
+		messages = append(messages, AliMessage{
+			Content: request.Messages[0].StringContent(),
+			Role:    "user",
+		})
+	} else {
+		//1. 系统消息在最前面
+		//2. user和assistant必须交替成对出现
+		//3. 相邻同role消息合并
+		lastRole := ""
+		systemMessage := AliMessage{
+			Content: "",
+			Role:    "system",
+		}
+		for i := 0; i < len(request.Messages); i++ {
+			message := request.Messages[i]
+			content := message.StringContent()
+			if content == "" || len(content) <= 0 {
+				continue
 			}
+			if strings.ToLower(message.Role) == "system" {
+				systemMessage.Content += "\n" + content
+				lastRole = "system"
+			} else if strings.ToLower(message.Role) == "user" {
+				if lastRole == "user" {
+					messages[len(messages)-1].Content += "\n" + content
+				} else {
+					messages = append(messages, AliMessage{
+						Content: content,
+						Role:    "user",
+					})
+				}
+				lastRole = "user"
+			} else {
+				if lastRole == "assistant" {
+					messages[len(messages)-1].Content += "\n" + content
+				} else {
+					messages = append(messages, AliMessage{
+						Content: content,
+						Role:    "assistant",
+					})
+				}
+				lastRole = "assistant"
+			}
+		}
+		// 用户需要首先提问
+		if messages[0].Role != "user" {
+			messages = append([]AliMessage{
+				{
+					Content: "?",
+					Role:    "user",
+				},
+			}, messages...)
+		}
+		// 把系统消息补充到头部
+		if len(systemMessage.Content) > 0 {
+			messages = append([]AliMessage{systemMessage}, messages...)
+		}
+		//最后如果不是user提问，补充一个没有问题了
+		if messages[len(messages)-1].Role != "user" {
 			messages = append(messages, AliMessage{
-				User: message.StringContent(),
-				Bot:  request.Messages[i+1].StringContent(),
+				Content: "?",
+				Role:    "user",
 			})
-			i++
 		}
 	}
+
 	return &AliChatRequest{
 		Model: request.Model,
 		Input: AliInput{
-			Prompt:  prompt,
-			History: messages,
+			//Prompt:   prompt,
+			Messages: messages,
 		},
 		//Parameters: AliParameters{  // ChatGPT's parameters are not compatible with Ali's
 		//	TopP: request.TopP,
