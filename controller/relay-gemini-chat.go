@@ -72,7 +72,7 @@ func requestOpenAI2GeminiChat(textRequest GeneralOpenAIRequest) *GeminiChatReque
 			},
 		},
 	}
-	systemPrompt := ""
+	shouldAddDummyModelMessage := false
 	for _, message := range textRequest.Messages {
 		content := GeminiChatContents{
 			Role: message.Role,
@@ -88,18 +88,23 @@ func requestOpenAI2GeminiChat(textRequest GeneralOpenAIRequest) *GeminiChatReque
 		}
 		// Converting system prompt to prompt from user for the same reason
 		if content.Role == "system" {
-			systemPrompt = message.StringContent()
-			continue
-		}
-		if content.Role == "user" && systemPrompt != "" {
-			content.Parts = []GeminiChatParts{
-				{
-					Text: systemPrompt + "\n\nHuman: " + message.StringContent(),
-				},
-			}
-			systemPrompt = ""
+			content.Role = "user"
+			shouldAddDummyModelMessage = true
 		}
 		geminiRequest.Contents = append(geminiRequest.Contents, content)
+
+		// If a system message is the last message, we need to add a dummy model message to make gemini happy
+		if shouldAddDummyModelMessage {
+			geminiRequest.Contents = append(geminiRequest.Contents, GeminiChatContents{
+				Role: "model",
+				Parts: []GeminiChatParts{
+					{
+						Text: "ok",
+					},
+				},
+			})
+			shouldAddDummyModelMessage = false
+		}
 	}
 
 	return &geminiRequest
