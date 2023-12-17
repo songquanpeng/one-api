@@ -20,7 +20,7 @@ func testChannel(channel *model.Channel, request ChatRequest) (err error, openai
 	switch channel.Type {
 	case common.ChannelTypePaLM:
 		fallthrough
-	case common.ChannelTypeGeminiChat:
+	case common.ChannelTypeGemini:
 		fallthrough
 	case common.ChannelTypeAnthropic:
 		fallthrough

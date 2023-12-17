@@ -11,25 +11,36 @@ import (
 )
 
 type GeminiChatRequest struct {
-	Contents         []GeminiChatContents       `json:"contents"`
+	Contents         []GeminiChatContent        `json:"contents"`
 	SafetySettings   []GeminiChatSafetySettings `json:"safety_settings,omitempty"`
 	GenerationConfig GeminiChatGenerationConfig `json:"generation_config,omitempty"`
 	Tools            []GeminiChatTools          `json:"tools,omitempty"`
 }
-type GeminiChatParts struct {
-	Text string `json:"text"`
+
+type GeminiInlineData struct {
+	MimeType string `json:"mimeType"`
+	Data     string `json:"data"`
 }
-type GeminiChatContents struct {
-	Role  string            `json:"role"`
-	Parts []GeminiChatParts `json:"parts"`
+
+type GeminiPart struct {
+	Text       string            `json:"text,omitempty"`
+	InlineData *GeminiInlineData `json:"inlineData,omitempty"`
 }
+
+type GeminiChatContent struct {
+	Role  string       `json:"role,omitempty"`
+	Parts []GeminiPart `json:"parts"`
+}
+
 type GeminiChatSafetySettings struct {
 	Category  string `json:"category"`
 	Threshold string `json:"threshold"`
 }
+
 type GeminiChatTools struct {
 	FunctionDeclarations any `json:"functionDeclarations,omitempty"`
 }
+
 type GeminiChatGenerationConfig struct {
 	Temperature     float64  `json:"temperature,omitempty"`
 	TopP            float64  `json:"topP,omitempty"`
@@ -40,43 +51,45 @@ type GeminiChatGenerationConfig struct {
 }
 
 // Setting safety to the lowest possible values since Gemini is already powerless enough
-func requestOpenAI2GeminiChat(textRequest GeneralOpenAIRequest) *GeminiChatRequest {
+func requestOpenAI2Gemini(textRequest GeneralOpenAIRequest) *GeminiChatRequest {
 	geminiRequest := GeminiChatRequest{
-		Contents: make([]GeminiChatContents, 0, len(textRequest.Messages)),
-		SafetySettings: []GeminiChatSafetySettings{
-			{
-				Category:  "HARM_CATEGORY_HARASSMENT",
-				Threshold: "BLOCK_ONLY_HIGH",
-			},
-			{
-				Category:  "HARM_CATEGORY_HATE_SPEECH",
-				Threshold: "BLOCK_ONLY_HIGH",
-			},
-			{
-				Category:  "HARM_CATEGORY_SEXUALLY_EXPLICIT",
-				Threshold: "BLOCK_ONLY_HIGH",
-			},
-			{
-				Category:  "HARM_CATEGORY_DANGEROUS_CONTENT",
-				Threshold: "BLOCK_ONLY_HIGH",
-			},
-		},
+		Contents: make([]GeminiChatContent, 0, len(textRequest.Messages)),
+		//SafetySettings: []GeminiChatSafetySettings{
+		//	{
+		//		Category:  "HARM_CATEGORY_HARASSMENT",
+		//		Threshold: "BLOCK_ONLY_HIGH",
+		//	},
+		//	{
+		//		Category:  "HARM_CATEGORY_HATE_SPEECH",
+		//		Threshold: "BLOCK_ONLY_HIGH",
+		//	},
+		//	{
+		//		Category:  "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+		//		Threshold: "BLOCK_ONLY_HIGH",
+		//	},
+		//	{
+		//		Category:  "HARM_CATEGORY_DANGEROUS_CONTENT",
+		//		Threshold: "BLOCK_ONLY_HIGH",
+		//	},
+		//},
 		GenerationConfig: GeminiChatGenerationConfig{
 			Temperature:     textRequest.Temperature,
 			TopP:            textRequest.TopP,
 			MaxOutputTokens: textRequest.MaxTokens,
 		},
-		Tools: []GeminiChatTools{
+	}
+	if textRequest.Functions != nil {
+		geminiRequest.Tools = []GeminiChatTools{
 			{
 				FunctionDeclarations: textRequest.Functions,
 			},
-		},
+		}
 	}
 	shouldAddDummyModelMessage := false
 	for _, message := range textRequest.Messages {
-		content := GeminiChatContents{
+		content := GeminiChatContent{
 			Role: message.Role,
-			Parts: []GeminiChatParts{
+			Parts: []GeminiPart{
 				{
 					Text: message.StringContent(),
 				},
@@ -95,9 +108,9 @@ func requestOpenAI2GeminiChat(textRequest GeneralOpenAIRequest) *GeminiChatReque
 
 		// If a system message is the last message, we need to add a dummy model message to make gemini happy
 		if shouldAddDummyModelMessage {
-			geminiRequest.Contents = append(geminiRequest.Contents, GeminiChatContents{
+			geminiRequest.Contents = append(geminiRequest.Contents, GeminiChatContent{
 				Role: "model",
-				Parts: []GeminiChatParts{
+				Parts: []GeminiPart{
 					{
 						Text: "ok",
 					},
@@ -122,15 +135,6 @@ type GeminiChatCandidate struct {
 	SafetyRatings []GeminiChatSafetyRating `json:"safetyRatings"`
 }
 
-type GeminiChatContent struct {
-	Parts []GeminiChatPart `json:"parts"`
-	Role  string           `json:"role"`
-}
-
-type GeminiChatPart struct {
-	Text string `json:"text"`
-}
-
 type GeminiChatSafetyRating struct {
 	Category    string `json:"category"`
 	Probability string `json:"probability"`
@@ -142,6 +146,9 @@ type GeminiChatPromptFeedback struct {
 
 func responseGeminiChat2OpenAI(response *GeminiChatResponse) *OpenAITextResponse {
 	fullTextResponse := OpenAITextResponse{
+		Id:      fmt.Sprintf("chatcmpl-%s", common.GetUUID()),
+		Object:  "chat.completion",
+		Created: common.GetTimestamp(),
 		Choices: make([]OpenAITextResponseChoice, 0, len(response.Candidates)),
 	}
 	for i, candidate := range response.Candidates {
@@ -151,7 +158,7 @@ func responseGeminiChat2OpenAI(response *GeminiChatResponse) *OpenAITextResponse
 				Role:    "assistant",
 				Content: candidate.Content.Parts[0].Text,
 			},
-			FinishReason: "stop",
+			FinishReason: stopFinishReason,
 		}
 		fullTextResponse.Choices = append(fullTextResponse.Choices, choice)
 	}
@@ -160,7 +167,7 @@ func responseGeminiChat2OpenAI(response *GeminiChatResponse) *OpenAITextResponse
 
 func streamResponseGeminiChat2OpenAI(geminiResponse *GeminiChatResponse) *ChatCompletionsStreamResponse {
 	var choice ChatCompletionsStreamResponseChoice
-	if len(geminiResponse.Candidates) > 0 {
+	if len(geminiResponse.Candidates) > 0 && len(geminiResponse.Candidates[0].Content.Parts) > 0 {
 		choice.Delta.Content = geminiResponse.Candidates[0].Content.Parts[0].Text
 	}
 	choice.FinishReason = &stopFinishReason
@@ -200,7 +207,9 @@ func geminiChatStreamHandler(c *gin.Context, resp *http.Response) (*OpenAIErrorW
 		fullTextResponse := streamResponseGeminiChat2OpenAI(&geminiResponse)
 		fullTextResponse.Id = responseId
 		fullTextResponse.Created = createdTime
-		responseText = geminiResponse.Candidates[0].Content.Parts[0].Text
+		if len(geminiResponse.Candidates) > 0 && len(geminiResponse.Candidates[0].Content.Parts) > 0 {
+			responseText += geminiResponse.Candidates[0].Content.Parts[0].Text
+		}
 		jsonResponse, err := json.Marshal(fullTextResponse)
 		if err != nil {
 			common.SysError("error marshalling stream response: " + err.Error())
