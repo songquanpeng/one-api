@@ -83,77 +83,16 @@ type AliChatResponse struct {
 
 func requestOpenAI2Ali(request GeneralOpenAIRequest) *AliChatRequest {
 	messages := make([]AliMessage, 0, len(request.Messages))
-	if len(messages) == 1 {
+	for i := 0; i < len(request.Messages); i++ {
+		message := request.Messages[i]
 		messages = append(messages, AliMessage{
-			Content: request.Messages[0].StringContent(),
-			Role:    "user",
+			Content: message.StringContent(),
+			Role:    strings.ToLower(message.Role),
 		})
-	} else {
-		//1. 系统消息在最前面
-		//2. user和assistant必须交替成对出现
-		//3. 相邻同role消息合并
-		lastRole := ""
-		systemMessage := AliMessage{
-			Content: "",
-			Role:    "system",
-		}
-		for i := 0; i < len(request.Messages); i++ {
-			message := request.Messages[i]
-			content := message.StringContent()
-			if content == "" || len(content) <= 0 {
-				continue
-			}
-			if strings.ToLower(message.Role) == "system" {
-				systemMessage.Content += "\n" + content
-				lastRole = "system"
-			} else if strings.ToLower(message.Role) == "user" {
-				if lastRole == "user" {
-					messages[len(messages)-1].Content += "\n" + content
-				} else {
-					messages = append(messages, AliMessage{
-						Content: content,
-						Role:    "user",
-					})
-				}
-				lastRole = "user"
-			} else {
-				if lastRole == "assistant" {
-					messages[len(messages)-1].Content += "\n" + content
-				} else {
-					messages = append(messages, AliMessage{
-						Content: content,
-						Role:    "assistant",
-					})
-				}
-				lastRole = "assistant"
-			}
-		}
-		// 用户需要首先提问
-		if messages[0].Role != "user" {
-			messages = append([]AliMessage{
-				{
-					Content: "?",
-					Role:    "user",
-				},
-			}, messages...)
-		}
-		// 把系统消息补充到头部
-		if len(systemMessage.Content) > 0 {
-			messages = append([]AliMessage{systemMessage}, messages...)
-		}
-		//最后如果不是user提问，补充一个没有问题了
-		if messages[len(messages)-1].Role != "user" {
-			messages = append(messages, AliMessage{
-				Content: "?",
-				Role:    "user",
-			})
-		}
 	}
-
 	return &AliChatRequest{
 		Model: request.Model,
 		Input: AliInput{
-			//Prompt:   prompt,
 			Messages: messages,
 		},
 		//Parameters: AliParameters{  // ChatGPT's parameters are not compatible with Ali's
