@@ -83,6 +83,9 @@ const EditChannel = () => {
         case 23:
           localModels = ['hunyuan'];
           break;
+        case 24:
+          localModels = ['gemini-pro'];
+          break;
       }
       setInputs((inputs) => ({ ...inputs, models: localModels }));
     }

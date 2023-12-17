@@ -187,6 +187,7 @@ const (
 	ChannelTypeAIProxyLibrary = 21
 	ChannelTypeFastGPT        = 22
 	ChannelTypeTencent        = 23
+	ChannelTypeGemini         = 24
 )
 
 var ChannelBaseURLs = []string{
@@ -214,4 +215,5 @@ var ChannelBaseURLs = []string{
 	"https://api.aiproxy.io",            // 21
 	"https://fastgpt.run/api/openapi",   // 22
 	"https://hunyuan.cloud.tencent.com", //23
+	"",                                  //24
 }
