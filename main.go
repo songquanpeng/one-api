@@ -15,10 +15,10 @@ import (
 	"strconv"
 )
 
-//go:embed web/build
+//go:embed web/public
 var buildFS embed.FS
 
-//go:embed web/build/index.html
+//go:embed web/public/index.html
 var indexPage []byte
 
 func main() {
