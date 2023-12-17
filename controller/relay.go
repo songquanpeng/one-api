@@ -141,8 +141,29 @@ type ImageRequest struct {
 	User           string `json:"user,omitempty"`
 }
 
-type WhisperResponse struct {
+type WhisperJSONResponse struct {
 	Text string `json:"text,omitempty"`
+}
+
+type WhisperVerboseJSONResponse struct {
+	Task     string    `json:"task,omitempty"`
+	Language string    `json:"language,omitempty"`
+	Duration float64   `json:"duration,omitempty"`
+	Text     string    `json:"text,omitempty"`
+	Segments []Segment `json:"segments,omitempty"`
+}
+
+type Segment struct {
+	Id               int     `json:"id"`
+	Seek             int     `json:"seek"`
+	Start            float64 `json:"start"`
+	End              float64 `json:"end"`
+	Text             string  `json:"text"`
+	Tokens           []int   `json:"tokens"`
+	Temperature      float64 `json:"temperature"`
+	AvgLogprob       float64 `json:"avg_logprob"`
+	CompressionRatio float64 `json:"compression_ratio"`
+	NoSpeechProb     float64 `json:"no_speech_prob"`
 }
 
 type TextToSpeechRequest struct {
@@ -215,7 +236,7 @@ type ChatCompletionsStreamResponseChoice struct {
 	Delta struct {
 		Content string `json:"content"`
 	} `json:"delta"`
-	FinishReason *string `json:"finish_reason"`
+	FinishReason *string `json:"finish_reason,omitempty"`
 }
 
 type ChatCompletionsStreamResponse struct {

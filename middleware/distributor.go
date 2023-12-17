@@ -87,8 +87,12 @@ func Distribute() func(c *gin.Context) {
 			c.Set("api_version", channel.Other)
 		case common.ChannelTypeXunfei:
 			c.Set("api_version", channel.Other)
+		case common.ChannelTypeGemini:
+			c.Set("api_version", channel.Other)
 		case common.ChannelTypeAIProxyLibrary:
 			c.Set("library_id", channel.Other)
+		case common.ChannelTypeAli:
+			c.Set("plugin", channel.Other)
 		}
 		c.Next()
 	}

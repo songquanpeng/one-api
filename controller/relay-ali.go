@@ -13,13 +13,13 @@ import (
 // https://help.aliyun.com/document_detail/613695.html?spm=a2c4g.2399480.0.0.1adb778fAdzP9w#341800c0f8w0r
 
 type AliMessage struct {
-	User string `json:"user"`
-	Bot  string `json:"bot"`
+	Content string `json:"content"`
+	Role    string `json:"role"`
 }
 
 type AliInput struct {
-	Prompt  string       `json:"prompt"`
-	History []AliMessage `json:"history"`
+	//Prompt   string       `json:"prompt"`
+	Messages []AliMessage `json:"messages"`
 }
 
 type AliParameters struct {
@@ -83,32 +83,17 @@ type AliChatResponse struct {
 
 func requestOpenAI2Ali(request GeneralOpenAIRequest) *AliChatRequest {
 	messages := make([]AliMessage, 0, len(request.Messages))
-	prompt := ""
 	for i := 0; i < len(request.Messages); i++ {
 		message := request.Messages[i]
-		if message.Role == "system" {
-			messages = append(messages, AliMessage{
-				User: message.StringContent(),
-				Bot:  "Okay",
-			})
-			continue
-		} else {
-			if i == len(request.Messages)-1 {
-				prompt = message.StringContent()
-				break
-			}
-			messages = append(messages, AliMessage{
-				User: message.StringContent(),
-				Bot:  request.Messages[i+1].StringContent(),
-			})
-			i++
-		}
+		messages = append(messages, AliMessage{
+			Content: message.StringContent(),
+			Role:    strings.ToLower(message.Role),
+		})
 	}
 	return &AliChatRequest{
 		Model: request.Model,
 		Input: AliInput{
-			Prompt:  prompt,
-			History: messages,
+			Messages: messages,
 		},
 		//Parameters: AliParameters{  // ChatGPT's parameters are not compatible with Ali's
 		//	TopP: request.TopP,
