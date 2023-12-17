@@ -2,7 +2,7 @@ FROM node:16 as builder
 
 WORKDIR /build
 COPY web/package.json .
-RUN npm npm config set registry https://registry.npmmirror.com/
+RUN npm config set registry https://registry.npmmirror.com/
 RUN npm install
 COPY ./web .
 COPY ./VERSION .
