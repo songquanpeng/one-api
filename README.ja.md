@@ -3,12 +3,12 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/songquanpeng/one-api"><img src="https://raw.githubusercontent.com/songquanpeng/one-api/main/web/public/logo.png" width="150" height="150" alt="one-api logo"></a>
+  <a href="https://github.com/loks666/one-api"><img src="https://raw.githubusercontent.com/songquanpeng/one-api/main/web/public/logo.png" width="150" height="150" alt="one-api logo"></a>
 </p>
 
 <div align="center">
 
-# One API
+# Fly API
 
 _✨ 標準的な OpenAI API フォーマットを通じてすべての LLM にアクセスでき、導入と利用が容易です ✨_
 
@@ -18,13 +18,13 @@ _✨ 標準的な OpenAI API フォーマットを通じてすべての LLM に�
   <a href="https://raw.githubusercontent.com/songquanpeng/one-api/main/LICENSE">
     <img src="https://img.shields.io/github/license/songquanpeng/one-api?color=brightgreen" alt="license">
   </a>
-  <a href="https://github.com/songquanpeng/one-api/releases/latest">
+  <a href="https://github.com/loks666/one-api/releases/latest">
     <img src="https://img.shields.io/github/v/release/songquanpeng/one-api?color=brightgreen&include_prereleases" alt="release">
   </a>
   <a href="https://hub.docker.com/repository/docker/justsong/one-api">
     <img src="https://img.shields.io/docker/pulls/justsong/one-api?color=brightgreen" alt="docker pull">
   </a>
-  <a href="https://github.com/songquanpeng/one-api/releases/latest">
+  <a href="https://github.com/loks666/one-api/releases/latest">
     <img src="https://img.shields.io/github/downloads/songquanpeng/one-api/total?color=brightgreen&include_prereleases" alt="release">
   </a>
   <a href="https://goreportcard.com/report/github.com/songquanpeng/one-api">
@@ -37,7 +37,7 @@ _✨ 標準的な OpenAI API フォーマットを通じてすべての LLM に�
   ·
   <a href="#usage">使用方法</a>
   ·
-  <a href="https://github.com/songquanpeng/one-api/issues">フィードバック</a>
+  <a href="https://github.com/loks666/one-api/issues">フィードバック</a>
   ·
   <a href="#screenshots">スクリーンショット</a>
   ·
@@ -130,9 +130,9 @@ sudo service nginx restart
 初期アカウントのユーザー名は `root` で、パスワードは `123456` です。
 
 ### マニュアルデプロイ
-1. [GitHub Releases](https://github.com/songquanpeng/one-api/releases/latest) から実行ファイルをダウンロードする、もしくはソースからコンパイルする:
+1. [GitHub Releases](https://github.com/loks666/one-api/releases/latest) から実行ファイルをダウンロードする、もしくはソースからコンパイルする:
    ```shell
-   git clone https://github.com/songquanpeng/one-api.git
+   git clone https://github.com/loks666/one-api.git
 
    # フロントエンドのビルド
    cd one-api/web
@@ -165,9 +165,9 @@ sudo service nginx restart
 Please refer to the [environment variables](#environment-variables) section for details on using environment variables.
 
 ### コントロールパネル（例: Baota）への展開
-詳しい手順は [#175](https://github.com/songquanpeng/one-api/issues/175) を参照してください。
+詳しい手順は [#175](https://github.com/loks666/one-api/issues/175) を参照してください。
 
-配置後に空白のページが表示される場合は、[#97](https://github.com/songquanpeng/one-api/issues/97) を参照してください。
+配置後に空白のページが表示される場合は、[#97](https://github.com/loks666/one-api/issues/97) を参照してください。
 
 ### サードパーティプラットフォームへのデプロイ
 <details>
@@ -200,7 +200,7 @@ Please refer to the [environment variables](#environment-variables) section for 
 6. 自動デプロイが開始されますが、一旦キャンセルしてください。Variable タブで `PORT` に `3000` を追加し、`SQL_DSN` に `<username>:<password>@tcp(<addr>:<port>)/one-api` を追加します。変更を保存する。SQL_DSN` が設定されていないと、データが永続化されず、再デプロイ後にデータが失われるので注意すること。
 7. 再デプロイを選択します。
 8. Domains タブで、"my-one-api" のような適切なドメイン名の接頭辞を選択する。最終的なドメイン名は "my-one-api.zeabur.app" となります。独自のドメイン名を CNAME することもできます。
-9. デプロイが完了するのを待ち、生成されたドメイン名をクリックして One API にアクセスします。
+9. デプロイが完了するのを待ち、生成されたドメイン名をクリックして Fly API にアクセスします。
 
 </div>
 </details>
@@ -215,16 +215,16 @@ Please refer to the [environment variables](#environment-variables) section for 
 ## 使用方法
 `Channels` ページで API Key を追加し、`Tokens` ページでアクセストークンを追加する。
 
-アクセストークンを使って One API にアクセスすることができる。使い方は [OpenAI API](https://platform.openai.com/docs/api-reference/introduction) と同じです。
+アクセストークンを使って Fly API にアクセスすることができる。使い方は [OpenAI API](https://platform.openai.com/docs/api-reference/introduction) と同じです。
 
-OpenAI API が使用されている場所では、API Base に One API のデプロイアドレスを設定することを忘れないでください（例: `https://openai.justsong.cn`）。API Key は One API で生成されたトークンでなければなりません。
+OpenAI API が使用されている場所では、API Base に Fly API のデプロイアドレスを設定することを忘れないでください（例: `https://openai.justsong.cn`）。API Key は Fly API で生成されたトークンでなければなりません。
 
 具体的な API Base のフォーマットは、使用しているクライアントに依存することに注意してください。
 
 ```mermaid
 graph LR
     A(ユーザ)
-    A --->|リクエスト| B(One API)
+    A --->|リクエスト| B(Fly API)
     B -->|中継リクエスト| C(OpenAI)
     B -->|中継リクエスト| D(Azure)
     B -->|中継リクエスト| E(その他のダウンストリームチャンネル)
@@ -268,7 +268,7 @@ graph LR
 ![token](https://user-images.githubusercontent.com/39998050/233837971-dab488b7-6d96-43af-b640-a168e8d1c9bf.png)
 
 ## FAQ
-1. ノルマとは何か？どのように計算されますか？One API にはノルマ計算の問題はありますか？
+1. ノルマとは何か？どのように計算されますか？Fly API にはノルマ計算の問題はありますか？
     + ノルマ = グループ倍率 * モデル倍率 * (プロンプトトークンの数 + 完了トークンの数 * 完了倍率)
     + 完了倍率は、公式の定義と一致するように、GPT3.5 では 1.33、GPT4 では 2 に固定されています。
     + ストリームモードでない場合、公式 API は消費したトークンの総数を返す。ただし、プロンプトとコンプリートの消費倍率は異なるので注意してください。

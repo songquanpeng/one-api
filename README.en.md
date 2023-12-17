@@ -3,12 +3,12 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/songquanpeng/one-api"><img src="https://raw.githubusercontent.com/songquanpeng/one-api/main/web/public/logo.png" width="150" height="150" alt="one-api logo"></a>
+  <a href="https://github.com/loks666/one-api"><img src="https://raw.githubusercontent.com/songquanpeng/one-api/main/web/public/logo.png" width="150" height="150" alt="one-api logo"></a>
 </p>
 
 <div align="center">
 
-# One API
+# Fly API
 
 _✨ Access all LLM through the standard OpenAI API format, easy to deploy & use ✨_
 
@@ -18,13 +18,13 @@ _✨ Access all LLM through the standard OpenAI API format, easy to deploy & use
   <a href="https://raw.githubusercontent.com/songquanpeng/one-api/main/LICENSE">
     <img src="https://img.shields.io/github/license/songquanpeng/one-api?color=brightgreen" alt="license">
   </a>
-  <a href="https://github.com/songquanpeng/one-api/releases/latest">
+  <a href="https://github.com/loks666/one-api/releases/latest">
     <img src="https://img.shields.io/github/v/release/songquanpeng/one-api?color=brightgreen&include_prereleases" alt="release">
   </a>
   <a href="https://hub.docker.com/repository/docker/justsong/one-api">
     <img src="https://img.shields.io/docker/pulls/justsong/one-api?color=brightgreen" alt="docker pull">
   </a>
-  <a href="https://github.com/songquanpeng/one-api/releases/latest">
+  <a href="https://github.com/loks666/one-api/releases/latest">
     <img src="https://img.shields.io/github/downloads/songquanpeng/one-api/total?color=brightgreen&include_prereleases" alt="release">
   </a>
   <a href="https://goreportcard.com/report/github.com/songquanpeng/one-api">
@@ -37,7 +37,7 @@ _✨ Access all LLM through the standard OpenAI API format, easy to deploy & use
   ·
   <a href="#usage">Usage</a>
   ·
-  <a href="https://github.com/songquanpeng/one-api/issues">Feedback</a>
+  <a href="https://github.com/loks666/one-api/issues">Feedback</a>
   ·
   <a href="#screenshots">Screenshots</a>
   ·
@@ -129,9 +129,9 @@ sudo service nginx restart
 The initial account username is `root` and password is `123456`.
 
 ### Manual Deployment
-1. Download the executable file from [GitHub Releases](https://github.com/songquanpeng/one-api/releases/latest) or compile from source:
+1. Download the executable file from [GitHub Releases](https://github.com/loks666/one-api/releases/latest) or compile from source:
    ```shell
-   git clone https://github.com/songquanpeng/one-api.git
+   git clone https://github.com/loks666/one-api.git
    
    # Build the frontend
    cd one-api/web
@@ -164,9 +164,9 @@ For more detailed deployment tutorials, please refer to [this page](https://iama
 Please refer to the [environment variables](#environment-variables) section for details on using environment variables.
 
 ### Deployment on Control Panels (e.g., Baota)
-Refer to [#175](https://github.com/songquanpeng/one-api/issues/175) for detailed instructions.
+Refer to [#175](https://github.com/loks666/one-api/issues/175) for detailed instructions.
 
-If you encounter a blank page after deployment, refer to [#97](https://github.com/songquanpeng/one-api/issues/97) for possible solutions.
+If you encounter a blank page after deployment, refer to [#97](https://github.com/loks666/one-api/issues/97) for possible solutions.
 
 ### Deployment on Third-Party Platforms
 <details>
@@ -199,7 +199,7 @@ If you encounter a blank page after deployment, refer to [#97](https://github.co
 6. Automatic deployment will start, but please cancel it for now. Go to the Variable tab, add a `PORT` with a value of `3000`, and then add a `SQL_DSN` with a value of `<username>:<password>@tcp(<addr>:<port>)/one-api`. Save the changes. Please note that if `SQL_DSN` is not set, data will not be persisted, and the data will be lost after redeployment.
 7. Select Redeploy.
 8. In the Domains tab, select a suitable domain name prefix, such as "my-one-api". The final domain name will be "my-one-api.zeabur.app". You can also CNAME your own domain name.
-9. Wait for the deployment to complete, and click on the generated domain name to access One API.
+9. Wait for the deployment to complete, and click on the generated domain name to access Fly API.
 
 </div>
 </details>
@@ -214,16 +214,16 @@ After the system starts, log in as the `root` user to further configure the syst
 ## Usage
 Add your API Key on the `Channels` page, and then add an access token on the `Tokens` page.
 
-You can then use your access token to access One API. The usage is consistent with the [OpenAI API](https://platform.openai.com/docs/api-reference/introduction).
+You can then use your access token to access Fly API. The usage is consistent with the [OpenAI API](https://platform.openai.com/docs/api-reference/introduction).
 
-In places where the OpenAI API is used, remember to set the API Base to your One API deployment address, for example: `https://openai.justsong.cn`. The API Key should be the token generated in One API.
+In places where the OpenAI API is used, remember to set the API Base to your Fly API deployment address, for example: `https://openai.justsong.cn`. The API Key should be the token generated in Fly API.
 
 Note that the specific API Base format depends on the client you are using.
 
 ```mermaid
 graph LR
     A(User)
-    A --->|Request| B(One API)
+    A --->|Request| B(Fly API)
     B -->|Relay Request| C(OpenAI)
     B -->|Relay Request| D(Azure)
     B -->|Relay Request| E(Other downstream channels)
@@ -267,7 +267,7 @@ If the channel ID is not provided, load balancing will be used to distribute the
 ![token](https://user-images.githubusercontent.com/39998050/233837971-dab488b7-6d96-43af-b640-a168e8d1c9bf.png)
 
 ## FAQ
-1. What is quota? How is it calculated? Does One API have quota calculation issues?
+1. What is quota? How is it calculated? Does Fly API have quota calculation issues?
     + Quota = Group multiplier * Model multiplier * (number of prompt tokens + number of completion tokens * completion multiplier)
     + The completion multiplier is fixed at 1.33 for GPT3.5 and 2 for GPT4, consistent with the official definition.
     + If it is not a stream mode, the official API will return the total number of tokens consumed. However, please note that the consumption multipliers for prompts and completions are different.

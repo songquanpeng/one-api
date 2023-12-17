@@ -4,12 +4,12 @@
 
 
 <p align="center">
-  <a href="https://github.com/songquanpeng/one-api"><img src="https://raw.githubusercontent.com/songquanpeng/one-api/main/web/public/logo.png" width="150" height="150" alt="one-api logo"></a>
+  <a href="https://github.com/loks666/one-api"><img src="https://raw.githubusercontent.com/songquanpeng/one-api/main/web/public/logo.png" width="150" height="150" alt="one-api logo"></a>
 </p>
 
 <div align="center">
 
-# One API
+# Fly API
 
 _✨ 通过标准的 OpenAI API 格式访问所有的大模型，开箱即用 ✨_
 
@@ -19,13 +19,13 @@ _✨ 通过标准的 OpenAI API 格式访问所有的大模型，开箱即用 �
   <a href="https://raw.githubusercontent.com/songquanpeng/one-api/main/LICENSE">
     <img src="https://img.shields.io/github/license/songquanpeng/one-api?color=brightgreen" alt="license">
   </a>
-  <a href="https://github.com/songquanpeng/one-api/releases/latest">
+  <a href="https://github.com/loks666/one-api/releases/latest">
     <img src="https://img.shields.io/github/v/release/songquanpeng/one-api?color=brightgreen&include_prereleases" alt="release">
   </a>
   <a href="https://hub.docker.com/repository/docker/justsong/one-api">
     <img src="https://img.shields.io/docker/pulls/justsong/one-api?color=brightgreen" alt="docker pull">
   </a>
-  <a href="https://github.com/songquanpeng/one-api/releases/latest">
+  <a href="https://github.com/loks666/one-api/releases/latest">
     <img src="https://img.shields.io/github/downloads/songquanpeng/one-api/total?color=brightgreen&include_prereleases" alt="release">
   </a>
   <a href="https://goreportcard.com/report/github.com/songquanpeng/one-api">
@@ -34,19 +34,19 @@ _✨ 通过标准的 OpenAI API 格式访问所有的大模型，开箱即用 �
 </p>
 
 <p align="center">
-  <a href="https://github.com/songquanpeng/one-api#部署">部署教程</a>
+  <a href="https://github.com/loks666/one-api#部署">部署教程</a>
   ·
-  <a href="https://github.com/songquanpeng/one-api#使用方法">使用方法</a>
+  <a href="https://github.com/loks666/one-api#使用方法">使用方法</a>
   ·
-  <a href="https://github.com/songquanpeng/one-api/issues">意见反馈</a>
+  <a href="https://github.com/loks666/one-api/issues">意见反馈</a>
   ·
-  <a href="https://github.com/songquanpeng/one-api#截图展示">截图展示</a>
+  <a href="https://github.com/loks666/one-api#截图展示">截图展示</a>
   ·
   <a href="https://openai.justsong.cn/">在线演示</a>
   ·
-  <a href="https://github.com/songquanpeng/one-api#常见问题">常见问题</a>
+  <a href="https://github.com/loks666/one-api#常见问题">常见问题</a>
   ·
-  <a href="https://github.com/songquanpeng/one-api#相关项目">相关项目</a>
+  <a href="https://github.com/loks666/one-api#相关项目">相关项目</a>
   ·
   <a href="https://iamazing.cn/page/reward">赞赏支持</a>
 </p>
@@ -114,7 +114,7 @@ docker run --name one-api -d --restart always -p 3000:3000 -e SQL_DSN="root:1234
 
 数据和日志将会保存在宿主机的 `/home/ubuntu/data/one-api` 目录，请确保该目录存在且具有写入权限，或者更改为合适的目录。
 
-如果启动失败，请添加 `--privileged=true`，具体参考 https://github.com/songquanpeng/one-api/issues/482 。
+如果启动失败，请添加 `--privileged=true`，具体参考 https://github.com/loks666/one-api/issues/482 。
 
 如果上面的镜像无法拉取，可以尝试使用 GitHub 的 Docker 镜像，将上面的 `justsong/one-api` 替换为 `ghcr.io/songquanpeng/one-api` 即可。
 
@@ -168,9 +168,9 @@ docker-compose ps
 ```
 
 ### 手动部署
-1. 从 [GitHub Releases](https://github.com/songquanpeng/one-api/releases/latest) 下载可执行文件或者从源码编译：
+1. 从 [GitHub Releases](https://github.com/loks666/one-api/releases/latest) 下载可执行文件或者从源码编译：
    ```shell
-   git clone https://github.com/songquanpeng/one-api.git
+   git clone https://github.com/loks666/one-api.git
    
    # 构建前端
    cd one-api/web
@@ -204,11 +204,11 @@ docker-compose ps
 
 ### 宝塔部署教程
 
-详见 [#175](https://github.com/songquanpeng/one-api/issues/175)。
+详见 [#175](https://github.com/loks666/one-api/issues/175)。
 
-如果部署后访问出现空白页面，详见 [#97](https://github.com/songquanpeng/one-api/issues/97)。
+如果部署后访问出现空白页面，详见 [#97](https://github.com/loks666/one-api/issues/97)。
 
-### 部署第三方服务配合 One API 使用
+### 部署第三方服务配合 Fly API 使用
 > 欢迎 PR 添加更多示例。
 
 #### ChatGPT Next Web
@@ -232,7 +232,7 @@ docker run --name chatgpt-web -d -p 3002:3002 -e OPENAI_API_BASE_URL=https://ope
 #### QChatGPT - QQ机器人
 项目主页：https://github.com/RockChinQ/QChatGPT
 
-根据文档完成部署后，在`config.py`设置配置项`openai_config`的`reverse_proxy`为 One API 后端地址，设置`api_key`为 One API 生成的key，并在配置项`completion_api_params`的`model`参数设置为 One API 支持的模型名称。
+根据文档完成部署后，在`config.py`设置配置项`openai_config`的`reverse_proxy`为 Fly API 后端地址，设置`api_key`为 Fly API 生成的key，并在配置项`completion_api_params`的`model`参数设置为 Fly API 支持的模型名称。
 
 可安装 [Switcher 插件](https://github.com/RockChinQ/Switcher)在运行时切换所使用的模型。
 
@@ -266,7 +266,7 @@ docker run --name chatgpt-web -d -p 3002:3002 -e OPENAI_API_BASE_URL=https://ope
 6. Deploy 会自动开始，先取消。进入下方 Variable，添加一个 `PORT`，值为 `3000`，再添加一个 `SQL_DSN`，值为 `<username>:<password>@tcp(<addr>:<port>)/one-api` ，然后保存。 注意如果不填写 `SQL_DSN`，数据将无法持久化，重新部署后数据会丢失。
 7. 选择 Redeploy。
 8. 进入下方 Domains，选择一个合适的域名前缀，如 "my-one-api"，最终域名为 "my-one-api.zeabur.app"，也可以 CNAME 自己的域名。
-9. 等待部署完成，点击生成的域名进入 One API。
+9. 等待部署完成，点击生成的域名进入 Fly API。
 
 </div>
 </details>
@@ -294,9 +294,9 @@ Render 可以直接部署 docker 镜像，不需要 fork 仓库：https://dashbo
 ## 使用方法
 在`渠道`页面中添加你的 API Key，之后在`令牌`页面中新增访问令牌。
 
-之后就可以使用你的令牌访问 One API 了，使用方式与 [OpenAI API](https://platform.openai.com/docs/api-reference/introduction) 一致。
+之后就可以使用你的令牌访问 Fly API 了，使用方式与 [OpenAI API](https://platform.openai.com/docs/api-reference/introduction) 一致。
 
-你需要在各种用到 OpenAI API 的地方设置 API Base 为你的 One API 的部署地址，例如：`https://openai.justsong.cn`，API Key 则为你在 One API 中生成的令牌。
+你需要在各种用到 OpenAI API 的地方设置 API Base 为你的 Fly API 的部署地址，例如：`https://openai.justsong.cn`，API Key 则为你在 Fly API 中生成的令牌。
 
 注意，具体的 API Base 的格式取决于你所使用的客户端。
 
@@ -309,7 +309,7 @@ OPENAI_API_BASE="https://<HOST>:<PORT>/v1"
 ```mermaid
 graph LR
     A(用户)
-    A --->|使用 One API 分发的 key 进行请求| B(One API)
+    A --->|使用 Fly API 分发的 key 进行请求| B(Fly API)
     B -->|中继请求| C(OpenAI)
     B -->|中继请求| D(Azure)
     B -->|中继请求| E(其他 OpenAI API 格式下游渠道)
@@ -385,11 +385,11 @@ https://openai.justsong.cn
 ![token](https://user-images.githubusercontent.com/39998050/233837971-dab488b7-6d96-43af-b640-a168e8d1c9bf.png)
 
 ## 常见问题
-1. 额度是什么？怎么计算的？One API 的额度计算有问题？
+1. 额度是什么？怎么计算的？Fly API 的额度计算有问题？
    + 额度 = 分组倍率 * 模型倍率 * （提示 token 数 + 补全 token 数 * 补全倍率）
    + 其中补全倍率对于 GPT3.5 固定为 1.33，GPT4 为 2，与官方保持一致。
    + 如果是非流模式，官方接口会返回消耗的总 token，但是你要注意提示和补全的消耗倍率不一样。
-   + 注意，One API 的默认倍率就是官方倍率，是已经调整过的。
+   + 注意，Fly API 的默认倍率就是官方倍率，是已经调整过的。
 2. 账户额度足够为什么提示额度不足？
    + 请检查你的令牌额度是否足够，这个和账户额度是分开的。
    + 令牌额度仅供用户设置最大使用量，用户可自由设置。

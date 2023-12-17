@@ -139,7 +139,7 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 			task := strings.TrimPrefix(requestURL, "/v1/")
 			model_ := textRequest.Model
 			model_ = strings.Replace(model_, ".", "", -1)
-			// https://github.com/songquanpeng/one-api/issues/67
+			// https://github.com/loks666/one-api/issues/67
 			model_ = strings.TrimSuffix(model_, "-0301")
 			model_ = strings.TrimSuffix(model_, "-0314")
 			model_ = strings.TrimSuffix(model_, "-0613")
@@ -368,8 +368,8 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 			} else {
 				req.Header.Set("Authorization", c.Request.Header.Get("Authorization"))
 				if channelType == common.ChannelTypeOpenRouter {
-					req.Header.Set("HTTP-Referer", "https://github.com/songquanpeng/one-api")
-					req.Header.Set("X-Title", "One API")
+					req.Header.Set("HTTP-Referer", "https://github.com/loks666/one-api")
+					req.Header.Set("X-Title", "Fly API")
 				}
 			}
 		case APITypeClaude:
