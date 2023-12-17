@@ -190,10 +190,9 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 			version = c.GetString("api_version")
 		}
 		action := "generateContent"
-		// actually gemini does not support stream, it's fake
-		//if textRequest.Stream {
-		//	action = "streamGenerateContent"
-		//}
+		if textRequest.Stream {
+			action = "streamGenerateContent"
+		}
 		fullRequestURL = fmt.Sprintf("%s/%s/models/%s:%s", requestBaseURL, version, textRequest.Model, action)
 		apiKey := c.Request.Header.Get("Authorization")
 		apiKey = strings.TrimPrefix(apiKey, "Bearer ")
