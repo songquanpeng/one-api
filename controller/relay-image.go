@@ -19,10 +19,6 @@ func isWithinRange(element string, value int) bool {
 	if _, ok := common.DalleGenerationImageAmounts[element]; !ok {
 		return false
 	}
-	if element == "dall-e-3" && value == 0 {
-		value = 1
-	}
-
 	min := common.DalleGenerationImageAmounts[element][0]
 	max := common.DalleGenerationImageAmounts[element][1]
 
@@ -43,6 +39,10 @@ func relayImageHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode 
 	err := common.UnmarshalBodyReusable(c, &imageRequest)
 	if err != nil {
 		return errorWrapper(err, "bind_request_body_failed", http.StatusBadRequest)
+	}
+
+	if imageRequest.N == 0 {
+		imageRequest.N = 1
 	}
 
 	// Size validation
