@@ -19,7 +19,6 @@ func isWithinRange(element string, value int) bool {
 	if _, ok := common.DalleGenerationImageAmounts[element]; !ok {
 		return false
 	}
-
 	min := common.DalleGenerationImageAmounts[element][0]
 	max := common.DalleGenerationImageAmounts[element][1]
 
@@ -40,6 +39,10 @@ func relayImageHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode 
 	err := common.UnmarshalBodyReusable(c, &imageRequest)
 	if err != nil {
 		return errorWrapper(err, "bind_request_body_failed", http.StatusBadRequest)
+	}
+
+	if imageRequest.N == 0 {
+		imageRequest.N = 1
 	}
 
 	// Size validation
@@ -79,7 +82,10 @@ func relayImageHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode 
 
 	// Number of generated images validation
 	if isWithinRange(imageModel, imageRequest.N) == false {
-		return errorWrapper(errors.New("invalid value of n"), "n_not_within_range", http.StatusBadRequest)
+		// channel not azure
+		if channelType != common.ChannelTypeAzure {
+			return errorWrapper(errors.New("invalid value of n"), "n_not_within_range", http.StatusBadRequest)
+		}
 	}
 
 	// map model name
@@ -102,7 +108,7 @@ func relayImageHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode 
 		baseURL = c.GetString("base_url")
 	}
 	fullRequestURL := getFullRequestURL(baseURL, requestURL, channelType)
-	if channelType == common.ChannelTypeAzure && relayMode == RelayModeImagesGenerations {
+	if channelType == common.ChannelTypeAzure {
 		// https://learn.microsoft.com/en-us/azure/ai-services/openai/dall-e-quickstart?tabs=dalle3%2Ccommand-line&pivots=rest-api
 		apiVersion := GetAPIVersion(c)
 		// https://{resource_name}.openai.azure.com/openai/deployments/dall-e-3/images/generations?api-version=2023-06-01-preview

@@ -263,11 +263,52 @@ func setEventStreamHeaders(c *gin.Context) {
 	c.Writer.Header().Set("X-Accel-Buffering", "no")
 }
 
+type GeneralErrorResponse struct {
+	Error    OpenAIError `json:"error"`
+	Message  string      `json:"message"`
+	Msg      string      `json:"msg"`
+	Err      string      `json:"err"`
+	ErrorMsg string      `json:"error_msg"`
+	Header   struct {
+		Message string `json:"message"`
+	} `json:"header"`
+	Response struct {
+		Error struct {
+			Message string `json:"message"`
+		} `json:"error"`
+	} `json:"response"`
+}
+
+func (e GeneralErrorResponse) ToMessage() string {
+	if e.Error.Message != "" {
+		return e.Error.Message
+	}
+	if e.Message != "" {
+		return e.Message
+	}
+	if e.Msg != "" {
+		return e.Msg
+	}
+	if e.Err != "" {
+		return e.Err
+	}
+	if e.ErrorMsg != "" {
+		return e.ErrorMsg
+	}
+	if e.Header.Message != "" {
+		return e.Header.Message
+	}
+	if e.Response.Error.Message != "" {
+		return e.Response.Error.Message
+	}
+	return ""
+}
+
 func relayErrorHandler(resp *http.Response) (openAIErrorWithStatusCode *OpenAIErrorWithStatusCode) {
 	openAIErrorWithStatusCode = &OpenAIErrorWithStatusCode{
 		StatusCode: resp.StatusCode,
 		OpenAIError: OpenAIError{
-			Message: fmt.Sprintf("bad response status code %d", resp.StatusCode),
+			Message: "",
 			Type:    "upstream_error",
 			Code:    "bad_response_status_code",
 			Param:   strconv.Itoa(resp.StatusCode),
@@ -281,12 +322,20 @@ func relayErrorHandler(resp *http.Response) (openAIErrorWithStatusCode *OpenAIEr
 	if err != nil {
 		return
 	}
-	var textResponse TextResponse
-	err = json.Unmarshal(responseBody, &textResponse)
+	var errResponse GeneralErrorResponse
+	err = json.Unmarshal(responseBody, &errResponse)
 	if err != nil {
 		return
 	}
-	openAIErrorWithStatusCode.OpenAIError = textResponse.Error
+	if errResponse.Error.Message != "" {
+		// OpenAI format error, so we override the default one
+		openAIErrorWithStatusCode.OpenAIError = errResponse.Error
+	} else {
+		openAIErrorWithStatusCode.OpenAIError.Message = errResponse.ToMessage()
+	}
+	if openAIErrorWithStatusCode.OpenAIError.Message == "" {
+		openAIErrorWithStatusCode.OpenAIError.Message = fmt.Sprintf("bad response status code %d", resp.StatusCode)
+	}
 	return
 }
 
