@@ -90,6 +90,12 @@ func relayAudioHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode 
 		}
 	}
 
+	apiType := APITypeOpenAI
+	switch channelType {
+	case common.ChannelTypeAli:
+		apiType = APITypeAli
+	}
+
 	baseURL := common.ChannelBaseURLs[channelType]
 	requestURL := c.Request.URL.String()
 	if c.GetString("base_url") != "" {
@@ -103,11 +109,33 @@ func relayAudioHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode 
 		fullRequestURL = fmt.Sprintf("%s/openai/deployments/%s/audio/transcriptions?api-version=%s", baseURL, audioModel, apiVersion)
 	}
 
+	quotaDelta := 0
+	defer func(ctx context.Context) {
+		go postConsumeQuota(ctx, tokenId, quotaDelta, quota, userId, channelId, modelRatio, groupRatio, audioModel, tokenName)
+	}(c.Request.Context())
+
 	requestBody := &bytes.Buffer{}
 	_, err = io.Copy(requestBody, c.Request.Body)
 	if err != nil {
 		return errorWrapper(err, "new_request_body_failed", http.StatusInternalServerError)
 	}
+
+	switch apiType {
+	case APITypeAli:
+		if relayMode == RelayModeAudioSpeech {
+			err, usage := aliTTSHandler(c, ttsRequest)
+			if err != nil {
+				return err
+			}
+
+			if usage != nil {
+				quota = usage.TotalTokens
+			}
+
+			return nil
+		}
+	}
+
 	c.Request.Body = io.NopCloser(bytes.NewBuffer(requestBody.Bytes()))
 	responseFormat := c.DefaultPostForm("response_format", "json")
 
@@ -195,10 +223,8 @@ func relayAudioHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode 
 		}
 		return relayErrorHandler(resp)
 	}
-	quotaDelta := quota - preConsumedQuota
-	defer func(ctx context.Context) {
-		go postConsumeQuota(ctx, tokenId, quotaDelta, quota, userId, channelId, modelRatio, groupRatio, audioModel, tokenName)
-	}(c.Request.Context())
+
+	quotaDelta = quota - preConsumedQuota
 
 	for k, v := range resp.Header {
 		c.Writer.Header().Set(k, v[0])

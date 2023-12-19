@@ -90,6 +90,49 @@ var ModelRatio = map[string]float64{
 	"qwen-turbo":                0.8572, // ￥0.012 / 1k tokens
 	"qwen-plus":                 10,     // ￥0.14 / 1k tokens
 	"text-embedding-v1":         0.05,   // ￥0.0007 / 1k tokens
+	"sambert-zhichu-v1":         0.777,  // todo
+	"sambert-zhiwei-v1":         0.777,  // todo
+	"sambert-zhixiang-v1":       0.777,  // todo
+	"sambert-zhide-v1":          0.777,  // todo
+	"sambert-zhijia-v1":         0.777,  // todo
+	"sambert-zhinan-v1":         0.777,  // todo
+	"sambert-zhiqi-v1":          0.777,  // todo
+	"sambert-zhiqian-v1":        0.777,  // todo
+	"sambert-zhiru-v1":          0.777,  // todo
+	"sambert-zhimiao-emo-v1":    0.777,  // todo
+	"sambert-zhida-v1":          0.777,  // todo
+	"sambert-zhifei-v1":         0.777,  // todo
+	"sambert-zhigui-v1":         0.777,  // todo
+	"sambert-zhihao-v1":         0.777,  // todo
+	"sambert-zhijing-v1":        0.777,  // todo
+	"sambert-zhilun-v1":         0.777,  // todo
+	"sambert-zhimao-v1":         0.777,  // todo
+	"sambert-zhiming-v1":        0.777,  // todo
+	"sambert-zhimo-v1":          0.777,  // todo
+	"sambert-zhina-v1":          0.777,  // todo
+	"sambert-zhishu-v1":         0.777,  // todo
+	"sambert-zhishuo-v1":        0.777,  // todo
+	"sambert-zhistella-v1":      0.777,  // todo
+	"sambert-zhiting-v1":        0.777,  // todo
+	"sambert-zhixiao-v1":        0.777,  // todo
+	"sambert-zhiya-v1":          0.777,  // todo
+	"sambert-zhiye-v1":          0.777,  // todo
+	"sambert-zhiying-v1":        0.777,  // todo
+	"sambert-zhiyuan-v1":        0.777,  // todo
+	"sambert-zhiyue-v1":         0.777,  // todo
+	"sambert-camila-v1":         0.777,  // todo
+	"sambert-perla-v1":          0.777,  // todo
+	"sambert-indah-v1":          0.777,  // todo
+	"sambert-clara-v1":          0.777,  // todo
+	"sambert-hanna-v1":          0.777,  // todo
+	"sambert-beth-v1":           0.777,  // todo
+	"sambert-betty-v1":          0.777,  // todo
+	"sambert-cally-v1":          0.777,  // todo
+	"sambert-cindy-v1":          0.777,  // todo
+	"sambert-eva-v1":            0.777,  // todo
+	"sambert-donna-v1":          0.777,  // todo
+	"sambert-brian-v1":          0.777,  // todo
+	"sambert-waan-v1":           0.777,  // todo
 	"SparkDesk":                 1.2858, // ￥0.018 / 1k tokens
 	"360GPT_S2_V9":              0.8572, // ¥0.012 / 1k tokens
 	"embedding-bert-512-v1":     0.0715, // ¥0.001 / 1k tokens

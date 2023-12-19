@@ -4,6 +4,8 @@ import (
 	"bufio"
 	"encoding/json"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
+	"github.com/gorilla/websocket"
 	"io"
 	"net/http"
 	"one-api/common"
@@ -33,6 +35,61 @@ type AliChatRequest struct {
 	Model      string        `json:"model"`
 	Input      AliInput      `json:"input"`
 	Parameters AliParameters `json:"parameters,omitempty"`
+}
+
+type AliTaskResponse struct {
+	StatusCode int    `json:"status_code,omitempty"`
+	RequestId  string `json:"request_id,omitempty"`
+	Code       string `json:"code,omitempty"`
+	Message    string `json:"message,omitempty"`
+	Output     struct {
+		TaskId     string `json:"task_id,omitempty"`
+		TaskStatus string `json:"task_status,omitempty"`
+		Code       string `json:"code,omitempty"`
+		Message    string `json:"message,omitempty"`
+		Results    []struct {
+			B64Image string `json:"b64_image,omitempty"`
+			Url      string `json:"url,omitempty"`
+			Code     string `json:"code,omitempty"`
+			Message  string `json:"message,omitempty"`
+		} `json:"results,omitempty"`
+		TaskMetrics struct {
+			Total     int `json:"TOTAL,omitempty"`
+			Succeeded int `json:"SUCCEEDED,omitempty"`
+			Failed    int `json:"FAILED,omitempty"`
+		} `json:"task_metrics,omitempty"`
+	} `json:"output,omitempty"`
+	Usage Usage `json:"usage"`
+}
+
+type AliHeader struct {
+	Action    string `json:"action,omitempty"`
+	Streaming string `json:"streaming,omitempty"`
+	TaskID    string `json:"task_id,omitempty"`
+	Event     string `json:"event,omitempty"`
+}
+
+type AliPayload struct {
+	Model      string `json:"model,omitempty"`
+	Task       string `json:"task,omitempty"`
+	TaskGroup  string `json:"task_group,omitempty"`
+	Function   string `json:"function,omitempty"`
+	Parameters struct {
+		SampleRate int     `json:"sample_rate,omitempty"`
+		Rate       float64 `json:"rate,omitempty"`
+		Format     string  `json:"format,omitempty"`
+	} `json:"parameters,omitempty"`
+	Input struct {
+		Text string `json:"text,omitempty"`
+	} `json:"input,omitempty"`
+	Usage struct {
+		Characters int `json:"characters,omitempty"`
+	} `json:"usage,omitempty"`
+}
+
+type AliWSSMessage struct {
+	Header  AliHeader  `json:"header,omitempty"`
+	Payload AliPayload `json:"payload,omitempty"`
 }
 
 type AliEmbeddingRequest struct {
@@ -117,6 +174,23 @@ func requestOpenAI2Ali(request GeneralOpenAIRequest) *AliChatRequest {
 		//	//EnableSearch: false,
 		//},
 	}
+}
+
+func requestOpenAI2AliTTS(request TextToSpeechRequest) *AliWSSMessage {
+	var ttsRequest AliWSSMessage
+	ttsRequest.Header.Action = "run-task"
+	ttsRequest.Header.Streaming = "out"
+	ttsRequest.Header.TaskID = uuid.New().String()
+	ttsRequest.Payload.Function = "SpeechSynthesizer"
+	ttsRequest.Payload.Input.Text = request.Input
+	ttsRequest.Payload.Model = request.Model
+	ttsRequest.Payload.Parameters.Format = request.ResponseFormat
+	//ttsRequest.Payload.Parameters.SampleRate = 48000
+	ttsRequest.Payload.Parameters.Rate = request.Speed
+	ttsRequest.Payload.Task = "tts"
+	ttsRequest.Payload.TaskGroup = "audio"
+
+	return &ttsRequest
 }
 
 func embeddingRequestOpenAI2Ali(request GeneralOpenAIRequest) *AliEmbeddingRequest {
@@ -326,4 +400,58 @@ func aliHandler(c *gin.Context, resp *http.Response) (*OpenAIErrorWithStatusCode
 	c.Writer.WriteHeader(resp.StatusCode)
 	_, err = c.Writer.Write(jsonResponse)
 	return nil, &fullTextResponse.Usage
+}
+
+func aliTTSHandler(c *gin.Context, req TextToSpeechRequest) (*OpenAIErrorWithStatusCode, *Usage) {
+	Authorization := c.Request.Header.Get("Authorization")
+	baseURL := "wss://dashscope.aliyuncs.com/api-ws/v1/inference"
+	var usage Usage
+
+	conn, _, err := websocket.DefaultDialer.Dial(baseURL, http.Header{"Authorization": {Authorization}})
+	if err != nil {
+		return errorWrapper(err, "wss_conn_failed", http.StatusInternalServerError), nil
+	}
+	defer conn.Close()
+
+	message := requestOpenAI2AliTTS(req)
+
+	if err := conn.WriteJSON(message); err != nil {
+		return errorWrapper(err, "wss_write_msg_failed", http.StatusInternalServerError), nil
+	}
+
+	const chunkSize = 1024
+
+	for {
+		messageType, audioData, err := conn.ReadMessage()
+		if err != nil {
+			if err == io.EOF {
+				break
+			}
+			return errorWrapper(err, "wss_read_msg_failed", http.StatusInternalServerError), nil
+		}
+
+		var msg AliWSSMessage
+		switch messageType {
+		case websocket.TextMessage:
+			err = json.Unmarshal(audioData, &msg)
+			if msg.Header.Event == "task-finished" {
+				usage.TotalTokens = msg.Payload.Usage.Characters
+				return nil, &usage
+			}
+		case websocket.BinaryMessage:
+			for i := 0; i < len(audioData); i += chunkSize {
+				end := i + chunkSize
+				if end > len(audioData) {
+					end = len(audioData)
+				}
+				chunk := audioData[i:end]
+				_, writeErr := c.Writer.Write(chunk)
+				if writeErr != nil {
+					return errorWrapper(writeErr, "write_audio_failed", http.StatusInternalServerError), nil
+				}
+			}
+		}
+	}
+
+	return nil, &usage
 }
