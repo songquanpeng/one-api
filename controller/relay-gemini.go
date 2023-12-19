@@ -287,6 +287,7 @@ func geminiChatHandler(c *gin.Context, resp *http.Response, promptTokens int, mo
 		}, nil
 	}
 	fullTextResponse := responseGeminiChat2OpenAI(&geminiResponse)
+	fullTextResponse.Model = model
 	completionTokens := countTokenText(geminiResponse.GetResponseText(), model)
 	usage := Usage{
 		PromptTokens:     promptTokens,
