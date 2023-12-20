@@ -114,7 +114,7 @@ func requestOpenAI2Gemini(textRequest GeneralOpenAIRequest) *GeminiChatRequest {
 				Role: "model",
 				Parts: []GeminiPart{
 					{
-						Text: "ok",
+						Text: "Okay",
 					},
 				},
 			})
@@ -128,6 +128,16 @@ func requestOpenAI2Gemini(textRequest GeneralOpenAIRequest) *GeminiChatRequest {
 type GeminiChatResponse struct {
 	Candidates     []GeminiChatCandidate    `json:"candidates"`
 	PromptFeedback GeminiChatPromptFeedback `json:"promptFeedback"`
+}
+
+func (g *GeminiChatResponse) GetResponseText() string {
+	if g == nil {
+		return ""
+	}
+	if len(g.Candidates) > 0 && len(g.Candidates[0].Content.Parts) > 0 {
+		return g.Candidates[0].Content.Parts[0].Text
+	}
+	return ""
 }
 
 type GeminiChatCandidate struct {
@@ -158,9 +168,12 @@ func responseGeminiChat2OpenAI(response *GeminiChatResponse) *OpenAITextResponse
 			Index: i,
 			Message: Message{
 				Role:    "assistant",
-				Content: candidate.Content.Parts[0].Text,
+				Content: "",
 			},
 			FinishReason: stopFinishReason,
+		}
+		if len(candidate.Content.Parts) > 0 {
+			choice.Message.Content = candidate.Content.Parts[0].Text
 		}
 		fullTextResponse.Choices = append(fullTextResponse.Choices, choice)
 	}
@@ -169,9 +182,7 @@ func responseGeminiChat2OpenAI(response *GeminiChatResponse) *OpenAITextResponse
 
 func streamResponseGeminiChat2OpenAI(geminiResponse *GeminiChatResponse) *ChatCompletionsStreamResponse {
 	var choice ChatCompletionsStreamResponseChoice
-	if len(geminiResponse.Candidates) > 0 && len(geminiResponse.Candidates[0].Content.Parts) > 0 {
-		choice.Delta.Content = geminiResponse.Candidates[0].Content.Parts[0].Text
-	}
+	choice.Delta.Content = geminiResponse.GetResponseText()
 	choice.FinishReason = &stopFinishReason
 	var response ChatCompletionsStreamResponse
 	response.Object = "chat.completion.chunk"
@@ -276,7 +287,7 @@ func geminiChatHandler(c *gin.Context, resp *http.Response, promptTokens int, mo
 		}, nil
 	}
 	fullTextResponse := responseGeminiChat2OpenAI(&geminiResponse)
-	completionTokens := countTokenText(geminiResponse.Candidates[0].Content.Parts[0].Text, model)
+	completionTokens := countTokenText(geminiResponse.GetResponseText(), model)
 	usage := Usage{
 		PromptTokens:     promptTokens,
 		CompletionTokens: completionTokens,
