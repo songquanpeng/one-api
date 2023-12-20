@@ -2,7 +2,6 @@ package controller
 
 import (
 	"github.com/gin-gonic/gin"
-	"net/http"
 	"one-api/common"
 	"one-api/model"
 	"strconv"
@@ -16,71 +15,41 @@ func GetAllChannels(c *gin.Context) {
 	}
 	channels, err := model.GetAllChannels(p*common.ItemsPerPage, common.ItemsPerPage, false)
 	if err != nil {
-		c.JSON(http.StatusOK, gin.H{
-			"success": false,
-			"message": err.Error(),
-		})
+		Err(c, err)
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{
-		"success": true,
-		"message": "",
-		"data":    channels,
-	})
-	return
+	Success(c, channels)
 }
 
 func SearchChannels(c *gin.Context) {
 	keyword := c.Query("keyword")
 	channels, err := model.SearchChannels(keyword)
 	if err != nil {
-		c.JSON(http.StatusOK, gin.H{
-			"success": false,
-			"message": err.Error(),
-		})
+		Err(c, err)
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{
-		"success": true,
-		"message": "",
-		"data":    channels,
-	})
-	return
+	Success(c, channels)
 }
 
 func GetChannel(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusOK, gin.H{
-			"success": false,
-			"message": err.Error(),
-		})
+		Err(c, err)
 		return
 	}
 	channel, err := model.GetChannelById(id, false)
 	if err != nil {
-		c.JSON(http.StatusOK, gin.H{
-			"success": false,
-			"message": err.Error(),
-		})
+		Err(c, err)
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{
-		"success": true,
-		"message": "",
-		"data":    channel,
-	})
-	return
+	Success(c, channel)
 }
 
 func AddChannel(c *gin.Context) {
 	channel := model.Channel{}
 	err := c.ShouldBindJSON(&channel)
 	if err != nil {
-		c.JSON(http.StatusOK, gin.H{
-			"success": false,
-			"message": err.Error(),
-		})
+		Err(c, err)
 		return
 	}
 	channel.CreatedTime = common.GetTimestamp()
@@ -96,17 +65,10 @@ func AddChannel(c *gin.Context) {
 	}
 	err = model.BatchInsertChannels(channels)
 	if err != nil {
-		c.JSON(http.StatusOK, gin.H{
-			"success": false,
-			"message": err.Error(),
-		})
+		Err(c, err)
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{
-		"success": true,
-		"message": "",
-	})
-	return
+	Success(c, channel)
 }
 
 func DeleteChannel(c *gin.Context) {
@@ -114,58 +76,32 @@ func DeleteChannel(c *gin.Context) {
 	channel := model.Channel{Id: id}
 	err := channel.Delete()
 	if err != nil {
-		c.JSON(http.StatusOK, gin.H{
-			"success": false,
-			"message": err.Error(),
-		})
+		Err(c, err)
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{
-		"success": true,
-		"message": "",
-	})
-	return
+	Success(c, channel)
 }
 
 func DeleteDisabledChannel(c *gin.Context) {
 	rows, err := model.DeleteDisabledChannel()
 	if err != nil {
-		c.JSON(http.StatusOK, gin.H{
-			"success": false,
-			"message": err.Error(),
-		})
+		Err(c, err)
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{
-		"success": true,
-		"message": "",
-		"data":    rows,
-	})
-	return
+	Success(c, rows)
 }
 
 func UpdateChannel(c *gin.Context) {
 	channel := model.Channel{}
 	err := c.ShouldBindJSON(&channel)
 	if err != nil {
-		c.JSON(http.StatusOK, gin.H{
-			"success": false,
-			"message": err.Error(),
-		})
+		Err(c, err)
 		return
 	}
 	err = channel.Update()
 	if err != nil {
-		c.JSON(http.StatusOK, gin.H{
-			"success": false,
-			"message": err.Error(),
-		})
+		Err(c, err)
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{
-		"success": true,
-		"message": "",
-		"data":    channel,
-	})
-	return
+	Success(c, channel)
 }
