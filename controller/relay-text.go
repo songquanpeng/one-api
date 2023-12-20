@@ -58,6 +58,9 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 	if err != nil {
 		return errorWrapper(err, "bind_request_body_failed", http.StatusBadRequest)
 	}
+	if textRequest.MaxTokens < 0 || textRequest.MaxTokens > math.MaxInt32/2 {
+		return errorWrapper(errors.New("max_tokens is invalid"), "invalid_max_tokens", http.StatusBadRequest)
+	}
 	if relayMode == RelayModeModerations && textRequest.Model == "" {
 		textRequest.Model = "text-moderation-latest"
 	}
