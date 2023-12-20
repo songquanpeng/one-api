@@ -26,7 +26,7 @@ const BaseIndex = () => (
             <Button
               variant="contained"
               startIcon={<GitHub />}
-              href="https://github.com/songquanpeng/one-api"
+              href="https://github.com/MartialBE/one-api"
               target="_blank"
               sx={{ backgroundColor: '#24292e', color: '#fff', width: 'fit-content', boxShadow: '0 3px 5px 2px rgba(255, 105, 135, .3)' }}
             >
