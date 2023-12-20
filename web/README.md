@@ -1,21 +1,14 @@
-# React Template
+# One API 前端界面
 
-## Basic Usages
+这个项目是 One API 的前端界面，它基于 [Berry Free React Admin Template](https://github.com/codedthemes/berry-free-react-admin-template) 进行开发。
 
-```shell
-# Runs the app in the development mode
-npm start
+## 使用的开源项目
 
-# Builds the app for production to the `build` folder
-npm run build
-```
+使用了以下开源项目作为我们项目的一部分：
 
-If you want to change the default server, please set `REACT_APP_SERVER` environment variables before build,
-for example: `REACT_APP_SERVER=http://your.domain.com`.
+- [Berry Free React Admin Template](https://github.com/codedthemes/berry-free-react-admin-template)
+- [minimal-ui-kit](minimal-ui-kit)
 
-Before you start editing, make sure your `Actions on Save` options have `Optimize imports` & `Run Prettier` enabled.
+## 许可证
 
-## Reference
-
-1. https://github.com/OIerDb-ng/OIerDb
-2. https://github.com/cornflourblue/react-hooks-redux-registration-login-example
+本项目中使用的代码遵循 MIT 许可证。

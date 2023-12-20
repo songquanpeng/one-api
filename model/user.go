@@ -3,9 +3,10 @@ package model
 import (
 	"errors"
 	"fmt"
-	"gorm.io/gorm"
 	"one-api/common"
 	"strings"
+
+	"gorm.io/gorm"
 )
 
 // User if you add sensitive fields, don't forget to clean them in setupLogin function.
@@ -42,7 +43,8 @@ func GetAllUsers(startIdx int, num int) (users []*User, err error) {
 }
 
 func SearchUsers(keyword string) (users []*User, err error) {
-	err = DB.Omit("password").Where("id = ? or username LIKE ? or email LIKE ? or display_name LIKE ?", keyword, keyword+"%", keyword+"%", keyword+"%").Find(&users).Error
+	err = DB.Omit("password").Where("id = ? or username LIKE ? or email LIKE ? or display_name LIKE ?", common.String2Int(keyword), keyword+"%", keyword+"%", keyword+"%").Find(&users).Error
+
 	return users, err
 }
 

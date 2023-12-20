@@ -7,6 +7,7 @@ import (
 	"one-api/common"
 	"one-api/model"
 	"strconv"
+	"time"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
@@ -246,6 +247,30 @@ func GetUser(c *gin.Context) {
 		"data":    user,
 	})
 	return
+}
+
+func GetUserDashboard(c *gin.Context) {
+	id := c.GetInt("id")
+	// 获取7天前 00:00:00 和 今天23:59:59  的秒时间戳
+	now := time.Now()
+	toDay := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
+	endOfDay := toDay.Add(time.Hour * 24).Add(-time.Second).Unix()
+	startOfDay := toDay.AddDate(0, 0, -7).Unix()
+
+	dashboards, err := model.SearchLogsByDayAndModel(id, int(startOfDay), int(endOfDay))
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": "无法获取统计信息.",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "",
+		"data":    dashboards,
+	})
 }
 
 func GenerateAccessToken(c *gin.Context) {

@@ -3,8 +3,9 @@ package model
 import (
 	"errors"
 	"fmt"
-	"gorm.io/gorm"
 	"one-api/common"
+
+	"gorm.io/gorm"
 )
 
 type Redemption struct {
@@ -27,7 +28,7 @@ func GetAllRedemptions(startIdx int, num int) ([]*Redemption, error) {
 }
 
 func SearchRedemptions(keyword string) (redemptions []*Redemption, err error) {
-	err = DB.Where("id = ? or name LIKE ?", keyword, keyword+"%").Find(&redemptions).Error
+	err = DB.Where("id = ? or name LIKE ?", common.String2Int(keyword), keyword+"%").Find(&redemptions).Error
 	return redemptions, err
 }
 
