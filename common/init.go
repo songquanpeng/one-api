@@ -36,7 +36,11 @@ func init() {
 	}
 
 	if os.Getenv("SESSION_SECRET") != "" {
-		SessionSecret = os.Getenv("SESSION_SECRET")
+		if os.Getenv("SESSION_SECRET") == "random_string" {
+			SysError("SESSION_SECRET is set to an example value, please change it to a random string.")
+		} else {
+			SessionSecret = os.Getenv("SESSION_SECRET")
+		}
 	}
 	if os.Getenv("SQLITE_PATH") != "" {
 		SQLitePath = os.Getenv("SQLITE_PATH")
