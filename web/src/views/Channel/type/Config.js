@@ -78,11 +78,15 @@ const typeConfig = {
     }
   },
   18: {
+    inputLabel: {
+      other: '版本号'
+    },
     input: {
       models: ['SparkDesk']
     },
     prompt: {
-      key: '按照如下格式输入：APPID|APISecret|APIKey'
+      key: '按照如下格式输入：APPID|APISecret|APIKey',
+      other: '请输入版本号，例如：v3.1'
     }
   },
   19: {
@@ -104,8 +108,14 @@ const typeConfig = {
     }
   },
   25: {
+    inputLabel: {
+      other: '版本号'
+    },
     input: {
       models: ['gemini-pro']
+    },
+    prompt: {
+      other: '请输入版本号，例如：v1'
     }
   }
 };

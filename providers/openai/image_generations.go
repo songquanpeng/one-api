@@ -19,7 +19,7 @@ func (c *OpenAIProviderImageResponseResponse) ResponseHandler(resp *http.Respons
 
 func (p *OpenAIProvider) ImageGenerationsAction(request *types.ImageRequest, isModelMapped bool, promptTokens int) (usage *types.Usage, errWithCode *types.OpenAIErrorWithStatusCode) {
 
-	if isWithinRange(request.Model, request.N) == false {
+	if !isWithinRange(request.Model, request.N) {
 		return nil, common.StringErrorWrapper("n_not_within_range", "n_not_within_range", http.StatusBadRequest)
 	}
 

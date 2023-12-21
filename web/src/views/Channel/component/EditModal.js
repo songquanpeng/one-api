@@ -70,13 +70,13 @@ const EditModal = ({ open, channelId, onCancel, onOk }) => {
 
   const initChannel = (typeValue) => {
     if (typeConfig[typeValue]?.inputLabel) {
-      setInputLabel({ ...inputLabel, ...typeConfig[typeValue].inputLabel });
+      setInputLabel({ ...defaultConfig.inputLabel, ...typeConfig[typeValue].inputLabel });
     } else {
       setInputLabel(defaultConfig.inputLabel);
     }
 
     if (typeConfig[typeValue]?.prompt) {
-      setInputPrompt({ ...inputPrompt, ...typeConfig[typeValue].prompt });
+      setInputPrompt({ ...defaultConfig.prompt, ...typeConfig[typeValue].prompt });
     } else {
       setInputPrompt(defaultConfig.prompt);
     }

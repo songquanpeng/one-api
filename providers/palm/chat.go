@@ -92,8 +92,10 @@ func (p *PalmProvider) ChatAction(request *types.ChatCompletionRequest, isModelM
 			return
 		}
 
-		usage.PromptTokens = promptTokens
-		usage.CompletionTokens = common.CountTokenText(responseText, request.Model)
+		usage = &types.Usage{
+			PromptTokens:     promptTokens,
+			CompletionTokens: common.CountTokenText(responseText, request.Model),
+		}
 		usage.TotalTokens = promptTokens + usage.CompletionTokens
 
 	} else {

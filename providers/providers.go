@@ -13,6 +13,7 @@ import (
 	"one-api/providers/base"
 	"one-api/providers/claude"
 	"one-api/providers/closeai"
+	"one-api/providers/gemini"
 	"one-api/providers/openai"
 	"one-api/providers/openaisb"
 	"one-api/providers/palm"
@@ -49,6 +50,7 @@ func init() {
 	providerFactories[common.ChannelTypeAIGC2D] = aigc2d.Aigc2dProviderFactory{}
 	providerFactories[common.ChannelTypeAPI2GPT] = api2gpt.Api2gptProviderFactory{}
 	providerFactories[common.ChannelTypeAzureSpeech] = azurespeech.AzureSpeechProviderFactory{}
+	providerFactories[common.ChannelTypeGemini] = gemini.GeminiProviderFactory{}
 
 }
 

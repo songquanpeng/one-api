@@ -100,8 +100,10 @@ func (p *ClaudeProvider) ChatAction(request *types.ChatCompletionRequest, isMode
 			return
 		}
 
-		usage.PromptTokens = promptTokens
-		usage.CompletionTokens = common.CountTokenText(responseText, request.Model)
+		usage = &types.Usage{
+			PromptTokens:     promptTokens,
+			CompletionTokens: common.CountTokenText(responseText, request.Model),
+		}
 		usage.TotalTokens = promptTokens + usage.CompletionTokens
 
 	} else {
