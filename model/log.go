@@ -194,8 +194,14 @@ func DeleteOldLog(targetTimestamp int64) (int64, error) {
 }
 
 func SearchLogsByDayAndModel(user_id, start, end int) (LogStatistics []*LogStatistic, err error) {
+	groupSelect := "DATE_FORMAT(FROM_UNIXTIME(created_at), '%Y-%m-%d') as day"
+
+	if common.UsingPostgreSQL {
+		groupSelect = "TO_CHAR(date_trunc('day', to_timestamp(created_at)), 'YYYY-MM-DD') as day"
+	}
+
 	err = DB.Raw(`
-		SELECT TO_CHAR(date_trunc('day', to_timestamp(created_at)), 'YYYY-MM-DD') as day,
+		SELECT `+groupSelect+`,
 		model_name, count(1) as request_count,
 		sum(quota) as quota,
 		sum(prompt_tokens) as prompt_tokens,
