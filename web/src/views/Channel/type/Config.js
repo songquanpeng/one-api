@@ -50,7 +50,7 @@ const typeConfig = {
   },
   14: {
     input: {
-      models: ['claude-instant-1', 'claude-2']
+      models: ['claude-instant-1', 'claude-2', 'claude-2.0', 'claude-2.1']
     }
   },
   15: {
@@ -67,8 +67,14 @@ const typeConfig = {
     }
   },
   17: {
+    inputLabel: {
+      other: '插件参数'
+    },
     input: {
-      models: ['qwen-turbo', 'qwen-plus', 'text-embedding-v1']
+      models: ['qwen-turbo', 'qwen-plus', 'qwen-max', 'qwen-max-longcontext', 'text-embedding-v1']
+    },
+    prompt: {
+      other: '请输入插件参数，即 X-DashScope-Plugin 请求头的取值'
     }
   },
   18: {
@@ -95,6 +101,11 @@ const typeConfig = {
     },
     prompt: {
       key: '按照如下格式输入：AppId|SecretId|SecretKey'
+    }
+  },
+  25: {
+    input: {
+      models: ['gemini-pro']
     }
   }
 };

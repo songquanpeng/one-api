@@ -69,7 +69,9 @@ func (p *ClaudeProvider) getChatRequestBody(request *types.ChatCompletionRequest
 		} else if message.Role == "assistant" {
 			prompt += fmt.Sprintf("\n\nAssistant: %s", message.Content)
 		} else if message.Role == "system" {
-			prompt += fmt.Sprintf("\n\nSystem: %s", message.Content)
+			if prompt == "" {
+				prompt = message.StringContent()
+			}
 		}
 	}
 	prompt += "\n\nAssistant:"

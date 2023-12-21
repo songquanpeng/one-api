@@ -78,6 +78,7 @@ var QuotaForInviter = 0
 var QuotaForInvitee = 0
 var ChannelDisableThreshold = 5.0
 var AutomaticDisableChannelEnabled = false
+var AutomaticEnableChannelEnabled = false
 var QuotaRemindThreshold = 1000
 var PreConsumedQuota = 500
 var ApproximateTokenEnabled = false
@@ -187,6 +188,7 @@ const (
 	ChannelTypeFastGPT        = 22
 	ChannelTypeTencent        = 23
 	ChannelTypeAzureSpeech    = 24
+	ChannelTypeGemini         = 25
 )
 
 var ChannelBaseURLs = []string{
@@ -213,8 +215,9 @@ var ChannelBaseURLs = []string{
 	"https://openrouter.ai/api",         // 20
 	"https://api.aiproxy.io",            // 21
 	"https://fastgpt.run/api/openapi",   // 22
-	"https://hunyuan.cloud.tencent.com", // 23
-	"",                                  // 24
+	"https://hunyuan.cloud.tencent.com", //23
+	"",                                  //24
+	"",                                  //25
 }
 
 const (

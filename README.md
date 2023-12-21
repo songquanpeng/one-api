@@ -52,15 +52,15 @@ _✨ 通过标准的 OpenAI API 格式访问所有的大模型，开箱即用 �
   <a href="https://iamazing.cn/page/reward">赞赏支持</a>
 </p>
 
-> **Note**
+> [!NOTE]
 > 本项目为开源项目，使用者必须在遵循 OpenAI 的[使用条款](https://openai.com/policies/terms-of-use)以及**法律法规**的情况下使用，不得用于非法用途。
 >
 > 根据[《生成式人工智能服务管理暂行办法》](http://www.cac.gov.cn/2023-07/13/c_1690898327029107.htm)的要求，请勿对中国地区公众提供一切未经备案的生成式人工智能服务。
 
-> **Warning**
+> [!WARNING]
 > 使用 Docker 拉取的最新镜像可能是 `alpha` 版本，如果追求稳定性请手动指定版本。
 
-> **Warning**
+> [!WARNING]
 > 使用 root 用户初次登录系统后，务必修改默认密码 `123456`！
 
 ## 功能
@@ -68,20 +68,14 @@ _✨ 通过标准的 OpenAI API 格式访问所有的大模型，开箱即用 �
 1. 支持多种大模型：
    - [x] [OpenAI ChatGPT 系列模型](https://platform.openai.com/docs/guides/gpt/chat-completions-api)（支持 [Azure OpenAI API](https://learn.microsoft.com/en-us/azure/ai-services/openai/reference)）
    - [x] [Anthropic Claude 系列模型](https://anthropic.com)
-   - [x] [Google PaLM2 系列模型](https://developers.generativeai.google)
+   - [x] [Google PaLM2/Gemini 系列模型](https://developers.generativeai.google)
    - [x] [百度文心一言系列模型](https://cloud.baidu.com/doc/WENXINWORKSHOP/index.html)
    - [x] [阿里通义千问系列模型](https://help.aliyun.com/document_detail/2400395.html)
    - [x] [讯飞星火认知大模型](https://www.xfyun.cn/doc/spark/Web.html)
    - [x] [智谱 ChatGLM 系列模型](https://bigmodel.cn)
    - [x] [360 智脑](https://ai.360.cn)
    - [x] [腾讯混元大模型](https://cloud.tencent.com/document/product/1729)
-2. 支持配置镜像以及众多第三方代理服务：
-   - [x] [OpenAI-SB](https://openai-sb.com)
-   - [x] [CloseAI](https://referer.shadowai.xyz/r/2412)
-   - [x] [API2D](https://api2d.com/r/197971)
-   - [x] [OhMyGPT](https://aigptx.top?aff=uFpUl2Kf)
-   - [x] [AI Proxy](https://aiproxy.io/?i=OneAPI) （邀请码：`OneAPI`）
-   - [x] 自定义渠道：例如各种未收录的第三方代理服务
+2. 支持配置镜像以及众多[第三方代理服务](https://iamazing.cn/page/openai-api-third-party-services)。
 3. 支持通过**负载均衡**的方式访问多个渠道。
 4. 支持 **stream 模式**，可以通过流式传输实现打字机效果。
 5. 支持**多机部署**，[详见此处](#多机部署)。
@@ -389,6 +383,7 @@ graph LR
     - `TIKTOKEN_CACHE_DIR`：默认程序启动时会联网下载一些通用的词元的编码，如：`gpt-3.5-turbo`，在一些网络环境不稳定，或者离线情况，可能会导致启动有问题，可以配置此目录缓存数据，可迁移到离线环境。
     - `DATA_GYM_CACHE_DIR`：目前该配置作用与 `TIKTOKEN_CACHE_DIR` 一致，但是优先级没有它高。
 15. `RELAY_TIMEOUT`：中继超时设置，单位为秒，默认不设置超时时间。
+16. `SQLITE_BUSY_TIMEOUT`：SQLite 锁等待超时设置，单位为毫秒，默认 `3000`。
 
 ### 命令行参数
 

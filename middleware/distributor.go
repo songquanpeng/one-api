@@ -11,7 +11,6 @@ func Distribute() func(c *gin.Context) {
 		userId := c.GetInt("id")
 		userGroup, _ := model.CacheGetUserGroup(userId)
 		c.Set("group", userGroup)
-
 		c.Next()
 	}
 }

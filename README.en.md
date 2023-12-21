@@ -63,7 +63,7 @@ _✨ Access all LLM through the standard OpenAI API format, easy to deploy & use
 1. Support for multiple large models:
    - [x] [OpenAI ChatGPT Series Models](https://platform.openai.com/docs/guides/gpt/chat-completions-api) (Supports [Azure OpenAI API](https://learn.microsoft.com/en-us/azure/ai-services/openai/reference))
    - [x] [Anthropic Claude Series Models](https://anthropic.com)
-   - [x] [Google PaLM2 Series Models](https://developers.generativeai.google)
+   - [x] [Google PaLM2 and Gemini Series Models](https://developers.generativeai.google)
    - [x] [Baidu Wenxin Yiyuan Series Models](https://cloud.baidu.com/doc/WENXINWORKSHOP/index.html)
    - [x] [Alibaba Tongyi Qianwen Series Models](https://help.aliyun.com/document_detail/2400395.html)
    - [x] [Zhipu ChatGLM Series Models](https://bigmodel.cn)

@@ -53,32 +53,17 @@ func (aliResponse *AliChatResponse) ResponseHandler(resp *http.Response) (OpenAI
 // 获取聊天请求体
 func (p *AliProvider) getChatRequestBody(request *types.ChatCompletionRequest) *AliChatRequest {
 	messages := make([]AliMessage, 0, len(request.Messages))
-	prompt := ""
 	for i := 0; i < len(request.Messages); i++ {
 		message := request.Messages[i]
-		if message.Role == "system" {
-			messages = append(messages, AliMessage{
-				User: message.StringContent(),
-				Bot:  "Okay",
-			})
-			continue
-		} else {
-			if i == len(request.Messages)-1 {
-				prompt = message.StringContent()
-				break
-			}
-			messages = append(messages, AliMessage{
-				User: message.StringContent(),
-				Bot:  request.Messages[i+1].StringContent(),
-			})
-			i++
-		}
+		messages = append(messages, AliMessage{
+			Content: message.StringContent(),
+			Role:    strings.ToLower(message.Role),
+		})
 	}
 	return &AliChatRequest{
 		Model: request.Model,
 		Input: AliInput{
-			Prompt:  prompt,
-			History: messages,
+			Messages: messages,
 		},
 	}
 }

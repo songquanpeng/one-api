@@ -63,7 +63,7 @@ _✨ 標準的な OpenAI API フォーマットを通じてすべての LLM に�
 1. 複数の大型モデルをサポート:
    - [x] [OpenAI ChatGPT シリーズモデル](https://platform.openai.com/docs/guides/gpt/chat-completions-api) ([Azure OpenAI API](https://learn.microsoft.com/en-us/azure/ai-services/openai/reference) をサポート)
    - [x] [Anthropic Claude シリーズモデル](https://anthropic.com)
-   - [x] [Google PaLM2 シリーズモデル](https://developers.generativeai.google)
+   - [x] [Google PaLM2/Gemini シリーズモデル](https://developers.generativeai.google)
    - [x] [Baidu Wenxin Yiyuan シリーズモデル](https://cloud.baidu.com/doc/WENXINWORKSHOP/index.html)
    - [x] [Alibaba Tongyi Qianwen シリーズモデル](https://help.aliyun.com/document_detail/2400395.html)
    - [x] [Zhipu ChatGLM シリーズモデル](https://bigmodel.cn)

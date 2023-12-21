@@ -76,17 +76,22 @@ var ModelRatio = map[string]float64{
 	"dall-e-3":                  20,     // $0.040 - $0.120 / image
 	"claude-instant-1":          0.815,  // $1.63 / 1M tokens
 	"claude-2":                  5.51,   // $11.02 / 1M tokens
+	"claude-2.0":                5.51,   // $11.02 / 1M tokens
+	"claude-2.1":                5.51,   // $11.02 / 1M tokens
 	"ERNIE-Bot":                 0.8572, // ￥0.012 / 1k tokens
 	"ERNIE-Bot-turbo":           0.5715, // ￥0.008 / 1k tokens
 	"ERNIE-Bot-4":               8.572,  // ￥0.12 / 1k tokens
 	"Embedding-V1":              0.1429, // ￥0.002 / 1k tokens
 	"PaLM-2":                    1,
+	"gemini-pro":                1,      // $0.00025 / 1k characters -> $0.001 / 1k tokens
 	"chatglm_turbo":             0.3572, // ￥0.005 / 1k tokens
 	"chatglm_pro":               0.7143, // ￥0.01 / 1k tokens
 	"chatglm_std":               0.3572, // ￥0.005 / 1k tokens
 	"chatglm_lite":              0.1429, // ￥0.002 / 1k tokens
-	"qwen-turbo":                0.8572, // ￥0.012 / 1k tokens
-	"qwen-plus":                 10,     // ￥0.14 / 1k tokens
+	"qwen-turbo":                0.5715, // ￥0.008 / 1k tokens  // https://help.aliyun.com/zh/dashscope/developer-reference/tongyi-thousand-questions-metering-and-billing
+	"qwen-plus":                 1.4286, // ￥0.02 / 1k tokens
+	"qwen-max":                  1.4286, // ￥0.02 / 1k tokens
+	"qwen-max-longcontext":      1.4286, // ￥0.02 / 1k tokens
 	"text-embedding-v1":         0.05,   // ￥0.0007 / 1k tokens
 	"SparkDesk":                 1.2858, // ￥0.018 / 1k tokens
 	"360GPT_S2_V9":              0.8572, // ¥0.012 / 1k tokens

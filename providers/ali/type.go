@@ -13,13 +13,13 @@ type AliUsage struct {
 }
 
 type AliMessage struct {
-	User string `json:"user"`
-	Bot  string `json:"bot"`
+	Content string `json:"content"`
+	Role    string `json:"role"`
 }
 
 type AliInput struct {
-	Prompt  string       `json:"prompt"`
-	History []AliMessage `json:"history"`
+	// Prompt  string       `json:"prompt"`
+	Messages []AliMessage `json:"messages"`
 }
 
 type AliParameters struct {

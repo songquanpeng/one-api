@@ -2,6 +2,7 @@ package controller
 
 import (
 	"context"
+	"math"
 	"net/http"
 	"one-api/common"
 	"one-api/model"
@@ -21,6 +22,11 @@ func RelayChat(c *gin.Context) {
 
 	channel, pass := fetchChannel(c, chatRequest.Model)
 	if pass {
+		return
+	}
+
+	if chatRequest.MaxTokens < 0 || chatRequest.MaxTokens > math.MaxInt32/2 {
+		common.AbortWithMessage(c, http.StatusBadRequest, "max_tokens is invalid")
 		return
 	}
 

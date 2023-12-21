@@ -46,6 +46,14 @@ func (p *XunfeiProvider) sendRequest(request *types.ChatCompletionRequest, authU
 		}
 	}
 
+	if len(xunfeiResponse.Payload.Choices.Text) == 0 {
+		xunfeiResponse.Payload.Choices.Text = []XunfeiChatResponseTextItem{
+			{
+				Content: "",
+			},
+		}
+	}
+
 	xunfeiResponse.Payload.Choices.Text[0].Content = content
 
 	response := p.responseXunfei2OpenAI(&xunfeiResponse)

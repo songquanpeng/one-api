@@ -23,6 +23,12 @@ export const CHANNEL_OPTIONS = {
     value: 11,
     color: 'orange'
   },
+  25: {
+    key: 25,
+    text: 'Google Gemini',
+    value: 25,
+    color: 'orange'
+  },
   15: {
     key: 15,
     text: '百度文心千帆',

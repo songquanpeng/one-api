@@ -24,6 +24,10 @@ func RelayImageGenerations(c *gin.Context) {
 		imageRequest.Model = "dall-e-2"
 	}
 
+	if imageRequest.N == 0 {
+		imageRequest.N = 1
+	}
+
 	if imageRequest.Size == "" {
 		imageRequest.Size = "1024x1024"
 	}

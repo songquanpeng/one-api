@@ -33,6 +33,9 @@ func (p *AliProvider) GetRequestHeaders() (headers map[string]string) {
 	headers = make(map[string]string)
 	p.CommonRequestHeaders(headers)
 	headers["Authorization"] = fmt.Sprintf("Bearer %s", p.Context.GetString("api_key"))
+	if p.Context.GetString("plugin") != "" {
+		headers["X-DashScope-Plugin"] = p.Context.GetString("plugin")
+	}
 
 	return headers
 }

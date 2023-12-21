@@ -1,6 +1,7 @@
 package model
 
 import (
+	"fmt"
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"
@@ -59,7 +60,8 @@ func chooseDB() (*gorm.DB, error) {
 	// Use SQLite
 	common.SysLog("SQL_DSN not set, using SQLite as database")
 	common.UsingSQLite = true
-	return gorm.Open(sqlite.Open(common.SQLitePath), &gorm.Config{
+	config := fmt.Sprintf("?_busy_timeout=%d", common.SQLiteBusyTimeout)
+	return gorm.Open(sqlite.Open(common.SQLitePath+config), &gorm.Config{
 		PrepareStmt: true, // precompile SQL
 	})
 }

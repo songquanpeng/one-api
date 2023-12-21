@@ -19,6 +19,10 @@ func (c *OpenAIProviderImageResponseResponse) ResponseHandler(resp *http.Respons
 
 func (p *OpenAIProvider) ImageGenerationsAction(request *types.ImageRequest, isModelMapped bool, promptTokens int) (usage *types.Usage, errWithCode *types.OpenAIErrorWithStatusCode) {
 
+	if isWithinRange(request.Model, request.N) == false {
+		return nil, common.StringErrorWrapper("n_not_within_range", "n_not_within_range", http.StatusBadRequest)
+	}
+
 	requestBody, err := p.GetRequestBody(&request, isModelMapped)
 	if err != nil {
 		return nil, common.ErrorWrapper(err, "json_marshal_failed", http.StatusInternalServerError)
@@ -46,4 +50,14 @@ func (p *OpenAIProvider) ImageGenerationsAction(request *types.ImageRequest, isM
 	}
 
 	return
+}
+
+func isWithinRange(element string, value int) bool {
+	if _, ok := common.DalleGenerationImageAmounts[element]; !ok {
+		return false
+	}
+	min := common.DalleGenerationImageAmounts[element][0]
+	max := common.DalleGenerationImageAmounts[element][1]
+
+	return value >= min && value <= max
 }
