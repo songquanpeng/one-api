@@ -16,10 +16,18 @@ _本项目是基于[one-api](https://github.com/songquanpeng/one-api)二次开�
   <a href="https://raw.githubusercontent.com/MartialBE/one-api/main/LICENSE">
     <img src="https://img.shields.io/github/license/MartialBE/one-api?color=brightgreen" alt="license">
   </a>
+  <a href="https://github.com/MartialBE/one-api/releases/latest">
+    <img src="https://img.shields.io/github/v/release/MartialBE/one-api?color=brightgreen&include_prereleases" alt="release">
+  </a>
+  <a href="https://github.com/users/MartialBE/packages/container/package/one-api">
+    <img src="https://img.shields.io/badge/docker-ghcr.io-blue" alt="docker">
+  </a>
   <a href="https://goreportcard.com/report/github.com/MartialBE/one-api">
     <img src="https://goreportcard.com/badge/github.com/MartialBE/one-api" alt="GoReportCard">
   </a>
 </p>
+
+**请不要和原版混用，因为 channel id 不同的原因，会导致数据错乱**
 
 # 截图展示
 
