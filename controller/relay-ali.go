@@ -23,10 +23,13 @@ type AliInput struct {
 }
 
 type AliParameters struct {
-	TopP         float64 `json:"top_p,omitempty"`
-	TopK         int     `json:"top_k,omitempty"`
-	Seed         uint64  `json:"seed,omitempty"`
-	EnableSearch bool    `json:"enable_search,omitempty"`
+	TopP         		float64 `json:"top_p,omitempty"`
+	TopK         		int     `json:"top_k,omitempty"`
+	Seed         		uint64  `json:"seed,omitempty"`
+	EnableSearch 		bool    `json:"enable_search,omitempty"`
+	IncrementalOutput 	bool	`json:"incremental_output,omitempty"`
+	Stream			bool	`json:"stream,omitempty"`
+	
 }
 
 type AliChatRequest struct {
@@ -95,12 +98,14 @@ func requestOpenAI2Ali(request GeneralOpenAIRequest) *AliChatRequest {
 		Input: AliInput{
 			Messages: messages,
 		},
-		//Parameters: AliParameters{  // ChatGPT's parameters are not compatible with Ali's
+		Parameters: AliParameters{  // ChatGPT's parameters are not compatible with Ali's
 		//	TopP: request.TopP,
 		//	TopK: 50,
 		//	//Seed:         0,
-		//	//EnableSearch: false,
-		//},
+			EnableSearch: true,
+			IncrementalOutput=true,
+			Stream=request.Stream,
+		},
 	}
 }
 
@@ -202,7 +207,7 @@ func streamResponseAli2OpenAI(aliResponse *AliChatResponse) *ChatCompletionsStre
 		Id:      aliResponse.RequestId,
 		Object:  "chat.completion.chunk",
 		Created: common.GetTimestamp(),
-		Model:   "ernie-bot",
+		Model:   "qwen",
 		Choices: []ChatCompletionsStreamResponseChoice{choice},
 	}
 	return &response
@@ -240,7 +245,7 @@ func aliStreamHandler(c *gin.Context, resp *http.Response) (*OpenAIErrorWithStat
 		stopChan <- true
 	}()
 	setEventStreamHeaders(c)
-	lastResponseText := ""
+	//lastResponseText := ""
 	c.Stream(func(w io.Writer) bool {
 		select {
 		case data := <-dataChan:
@@ -256,8 +261,8 @@ func aliStreamHandler(c *gin.Context, resp *http.Response) (*OpenAIErrorWithStat
 				usage.TotalTokens = aliResponse.Usage.InputTokens + aliResponse.Usage.OutputTokens
 			}
 			response := streamResponseAli2OpenAI(&aliResponse)
-			response.Choices[0].Delta.Content = strings.TrimPrefix(response.Choices[0].Delta.Content, lastResponseText)
-			lastResponseText = aliResponse.Output.Text
+			//response.Choices[0].Delta.Content = strings.TrimPrefix(response.Choices[0].Delta.Content, lastResponseText)
+			//lastResponseText = aliResponse.Output.Text
 			jsonResponse, err := json.Marshal(response)
 			if err != nil {
 				common.SysError("error marshalling stream response: " + err.Error())
