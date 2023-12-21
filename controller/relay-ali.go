@@ -99,7 +99,7 @@ func requestOpenAI2Ali(request GeneralOpenAIRequest) *AliChatRequest {
 		//	TopP: request.TopP,
 		//	TopK: 50,
 		//	//Seed:         0,
-			eenable_search: true,
+			enable_search: true,
 			incremental_output=true,
 			stream=request.Stream,
 		},
