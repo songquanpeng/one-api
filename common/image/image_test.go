@@ -152,3 +152,20 @@ func TestGetImageSize(t *testing.T) {
 		})
 	}
 }
+
+func TestGetImageSizeFromBase64(t *testing.T) {
+	for i, c := range cases {
+		t.Run("Decode:"+strconv.Itoa(i), func(t *testing.T) {
+			resp, err := http.Get(c.url)
+			assert.NoError(t, err)
+			defer resp.Body.Close()
+			data, err := io.ReadAll(resp.Body)
+			assert.NoError(t, err)
+			encoded := base64.StdEncoding.EncodeToString(data)
+			width, height, err := img.GetImageSizeFromBase64(encoded)
+			assert.NoError(t, err)
+			assert.Equal(t, c.width, width)
+			assert.Equal(t, c.height, height)
+		})
+	}
+}
