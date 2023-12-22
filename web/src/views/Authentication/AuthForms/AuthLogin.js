@@ -1,15 +1,14 @@
 import { useState } from 'react';
 import { useSelector } from 'react-redux';
+import { Link } from 'react-router-dom';
 
 // material-ui
 import { useTheme } from '@mui/material/styles';
 import {
   Box,
   Button,
-  // Checkbox,
   Divider,
   FormControl,
-  // FormControlLabel,
   FormHelperText,
   Grid,
   IconButton,
@@ -236,7 +235,13 @@ const LoginForm = ({ ...others }) => {
                 }
                 label="记住我"
               /> */}
-              <Typography variant="subtitle1" color="primary" sx={{ textDecoration: 'none', cursor: 'pointer' }}>
+              <Typography
+                component={Link}
+                to="/reset"
+                variant="subtitle1"
+                color="primary"
+                sx={{ textDecoration: 'none', cursor: 'pointer' }}
+              >
                 忘记密码?
               </Typography>
             </Stack>

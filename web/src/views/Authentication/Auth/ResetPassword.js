@@ -7,12 +7,12 @@ import { Divider, Grid, Stack, Typography, useMediaQuery } from '@mui/material';
 // project imports
 import AuthWrapper from '../AuthWrapper';
 import AuthCardWrapper from '../AuthCardWrapper';
-import AuthLogin from '../AuthForms/AuthLogin';
+import ResetPasswordForm from '../AuthForms/ResetPasswordForm';
 import Logo from 'ui-component/Logo';
 
 // ================================|| AUTH3 - LOGIN ||================================ //
 
-const Login = () => {
+const ResetPassword = () => {
   const theme = useTheme();
   const matchDownSM = useMediaQuery(theme.breakpoints.down('md'));
 
@@ -34,22 +34,22 @@ const Login = () => {
                       <Grid item>
                         <Stack alignItems="center" justifyContent="center" spacing={1}>
                           <Typography color={theme.palette.primary.main} gutterBottom variant={matchDownSM ? 'h3' : 'h2'}>
-                            登录
+                            密码重置确认
                           </Typography>
                         </Stack>
                       </Grid>
                     </Grid>
                   </Grid>
                   <Grid item xs={12}>
-                    <AuthLogin />
+                    <ResetPasswordForm />
                   </Grid>
                   <Grid item xs={12}>
                     <Divider />
                   </Grid>
                   <Grid item xs={12}>
                     <Grid item container direction="column" alignItems="center" xs={12}>
-                      <Typography component={Link} to="/register" variant="subtitle1" sx={{ textDecoration: 'none' }}>
-                        注册
+                      <Typography component={Link} to="/login" variant="subtitle1" sx={{ textDecoration: 'none' }}>
+                        登录
                       </Typography>
                     </Grid>
                   </Grid>
@@ -63,4 +63,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default ResetPassword;

@@ -8,6 +8,8 @@ import MinimalLayout from 'layout/MinimalLayout';
 const AuthLogin = Loadable(lazy(() => import('views/Authentication/Auth/Login')));
 const AuthRegister = Loadable(lazy(() => import('views/Authentication/Auth/Register')));
 const GitHubOAuth = Loadable(lazy(() => import('views/Authentication/Auth/GitHubOAuth')));
+const ForgetPassword = Loadable(lazy(() => import('views/Authentication/Auth/ForgetPassword')));
+const ResetPassword = Loadable(lazy(() => import('views/Authentication/Auth/ResetPassword')));
 const Home = Loadable(lazy(() => import('views/Home')));
 const About = Loadable(lazy(() => import('views/About')));
 const NotFoundView = Loadable(lazy(() => import('views/Error')));
@@ -33,6 +35,14 @@ const OtherRoutes = {
     {
       path: '/register',
       element: <AuthRegister />
+    },
+    {
+      path: '/reset',
+      element: <ForgetPassword />
+    },
+    {
+      path: '/user/reset',
+      element: <ResetPassword />
     },
     {
       path: '/oauth/github',
