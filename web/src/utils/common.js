@@ -140,6 +140,15 @@ export function renderQuota(quota, digits = 2) {
   return renderNumber(quota);
 }
 
+export const verifyJSON = (str) => {
+  try {
+    JSON.parse(str);
+  } catch (e) {
+    return false;
+  }
+  return true;
+};
+
 export function renderNumber(num) {
   if (num >= 1000000000) {
     return (num / 1000000000).toFixed(1) + 'B';
