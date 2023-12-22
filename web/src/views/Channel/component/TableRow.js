@@ -1,7 +1,8 @@
 import PropTypes from 'prop-types';
 import { useState } from 'react';
 
-import { showInfo } from 'utils/common';
+import { showInfo, showError } from 'utils/common';
+import { API } from 'utils/api';
 import { CHANNEL_OPTIONS } from 'constants/ChannelConstants';
 
 import {
@@ -19,6 +20,7 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
+  Tooltip,
   Button
 } from '@mui/material';
 
@@ -36,6 +38,7 @@ export default function ChannelTableRow({ item, manageChannel, handleOpenModal, 
   const [statusSwitch, setStatusSwitch] = useState(item.status);
   const [priorityValve, setPriority] = useState(item.priority);
   const [responseTimeData, setResponseTimeData] = useState({ test_time: item.test_time, response_time: item.response_time });
+  const [itemBalance, setItemBalance] = useState(item.balance);
 
   const handleDeleteOpen = () => {
     handleCloseMenu();
@@ -74,6 +77,18 @@ export default function ChannelTableRow({ item, manageChannel, handleOpenModal, 
     if (success) {
       setResponseTimeData({ test_time: Date.now() / 1000, response_time: time * 1000 });
       showInfo(`通道 ${item.name} 测试成功，耗时 ${time.toFixed(2)} 秒。`);
+    }
+  };
+
+  const updateChannelBalance = async () => {
+    const res = await API.get(`/api/channel/update_balance/${item.id}`);
+    const { success, message, balance } = res.data;
+    if (success) {
+      setItemBalance(balance);
+
+      showInfo(`余额更新成功！`);
+    } else {
+      showError(message);
     }
   };
 
@@ -116,7 +131,11 @@ export default function ChannelTableRow({ item, manageChannel, handleOpenModal, 
             handle_action={handleResponseTime}
           />
         </TableCell>
-        <TableCell>{item.balance}</TableCell>
+        <TableCell>
+          <Tooltip title={'点击更新余额'} placement="top" onClick={updateChannelBalance}>
+            {renderBalance(itemBalance)}
+          </Tooltip>
+        </TableCell>
         <TableCell>
           <FormControl sx={{ m: 1, width: '70px' }} variant="standard">
             <InputLabel htmlFor={`priority-${item.id}`}>优先级</InputLabel>
@@ -192,3 +211,24 @@ ChannelTableRow.propTypes = {
   handleOpenModal: PropTypes.func,
   setModalChannelId: PropTypes.func
 };
+
+function renderBalance(type, balance) {
+  switch (type) {
+    case 1: // OpenAI
+      return <span>${balance.toFixed(2)}</span>;
+    case 4: // CloseAI
+      return <span>¥{balance.toFixed(2)}</span>;
+    case 8: // 自定义
+      return <span>${balance.toFixed(2)}</span>;
+    case 5: // OpenAI-SB
+      return <span>¥{(balance / 10000).toFixed(2)}</span>;
+    case 10: // AI Proxy
+      return <span>{renderNumber(balance)}</span>;
+    case 12: // API2GPT
+      return <span>¥{balance.toFixed(2)}</span>;
+    case 13: // AIGC2D
+      return <span>{renderNumber(balance)}</span>;
+    default:
+      return <span>不支持</span>;
+  }
+}
