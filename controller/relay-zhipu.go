@@ -290,6 +290,7 @@ func zhipuHandler(c *gin.Context, resp *http.Response) (*OpenAIErrorWithStatusCo
 		}, nil
 	}
 	fullTextResponse := responseZhipu2OpenAI(&zhipuResponse)
+	fullTextResponse.Model = "chatglm"
 	jsonResponse, err := json.Marshal(fullTextResponse)
 	if err != nil {
 		return errorWrapper(err, "marshal_response_body_failed", http.StatusInternalServerError), nil

@@ -255,6 +255,7 @@ func baiduHandler(c *gin.Context, resp *http.Response) (*OpenAIErrorWithStatusCo
 		}, nil
 	}
 	fullTextResponse := responseBaidu2OpenAI(&baiduResponse)
+	fullTextResponse.Model = "ernie-bot"
 	jsonResponse, err := json.Marshal(fullTextResponse)
 	if err != nil {
 		return errorWrapper(err, "marshal_response_body_failed", http.StatusInternalServerError), nil
