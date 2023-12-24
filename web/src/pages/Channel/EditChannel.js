@@ -70,6 +70,13 @@ const EditChannel = () => {
           break;
         case 17:
           localModels = ['qwen-turbo', 'qwen-plus', 'qwen-max', 'qwen-max-longcontext', 'text-embedding-v1'];
+          let withInternetVersion = [];
+          for (let i = 0; i < localModels.length; i++) {
+            if (localModels[i].startsWith('qwen-')) {
+              withInternetVersion.push(localModels[i] + '-internet');
+            }
+          }
+          localModels = [...localModels, ...withInternetVersion];
           break;
         case 16:
           localModels = ['chatglm_turbo', 'chatglm_pro', 'chatglm_std', 'chatglm_lite'];
