@@ -303,6 +303,7 @@ func aliHandler(c *gin.Context, resp *http.Response) (*OpenAIErrorWithStatusCode
 		}, nil
 	}
 	fullTextResponse := responseAli2OpenAI(&aliResponse)
+	fullTextResponse.Model = "qwen"
 	jsonResponse, err := json.Marshal(fullTextResponse)
 	if err != nil {
 		return errorWrapper(err, "marshal_response_body_failed", http.StatusInternalServerError), nil
