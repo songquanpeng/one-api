@@ -23,11 +23,11 @@ type AliInput struct {
 }
 
 type AliParameters struct {
-	TopP         		float64 `json:"top_p,omitempty"`
-	TopK         		int     `json:"top_k,omitempty"`
-	Seed         		uint64  `json:"seed,omitempty"`
-	EnableSearch 		bool    `json:"enable_search,omitempty"`
-	IncrementalOutput 	bool	`json:"incremental_output,omitempty"`
+	TopP              float64 `json:"top_p,omitempty"`
+	TopK              int     `json:"top_k,omitempty"`
+	Seed              uint64  `json:"seed,omitempty"`
+	EnableSearch      bool    `json:"enable_search,omitempty"`
+	IncrementalOutput bool    `json:"incremental_output,omitempty"`
 }
 
 type AliChatRequest struct {
@@ -82,6 +82,8 @@ type AliChatResponse struct {
 	AliError
 }
 
+const AliEnableSearchModelSuffix = "-internet"
+
 func requestOpenAI2Ali(request GeneralOpenAIRequest) *AliChatRequest {
 	messages := make([]AliMessage, 0, len(request.Messages))
 	for i := 0; i < len(request.Messages); i++ {
@@ -91,17 +93,20 @@ func requestOpenAI2Ali(request GeneralOpenAIRequest) *AliChatRequest {
 			Role:    strings.ToLower(message.Role),
 		})
 	}
+	enableSearch := false
+	aliModel := request.Model
+	if strings.HasSuffix(aliModel, AliEnableSearchModelSuffix) {
+		enableSearch = true
+		aliModel = strings.TrimSuffix(aliModel, AliEnableSearchModelSuffix)
+	}
 	return &AliChatRequest{
-		Model: request.Model,
+		Model: aliModel,
 		Input: AliInput{
 			Messages: messages,
 		},
-		Parameters: AliParameters{  // ChatGPT's parameters are not compatible with Ali's
-		//	TopP: request.TopP,
-		//	TopK: 50,
-		//	//Seed:         0,
-			EnableSearch: true,
-			IncrementalOutput=true,
+		Parameters: AliParameters{
+			EnableSearch:      enableSearch,
+			IncrementalOutput: request.Stream,
 		},
 	}
 }
