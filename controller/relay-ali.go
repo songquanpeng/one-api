@@ -28,8 +28,6 @@ type AliParameters struct {
 	Seed         		uint64  `json:"seed,omitempty"`
 	EnableSearch 		bool    `json:"enable_search,omitempty"`
 	IncrementalOutput 	bool	`json:"incremental_output,omitempty"`
-	Stream			bool	`json:"stream,omitempty"`
-	
 }
 
 type AliChatRequest struct {
@@ -104,7 +102,6 @@ func requestOpenAI2Ali(request GeneralOpenAIRequest) *AliChatRequest {
 		//	//Seed:         0,
 			EnableSearch: true,
 			IncrementalOutput=true,
-			Stream=request.Stream,
 		},
 	}
 }
