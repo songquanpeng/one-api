@@ -15,7 +15,22 @@ import (
 	_ "golang.org/x/image/webp"
 )
 
+func IsImageUrl(url string) (bool, error) {
+	resp, err := http.Head(url)
+	if err != nil {
+		return false, err
+	}
+	if !strings.HasPrefix(resp.Header.Get("Content-Type"), "image/") {
+		return false, nil
+	}
+	return true, nil
+}
+
 func GetImageSizeFromUrl(url string) (width int, height int, err error) {
+	isImage, err := IsImageUrl(url)
+	if !isImage {
+		return
+	}
 	resp, err := http.Get(url)
 	if err != nil {
 		return
@@ -26,6 +41,26 @@ func GetImageSizeFromUrl(url string) (width int, height int, err error) {
 		return
 	}
 	return img.Width, img.Height, nil
+}
+
+func GetImageFromUrl(url string) (mimeType string, data string, err error) {
+	isImage, err := IsImageUrl(url)
+	if !isImage {
+		return
+	}
+	resp, err := http.Get(url)
+	if err != nil {
+		return
+	}
+	defer resp.Body.Close()
+	buffer := bytes.NewBuffer(nil)
+	_, err = buffer.ReadFrom(resp.Body)
+	if err != nil {
+		return
+	}
+	mimeType = resp.Header.Get("Content-Type")
+	data = base64.StdEncoding.EncodeToString(buffer.Bytes())
+	return
 }
 
 var (

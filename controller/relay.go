@@ -31,6 +31,22 @@ type ImageContent struct {
 	ImageURL *ImageURL `json:"image_url,omitempty"`
 }
 
+const (
+	ContentTypeText     = "text"
+	ContentTypeImageURL = "image_url"
+)
+
+type OpenAIMessageContent struct {
+	Type     string    `json:"type,omitempty"`
+	Text     string    `json:"text"`
+	ImageURL *ImageURL `json:"image_url,omitempty"`
+}
+
+func (m Message) IsStringContent() bool {
+	_, ok := m.Content.(string)
+	return ok
+}
+
 func (m Message) StringContent() string {
 	content, ok := m.Content.(string)
 	if ok {
@@ -44,7 +60,7 @@ func (m Message) StringContent() string {
 			if !ok {
 				continue
 			}
-			if contentMap["type"] == "text" {
+			if contentMap["type"] == ContentTypeText {
 				if subStr, ok := contentMap["text"].(string); ok {
 					contentStr += subStr
 				}
@@ -53,6 +69,47 @@ func (m Message) StringContent() string {
 		return contentStr
 	}
 	return ""
+}
+
+func (m Message) ParseContent() []OpenAIMessageContent {
+	var contentList []OpenAIMessageContent
+	content, ok := m.Content.(string)
+	if ok {
+		contentList = append(contentList, OpenAIMessageContent{
+			Type: ContentTypeText,
+			Text: content,
+		})
+		return contentList
+	}
+	anyList, ok := m.Content.([]any)
+	if ok {
+		for _, contentItem := range anyList {
+			contentMap, ok := contentItem.(map[string]any)
+			if !ok {
+				continue
+			}
+			switch contentMap["type"] {
+			case ContentTypeText:
+				if subStr, ok := contentMap["text"].(string); ok {
+					contentList = append(contentList, OpenAIMessageContent{
+						Type: ContentTypeText,
+						Text: subStr,
+					})
+				}
+			case ContentTypeImageURL:
+				if subObj, ok := contentMap["image_url"].(map[string]any); ok {
+					contentList = append(contentList, OpenAIMessageContent{
+						Type: ContentTypeImageURL,
+						ImageURL: &ImageURL{
+							Url: subObj["url"].(string),
+						},
+					})
+				}
+			}
+		}
+		return contentList
+	}
+	return nil
 }
 
 const (
