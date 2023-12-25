@@ -31,6 +31,7 @@ type ZhipuResponse struct {
 	Msg     string            `json:"msg"`
 	Success bool              `json:"success"`
 	Data    ZhipuResponseData `json:"data"`
+	Model   string            `json:"model,omitempty"`
 }
 
 type ZhipuStreamMetaResponse struct {
@@ -38,6 +39,7 @@ type ZhipuStreamMetaResponse struct {
 	TaskId      string `json:"task_id"`
 	TaskStatus  string `json:"task_status"`
 	types.Usage `json:"usage"`
+	Model       string `json:"model,omitempty"`
 }
 
 type zhipuTokenData struct {

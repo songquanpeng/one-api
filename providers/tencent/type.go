@@ -58,4 +58,5 @@ type TencentChatResponse struct {
 	Error   TencentError             `json:"error,omitempty"`   // 错误信息 注意：此字段可能返回 null，表示取不到有效值
 	Note    string                   `json:"note,omitempty"`    // 注释
 	ReqID   string                   `json:"req_id,omitempty"`  // 唯一请求 Id，每次请求都会返回。用于反馈接口入参
+	Model   string                   `json:"model,omitempty"`   // 模型名称
 }

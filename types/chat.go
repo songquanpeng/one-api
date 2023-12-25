@@ -1,5 +1,10 @@
 package types
 
+const (
+	ContentTypeText     = "text"
+	ContentTypeImageURL = "image_url"
+)
+
 type ChatCompletionMessage struct {
 	Role         string  `json:"role"`
 	Content      any     `json:"content"`
@@ -31,6 +36,47 @@ func (m ChatCompletionMessage) StringContent() string {
 		return contentStr
 	}
 	return ""
+}
+
+func (m ChatCompletionMessage) ParseContent() []ChatMessagePart {
+	var contentList []ChatMessagePart
+	content, ok := m.Content.(string)
+	if ok {
+		contentList = append(contentList, ChatMessagePart{
+			Type: ContentTypeText,
+			Text: content,
+		})
+		return contentList
+	}
+	anyList, ok := m.Content.([]any)
+	if ok {
+		for _, contentItem := range anyList {
+			contentMap, ok := contentItem.(map[string]any)
+			if !ok {
+				continue
+			}
+			switch contentMap["type"] {
+			case ContentTypeText:
+				if subStr, ok := contentMap["text"].(string); ok {
+					contentList = append(contentList, ChatMessagePart{
+						Type: ContentTypeText,
+						Text: subStr,
+					})
+				}
+			case ContentTypeImageURL:
+				if subObj, ok := contentMap["image_url"].(map[string]any); ok {
+					contentList = append(contentList, ChatMessagePart{
+						Type: ContentTypeImageURL,
+						ImageURL: &ChatMessageImageURL{
+							URL: subObj["url"].(string),
+						},
+					})
+				}
+			}
+		}
+		return contentList
+	}
+	return nil
 }
 
 type ChatMessageImageURL struct {

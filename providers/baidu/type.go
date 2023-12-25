@@ -32,6 +32,7 @@ type BaiduChatResponse struct {
 	IsTruncated      bool         `json:"is_truncated"`
 	NeedClearHistory bool         `json:"need_clear_history"`
 	Usage            *types.Usage `json:"usage"`
+	Model            string       `json:"model,omitempty"`
 	BaiduError
 }
 

@@ -88,13 +88,15 @@ func (p *BaiduProvider) ChatAction(request *types.ChatCompletionRequest, isModel
 	}
 
 	if request.Stream {
-		usage, errWithCode = p.sendStreamRequest(req)
+		usage, errWithCode = p.sendStreamRequest(req, request.Model)
 		if errWithCode != nil {
 			return
 		}
 
 	} else {
-		baiduChatRequest := &BaiduChatResponse{}
+		baiduChatRequest := &BaiduChatResponse{
+			Model: request.Model,
+		}
 		errWithCode = p.SendRequest(req, baiduChatRequest, false)
 		if errWithCode != nil {
 			return
@@ -117,13 +119,13 @@ func (p *BaiduProvider) streamResponseBaidu2OpenAI(baiduResponse *BaiduChatStrea
 		ID:      baiduResponse.Id,
 		Object:  "chat.completion.chunk",
 		Created: baiduResponse.Created,
-		Model:   "ernie-bot",
+		Model:   baiduResponse.Model,
 		Choices: []types.ChatCompletionStreamChoice{choice},
 	}
 	return &response
 }
 
-func (p *BaiduProvider) sendStreamRequest(req *http.Request) (usage *types.Usage, errWithCode *types.OpenAIErrorWithStatusCode) {
+func (p *BaiduProvider) sendStreamRequest(req *http.Request, model string) (usage *types.Usage, errWithCode *types.OpenAIErrorWithStatusCode) {
 	defer req.Body.Close()
 
 	usage = &types.Usage{}
@@ -180,6 +182,7 @@ func (p *BaiduProvider) sendStreamRequest(req *http.Request) (usage *types.Usage
 				usage.PromptTokens = baiduResponse.Usage.PromptTokens
 				usage.CompletionTokens = baiduResponse.Usage.TotalTokens - baiduResponse.Usage.PromptTokens
 			}
+			baiduResponse.Model = model
 			response := p.streamResponseBaidu2OpenAI(&baiduResponse)
 			jsonResponse, err := json.Marshal(response)
 			if err != nil {

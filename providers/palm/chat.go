@@ -43,6 +43,7 @@ func (palmResponse *PaLMChatResponse) ResponseHandler(resp *http.Response) (Open
 	palmResponse.Usage.TotalTokens = palmResponse.Usage.PromptTokens + completionTokens
 
 	fullTextResponse.Usage = palmResponse.Usage
+	fullTextResponse.Model = palmResponse.Model
 
 	return fullTextResponse, nil
 }

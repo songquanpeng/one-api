@@ -27,6 +27,7 @@ func (TencentResponse *TencentChatResponse) ResponseHandler(resp *http.Response)
 		Object:  "chat.completion",
 		Created: common.GetTimestamp(),
 		Usage:   TencentResponse.Usage,
+		Model:   TencentResponse.Model,
 	}
 	if len(TencentResponse.Choices) > 0 {
 		choice := types.ChatCompletionChoice{
@@ -100,7 +101,7 @@ func (p *TencentProvider) ChatAction(request *types.ChatCompletionRequest, isMod
 
 	if request.Stream {
 		var responseText string
-		errWithCode, responseText = p.sendStreamRequest(req)
+		errWithCode, responseText = p.sendStreamRequest(req, request.Model)
 		if errWithCode != nil {
 			return
 		}
@@ -112,7 +113,9 @@ func (p *TencentProvider) ChatAction(request *types.ChatCompletionRequest, isMod
 		usage.TotalTokens = promptTokens + usage.CompletionTokens
 
 	} else {
-		tencentResponse := &TencentChatResponse{}
+		tencentResponse := &TencentChatResponse{
+			Model: request.Model,
+		}
 		errWithCode = p.SendRequest(req, tencentResponse, false)
 		if errWithCode != nil {
 			return
@@ -128,7 +131,7 @@ func (p *TencentProvider) streamResponseTencent2OpenAI(TencentResponse *TencentC
 	response := types.ChatCompletionStreamResponse{
 		Object:  "chat.completion.chunk",
 		Created: common.GetTimestamp(),
-		Model:   "tencent-hunyuan",
+		Model:   TencentResponse.Model,
 	}
 	if len(TencentResponse.Choices) > 0 {
 		var choice types.ChatCompletionStreamChoice
@@ -141,7 +144,7 @@ func (p *TencentProvider) streamResponseTencent2OpenAI(TencentResponse *TencentC
 	return &response
 }
 
-func (p *TencentProvider) sendStreamRequest(req *http.Request) (*types.OpenAIErrorWithStatusCode, string) {
+func (p *TencentProvider) sendStreamRequest(req *http.Request, model string) (*types.OpenAIErrorWithStatusCode, string) {
 	defer req.Body.Close()
 	// 发送请求
 	resp, err := common.HttpClient.Do(req)
@@ -195,6 +198,7 @@ func (p *TencentProvider) sendStreamRequest(req *http.Request) (*types.OpenAIErr
 				common.SysError("error unmarshalling stream response: " + err.Error())
 				return true
 			}
+			TencentResponse.Model = model
 			response := p.streamResponseTencent2OpenAI(&TencentResponse)
 			if len(response.Choices) != 0 {
 				responseText += response.Choices[0].Delta.Content

@@ -28,6 +28,7 @@ func (zhipuResponse *ZhipuResponse) ResponseHandler(resp *http.Response) (OpenAI
 		ID:      zhipuResponse.Data.TaskId,
 		Object:  "chat.completion",
 		Created: common.GetTimestamp(),
+		Model:   zhipuResponse.Model,
 		Choices: make([]types.ChatCompletionChoice, 0, len(zhipuResponse.Data.Choices)),
 		Usage:   &zhipuResponse.Data.Usage,
 	}
@@ -94,13 +95,15 @@ func (p *ZhipuProvider) ChatAction(request *types.ChatCompletionRequest, isModel
 	}
 
 	if request.Stream {
-		errWithCode, usage = p.sendStreamRequest(req)
+		errWithCode, usage = p.sendStreamRequest(req, request.Model)
 		if errWithCode != nil {
 			return
 		}
 
 	} else {
-		zhipuResponse := &ZhipuResponse{}
+		zhipuResponse := &ZhipuResponse{
+			Model: request.Model,
+		}
 		errWithCode = p.SendRequest(req, zhipuResponse, false)
 		if errWithCode != nil {
 			return
@@ -132,13 +135,13 @@ func (p *ZhipuProvider) streamMetaResponseZhipu2OpenAI(zhipuResponse *ZhipuStrea
 		ID:      zhipuResponse.RequestId,
 		Object:  "chat.completion.chunk",
 		Created: common.GetTimestamp(),
-		Model:   "chatglm",
+		Model:   zhipuResponse.Model,
 		Choices: []types.ChatCompletionStreamChoice{choice},
 	}
 	return &response, &zhipuResponse.Usage
 }
 
-func (p *ZhipuProvider) sendStreamRequest(req *http.Request) (*types.OpenAIErrorWithStatusCode, *types.Usage) {
+func (p *ZhipuProvider) sendStreamRequest(req *http.Request, model string) (*types.OpenAIErrorWithStatusCode, *types.Usage) {
 	defer req.Body.Close()
 
 	// 发送请求
@@ -159,7 +162,7 @@ func (p *ZhipuProvider) sendStreamRequest(req *http.Request) (*types.OpenAIError
 		if atEOF && len(data) == 0 {
 			return 0, nil, nil
 		}
-		if i := strings.Index(string(data), "\n\n"); i >= 0 && strings.Index(string(data), ":") >= 0 {
+		if i := strings.Index(string(data), "\n\n"); i >= 0 && strings.Contains(string(data), ":") {
 			return i + 2, data[0:i], nil
 		}
 		if atEOF {
@@ -195,6 +198,7 @@ func (p *ZhipuProvider) sendStreamRequest(req *http.Request) (*types.OpenAIError
 		select {
 		case data := <-dataChan:
 			response := p.streamResponseZhipu2OpenAI(data)
+			response.Model = model
 			jsonResponse, err := json.Marshal(response)
 			if err != nil {
 				common.SysError("error marshalling stream response: " + err.Error())
@@ -209,6 +213,7 @@ func (p *ZhipuProvider) sendStreamRequest(req *http.Request) (*types.OpenAIError
 				common.SysError("error unmarshalling stream response: " + err.Error())
 				return true
 			}
+			zhipuResponse.Model = model
 			response, zhipuUsage := p.streamMetaResponseZhipu2OpenAI(&zhipuResponse)
 			jsonResponse, err := json.Marshal(response)
 			if err != nil {

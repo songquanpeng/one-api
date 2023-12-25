@@ -32,7 +32,7 @@ func (p *GeminiProvider) GetFullRequestURL(requestURL string, modelName string) 
 		version = p.Context.GetString("api_version")
 	}
 
-	return fmt.Sprintf("%s/%s/models/%s:%s?key=%s", baseURL, version, modelName, requestURL, p.Context.GetString("api_key"))
+	return fmt.Sprintf("%s/%s/models/%s:%s", baseURL, version, modelName, requestURL)
 
 }
 
@@ -40,6 +40,7 @@ func (p *GeminiProvider) GetFullRequestURL(requestURL string, modelName string) 
 func (p *GeminiProvider) GetRequestHeaders() (headers map[string]string) {
 	headers = make(map[string]string)
 	p.CommonRequestHeaders(headers)
+	headers["x-goog-api-key"] = p.Context.GetString("api_key")
 
 	return headers
 }

@@ -71,7 +71,17 @@ const typeConfig = {
       other: '插件参数'
     },
     input: {
-      models: ['qwen-turbo', 'qwen-plus', 'qwen-max', 'qwen-max-longcontext', 'text-embedding-v1']
+      models: [
+        'qwen-turbo',
+        'qwen-plus',
+        'qwen-max',
+        'qwen-max-longcontext',
+        'text-embedding-v1',
+        'qwen-turbo-internet',
+        'qwen-plus-internet',
+        'qwen-max-internet',
+        'qwen-max-longcontext-internet'
+      ]
     },
     prompt: {
       other: '请输入插件参数，即 X-DashScope-Plugin 请求头的取值'

@@ -29,6 +29,7 @@ type PalmProvider struct {
 func (p *PalmProvider) GetRequestHeaders() (headers map[string]string) {
 	headers = make(map[string]string)
 	p.CommonRequestHeaders(headers)
+	headers["x-goog-api-key"] = p.Context.GetString("api_key")
 
 	return headers
 }
@@ -37,5 +38,5 @@ func (p *PalmProvider) GetRequestHeaders() (headers map[string]string) {
 func (p *PalmProvider) GetFullRequestURL(requestURL string, modelName string) string {
 	baseURL := strings.TrimSuffix(p.GetBaseURL(), "/")
 
-	return fmt.Sprintf("%s%s?key=%s", baseURL, requestURL, p.Context.GetString("api_key"))
+	return fmt.Sprintf("%s%s", baseURL, requestURL)
 }

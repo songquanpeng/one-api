@@ -23,10 +23,11 @@ type AliInput struct {
 }
 
 type AliParameters struct {
-	TopP         float64 `json:"top_p,omitempty"`
-	TopK         int     `json:"top_k,omitempty"`
-	Seed         uint64  `json:"seed,omitempty"`
-	EnableSearch bool    `json:"enable_search,omitempty"`
+	TopP              float64 `json:"top_p,omitempty"`
+	TopK              int     `json:"top_k,omitempty"`
+	Seed              uint64  `json:"seed,omitempty"`
+	EnableSearch      bool    `json:"enable_search,omitempty"`
+	IncrementalOutput bool    `json:"incremental_output,omitempty"`
 }
 
 type AliChatRequest struct {
@@ -43,6 +44,7 @@ type AliOutput struct {
 type AliChatResponse struct {
 	Output AliOutput `json:"output"`
 	Usage  AliUsage  `json:"usage"`
+	Model  string    `json:"model,omitempty"`
 	AliError
 }
 

@@ -46,6 +46,7 @@ type GeminiChatResponse struct {
 	Candidates     []GeminiChatCandidate    `json:"candidates"`
 	PromptFeedback GeminiChatPromptFeedback `json:"promptFeedback"`
 	Usage          *types.Usage             `json:"usage,omitempty"`
+	Model          string                   `json:"model,omitempty"`
 }
 
 type GeminiChatCandidate struct {

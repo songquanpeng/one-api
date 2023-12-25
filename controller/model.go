@@ -434,6 +434,15 @@ func init() {
 			Parent:     nil,
 		},
 		{
+			Id:         "gemini-pro-vision",
+			Object:     "model",
+			Created:    1677649963,
+			OwnedBy:    "google",
+			Permission: permission,
+			Root:       "gemini-pro-vision",
+			Parent:     nil,
+		},
+		{
 			Id:         "chatglm_turbo",
 			Object:     "model",
 			Created:    1677649963,

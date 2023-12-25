@@ -38,6 +38,7 @@ func (claudeResponse *ClaudeResponse) ResponseHandler(resp *http.Response) (Open
 		Object:  "chat.completion",
 		Created: common.GetTimestamp(),
 		Choices: []types.ChatCompletionChoice{choice},
+		Model:   claudeResponse.Model,
 	}
 
 	completionTokens := common.CountTokenText(claudeResponse.Completion, claudeResponse.Model)
