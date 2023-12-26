@@ -38,7 +38,7 @@ func RelaySpeech(c *gin.Context) {
 	}
 
 	// 获取供应商
-	provider, pass := getProvider(c, channel.Type, common.RelayModeAudioSpeech)
+	provider, pass := getProvider(c, channel, common.RelayModeAudioSpeech)
 	if pass {
 		return
 	}

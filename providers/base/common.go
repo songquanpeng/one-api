@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"one-api/common"
+	"one-api/model"
 	"one-api/types"
 	"strings"
 
@@ -28,15 +29,20 @@ type BaseProvider struct {
 	ImagesVariations    string
 	Proxy               string
 	Context             *gin.Context
+	Channel             *model.Channel
 }
 
 // 获取基础URL
 func (p *BaseProvider) GetBaseURL() string {
-	if p.Context.GetString("base_url") != "" {
-		return p.Context.GetString("base_url")
+	if p.Channel.GetBaseURL() != "" {
+		return p.Channel.GetBaseURL()
 	}
 
 	return p.BaseURL
+}
+
+func (p *BaseProvider) SetChannel(channel *model.Channel) {
+	p.Channel = channel
 }
 
 // 获取完整请求URL

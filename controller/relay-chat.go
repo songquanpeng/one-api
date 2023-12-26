@@ -43,7 +43,7 @@ func RelayChat(c *gin.Context) {
 	}
 
 	// 获取供应商
-	provider, pass := getProvider(c, channel.Type, common.RelayModeChatCompletions)
+	provider, pass := getProvider(c, channel, common.RelayModeChatCompletions)
 	if pass {
 		return
 	}

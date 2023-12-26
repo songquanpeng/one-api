@@ -29,7 +29,6 @@ func testChannel(channel *model.Channel, request types.ChatCompletionRequest) (e
 	c, _ := gin.CreateTestContext(w)
 	c.Request = req
 
-	setChannelToContext(c, channel)
 	// 创建映射
 	channelTypeToModel := map[int]string{
 		common.ChannelTypePaLM:      "PaLM-2",
@@ -50,7 +49,7 @@ func testChannel(channel *model.Channel, request types.ChatCompletionRequest) (e
 	}
 	request.Model = model
 
-	provider := providers.GetProvider(channel.Type, c)
+	provider := providers.GetProvider(channel, c)
 	if provider == nil {
 		return errors.New("channel not implemented"), nil
 	}
@@ -74,7 +73,7 @@ func testChannel(channel *model.Channel, request types.ChatCompletionRequest) (e
 	}
 
 	if Usage.CompletionTokens == 0 {
-		return errors.New(fmt.Sprintf("channel %s, message 补全 tokens 非预期返回 0", channel.Name)), nil
+		return fmt.Errorf("channel %s, message 补全 tokens 非预期返回 0", channel.Name), nil
 	}
 
 	return nil, nil
@@ -132,7 +131,6 @@ func TestChannel(c *gin.Context) {
 		"message": "",
 		"time":    consumedTime,
 	})
-	return
 }
 
 var testAllChannelsLock sync.Mutex

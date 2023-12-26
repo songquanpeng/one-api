@@ -52,7 +52,7 @@ func (p *TencentProvider) parseTencentConfig(config string) (appId int64, secret
 }
 
 func (p *TencentProvider) getTencentSign(req TencentChatRequest) string {
-	apiKey := p.Context.GetString("api_key")
+	apiKey := p.Channel.Key
 	appId, secretId, secretKey, err := p.parseTencentConfig(apiKey)
 	if err != nil {
 		return ""

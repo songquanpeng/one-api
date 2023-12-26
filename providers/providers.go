@@ -2,6 +2,7 @@ package providers
 
 import (
 	"one-api/common"
+	"one-api/model"
 	"one-api/providers/aigc2d"
 	"one-api/providers/aiproxy"
 	"one-api/providers/ali"
@@ -55,19 +56,23 @@ func init() {
 }
 
 // 获取供应商
-func GetProvider(channelType int, c *gin.Context) base.ProviderInterface {
-	factory, ok := providerFactories[channelType]
+func GetProvider(channel *model.Channel, c *gin.Context) base.ProviderInterface {
+	factory, ok := providerFactories[channel.Type]
+	var provider base.ProviderInterface
 	if !ok {
 		// 处理未找到的供应商工厂
-		baseURL := common.ChannelBaseURLs[channelType]
-		if c.GetString("base_url") != "" {
-			baseURL = c.GetString("base_url")
+		baseURL := common.ChannelBaseURLs[channel.Type]
+		if channel.GetBaseURL() != "" {
+			baseURL = channel.GetBaseURL()
 		}
-		if baseURL != "" {
-			return openai.CreateOpenAIProvider(c, baseURL)
+		if baseURL == "" {
+			return nil
 		}
 
-		return nil
+		provider = openai.CreateOpenAIProvider(c, baseURL)
 	}
-	return factory.Create(c)
+	provider = factory.Create(c)
+	provider.SetChannel(channel)
+
+	return provider
 }

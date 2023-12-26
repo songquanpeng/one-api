@@ -29,7 +29,7 @@ type PalmProvider struct {
 func (p *PalmProvider) GetRequestHeaders() (headers map[string]string) {
 	headers = make(map[string]string)
 	p.CommonRequestHeaders(headers)
-	headers["x-goog-api-key"] = p.Context.GetString("api_key")
+	headers["x-goog-api-key"] = p.Channel.Key
 
 	return headers
 }

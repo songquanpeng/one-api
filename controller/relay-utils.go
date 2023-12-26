@@ -45,7 +45,6 @@ func fetchChannel(c *gin.Context, modelName string) (channel *model.Channel, pas
 		return
 	}
 
-	setChannelToContext(c, channel)
 	return
 }
 
@@ -84,8 +83,8 @@ func fetchChannelByModel(c *gin.Context, modelName string) (*model.Channel, bool
 	return channel, false
 }
 
-func getProvider(c *gin.Context, channelType int, relayMode int) (providersBase.ProviderInterface, bool) {
-	provider := providers.GetProvider(channelType, c)
+func getProvider(c *gin.Context, channel *model.Channel, relayMode int) (providersBase.ProviderInterface, bool) {
+	provider := providers.GetProvider(channel, c)
 	if provider == nil {
 		common.AbortWithMessage(c, http.StatusNotImplemented, "channel not found")
 		return nil, true
@@ -97,27 +96,6 @@ func getProvider(c *gin.Context, channelType int, relayMode int) (providersBase.
 	}
 
 	return provider, false
-}
-
-func setChannelToContext(c *gin.Context, channel *model.Channel) {
-	// c.Set("channel", channel.Type)
-	c.Set("channel_id", channel.Id)
-	c.Set("channel_name", channel.Name)
-	c.Set("api_key", channel.Key)
-	c.Set("base_url", channel.GetBaseURL())
-	switch channel.Type {
-	case common.ChannelTypeAzure:
-		c.Set("api_version", channel.Other)
-	case common.ChannelTypeXunfei:
-		c.Set("api_version", channel.Other)
-	case common.ChannelTypeGemini:
-		c.Set("api_version", channel.Other)
-	case common.ChannelTypeAIProxyLibrary:
-		c.Set("library_id", channel.Other)
-	case common.ChannelTypeAli:
-		c.Set("plugin", channel.Other)
-	}
-
 }
 
 func shouldDisableChannel(err *types.OpenAIError, statusCode int) bool {

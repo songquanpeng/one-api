@@ -42,7 +42,7 @@ func (p *XunfeiProvider) GetRequestHeaders() (headers map[string]string) {
 
 // 获取完整请求 URL
 func (p *XunfeiProvider) GetFullRequestURL(requestURL string, modelName string) string {
-	splits := strings.Split(p.Context.GetString("api_key"), "|")
+	splits := strings.Split(p.Channel.Key, "|")
 	if len(splits) != 3 {
 		return ""
 	}
@@ -58,7 +58,7 @@ func (p *XunfeiProvider) getXunfeiAuthUrl(apiKey string, apiSecret string) (stri
 	query := p.Context.Request.URL.Query()
 	apiVersion := query.Get("api-version")
 	if apiVersion == "" {
-		apiVersion = p.Context.GetString("api_version")
+		apiVersion = p.Channel.Key
 	}
 	if apiVersion == "" {
 		apiVersion = "v1.1"

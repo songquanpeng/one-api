@@ -42,7 +42,7 @@ func RelayModerations(c *gin.Context) {
 	}
 
 	// 获取供应商
-	provider, pass := getProvider(c, channel.Type, common.RelayModeModerations)
+	provider, pass := getProvider(c, channel, common.RelayModeModerations)
 	if pass {
 		return
 	}

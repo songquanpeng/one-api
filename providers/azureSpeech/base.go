@@ -27,7 +27,7 @@ type AzureSpeechProvider struct {
 // 获取请求头
 func (p *AzureSpeechProvider) GetRequestHeaders() (headers map[string]string) {
 	headers = make(map[string]string)
-	headers["Ocp-Apim-Subscription-Key"] = p.Context.GetString("api_key")
+	headers["Ocp-Apim-Subscription-Key"] = p.Channel.Key
 	headers["Content-Type"] = "application/ssml+xml"
 	headers["User-Agent"] = "OneAPI"
 	// headers["X-Microsoft-OutputFormat"] = "audio-16khz-128kbitrate-mono-mp3"

@@ -38,7 +38,7 @@ func RelayTranslations(c *gin.Context) {
 	}
 
 	// 获取供应商
-	provider, pass := getProvider(c, channel.Type, common.RelayModeAudioTranslation)
+	provider, pass := getProvider(c, channel, common.RelayModeAudioTranslation)
 	if pass {
 		return
 	}

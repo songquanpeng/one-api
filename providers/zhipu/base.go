@@ -49,7 +49,7 @@ func (p *ZhipuProvider) GetFullRequestURL(requestURL string, modelName string) s
 }
 
 func (p *ZhipuProvider) getZhipuToken() string {
-	apikey := p.Context.GetString("api_key")
+	apikey := p.Channel.Key
 	data, ok := zhipuTokens.Load(apikey)
 	if ok {
 		tokenData := data.(zhipuTokenData)

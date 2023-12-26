@@ -28,8 +28,8 @@ type GeminiProvider struct {
 func (p *GeminiProvider) GetFullRequestURL(requestURL string, modelName string) string {
 	baseURL := strings.TrimSuffix(p.GetBaseURL(), "/")
 	version := "v1"
-	if p.Context.GetString("api_version") != "" {
-		version = p.Context.GetString("api_version")
+	if p.Channel.Other != "" {
+		version = p.Channel.Other
 	}
 
 	return fmt.Sprintf("%s/%s/models/%s:%s", baseURL, version, modelName, requestURL)
@@ -40,7 +40,7 @@ func (p *GeminiProvider) GetFullRequestURL(requestURL string, modelName string) 
 func (p *GeminiProvider) GetRequestHeaders() (headers map[string]string) {
 	headers = make(map[string]string)
 	p.CommonRequestHeaders(headers)
-	headers["x-goog-api-key"] = p.Context.GetString("api_key")
+	headers["x-goog-api-key"] = p.Channel.Key
 
 	return headers
 }

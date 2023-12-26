@@ -174,7 +174,6 @@ func Register(c *gin.Context) {
 		"success": true,
 		"message": "",
 	})
-	return
 }
 
 func GetAllUsers(c *gin.Context) {
@@ -195,7 +194,6 @@ func GetAllUsers(c *gin.Context) {
 		"message": "",
 		"data":    users,
 	})
-	return
 }
 
 func SearchUsers(c *gin.Context) {
@@ -213,7 +211,6 @@ func SearchUsers(c *gin.Context) {
 		"message": "",
 		"data":    users,
 	})
-	return
 }
 
 func GetUser(c *gin.Context) {
@@ -246,7 +243,6 @@ func GetUser(c *gin.Context) {
 		"message": "",
 		"data":    user,
 	})
-	return
 }
 
 func GetUserDashboard(c *gin.Context) {
@@ -306,7 +302,6 @@ func GenerateAccessToken(c *gin.Context) {
 		"message": "",
 		"data":    user.AccessToken,
 	})
-	return
 }
 
 func GetAffCode(c *gin.Context) {
@@ -334,7 +329,6 @@ func GetAffCode(c *gin.Context) {
 		"message": "",
 		"data":    user.AffCode,
 	})
-	return
 }
 
 func GetSelf(c *gin.Context) {
@@ -352,7 +346,6 @@ func GetSelf(c *gin.Context) {
 		"message": "",
 		"data":    user,
 	})
-	return
 }
 
 func UpdateUser(c *gin.Context) {
@@ -416,7 +409,6 @@ func UpdateUser(c *gin.Context) {
 		"success": true,
 		"message": "",
 	})
-	return
 }
 
 func UpdateSelf(c *gin.Context) {
@@ -463,7 +455,6 @@ func UpdateSelf(c *gin.Context) {
 		"success": true,
 		"message": "",
 	})
-	return
 }
 
 func DeleteUser(c *gin.Context) {
@@ -525,7 +516,6 @@ func DeleteSelf(c *gin.Context) {
 		"success": true,
 		"message": "",
 	})
-	return
 }
 
 func CreateUser(c *gin.Context) {
@@ -574,7 +564,6 @@ func CreateUser(c *gin.Context) {
 		"success": true,
 		"message": "",
 	})
-	return
 }
 
 type ManageRequest struct {
@@ -691,7 +680,6 @@ func ManageUser(c *gin.Context) {
 		"message": "",
 		"data":    clearUser,
 	})
-	return
 }
 
 func EmailBind(c *gin.Context) {
@@ -733,7 +721,6 @@ func EmailBind(c *gin.Context) {
 		"success": true,
 		"message": "",
 	})
-	return
 }
 
 type topUpRequest struct {
@@ -764,5 +751,4 @@ func TopUp(c *gin.Context) {
 		"message": "",
 		"data":    quota,
 	})
-	return
 }

@@ -1,11 +1,12 @@
 package controller
 
 import (
-	"github.com/gin-gonic/gin"
 	"net/http"
 	"one-api/common"
 	"one-api/model"
 	"strconv"
+
+	"github.com/gin-gonic/gin"
 )
 
 func GetAllLogs(c *gin.Context) {
@@ -33,7 +34,6 @@ func GetAllLogs(c *gin.Context) {
 		"message": "",
 		"data":    logs,
 	})
-	return
 }
 
 func GetUserLogs(c *gin.Context) {
@@ -60,7 +60,6 @@ func GetUserLogs(c *gin.Context) {
 		"message": "",
 		"data":    logs,
 	})
-	return
 }
 
 func SearchAllLogs(c *gin.Context) {
@@ -78,7 +77,6 @@ func SearchAllLogs(c *gin.Context) {
 		"message": "",
 		"data":    logs,
 	})
-	return
 }
 
 func SearchUserLogs(c *gin.Context) {
@@ -97,7 +95,6 @@ func SearchUserLogs(c *gin.Context) {
 		"message": "",
 		"data":    logs,
 	})
-	return
 }
 
 func GetLogsStat(c *gin.Context) {
@@ -118,7 +115,6 @@ func GetLogsStat(c *gin.Context) {
 			//"token": tokenNum,
 		},
 	})
-	return
 }
 
 func GetLogsSelfStat(c *gin.Context) {
@@ -139,7 +135,6 @@ func GetLogsSelfStat(c *gin.Context) {
 			//"token": tokenNum,
 		},
 	})
-	return
 }
 
 func DeleteHistoryLogs(c *gin.Context) {
@@ -164,5 +159,4 @@ func DeleteHistoryLogs(c *gin.Context) {
 		"message": "",
 		"data":    count,
 	})
-	return
 }

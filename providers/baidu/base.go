@@ -63,7 +63,7 @@ func (p *BaiduProvider) GetRequestHeaders() (headers map[string]string) {
 }
 
 func (p *BaiduProvider) getBaiduAccessToken() (string, error) {
-	apiKey := p.Context.GetString("api_key")
+	apiKey := p.Channel.Key
 	if val, ok := baiduTokenStore.Load(apiKey); ok {
 		var accessToken BaiduAccessToken
 		if accessToken, ok = val.(BaiduAccessToken); ok {

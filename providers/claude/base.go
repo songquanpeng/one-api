@@ -28,7 +28,7 @@ func (p *ClaudeProvider) GetRequestHeaders() (headers map[string]string) {
 	headers = make(map[string]string)
 	p.CommonRequestHeaders(headers)
 
-	headers["x-api-key"] = p.Context.GetString("api_key")
+	headers["x-api-key"] = p.Channel.Key
 	anthropicVersion := p.Context.Request.Header.Get("anthropic-version")
 	if anthropicVersion == "" {
 		anthropicVersion = "2023-06-01"

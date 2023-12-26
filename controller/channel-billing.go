@@ -55,10 +55,9 @@ func updateChannelBalance(channel *model.Channel) (float64, error) {
 	c, _ := gin.CreateTestContext(w)
 	c.Request = req
 
-	setChannelToContext(c, channel)
 	req.Header.Set("Content-Type", "application/json")
 
-	provider := providers.GetProvider(channel.Type, c)
+	provider := providers.GetProvider(channel, c)
 	if provider == nil {
 		return 0, errors.New("provider not found")
 	}
@@ -102,7 +101,6 @@ func UpdateChannelBalance(c *gin.Context) {
 		"message": "",
 		"balance": balance,
 	})
-	return
 }
 
 func updateAllChannelsBalance() error {
@@ -146,7 +144,6 @@ func UpdateAllChannelsBalance(c *gin.Context) {
 		"success": true,
 		"message": "",
 	})
-	return
 }
 
 func AutomaticallyUpdateChannels(frequency int) {

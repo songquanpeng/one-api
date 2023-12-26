@@ -12,6 +12,7 @@ type ProviderInterface interface {
 	GetFullRequestURL(requestURL string, modelName string) string
 	GetRequestHeaders() (headers map[string]string)
 	SupportAPI(relayMode int) bool
+	SetChannel(channel *model.Channel)
 }
 
 // 完成接口

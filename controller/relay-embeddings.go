@@ -42,7 +42,7 @@ func RelayEmbeddings(c *gin.Context) {
 	}
 
 	// 获取供应商
-	provider, pass := getProvider(c, channel.Type, common.RelayModeEmbeddings)
+	provider, pass := getProvider(c, channel, common.RelayModeEmbeddings)
 	if pass {
 		return
 	}

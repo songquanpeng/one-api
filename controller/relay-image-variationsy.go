@@ -46,7 +46,7 @@ func RelayImageVariations(c *gin.Context) {
 	}
 
 	// 获取供应商
-	provider, pass := getProvider(c, channel.Type, common.RelayModeImagesVariations)
+	provider, pass := getProvider(c, channel, common.RelayModeImagesVariations)
 	if pass {
 		return
 	}
