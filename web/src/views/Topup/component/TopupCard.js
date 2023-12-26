@@ -61,7 +61,7 @@ const TopupCard = () => {
   };
 
   useEffect(() => {
-    let status = localStorage.getItem('status');
+    let status = localStorage.getItem('siteInfo');
     if (status) {
       status = JSON.parse(status);
       if (status.top_up_link) {

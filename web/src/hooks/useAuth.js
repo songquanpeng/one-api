@@ -1,9 +1,9 @@
 import { isAdmin } from 'utils/common';
 import { useNavigate } from 'react-router-dom';
-const navigate = useNavigate();
 
 const useAuth = () => {
   const userIsAdmin = isAdmin();
+  const navigate = useNavigate();
 
   if (!userIsAdmin) {
     navigate('/panel/404');
