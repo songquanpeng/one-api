@@ -5,6 +5,7 @@ const defaultConfig = {
     key: '',
     base_url: '',
     other: '',
+    proxy: '',
     model_mapping: '',
     models: [],
     groups: ['default']
@@ -15,6 +16,7 @@ const defaultConfig = {
     base_url: '渠道API地址',
     key: '密钥',
     other: '其他参数',
+    proxy: '代理地址',
     models: '模型',
     model_mapping: '模型映射关系',
     groups: '用户组'
@@ -25,6 +27,7 @@ const defaultConfig = {
     base_url: '可空，请输入中转API地址，例如通过cloudflare中转',
     key: '请输入渠道对应的鉴权密钥',
     other: '',
+    proxy: '单独设置代理地址，支持http和socks5，例如：http://127.0.0.1:1080',
     models: '请选择该渠道所支持的模型',
     model_mapping:
       '请输入要修改的模型映射关系，格式为：api请求模型ID:实际转发给渠道的模型ID，使用JSON数组表示，例如：{"gpt-3.5": "gpt-35"}',

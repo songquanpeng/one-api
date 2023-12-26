@@ -105,10 +105,12 @@ func (p *BaiduProvider) getBaiduAccessTokenHelper(apiKey string) (*BaiduAccessTo
 		return nil, err
 	}
 
-	resp, err := common.HttpClient.Do(req)
+	httpClient := common.GetHttpClient(p.Channel.Proxy)
+	resp, err := httpClient.Do(req)
 	if err != nil {
 		return nil, err
 	}
+	common.PutHttpClient(httpClient)
 
 	defer resp.Body.Close()
 

@@ -20,7 +20,7 @@ func (p *OpenAIProvider) Balance(channel *model.Channel) (float64, error) {
 
 	// 发送请求
 	var subscription OpenAISubscriptionResponse
-	_, errWithCode := common.SendRequest(req, &subscription, false)
+	_, errWithCode := common.SendRequest(req, &subscription, false, p.Channel.Proxy)
 	if errWithCode != nil {
 		return 0, errors.New(errWithCode.OpenAIError.Message)
 	}
@@ -38,7 +38,7 @@ func (p *OpenAIProvider) Balance(channel *model.Channel) (float64, error) {
 		return 0, err
 	}
 	usage := OpenAIUsageResponse{}
-	_, errWithCode = common.SendRequest(req, &usage, false)
+	_, errWithCode = common.SendRequest(req, &usage, false, p.Channel.Proxy)
 
 	balance := subscription.HardLimitUSD - usage.TotalUsage/100
 	channel.UpdateBalance(balance)

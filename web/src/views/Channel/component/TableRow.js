@@ -29,6 +29,7 @@ import TableSwitch from 'ui-component/Switch';
 
 import ResponseTimeLabel from './ResponseTimeLabel';
 import GroupLabel from './GroupLabel';
+import NameLabel from './NameLabel';
 
 import { IconDotsVertical, IconEdit, IconTrash, IconPencil } from '@tabler/icons-react';
 
@@ -102,7 +103,9 @@ export default function ChannelTableRow({ item, manageChannel, handleOpenModal, 
       <TableRow tabIndex={item.id}>
         <TableCell>{item.id}</TableCell>
 
-        <TableCell>{item.name}</TableCell>
+        <TableCell>
+          <NameLabel name={item.name} models={item.models} />
+        </TableCell>
 
         <TableCell>
           <GroupLabel group={item.group} />

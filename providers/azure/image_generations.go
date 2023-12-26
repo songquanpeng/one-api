@@ -38,7 +38,7 @@ func (c *ImageAzureResponse) ResponseHandler(resp *http.Response) (OpenAIRespons
 	for i := 0; i < 3; i++ {
 		// 休眠 2 秒
 		time.Sleep(2 * time.Second)
-		_, errWithCode = common.SendRequest(req, &getImageAzureResponse, false)
+		_, errWithCode = common.SendRequest(req, &getImageAzureResponse, false, c.Proxy)
 		fmt.Println("getImageAzureResponse", getImageAzureResponse)
 		if errWithCode != nil {
 			return
@@ -81,6 +81,7 @@ func (p *AzureProvider) ImageGenerationsAction(request *types.ImageRequest, isMo
 	if request.Model == "dall-e-2" {
 		imageAzureResponse := &ImageAzureResponse{
 			Header: headers,
+			Proxy:  p.Channel.Proxy,
 		}
 		errWithCode = p.SendRequest(req, imageAzureResponse, false)
 	} else {

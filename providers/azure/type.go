@@ -10,6 +10,7 @@ type ImageAzureResponse struct {
 	Status  string              `json:"status,omitempty"`
 	Error   ImageAzureError     `json:"error,omitempty"`
 	Header  map[string]string   `json:"header,omitempty"`
+	Proxy   string              `json:"proxy,omitempty"`
 }
 
 type ImageAzureError struct {

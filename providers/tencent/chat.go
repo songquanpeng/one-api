@@ -147,10 +147,12 @@ func (p *TencentProvider) streamResponseTencent2OpenAI(TencentResponse *TencentC
 func (p *TencentProvider) sendStreamRequest(req *http.Request, model string) (*types.OpenAIErrorWithStatusCode, string) {
 	defer req.Body.Close()
 	// 发送请求
-	resp, err := common.HttpClient.Do(req)
+	client := common.GetHttpClient(p.Channel.Proxy)
+	resp, err := client.Do(req)
 	if err != nil {
 		return common.ErrorWrapper(err, "http_request_failed", http.StatusInternalServerError), ""
 	}
+	common.PutHttpClient(client)
 
 	if common.IsFailureStatusCode(resp) {
 		return common.HandleErrorResp(resp), ""

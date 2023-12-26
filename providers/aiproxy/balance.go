@@ -20,7 +20,7 @@ func (p *AIProxyProvider) Balance(channel *model.Channel) (float64, error) {
 
 	// 发送请求
 	var response AIProxyUserOverviewResponse
-	_, errWithCode := common.SendRequest(req, &response, false)
+	_, errWithCode := common.SendRequest(req, &response, false, p.Channel.Proxy)
 	if errWithCode != nil {
 		return 0, errors.New(errWithCode.OpenAIError.Message)
 	}

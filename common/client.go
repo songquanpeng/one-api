@@ -6,23 +6,61 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"one-api/types"
 	"strconv"
+	"sync"
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"golang.org/x/net/proxy"
 )
 
-var HttpClient *http.Client
+var clientPool = &sync.Pool{
+	New: func() interface{} {
+		return &http.Client{}
+	},
+}
 
-func init() {
-	if RelayTimeout == 0 {
-		HttpClient = &http.Client{}
-	} else {
-		HttpClient = &http.Client{
-			Timeout: time.Duration(RelayTimeout) * time.Second,
+func GetHttpClient(proxyAddr string) *http.Client {
+	client := clientPool.Get().(*http.Client)
+
+	if RelayTimeout > 0 {
+		client.Timeout = time.Duration(RelayTimeout) * time.Second
+	}
+
+	if proxyAddr != "" {
+		proxyURL, err := url.Parse(proxyAddr)
+		if err != nil {
+			SysError("Error parsing proxy address: " + err.Error())
+			return client
+		}
+
+		switch proxyURL.Scheme {
+		case "http", "https":
+			client.Transport = &http.Transport{
+				Proxy: http.ProxyURL(proxyURL),
+			}
+		case "socks5":
+			dialer, err := proxy.SOCKS5("tcp", proxyURL.Host, nil, proxy.Direct)
+			if err != nil {
+				SysError("Error creating SOCKS5 dialer: " + err.Error())
+				return client
+			}
+			client.Transport = &http.Transport{
+				Dial: dialer.Dial,
+			}
+		default:
+			SysError("Unsupported proxy scheme: " + proxyURL.Scheme)
 		}
 	}
+
+	return client
+
+}
+
+func PutHttpClient(c *http.Client) {
+	clientPool.Put(c)
 }
 
 type Client struct {
@@ -92,12 +130,14 @@ func (c *Client) NewRequest(method, url string, setters ...requestOption) (*http
 	return req, nil
 }
 
-func SendRequest(req *http.Request, response any, outputResp bool) (*http.Response, *types.OpenAIErrorWithStatusCode) {
+func SendRequest(req *http.Request, response any, outputResp bool, proxyAddr string) (*http.Response, *types.OpenAIErrorWithStatusCode) {
 	// 发送请求
-	resp, err := HttpClient.Do(req)
+	client := GetHttpClient(proxyAddr)
+	resp, err := client.Do(req)
 	if err != nil {
 		return nil, ErrorWrapper(err, "http_request_failed", http.StatusInternalServerError)
 	}
+	PutHttpClient(client)
 
 	if !outputResp {
 		defer resp.Body.Close()
@@ -210,8 +250,10 @@ func HandleErrorResp(resp *http.Response) (openAIErrorWithStatusCode *types.Open
 	return
 }
 
-func (c *Client) SendRequestRaw(req *http.Request) (body io.ReadCloser, err error) {
-	resp, err := HttpClient.Do(req)
+func (c *Client) SendRequestRaw(req *http.Request, proxyAddr string) (body io.ReadCloser, err error) {
+	client := GetHttpClient(proxyAddr)
+	resp, err := client.Do(req)
+	PutHttpClient(client)
 	if err != nil {
 		return
 	}

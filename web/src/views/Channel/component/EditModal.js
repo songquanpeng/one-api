@@ -35,6 +35,7 @@ const validationSchema = Yup.object().shape({
   type: Yup.number().required('渠道 不能为空'),
   key: Yup.string().when('is_edit', { is: false, then: Yup.string().required('密钥 不能为空') }),
   other: Yup.string(),
+  proxy: Yup.string(),
   models: Yup.array().min(1, '模型 不能为空'),
   groups: Yup.array().min(1, '用户组 不能为空'),
   base_url: Yup.string().when('type', {
@@ -440,6 +441,27 @@ const EditModal = ({ open, channelId, onCancel, onOk }) => {
                   </FormHelperText>
                 ) : (
                   <FormHelperText id="helper-tex-channel-model_mapping-label"> {inputPrompt.model_mapping} </FormHelperText>
+                )}
+              </FormControl>
+              <FormControl fullWidth error={Boolean(touched.proxy && errors.proxy)} sx={{ ...theme.typography.otherInput }}>
+                <InputLabel htmlFor="channel-proxy-label">{inputLabel.proxy}</InputLabel>
+                <OutlinedInput
+                  id="channel-proxy-label"
+                  label={inputLabel.proxy}
+                  type="text"
+                  value={values.proxy}
+                  name="proxy"
+                  onBlur={handleBlur}
+                  onChange={handleChange}
+                  inputProps={{}}
+                  aria-describedby="helper-text-channel-proxy-label"
+                />
+                {touched.proxy && errors.proxy ? (
+                  <FormHelperText error id="helper-tex-channel-proxy-label">
+                    {errors.proxy}
+                  </FormHelperText>
+                ) : (
+                  <FormHelperText id="helper-tex-channel-proxy-label"> {inputPrompt.proxy} </FormHelperText>
                 )}
               </FormControl>
               <DialogActions>

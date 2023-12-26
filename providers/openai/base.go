@@ -111,10 +111,12 @@ func (p *OpenAIProvider) GetRequestBody(request any, isModelMapped bool) (reques
 func (p *OpenAIProvider) sendStreamRequest(req *http.Request, response OpenAIProviderStreamResponseHandler) (openAIErrorWithStatusCode *types.OpenAIErrorWithStatusCode, responseText string) {
 	defer req.Body.Close()
 
-	resp, err := common.HttpClient.Do(req)
+	client := common.GetHttpClient(p.Channel.Proxy)
+	resp, err := client.Do(req)
 	if err != nil {
 		return common.ErrorWrapper(err, "http_request_failed", http.StatusInternalServerError), ""
 	}
+	common.PutHttpClient(client)
 
 	if common.IsFailureStatusCode(resp) {
 		return common.HandleErrorResp(resp), ""
