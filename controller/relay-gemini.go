@@ -7,9 +7,16 @@ import (
 	"io"
 	"net/http"
 	"one-api/common"
+	"one-api/common/image"
 	"strings"
 
 	"github.com/gin-gonic/gin"
+)
+
+// https://ai.google.dev/docs/gemini_api_overview?hl=zh-cn
+
+const (
+	GeminiVisionMaxImageNum = 16
 )
 
 type GeminiChatRequest struct {
@@ -97,6 +104,30 @@ func requestOpenAI2Gemini(textRequest GeneralOpenAIRequest) *GeminiChatRequest {
 				},
 			},
 		}
+		openaiContent := message.ParseContent()
+		var parts []GeminiPart
+		imageNum := 0
+		for _, part := range openaiContent {
+			if part.Type == ContentTypeText {
+				parts = append(parts, GeminiPart{
+					Text: part.Text,
+				})
+			} else if part.Type == ContentTypeImageURL {
+				imageNum += 1
+				if imageNum > GeminiVisionMaxImageNum {
+					continue
+				}
+				mimeType, data, _ := image.GetImageFromUrl(part.ImageURL.Url)
+				parts = append(parts, GeminiPart{
+					InlineData: &GeminiInlineData{
+						MimeType: mimeType,
+						Data:     data,
+					},
+				})
+			}
+		}
+		content.Parts = parts
+
 		// there's no assistant role in gemini and API shall vomit if Role is not user or model
 		if content.Role == "assistant" {
 			content.Role = "model"
@@ -287,6 +318,7 @@ func geminiChatHandler(c *gin.Context, resp *http.Response, promptTokens int, mo
 		}, nil
 	}
 	fullTextResponse := responseGeminiChat2OpenAI(&geminiResponse)
+	fullTextResponse.Model = model
 	completionTokens := countTokenText(geminiResponse.GetResponseText(), model)
 	usage := Usage{
 		PromptTokens:     promptTokens,

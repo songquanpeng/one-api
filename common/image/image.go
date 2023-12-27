@@ -1,6 +1,8 @@
 package image
 
 import (
+	"bytes"
+	"encoding/base64"
 	"image"
 	_ "image/gif"
 	_ "image/jpeg"
@@ -8,11 +10,27 @@ import (
 	"net/http"
 	"regexp"
 	"strings"
+	"sync"
 
 	_ "golang.org/x/image/webp"
 )
 
+func IsImageUrl(url string) (bool, error) {
+	resp, err := http.Head(url)
+	if err != nil {
+		return false, err
+	}
+	if !strings.HasPrefix(resp.Header.Get("Content-Type"), "image/") {
+		return false, nil
+	}
+	return true, nil
+}
+
 func GetImageSizeFromUrl(url string) (width int, height int, err error) {
+	isImage, err := IsImageUrl(url)
+	if !isImage {
+		return
+	}
 	resp, err := http.Get(url)
 	if err != nil {
 		return
@@ -25,17 +43,51 @@ func GetImageSizeFromUrl(url string) (width int, height int, err error) {
 	return img.Width, img.Height, nil
 }
 
+func GetImageFromUrl(url string) (mimeType string, data string, err error) {
+	isImage, err := IsImageUrl(url)
+	if !isImage {
+		return
+	}
+	resp, err := http.Get(url)
+	if err != nil {
+		return
+	}
+	defer resp.Body.Close()
+	buffer := bytes.NewBuffer(nil)
+	_, err = buffer.ReadFrom(resp.Body)
+	if err != nil {
+		return
+	}
+	mimeType = resp.Header.Get("Content-Type")
+	data = base64.StdEncoding.EncodeToString(buffer.Bytes())
+	return
+}
+
 var (
 	reg = regexp.MustCompile(`data:image/([^;]+);base64,`)
 )
 
+var readerPool = sync.Pool{
+	New: func() interface{} {
+		return &bytes.Reader{}
+	},
+}
+
 func GetImageSizeFromBase64(encoded string) (width int, height int, err error) {
-	encoded = strings.TrimPrefix(encoded, "data:image/png;base64,")
-	base64 := strings.NewReader(reg.ReplaceAllString(encoded, ""))
-	img, _, err := image.DecodeConfig(base64)
+	decoded, err := base64.StdEncoding.DecodeString(reg.ReplaceAllString(encoded, ""))
 	if err != nil {
-		return
+		return 0, 0, err
 	}
+
+	reader := readerPool.Get().(*bytes.Reader)
+	defer readerPool.Put(reader)
+	reader.Reset(decoded)
+
+	img, _, err := image.DecodeConfig(reader)
+	if err != nil {
+		return 0, 0, err
+	}
+
 	return img.Width, img.Height, nil
 }
 

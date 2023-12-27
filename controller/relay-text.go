@@ -58,6 +58,9 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 	if err != nil {
 		return errorWrapper(err, "bind_request_body_failed", http.StatusBadRequest)
 	}
+	if textRequest.MaxTokens < 0 || textRequest.MaxTokens > math.MaxInt32/2 {
+		return errorWrapper(errors.New("max_tokens is invalid"), "invalid_max_tokens", http.StatusBadRequest)
+	}
 	if relayMode == RelayModeModerations && textRequest.Model == "" {
 		textRequest.Model = "text-moderation-latest"
 	}
@@ -177,9 +180,6 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 		if baseURL != "" {
 			fullRequestURL = fmt.Sprintf("%s/v1beta2/models/chat-bison-001:generateMessage", baseURL)
 		}
-		apiKey := c.Request.Header.Get("Authorization")
-		apiKey = strings.TrimPrefix(apiKey, "Bearer ")
-		fullRequestURL += "?key=" + apiKey
 	case APITypeGemini:
 		requestBaseURL := "https://generativelanguage.googleapis.com"
 		if baseURL != "" {
@@ -194,9 +194,6 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 			action = "streamGenerateContent"
 		}
 		fullRequestURL = fmt.Sprintf("%s/%s/models/%s:%s", requestBaseURL, version, textRequest.Model, action)
-		apiKey := c.Request.Header.Get("Authorization")
-		apiKey = strings.TrimPrefix(apiKey, "Bearer ")
-		fullRequestURL += "?key=" + apiKey
 	case APITypeZhipu:
 		method := "invoke"
 		if textRequest.Stream {
@@ -393,9 +390,9 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 		case APITypeTencent:
 			req.Header.Set("Authorization", apiKey)
 		case APITypePaLM:
-			// do not set Authorization header
+			req.Header.Set("x-goog-api-key", apiKey)
 		case APITypeGemini:
-			// do not set Authorization header
+			req.Header.Set("x-goog-api-key", apiKey)
 		default:
 			req.Header.Set("Authorization", "Bearer "+apiKey)
 		}
