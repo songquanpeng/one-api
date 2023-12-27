@@ -44,6 +44,11 @@ func GetImageSizeFromUrl(url string) (width int, height int, err error) {
 }
 
 func GetImageFromUrl(url string) (mimeType string, data string, err error) {
+	// openai's image_url support base64 encoded image
+	if strings.HasPrefix(url, "data:image/jpeg;base64,") {
+		return "image/jpeg", strings.TrimPrefix(url, "data:image/jpeg;base64,"), nil
+	}
+
 	isImage, err := IsImageUrl(url)
 	if !isImage {
 		return
