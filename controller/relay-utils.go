@@ -45,6 +45,8 @@ func fetchChannel(c *gin.Context, modelName string) (channel *model.Channel, pas
 		return
 	}
 
+	c.Set("channel_id", channel.Id)
+
 	return
 }
 
