@@ -63,7 +63,7 @@ func GetImageFromUrl(url string) (mimeType string, data string, err error) {
 	isImage, err := IsImageUrl(url)
 	if !isImage {
 		if err == nil {
-			err = errors.New("Invalid image link")
+			err = errors.New("invalid image link")
 		}
 		return
 	}

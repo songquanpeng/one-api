@@ -213,3 +213,22 @@ func CacheGetRandomSatisfiedChannel(group string, model string) (*Channel, error
 	idx := rand.Intn(endIdx)
 	return channels[idx], nil
 }
+
+func CacheGetGroupModels(group string) ([]string, error) {
+	if !common.MemoryCacheEnabled {
+		return GetGroupModels(group)
+	}
+	channelSyncLock.RLock()
+	defer channelSyncLock.RUnlock()
+
+	groupModels := group2model2channels[group]
+	if groupModels == nil {
+		return nil, errors.New("group not found")
+	}
+
+	models := make([]string, 0)
+	for model := range groupModels {
+		models = append(models, model)
+	}
+	return models, nil
+}

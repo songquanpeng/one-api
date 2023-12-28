@@ -39,6 +39,22 @@ func GetRandomSatisfiedChannel(group string, model string) (*Channel, error) {
 	return &channel, err
 }
 
+func GetGroupModels(group string) ([]string, error) {
+	var models []string
+	groupCol := "`group`"
+	trueVal := "1"
+	if common.UsingPostgreSQL {
+		groupCol = `"group"`
+		trueVal = "true"
+	}
+
+	err := DB.Model(&Ability{}).Where(groupCol+" = ? and enabled = ? ", group, trueVal).Distinct("model").Pluck("model", &models).Error
+	if err != nil {
+		return nil, err
+	}
+	return models, nil
+}
+
 func (channel *Channel) AddAbilities() error {
 	models_ := strings.Split(channel.Models, ",")
 	groups_ := strings.Split(channel.Group, ",")
