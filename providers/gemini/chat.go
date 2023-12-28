@@ -63,24 +63,24 @@ func (response *GeminiChatResponse) ResponseHandler(resp *http.Response) (OpenAI
 func (p *GeminiProvider) getChatRequestBody(request *types.ChatCompletionRequest) (requestBody *GeminiChatRequest, errWithCode *types.OpenAIErrorWithStatusCode) {
 	geminiRequest := GeminiChatRequest{
 		Contents: make([]GeminiChatContent, 0, len(request.Messages)),
-		//SafetySettings: []GeminiChatSafetySettings{
-		//	{
-		//		Category:  "HARM_CATEGORY_HARASSMENT",
-		//		Threshold: "BLOCK_ONLY_HIGH",
-		//	},
-		//	{
-		//		Category:  "HARM_CATEGORY_HATE_SPEECH",
-		//		Threshold: "BLOCK_ONLY_HIGH",
-		//	},
-		//	{
-		//		Category:  "HARM_CATEGORY_SEXUALLY_EXPLICIT",
-		//		Threshold: "BLOCK_ONLY_HIGH",
-		//	},
-		//	{
-		//		Category:  "HARM_CATEGORY_DANGEROUS_CONTENT",
-		//		Threshold: "BLOCK_ONLY_HIGH",
-		//	},
-		//},
+		SafetySettings: []GeminiChatSafetySettings{
+			{
+				Category:  "HARM_CATEGORY_HARASSMENT",
+				Threshold: "BLOCK_NONE",
+			},
+			{
+				Category:  "HARM_CATEGORY_HATE_SPEECH",
+				Threshold: "BLOCK_NONE",
+			},
+			{
+				Category:  "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+				Threshold: "BLOCK_NONE",
+			},
+			{
+				Category:  "HARM_CATEGORY_DANGEROUS_CONTENT",
+				Threshold: "BLOCK_NONE",
+			},
+		},
 		GenerationConfig: GeminiChatGenerationConfig{
 			Temperature:     request.Temperature,
 			TopP:            request.TopP,
