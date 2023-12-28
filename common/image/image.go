@@ -3,6 +3,7 @@ package image
 import (
 	"bytes"
 	"encoding/base64"
+	"errors"
 	"image"
 	_ "image/gif"
 	_ "image/jpeg"
@@ -44,8 +45,26 @@ func GetImageSizeFromUrl(url string) (width int, height int, err error) {
 }
 
 func GetImageFromUrl(url string) (mimeType string, data string, err error) {
+
+	if strings.HasPrefix(url, "data:image/") {
+		dataURLPattern := regexp.MustCompile(`data:image/([^;]+);base64,(.*)`)
+
+		matches := dataURLPattern.FindStringSubmatch(url)
+		if len(matches) == 3 && matches[2] != "" {
+			mimeType = "image/" + matches[1]
+			data = matches[2]
+			return
+		}
+
+		err = errors.New("image base64 decode failed")
+		return
+	}
+
 	isImage, err := IsImageUrl(url)
 	if !isImage {
+		if err == nil {
+			err = errors.New("Invalid image link")
+		}
 		return
 	}
 	resp, err := http.Get(url)

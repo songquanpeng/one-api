@@ -60,7 +60,7 @@ func (response *GeminiChatResponse) ResponseHandler(resp *http.Response) (OpenAI
 }
 
 // Setting safety to the lowest possible values since Gemini is already powerless enough
-func (p *GeminiProvider) getChatRequestBody(request *types.ChatCompletionRequest) (requestBody *GeminiChatRequest) {
+func (p *GeminiProvider) getChatRequestBody(request *types.ChatCompletionRequest) (requestBody *GeminiChatRequest, errWithCode *types.OpenAIErrorWithStatusCode) {
 	geminiRequest := GeminiChatRequest{
 		Contents: make([]GeminiChatContent, 0, len(request.Messages)),
 		//SafetySettings: []GeminiChatSafetySettings{
@@ -118,7 +118,10 @@ func (p *GeminiProvider) getChatRequestBody(request *types.ChatCompletionRequest
 				if imageNum > GeminiVisionMaxImageNum {
 					continue
 				}
-				mimeType, data, _ := image.GetImageFromUrl(part.ImageURL.URL)
+				mimeType, data, err := image.GetImageFromUrl(part.ImageURL.URL)
+				if err != nil {
+					return nil, common.ErrorWrapper(err, "image_url_invalid", http.StatusBadRequest)
+				}
 				parts = append(parts, GeminiPart{
 					InlineData: &GeminiInlineData{
 						MimeType: mimeType,
@@ -154,11 +157,14 @@ func (p *GeminiProvider) getChatRequestBody(request *types.ChatCompletionRequest
 		}
 	}
 
-	return &geminiRequest
+	return &geminiRequest, nil
 }
 
 func (p *GeminiProvider) ChatAction(request *types.ChatCompletionRequest, isModelMapped bool, promptTokens int) (usage *types.Usage, errWithCode *types.OpenAIErrorWithStatusCode) {
-	requestBody := p.getChatRequestBody(request)
+	requestBody, errWithCode := p.getChatRequestBody(request)
+	if errWithCode != nil {
+		return
+	}
 	fullRequestURL := p.GetFullRequestURL("generateContent", request.Model)
 	headers := p.GetRequestHeaders()
 	if request.Stream {

@@ -169,3 +169,34 @@ func TestGetImageSizeFromBase64(t *testing.T) {
 		})
 	}
 }
+
+func TestGetImageFromUrl(t *testing.T) {
+	for i, c := range cases {
+		t.Run("Decode:"+strconv.Itoa(i), func(t *testing.T) {
+			resp, err := http.Get(c.url)
+			assert.NoError(t, err)
+			defer resp.Body.Close()
+			data, err := io.ReadAll(resp.Body)
+			assert.NoError(t, err)
+			encoded := base64.StdEncoding.EncodeToString(data)
+
+			mimeType, base64Data, err := img.GetImageFromUrl(c.url)
+			assert.NoError(t, err)
+			assert.Equal(t, encoded, base64Data)
+			assert.Equal(t, "image/"+c.format, mimeType)
+
+			encodedBase64 := "data:image/" + c.format + ";base64," + encoded
+			mimeType, base64Data, err = img.GetImageFromUrl(encodedBase64)
+			assert.NoError(t, err)
+			assert.Equal(t, encoded, base64Data)
+			assert.Equal(t, "image/"+c.format, mimeType)
+		})
+	}
+
+	url := "https://raw.githubusercontent.com/songquanpeng/one-api/main/README.md"
+	_, _, err := img.GetImageFromUrl(url)
+	assert.Error(t, err)
+	encodedBase64 := "data:image/text;base64,"
+	_, _, err = img.GetImageFromUrl(encodedBase64)
+	assert.Error(t, err)
+}
