@@ -136,7 +136,7 @@ export default function ChannelTableRow({ item, manageChannel, handleOpenModal, 
         </TableCell>
         <TableCell>
           <Tooltip title={'点击更新余额'} placement="top" onClick={updateChannelBalance}>
-            {renderBalance(itemBalance)}
+            {renderBalance(item.type, itemBalance)}
           </Tooltip>
         </TableCell>
         <TableCell>

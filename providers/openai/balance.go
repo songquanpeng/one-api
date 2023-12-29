@@ -9,6 +9,10 @@ import (
 )
 
 func (p *OpenAIProvider) Balance(channel *model.Channel) (float64, error) {
+	if !p.BalanceAction {
+		return 0, errors.New("不支持余额查询")
+	}
+
 	fullRequestURL := p.GetFullRequestURL("/v1/dashboard/billing/subscription", "")
 	headers := p.GetRequestHeaders()
 
