@@ -101,6 +101,10 @@ var ModelRatio = map[string]float64{
 	"embedding_s1_v1":           0.0715, // ¥0.001 / 1k tokens
 	"semantic_similarity_s1_v1": 0.0715, // ¥0.001 / 1k tokens
 	"hunyuan":                   7.143,  // ¥0.1 / 1k tokens  // https://cloud.tencent.com/document/product/1729/97731#e0e6be58-60c8-469f-bdeb-6c264ce3b4d0
+	"Baichuan2-Turbo":           0.5715, // ¥0.008 / 1k tokens
+	"Baichuan2-Turbo-192k":      1.143,  // ¥0.016 / 1k tokens
+	"Baichuan2-53B":             1.4286, // ¥0.02 / 1k tokens
+	"Baichuan-Text-Embedding":   0.0357, // ¥0.0005 / 1k tokens
 }
 
 func ModelRatio2JSONString() string {

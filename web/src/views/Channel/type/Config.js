@@ -130,6 +130,11 @@ const typeConfig = {
     prompt: {
       other: '请输入版本号，例如：v1'
     }
+  },
+  26: {
+    input: {
+      models: ['Baichuan2-Turbo', 'Baichuan2-Turbo-192k', 'Baichuan2-53B', 'Baichuan-Text-Embedding']
+    }
   }
 };
 

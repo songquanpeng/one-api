@@ -46,7 +46,7 @@ func (p *OpenAIProvider) ChatAction(request *types.ChatCompletionRequest, isMode
 	if request.Stream {
 		openAIProviderChatStreamResponse := &OpenAIProviderChatStreamResponse{}
 		var textResponse string
-		errWithCode, textResponse = p.sendStreamRequest(req, openAIProviderChatStreamResponse)
+		errWithCode, textResponse = p.SendStreamRequest(req, openAIProviderChatStreamResponse)
 		if errWithCode != nil {
 			return
 		}

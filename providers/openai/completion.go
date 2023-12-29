@@ -47,7 +47,7 @@ func (p *OpenAIProvider) CompleteAction(request *types.CompletionRequest, isMode
 	if request.Stream {
 		// TODO
 		var textResponse string
-		errWithCode, textResponse = p.sendStreamRequest(req, openAIProviderCompletionResponse)
+		errWithCode, textResponse = p.SendStreamRequest(req, openAIProviderCompletionResponse)
 		if errWithCode != nil {
 			return
 		}

@@ -189,6 +189,7 @@ const (
 	ChannelTypeTencent        = 23
 	ChannelTypeAzureSpeech    = 24
 	ChannelTypeGemini         = 25
+	ChannelTypeBaichuan       = 26
 )
 
 var ChannelBaseURLs = []string{
@@ -218,6 +219,7 @@ var ChannelBaseURLs = []string{
 	"https://hunyuan.cloud.tencent.com", //23
 	"",                                  //24
 	"",                                  //25
+	"https://api.baichuan-ai.com",       //26
 }
 
 const (

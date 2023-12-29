@@ -190,13 +190,13 @@ func countImageTokens(url string, detail string) (_ int, err error) {
 func CountTokenInput(input any, model string) int {
 	switch v := input.(type) {
 	case string:
-		return CountTokenInput(v, model)
+		return CountTokenText(v, model)
 	case []string:
 		text := ""
 		for _, s := range v {
 			text += s
 		}
-		return CountTokenInput(text, model)
+		return CountTokenText(text, model)
 	}
 	return 0
 }

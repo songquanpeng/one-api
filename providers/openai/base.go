@@ -108,7 +108,7 @@ func (p *OpenAIProvider) GetRequestBody(request any, isModelMapped bool) (reques
 }
 
 // 发送流式请求
-func (p *OpenAIProvider) sendStreamRequest(req *http.Request, response OpenAIProviderStreamResponseHandler) (openAIErrorWithStatusCode *types.OpenAIErrorWithStatusCode, responseText string) {
+func (p *OpenAIProvider) SendStreamRequest(req *http.Request, response OpenAIProviderStreamResponseHandler) (openAIErrorWithStatusCode *types.OpenAIErrorWithStatusCode, responseText string) {
 	defer req.Body.Close()
 
 	client := common.GetHttpClient(p.Channel.Proxy)

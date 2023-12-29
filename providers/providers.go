@@ -10,6 +10,7 @@ import (
 	"one-api/providers/api2gpt"
 	"one-api/providers/azure"
 	azurespeech "one-api/providers/azureSpeech"
+	"one-api/providers/baichuan"
 	"one-api/providers/baidu"
 	"one-api/providers/base"
 	"one-api/providers/claude"
@@ -52,6 +53,7 @@ func init() {
 	providerFactories[common.ChannelTypeAPI2GPT] = api2gpt.Api2gptProviderFactory{}
 	providerFactories[common.ChannelTypeAzureSpeech] = azurespeech.AzureSpeechProviderFactory{}
 	providerFactories[common.ChannelTypeGemini] = gemini.GeminiProviderFactory{}
+	providerFactories[common.ChannelTypeBaichuan] = baichuan.BaichuanProviderFactory{}
 
 }
 
