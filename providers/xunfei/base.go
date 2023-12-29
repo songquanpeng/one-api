@@ -58,7 +58,7 @@ func (p *XunfeiProvider) getXunfeiAuthUrl(apiKey string, apiSecret string) (stri
 	query := p.Context.Request.URL.Query()
 	apiVersion := query.Get("api-version")
 	if apiVersion == "" {
-		apiVersion = p.Channel.Key
+		apiVersion = p.Channel.Other
 	}
 	if apiVersion == "" {
 		apiVersion = "v1.1"
