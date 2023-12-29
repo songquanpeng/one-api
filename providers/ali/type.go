@@ -1,5 +1,9 @@
 package ali
 
+import (
+	"one-api/types"
+)
+
 type AliError struct {
 	Code      string `json:"code"`
 	Message   string `json:"message"`
@@ -13,8 +17,13 @@ type AliUsage struct {
 }
 
 type AliMessage struct {
-	Content string `json:"content"`
+	Content any    `json:"content"`
 	Role    string `json:"role"`
+}
+
+type AliMessagePart struct {
+	Text  string `json:"text,omitempty"`
+	Image string `json:"image,omitempty"`
 }
 
 type AliInput struct {
@@ -28,6 +37,7 @@ type AliParameters struct {
 	Seed              uint64  `json:"seed,omitempty"`
 	EnableSearch      bool    `json:"enable_search,omitempty"`
 	IncrementalOutput bool    `json:"incremental_output,omitempty"`
+	ResultFormat      string  `json:"result_format,omitempty"`
 }
 
 type AliChatRequest struct {
@@ -36,9 +46,25 @@ type AliChatRequest struct {
 	Parameters AliParameters `json:"parameters,omitempty"`
 }
 
+type AliChoice struct {
+	FinishReason string                      `json:"finish_reason"`
+	Message      types.ChatCompletionMessage `json:"message"`
+}
+
 type AliOutput struct {
-	Text         string `json:"text"`
-	FinishReason string `json:"finish_reason"`
+	Choices []types.ChatCompletionChoice `json:"choices"`
+}
+
+func (o *AliOutput) ToChatCompletionChoices() []types.ChatCompletionChoice {
+	for i := range o.Choices {
+		_, ok := o.Choices[i].Message.Content.(string)
+		if ok {
+			continue
+		}
+
+		o.Choices[i].Message.Content = o.Choices[i].Message.ParseContent()
+	}
+	return o.Choices
 }
 
 type AliChatResponse struct {

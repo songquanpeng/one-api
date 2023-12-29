@@ -2,6 +2,7 @@ package ali
 
 import (
 	"fmt"
+	"strings"
 
 	"one-api/providers/base"
 
@@ -26,6 +27,16 @@ func (f AliProviderFactory) Create(c *gin.Context) base.ProviderInterface {
 
 type AliProvider struct {
 	base.BaseProvider
+}
+
+func (p *AliProvider) GetFullRequestURL(requestURL string, modelName string) string {
+	baseURL := strings.TrimSuffix(p.GetBaseURL(), "/")
+
+	if modelName == "qwen-vl-plus" {
+		requestURL = "/api/v1/services/aigc/multimodal-generation/generation"
+	}
+
+	return fmt.Sprintf("%s%s", baseURL, requestURL)
 }
 
 // 获取请求头

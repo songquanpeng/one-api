@@ -27,11 +27,11 @@ func (m ChatCompletionMessage) StringContent() string {
 			if !ok {
 				continue
 			}
-			if contentMap["type"] == "text" {
-				if subStr, ok := contentMap["text"].(string); ok {
-					contentStr += subStr
-				}
+
+			if subStr, ok := contentMap["text"].(string); ok && subStr != "" {
+				contentStr += subStr
 			}
+
 		}
 		return contentStr
 	}
@@ -55,23 +55,26 @@ func (m ChatCompletionMessage) ParseContent() []ChatMessagePart {
 			if !ok {
 				continue
 			}
-			switch contentMap["type"] {
-			case ContentTypeText:
-				if subStr, ok := contentMap["text"].(string); ok {
-					contentList = append(contentList, ChatMessagePart{
-						Type: ContentTypeText,
-						Text: subStr,
-					})
-				}
-			case ContentTypeImageURL:
-				if subObj, ok := contentMap["image_url"].(map[string]any); ok {
-					contentList = append(contentList, ChatMessagePart{
-						Type: ContentTypeImageURL,
-						ImageURL: &ChatMessageImageURL{
-							URL: subObj["url"].(string),
-						},
-					})
-				}
+
+			if subStr, ok := contentMap["text"].(string); ok && subStr != "" {
+				contentList = append(contentList, ChatMessagePart{
+					Type: ContentTypeText,
+					Text: subStr,
+				})
+			} else if subObj, ok := contentMap["image_url"].(map[string]any); ok {
+				contentList = append(contentList, ChatMessagePart{
+					Type: ContentTypeImageURL,
+					ImageURL: &ChatMessageImageURL{
+						URL: subObj["url"].(string),
+					},
+				})
+			} else if subObj, ok := contentMap["image"].(string); ok {
+				contentList = append(contentList, ChatMessagePart{
+					Type: ContentTypeImageURL,
+					ImageURL: &ChatMessageImageURL{
+						URL: subObj,
+					},
+				})
 			}
 		}
 		return contentList
