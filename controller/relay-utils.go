@@ -14,6 +14,7 @@ import (
 	"one-api/types"
 	"reflect"
 	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
@@ -127,28 +128,6 @@ func shouldEnableChannel(err error, openAIErr *types.OpenAIError) bool {
 		return false
 	}
 	return true
-}
-
-func postConsumeQuota(ctx context.Context, tokenId int, quotaDelta int, totalQuota int, userId int, channelId int, modelRatio float64, groupRatio float64, modelName string, tokenName string) {
-	// quotaDelta is remaining quota to be consumed
-	err := model.PostConsumeTokenQuota(tokenId, quotaDelta)
-	if err != nil {
-		common.SysError("error consuming token remain quota: " + err.Error())
-	}
-	err = model.CacheUpdateUserQuota(userId)
-	if err != nil {
-		common.SysError("error update user quota cache: " + err.Error())
-	}
-	// totalQuota is total quota consumed
-	if totalQuota != 0 {
-		logContent := fmt.Sprintf("模型倍率 %.2f，分组倍率 %.2f", modelRatio, groupRatio)
-		model.RecordConsumeLog(ctx, userId, channelId, totalQuota, 0, modelName, tokenName, totalQuota, logContent)
-		model.UpdateUserUsedQuotaAndRequestCount(userId, totalQuota)
-		model.UpdateChannelUsedQuota(channelId, totalQuota)
-	}
-	if totalQuota <= 0 {
-		common.LogError(ctx, fmt.Sprintf("totalQuota consumed is %d, something is wrong", totalQuota))
-	}
 }
 
 func parseModelMapping(modelMapping string) (map[string]string, error) {
@@ -270,8 +249,17 @@ func (q *QuotaInfo) completedQuotaConsumption(usage *types.Usage, tokenName stri
 		return errors.New("error consuming token remain quota: " + err.Error())
 	}
 	if quota != 0 {
+		requestTime := 0
+		requestStartTimeValue := ctx.Value("requestStartTime")
+		if requestStartTimeValue != nil {
+			requestStartTime, ok := requestStartTimeValue.(time.Time)
+			if ok {
+				requestTime = int(time.Since(requestStartTime).Milliseconds())
+			}
+		}
+
 		logContent := fmt.Sprintf("模型倍率 %.2f，分组倍率 %.2f", q.modelRatio, q.groupRatio)
-		model.RecordConsumeLog(ctx, q.userId, q.channelId, promptTokens, completionTokens, q.modelName, tokenName, quota, logContent)
+		model.RecordConsumeLog(ctx, q.userId, q.channelId, promptTokens, completionTokens, q.modelName, tokenName, quota, logContent, requestTime)
 		model.UpdateUserUsedQuotaAndRequestCount(q.userId, quota)
 		model.UpdateChannelUsedQuota(q.channelId, quota)
 	}
