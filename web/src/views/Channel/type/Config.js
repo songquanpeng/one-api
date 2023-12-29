@@ -6,6 +6,7 @@ const defaultConfig = {
     base_url: '',
     other: '',
     proxy: '',
+    test_model: '',
     model_mapping: '',
     models: [],
     groups: ['default']
@@ -17,6 +18,7 @@ const defaultConfig = {
     key: '密钥',
     other: '其他参数',
     proxy: '代理地址',
+    test_model: '测速模型',
     models: '模型',
     model_mapping: '模型映射关系',
     groups: '用户组'
@@ -28,6 +30,7 @@ const defaultConfig = {
     key: '请输入渠道对应的鉴权密钥',
     other: '',
     proxy: '单独设置代理地址，支持http和socks5，例如：http://127.0.0.1:1080',
+    test_model: '用于测试使用的模型，为空时无法测速,如：gpt-3.5-turbo',
     models: '请选择该渠道所支持的模型',
     model_mapping:
       '请输入要修改的模型映射关系，格式为：api请求模型ID:实际转发给渠道的模型ID，使用JSON数组表示，例如：{"gpt-3.5": "gpt-35"}',
@@ -48,17 +51,20 @@ const typeConfig = {
   },
   11: {
     input: {
-      models: ['PaLM-2']
+      models: ['PaLM-2'],
+      test_model: 'PaLM-2'
     }
   },
   14: {
     input: {
-      models: ['claude-instant-1', 'claude-2', 'claude-2.0', 'claude-2.1']
+      models: ['claude-instant-1', 'claude-2', 'claude-2.0', 'claude-2.1'],
+      test_model: 'claude-2'
     }
   },
   15: {
     input: {
-      models: ['ERNIE-Bot', 'ERNIE-Bot-turbo', 'ERNIE-Bot-4', 'Embedding-V1']
+      models: ['ERNIE-Bot', 'ERNIE-Bot-turbo', 'ERNIE-Bot-4', 'Embedding-V1'],
+      test_model: 'ERNIE-Bot'
     },
     prompt: {
       key: '按照如下格式输入：APIKey|SecretKey'
@@ -66,7 +72,8 @@ const typeConfig = {
   },
   16: {
     input: {
-      models: ['chatglm_turbo', 'chatglm_pro', 'chatglm_std', 'chatglm_lite']
+      models: ['chatglm_turbo', 'chatglm_pro', 'chatglm_std', 'chatglm_lite'],
+      test_model: 'chatglm_lite'
     }
   },
   17: {
@@ -84,7 +91,8 @@ const typeConfig = {
         'qwen-plus-internet',
         'qwen-max-internet',
         'qwen-max-longcontext-internet'
-      ]
+      ],
+      test_model: 'qwen-turbo'
     },
     prompt: {
       other: '请输入插件参数，即 X-DashScope-Plugin 请求头的取值'
@@ -104,7 +112,8 @@ const typeConfig = {
   },
   19: {
     input: {
-      models: ['360GPT_S2_V9', 'embedding-bert-512-v1', 'embedding_s1_v1', 'semantic_similarity_s1_v1']
+      models: ['360GPT_S2_V9', 'embedding-bert-512-v1', 'embedding_s1_v1', 'semantic_similarity_s1_v1'],
+      test_model: '360GPT_S2_V9'
     }
   },
   22: {
@@ -114,7 +123,8 @@ const typeConfig = {
   },
   23: {
     input: {
-      models: ['hunyuan']
+      models: ['hunyuan'],
+      test_model: 'hunyuan'
     },
     prompt: {
       key: '按照如下格式输入：AppId|SecretId|SecretKey'
@@ -125,7 +135,8 @@ const typeConfig = {
       other: '版本号'
     },
     input: {
-      models: ['gemini-pro']
+      models: ['gemini-pro', 'gemini-pro-vision'],
+      test_model: 'gemini-pro'
     },
     prompt: {
       other: '请输入版本号，例如：v1'
@@ -133,7 +144,16 @@ const typeConfig = {
   },
   26: {
     input: {
-      models: ['Baichuan2-Turbo', 'Baichuan2-Turbo-192k', 'Baichuan2-53B', 'Baichuan-Text-Embedding']
+      models: ['Baichuan2-Turbo', 'Baichuan2-Turbo-192k', 'Baichuan2-53B', 'Baichuan-Text-Embedding'],
+      test_model: 'Baichuan2-Turbo'
+    }
+  },
+  24: {
+    input: {
+      models: ['tts-1', 'tts-1-hd']
+    },
+    prompt: {
+      test_model: ''
     }
   }
 };
