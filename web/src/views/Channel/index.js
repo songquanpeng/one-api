@@ -116,7 +116,7 @@ export default function ChannelPage() {
     if (success) {
       showSuccess('操作成功完成！');
       if (action === 'delete') {
-        await loadChannels(0);
+        await handleRefresh();
       }
     } else {
       showError(message);
@@ -127,9 +127,7 @@ export default function ChannelPage() {
 
   // 处理刷新
   const handleRefresh = async () => {
-    await loadChannels(0);
-    setActivePage(0);
-    setSearchKeyword('');
+    await loadChannels(activePage);
   };
 
   // 处理测试所有启用渠道

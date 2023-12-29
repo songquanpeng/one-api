@@ -108,7 +108,7 @@ export default function Token() {
     if (success) {
       showSuccess('操作成功完成！');
       if (action === 'delete') {
-        await loadTokens(0);
+        await handleRefresh();
       }
     } else {
       showError(message);
@@ -119,9 +119,7 @@ export default function Token() {
 
   // 处理刷新
   const handleRefresh = async () => {
-    await loadTokens(0);
-    setActivePage(0);
-    setSearchKeyword('');
+    await loadTokens(activePage);
   };
 
   const handleOpenModal = (tokenId) => {

@@ -109,9 +109,7 @@ export default function Users() {
 
   // 处理刷新
   const handleRefresh = async () => {
-    await loadUsers(0);
-    setActivePage(0);
-    setSearchKeyword('');
+    await loadUsers(activePage);
   };
 
   const handleOpenModal = (userId) => {
