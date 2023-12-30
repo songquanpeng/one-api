@@ -10,6 +10,7 @@ import Chart from 'react-apexcharts';
 import SkeletonTotalGrowthBarChart from 'ui-component/cards/Skeleton/TotalGrowthBarChart';
 import MainCard from 'ui-component/cards/MainCard';
 import { gridSpacing } from 'store/constant';
+import { Box } from '@mui/material';
 
 // ==============================|| DASHBOARD DEFAULT - TOTAL GROWTH BAR CHART ||============================== //
 
@@ -32,7 +33,22 @@ const StatisticalBarChart = ({ isLoading, chartDatas }) => {
               </Grid>
             </Grid>
             <Grid item xs={12}>
-              <Chart {...chartData} />
+              {chartData.series ? (
+                <Chart {...chartData} />
+              ) : (
+                <Box
+                  sx={{
+                    minHeight: '490px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
+                >
+                  <Typography variant="h3" color={'#697586'}>
+                    暂无数据
+                  </Typography>
+                </Box>
+              )}
             </Grid>
           </Grid>
         </MainCard>
@@ -51,6 +67,29 @@ const chartData = {
   height: 480,
   type: 'bar',
   options: {
+    colors: [
+      '#008FFB',
+      '#00E396',
+      '#FEB019',
+      '#FF4560',
+      '#775DD0',
+      '#55efc4',
+      '#81ecec',
+      '#74b9ff',
+      '#a29bfe',
+      '#00b894',
+      '#00cec9',
+      '#0984e3',
+      '#6c5ce7',
+      '#ffeaa7',
+      '#fab1a0',
+      '#ff7675',
+      '#fd79a8',
+      '#fdcb6e',
+      '#e17055',
+      '#d63031',
+      '#e84393'
+    ],
     chart: {
       id: 'bar-chart',
       stacked: true,

@@ -160,7 +160,7 @@ function getBarDataGroup(data) {
     }
     const index = lastSevenDays.indexOf(item.Day);
     if (index !== -1) {
-      map.get(item.ModelName).data[index] = calculateQuota(item.Quota);
+      map.get(item.ModelName).data[index] = calculateQuota(item.Quota, 3);
     }
   }
 
