@@ -3,7 +3,7 @@ import { Grid, Typography } from '@mui/material';
 import { gridSpacing } from 'store/constant';
 import StatisticalLineChartCard from './component/StatisticalLineChartCard';
 import StatisticalBarChart from './component/StatisticalBarChart';
-import { generateChartOptions, getLastSevenDays, getTodayDay } from 'utils/chart';
+import { generateChartOptions, getLastSevenDays } from 'utils/chart';
 import { API } from 'utils/api';
 import { showError, calculateQuota, renderNumber } from 'utils/common';
 import UserCard from 'ui-component/cards/UserCard';
@@ -176,24 +176,24 @@ function getBarDataGroup(data) {
 }
 
 function getLineCardOption(lineDataGroup, field) {
-  const today = getTodayDay();
   let todayValue = 0;
   let chartData = null;
-  let lineData = lineDataGroup.map((item) => {
+  const lastItem = lineDataGroup.length - 1;
+  let lineData = lineDataGroup.map((item, index) => {
     let tmp = {
       date: item.date,
       value: item[field]
     };
     switch (field) {
       case 'Quota':
-        tmp.value = calculateQuota(item.Quota);
+        tmp.value = calculateQuota(item.Quota, 3);
         break;
       case 'PromptTokens':
         tmp.value += item.CompletionTokens;
         break;
     }
 
-    if (item.date == today) {
+    if (index == lastItem) {
       todayValue = tmp.value;
     }
     return tmp;
