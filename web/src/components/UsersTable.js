@@ -4,20 +4,7 @@ import { Link } from 'react-router-dom';
 import { API, showError, showSuccess } from '../helpers';
 
 import { ITEMS_PER_PAGE } from '../constants';
-import { renderGroup, renderNumber, renderQuota, renderText } from '../helpers/render';
-
-function renderRole(role) {
-  switch (role) {
-    case 1:
-      return <Label>普通用户</Label>;
-    case 10:
-      return <Label color='yellow'>管理员</Label>;
-    case 100:
-      return <Label color='orange'>超级管理员</Label>;
-    default:
-      return <Label color='red'>未知身份</Label>;
-  }
-}
+import { renderGroup, renderNumber, renderQuota, renderRole, renderText } from '../helpers/render';
 
 const UsersTable = () => {
   const [users, setUsers] = useState([]);

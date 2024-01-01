@@ -5,6 +5,7 @@ import { UserContext } from '../context/User';
 import { Button, Container, Dropdown, Icon, Menu, Segment } from 'semantic-ui-react';
 import { API, getLogo, getSystemName, isAdmin, isMobile, showSuccess } from '../helpers';
 import '../index.css';
+import { renderGroup, renderRole } from '../helpers/render';
 
 // Header Buttons
 let headerButtons = [
@@ -202,7 +203,12 @@ const Header = () => {
                 className='link item'
               >
                 <Dropdown.Menu>
-                  <Dropdown.Item onClick={logout}>注销</Dropdown.Item>
+                  <Dropdown.Item>用户组：{renderGroup(userState.user.group)}</Dropdown.Item>
+                  <Dropdown.Item>角色：{renderRole(userState.user.role)}</Dropdown.Item>
+                  <Dropdown.Item onClick={logout}>
+                    <Icon name='sign-out' />
+                    注销
+                  </Dropdown.Item>
                 </Dropdown.Menu>
               </Dropdown>
             ) : (
