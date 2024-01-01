@@ -16,6 +16,7 @@ const EditToken = () => {
     unlimited_quota: false
   };
   const [inputs, setInputs] = useState(originInputs);
+  const [tagOptions, setTagOptions] = useState([]);
   const { name, remain_quota, expired_time, unlimited_quota } = inputs;
   const navigate = useNavigate();
   const handleInputChange = (e, { name, value }) => {
@@ -59,8 +60,23 @@ const EditToken = () => {
   useEffect(() => {
     if (isEdit) {
       loadToken().then();
+      fetchTags().then();
     }
   }, []);
+
+
+  const fetchTags = async () => {
+    try {
+      let res = await API.get(`/api/tags/`);
+      setTagOptions(res.data.data.map((group) => ({
+        key: group,
+        text: group,
+        value: group
+      })));
+    } catch (error) {
+      showError(error.message);
+    }
+  };
 
   const submit = async () => {
     if (!isEdit && inputs.name === '') return;
@@ -107,6 +123,21 @@ const EditToken = () => {
               value={name}
               autoComplete='new-password'
               required={!isEdit}
+            />
+          </Form.Field>
+          <Form.Field>
+            <Form.Dropdown
+              label='tag'
+              placeholder={'请选择可以使用该渠道的分组'}
+              name='tag'
+              required
+              fluid
+              selection
+              allowAdditions
+              onChange={handleInputChange}
+              value={inputs.tag}
+              autoComplete='new-password'
+              options={tagOptions}
             />
           </Form.Field>
           <Form.Field>

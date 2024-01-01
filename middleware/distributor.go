@@ -65,7 +65,9 @@ func Distribute() func(c *gin.Context) {
 					modelRequest.Model = "whisper-1"
 				}
 			}
-			channel, err = model.CacheGetRandomSatisfiedChannel(userGroup, modelRequest.Model)
+			tag := c.GetString("token_tag")
+			//channel, err = model.CacheGetRandomSatisfiedChannel(userGroup, modelRequest.Model)
+			channel, err = model.CacheGetChannelByTag(userGroup, modelRequest.Model, tag)
 			if err != nil {
 				message := fmt.Sprintf("当前分组 %s 下对于模型 %s 无可用渠道", userGroup, modelRequest.Model)
 				if channel != nil {
@@ -80,6 +82,9 @@ func Distribute() func(c *gin.Context) {
 		c.Set("channel_id", channel.Id)
 		c.Set("channel_name", channel.Name)
 		c.Set("model_mapping", channel.GetModelMapping())
+		if channel.Organization != ""{
+			c.Request.Header.Set("Organization", channel.Organization)
+		}
 		c.Request.Header.Set("Authorization", fmt.Sprintf("Bearer %s", channel.Key))
 		c.Set("base_url", channel.GetBaseURL())
 		switch channel.Type {

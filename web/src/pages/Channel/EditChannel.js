@@ -309,6 +309,17 @@ const EditChannel = () => {
             />
           </Form.Field>
           <Form.Field>
+            <Form.Input
+              label='Tag'
+              required
+              name='tag'
+              placeholder={'请添加tag'}
+              onChange={handleInputChange}
+              value={inputs.tag}
+              autoComplete='new-password'
+            />
+          </Form.Field>
+          <Form.Field>
             <Form.Dropdown
               label='分组'
               placeholder={'请选择可以使用该渠道的分组'}
@@ -420,19 +431,8 @@ const EditChannel = () => {
               autoComplete='new-password'
             />
           </Form.Field>
-          {
-            batch ? <Form.Field>
-              <Form.TextArea
-                label='密钥'
-                name='key'
-                required
-                placeholder={'请输入密钥，一行一个'}
-                onChange={handleInputChange}
-                value={inputs.key}
-                style={{ minHeight: 150, fontFamily: 'JetBrains Mono, Consolas' }}
-                autoComplete='new-password'
-              />
-            </Form.Field> : <Form.Field>
+          
+            <Form.Field>
               <Form.Input
                 label='密钥'
                 name='key'
@@ -443,17 +443,18 @@ const EditChannel = () => {
                 autoComplete='new-password'
               />
             </Form.Field>
-          }
-          {
-            !isEdit && (
-              <Form.Checkbox
-                checked={batch}
-                label='批量创建'
-                name='batch'
-                onChange={() => setBatch(!batch)}
+            <Form.Field>
+              <Form.Input
+                label='organization'
+                name='organization'
+                placeholder={type2secretPrompt(inputs.type)}
+                onChange={handleInputChange}
+                value={inputs.organization}
+                autoComplete='new-password'
               />
-            )
-          }
+            </Form.Field>
+          
+          
           {
             inputs.type !== 3 && inputs.type !== 8 && inputs.type !== 22 && (
               <Form.Field>

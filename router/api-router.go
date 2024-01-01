@@ -110,5 +110,10 @@ func SetApiRouter(router *gin.Engine) {
 		{
 			groupRoute.GET("/", controller.GetGroups)
 		}
+		tagRoute := apiRouter.Group("/tags")
+		tagRoute.Use(middleware.AdminAuth())
+		{
+			tagRoute.GET("/", controller.GetTags)
+		}
 	}
 }

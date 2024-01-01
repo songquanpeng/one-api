@@ -8,6 +8,7 @@ import (
 type Ability struct {
 	Group     string `json:"group" gorm:"type:varchar(32);primaryKey;autoIncrement:false"`
 	Model     string `json:"model" gorm:"primaryKey;autoIncrement:false"`
+	Tag     string `json:"tag" gorm:"index"`
 	ChannelId int    `json:"channel_id" gorm:"primaryKey;autoIncrement:false;index"`
 	Enabled   bool   `json:"enabled"`
 	Priority  *int64 `json:"priority" gorm:"bigint;default:0;index"`
@@ -23,8 +24,34 @@ func GetRandomSatisfiedChannel(group string, model string) (*Channel, error) {
 	}
 
 	var err error = nil
-	maxPrioritySubQuery := DB.Model(&Ability{}).Select("MAX(priority)").Where(groupCol+" = ? and model = ? and enabled = "+trueVal, group, model)
+	maxPrioritySubQuery := DB.Model(&Ability{}).Select("MAX(priority)").Where(groupCol+" = ? and model = ?  and enabled = "+trueVal, group, model)
 	channelQuery := DB.Where(groupCol+" = ? and model = ? and enabled = "+trueVal+" and priority = (?)", group, model, maxPrioritySubQuery)
+	if common.UsingSQLite || common.UsingPostgreSQL {
+		err = channelQuery.Order("RANDOM()").First(&ability).Error
+	} else {
+		err = channelQuery.Order("RAND()").First(&ability).Error
+	}
+	if err != nil {
+		return nil, err
+	}
+	channel := Channel{}
+	channel.Id = ability.ChannelId
+	err = DB.First(&channel, "id = ?", ability.ChannelId).Error
+	return &channel, err
+}
+
+func GetRandomSatisfiedChannelByTag(group string, model string, tag string) (*Channel, error) {
+	ability := Ability{}
+	groupCol := "`group`"
+	trueVal := "1"
+	if common.UsingPostgreSQL {
+		groupCol = `"group"`
+		trueVal = "true"
+	}
+
+	var err error = nil
+	maxPrioritySubQuery := DB.Model(&Ability{}).Select("MAX(priority)").Where(groupCol+" = ? and model = ? and tag= ? and enabled = "+trueVal, group, model, tag)
+	channelQuery := DB.Where(groupCol+" = ? and model = ? and enabled = "+trueVal+" and priority = (?) and tag= ?", group, model, maxPrioritySubQuery, tag)
 	if common.UsingSQLite || common.UsingPostgreSQL {
 		err = channelQuery.Order("RANDOM()").First(&ability).Error
 	} else {
@@ -51,6 +78,7 @@ func (channel *Channel) AddAbilities() error {
 				ChannelId: channel.Id,
 				Enabled:   channel.Status == common.ChannelStatusEnabled,
 				Priority:  channel.Priority,
+				Tag: channel.Tag,
 			}
 			abilities = append(abilities, ability)
 		}

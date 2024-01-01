@@ -106,6 +106,8 @@ func TokenAuth() func(c *gin.Context) {
 		c.Set("id", token.UserId)
 		c.Set("token_id", token.Id)
 		c.Set("token_name", token.Name)
+		c.Set("token_tag", token.Tag)
+		print(token.Tag)
 		if len(parts) > 1 {
 			if model.IsAdmin(token.UserId) {
 				c.Set("channelId", parts[1])
