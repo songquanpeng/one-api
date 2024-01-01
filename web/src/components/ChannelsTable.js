@@ -523,10 +523,10 @@ const ChannelsTable = () => {
                 添加新的渠道
               </Button>
               <Button size='small' loading={loading} onClick={testAllChannels}>
-                测试所有已启用通道
+                测试所有渠道
               </Button>
               <Button size='small' onClick={updateAllChannelsBalance}
-                      loading={loading || updatingBalance}>更新所有已启用通道余额</Button>
+                      loading={loading || updatingBalance}>更新已启用渠道余额</Button>
               <Popup
                 trigger={
                   <Button size='small' loading={loading}>
