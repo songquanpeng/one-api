@@ -14,6 +14,7 @@ import (
 )
 
 func SetWebRouter(router *gin.Engine, buildFS embed.FS) {
+	indexPageData, _ := buildFS.ReadFile(fmt.Sprintf("web/build/%s/index.html", common.Theme))
 	router.Use(gzip.Gzip(gzip.DefaultCompression))
 	router.Use(middleware.GlobalWebRateLimit())
 	router.Use(middleware.Cache())
@@ -24,11 +25,6 @@ func SetWebRouter(router *gin.Engine, buildFS embed.FS) {
 			return
 		}
 		c.Header("Cache-Control", "no-cache")
-		indexPage, err := buildFS.ReadFile(fmt.Sprintf("web/build/%s/index.html", common.Theme))
-		if err != nil {
-			controller.RelayNotFound(c)
-			return
-		}
-		c.Data(http.StatusOK, "text/html; charset=utf-8", indexPage)
+		c.Data(http.StatusOK, "text/html; charset=utf-8", indexPageData)
 	})
 }
