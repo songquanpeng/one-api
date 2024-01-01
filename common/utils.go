@@ -2,7 +2,6 @@ package common
 
 import (
 	"fmt"
-	"github.com/google/uuid"
 	"html/template"
 	"log"
 	"math/rand"
@@ -13,6 +12,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 func OpenBrowser(url string) {
@@ -213,4 +214,17 @@ func String2Int(str string) int {
 		return 0
 	}
 	return num
+}
+
+func SplitDistinct(s, sep string) []string {
+	splited := strings.Split(s, sep)
+	set := make(map[string]struct{})
+	list := []string{}
+	for _, item := range splited {
+		if _, ok := set[item]; !ok {
+			set[item] = struct{}{}
+			list = append(list, item)
+		}
+	}
+	return list
 }

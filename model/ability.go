@@ -2,7 +2,6 @@ package model
 
 import (
 	"one-api/common"
-	"strings"
 )
 
 type Ability struct {
@@ -40,8 +39,8 @@ func GetRandomSatisfiedChannel(group string, model string) (*Channel, error) {
 }
 
 func (channel *Channel) AddAbilities() error {
-	models_ := strings.Split(channel.Models, ",")
-	groups_ := strings.Split(channel.Group, ",")
+	models_ := channel.GetModels()
+	groups_ := channel.GetGroups()
 	abilities := make([]Ability, 0, len(models_))
 	for _, model := range models_ {
 		for _, group := range groups_ {

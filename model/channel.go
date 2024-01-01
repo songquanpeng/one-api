@@ -1,8 +1,10 @@
 package model
 
 import (
-	"gorm.io/gorm"
+	"encoding/json"
 	"one-api/common"
+
+	"gorm.io/gorm"
 )
 
 type Channel struct {
@@ -23,6 +25,7 @@ type Channel struct {
 	Group              string  `json:"group" gorm:"type:varchar(32);default:'default'"`
 	UsedQuota          int64   `json:"used_quota" gorm:"bigint;default:0"`
 	ModelMapping       *string `json:"model_mapping" gorm:"type:varchar(1024);default:''"`
+	WeightMapping      *string `json:"weight_mapping" gorm:"type:varchar(1024);default:''"`
 	Priority           *int64  `json:"priority" gorm:"bigint;default:0"`
 }
 
@@ -70,6 +73,51 @@ func BatchInsertChannels(channels []Channel) error {
 		}
 	}
 	return nil
+}
+
+func (channel *Channel) GetWeightMapping() (weightMapping map[string]int) {
+	if channel.WeightMapping == nil || *channel.WeightMapping == "" {
+		return
+	}
+	err := json.Unmarshal([]byte(*channel.WeightMapping), &weightMapping)
+	if err != nil {
+		common.SysError("failed to unmarshal weight mapping: " + err.Error())
+	}
+	return
+}
+
+func (channel *Channel) FixWeightMapping() {
+	var weightMapping map[string]int
+	if channel.WeightMapping == nil || *channel.WeightMapping == "" {
+		weightMapping = make(map[string]int)
+	} else {
+		err := json.Unmarshal([]byte(*channel.WeightMapping), &weightMapping)
+		if err != nil {
+			common.SysError("failed to marshal weight mapping: " + err.Error())
+		}
+	}
+
+	models := channel.GetModels()
+	for _, model := range models {
+		if _, ok := weightMapping[model]; !ok {
+			weightMapping[model] = common.DefaultWeight
+		}
+	}
+
+	jsonStr, err := json.Marshal(weightMapping)
+	if err != nil {
+		common.SysError("failed to marshal weight mapping: " + err.Error())
+	}
+	var result = string(jsonStr)
+	channel.WeightMapping = &result
+}
+
+func (channel *Channel) GetModels() []string {
+	return common.SplitDistinct(channel.Models, ",")
+}
+
+func (channel *Channel) GetGroups() []string {
+	return common.SplitDistinct(channel.Group, ",")
 }
 
 func (channel *Channel) GetPriority() int64 {

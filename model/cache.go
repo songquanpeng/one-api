@@ -4,13 +4,12 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"math/rand"
 	"one-api/common"
-	"sort"
 	"strconv"
-	"strings"
 	"sync"
 	"time"
+
+	"github.com/mroth/weightedrand/v2"
 )
 
 var (
@@ -132,7 +131,7 @@ func CacheIsUserEnabled(userId int) (bool, error) {
 	return userEnabled, err
 }
 
-var group2model2channels map[string]map[string][]*Channel
+var group2model2channels map[string]map[string]*weightedrand.Chooser[*Channel, int]
 var channelSyncLock sync.RWMutex
 
 func InitChannelCache() {
@@ -148,35 +147,51 @@ func InitChannelCache() {
 	for _, ability := range abilities {
 		groups[ability.Group] = true
 	}
-	newGroup2model2channels := make(map[string]map[string][]*Channel)
+	newGroup2model2channels := make(map[string]map[string][]weightedrand.Choice[*Channel, int])
 	for group := range groups {
-		newGroup2model2channels[group] = make(map[string][]*Channel)
+		newGroup2model2channels[group] = make(map[string][]weightedrand.Choice[*Channel, int])
 	}
 	for _, channel := range channels {
-		groups := strings.Split(channel.Group, ",")
+		groups := channel.GetGroups()
 		for _, group := range groups {
-			models := strings.Split(channel.Models, ",")
+			models := channel.GetModels()
+			weightMapping := channel.GetWeightMapping()
 			for _, model := range models {
 				if _, ok := newGroup2model2channels[group][model]; !ok {
-					newGroup2model2channels[group][model] = make([]*Channel, 0)
+					newGroup2model2channels[group][model] = make([]weightedrand.Choice[*Channel, int], 0)
 				}
-				newGroup2model2channels[group][model] = append(newGroup2model2channels[group][model], channel)
+				weight, ok := weightMapping[model]
+				if weight < 0 || !ok {
+					// use default value if:
+					// weight < 0: invalid
+					// !ok: weight not set
+					weight = common.DefaultWeight
+				}
+				newGroup2model2channels[group][model] = append(newGroup2model2channels[group][model], weightedrand.NewChoice(channel, weight))
 			}
 		}
 	}
 
 	// sort by priority
+	m := make(map[string]map[string]*weightedrand.Chooser[*Channel, int])
 	for group, model2channels := range newGroup2model2channels {
+		m[group] = make(map[string]*weightedrand.Chooser[*Channel, int])
 		for model, channels := range model2channels {
-			sort.Slice(channels, func(i, j int) bool {
-				return channels[i].GetPriority() > channels[j].GetPriority()
-			})
-			newGroup2model2channels[group][model] = channels
+			if len(channels) == 0 {
+				common.SysError(fmt.Sprintf("no channel found for group %s model %s", group, model))
+				continue
+			}
+			c, err := weightedrand.NewChooser(channels...)
+			if err != nil {
+				common.SysError(fmt.Sprintf("failed to create chooser: %s", err.Error()))
+				continue
+			}
+			m[group][model] = c
 		}
 	}
 
 	channelSyncLock.Lock()
-	group2model2channels = newGroup2model2channels
+	group2model2channels = m
 	channelSyncLock.Unlock()
 	common.SysLog("channels synced from database")
 }
@@ -196,20 +211,8 @@ func CacheGetRandomSatisfiedChannel(group string, model string) (*Channel, error
 	channelSyncLock.RLock()
 	defer channelSyncLock.RUnlock()
 	channels := group2model2channels[group][model]
-	if len(channels) == 0 {
+	if channels == nil {
 		return nil, errors.New("channel not found")
 	}
-	endIdx := len(channels)
-	// choose by priority
-	firstChannel := channels[0]
-	if firstChannel.GetPriority() > 0 {
-		for i := range channels {
-			if channels[i].GetPriority() != firstChannel.GetPriority() {
-				endIdx = i
-				break
-			}
-		}
-	}
-	idx := rand.Intn(endIdx)
-	return channels[idx], nil
+	return channels.Pick(), nil
 }
