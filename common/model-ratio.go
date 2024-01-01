@@ -6,6 +6,100 @@ import (
 	"time"
 )
 
+type ModelType struct {
+	Ratio float64
+	Type  int
+}
+
+var ModelTypes map[string]ModelType
+
+// ModelRatio
+// https://platform.openai.com/docs/models/model-endpoint-compatibility
+// https://cloud.baidu.com/doc/WENXINWORKSHOP/s/Blfmc9dlf
+// https://openai.com/pricing
+// TODO: when a new api is enabled, check the pricing here
+// 1 === $0.002 / 1K tokens
+// 1 === ￥0.014 / 1k tokens
+var ModelRatio map[string]float64
+
+func init() {
+	ModelTypes = map[string]ModelType{
+		"gpt-4":                     {15, ChannelTypeOpenAI},
+		"gpt-4-0314":                {15, ChannelTypeOpenAI},
+		"gpt-4-0613":                {15, ChannelTypeOpenAI},
+		"gpt-4-32k":                 {30, ChannelTypeOpenAI},
+		"gpt-4-32k-0314":            {30, ChannelTypeOpenAI},
+		"gpt-4-32k-0613":            {30, ChannelTypeOpenAI},
+		"gpt-4-1106-preview":        {5, ChannelTypeOpenAI},    // $0.01 / 1K tokens
+		"gpt-4-vision-preview":      {5, ChannelTypeOpenAI},    // $0.01 / 1K tokens
+		"gpt-3.5-turbo":             {0.75, ChannelTypeOpenAI}, // $0.0015 / 1K tokens
+		"gpt-3.5-turbo-0301":        {0.75, ChannelTypeOpenAI},
+		"gpt-3.5-turbo-0613":        {0.75, ChannelTypeOpenAI},
+		"gpt-3.5-turbo-16k":         {1.5, ChannelTypeOpenAI}, // $0.003 / 1K tokens
+		"gpt-3.5-turbo-16k-0613":    {1.5, ChannelTypeOpenAI},
+		"gpt-3.5-turbo-instruct":    {0.75, ChannelTypeOpenAI}, // $0.0015 / 1K tokens
+		"gpt-3.5-turbo-1106":        {0.5, ChannelTypeOpenAI},  // $0.001 / 1K tokens
+		"text-ada-001":              {0.2, ChannelTypeOpenAI},
+		"text-babbage-001":          {0.25, ChannelTypeOpenAI},
+		"text-curie-001":            {1, ChannelTypeOpenAI},
+		"text-davinci-002":          {10, ChannelTypeOpenAI},
+		"text-davinci-003":          {10, ChannelTypeOpenAI},
+		"text-davinci-edit-001":     {10, ChannelTypeOpenAI},
+		"code-davinci-edit-001":     {10, ChannelTypeOpenAI},
+		"whisper-1":                 {15, ChannelTypeOpenAI},  // $0.006 / minute -> $0.006 / 150 words -> $0.006 / 200 tokens -> $0.03 / 1k tokens
+		"tts-1":                     {7.5, ChannelTypeOpenAI}, // $0.015 / 1K characters
+		"tts-1-1106":                {7.5, ChannelTypeOpenAI},
+		"tts-1-hd":                  {15, ChannelTypeOpenAI}, // $0.030 / 1K characters
+		"tts-1-hd-1106":             {15, ChannelTypeOpenAI},
+		"davinci":                   {10, ChannelTypeOpenAI},
+		"curie":                     {10, ChannelTypeOpenAI},
+		"babbage":                   {10, ChannelTypeOpenAI},
+		"ada":                       {10, ChannelTypeOpenAI},
+		"text-embedding-ada-002":    {0.05, ChannelTypeOpenAI},
+		"text-search-ada-doc-001":   {10, ChannelTypeOpenAI},
+		"text-moderation-stable":    {0.1, ChannelTypeOpenAI},
+		"text-moderation-latest":    {0.1, ChannelTypeOpenAI},
+		"dall-e-2":                  {8, ChannelTypeOpenAI},        // $0.016 - $0.020 / image
+		"dall-e-3":                  {20, ChannelTypeOpenAI},       // $0.040 - $0.120 / image
+		"claude-instant-1":          {0.815, ChannelTypeAnthropic}, // $1.63 / 1M tokens
+		"claude-2":                  {5.51, ChannelTypeAnthropic},  // $11.02 / 1M tokens
+		"claude-2.0":                {5.51, ChannelTypeAnthropic},  // $11.02 / 1M tokens
+		"claude-2.1":                {5.51, ChannelTypeAnthropic},  // $11.02 / 1M tokens
+		"ERNIE-Bot":                 {0.8572, ChannelTypeBaidu},    // ￥0.012 / 1k tokens
+		"ERNIE-Bot-turbo":           {0.5715, ChannelTypeBaidu},    // ￥0.008 / 1k tokens
+		"ERNIE-Bot-4":               {8.572, ChannelTypeBaidu},     // ￥0.12 / 1k tokens
+		"Embedding-V1":              {0.1429, ChannelTypeBaidu},    // ￥0.002 / 1k tokens
+		"PaLM-2":                    {1, ChannelTypePaLM},
+		"gemini-pro":                {1, ChannelTypeGemini},        // $0.00025 / 1k characters -> $0.001 / 1k tokens
+		"gemini-pro-vision":         {1, ChannelTypeGemini},        // $0.00025 / 1k characters -> $0.001 / 1k tokens
+		"chatglm_turbo":             {0.3572, ChannelTypeZhipu},    // ￥0.005 / 1k tokens
+		"chatglm_pro":               {0.7143, ChannelTypeZhipu},    // ￥0.01 / 1k tokens
+		"chatglm_std":               {0.3572, ChannelTypeZhipu},    // ￥0.005 / 1k tokens
+		"chatglm_lite":              {0.1429, ChannelTypeZhipu},    // ￥0.002 / 1k tokens
+		"qwen-turbo":                {0.5715, ChannelTypeAli},      // ￥0.008 / 1k tokens  // https://help.aliyun.com/zh/dashscope/developer-reference/tongyi-thousand-questions-metering-and-billing
+		"qwen-plus":                 {1.4286, ChannelTypeAli},      // ￥0.02 / 1k tokens
+		"qwen-max":                  {1.4286, ChannelTypeAli},      // ￥0.02 / 1k tokens
+		"qwen-max-longcontext":      {1.4286, ChannelTypeAli},      // ￥0.02 / 1k tokens
+		"qwen-vl-plus":              {0.5715, ChannelTypeAli},      // ￥0.008 / 1k tokens
+		"text-embedding-v1":         {0.05, ChannelTypeAli},        // ￥0.0007 / 1k tokens
+		"SparkDesk":                 {1.2858, ChannelTypeXunfei},   // ￥0.018 / 1k tokens
+		"360GPT_S2_V9":              {0.8572, ChannelType360},      // ¥0.012 / 1k tokens
+		"embedding-bert-512-v1":     {0.0715, ChannelType360},      // ¥0.001 / 1k tokens
+		"embedding_s1_v1":           {0.0715, ChannelType360},      // ¥0.001 / 1k tokens
+		"semantic_similarity_s1_v1": {0.0715, ChannelType360},      // ¥0.001 / 1k tokens
+		"hunyuan":                   {7.143, ChannelTypeTencent},   // ¥0.1 / 1k tokens  // https://cloud.tencent.com/document/product/1729/97731#e0e6be58-60c8-469f-bdeb-6c264ce3b4d0
+		"Baichuan2-Turbo":           {0.5715, ChannelTypeBaichuan}, // ¥0.008 / 1k tokens
+		"Baichuan2-Turbo-192k":      {1.143, ChannelTypeBaichuan},  // ¥0.016 / 1k tokens
+		"Baichuan2-53B":             {1.4286, ChannelTypeBaichuan}, // ¥0.02 / 1k tokens
+		"Baichuan-Text-Embedding":   {0.0357, ChannelTypeBaichuan}, // ¥0.0005 / 1k tokens
+	}
+
+	ModelRatio = make(map[string]float64)
+	for name, modelType := range ModelTypes {
+		ModelRatio[name] = modelType.Ratio
+	}
+}
+
 var DalleSizeRatios = map[string]map[string]float64{
 	"dall-e-2": {
 		"256x256":   1,
@@ -27,84 +121,6 @@ var DalleGenerationImageAmounts = map[string][2]int{
 var DalleImagePromptLengthLimitations = map[string]int{
 	"dall-e-2": 1000,
 	"dall-e-3": 4000,
-}
-
-// ModelRatio
-// https://platform.openai.com/docs/models/model-endpoint-compatibility
-// https://cloud.baidu.com/doc/WENXINWORKSHOP/s/Blfmc9dlf
-// https://openai.com/pricing
-// TODO: when a new api is enabled, check the pricing here
-// 1 === $0.002 / 1K tokens
-// 1 === ￥0.014 / 1k tokens
-var ModelRatio = map[string]float64{
-	"gpt-4":                     15,
-	"gpt-4-0314":                15,
-	"gpt-4-0613":                15,
-	"gpt-4-32k":                 30,
-	"gpt-4-32k-0314":            30,
-	"gpt-4-32k-0613":            30,
-	"gpt-4-1106-preview":        5,    // $0.01 / 1K tokens
-	"gpt-4-vision-preview":      5,    // $0.01 / 1K tokens
-	"gpt-3.5-turbo":             0.75, // $0.0015 / 1K tokens
-	"gpt-3.5-turbo-0301":        0.75,
-	"gpt-3.5-turbo-0613":        0.75,
-	"gpt-3.5-turbo-16k":         1.5, // $0.003 / 1K tokens
-	"gpt-3.5-turbo-16k-0613":    1.5,
-	"gpt-3.5-turbo-instruct":    0.75, // $0.0015 / 1K tokens
-	"gpt-3.5-turbo-1106":        0.5,  // $0.001 / 1K tokens
-	"text-ada-001":              0.2,
-	"text-babbage-001":          0.25,
-	"text-curie-001":            1,
-	"text-davinci-002":          10,
-	"text-davinci-003":          10,
-	"text-davinci-edit-001":     10,
-	"code-davinci-edit-001":     10,
-	"whisper-1":                 15,  // $0.006 / minute -> $0.006 / 150 words -> $0.006 / 200 tokens -> $0.03 / 1k tokens
-	"tts-1":                     7.5, // $0.015 / 1K characters
-	"tts-1-1106":                7.5,
-	"tts-1-hd":                  15, // $0.030 / 1K characters
-	"tts-1-hd-1106":             15,
-	"davinci":                   10,
-	"curie":                     10,
-	"babbage":                   10,
-	"ada":                       10,
-	"text-embedding-ada-002":    0.05,
-	"text-search-ada-doc-001":   10,
-	"text-moderation-stable":    0.1,
-	"text-moderation-latest":    0.1,
-	"dall-e-2":                  8,      // $0.016 - $0.020 / image
-	"dall-e-3":                  20,     // $0.040 - $0.120 / image
-	"claude-instant-1":          0.815,  // $1.63 / 1M tokens
-	"claude-2":                  5.51,   // $11.02 / 1M tokens
-	"claude-2.0":                5.51,   // $11.02 / 1M tokens
-	"claude-2.1":                5.51,   // $11.02 / 1M tokens
-	"ERNIE-Bot":                 0.8572, // ￥0.012 / 1k tokens
-	"ERNIE-Bot-turbo":           0.5715, // ￥0.008 / 1k tokens
-	"ERNIE-Bot-4":               8.572,  // ￥0.12 / 1k tokens
-	"Embedding-V1":              0.1429, // ￥0.002 / 1k tokens
-	"PaLM-2":                    1,
-	"gemini-pro":                1,      // $0.00025 / 1k characters -> $0.001 / 1k tokens
-	"gemini-pro-vision":         1,      // $0.00025 / 1k characters -> $0.001 / 1k tokens
-	"chatglm_turbo":             0.3572, // ￥0.005 / 1k tokens
-	"chatglm_pro":               0.7143, // ￥0.01 / 1k tokens
-	"chatglm_std":               0.3572, // ￥0.005 / 1k tokens
-	"chatglm_lite":              0.1429, // ￥0.002 / 1k tokens
-	"qwen-turbo":                0.5715, // ￥0.008 / 1k tokens  // https://help.aliyun.com/zh/dashscope/developer-reference/tongyi-thousand-questions-metering-and-billing
-	"qwen-plus":                 1.4286, // ￥0.02 / 1k tokens
-	"qwen-max":                  1.4286, // ￥0.02 / 1k tokens
-	"qwen-max-longcontext":      1.4286, // ￥0.02 / 1k tokens
-	"qwen-vl-plus":              0.5715, // ￥0.008 / 1k tokens
-	"text-embedding-v1":         0.05,   // ￥0.0007 / 1k tokens
-	"SparkDesk":                 1.2858, // ￥0.018 / 1k tokens
-	"360GPT_S2_V9":              0.8572, // ¥0.012 / 1k tokens
-	"embedding-bert-512-v1":     0.0715, // ¥0.001 / 1k tokens
-	"embedding_s1_v1":           0.0715, // ¥0.001 / 1k tokens
-	"semantic_similarity_s1_v1": 0.0715, // ¥0.001 / 1k tokens
-	"hunyuan":                   7.143,  // ¥0.1 / 1k tokens  // https://cloud.tencent.com/document/product/1729/97731#e0e6be58-60c8-469f-bdeb-6c264ce3b4d0
-	"Baichuan2-Turbo":           0.5715, // ¥0.008 / 1k tokens
-	"Baichuan2-Turbo-192k":      1.143,  // ¥0.016 / 1k tokens
-	"Baichuan2-53B":             1.4286, // ¥0.02 / 1k tokens
-	"Baichuan-Text-Embedding":   0.0357, // ¥0.0005 / 1k tokens
 }
 
 func ModelRatio2JSONString() string {

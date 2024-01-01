@@ -41,13 +41,14 @@ const NameLabel = ({ name, models }) => {
       }
       placement="top"
     >
-      {name}
+      <span>{name}</span>
     </Tooltip>
   );
 };
 
 NameLabel.propTypes = {
-  group: PropTypes.string
+  name: PropTypes.string,
+  models: PropTypes.string
 };
 
 export default NameLabel;

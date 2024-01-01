@@ -35,7 +35,8 @@ const defaultConfig = {
     model_mapping:
       '请输入要修改的模型映射关系，格式为：api请求模型ID:实际转发给渠道的模型ID，使用JSON数组表示，例如：{"gpt-3.5": "gpt-35"}',
     groups: '请选择该渠道所支持的用户组'
-  }
+  },
+  modelGroup: 'OpenAI'
 };
 
 const typeConfig = {
@@ -53,13 +54,15 @@ const typeConfig = {
     input: {
       models: ['PaLM-2'],
       test_model: 'PaLM-2'
-    }
+    },
+    modelGroup: 'Google PaLM'
   },
   14: {
     input: {
       models: ['claude-instant-1', 'claude-2', 'claude-2.0', 'claude-2.1'],
       test_model: 'claude-2'
-    }
+    },
+    modelGroup: 'Anthropic'
   },
   15: {
     input: {
@@ -68,13 +71,15 @@ const typeConfig = {
     },
     prompt: {
       key: '按照如下格式输入：APIKey|SecretKey'
-    }
+    },
+    modelGroup: 'Baidu'
   },
   16: {
     input: {
       models: ['chatglm_turbo', 'chatglm_pro', 'chatglm_std', 'chatglm_lite'],
       test_model: 'chatglm_lite'
-    }
+    },
+    modelGroup: 'Zhipu'
   },
   17: {
     inputLabel: {
@@ -96,7 +101,8 @@ const typeConfig = {
     },
     prompt: {
       other: '请输入插件参数，即 X-DashScope-Plugin 请求头的取值'
-    }
+    },
+    modelGroup: 'Ali'
   },
   18: {
     inputLabel: {
@@ -108,13 +114,15 @@ const typeConfig = {
     prompt: {
       key: '按照如下格式输入：APPID|APISecret|APIKey',
       other: '请输入版本号，例如：v3.1'
-    }
+    },
+    modelGroup: 'Xunfei'
   },
   19: {
     input: {
       models: ['360GPT_S2_V9', 'embedding-bert-512-v1', 'embedding_s1_v1', 'semantic_similarity_s1_v1'],
       test_model: '360GPT_S2_V9'
-    }
+    },
+    modelGroup: '360'
   },
   22: {
     prompt: {
@@ -128,7 +136,8 @@ const typeConfig = {
     },
     prompt: {
       key: '按照如下格式输入：AppId|SecretId|SecretKey'
-    }
+    },
+    modelGroup: 'Tencent'
   },
   25: {
     inputLabel: {
@@ -140,13 +149,15 @@ const typeConfig = {
     },
     prompt: {
       other: '请输入版本号，例如：v1'
-    }
+    },
+    modelGroup: 'Google Gemini'
   },
   26: {
     input: {
       models: ['Baichuan2-Turbo', 'Baichuan2-Turbo-192k', 'Baichuan2-53B', 'Baichuan-Text-Embedding'],
       test_model: 'Baichuan2-Turbo'
-    }
+    },
+    modelGroup: 'Baichuan'
   },
   24: {
     input: {

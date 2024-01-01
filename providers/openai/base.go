@@ -75,7 +75,6 @@ func (p *OpenAIProvider) GetFullRequestURL(requestURL string, modelName string) 
 		// 检测模型是是否包含 . 如果有则直接去掉
 		if strings.Contains(requestURL, ".") {
 			requestURL = strings.Replace(requestURL, ".", "", -1)
-			fmt.Println(requestURL)
 		}
 	}
 
