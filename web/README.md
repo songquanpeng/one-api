@@ -1,21 +1,11 @@
-# React Template
+# One API 的前端界面
+> 每个文件夹代表一个主题，欢迎提交你的主题
 
-## Basic Usages
+## 提交新的主题
+1. 在 `web` 文件夹下新建一个文件夹，文件夹名为主题名。
+2. 把你的主题文件放到这个文件夹下。
+3. 修改 `package.json` 文件，把 `build` 命令改为：`"build": "react-scripts build && mv build ../build/default"`，其中 `default` 为你的主题名。
 
-```shell
-# Runs the app in the development mode
-npm start
-
-# Builds the app for production to the `build` folder
-npm run build
-```
-
-If you want to change the default server, please set `REACT_APP_SERVER` environment variables before build,
-for example: `REACT_APP_SERVER=http://your.domain.com`.
-
-Before you start editing, make sure your `Actions on Save` options have `Optimize imports` & `Run Prettier` enabled.
-
-## Reference
-
-1. https://github.com/OIerDb-ng/OIerDb
-2. https://github.com/cornflourblue/react-hooks-redux-registration-login-example
+## 主题列表
+### default
+默认主题
