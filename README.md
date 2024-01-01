@@ -211,6 +211,13 @@ docker-compose ps
 ### 部署第三方服务配合 One API 使用
 > 欢迎 PR 添加更多示例。
 
+#### chatgpt-api-web
+项目主页: <https://github.com/heimoshuiyu/chatgpt-api-web>
+
+纯前端项目，所有信息保存在浏览器，无需部署。直接访问 <https://heimoshuiyu.github.io/chatgpt-api-web/> 填入参数开始使用。
+
+或者可将参数填入 URL 中，格式: <https://heimoshuiyu.github.io/chatgpt-api-web/?key=sk-xxxxx&api=https://your-doname.com/v1/chat/completions>
+
 #### ChatGPT Next Web
 项目主页：https://github.com/Yidadaa/ChatGPT-Next-Web
 

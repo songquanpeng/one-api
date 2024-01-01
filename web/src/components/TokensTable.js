@@ -13,6 +13,7 @@ const COPY_OPTIONS = [
 ];
 
 const OPEN_LINK_OPTIONS = [
+  { key: 'chatgpt-api-web', text: 'chatgpt-api-web', value: 'chatgpt-api-web' },
   { key: 'ama', text: 'AMA 问天', value: 'ama' },
   { key: 'opencat', text: 'OpenCat', value: 'opencat' },
 ];
@@ -144,6 +145,10 @@ const TokensTable = () => {
     }
     let url;
     switch (type) {
+      case 'chatgpt-api-web':
+        url = `https://heimoshuiyu.github.io/chatgpt-api-web/?key=sk-${key}&api=${serverAddress}/v1/chat/completions`
+        break;
+
       case 'ama':
         url = `ama://set-api-key?server=${encodedServerAddress}&key=sk-${key}`;
         break;
