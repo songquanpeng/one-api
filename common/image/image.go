@@ -15,6 +15,9 @@ import (
 	_ "golang.org/x/image/webp"
 )
 
+// Regex to match data URL pattern
+var	dataURLPattern = regexp.MustCompile(`data:image/([^;]+);base64,(.*)`)
+
 func IsImageUrl(url string) (bool, error) {
 	resp, err := http.Head(url)
 	if err != nil {
@@ -44,9 +47,6 @@ func GetImageSizeFromUrl(url string) (width int, height int, err error) {
 }
 
 func GetImageFromUrl(url string) (mimeType string, data string, err error) {
-	// Regex to match data URL pattern
-	dataURLPattern := regexp.MustCompile(`data:image/([^;]+);base64,(.*)`)
-
 	// Check if the URL is a data URL
 	matches := dataURLPattern.FindStringSubmatch(url)
 	if len(matches) == 3 {
