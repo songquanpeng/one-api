@@ -7,6 +7,11 @@ on:
     tags:
       - '*'
       - '!*-alpha*'
+  workflow_dispatch:
+    inputs:
+      name:
+        description: 'reason'
+        required: false
 jobs:
   release:
     runs-on: ubuntu-latest
@@ -22,10 +27,10 @@ jobs:
         env:
           CI: ""
         run: |
-          cd web/default
-          npm install
-          REACT_APP_VERSION=$(git describe --tags) npm run build
-          cd ../..
+          cd web
+          git describe --tags > VERSION
+          REACT_APP_VERSION=$(git describe --tags) chmod u+x ./build.sh && ./build.sh
+          cd ..
       - name: Set up Go
         uses: actions/setup-go@v3
         with:

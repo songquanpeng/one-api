@@ -7,6 +7,11 @@ on:
     tags:
       - '*'
       - '!*-alpha*'
+  workflow_dispatch:
+    inputs:
+      name:
+        description: 'reason'
+        required: false
 jobs:
   release:
     runs-on: windows-latest

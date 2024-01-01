@@ -3,16 +3,7 @@ FROM node:16 as builder
 WORKDIR /build
 COPY ./web .
 COPY ./VERSION .
-RUN themes=$(cat THEMES) \
-    && IFS=$'\n' \
-        && for theme in $themes; do \
-            theme_path="web/$theme" \
-            && echo "Building theme: $theme" \
-            && cd $theme_path \
-            && npm install \
-            && DISABLE_ESLINT_PLUGIN='true' REACT_APP_VERSION=$(cat VERSION) npm run build \
-            && cd /app \
-        done
+RUN chmod u+x ./build.sh && ./build.sh
 
 FROM golang AS builder2
 
