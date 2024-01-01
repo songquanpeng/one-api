@@ -90,6 +90,12 @@ func ListModels(c *gin.Context) {
 
 	// 根据 OwnedBy 排序
 	sort.Slice(groupOpenAIModels, func(i, j int) bool {
+		if groupOpenAIModels[i].OwnedBy == nil {
+			return true // 假设 nil 值小于任何非 nil 值
+		}
+		if groupOpenAIModels[j].OwnedBy == nil {
+			return false // 假设任何非 nil 值大于 nil 值
+		}
 		return *groupOpenAIModels[i].OwnedBy < *groupOpenAIModels[j].OwnedBy
 	})
 
@@ -100,7 +106,7 @@ func ListModels(c *gin.Context) {
 }
 
 func ListModelsForAdmin(c *gin.Context) {
-	openAIModels := make([]OpenAIModels, 0, len(common.ModelTypes))
+	openAIModels := make([]OpenAIModels, 0, len(common.ModelRatio))
 	for modelId := range common.ModelRatio {
 		openAIModels = append(openAIModels, OpenAIModels{
 			Id:         modelId,
@@ -114,6 +120,12 @@ func ListModelsForAdmin(c *gin.Context) {
 	}
 	// 根据 OwnedBy 排序
 	sort.Slice(openAIModels, func(i, j int) bool {
+		if openAIModels[i].OwnedBy == nil {
+			return true // 假设 nil 值小于任何非 nil 值
+		}
+		if openAIModels[j].OwnedBy == nil {
+			return false // 假设任何非 nil 值大于 nil 值
+		}
 		return *openAIModels[i].OwnedBy < *openAIModels[j].OwnedBy
 	})
 

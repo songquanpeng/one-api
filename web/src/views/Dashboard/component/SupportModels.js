@@ -42,7 +42,7 @@ const SupportModels = () => {
       <AccordionDetails>
         <Stack spacing={1}>
           {Object.entries(modelList).map(([title, models]) => (
-            <SubCard key={title} title={title}>
+            <SubCard key={title} title={title === 'null' ? '其他模型' : title}>
               <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
                 {models.map((model) => (
                   <Label
