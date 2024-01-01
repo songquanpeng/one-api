@@ -10,7 +10,7 @@ const EditToken = () => {
   const isEdit = tokenId !== undefined;
   const [loading, setLoading] = useState(isEdit);
   const originInputs = {
-    name: '',
+    name: '默认令牌名称',
     remain_quota: isEdit ? 0 : 500000,
     expired_time: -1,
     unlimited_quota: false
