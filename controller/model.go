@@ -244,6 +244,7 @@ func init() {
 			Parent:     nil,
 		},
 		{
+
 			Id:         "gpt-4-vision-preview",
 			Object:     "model",
 			Created:    1699593571,

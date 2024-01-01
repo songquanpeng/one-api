@@ -1,8 +1,9 @@
 package model
 
 import (
-	"gorm.io/gorm"
 	"one-api/common"
+
+	"gorm.io/gorm"
 )
 
 type Channel struct {
@@ -24,6 +25,7 @@ type Channel struct {
 	UsedQuota          int64   `json:"used_quota" gorm:"bigint;default:0"`
 	ModelMapping       *string `json:"model_mapping" gorm:"type:varchar(1024);default:''"`
 	Priority           *int64  `json:"priority" gorm:"bigint;default:0"`
+	Organization       string  `json:"openai_organization" gorm:"column:openai_organization;default:''"`
 }
 
 func GetAllChannels(startIdx int, num int, selectAll bool) ([]*Channel, error) {
