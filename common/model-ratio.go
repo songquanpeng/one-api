@@ -39,6 +39,8 @@ func init() {
 		"gpt-3.5-turbo-16k-0613":    {1.5, ChannelTypeOpenAI},
 		"gpt-3.5-turbo-instruct":    {0.75, ChannelTypeOpenAI}, // $0.0015 / 1K tokens
 		"gpt-3.5-turbo-1106":        {0.5, ChannelTypeOpenAI},  // $0.001 / 1K tokens
+		"davinci-002":               {1, ChannelTypeOpenAI},    // $0.002 / 1K tokens
+		"babbage-002":               {0.2, ChannelTypeOpenAI},  // $0.002 / 1K tokens
 		"text-ada-001":              {0.2, ChannelTypeOpenAI},
 		"text-babbage-001":          {0.25, ChannelTypeOpenAI},
 		"text-curie-001":            {1, ChannelTypeOpenAI},
