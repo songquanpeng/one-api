@@ -115,6 +115,16 @@ func (p *XunfeiProvider) requestOpenAI2Xunfei(request *types.ChatCompletionReque
 		}
 	}
 	xunfeiRequest := XunfeiChatRequest{}
+
+	if request.Tools != nil {
+		functions := make([]*types.ChatCompletionFunction, 0, len(request.Tools))
+		for _, tool := range request.Tools {
+			functions = append(functions, &tool.Function)
+		}
+		xunfeiRequest.Payload.Functions = &XunfeiChatPayloadFunctions{}
+		xunfeiRequest.Payload.Functions.Text = functions
+	}
+
 	xunfeiRequest.Header.AppId = p.apiId
 	xunfeiRequest.Parameter.Chat.Domain = p.domain
 	xunfeiRequest.Parameter.Chat.Temperature = request.Temperature
@@ -132,14 +142,31 @@ func (p *XunfeiProvider) responseXunfei2OpenAI(response *XunfeiChatResponse) *ty
 			},
 		}
 	}
+
 	choice := types.ChatCompletionChoice{
-		Index: 0,
-		Message: types.ChatCompletionMessage{
-			Role:    "assistant",
-			Content: response.Payload.Choices.Text[0].Content,
-		},
+		Index:        0,
 		FinishReason: base.StopFinishReason,
 	}
+
+	xunfeiText := response.Payload.Choices.Text[0]
+
+	if xunfeiText.FunctionCall != nil {
+		choice.Message = types.ChatCompletionMessage{
+			Role: "assistant",
+			ToolCalls: []*types.ChatCompletionToolCalls{
+				{
+					Type:     "function",
+					Function: *xunfeiText.FunctionCall,
+				},
+			},
+		}
+	} else {
+		choice.Message = types.ChatCompletionMessage{
+			Role:    "assistant",
+			Content: xunfeiText.Content,
+		}
+	}
+
 	fullTextResponse := types.ChatCompletionResponse{
 		Object:  "chat.completion",
 		Created: common.GetTimestamp(),

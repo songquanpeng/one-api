@@ -8,4 +8,5 @@ build
 logs
 data
 tmp/
+test/
 .env
