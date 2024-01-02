@@ -15,7 +15,7 @@ import { Formik } from 'formik';
 import AnimateButton from 'ui-component/extended/AnimateButton';
 
 // assets
-import { showError, showInfo } from 'utils/common';
+import { showError, showInfo, showSuccess } from 'utils/common';
 
 // ===========================|| FIREBASE - REGISTER ||=========================== //
 

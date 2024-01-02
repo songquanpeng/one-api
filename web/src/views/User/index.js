@@ -135,6 +135,7 @@ export default function Users() {
       .catch((reason) => {
         showError(reason);
       });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

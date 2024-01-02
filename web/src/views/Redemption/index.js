@@ -137,6 +137,7 @@ export default function Redemption() {
       .catch((reason) => {
         showError(reason);
       });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

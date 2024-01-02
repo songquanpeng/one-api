@@ -1,4 +1,3 @@
-require('dayjs/locale/zh-cn');
 import { useState, useEffect } from 'react';
 import SubCard from 'ui-component/cards/SubCard';
 import { Stack, FormControl, InputLabel, OutlinedInput, Checkbox, Button, FormControlLabel, TextField } from '@mui/material';
@@ -8,6 +7,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import dayjs from 'dayjs';
+require('dayjs/locale/zh-cn');
 
 const OperationSetting = () => {
   let now = new Date();

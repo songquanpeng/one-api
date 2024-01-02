@@ -49,6 +49,7 @@ const GitHubOAuth = () => {
     let code = searchParams.get('code');
     let state = searchParams.get('state');
     sendCode(code, state, 0).then();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

@@ -80,7 +80,6 @@ const RegisterForm = ({ ...others }) => {
       return;
     }
   };
-
   useEffect(() => {
     let affCode = searchParams.get('aff');
     if (affCode) {
@@ -92,6 +91,7 @@ const RegisterForm = ({ ...others }) => {
       setTurnstileEnabled(true);
       setTurnstileSiteKey(siteInfo.turnstile_site_key);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [siteInfo]);
 
   return (

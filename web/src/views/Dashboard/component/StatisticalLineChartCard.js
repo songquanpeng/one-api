@@ -116,7 +116,9 @@ const StatisticalLineChartCard = ({ isLoading, title, chartData, todayValue }) =
 
 StatisticalLineChartCard.propTypes = {
   isLoading: PropTypes.bool,
-  title: PropTypes.string
+  title: PropTypes.string,
+  chartData: PropTypes.oneOfType([PropTypes.array, PropTypes.object]),
+  todayValue: PropTypes.oneOfType([PropTypes.number, PropTypes.string])
 };
 
 export default StatisticalLineChartCard;

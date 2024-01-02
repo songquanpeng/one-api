@@ -58,7 +58,8 @@ const StatisticalBarChart = ({ isLoading, chartDatas }) => {
 };
 
 StatisticalBarChart.propTypes = {
-  isLoading: PropTypes.bool
+  isLoading: PropTypes.bool,
+  chartDatas: PropTypes.oneOfType([PropTypes.array, PropTypes.object])
 };
 
 export default StatisticalBarChart;

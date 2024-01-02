@@ -15,7 +15,7 @@ import {
   FormHelperText
 } from '@mui/material';
 import { Formik } from 'formik';
-import { showError } from 'utils/common';
+import { showError, showSuccess } from 'utils/common';
 import { useTheme } from '@mui/material/styles';
 import * as Yup from 'yup';
 import useRegister from 'hooks/useRegister';
@@ -167,5 +167,6 @@ export default EmailModal;
 
 EmailModal.propTypes = {
   open: PropTypes.bool,
-  handleClose: PropTypes.func
+  handleClose: PropTypes.func,
+  turnstileToken: PropTypes.string
 };

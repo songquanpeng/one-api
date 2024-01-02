@@ -1,4 +1,3 @@
-require('dayjs/locale/zh-cn');
 import PropTypes from 'prop-types';
 import { useTheme } from '@mui/material/styles';
 import { IconUser, IconKey, IconBrandGithubCopilot, IconSitemap } from '@tabler/icons-react';
@@ -7,6 +6,7 @@ import { LocalizationProvider, DateTimePicker } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
 import LogType from '../type/LogType';
+require('dayjs/locale/zh-cn');
 // ----------------------------------------------------------------------
 
 export default function TableToolBar({ filterName, handleFilterName, userIsAdmin }) {

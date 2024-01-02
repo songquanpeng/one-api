@@ -28,6 +28,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+import PropTypes from 'prop-types';
 import { Box, Avatar } from '@mui/material';
 import { alpha } from '@mui/material/styles';
 import Card from '@mui/material/Card';
@@ -119,3 +120,7 @@ export default function UserCard({ children }) {
     </Card>
   );
 }
+
+UserCard.propTypes = {
+  children: PropTypes.node
+};

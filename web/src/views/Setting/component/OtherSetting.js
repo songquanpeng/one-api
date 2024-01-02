@@ -53,6 +53,7 @@ const OtherSetting = () => {
 
   useEffect(() => {
     getOptions().then();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const updateOption = async (key, value) => {

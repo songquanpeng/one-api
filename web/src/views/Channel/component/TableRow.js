@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import { useState } from 'react';
 
-import { showInfo, showError } from 'utils/common';
+import { showInfo, showError, renderNumber } from 'utils/common';
 import { API } from 'utils/api';
 import { CHANNEL_OPTIONS } from 'constants/ChannelConstants';
 

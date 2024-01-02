@@ -122,6 +122,7 @@ const EditModal = ({ open, userId, onCancel, onOk }) => {
     } else {
       setInputs(originInputs);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId]);
 
   return (

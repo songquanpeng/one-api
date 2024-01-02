@@ -98,6 +98,7 @@ export default function Log() {
         showError(reason);
       });
     setInitPage(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initPage]);
 
   return (

@@ -1,4 +1,3 @@
-require('dayjs/locale/zh-cn');
 import PropTypes from 'prop-types';
 import * as Yup from 'yup';
 import { Formik } from 'formik';
@@ -26,6 +25,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import { renderQuotaWithPrompt, showSuccess, showError } from 'utils/common';
 import { API } from 'utils/api';
+require('dayjs/locale/zh-cn');
 
 const validationSchema = Yup.object().shape({
   is_edit: Yup.boolean(),
@@ -88,6 +88,7 @@ const EditModal = ({ open, tokenId, onCancel, onOk }) => {
     if (tokenId) {
       loadToken().then();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tokenId]);
 
   return (

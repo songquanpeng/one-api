@@ -231,6 +231,7 @@ const EditModal = ({ open, channelId, onCancel, onOk }) => {
       initChannel(1);
       setInitialInput({ ...defaultConfig.input, is_edit: false });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [channelId]);
 
   return (

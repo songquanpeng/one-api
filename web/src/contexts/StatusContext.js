@@ -1,6 +1,6 @@
 import { useEffect, useCallback, createContext } from 'react';
 import { API } from 'utils/api';
-import { showNotice } from 'utils/common';
+import { showNotice, showError } from 'utils/common';
 import { SET_SITE_INFO } from 'store/actions';
 import { useDispatch } from 'react-redux';
 

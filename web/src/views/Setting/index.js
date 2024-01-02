@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { Tabs, Tab, Box, Card } from '@mui/material';
 import { IconSettings2, IconActivity, IconSettings } from '@tabler/icons-react';
@@ -35,11 +35,14 @@ const Setting = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const hash = location.hash.replace('#', '');
-  const tabMap = {
-    operation: 0,
-    system: 1,
-    other: 2
-  };
+  const tabMap = useMemo(
+    () => ({
+      operation: 0,
+      system: 1,
+      other: 2
+    }),
+    []
+  );
   const [value, setValue] = useState(tabMap[hash] || 0);
 
   const handleChange = (event, newValue) => {
