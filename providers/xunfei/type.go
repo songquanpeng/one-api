@@ -62,12 +62,6 @@ type XunfeiChatResponse struct {
 			Text   []XunfeiChatResponseTextItem `json:"text"`
 		} `json:"choices"`
 		Usage struct {
-			//Text struct {
-			//	QuestionTokens   string `json:"question_tokens"`
-			//	PromptTokens     string `json:"prompt_tokens"`
-			//	CompletionTokens string `json:"completion_tokens"`
-			//	TotalTokens      string `json:"total_tokens"`
-			//} `json:"text"`
 			Text types.Usage `json:"text"`
 		} `json:"usage"`
 	} `json:"payload"`

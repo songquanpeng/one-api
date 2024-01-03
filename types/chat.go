@@ -6,12 +6,13 @@ const (
 )
 
 type ChatCompletionToolCallsFunction struct {
-	Name      string `json:"name"`
-	Arguments string `json:"arguments"`
+	Name      string `json:"name,omitempty"`
+	Arguments string `json:"arguments,omitempty"`
 }
 
 type ChatCompletionToolCalls struct {
 	Id       string                          `json:"id"`
+	Index    int                             `json:"index,omitempty"`
 	Type     string                          `json:"type"`
 	Function ChatCompletionToolCallsFunction `json:"function"`
 }
@@ -129,6 +130,15 @@ type ChatCompletionRequest struct {
 	ToolChoice       any                           `json:"tool_choice,omitempty"`
 }
 
+func (r ChatCompletionRequest) GetFunctionCate() string {
+	if r.Tools != nil {
+		return "tool"
+	} else if r.Functions != nil {
+		return "function"
+	}
+	return ""
+}
+
 type ChatCompletionFunction struct {
 	Name        string `json:"name"`
 	Description string `json:"description"`
@@ -157,10 +167,10 @@ type ChatCompletionResponse struct {
 }
 
 type ChatCompletionStreamChoiceDelta struct {
-	Content      string `json:"content,omitempty"`
-	Role         string `json:"role,omitempty"`
-	FunctionCall any    `json:"function_call,omitempty"`
-	ToolCalls    any    `json:"tool_calls,omitempty"`
+	Content      string                           `json:"content,omitempty"`
+	Role         string                           `json:"role,omitempty"`
+	FunctionCall *ChatCompletionToolCallsFunction `json:"function_call,omitempty"`
+	ToolCalls    []*ChatCompletionToolCalls       `json:"tool_calls,omitempty"`
 }
 
 type ChatCompletionStreamChoice struct {

@@ -14,6 +14,8 @@ import (
 )
 
 var StopFinishReason = "stop"
+var StopFinishReasonToolFunction = "tool_calls"
+var StopFinishReasonCallFunction = "function_call"
 
 type BaseProvider struct {
 	BaseURL             string
@@ -27,7 +29,6 @@ type BaseProvider struct {
 	ImagesGenerations   string
 	ImagesEdit          string
 	ImagesVariations    string
-	Proxy               string
 	Context             *gin.Context
 	Channel             *model.Channel
 }
