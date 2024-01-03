@@ -138,6 +138,35 @@ func UpdateModelRatioByJSONString(jsonStr string) error {
 	return json.Unmarshal([]byte(jsonStr), &ModelRatio)
 }
 
+func MergeModelRatioByJSONString(jsonStr string) (newJsonStr string, err error) {
+	inputModelRatio := make(map[string]float64)
+	err = json.Unmarshal([]byte(jsonStr), &inputModelRatio)
+	if err != nil {
+		return
+	}
+
+	isNew := false
+	// 与现有的ModelRatio进行比较，如果有新增的模型，需要添加
+	for key, value := range ModelRatio {
+		if _, ok := inputModelRatio[key]; !ok {
+			isNew = true
+			inputModelRatio[key] = value
+		}
+	}
+
+	if !isNew {
+		return
+	}
+
+	var jsonBytes []byte
+	jsonBytes, err = json.Marshal(inputModelRatio)
+	if err != nil {
+		SysError("error marshalling model ratio: " + err.Error())
+	}
+	newJsonStr = string(jsonBytes)
+	return
+}
+
 func GetModelRatio(name string) float64 {
 	if strings.HasPrefix(name, "qwen-") && strings.HasSuffix(name, "-internet") {
 		name = strings.TrimSuffix(name, "-internet")

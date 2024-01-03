@@ -19,6 +19,11 @@ func AllOption() ([]*Option, error) {
 	return options, err
 }
 
+func GetOption(key string) (option Option, err error) {
+	err = DB.First(&option, Option{Key: key}).Error
+	return
+}
+
 func InitOptionMap() {
 	common.OptionMapRWMutex.Lock()
 	common.OptionMap = make(map[string]string)
@@ -73,7 +78,26 @@ func InitOptionMap() {
 	common.OptionMap["QuotaPerUnit"] = strconv.FormatFloat(common.QuotaPerUnit, 'f', -1, 64)
 	common.OptionMap["RetryTimes"] = strconv.Itoa(common.RetryTimes)
 	common.OptionMapRWMutex.Unlock()
+	initModelRatio()
 	loadOptionsFromDatabase()
+}
+
+func initModelRatio() {
+	// 查询数据库中的ModelRatio
+	option, err := GetOption("ModelRatio")
+	if err != nil || option.Value == "" {
+		return
+	}
+
+	newModelRatio, err := common.MergeModelRatioByJSONString(option.Value)
+	if err != nil || newModelRatio == "" {
+		return
+	}
+
+	// 更新数据库中的ModelRatio
+	common.SysLog("update ModelRatio")
+	UpdateOption("ModelRatio", newModelRatio)
+
 }
 
 func loadOptionsFromDatabase() {
