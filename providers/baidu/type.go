@@ -19,20 +19,24 @@ type BaiduMessage struct {
 }
 
 type BaiduChatRequest struct {
-	Messages []BaiduMessage `json:"messages"`
-	Stream   bool           `json:"stream"`
-	UserId   string         `json:"user_id,omitempty"`
+	Messages    []BaiduMessage                  `json:"messages"`
+	Functions   []*types.ChatCompletionFunction `json:"functions,omitempty"`
+	Temperature float64                         `json:"temperature,omitempty"`
+	Stream      bool                            `json:"stream"`
+	UserId      string                          `json:"user_id,omitempty"`
 }
 
 type BaiduChatResponse struct {
-	Id               string       `json:"id"`
-	Object           string       `json:"object"`
-	Created          int64        `json:"created"`
-	Result           string       `json:"result"`
-	IsTruncated      bool         `json:"is_truncated"`
-	NeedClearHistory bool         `json:"need_clear_history"`
-	Usage            *types.Usage `json:"usage"`
-	Model            string       `json:"model,omitempty"`
+	Id               string                                 `json:"id"`
+	Object           string                                 `json:"object"`
+	Created          int64                                  `json:"created"`
+	Result           string                                 `json:"result"`
+	IsTruncated      bool                                   `json:"is_truncated"`
+	NeedClearHistory bool                                   `json:"need_clear_history"`
+	Usage            *types.Usage                           `json:"usage"`
+	Model            string                                 `json:"model,omitempty"`
+	FunctionCall     *types.ChatCompletionToolCallsFunction `json:"function_call,omitempty"`
+	FunctionCate     string                                 `json:"function_cate,omitempty"`
 	BaiduError
 }
 
