@@ -12,9 +12,9 @@ type ChatCompletionToolCallsFunction struct {
 
 type ChatCompletionToolCalls struct {
 	Id       string                          `json:"id"`
-	Index    int                             `json:"index,omitempty"`
 	Type     string                          `json:"type"`
 	Function ChatCompletionToolCallsFunction `json:"function"`
+	Index    int                             `json:"index"`
 }
 
 type ChatCompletionMessage struct {
