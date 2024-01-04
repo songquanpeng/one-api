@@ -237,6 +237,7 @@ func tencentHandler(c *gin.Context, resp *http.Response) (*OpenAIErrorWithStatus
 		}, nil
 	}
 	fullTextResponse := responseTencent2OpenAI(&TencentResponse)
+	fullTextResponse.Model = "hunyuan"
 	jsonResponse, err := json.Marshal(fullTextResponse)
 	if err != nil {
 		return errorWrapper(err, "marshal_response_body_failed", http.StatusInternalServerError), nil

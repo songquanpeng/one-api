@@ -204,6 +204,7 @@ func claudeHandler(c *gin.Context, resp *http.Response, promptTokens int, model 
 		}, nil
 	}
 	fullTextResponse := responseClaude2OpenAI(&claudeResponse)
+	fullTextResponse.Model = model
 	completionTokens := countTokenText(claudeResponse.Completion, model)
 	usage := Usage{
 		PromptTokens:     promptTokens,

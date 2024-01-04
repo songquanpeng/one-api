@@ -7,9 +7,16 @@ import (
 	"io"
 	"net/http"
 	"one-api/common"
+	"one-api/common/image"
 	"strings"
 
 	"github.com/gin-gonic/gin"
+)
+
+// https://ai.google.dev/docs/gemini_api_overview?hl=zh-cn
+
+const (
+	GeminiVisionMaxImageNum = 16
 )
 
 type GeminiChatRequest struct {
@@ -56,24 +63,24 @@ type GeminiChatGenerationConfig struct {
 func requestOpenAI2Gemini(textRequest GeneralOpenAIRequest) *GeminiChatRequest {
 	geminiRequest := GeminiChatRequest{
 		Contents: make([]GeminiChatContent, 0, len(textRequest.Messages)),
-		//SafetySettings: []GeminiChatSafetySettings{
-		//	{
-		//		Category:  "HARM_CATEGORY_HARASSMENT",
-		//		Threshold: "BLOCK_ONLY_HIGH",
-		//	},
-		//	{
-		//		Category:  "HARM_CATEGORY_HATE_SPEECH",
-		//		Threshold: "BLOCK_ONLY_HIGH",
-		//	},
-		//	{
-		//		Category:  "HARM_CATEGORY_SEXUALLY_EXPLICIT",
-		//		Threshold: "BLOCK_ONLY_HIGH",
-		//	},
-		//	{
-		//		Category:  "HARM_CATEGORY_DANGEROUS_CONTENT",
-		//		Threshold: "BLOCK_ONLY_HIGH",
-		//	},
-		//},
+		SafetySettings: []GeminiChatSafetySettings{
+			{
+				Category:  "HARM_CATEGORY_HARASSMENT",
+				Threshold: common.GeminiSafetySetting,
+			},
+			{
+				Category:  "HARM_CATEGORY_HATE_SPEECH",
+				Threshold: common.GeminiSafetySetting,
+			},
+			{
+				Category:  "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+				Threshold: common.GeminiSafetySetting,
+			},
+			{
+				Category:  "HARM_CATEGORY_DANGEROUS_CONTENT",
+				Threshold: common.GeminiSafetySetting,
+			},
+		},
 		GenerationConfig: GeminiChatGenerationConfig{
 			Temperature:     textRequest.Temperature,
 			TopP:            textRequest.TopP,
@@ -97,6 +104,30 @@ func requestOpenAI2Gemini(textRequest GeneralOpenAIRequest) *GeminiChatRequest {
 				},
 			},
 		}
+		openaiContent := message.ParseContent()
+		var parts []GeminiPart
+		imageNum := 0
+		for _, part := range openaiContent {
+			if part.Type == ContentTypeText {
+				parts = append(parts, GeminiPart{
+					Text: part.Text,
+				})
+			} else if part.Type == ContentTypeImageURL {
+				imageNum += 1
+				if imageNum > GeminiVisionMaxImageNum {
+					continue
+				}
+				mimeType, data, _ := image.GetImageFromUrl(part.ImageURL.Url)
+				parts = append(parts, GeminiPart{
+					InlineData: &GeminiInlineData{
+						MimeType: mimeType,
+						Data:     data,
+					},
+				})
+			}
+		}
+		content.Parts = parts
+
 		// there's no assistant role in gemini and API shall vomit if Role is not user or model
 		if content.Role == "assistant" {
 			content.Role = "model"
@@ -287,6 +318,7 @@ func geminiChatHandler(c *gin.Context, resp *http.Response, promptTokens int, mo
 		}, nil
 	}
 	fullTextResponse := responseGeminiChat2OpenAI(&geminiResponse)
+	fullTextResponse.Model = model
 	completionTokens := countTokenText(geminiResponse.GetResponseText(), model)
 	usage := Usage{
 		PromptTokens:     promptTokens,
