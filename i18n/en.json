@@ -86,6 +86,7 @@
   "该令牌已过期": "The token has expired",
   "该令牌额度已用尽": "The token quota has been used up",
   "无效的令牌": "Invalid token",
+  "令牌验证失败": "Token verification failed",
   "id 或 userId 为空！": "id or userId is empty!",
   "quota 不能为负数！": "quota cannot be negative!",
   "令牌额度不足": "Insufficient token quota",
