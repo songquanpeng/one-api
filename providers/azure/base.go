@@ -26,7 +26,8 @@ func (f AzureProviderFactory) Create(c *gin.Context) base.ProviderInterface {
 				Context: c,
 				// AudioSpeech:         "/audio/speech",
 			},
-			IsAzure: true,
+			IsAzure:       true,
+			BalanceAction: false,
 		},
 	}
 }

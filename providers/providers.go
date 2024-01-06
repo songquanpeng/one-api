@@ -72,8 +72,9 @@ func GetProvider(channel *model.Channel, c *gin.Context) base.ProviderInterface 
 		}
 
 		provider = openai.CreateOpenAIProvider(c, baseURL)
+	} else {
+		provider = factory.Create(c)
 	}
-	provider = factory.Create(c)
 	provider.SetChannel(channel)
 
 	return provider

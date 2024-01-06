@@ -54,7 +54,7 @@ func CreateOpenAIProvider(c *gin.Context, baseURL string) *OpenAIProvider {
 			Context:             c,
 		},
 		IsAzure:       false,
-		BalanceAction: false,
+		BalanceAction: true,
 	}
 }
 
