@@ -100,7 +100,7 @@ var RelayTimeout = GetOrDefault("RELAY_TIMEOUT", 0) // unit is second
 
 var GeminiSafetySetting = GetOrDefaultString("GEMINI_SAFETY_SETTING", "BLOCK_NONE")
 
-var Theme = "default"
+var Theme = GetOrDefaultString("THEME", "default")
 var ValidThemes = map[string]bool{
 	"default": true,
 	"berry":   true,
