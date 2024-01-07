@@ -1,10 +1,13 @@
 FROM node:16 as builder
 
+WORKDIR /web/build
+
 WORKDIR /web/default
 COPY web/default/package.json .
 RUN npm install
 COPY ./web/default .
 COPY ./VERSION .
+RUN mkdir -p ../build/default
 RUN GENERATE_SOURCEMAP='false' DISABLE_ESLINT_PLUGIN='true' REACT_APP_VERSION=$(cat VERSION) npm run build
 
 WORKDIR /web/berry
@@ -12,6 +15,7 @@ COPY web/berry/package.json .
 RUN npm install
 COPY ./web/berry .
 COPY ./VERSION .
+RUN mkdir -p ../build/berry
 RUN GENERATE_SOURCEMAP='false' DISABLE_ESLINT_PLUGIN='true' REACT_APP_VERSION=$(cat VERSION) npm run build
 
 FROM golang AS builder2
