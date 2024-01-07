@@ -20,7 +20,7 @@ var buildFS embed.FS
 
 func main() {
 	common.SetupLogger()
-	common.SysLog(fmt.Sprintf("One API %s started with theme %s", common.Version, common.Theme))
+	common.SysLog(fmt.Sprintf("One API %s started", common.Version))
 	if os.Getenv("GIN_MODE") != "debug" {
 		gin.SetMode(gin.ReleaseMode)
 	}
@@ -47,6 +47,7 @@ func main() {
 
 	// Initialize options
 	model.InitOptionMap()
+	common.SysLog(fmt.Sprintf("using theme %s", common.Theme))
 	if common.RedisEnabled {
 		// for compatibility with old versions
 		common.MemoryCacheEnabled = true
