@@ -201,7 +201,7 @@ export default function Profile() {
                 {status.github_oauth && !inputs.github_id && (
                   <Grid xs={12} md={4}>
                     <Button variant="contained" onClick={() => onGitHubOAuthClicked(status.github_client_id, true)}>
-                      绑定GitHub账号
+                      绑定 GitHub 账号
                     </Button>
                   </Grid>
                 )}

@@ -142,7 +142,7 @@ export default function Token() {
   return (
     <>
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
-        <Typography variant="h4">Token</Typography>
+        <Typography variant="h4">令牌</Typography>
 
         <Button
           variant="contained"
@@ -152,12 +152,12 @@ export default function Token() {
           }}
           startIcon={<IconPlus />}
         >
-          新建Token
+          新建令牌
         </Button>
       </Stack>
       <Stack mb={5}>
         <Alert severity="info">
-          将OpenAI API基础地址https://api.openai.com替换为<b>{siteInfo.server_address}</b>，复制下面的密钥即可使用。
+          将 OpenAI API 基础地址 https://api.openai.com 替换为 <b>{siteInfo.server_address}</b>，复制下面的密钥即可使用
         </Alert>
       </Stack>
       <Card>

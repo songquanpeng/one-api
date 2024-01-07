@@ -22,7 +22,7 @@ const panel = {
   children: [
     {
       id: 'dashboard',
-      title: 'Dashboard',
+      title: '总览',
       type: 'item',
       url: '/panel/dashboard',
       icon: icons.IconDashboard,
@@ -40,7 +40,7 @@ const panel = {
     },
     {
       id: 'token',
-      title: 'Token',
+      title: '令牌',
       type: 'item',
       url: '/panel/token',
       icon: icons.IconKey,
@@ -82,7 +82,7 @@ const panel = {
     },
     {
       id: 'profile',
-      title: '个人设置',
+      title: '我的',
       type: 'item',
       url: '/panel/profile',
       icon: icons.IconUserScan,
