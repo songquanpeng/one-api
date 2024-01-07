@@ -30,6 +30,8 @@ ADD go.mod go.sum ./
 RUN go mod download
 COPY . .
 COPY --from=builder /web/build ./web
+RUN ls ./web
+RUN ls ./web/default
 RUN go build -ldflags "-s -w -X 'one-api/common.Version=$(cat VERSION)' -extldflags '-static'" -o one-api
 
 FROM alpine
