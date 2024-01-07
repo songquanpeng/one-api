@@ -1,7 +1,5 @@
 FROM node:16 as builder
 
-WORKDIR /web/build
-
 WORKDIR /web/default
 COPY web/default/package.json .
 RUN npm install
@@ -18,6 +16,9 @@ COPY ./VERSION .
 RUN mkdir -p ../build/berry
 RUN GENERATE_SOURCEMAP='false' DISABLE_ESLINT_PLUGIN='true' REACT_APP_VERSION=$(cat VERSION) npm run build
 
+WORKDIR /web/build
+RUN ls
+
 FROM golang AS builder2
 
 ENV GO111MODULE=on \
@@ -28,7 +29,7 @@ WORKDIR /build
 ADD go.mod go.sum ./
 RUN go mod download
 COPY . .
-COPY --from=builder /web/build ./web/build
+COPY --from=builder /web/build ./web
 RUN go build -ldflags "-s -w -X 'one-api/common.Version=$(cat VERSION)' -extldflags '-static'" -o one-api
 
 FROM alpine
