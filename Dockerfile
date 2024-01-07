@@ -1,24 +1,21 @@
 FROM node:16 as builder
 
-WORKDIR /web/default
-COPY web/default/package.json .
-RUN npm install
-COPY ./web/default .
+WORKDIR /web
 COPY ./VERSION .
-RUN mkdir -p ../build/default
-RUN GENERATE_SOURCEMAP='false' DISABLE_ESLINT_PLUGIN='true' REACT_APP_VERSION=$(cat VERSION) npm run build
-RUN ls
+COPY ./web .
+
+WORKDIR /web/default
+RUN npm install
+RUN DISABLE_ESLINT_PLUGIN='true' REACT_APP_VERSION=$(cat VERSION) npm run build
 
 WORKDIR /web/berry
-COPY web/berry/package.json .
 RUN npm install
-COPY ./web/berry .
-COPY ./VERSION .
-RUN mkdir -p ../build/berry
-RUN GENERATE_SOURCEMAP='false' DISABLE_ESLINT_PLUGIN='true' REACT_APP_VERSION=$(cat VERSION) npm run build
+RUN DISABLE_ESLINT_PLUGIN='true' REACT_APP_VERSION=$(cat VERSION) npm run build
 
-WORKDIR /web/build
+WORKDIR /web
 RUN ls
+RUN ls ./build
+RUN ls ./build/default
 
 FROM golang AS builder2
 
@@ -30,10 +27,7 @@ WORKDIR /build
 ADD go.mod go.sum ./
 RUN go mod download
 COPY . .
-COPY --from=builder /web/build ./web
-RUN ls ./web
-RUN ls ./web/build
-RUN ls ./web/build/default
+COPY --from=builder /web/build ./web/build
 RUN go build -ldflags "-s -w -X 'one-api/common.Version=$(cat VERSION)' -extldflags '-static'" -o one-api
 
 FROM alpine
