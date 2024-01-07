@@ -38,39 +38,43 @@ func ValidateUserToken(key string) (token *Token, err error) {
 		return nil, errors.New("未提供令牌")
 	}
 	token, err = CacheGetTokenByKey(key)
-	if err == nil {
-		if token.Status == common.TokenStatusExhausted {
-			return nil, errors.New("该令牌额度已用尽")
-		} else if token.Status == common.TokenStatusExpired {
-			return nil, errors.New("该令牌已过期")
+	if err != nil {
+		common.SysError("CacheGetTokenByKey failed: " + err.Error())
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.New("无效的令牌")
 		}
-		if token.Status != common.TokenStatusEnabled {
-			return nil, errors.New("该令牌状态不可用")
-		}
-		if token.ExpiredTime != -1 && token.ExpiredTime < common.GetTimestamp() {
-			if !common.RedisEnabled {
-				token.Status = common.TokenStatusExpired
-				err := token.SelectUpdate()
-				if err != nil {
-					common.SysError("failed to update token status" + err.Error())
-				}
-			}
-			return nil, errors.New("该令牌已过期")
-		}
-		if !token.UnlimitedQuota && token.RemainQuota <= 0 {
-			if !common.RedisEnabled {
-				// in this case, we can make sure the token is exhausted
-				token.Status = common.TokenStatusExhausted
-				err := token.SelectUpdate()
-				if err != nil {
-					common.SysError("failed to update token status" + err.Error())
-				}
-			}
-			return nil, errors.New("该令牌额度已用尽")
-		}
-		return token, nil
+		return nil, errors.New("令牌验证失败")
 	}
-	return nil, errors.New("无效的令牌")
+	if token.Status == common.TokenStatusExhausted {
+		return nil, errors.New("该令牌额度已用尽")
+	} else if token.Status == common.TokenStatusExpired {
+		return nil, errors.New("该令牌已过期")
+	}
+	if token.Status != common.TokenStatusEnabled {
+		return nil, errors.New("该令牌状态不可用")
+	}
+	if token.ExpiredTime != -1 && token.ExpiredTime < common.GetTimestamp() {
+		if !common.RedisEnabled {
+			token.Status = common.TokenStatusExpired
+			err := token.SelectUpdate()
+			if err != nil {
+				common.SysError("failed to update token status" + err.Error())
+			}
+		}
+		return nil, errors.New("该令牌已过期")
+	}
+	if !token.UnlimitedQuota && token.RemainQuota <= 0 {
+		if !common.RedisEnabled {
+			// in this case, we can make sure the token is exhausted
+			token.Status = common.TokenStatusExhausted
+			err := token.SelectUpdate()
+			if err != nil {
+				common.SysError("failed to update token status" + err.Error())
+			}
+		}
+		return nil, errors.New("该令牌额度已用尽")
+	}
+	return token, nil
 }
 
 func GetTokenByIds(id int, userId int) (*Token, error) {
