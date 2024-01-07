@@ -115,22 +115,22 @@ const StyledLabel = styled(Box)(({ theme, ownerState }) => {
       // FILLED
       ...(filledVariant && {
         color: theme.palette.background.paper,
-        backgroundColor: theme.palette[ownerState.color].main
+        backgroundColor: theme.palette[ownerState.color]?.main
       }),
       // OUTLINED
       ...(outlinedVariant && {
         backgroundColor: 'transparent',
-        color: theme.palette[ownerState.color].main,
-        border: `2px solid ${theme.palette[ownerState.color].main}`
+        color: theme.palette[ownerState.color]?.main,
+        border: `2px solid ${theme.palette[ownerState.color]?.main}`
       }),
       // SOFT
       ...(softVariant && {
         color: theme.palette[ownerState.color]['dark'],
-        backgroundColor: alpha(theme.palette[ownerState.color].main, 0.16)
+        backgroundColor: alpha(theme.palette[ownerState.color]?.main, 0.16)
       }),
       // GHOST
       ...(ghostVariant && {
-        color: theme.palette[ownerState.color].main
+        color: theme.palette[ownerState.color]?.main
       })
     })
   };
