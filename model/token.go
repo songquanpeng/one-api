@@ -39,7 +39,7 @@ func ValidateUserToken(key string) (token *Token, err error) {
 	}
 	token, err = CacheGetTokenByKey(key)
 	if err != nil {
-		common.SysError("failed to get token: " + err.Error())
+		common.SysError("CacheGetTokenByKey failed: " + err.Error())
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errors.New("无效的令牌")
 		}
