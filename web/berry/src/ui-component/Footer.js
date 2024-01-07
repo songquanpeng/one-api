@@ -22,7 +22,10 @@ const Footer = () => {
             <Link href="https://github.com/songquanpeng" target="_blank">
               JustSong
             </Link>{' '}
-            构建，，源代码遵循
+            构建，主题 berry 来自{' '}
+            <Link href="https://github.com/MartialBE" target="_blank">
+              MartialBE
+            </Link>{' '}，源代码遵循
             <Link href="https://opensource.org/licenses/mit-license.php"> MIT 协议</Link>
           </>
         )}

@@ -40,7 +40,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build && mv -f build ../build/berry",
+    "build": "GENERATE_SOURCEMAP=false react-scripts build && mv -f build ../build/berry",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },

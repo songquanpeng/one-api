@@ -193,7 +193,7 @@ type LogStatistic struct {
 	CompletionTokens int    `gorm:"column:completion_tokens"`
 }
 
-func SearchLogsByDayAndModel(user_id, start, end int) (LogStatistics []*LogStatistic, err error) {
+func SearchLogsByDayAndModel(userId, start, end int) (LogStatistics []*LogStatistic, err error) {
 	groupSelect := "DATE_FORMAT(FROM_UNIXTIME(created_at), '%Y-%m-%d') as day"
 
 	if common.UsingPostgreSQL {
@@ -212,13 +212,13 @@ func SearchLogsByDayAndModel(user_id, start, end int) (LogStatistics []*LogStati
 		sum(completion_tokens) as completion_tokens
 		FROM logs
 		WHERE type=2
-		AND user_id= ?
+		AND userId= ?
 		AND created_at BETWEEN ? AND ?
 		GROUP BY day, model_name
 		ORDER BY day, model_name
-	`, user_id, start, end).Scan(&LogStatistics).Error
+	`, userId, start, end).Scan(&LogStatistics).Error
 
-	fmt.Println(user_id, start, end)
+	fmt.Println(userId, start, end)
 
 	return LogStatistics, err
 }

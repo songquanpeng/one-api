@@ -259,17 +259,17 @@ func GetUserDashboard(c *gin.Context) {
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
-			"message": "无法获取统计信息.",
+			"message": "无法获取统计信息",
 			"data":    nil,
 		})
 		return
 	}
-
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"message": "",
 		"data":    dashboards,
 	})
+	return
 }
 
 func GenerateAccessToken(c *gin.Context) {
