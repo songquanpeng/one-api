@@ -38,8 +38,6 @@ const validationSchema = Yup.object().shape({
     then: Yup.string().required("密钥 不能为空"),
   }),
   other: Yup.string(),
-  proxy: Yup.string(),
-  test_model: Yup.string(),
   models: Yup.array().min(1, "模型 不能为空"),
   groups: Yup.array().min(1, "用户组 不能为空"),
   base_url: Yup.string().when("type", {
@@ -623,71 +621,6 @@ const EditModal = ({ open, channelId, onCancel, onOk }) => {
                   </FormHelperText>
                 )}
               </FormControl>
-              <FormControl
-                fullWidth
-                error={Boolean(touched.proxy && errors.proxy)}
-                sx={{ ...theme.typography.otherInput }}
-              >
-                <InputLabel htmlFor="channel-proxy-label">
-                  {inputLabel.proxy}
-                </InputLabel>
-                <OutlinedInput
-                  id="channel-proxy-label"
-                  label={inputLabel.proxy}
-                  type="text"
-                  value={values.proxy}
-                  name="proxy"
-                  onBlur={handleBlur}
-                  onChange={handleChange}
-                  inputProps={{}}
-                  aria-describedby="helper-text-channel-proxy-label"
-                />
-                {touched.proxy && errors.proxy ? (
-                  <FormHelperText error id="helper-tex-channel-proxy-label">
-                    {errors.proxy}
-                  </FormHelperText>
-                ) : (
-                  <FormHelperText id="helper-tex-channel-proxy-label">
-                    {" "}
-                    {inputPrompt.proxy}{" "}
-                  </FormHelperText>
-                )}
-              </FormControl>
-              {inputPrompt.test_model && (
-                <FormControl
-                  fullWidth
-                  error={Boolean(touched.test_model && errors.test_model)}
-                  sx={{ ...theme.typography.otherInput }}
-                >
-                  <InputLabel htmlFor="channel-test_model-label">
-                    {inputLabel.test_model}
-                  </InputLabel>
-                  <OutlinedInput
-                    id="channel-test_model-label"
-                    label={inputLabel.test_model}
-                    type="text"
-                    value={values.test_model}
-                    name="test_model"
-                    onBlur={handleBlur}
-                    onChange={handleChange}
-                    inputProps={{}}
-                    aria-describedby="helper-text-channel-test_model-label"
-                  />
-                  {touched.test_model && errors.test_model ? (
-                    <FormHelperText
-                      error
-                      id="helper-tex-channel-test_model-label"
-                    >
-                      {errors.test_model}
-                    </FormHelperText>
-                  ) : (
-                    <FormHelperText id="helper-tex-channel-test_model-label">
-                      {" "}
-                      {inputPrompt.test_model}{" "}
-                    </FormHelperText>
-                  )}
-                </FormControl>
-              )}
               <DialogActions>
                 <Button onClick={onCancel}>取消</Button>
                 <Button
