@@ -7,7 +7,7 @@ COPY ./web/default .
 COPY ./VERSION .
 RUN mkdir -p ../build/default
 RUN GENERATE_SOURCEMAP='false' DISABLE_ESLINT_PLUGIN='true' REACT_APP_VERSION=$(cat VERSION) npm run build
-RUN mv build/* ../build/default
+RUN mv -f build ../build/default
 
 WORKDIR /web/berry
 COPY web/berry/package.json .
@@ -16,7 +16,7 @@ COPY ./web/berry .
 COPY ./VERSION .
 RUN mkdir -p ../build/berry
 RUN GENERATE_SOURCEMAP='false' DISABLE_ESLINT_PLUGIN='true' REACT_APP_VERSION=$(cat VERSION) npm run build
-RUN mv build/* ../build/berry
+RUN mv -f build ../build/berry
 
 WORKDIR /web/build
 RUN ls
