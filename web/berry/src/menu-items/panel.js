@@ -87,7 +87,7 @@ const panel = {
       url: '/panel/profile',
       icon: icons.IconUserScan,
       breadcrumbs: false,
-      isAdmin: true
+      isAdmin: false
     },
     {
       id: 'setting',
