@@ -92,7 +92,7 @@ const LoginForm = ({ ...others }) => {
                   <Box sx={{ mr: { xs: 1, sm: 2, width: 20 }, display: 'flex', alignItems: 'center' }}>
                     <img src={Github} alt="github" width={25} height={25} style={{ marginRight: matchDownSM ? 8 : 16 }} />
                   </Box>
-                  使用 Github 登录
+                  使用 GitHub 登录
                 </Button>
               </AnimateButton>
             </Grid>
@@ -115,7 +115,7 @@ const LoginForm = ({ ...others }) => {
                   <Box sx={{ mr: { xs: 1, sm: 2, width: 20 }, display: 'flex', alignItems: 'center' }}>
                     <img src={Wechat} alt="Wechat" width={25} height={25} style={{ marginRight: matchDownSM ? 8 : 16 }} />
                   </Box>
-                  使用 Wechat 登录
+                  使用微信登录
                 </Button>
               </AnimateButton>
               <WechatModal open={openWechat} handleClose={handleWechatClose} wechatLogin={wechatLogin} qrCode={siteInfo.wechat_qrcode} />
