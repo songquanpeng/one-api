@@ -12,11 +12,6 @@ WORKDIR /web/berry
 RUN npm install
 RUN DISABLE_ESLINT_PLUGIN='true' REACT_APP_VERSION=$(cat VERSION) npm run build
 
-WORKDIR /web
-RUN ls
-RUN ls ./build
-RUN ls ./build/default
-
 FROM golang AS builder2
 
 ENV GO111MODULE=on \
