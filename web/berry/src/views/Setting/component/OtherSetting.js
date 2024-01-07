@@ -1,18 +1,18 @@
 import { useState, useEffect } from 'react';
 import SubCard from 'ui-component/cards/SubCard';
 import {
-  Stack,
-  FormControl,
-  InputLabel,
-  OutlinedInput,
-  Button,
-  Alert,
-  TextField,
-  Dialog,
-  DialogTitle,
-  DialogActions,
-  DialogContent,
-  Divider
+    Stack,
+    FormControl,
+    InputLabel,
+    OutlinedInput,
+    Button,
+    Alert,
+    TextField,
+    Dialog,
+    DialogTitle,
+    DialogActions,
+    DialogContent,
+    Divider, Link
 } from '@mui/material';
 import Grid from '@mui/material/Unstable_Grid2';
 import { showError, showSuccess } from 'utils/common'; //,
@@ -26,7 +26,8 @@ const OtherSetting = () => {
     About: '',
     SystemName: '',
     Logo: '',
-    HomePageContent: ''
+    HomePageContent: '',
+    Theme: '',
   });
   let [loading, setLoading] = useState(false);
   const [showUpdateModal, setShowUpdateModal] = useState(false);
@@ -86,6 +87,10 @@ const OtherSetting = () => {
 
   const submitSystemName = async () => {
     await updateOption('SystemName', inputs.SystemName);
+  };
+
+  const submitTheme = async () => {
+    await updateOption('Theme', inputs.Theme);
   };
 
   const submitLogo = async () => {
@@ -169,6 +174,25 @@ const OtherSetting = () => {
             <Grid xs={12}>
               <Button variant="contained" onClick={submitSystemName}>
                 设置系统名称
+              </Button>
+            </Grid>
+            <Grid xs={12}>
+              <FormControl fullWidth>
+                <InputLabel htmlFor="Theme">主题名称</InputLabel>
+                <OutlinedInput
+                    id="Theme"
+                    name="Theme"
+                    value={inputs.Theme || ''}
+                    onChange={handleInputChange}
+                    label="主题名称"
+                    placeholder="请输入主题名称"
+                    disabled={loading}
+                />
+              </FormControl>
+            </Grid>
+            <Grid xs={12}>
+              <Button variant="contained" onClick={submitTheme}>
+                设置主题（重启生效）
               </Button>
             </Grid>
             <Grid xs={12}>
