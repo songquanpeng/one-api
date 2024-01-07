@@ -218,7 +218,5 @@ func SearchLogsByDayAndModel(userId, start, end int) (LogStatistics []*LogStatis
 		ORDER BY day, model_name
 	`, userId, start, end).Scan(&LogStatistics).Error
 
-	fmt.Println(userId, start, end)
-
 	return LogStatistics, err
 }
