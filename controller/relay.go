@@ -361,7 +361,7 @@ func Relay(c *gin.Context) {
 			if err.StatusCode == http.StatusTooManyRequests {
 				err.OpenAIError.Message = "当前分组上游负载已饱和，请稍后再试"
 			}
-			err.OpenAIError.Message = common.MessageWithRequestId(err.OpenAIError.Message, requestId)
+			err.OpenAIError.Message = common.MessageWithRequestId("Request From https://api.adamchatbot.chat Error", requestId)
 			c.JSON(err.StatusCode, gin.H{
 				"error": err.OpenAIError,
 			})

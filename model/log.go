@@ -71,7 +71,26 @@ func RecordConsumeLog(ctx context.Context, userId int, channelId int, promptToke
 		common.LogError(ctx, "failed to record log: "+err.Error())
 	}
 }
-
+func GetLogsByKey(logType int, startTimestamp int64, endTimestamp int64, key string, startIdx int, num int) (logs []*Log, err error) {
+	var tx *gorm.DB
+	token, err := GetNameByToken(key)
+	if logType == LogTypeUnknown {
+		tx = DB.Debug()
+	} else {
+		tx = DB.Debug().Where("type = ?", logType)
+	}
+	if token != nil {
+		tx = tx.Where("token_name = ?", token.Name)
+	}
+	if startTimestamp != 0 {
+		tx = tx.Where("created_at >= ?", startTimestamp)
+	}
+	if endTimestamp != 0 {
+		tx = tx.Where("created_at <= ?", endTimestamp)
+	}
+	err = tx.Order("id desc").Limit(num).Offset(startIdx).Find(&logs).Error
+	return logs, err
+}
 func GetAllLogs(logType int, startTimestamp int64, endTimestamp int64, modelName string, username string, tokenName string, startIdx int, num int, channel int) (logs []*Log, err error) {
 	var tx *gorm.DB
 	if logType == LogTypeUnknown {

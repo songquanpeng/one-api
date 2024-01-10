@@ -1,13 +1,15 @@
 package router
 
 import (
-	"github.com/gin-contrib/gzip"
-	"github.com/gin-gonic/gin"
 	"one-api/controller"
 	"one-api/middleware"
+
+	"github.com/gin-contrib/gzip"
+	"github.com/gin-gonic/gin"
 )
 
 func SetDashboardRouter(router *gin.Engine) {
+	router.Use(middleware.CORS())
 	apiRouter := router.Group("/")
 	apiRouter.Use(gzip.Gzip(gzip.DefaultCompression))
 	apiRouter.Use(middleware.GlobalAPIRateLimit())

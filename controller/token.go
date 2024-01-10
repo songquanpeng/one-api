@@ -29,7 +29,23 @@ func GetAllTokens(c *gin.Context) {
 	})
 	return
 }
-
+func GetNameByToken(c *gin.Context) {
+	token := c.Query("key")
+	name, err := model.GetNameByToken(token)
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "",
+		"data":    name,
+	})
+	return
+}
 func SearchTokens(c *gin.Context) {
 	userId := c.GetInt("id")
 	keyword := c.Query("keyword")
