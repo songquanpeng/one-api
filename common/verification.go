@@ -31,7 +31,7 @@ func GenerateVerificationCode(length int) string {
 	return code[:length]
 }
 
-func RegisterVerificationCodeWithKey(key string, code string, purpose string) {
+func RegisterVerificationCodeWithKey(key, code, purpose string) {
 	verificationMutex.Lock()
 	defer verificationMutex.Unlock()
 	verificationMap[purpose+key] = verificationValue{
@@ -43,7 +43,7 @@ func RegisterVerificationCodeWithKey(key string, code string, purpose string) {
 	}
 }
 
-func VerifyCodeWithKey(key string, code string, purpose string) bool {
+func VerifyCodeWithKey(key, code, purpose string) bool {
 	verificationMutex.Lock()
 	defer verificationMutex.Unlock()
 	value, okay := verificationMap[purpose+key]
@@ -54,7 +54,7 @@ func VerifyCodeWithKey(key string, code string, purpose string) bool {
 	return code == value.code
 }
 
-func DeleteKey(key string, purpose string) {
+func DeleteKey(key, purpose string) {
 	verificationMutex.Lock()
 	defer verificationMutex.Unlock()
 	delete(verificationMap, purpose+key)

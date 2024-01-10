@@ -121,7 +121,7 @@ func UnescapeHTML(x string) interface{} {
 	return template.HTML(x)
 }
 
-func IntMax(a int, b int) int {
+func IntMax(a, b int) int {
 	if a >= b {
 		return a
 	} else {
@@ -176,7 +176,7 @@ func GetTimeString() string {
 	return fmt.Sprintf("%s%d", now.Format("20060102150405"), now.UnixNano()%1e9)
 }
 
-func Max(a int, b int) int {
+func Max(a, b int) int {
 	if a >= b {
 		return a
 	} else {
@@ -184,7 +184,7 @@ func Max(a int, b int) int {
 	}
 }
 
-func GetOrDefault(env string, defaultValue int) int {
+func GetOrDefaultInt(env string, defaultValue int) int {
 	if env == "" || os.Getenv(env) == "" {
 		return defaultValue
 	}
@@ -196,14 +196,14 @@ func GetOrDefault(env string, defaultValue int) int {
 	return num
 }
 
-func GetOrDefaultString(env string, defaultValue string) string {
+func GetOrDefaultString(env, defaultValue string) string {
 	if env == "" || os.Getenv(env) == "" {
 		return defaultValue
 	}
 	return os.Getenv(env)
 }
 
-func MessageWithRequestId(message string, id string) string {
+func MessageWithRequestId(message, id string) string {
 	return fmt.Sprintf("%s (request id: %s)", message, id)
 }
 

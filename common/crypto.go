@@ -8,7 +8,7 @@ func Password2Hash(password string) (string, error) {
 	return string(hashedPassword), err
 }
 
-func ValidatePasswordAndHash(password string, hash string) bool {
+func ValidatePasswordAndHash(password, hash string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
 	return err == nil
 }

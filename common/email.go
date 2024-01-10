@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-func SendEmail(subject string, receiver string, content string) error {
+func SendEmail(subject, receiver, content string) error {
 	if SMTPFrom == "" { // for compatibility
 		SMTPFrom = SMTPAccount
 	}
