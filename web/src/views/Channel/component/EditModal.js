@@ -20,13 +20,19 @@ import {
   ButtonGroup,
   Container,
   Autocomplete,
-  FormHelperText
+  FormHelperText,
+  Checkbox
 } from '@mui/material';
 
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import { defaultConfig, typeConfig } from '../type/Config'; //typeConfig
 import { createFilterOptions } from '@mui/material/Autocomplete';
+import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
+import CheckBoxIcon from '@mui/icons-material/CheckBox';
+
+const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
+const checkedIcon = <CheckBoxIcon fontSize="small" />;
 
 const filter = createFilterOptions();
 const validationSchema = Yup.object().shape({
@@ -129,8 +135,17 @@ const EditModal = ({ open, channelId, onCancel, onOk }) => {
   const fetchModels = async () => {
     try {
       let res = await API.get(`/api/channel/models`);
+      const { data } = res.data;
+      // 先对data排序
+      data.sort((a, b) => {
+        const ownedByComparison = a.owned_by.localeCompare(b.owned_by);
+        if (ownedByComparison === 0) {
+          return a.id.localeCompare(b.id);
+        }
+        return ownedByComparison;
+      });
       setModelOptions(
-        res.data.data.map((model) => {
+        data.map((model) => {
           return {
             id: model.id,
             group: model.owned_by
@@ -214,6 +229,8 @@ const EditModal = ({ open, channelId, onCancel, onOk }) => {
       if (data.model_mapping !== '') {
         data.model_mapping = JSON.stringify(JSON.parse(data.model_mapping), null, 2);
       }
+
+      data.base_url = data.base_url ?? '';
       data.is_edit = true;
       initChannel(data.type);
       setInitialInput(data);
@@ -225,6 +242,9 @@ const EditModal = ({ open, channelId, onCancel, onOk }) => {
   useEffect(() => {
     fetchGroups().then();
     fetchModels().then();
+  }, []);
+
+  useEffect(() => {
     if (channelId) {
       loadChannel().then();
     } else {
@@ -395,7 +415,8 @@ const EditModal = ({ open, channelId, onCancel, onOk }) => {
                     handleChange(event);
                   }}
                   onBlur={handleBlur}
-                  filterSelectedOptions
+                  // filterSelectedOptions
+                  disableCloseOnSelect
                   renderInput={(params) => <TextField {...params} name="models" error={Boolean(errors.models)} label={inputLabel.models} />}
                   groupBy={(option) => option.group}
                   getOptionLabel={(option) => {
@@ -419,6 +440,12 @@ const EditModal = ({ open, channelId, onCancel, onOk }) => {
                     }
                     return filtered;
                   }}
+                  renderOption={(props, option, { selected }) => (
+                    <li {...props}>
+                      <Checkbox icon={icon} checkedIcon={checkedIcon} style={{ marginRight: 8 }} checked={selected} />
+                      {option.id}
+                    </li>
+                  )}
                 />
                 {errors.models ? (
                   <FormHelperText error id="helper-tex-channel-models-label">
