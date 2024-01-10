@@ -73,6 +73,7 @@ func RecordConsumeLog(ctx context.Context, userId int, channelId int, promptToke
 }
 func GetLogsByKey(logType int, startTimestamp int64, endTimestamp int64, key string, startIdx int, num int) (logs []*Log, err error) {
 	var tx *gorm.DB
+	fmt.Println(num)
 	token, err := GetNameByToken(key)
 	if logType == LogTypeUnknown {
 		tx = DB.Debug()

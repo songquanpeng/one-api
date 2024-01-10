@@ -1,11 +1,12 @@
 package controller
 
 import (
-	"github.com/gin-gonic/gin"
 	"net/http"
 	"one-api/common"
 	"one-api/model"
 	"strconv"
+
+	"github.com/gin-gonic/gin"
 )
 
 func GetAllLogs(c *gin.Context) {
@@ -38,10 +39,14 @@ func GetAllLogs(c *gin.Context) {
 func GetLogsByKey(c *gin.Context) {
 	startidx, _ := strconv.Atoi(c.Query("startIdx"))
 	num, _ := strconv.Atoi(c.Query("num"))
-	if startidx <= 0 || num <= 0 {
+
+	if startidx <= 0 {
 		startidx = 0
+	}
+	if num <= 0 {
 		num = 10
 	}
+
 	logType, _ := strconv.Atoi(c.Query("type"))
 	startTimestamp, _ := strconv.ParseInt(c.Query("start_timestamp"), 10, 64)
 	endTimestamp, _ := strconv.ParseInt(c.Query("end_timestamp"), 10, 64)
