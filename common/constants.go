@@ -98,6 +98,14 @@ var BatchUpdateInterval = GetOrDefault("BATCH_UPDATE_INTERVAL", 5)
 
 var RelayTimeout = GetOrDefault("RELAY_TIMEOUT", 0) // unit is second
 
+var GeminiSafetySetting = GetOrDefaultString("GEMINI_SAFETY_SETTING", "BLOCK_NONE")
+
+var Theme = GetOrDefaultString("THEME", "default")
+var ValidThemes = map[string]bool{
+	"default": true,
+	"berry":   true,
+}
+
 const (
 	RequestIdKey = "X-Oneapi-Request-Id"
 )

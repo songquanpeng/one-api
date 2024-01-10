@@ -7,6 +7,11 @@ on:
     tags:
       - '*'
       - '!*-alpha*'
+  workflow_dispatch:
+    inputs:
+      name:
+        description: 'reason'
+        required: false
 jobs:
   release:
     runs-on: windows-latest
@@ -21,14 +26,14 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 16
-      - name: Build Frontend
+      - name: Build Frontend (theme default)
         env:
           CI: ""
         run: |
-          cd web
+          cd web/default
           npm install
           REACT_APP_VERSION=$(git describe --tags) npm run build
-          cd ..
+          cd ../..
       - name: Set up Go
         uses: actions/setup-go@v3
         with:
