@@ -419,6 +419,15 @@ https://openai.justsong.cn
 * [FastGPT](https://github.com/labring/FastGPT): 基于 LLM 大语言模型的知识库问答系统
 * [ChatGPT Next Web](https://github.com/Yidadaa/ChatGPT-Next-Web):  一键拥有你自己的跨平台 ChatGPT 应用
 
+## 🌟 Star History
+<a href="https://github.com/songquanpeng/one-api/stargazers" target="_blank" style="display: block" align="center">
+    <picture>
+        <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=songquanpeng/one-api&type=Date&theme=dark" />
+        <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=songquanpeng/one-api&type=Date" />
+        <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=songquanpeng/one-api&type=Date" />
+    </picture>
+</a>
+
 ## 注意
 
 本项目使用 MIT 协议进行开源，**在此基础上**，必须在页面底部保留署名以及指向本项目的链接。如果不想保留署名，必须首先获得授权。

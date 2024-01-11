@@ -287,6 +287,15 @@ If the channel ID is not provided, load balancing will be used to distribute the
 ## Related Projects
 [FastGPT](https://github.com/labring/FastGPT): Knowledge question answering system based on the LLM
 
+## 🌟 Star History
+<a href="https://github.com/songquanpeng/one-api/stargazers" target="_blank" style="display: block" align="center">
+    <picture>
+        <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=songquanpeng/one-api&type=Date&theme=dark" />
+        <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=songquanpeng/one-api&type=Date" />
+        <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=songquanpeng/one-api&type=Date" />
+    </picture>
+</a>
+
 ## Note
 This project is an open-source project. Please use it in compliance with OpenAI's [Terms of Use](https://openai.com/policies/terms-of-use) and **applicable laws and regulations**. It must not be used for illegal purposes.
 

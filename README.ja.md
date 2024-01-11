@@ -288,6 +288,15 @@ graph LR
 ## 関連プロジェクト
 [FastGPT](https://github.com/labring/FastGPT): LLM に基づく知識質問応答システム
 
+## 🌟 Star History
+<a href="https://github.com/songquanpeng/one-api/stargazers" target="_blank" style="display: block" align="center">
+    <picture>
+        <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=songquanpeng/one-api&type=Date&theme=dark" />
+        <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=songquanpeng/one-api&type=Date" />
+        <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=songquanpeng/one-api&type=Date" />
+    </picture>
+</a>
+
 ## 注
 本プロジェクトはオープンソースプロジェクトです。OpenAI の[利用規約](https://openai.com/policies/terms-of-use)および**適用される法令**を遵守してご利用ください。違法な目的での利用はご遠慮ください。
 
