@@ -30,18 +30,22 @@ export default function Redemption() {
 
   const loadRedemptions = async (startIdx) => {
     setSearching(true);
-    const res = await API.get(`/api/redemption/?p=${startIdx}`);
-    const { success, message, data } = res.data;
-    if (success) {
-      if (startIdx === 0) {
-        setRedemptions(data);
+    try {
+      const res = await API.get(`/api/redemption/?p=${startIdx}`);
+      const { success, message, data } = res.data;
+      if (success) {
+        if (startIdx === 0) {
+          setRedemptions(data);
+        } else {
+          let newRedemptions = [...redemptions];
+          newRedemptions.splice(startIdx * ITEMS_PER_PAGE, data.length, ...data);
+          setRedemptions(newRedemptions);
+        }
       } else {
-        let newRedemptions = [...redemptions];
-        newRedemptions.splice(startIdx * ITEMS_PER_PAGE, data.length, ...data);
-        setRedemptions(newRedemptions);
+        showError(message);
       }
-    } else {
-      showError(message);
+    } catch (error) {
+      console.log(error);
     }
     setSearching(false);
   };
@@ -64,14 +68,20 @@ export default function Redemption() {
       return;
     }
     setSearching(true);
-    const res = await API.get(`/api/redemption/search?keyword=${searchKeyword}`);
-    const { success, message, data } = res.data;
-    if (success) {
-      setRedemptions(data);
-      setActivePage(0);
-    } else {
-      showError(message);
+
+    try {
+      const res = await API.get(`/api/redemption/search?keyword=${searchKeyword}`);
+      const { success, message, data } = res.data;
+      if (success) {
+        setRedemptions(data);
+        setActivePage(0);
+      } else {
+        showError(message);
+      }
+    } catch (error) {
+      console.log(error);
     }
+
     setSearching(false);
   };
 
@@ -83,28 +93,33 @@ export default function Redemption() {
     const url = '/api/redemption/';
     let data = { id };
     let res;
-    switch (action) {
-      case 'delete':
-        res = await API.delete(url + id);
-        break;
-      case 'status':
-        res = await API.put(url + '?status_only=true', {
-          ...data,
-          status: value
-        });
-        break;
-    }
-    const { success, message } = res.data;
-    if (success) {
-      showSuccess('操作成功完成！');
-      if (action === 'delete') {
-        await loadRedemptions(0);
-      }
-    } else {
-      showError(message);
-    }
 
-    return res.data;
+    try {
+      switch (action) {
+        case 'delete':
+          res = await API.delete(url + id);
+          break;
+        case 'status':
+          res = await API.put(url + '?status_only=true', {
+            ...data,
+            status: value
+          });
+          break;
+      }
+      const { success, message } = res.data;
+      if (success) {
+        showSuccess('操作成功完成！');
+        if (action === 'delete') {
+          await loadRedemptions(0);
+        }
+      } else {
+        showError(message);
+      }
+
+      return res.data;
+    } catch (error) {
+      return;
+    }
   };
 
   // 处理刷新

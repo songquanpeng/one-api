@@ -66,24 +66,29 @@ const EditModal = ({ open, userId, onCancel, onOk }) => {
     setSubmitting(true);
 
     let res;
-    if (values.is_edit) {
-      res = await API.put(`/api/user/`, { ...values, id: parseInt(userId) });
-    } else {
-      res = await API.post(`/api/user/`, values);
-    }
-    const { success, message } = res.data;
-    if (success) {
+
+    try {
       if (values.is_edit) {
-        showSuccess('用户更新成功！');
+        res = await API.put(`/api/user/`, { ...values, id: parseInt(userId) });
       } else {
-        showSuccess('用户创建成功！');
+        res = await API.post(`/api/user/`, values);
       }
-      setSubmitting(false);
-      setStatus({ success: true });
-      onOk(true);
-    } else {
-      showError(message);
-      setErrors({ submit: message });
+      const { success, message } = res.data;
+      if (success) {
+        if (values.is_edit) {
+          showSuccess('用户更新成功！');
+        } else {
+          showSuccess('用户创建成功！');
+        }
+        setSubmitting(false);
+        setStatus({ success: true });
+        onOk(true);
+      } else {
+        showError(message);
+        setErrors({ submit: message });
+      }
+    } catch (error) {
+      return;
     }
   };
 
@@ -96,13 +101,17 @@ const EditModal = ({ open, userId, onCancel, onOk }) => {
   };
 
   const loadUser = async () => {
-    let res = await API.get(`/api/user/${userId}`);
-    const { success, message, data } = res.data;
-    if (success) {
-      data.is_edit = true;
-      setInputs(data);
-    } else {
-      showError(message);
+    try {
+      let res = await API.get(`/api/user/${userId}`);
+      const { success, message, data } = res.data;
+      if (success) {
+        data.is_edit = true;
+        setInputs(data);
+      } else {
+        showError(message);
+      }
+    } catch (error) {
+      return;
     }
   };
 

@@ -30,20 +30,25 @@ export default function Users() {
 
   const loadUsers = async (startIdx) => {
     setSearching(true);
-    const res = await API.get(`/api/user/?p=${startIdx}`);
-    const { success, message, data } = res.data;
-    if (success) {
-      if (startIdx === 0) {
-        setUsers(data);
+    try {
+      const res = await API.get(`/api/user/?p=${startIdx}`);
+      const { success, message, data } = res.data;
+      if (success) {
+        if (startIdx === 0) {
+          setUsers(data);
+        } else {
+          let newUsers = [...users];
+          newUsers.splice(startIdx * ITEMS_PER_PAGE, data.length, ...data);
+          setUsers(newUsers);
+        }
       } else {
-        let newUsers = [...users];
-        newUsers.splice(startIdx * ITEMS_PER_PAGE, data.length, ...data);
-        setUsers(newUsers);
+        showError(message);
       }
-    } else {
-      showError(message);
+      setSearching(false);
+    } catch (error) {
+      setSearching(false);
+      return;
     }
-    setSearching(false);
   };
 
   const onPaginationChange = (event, activePage) => {
@@ -64,15 +69,20 @@ export default function Users() {
       return;
     }
     setSearching(true);
-    const res = await API.get(`/api/user/search?keyword=${searchKeyword}`);
-    const { success, message, data } = res.data;
-    if (success) {
-      setUsers(data);
-      setActivePage(0);
-    } else {
-      showError(message);
+    try {
+      const res = await API.get(`/api/user/search?keyword=${searchKeyword}`);
+      const { success, message, data } = res.data;
+      if (success) {
+        setUsers(data);
+        setActivePage(0);
+      } else {
+        showError(message);
+      }
+      setSearching(false);
+    } catch (error) {
+      setSearching(false);
+      return;
     }
-    setSearching(false);
   };
 
   const handleSearchKeyword = (event) => {
@@ -95,16 +105,20 @@ export default function Users() {
         break;
     }
 
-    res = await API.post(url, data);
-    const { success, message } = res.data;
-    if (success) {
-      showSuccess('操作成功完成！');
-      await loadUsers(activePage);
-    } else {
-      showError(message);
-    }
+    try {
+      res = await API.post(url, data);
+      const { success, message } = res.data;
+      if (success) {
+        showSuccess('操作成功完成！');
+        await loadUsers(activePage);
+      } else {
+        showError(message);
+      }
 
-    return res.data;
+      return res.data;
+    } catch (error) {
+      return;
+    }
   };
 
   // 处理刷新

@@ -171,25 +171,33 @@ const EditModal = ({ open, channelId, onCancel, onOk }) => {
     let res;
     const modelsStr = values.models.map((model) => model.id).join(',');
     values.group = values.groups.join(',');
-    if (channelId) {
-      res = await API.put(`/api/channel/`, { ...values, id: parseInt(channelId), models: modelsStr });
-    } else {
-      res = await API.post(`/api/channel/`, { ...values, models: modelsStr });
-    }
-    const { success, message } = res.data;
-    if (success) {
+    try {
       if (channelId) {
-        showSuccess('渠道更新成功！');
+        res = await API.put(`/api/channel/`, { ...values, id: parseInt(channelId), models: modelsStr });
       } else {
-        showSuccess('渠道创建成功！');
+        res = await API.post(`/api/channel/`, { ...values, models: modelsStr });
       }
-      setSubmitting(false);
-      setStatus({ success: true });
-      onOk(true);
-    } else {
+      const { success, message } = res.data;
+      if (success) {
+        if (channelId) {
+          showSuccess('渠道更新成功！');
+        } else {
+          showSuccess('渠道创建成功！');
+        }
+        setSubmitting(false);
+        setStatus({ success: true });
+        onOk(true);
+        return;
+      } else {
+        setStatus({ success: false });
+        showError(message);
+        setErrors({ submit: message });
+      }
+    } catch (error) {
       setStatus({ success: false });
-      showError(message);
-      setErrors({ submit: message });
+      showError(error.message);
+      setErrors({ submit: error.message });
+      return;
     }
   };
 
@@ -213,29 +221,33 @@ const EditModal = ({ open, channelId, onCancel, onOk }) => {
   }
 
   const loadChannel = async () => {
-    let res = await API.get(`/api/channel/${channelId}`);
-    const { success, message, data } = res.data;
-    if (success) {
-      if (data.models === '') {
-        data.models = [];
-      } else {
-        data.models = initialModel(data.models);
-      }
-      if (data.group === '') {
-        data.groups = [];
-      } else {
-        data.groups = data.group.split(',');
-      }
-      if (data.model_mapping !== '') {
-        data.model_mapping = JSON.stringify(JSON.parse(data.model_mapping), null, 2);
-      }
+    try {
+      let res = await API.get(`/api/channel/${channelId}`);
+      const { success, message, data } = res.data;
+      if (success) {
+        if (data.models === '') {
+          data.models = [];
+        } else {
+          data.models = initialModel(data.models);
+        }
+        if (data.group === '') {
+          data.groups = [];
+        } else {
+          data.groups = data.group.split(',');
+        }
+        if (data.model_mapping !== '') {
+          data.model_mapping = JSON.stringify(JSON.parse(data.model_mapping), null, 2);
+        }
 
-      data.base_url = data.base_url ?? '';
-      data.is_edit = true;
-      initChannel(data.type);
-      setInitialInput(data);
-    } else {
-      showError(message);
+        data.base_url = data.base_url ?? '';
+        data.is_edit = true;
+        initChannel(data.type);
+        setInitialInput(data);
+      } else {
+        showError(message);
+      }
+    } catch (error) {
+      return;
     }
   };
 

@@ -26,7 +26,7 @@ const validationSchema = Yup.object().shape({
   email_verification_code: Yup.string().required('验证码不能为空')
 });
 
-const EmailModal = ({ open, handleClose, turnstileToken }) => {
+const EmailModal = ({ open, handleClose, turnstileToken, turnstileEnabled }) => {
   const theme = useTheme();
   const [countdown, setCountdown] = useState(30);
   const [disableButton, setDisableButton] = useState(false);
@@ -36,16 +36,20 @@ const EmailModal = ({ open, handleClose, turnstileToken }) => {
   const submit = async (values, { setErrors, setStatus, setSubmitting }) => {
     setLoading(true);
     setSubmitting(true);
-    const res = await API.get(`/api/oauth/email/bind?email=${values.email}&code=${values.email_verification_code}`);
-    const { success, message } = res.data;
-    if (success) {
-      showSuccess('邮箱账户绑定成功！');
-      setSubmitting(false);
-      setStatus({ success: true });
-      handleClose();
-    } else {
-      showError(message);
-      setErrors({ submit: message });
+    try {
+      const res = await API.get(`/api/oauth/email/bind?email=${values.email}&code=${values.email_verification_code}`);
+      const { success, message } = res.data;
+      if (success) {
+        showSuccess('邮箱账户绑定成功！');
+        setSubmitting(false);
+        setStatus({ success: true });
+        handleClose();
+      } else {
+        showError(message);
+        setErrors({ submit: message });
+      }
+    } catch (error) {
+      console.log(error);
     }
     setLoading(false);
   };
@@ -69,7 +73,7 @@ const EmailModal = ({ open, handleClose, turnstileToken }) => {
       showError('请输入邮箱');
       return;
     }
-    if (turnstileToken === '') {
+    if (turnstileEnabled && turnstileToken === '') {
       showError('请稍后几秒重试，Turnstile 正在检查用户环境！');
       return;
     }
@@ -168,5 +172,6 @@ export default EmailModal;
 EmailModal.propTypes = {
   open: PropTypes.bool,
   handleClose: PropTypes.func,
-  turnstileToken: PropTypes.string
+  turnstileToken: PropTypes.string,
+  turnstileEnabled: PropTypes.bool
 };

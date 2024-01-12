@@ -30,6 +30,12 @@ const ForgetPasswordForm = ({ ...others }) => {
   const [disableButton, setDisableButton] = useState(false);
   const [countdown, setCountdown] = useState(30);
 
+  const handleFailure = (message) => {
+    showError(message);
+    setDisableButton(false);
+    setCountdown(30);
+  };
+
   const submit = async (values, { setSubmitting }) => {
     setDisableButton(true);
     setSubmitting(true);
@@ -38,15 +44,17 @@ const ForgetPasswordForm = ({ ...others }) => {
       setSubmitting(false);
       return;
     }
-    const res = await API.get(`/api/reset_password?email=${values.email}&turnstile=${turnstileToken}`);
-    const { success, message } = res.data;
-    if (success) {
-      showSuccess('重置邮件发送成功，请检查邮箱！');
-      setSendEmail(true);
-    } else {
-      showError(message);
-      setDisableButton(false);
-      setCountdown(30);
+    try {
+      const res = await API.get(`/api/reset_password?email=${values.email}&turnstile=${turnstileToken}`);
+      const { success, message } = res.data;
+      if (success) {
+        showSuccess('重置邮件发送成功，请检查邮箱！');
+        setSendEmail(true);
+      } else {
+        handleFailure(message);
+      }
+    } catch (error) {
+      handleFailure('服务器错误');
     }
     setSubmitting(false);
   };

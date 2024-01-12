@@ -46,42 +46,50 @@ const EditModal = ({ open, redemptiondId, onCancel, onOk }) => {
     setSubmitting(true);
 
     let res;
-    if (values.is_edit) {
-      res = await API.put(`/api/redemption/`, { ...values, id: parseInt(redemptiondId) });
-    } else {
-      res = await API.post(`/api/redemption/`, values);
-    }
-    const { success, message, data } = res.data;
-    if (success) {
+    try {
       if (values.is_edit) {
-        showSuccess('兑换码更新成功！');
+        res = await API.put(`/api/redemption/`, { ...values, id: parseInt(redemptiondId) });
       } else {
-        showSuccess('兑换码创建成功！');
-        if (data.length > 1) {
-          let text = '';
-          for (let i = 0; i < data.length; i++) {
-            text += data[i] + '\n';
-          }
-          downloadTextAsFile(text, `${values.name}.txt`);
-        }
+        res = await API.post(`/api/redemption/`, values);
       }
-      setSubmitting(false);
-      setStatus({ success: true });
-      onOk(true);
-    } else {
-      showError(message);
-      setErrors({ submit: message });
+      const { success, message, data } = res.data;
+      if (success) {
+        if (values.is_edit) {
+          showSuccess('兑换码更新成功！');
+        } else {
+          showSuccess('兑换码创建成功！');
+          if (data.length > 1) {
+            let text = '';
+            for (let i = 0; i < data.length; i++) {
+              text += data[i] + '\n';
+            }
+            downloadTextAsFile(text, `${values.name}.txt`);
+          }
+        }
+        setSubmitting(false);
+        setStatus({ success: true });
+        onOk(true);
+      } else {
+        showError(message);
+        setErrors({ submit: message });
+      }
+    } catch (error) {
+      return;
     }
   };
 
   const loadRedemptiond = async () => {
-    let res = await API.get(`/api/redemption/${redemptiondId}`);
-    const { success, message, data } = res.data;
-    if (success) {
-      data.is_edit = true;
-      setInputs(data);
-    } else {
-      showError(message);
+    try {
+      let res = await API.get(`/api/redemption/${redemptiondId}`);
+      const { success, message, data } = res.data;
+      if (success) {
+        data.is_edit = true;
+        setInputs(data);
+      } else {
+        showError(message);
+      }
+    } catch (error) {
+      return;
     }
   };
 

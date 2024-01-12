@@ -36,20 +36,24 @@ const OperationSetting = () => {
   let [historyTimestamp, setHistoryTimestamp] = useState(now.getTime() / 1000 - 30 * 24 * 3600); // a month ago new Date().getTime() / 1000 + 3600
 
   const getOptions = async () => {
-    const res = await API.get('/api/option/');
-    const { success, message, data } = res.data;
-    if (success) {
-      let newInputs = {};
-      data.forEach((item) => {
-        if (item.key === 'ModelRatio' || item.key === 'GroupRatio') {
-          item.value = JSON.stringify(JSON.parse(item.value), null, 2);
-        }
-        newInputs[item.key] = item.value;
-      });
-      setInputs(newInputs);
-      setOriginInputs(newInputs);
-    } else {
-      showError(message);
+    try {
+      const res = await API.get('/api/option/');
+      const { success, message, data } = res.data;
+      if (success) {
+        let newInputs = {};
+        data.forEach((item) => {
+          if (item.key === 'ModelRatio' || item.key === 'GroupRatio') {
+            item.value = JSON.stringify(JSON.parse(item.value), null, 2);
+          }
+          newInputs[item.key] = item.value;
+        });
+        setInputs(newInputs);
+        setOriginInputs(newInputs);
+      } else {
+        showError(message);
+      }
+    } catch (error) {
+      return;
     }
   };
 
@@ -62,16 +66,22 @@ const OperationSetting = () => {
     if (key.endsWith('Enabled')) {
       value = inputs[key] === 'true' ? 'false' : 'true';
     }
-    const res = await API.put('/api/option/', {
-      key,
-      value
-    });
-    const { success, message } = res.data;
-    if (success) {
-      setInputs((inputs) => ({ ...inputs, [key]: value }));
-    } else {
-      showError(message);
+
+    try {
+      const res = await API.put('/api/option/', {
+        key,
+        value
+      });
+      const { success, message } = res.data;
+      if (success) {
+        setInputs((inputs) => ({ ...inputs, [key]: value }));
+      } else {
+        showError(message);
+      }
+    } catch (error) {
+      return;
     }
+
     setLoading(false);
   };
 
@@ -146,13 +156,17 @@ const OperationSetting = () => {
   };
 
   const deleteHistoryLogs = async () => {
-    const res = await API.delete(`/api/log/?target_timestamp=${Math.floor(historyTimestamp)}`);
-    const { success, message, data } = res.data;
-    if (success) {
-      showSuccess(`${data} 条日志已清理！`);
+    try {
+      const res = await API.delete(`/api/log/?target_timestamp=${Math.floor(historyTimestamp)}`);
+      const { success, message, data } = res.data;
+      if (success) {
+        showSuccess(`${data} 条日志已清理！`);
+        return;
+      }
+      showError('日志清理失败：' + message);
+    } catch (error) {
       return;
     }
-    showError('日志清理失败：' + message);
   };
 
   return (

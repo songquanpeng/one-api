@@ -36,19 +36,24 @@ export default function ChannelPage() {
 
   const loadChannels = async (startIdx) => {
     setSearching(true);
-    const res = await API.get(`/api/channel/?p=${startIdx}`);
-    const { success, message, data } = res.data;
-    if (success) {
-      if (startIdx === 0) {
-        setChannels(data);
+    try {
+      const res = await API.get(`/api/channel/?p=${startIdx}`);
+      const { success, message, data } = res.data;
+      if (success) {
+        if (startIdx === 0) {
+          setChannels(data);
+        } else {
+          let newChannels = [...channels];
+          newChannels.splice(startIdx * ITEMS_PER_PAGE, data.length, ...data);
+          setChannels(newChannels);
+        }
       } else {
-        let newChannels = [...channels];
-        newChannels.splice(startIdx * ITEMS_PER_PAGE, data.length, ...data);
-        setChannels(newChannels);
+        showError(message);
       }
-    } else {
-      showError(message);
+    } catch (error) {
+      console.error(error);
     }
+
     setSearching(false);
   };
 
@@ -70,13 +75,17 @@ export default function ChannelPage() {
       return;
     }
     setSearching(true);
-    const res = await API.get(`/api/channel/search?keyword=${searchKeyword}`);
-    const { success, message, data } = res.data;
-    if (success) {
-      setChannels(data);
-      setActivePage(0);
-    } else {
-      showError(message);
+    try {
+      const res = await API.get(`/api/channel/search?keyword=${searchKeyword}`);
+      const { success, message, data } = res.data;
+      if (success) {
+        setChannels(data);
+        setActivePage(0);
+      } else {
+        showError(message);
+      }
+    } catch (error) {
+      console.error(error);
     }
     setSearching(false);
   };
@@ -89,40 +98,45 @@ export default function ChannelPage() {
     const url = '/api/channel/';
     let data = { id };
     let res;
-    switch (action) {
-      case 'delete':
-        res = await API.delete(url + id);
-        break;
-      case 'status':
-        res = await API.put(url, {
-          ...data,
-          status: value
-        });
-        break;
-      case 'priority':
-        if (value === '') {
-          return;
-        }
-        res = await API.put(url, {
-          ...data,
-          priority: parseInt(value)
-        });
-        break;
-      case 'test':
-        res = await API.get(url + `test/${id}`);
-        break;
-    }
-    const { success, message } = res.data;
-    if (success) {
-      showSuccess('操作成功完成！');
-      if (action === 'delete') {
-        await handleRefresh();
-      }
-    } else {
-      showError(message);
-    }
 
-    return res.data;
+    try {
+      switch (action) {
+        case 'delete':
+          res = await API.delete(url + id);
+          break;
+        case 'status':
+          res = await API.put(url, {
+            ...data,
+            status: value
+          });
+          break;
+        case 'priority':
+          if (value === '') {
+            return;
+          }
+          res = await API.put(url, {
+            ...data,
+            priority: parseInt(value)
+          });
+          break;
+        case 'test':
+          res = await API.get(url + `test/${id}`);
+          break;
+      }
+      const { success, message } = res.data;
+      if (success) {
+        showSuccess('操作成功完成！');
+        if (action === 'delete') {
+          await handleRefresh();
+        }
+      } else {
+        showError(message);
+      }
+
+      return res.data;
+    } catch (error) {
+      return;
+    }
   };
 
   // 处理刷新
@@ -132,37 +146,50 @@ export default function ChannelPage() {
 
   // 处理测试所有启用渠道
   const testAllChannels = async () => {
-    const res = await API.get(`/api/channel/test`);
-    const { success, message } = res.data;
-    if (success) {
-      showInfo('已成功开始测试所有通道，请刷新页面查看结果。');
-    } else {
-      showError(message);
+    try {
+      const res = await API.get(`/api/channel/test`);
+      const { success, message } = res.data;
+      if (success) {
+        showInfo('已成功开始测试所有通道，请刷新页面查看结果。');
+      } else {
+        showError(message);
+      }
+    } catch (error) {
+      return;
     }
   };
 
   // 处理删除所有禁用渠道
   const deleteAllDisabledChannels = async () => {
-    const res = await API.delete(`/api/channel/disabled`);
-    const { success, message, data } = res.data;
-    if (success) {
-      showSuccess(`已删除所有禁用渠道，共计 ${data} 个`);
-      await handleRefresh();
-    } else {
-      showError(message);
+    try {
+      const res = await API.delete(`/api/channel/disabled`);
+      const { success, message, data } = res.data;
+      if (success) {
+        showSuccess(`已删除所有禁用渠道，共计 ${data} 个`);
+        await handleRefresh();
+      } else {
+        showError(message);
+      }
+    } catch (error) {
+      return;
     }
   };
 
   // 处理更新所有启用渠道余额
   const updateAllChannelsBalance = async () => {
     setSearching(true);
-    const res = await API.get(`/api/channel/update_balance`);
-    const { success, message } = res.data;
-    if (success) {
-      showInfo('已更新完毕所有已启用通道余额！');
-    } else {
-      showError(message);
+    try {
+      const res = await API.get(`/api/channel/update_balance`);
+      const { success, message } = res.data;
+      if (success) {
+        showInfo('已更新完毕所有已启用通道余额！');
+      } else {
+        showError(message);
+      }
+    } catch (error) {
+      console.log(error);
     }
+
     setSearching(false);
   };
 

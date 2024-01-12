@@ -70,12 +70,16 @@ export function showInfo(message) {
 }
 
 export async function getOAuthState() {
-  const res = await API.get('/api/oauth/state');
-  const { success, message, data } = res.data;
-  if (success) {
-    return data;
-  } else {
-    showError(message);
+  try {
+    const res = await API.get('/api/oauth/state');
+    const { success, message, data } = res.data;
+    if (success) {
+      return data;
+    } else {
+      showError(message);
+      return '';
+    }
+  } catch (error) {
     return '';
   }
 }

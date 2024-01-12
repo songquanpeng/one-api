@@ -56,22 +56,26 @@ const SystemSetting = () => {
   const [showPasswordWarningModal, setShowPasswordWarningModal] = useState(false);
 
   const getOptions = async () => {
-    const res = await API.get('/api/option/');
-    const { success, message, data } = res.data;
-    if (success) {
-      let newInputs = {};
-      data.forEach((item) => {
-        newInputs[item.key] = item.value;
-      });
-      setInputs({
-        ...newInputs,
-        EmailDomainWhitelist: newInputs.EmailDomainWhitelist.split(',')
-      });
-      setOriginInputs(newInputs);
+    try {
+      const res = await API.get('/api/option/');
+      const { success, message, data } = res.data;
+      if (success) {
+        let newInputs = {};
+        data.forEach((item) => {
+          newInputs[item.key] = item.value;
+        });
+        setInputs({
+          ...newInputs,
+          EmailDomainWhitelist: newInputs.EmailDomainWhitelist.split(',')
+        });
+        setOriginInputs(newInputs);
 
-      setEmailDomainWhitelist(newInputs.EmailDomainWhitelist.split(','));
-    } else {
-      showError(message);
+        setEmailDomainWhitelist(newInputs.EmailDomainWhitelist.split(','));
+      } else {
+        showError(message);
+      }
+    } catch (error) {
+      return;
     }
   };
 
@@ -95,23 +99,29 @@ const SystemSetting = () => {
       default:
         break;
     }
-    const res = await API.put('/api/option/', {
-      key,
-      value
-    });
-    const { success, message } = res.data;
-    if (success) {
-      if (key === 'EmailDomainWhitelist') {
-        value = value.split(',');
+
+    try {
+      const res = await API.put('/api/option/', {
+        key,
+        value
+      });
+      const { success, message } = res.data;
+      if (success) {
+        if (key === 'EmailDomainWhitelist') {
+          value = value.split(',');
+        }
+        setInputs((inputs) => ({
+          ...inputs,
+          [key]: value
+        }));
+        showSuccess('设置成功！');
+      } else {
+        showError(message);
       }
-      setInputs((inputs) => ({
-        ...inputs,
-        [key]: value
-      }));
-      showSuccess('设置成功！');
-    } else {
-      showError(message);
+    } catch (error) {
+      return;
     }
+
     setLoading(false);
   };
 

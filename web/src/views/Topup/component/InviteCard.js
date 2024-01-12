@@ -16,15 +16,20 @@ const InviteCard = () => {
       showSuccess(`邀请链接已复制到剪切板`);
       return;
     }
-    const res = await API.get('/api/user/aff');
-    const { success, message, data } = res.data;
-    if (success) {
-      let link = `${window.location.origin}/register?aff=${data}`;
-      setInviteUrl(link);
-      navigator.clipboard.writeText(link);
-      showSuccess(`邀请链接已复制到剪切板`);
-    } else {
-      showError(message);
+
+    try {
+      const res = await API.get('/api/user/aff');
+      const { success, message, data } = res.data;
+      if (success) {
+        let link = `${window.location.origin}/register?aff=${data}`;
+        setInviteUrl(link);
+        navigator.clipboard.writeText(link);
+        showSuccess(`邀请链接已复制到剪切板`);
+      } else {
+        showError(message);
+      }
+    } catch (error) {
+      return;
     }
   };
 

@@ -59,12 +59,16 @@ export default function Profile() {
   };
 
   const loadUser = async () => {
-    let res = await API.get(`/api/user/self`);
-    const { success, message, data } = res.data;
-    if (success) {
-      setInputs(data);
-    } else {
-      showError(message);
+    try {
+      let res = await API.get(`/api/user/self`);
+      const { success, message, data } = res.data;
+      if (success) {
+        setInputs(data);
+      } else {
+        showError(message);
+      }
+    } catch (error) {
+      return;
     }
   };
 
@@ -84,17 +88,19 @@ export default function Profile() {
   };
 
   const generateAccessToken = async () => {
-    const res = await API.get('/api/user/token');
-    const { success, message, data } = res.data;
-    if (success) {
-      setInputs((inputs) => ({ ...inputs, access_token: data }));
-      navigator.clipboard.writeText(data);
-      showSuccess(`令牌已重置并已复制到剪贴板`);
-    } else {
-      showError(message);
+    try {
+      const res = await API.get('/api/user/token');
+      const { success, message, data } = res.data;
+      if (success) {
+        setInputs((inputs) => ({ ...inputs, access_token: data }));
+        navigator.clipboard.writeText(data);
+        showSuccess(`令牌已重置并已复制到剪贴板`);
+      } else {
+        showError(message);
+      }
+    } catch (error) {
+      return;
     }
-
-    console.log(turnstileEnabled, turnstileSiteKey, status);
   };
 
   const submit = async () => {
@@ -284,6 +290,7 @@ export default function Profile() {
       <EmailModal
         open={openEmail}
         turnstileToken={turnstileToken}
+        turnstileEnabled={turnstileEnabled}
         handleClose={() => {
           setOpenEmail(false);
         }}

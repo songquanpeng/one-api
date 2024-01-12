@@ -82,14 +82,18 @@ export default function ChannelTableRow({ item, manageChannel, handleOpenModal, 
   };
 
   const updateChannelBalance = async () => {
-    const res = await API.get(`/api/channel/update_balance/${item.id}`);
-    const { success, message, balance } = res.data;
-    if (success) {
-      setItemBalance(balance);
+    try {
+      const res = await API.get(`/api/channel/update_balance/${item.id}`);
+      const { success, message, balance } = res.data;
+      if (success) {
+        setItemBalance(balance);
 
-      showInfo(`余额更新成功！`);
-    } else {
-      showError(message);
+        showInfo(`余额更新成功！`);
+      } else {
+        showError(message);
+      }
+    } catch (error) {
+      return;
     }
   };
 

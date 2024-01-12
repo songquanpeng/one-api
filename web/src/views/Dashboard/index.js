@@ -18,29 +18,37 @@ const Dashboard = () => {
   const [users, setUsers] = useState([]);
 
   const userDashboard = async () => {
-    const res = await API.get('/api/user/dashboard');
-    const { success, message, data } = res.data;
-    if (success) {
-      if (data) {
-        let lineData = getLineDataGroup(data);
-        setRequestChart(getLineCardOption(lineData, 'RequestCount'));
-        setQuotaChart(getLineCardOption(lineData, 'Quota'));
-        setTokenChart(getLineCardOption(lineData, 'PromptTokens'));
-        setStatisticalData(getBarDataGroup(data));
+    try {
+      const res = await API.get('/api/user/dashboard');
+      const { success, message, data } = res.data;
+      if (success) {
+        if (data) {
+          let lineData = getLineDataGroup(data);
+          setRequestChart(getLineCardOption(lineData, 'RequestCount'));
+          setQuotaChart(getLineCardOption(lineData, 'Quota'));
+          setTokenChart(getLineCardOption(lineData, 'PromptTokens'));
+          setStatisticalData(getBarDataGroup(data));
+        }
+      } else {
+        showError(message);
       }
-    } else {
-      showError(message);
+      setLoading(false);
+    } catch (error) {
+      return;
     }
-    setLoading(false);
   };
 
   const loadUser = async () => {
-    let res = await API.get(`/api/user/self`);
-    const { success, message, data } = res.data;
-    if (success) {
-      setUsers(data);
-    } else {
-      showError(message);
+    try {
+      let res = await API.get(`/api/user/self`);
+      const { success, message, data } = res.data;
+      if (success) {
+        setUsers(data);
+      } else {
+        showError(message);
+      }
+    } catch (error) {
+      return;
     }
   };
 

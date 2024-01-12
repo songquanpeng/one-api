@@ -36,18 +36,22 @@ const OtherSetting = () => {
   });
 
   const getOptions = async () => {
-    const res = await API.get('/api/option/');
-    const { success, message, data } = res.data;
-    if (success) {
-      let newInputs = {};
-      data.forEach((item) => {
-        if (item.key in inputs) {
-          newInputs[item.key] = item.value;
-        }
-      });
-      setInputs(newInputs);
-    } else {
-      showError(message);
+    try {
+      const res = await API.get('/api/option/');
+      const { success, message, data } = res.data;
+      if (success) {
+        let newInputs = {};
+        data.forEach((item) => {
+          if (item.key in inputs) {
+            newInputs[item.key] = item.value;
+          }
+        });
+        setInputs(newInputs);
+      } else {
+        showError(message);
+      }
+    } catch (error) {
+      return;
     }
   };
 
@@ -58,18 +62,22 @@ const OtherSetting = () => {
 
   const updateOption = async (key, value) => {
     setLoading(true);
-    const res = await API.put('/api/option/', {
-      key,
-      value
-    });
-    const { success, message } = res.data;
-    if (success) {
-      setInputs((inputs) => ({ ...inputs, [key]: value }));
-      showSuccess('保存成功');
-    } else {
-      showError(message);
+    try {
+      const res = await API.put('/api/option/', {
+        key,
+        value
+      });
+      const { success, message } = res.data;
+      if (success) {
+        setInputs((inputs) => ({ ...inputs, [key]: value }));
+        showSuccess('保存成功');
+      } else {
+        showError(message);
+      }
+      setLoading(false);
+    } catch (error) {
+      return;
     }
-    setLoading(false);
   };
 
   const handleInputChange = async (event) => {
@@ -106,16 +114,20 @@ const OtherSetting = () => {
   };
 
   const checkUpdate = async () => {
-    const res = await API.get('https://api.github.com/repos/MartialBE/one-api/releases/latest');
-    const { tag_name, body } = res.data;
-    if (tag_name === process.env.REACT_APP_VERSION) {
-      showSuccess(`已是最新版本：${tag_name}`);
-    } else {
-      setUpdateData({
-        tag_name: tag_name,
-        content: marked.parse(body)
-      });
-      setShowUpdateModal(true);
+    try {
+      const res = await API.get('https://api.github.com/repos/MartialBE/one-api/releases/latest');
+      const { tag_name, body } = res.data;
+      if (tag_name === process.env.REACT_APP_VERSION) {
+        showSuccess(`已是最新版本：${tag_name}`);
+      } else {
+        setUpdateData({
+          tag_name: tag_name,
+          content: marked.parse(body)
+        });
+        setShowUpdateModal(true);
+      }
+    } catch (error) {
+      return;
     }
   };
 

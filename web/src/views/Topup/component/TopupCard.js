@@ -51,12 +51,16 @@ const TopupCard = () => {
   };
 
   const getUserQuota = async () => {
-    let res = await API.get(`/api/user/self`);
-    const { success, message, data } = res.data;
-    if (success) {
-      setUserQuota(data.quota);
-    } else {
-      showError(message);
+    try {
+      let res = await API.get(`/api/user/self`);
+      const { success, message, data } = res.data;
+      if (success) {
+        setUserQuota(data.quota);
+      } else {
+        showError(message);
+      }
+    } catch (error) {
+      return;
     }
   };
 

@@ -32,19 +32,24 @@ export default function Token() {
 
   const loadTokens = async (startIdx) => {
     setSearching(true);
-    const res = await API.get(`/api/token/?p=${startIdx}`);
-    const { success, message, data } = res.data;
-    if (success) {
-      if (startIdx === 0) {
-        setTokens(data);
+    try {
+      const res = await API.get(`/api/token/?p=${startIdx}`);
+      const { success, message, data } = res.data;
+      if (success) {
+        if (startIdx === 0) {
+          setTokens(data);
+        } else {
+          let newTokens = [...tokens];
+          newTokens.splice(startIdx * ITEMS_PER_PAGE, data.length, ...data);
+          setTokens(newTokens);
+        }
       } else {
-        let newTokens = [...tokens];
-        newTokens.splice(startIdx * ITEMS_PER_PAGE, data.length, ...data);
-        setTokens(newTokens);
+        showError(message);
       }
-    } else {
-      showError(message);
+    } catch (error) {
+      console.log(error);
     }
+
     setSearching(false);
   };
 
@@ -75,14 +80,20 @@ export default function Token() {
       return;
     }
     setSearching(true);
-    const res = await API.get(`/api/token/search?keyword=${searchKeyword}`);
-    const { success, message, data } = res.data;
-    if (success) {
-      setTokens(data);
-      setActivePage(0);
-    } else {
-      showError(message);
+
+    try {
+      const res = await API.get(`/api/token/search?keyword=${searchKeyword}`);
+      const { success, message, data } = res.data;
+      if (success) {
+        setTokens(data);
+        setActivePage(0);
+      } else {
+        showError(message);
+      }
+    } catch (error) {
+      return;
     }
+
     setSearching(false);
   };
 
@@ -94,28 +105,32 @@ export default function Token() {
     const url = '/api/token/';
     let data = { id };
     let res;
-    switch (action) {
-      case 'delete':
-        res = await API.delete(url + id);
-        break;
-      case 'status':
-        res = await API.put(url + `?status_only=true`, {
-          ...data,
-          status: value
-        });
-        break;
-    }
-    const { success, message } = res.data;
-    if (success) {
-      showSuccess('操作成功完成！');
-      if (action === 'delete') {
-        await handleRefresh();
+    try {
+      switch (action) {
+        case 'delete':
+          res = await API.delete(url + id);
+          break;
+        case 'status':
+          res = await API.put(url + `?status_only=true`, {
+            ...data,
+            status: value
+          });
+          break;
       }
-    } else {
-      showError(message);
-    }
+      const { success, message } = res.data;
+      if (success) {
+        showSuccess('操作成功完成！');
+        if (action === 'delete') {
+          await handleRefresh();
+        }
+      } else {
+        showError(message);
+      }
 
-    return res.data;
+      return res.data;
+    } catch (error) {
+      return;
+    }
   };
 
   // 处理刷新

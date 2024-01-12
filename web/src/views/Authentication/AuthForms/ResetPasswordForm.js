@@ -19,15 +19,19 @@ const ResetPasswordForm = () => {
   const [newPassword, setNewPassword] = useState('');
 
   const submit = async () => {
-    const res = await API.post(`/api/user/reset`, inputs);
-    const { success, message } = res.data;
-    if (success) {
-      let password = res.data.data;
-      setNewPassword(password);
-      navigator.clipboard.writeText(password);
-      showInfo(`新密码已复制到剪贴板：${password}`);
-    } else {
-      showError(message);
+    try {
+      const res = await API.post(`/api/user/reset`, inputs);
+      const { success, message } = res.data;
+      if (success) {
+        let password = res.data.data;
+        setNewPassword(password);
+        navigator.clipboard.writeText(password);
+        showInfo(`新密码已复制到剪贴板：${password}`);
+      } else {
+        showError(message);
+      }
+    } catch (error) {
+      return;
     }
   };
 

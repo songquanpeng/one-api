@@ -13,7 +13,7 @@ API.interceptors.response.use(
     if (error.response?.status === 401) {
       localStorage.removeItem('user');
       store.dispatch({ type: LOGIN, payload: null });
-      window.location.href = '/login';
+      // window.location.href = '/login';
     }
 
     if (error.response?.data?.message) {
