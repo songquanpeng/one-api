@@ -13,6 +13,8 @@ import (
 
 // https://platform.openai.com/docs/api-reference/models/list
 
+var unknownOwnedBy = "未知"
+
 type OpenAIModelPermission struct {
 	Id                 string  `json:"id"`
 	Object             string  `json:"object"`
@@ -138,7 +140,7 @@ func ListModelsForAdmin(c *gin.Context) {
 func RetrieveModel(c *gin.Context) {
 	modelId := c.Param("model")
 	ownedByName := getModelOwnedBy(modelId)
-	if ownedByName != nil {
+	if *ownedByName != unknownOwnedBy {
 		c.JSON(200, OpenAIModels{
 			Id:         modelId,
 			Object:     "model",
@@ -168,5 +170,5 @@ func getModelOwnedBy(modelId string) (ownedBy *string) {
 		}
 	}
 
-	return
+	return &unknownOwnedBy
 }
