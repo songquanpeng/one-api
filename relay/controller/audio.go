@@ -12,10 +12,13 @@ import (
 	"net/http"
 	"one-api/common"
 	"one-api/model"
+	"one-api/relay/channel/openai"
+	"one-api/relay/constant"
+	"one-api/relay/util"
 	"strings"
 )
 
-func relayAudioHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
+func RelayAudioHelper(c *gin.Context, relayMode int) *openai.ErrorWithStatusCode {
 	audioModel := "whisper-1"
 
 	tokenId := c.GetInt("token_id")
@@ -25,18 +28,18 @@ func relayAudioHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode 
 	group := c.GetString("group")
 	tokenName := c.GetString("token_name")
 
-	var ttsRequest TextToSpeechRequest
-	if relayMode == RelayModeAudioSpeech {
+	var ttsRequest openai.TextToSpeechRequest
+	if relayMode == constant.RelayModeAudioSpeech {
 		// Read JSON
 		err := common.UnmarshalBodyReusable(c, &ttsRequest)
 		// Check if JSON is valid
 		if err != nil {
-			return errorWrapper(err, "invalid_json", http.StatusBadRequest)
+			return openai.ErrorWrapper(err, "invalid_json", http.StatusBadRequest)
 		}
 		audioModel = ttsRequest.Model
 		// Check if text is too long 4096
 		if len(ttsRequest.Input) > 4096 {
-			return errorWrapper(errors.New("input is too long (over 4096 characters)"), "text_too_long", http.StatusBadRequest)
+			return openai.ErrorWrapper(errors.New("input is too long (over 4096 characters)"), "text_too_long", http.StatusBadRequest)
 		}
 	}
 
@@ -46,7 +49,7 @@ func relayAudioHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode 
 	var quota int
 	var preConsumedQuota int
 	switch relayMode {
-	case RelayModeAudioSpeech:
+	case constant.RelayModeAudioSpeech:
 		preConsumedQuota = int(float64(len(ttsRequest.Input)) * ratio)
 		quota = preConsumedQuota
 	default:
@@ -54,16 +57,16 @@ func relayAudioHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode 
 	}
 	userQuota, err := model.CacheGetUserQuota(userId)
 	if err != nil {
-		return errorWrapper(err, "get_user_quota_failed", http.StatusInternalServerError)
+		return openai.ErrorWrapper(err, "get_user_quota_failed", http.StatusInternalServerError)
 	}
 
 	// Check if user quota is enough
 	if userQuota-preConsumedQuota < 0 {
-		return errorWrapper(errors.New("user quota is not enough"), "insufficient_user_quota", http.StatusForbidden)
+		return openai.ErrorWrapper(errors.New("user quota is not enough"), "insufficient_user_quota", http.StatusForbidden)
 	}
 	err = model.CacheDecreaseUserQuota(userId, preConsumedQuota)
 	if err != nil {
-		return errorWrapper(err, "decrease_user_quota_failed", http.StatusInternalServerError)
+		return openai.ErrorWrapper(err, "decrease_user_quota_failed", http.StatusInternalServerError)
 	}
 	if userQuota > 100*preConsumedQuota {
 		// in this case, we do not pre-consume quota
@@ -73,7 +76,7 @@ func relayAudioHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode 
 	if preConsumedQuota > 0 {
 		err := model.PreConsumeTokenQuota(tokenId, preConsumedQuota)
 		if err != nil {
-			return errorWrapper(err, "pre_consume_token_quota_failed", http.StatusForbidden)
+			return openai.ErrorWrapper(err, "pre_consume_token_quota_failed", http.StatusForbidden)
 		}
 	}
 
@@ -83,7 +86,7 @@ func relayAudioHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode 
 		modelMap := make(map[string]string)
 		err := json.Unmarshal([]byte(modelMapping), &modelMap)
 		if err != nil {
-			return errorWrapper(err, "unmarshal_model_mapping_failed", http.StatusInternalServerError)
+			return openai.ErrorWrapper(err, "unmarshal_model_mapping_failed", http.StatusInternalServerError)
 		}
 		if modelMap[audioModel] != "" {
 			audioModel = modelMap[audioModel]
@@ -96,27 +99,27 @@ func relayAudioHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode 
 		baseURL = c.GetString("base_url")
 	}
 
-	fullRequestURL := getFullRequestURL(baseURL, requestURL, channelType)
-	if relayMode == RelayModeAudioTranscription && channelType == common.ChannelTypeAzure {
+	fullRequestURL := util.GetFullRequestURL(baseURL, requestURL, channelType)
+	if relayMode == constant.RelayModeAudioTranscription && channelType == common.ChannelTypeAzure {
 		// https://learn.microsoft.com/en-us/azure/ai-services/openai/whisper-quickstart?tabs=command-line#rest-api
-		apiVersion := GetAPIVersion(c)
+		apiVersion := util.GetAPIVersion(c)
 		fullRequestURL = fmt.Sprintf("%s/openai/deployments/%s/audio/transcriptions?api-version=%s", baseURL, audioModel, apiVersion)
 	}
 
 	requestBody := &bytes.Buffer{}
 	_, err = io.Copy(requestBody, c.Request.Body)
 	if err != nil {
-		return errorWrapper(err, "new_request_body_failed", http.StatusInternalServerError)
+		return openai.ErrorWrapper(err, "new_request_body_failed", http.StatusInternalServerError)
 	}
 	c.Request.Body = io.NopCloser(bytes.NewBuffer(requestBody.Bytes()))
 	responseFormat := c.DefaultPostForm("response_format", "json")
 
 	req, err := http.NewRequest(c.Request.Method, fullRequestURL, requestBody)
 	if err != nil {
-		return errorWrapper(err, "new_request_failed", http.StatusInternalServerError)
+		return openai.ErrorWrapper(err, "new_request_failed", http.StatusInternalServerError)
 	}
 
-	if relayMode == RelayModeAudioTranscription && channelType == common.ChannelTypeAzure {
+	if relayMode == constant.RelayModeAudioTranscription && channelType == common.ChannelTypeAzure {
 		// https://learn.microsoft.com/en-us/azure/ai-services/openai/whisper-quickstart?tabs=command-line#rest-api
 		apiKey := c.Request.Header.Get("Authorization")
 		apiKey = strings.TrimPrefix(apiKey, "Bearer ")
@@ -128,34 +131,34 @@ func relayAudioHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode 
 	req.Header.Set("Content-Type", c.Request.Header.Get("Content-Type"))
 	req.Header.Set("Accept", c.Request.Header.Get("Accept"))
 
-	resp, err := httpClient.Do(req)
+	resp, err := util.HTTPClient.Do(req)
 	if err != nil {
-		return errorWrapper(err, "do_request_failed", http.StatusInternalServerError)
+		return openai.ErrorWrapper(err, "do_request_failed", http.StatusInternalServerError)
 	}
 
 	err = req.Body.Close()
 	if err != nil {
-		return errorWrapper(err, "close_request_body_failed", http.StatusInternalServerError)
+		return openai.ErrorWrapper(err, "close_request_body_failed", http.StatusInternalServerError)
 	}
 	err = c.Request.Body.Close()
 	if err != nil {
-		return errorWrapper(err, "close_request_body_failed", http.StatusInternalServerError)
+		return openai.ErrorWrapper(err, "close_request_body_failed", http.StatusInternalServerError)
 	}
 
-	if relayMode != RelayModeAudioSpeech {
+	if relayMode != constant.RelayModeAudioSpeech {
 		responseBody, err := io.ReadAll(resp.Body)
 		if err != nil {
-			return errorWrapper(err, "read_response_body_failed", http.StatusInternalServerError)
+			return openai.ErrorWrapper(err, "read_response_body_failed", http.StatusInternalServerError)
 		}
 		err = resp.Body.Close()
 		if err != nil {
-			return errorWrapper(err, "close_response_body_failed", http.StatusInternalServerError)
+			return openai.ErrorWrapper(err, "close_response_body_failed", http.StatusInternalServerError)
 		}
 
-		var openAIErr TextResponse
+		var openAIErr openai.SlimTextResponse
 		if err = json.Unmarshal(responseBody, &openAIErr); err == nil {
 			if openAIErr.Error.Message != "" {
-				return errorWrapper(fmt.Errorf("type %s, code %v, message %s", openAIErr.Error.Type, openAIErr.Error.Code, openAIErr.Error.Message), "request_error", http.StatusInternalServerError)
+				return openai.ErrorWrapper(fmt.Errorf("type %s, code %v, message %s", openAIErr.Error.Type, openAIErr.Error.Code, openAIErr.Error.Message), "request_error", http.StatusInternalServerError)
 			}
 		}
 
@@ -172,12 +175,12 @@ func relayAudioHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode 
 		case "vtt":
 			text, err = getTextFromVTT(responseBody)
 		default:
-			return errorWrapper(errors.New("unexpected_response_format"), "unexpected_response_format", http.StatusInternalServerError)
+			return openai.ErrorWrapper(errors.New("unexpected_response_format"), "unexpected_response_format", http.StatusInternalServerError)
 		}
 		if err != nil {
-			return errorWrapper(err, "get_text_from_body_err", http.StatusInternalServerError)
+			return openai.ErrorWrapper(err, "get_text_from_body_err", http.StatusInternalServerError)
 		}
-		quota = countTokenText(text, audioModel)
+		quota = openai.CountTokenText(text, audioModel)
 		resp.Body = io.NopCloser(bytes.NewBuffer(responseBody))
 	}
 	if resp.StatusCode != http.StatusOK {
@@ -193,11 +196,11 @@ func relayAudioHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode 
 				}()
 			}(c.Request.Context())
 		}
-		return relayErrorHandler(resp)
+		return util.RelayErrorHandler(resp)
 	}
 	quotaDelta := quota - preConsumedQuota
 	defer func(ctx context.Context) {
-		go postConsumeQuota(ctx, tokenId, quotaDelta, quota, userId, channelId, modelRatio, groupRatio, audioModel, tokenName)
+		go util.PostConsumeQuota(ctx, tokenId, quotaDelta, quota, userId, channelId, modelRatio, groupRatio, audioModel, tokenName)
 	}(c.Request.Context())
 
 	for k, v := range resp.Header {
@@ -207,11 +210,11 @@ func relayAudioHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode 
 
 	_, err = io.Copy(c.Writer, resp.Body)
 	if err != nil {
-		return errorWrapper(err, "copy_response_body_failed", http.StatusInternalServerError)
+		return openai.ErrorWrapper(err, "copy_response_body_failed", http.StatusInternalServerError)
 	}
 	err = resp.Body.Close()
 	if err != nil {
-		return errorWrapper(err, "close_response_body_failed", http.StatusInternalServerError)
+		return openai.ErrorWrapper(err, "close_response_body_failed", http.StatusInternalServerError)
 	}
 	return nil
 }
@@ -221,7 +224,7 @@ func getTextFromVTT(body []byte) (string, error) {
 }
 
 func getTextFromVerboseJSON(body []byte) (string, error) {
-	var whisperResponse WhisperVerboseJSONResponse
+	var whisperResponse openai.WhisperVerboseJSONResponse
 	if err := json.Unmarshal(body, &whisperResponse); err != nil {
 		return "", fmt.Errorf("unmarshal_response_body_failed err :%w", err)
 	}
@@ -254,7 +257,7 @@ func getTextFromText(body []byte) (string, error) {
 }
 
 func getTextFromJSON(body []byte) (string, error) {
-	var whisperResponse WhisperJSONResponse
+	var whisperResponse openai.WhisperJSONResponse
 	if err := json.Unmarshal(body, &whisperResponse); err != nil {
 		return "", fmt.Errorf("unmarshal_response_body_failed err :%w", err)
 	}

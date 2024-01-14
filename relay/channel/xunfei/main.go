@@ -1,4 +1,4 @@
-package controller
+package xunfei
 
 import (
 	"crypto/hmac"
@@ -12,6 +12,8 @@ import (
 	"net/http"
 	"net/url"
 	"one-api/common"
+	"one-api/relay/channel/openai"
+	"one-api/relay/constant"
 	"strings"
 	"time"
 )
@@ -19,82 +21,26 @@ import (
 // https://console.xfyun.cn/services/cbm
 // https://www.xfyun.cn/doc/spark/Web.html
 
-type XunfeiMessage struct {
-	Role    string `json:"role"`
-	Content string `json:"content"`
-}
-
-type XunfeiChatRequest struct {
-	Header struct {
-		AppId string `json:"app_id"`
-	} `json:"header"`
-	Parameter struct {
-		Chat struct {
-			Domain      string  `json:"domain,omitempty"`
-			Temperature float64 `json:"temperature,omitempty"`
-			TopK        int     `json:"top_k,omitempty"`
-			MaxTokens   int     `json:"max_tokens,omitempty"`
-			Auditing    bool    `json:"auditing,omitempty"`
-		} `json:"chat"`
-	} `json:"parameter"`
-	Payload struct {
-		Message struct {
-			Text []XunfeiMessage `json:"text"`
-		} `json:"message"`
-	} `json:"payload"`
-}
-
-type XunfeiChatResponseTextItem struct {
-	Content string `json:"content"`
-	Role    string `json:"role"`
-	Index   int    `json:"index"`
-}
-
-type XunfeiChatResponse struct {
-	Header struct {
-		Code    int    `json:"code"`
-		Message string `json:"message"`
-		Sid     string `json:"sid"`
-		Status  int    `json:"status"`
-	} `json:"header"`
-	Payload struct {
-		Choices struct {
-			Status int                          `json:"status"`
-			Seq    int                          `json:"seq"`
-			Text   []XunfeiChatResponseTextItem `json:"text"`
-		} `json:"choices"`
-		Usage struct {
-			//Text struct {
-			//	QuestionTokens   string `json:"question_tokens"`
-			//	PromptTokens     string `json:"prompt_tokens"`
-			//	CompletionTokens string `json:"completion_tokens"`
-			//	TotalTokens      string `json:"total_tokens"`
-			//} `json:"text"`
-			Text Usage `json:"text"`
-		} `json:"usage"`
-	} `json:"payload"`
-}
-
-func requestOpenAI2Xunfei(request GeneralOpenAIRequest, xunfeiAppId string, domain string) *XunfeiChatRequest {
-	messages := make([]XunfeiMessage, 0, len(request.Messages))
+func requestOpenAI2Xunfei(request openai.GeneralOpenAIRequest, xunfeiAppId string, domain string) *ChatRequest {
+	messages := make([]Message, 0, len(request.Messages))
 	for _, message := range request.Messages {
 		if message.Role == "system" {
-			messages = append(messages, XunfeiMessage{
+			messages = append(messages, Message{
 				Role:    "user",
 				Content: message.StringContent(),
 			})
-			messages = append(messages, XunfeiMessage{
+			messages = append(messages, Message{
 				Role:    "assistant",
 				Content: "Okay",
 			})
 		} else {
-			messages = append(messages, XunfeiMessage{
+			messages = append(messages, Message{
 				Role:    message.Role,
 				Content: message.StringContent(),
 			})
 		}
 	}
-	xunfeiRequest := XunfeiChatRequest{}
+	xunfeiRequest := ChatRequest{}
 	xunfeiRequest.Header.AppId = xunfeiAppId
 	xunfeiRequest.Parameter.Chat.Domain = domain
 	xunfeiRequest.Parameter.Chat.Temperature = request.Temperature
@@ -104,49 +50,49 @@ func requestOpenAI2Xunfei(request GeneralOpenAIRequest, xunfeiAppId string, doma
 	return &xunfeiRequest
 }
 
-func responseXunfei2OpenAI(response *XunfeiChatResponse) *OpenAITextResponse {
+func responseXunfei2OpenAI(response *ChatResponse) *openai.TextResponse {
 	if len(response.Payload.Choices.Text) == 0 {
-		response.Payload.Choices.Text = []XunfeiChatResponseTextItem{
+		response.Payload.Choices.Text = []ChatResponseTextItem{
 			{
 				Content: "",
 			},
 		}
 	}
-	choice := OpenAITextResponseChoice{
+	choice := openai.TextResponseChoice{
 		Index: 0,
-		Message: Message{
+		Message: openai.Message{
 			Role:    "assistant",
 			Content: response.Payload.Choices.Text[0].Content,
 		},
-		FinishReason: stopFinishReason,
+		FinishReason: constant.StopFinishReason,
 	}
-	fullTextResponse := OpenAITextResponse{
+	fullTextResponse := openai.TextResponse{
 		Object:  "chat.completion",
 		Created: common.GetTimestamp(),
-		Choices: []OpenAITextResponseChoice{choice},
+		Choices: []openai.TextResponseChoice{choice},
 		Usage:   response.Payload.Usage.Text,
 	}
 	return &fullTextResponse
 }
 
-func streamResponseXunfei2OpenAI(xunfeiResponse *XunfeiChatResponse) *ChatCompletionsStreamResponse {
+func streamResponseXunfei2OpenAI(xunfeiResponse *ChatResponse) *openai.ChatCompletionsStreamResponse {
 	if len(xunfeiResponse.Payload.Choices.Text) == 0 {
-		xunfeiResponse.Payload.Choices.Text = []XunfeiChatResponseTextItem{
+		xunfeiResponse.Payload.Choices.Text = []ChatResponseTextItem{
 			{
 				Content: "",
 			},
 		}
 	}
-	var choice ChatCompletionsStreamResponseChoice
+	var choice openai.ChatCompletionsStreamResponseChoice
 	choice.Delta.Content = xunfeiResponse.Payload.Choices.Text[0].Content
 	if xunfeiResponse.Payload.Choices.Status == 2 {
-		choice.FinishReason = &stopFinishReason
+		choice.FinishReason = &constant.StopFinishReason
 	}
-	response := ChatCompletionsStreamResponse{
+	response := openai.ChatCompletionsStreamResponse{
 		Object:  "chat.completion.chunk",
 		Created: common.GetTimestamp(),
 		Model:   "SparkDesk",
-		Choices: []ChatCompletionsStreamResponseChoice{choice},
+		Choices: []openai.ChatCompletionsStreamResponseChoice{choice},
 	}
 	return &response
 }
@@ -177,14 +123,14 @@ func buildXunfeiAuthUrl(hostUrl string, apiKey, apiSecret string) string {
 	return callUrl
 }
 
-func xunfeiStreamHandler(c *gin.Context, textRequest GeneralOpenAIRequest, appId string, apiSecret string, apiKey string) (*OpenAIErrorWithStatusCode, *Usage) {
+func StreamHandler(c *gin.Context, textRequest openai.GeneralOpenAIRequest, appId string, apiSecret string, apiKey string) (*openai.ErrorWithStatusCode, *openai.Usage) {
 	domain, authUrl := getXunfeiAuthUrl(c, apiKey, apiSecret)
 	dataChan, stopChan, err := xunfeiMakeRequest(textRequest, domain, authUrl, appId)
 	if err != nil {
-		return errorWrapper(err, "make xunfei request err", http.StatusInternalServerError), nil
+		return openai.ErrorWrapper(err, "make xunfei request err", http.StatusInternalServerError), nil
 	}
-	setEventStreamHeaders(c)
-	var usage Usage
+	common.SetEventStreamHeaders(c)
+	var usage openai.Usage
 	c.Stream(func(w io.Writer) bool {
 		select {
 		case xunfeiResponse := <-dataChan:
@@ -207,15 +153,15 @@ func xunfeiStreamHandler(c *gin.Context, textRequest GeneralOpenAIRequest, appId
 	return nil, &usage
 }
 
-func xunfeiHandler(c *gin.Context, textRequest GeneralOpenAIRequest, appId string, apiSecret string, apiKey string) (*OpenAIErrorWithStatusCode, *Usage) {
+func Handler(c *gin.Context, textRequest openai.GeneralOpenAIRequest, appId string, apiSecret string, apiKey string) (*openai.ErrorWithStatusCode, *openai.Usage) {
 	domain, authUrl := getXunfeiAuthUrl(c, apiKey, apiSecret)
 	dataChan, stopChan, err := xunfeiMakeRequest(textRequest, domain, authUrl, appId)
 	if err != nil {
-		return errorWrapper(err, "make xunfei request err", http.StatusInternalServerError), nil
+		return openai.ErrorWrapper(err, "make xunfei request err", http.StatusInternalServerError), nil
 	}
-	var usage Usage
+	var usage openai.Usage
 	var content string
-	var xunfeiResponse XunfeiChatResponse
+	var xunfeiResponse ChatResponse
 	stop := false
 	for !stop {
 		select {
@@ -231,7 +177,7 @@ func xunfeiHandler(c *gin.Context, textRequest GeneralOpenAIRequest, appId strin
 		}
 	}
 	if len(xunfeiResponse.Payload.Choices.Text) == 0 {
-		xunfeiResponse.Payload.Choices.Text = []XunfeiChatResponseTextItem{
+		xunfeiResponse.Payload.Choices.Text = []ChatResponseTextItem{
 			{
 				Content: "",
 			},
@@ -242,14 +188,14 @@ func xunfeiHandler(c *gin.Context, textRequest GeneralOpenAIRequest, appId strin
 	response := responseXunfei2OpenAI(&xunfeiResponse)
 	jsonResponse, err := json.Marshal(response)
 	if err != nil {
-		return errorWrapper(err, "marshal_response_body_failed", http.StatusInternalServerError), nil
+		return openai.ErrorWrapper(err, "marshal_response_body_failed", http.StatusInternalServerError), nil
 	}
 	c.Writer.Header().Set("Content-Type", "application/json")
 	_, _ = c.Writer.Write(jsonResponse)
 	return nil, &usage
 }
 
-func xunfeiMakeRequest(textRequest GeneralOpenAIRequest, domain, authUrl, appId string) (chan XunfeiChatResponse, chan bool, error) {
+func xunfeiMakeRequest(textRequest openai.GeneralOpenAIRequest, domain, authUrl, appId string) (chan ChatResponse, chan bool, error) {
 	d := websocket.Dialer{
 		HandshakeTimeout: 5 * time.Second,
 	}
@@ -263,7 +209,7 @@ func xunfeiMakeRequest(textRequest GeneralOpenAIRequest, domain, authUrl, appId 
 		return nil, nil, err
 	}
 
-	dataChan := make(chan XunfeiChatResponse)
+	dataChan := make(chan ChatResponse)
 	stopChan := make(chan bool)
 	go func() {
 		for {
@@ -272,7 +218,7 @@ func xunfeiMakeRequest(textRequest GeneralOpenAIRequest, domain, authUrl, appId 
 				common.SysError("error reading stream response: " + err.Error())
 				break
 			}
-			var response XunfeiChatResponse
+			var response ChatResponse
 			err = json.Unmarshal(msg, &response)
 			if err != nil {
 				common.SysError("error unmarshalling stream response: " + err.Error())

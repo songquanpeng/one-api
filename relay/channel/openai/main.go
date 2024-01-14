@@ -1,4 +1,4 @@
-package controller
+package openai
 
 import (
 	"bufio"
@@ -8,10 +8,11 @@ import (
 	"io"
 	"net/http"
 	"one-api/common"
+	"one-api/relay/constant"
 	"strings"
 )
 
-func openaiStreamHandler(c *gin.Context, resp *http.Response, relayMode int) (*OpenAIErrorWithStatusCode, string) {
+func StreamHandler(c *gin.Context, resp *http.Response, relayMode int) (*ErrorWithStatusCode, string) {
 	responseText := ""
 	scanner := bufio.NewScanner(resp.Body)
 	scanner.Split(func(data []byte, atEOF bool) (advance int, token []byte, err error) {
@@ -41,7 +42,7 @@ func openaiStreamHandler(c *gin.Context, resp *http.Response, relayMode int) (*O
 			data = data[6:]
 			if !strings.HasPrefix(data, "[DONE]") {
 				switch relayMode {
-				case RelayModeChatCompletions:
+				case constant.RelayModeChatCompletions:
 					var streamResponse ChatCompletionsStreamResponse
 					err := json.Unmarshal([]byte(data), &streamResponse)
 					if err != nil {
@@ -51,7 +52,7 @@ func openaiStreamHandler(c *gin.Context, resp *http.Response, relayMode int) (*O
 					for _, choice := range streamResponse.Choices {
 						responseText += choice.Delta.Content
 					}
-				case RelayModeCompletions:
+				case constant.RelayModeCompletions:
 					var streamResponse CompletionsStreamResponse
 					err := json.Unmarshal([]byte(data), &streamResponse)
 					if err != nil {
@@ -66,7 +67,7 @@ func openaiStreamHandler(c *gin.Context, resp *http.Response, relayMode int) (*O
 		}
 		stopChan <- true
 	}()
-	setEventStreamHeaders(c)
+	common.SetEventStreamHeaders(c)
 	c.Stream(func(w io.Writer) bool {
 		select {
 		case data := <-dataChan:
@@ -83,29 +84,29 @@ func openaiStreamHandler(c *gin.Context, resp *http.Response, relayMode int) (*O
 	})
 	err := resp.Body.Close()
 	if err != nil {
-		return errorWrapper(err, "close_response_body_failed", http.StatusInternalServerError), ""
+		return ErrorWrapper(err, "close_response_body_failed", http.StatusInternalServerError), ""
 	}
 	return nil, responseText
 }
 
-func openaiHandler(c *gin.Context, resp *http.Response, promptTokens int, model string) (*OpenAIErrorWithStatusCode, *Usage) {
-	var textResponse TextResponse
+func Handler(c *gin.Context, resp *http.Response, promptTokens int, model string) (*ErrorWithStatusCode, *Usage) {
+	var textResponse SlimTextResponse
 	responseBody, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return errorWrapper(err, "read_response_body_failed", http.StatusInternalServerError), nil
+		return ErrorWrapper(err, "read_response_body_failed", http.StatusInternalServerError), nil
 	}
 	err = resp.Body.Close()
 	if err != nil {
-		return errorWrapper(err, "close_response_body_failed", http.StatusInternalServerError), nil
+		return ErrorWrapper(err, "close_response_body_failed", http.StatusInternalServerError), nil
 	}
 	err = json.Unmarshal(responseBody, &textResponse)
 	if err != nil {
-		return errorWrapper(err, "unmarshal_response_body_failed", http.StatusInternalServerError), nil
+		return ErrorWrapper(err, "unmarshal_response_body_failed", http.StatusInternalServerError), nil
 	}
 	if textResponse.Error.Type != "" {
-		return &OpenAIErrorWithStatusCode{
-			OpenAIError: textResponse.Error,
-			StatusCode:  resp.StatusCode,
+		return &ErrorWithStatusCode{
+			Error:      textResponse.Error,
+			StatusCode: resp.StatusCode,
 		}, nil
 	}
 	// Reset response body
@@ -113,7 +114,7 @@ func openaiHandler(c *gin.Context, resp *http.Response, promptTokens int, model 
 
 	// We shouldn't set the header before we parse the response body, because the parse part may fail.
 	// And then we will have to send an error response, but in this case, the header has already been set.
-	// So the httpClient will be confused by the response.
+	// So the HTTPClient will be confused by the response.
 	// For example, Postman will report error, and we cannot check the response at all.
 	for k, v := range resp.Header {
 		c.Writer.Header().Set(k, v[0])
@@ -121,17 +122,17 @@ func openaiHandler(c *gin.Context, resp *http.Response, promptTokens int, model 
 	c.Writer.WriteHeader(resp.StatusCode)
 	_, err = io.Copy(c.Writer, resp.Body)
 	if err != nil {
-		return errorWrapper(err, "copy_response_body_failed", http.StatusInternalServerError), nil
+		return ErrorWrapper(err, "copy_response_body_failed", http.StatusInternalServerError), nil
 	}
 	err = resp.Body.Close()
 	if err != nil {
-		return errorWrapper(err, "close_response_body_failed", http.StatusInternalServerError), nil
+		return ErrorWrapper(err, "close_response_body_failed", http.StatusInternalServerError), nil
 	}
 
 	if textResponse.Usage.TotalTokens == 0 {
 		completionTokens := 0
 		for _, choice := range textResponse.Choices {
-			completionTokens += countTokenText(choice.Message.StringContent(), model)
+			completionTokens += CountTokenText(choice.Message.StringContent(), model)
 		}
 		textResponse.Usage = Usage{
 			PromptTokens:     promptTokens,
