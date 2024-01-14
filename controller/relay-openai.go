@@ -37,6 +37,14 @@ func openaiStreamHandler(c *gin.Context, resp *http.Response, relayMode int) (*O
 			if data[:6] != "data: " && data[:6] != "[DONE]" {
 				continue
 			}
+			// Ignore invalid results in the first line of azure api results.
+			if c.GetInt("channel") == common.ChannelTypeAzure && !strings.HasPrefix(data[6:], "[DONE]") {
+				var streamResponse ChatCompletionsStreamResponse
+				err := json.Unmarshal([]byte(data[6:]), &streamResponse)
+				if err == nil && streamResponse.Id == "" {
+					continue
+				}
+			}
 			dataChan <- data
 			data = data[6:]
 			if !strings.HasPrefix(data, "[DONE]") {
