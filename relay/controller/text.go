@@ -6,15 +6,24 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/gin-gonic/gin"
 	"io"
 	"math"
 	"net/http"
 	"one-api/common"
 	"one-api/model"
+	"one-api/relay/channel/aiproxy"
+	"one-api/relay/channel/ali"
+	"one-api/relay/channel/anthropic"
+	"one-api/relay/channel/baidu"
+	"one-api/relay/channel/google"
+	"one-api/relay/channel/openai"
+	"one-api/relay/channel/tencent"
+	"one-api/relay/channel/xunfei"
+	"one-api/relay/channel/zhipu"
+	"one-api/relay/constant"
+	"one-api/relay/util"
 	"strings"
-	"time"
-
-	"github.com/gin-gonic/gin"
 )
 
 const (
@@ -30,64 +39,47 @@ const (
 	APITypeGemini
 )
 
-var httpClient *http.Client
-var impatientHTTPClient *http.Client
-
-func init() {
-	if common.RelayTimeout == 0 {
-		httpClient = &http.Client{}
-	} else {
-		httpClient = &http.Client{
-			Timeout: time.Duration(common.RelayTimeout) * time.Second,
-		}
-	}
-
-	impatientHTTPClient = &http.Client{
-		Timeout: 5 * time.Second,
-	}
-}
-
-func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
+func RelayTextHelper(c *gin.Context, relayMode int) *openai.ErrorWithStatusCode {
 	channelType := c.GetInt("channel")
 	channelId := c.GetInt("channel_id")
 	tokenId := c.GetInt("token_id")
 	userId := c.GetInt("id")
 	group := c.GetString("group")
-	var textRequest GeneralOpenAIRequest
+	var textRequest openai.GeneralOpenAIRequest
 	err := common.UnmarshalBodyReusable(c, &textRequest)
 	if err != nil {
-		return errorWrapper(err, "bind_request_body_failed", http.StatusBadRequest)
+		return openai.ErrorWrapper(err, "bind_request_body_failed", http.StatusBadRequest)
 	}
 	if textRequest.MaxTokens < 0 || textRequest.MaxTokens > math.MaxInt32/2 {
-		return errorWrapper(errors.New("max_tokens is invalid"), "invalid_max_tokens", http.StatusBadRequest)
+		return openai.ErrorWrapper(errors.New("max_tokens is invalid"), "invalid_max_tokens", http.StatusBadRequest)
 	}
-	if relayMode == RelayModeModerations && textRequest.Model == "" {
+	if relayMode == constant.RelayModeModerations && textRequest.Model == "" {
 		textRequest.Model = "text-moderation-latest"
 	}
-	if relayMode == RelayModeEmbeddings && textRequest.Model == "" {
+	if relayMode == constant.RelayModeEmbeddings && textRequest.Model == "" {
 		textRequest.Model = c.Param("model")
 	}
 	// request validation
 	if textRequest.Model == "" {
-		return errorWrapper(errors.New("model is required"), "required_field_missing", http.StatusBadRequest)
+		return openai.ErrorWrapper(errors.New("model is required"), "required_field_missing", http.StatusBadRequest)
 	}
 	switch relayMode {
-	case RelayModeCompletions:
+	case constant.RelayModeCompletions:
 		if textRequest.Prompt == "" {
-			return errorWrapper(errors.New("field prompt is required"), "required_field_missing", http.StatusBadRequest)
+			return openai.ErrorWrapper(errors.New("field prompt is required"), "required_field_missing", http.StatusBadRequest)
 		}
-	case RelayModeChatCompletions:
+	case constant.RelayModeChatCompletions:
 		if textRequest.Messages == nil || len(textRequest.Messages) == 0 {
-			return errorWrapper(errors.New("field messages is required"), "required_field_missing", http.StatusBadRequest)
+			return openai.ErrorWrapper(errors.New("field messages is required"), "required_field_missing", http.StatusBadRequest)
 		}
-	case RelayModeEmbeddings:
-	case RelayModeModerations:
+	case constant.RelayModeEmbeddings:
+	case constant.RelayModeModerations:
 		if textRequest.Input == "" {
-			return errorWrapper(errors.New("field input is required"), "required_field_missing", http.StatusBadRequest)
+			return openai.ErrorWrapper(errors.New("field input is required"), "required_field_missing", http.StatusBadRequest)
 		}
-	case RelayModeEdits:
+	case constant.RelayModeEdits:
 		if textRequest.Instruction == "" {
-			return errorWrapper(errors.New("field instruction is required"), "required_field_missing", http.StatusBadRequest)
+			return openai.ErrorWrapper(errors.New("field instruction is required"), "required_field_missing", http.StatusBadRequest)
 		}
 	}
 	// map model name
@@ -97,7 +89,7 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 		modelMap := make(map[string]string)
 		err := json.Unmarshal([]byte(modelMapping), &modelMap)
 		if err != nil {
-			return errorWrapper(err, "unmarshal_model_mapping_failed", http.StatusInternalServerError)
+			return openai.ErrorWrapper(err, "unmarshal_model_mapping_failed", http.StatusInternalServerError)
 		}
 		if modelMap[textRequest.Model] != "" {
 			textRequest.Model = modelMap[textRequest.Model]
@@ -130,12 +122,12 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 	if c.GetString("base_url") != "" {
 		baseURL = c.GetString("base_url")
 	}
-	fullRequestURL := getFullRequestURL(baseURL, requestURL, channelType)
+	fullRequestURL := util.GetFullRequestURL(baseURL, requestURL, channelType)
 	switch apiType {
 	case APITypeOpenAI:
 		if channelType == common.ChannelTypeAzure {
 			// https://learn.microsoft.com/en-us/azure/cognitive-services/openai/chatgpt-quickstart?pivots=rest-api&tabs=command-line#rest-api
-			apiVersion := GetAPIVersion(c)
+			apiVersion := util.GetAPIVersion(c)
 			requestURL := strings.Split(requestURL, "?")[0]
 			requestURL = fmt.Sprintf("%s?api-version=%s", requestURL, apiVersion)
 			baseURL = c.GetString("base_url")
@@ -148,7 +140,7 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 			model_ = strings.TrimSuffix(model_, "-0613")
 
 			requestURL = fmt.Sprintf("/openai/deployments/%s/%s", model_, task)
-			fullRequestURL = getFullRequestURL(baseURL, requestURL, channelType)
+			fullRequestURL = util.GetFullRequestURL(baseURL, requestURL, channelType)
 		}
 	case APITypeClaude:
 		fullRequestURL = "https://api.anthropic.com/v1/complete"
@@ -171,8 +163,8 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 		apiKey := c.Request.Header.Get("Authorization")
 		apiKey = strings.TrimPrefix(apiKey, "Bearer ")
 		var err error
-		if apiKey, err = getBaiduAccessToken(apiKey); err != nil {
-			return errorWrapper(err, "invalid_baidu_config", http.StatusInternalServerError)
+		if apiKey, err = baidu.GetAccessToken(apiKey); err != nil {
+			return openai.ErrorWrapper(err, "invalid_baidu_config", http.StatusInternalServerError)
 		}
 		fullRequestURL += "?access_token=" + apiKey
 	case APITypePaLM:
@@ -202,7 +194,7 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 		fullRequestURL = fmt.Sprintf("https://open.bigmodel.cn/api/paas/v3/model-api/%s/%s", textRequest.Model, method)
 	case APITypeAli:
 		fullRequestURL = "https://dashscope.aliyuncs.com/api/v1/services/aigc/text-generation/generation"
-		if relayMode == RelayModeEmbeddings {
+		if relayMode == constant.RelayModeEmbeddings {
 			fullRequestURL = "https://dashscope.aliyuncs.com/api/v1/services/embeddings/text-embedding/text-embedding"
 		}
 	case APITypeTencent:
@@ -213,12 +205,12 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 	var promptTokens int
 	var completionTokens int
 	switch relayMode {
-	case RelayModeChatCompletions:
-		promptTokens = countTokenMessages(textRequest.Messages, textRequest.Model)
-	case RelayModeCompletions:
-		promptTokens = countTokenInput(textRequest.Prompt, textRequest.Model)
-	case RelayModeModerations:
-		promptTokens = countTokenInput(textRequest.Input, textRequest.Model)
+	case constant.RelayModeChatCompletions:
+		promptTokens = openai.CountTokenMessages(textRequest.Messages, textRequest.Model)
+	case constant.RelayModeCompletions:
+		promptTokens = openai.CountTokenInput(textRequest.Prompt, textRequest.Model)
+	case constant.RelayModeModerations:
+		promptTokens = openai.CountTokenInput(textRequest.Input, textRequest.Model)
 	}
 	preConsumedTokens := common.PreConsumedQuota
 	if textRequest.MaxTokens != 0 {
@@ -230,14 +222,14 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 	preConsumedQuota := int(float64(preConsumedTokens) * ratio)
 	userQuota, err := model.CacheGetUserQuota(userId)
 	if err != nil {
-		return errorWrapper(err, "get_user_quota_failed", http.StatusInternalServerError)
+		return openai.ErrorWrapper(err, "get_user_quota_failed", http.StatusInternalServerError)
 	}
 	if userQuota-preConsumedQuota < 0 {
-		return errorWrapper(errors.New("user quota is not enough"), "insufficient_user_quota", http.StatusForbidden)
+		return openai.ErrorWrapper(errors.New("user quota is not enough"), "insufficient_user_quota", http.StatusForbidden)
 	}
 	err = model.CacheDecreaseUserQuota(userId, preConsumedQuota)
 	if err != nil {
-		return errorWrapper(err, "decrease_user_quota_failed", http.StatusInternalServerError)
+		return openai.ErrorWrapper(err, "decrease_user_quota_failed", http.StatusInternalServerError)
 	}
 	if userQuota > 100*preConsumedQuota {
 		// in this case, we do not pre-consume quota
@@ -248,14 +240,14 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 	if preConsumedQuota > 0 {
 		err := model.PreConsumeTokenQuota(tokenId, preConsumedQuota)
 		if err != nil {
-			return errorWrapper(err, "pre_consume_token_quota_failed", http.StatusForbidden)
+			return openai.ErrorWrapper(err, "pre_consume_token_quota_failed", http.StatusForbidden)
 		}
 	}
 	var requestBody io.Reader
 	if isModelMapped {
 		jsonStr, err := json.Marshal(textRequest)
 		if err != nil {
-			return errorWrapper(err, "marshal_text_request_failed", http.StatusInternalServerError)
+			return openai.ErrorWrapper(err, "marshal_text_request_failed", http.StatusInternalServerError)
 		}
 		requestBody = bytes.NewBuffer(jsonStr)
 	} else {
@@ -263,86 +255,86 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 	}
 	switch apiType {
 	case APITypeClaude:
-		claudeRequest := requestOpenAI2Claude(textRequest)
+		claudeRequest := anthropic.ConvertRequest(textRequest)
 		jsonStr, err := json.Marshal(claudeRequest)
 		if err != nil {
-			return errorWrapper(err, "marshal_text_request_failed", http.StatusInternalServerError)
+			return openai.ErrorWrapper(err, "marshal_text_request_failed", http.StatusInternalServerError)
 		}
 		requestBody = bytes.NewBuffer(jsonStr)
 	case APITypeBaidu:
 		var jsonData []byte
 		var err error
 		switch relayMode {
-		case RelayModeEmbeddings:
-			baiduEmbeddingRequest := embeddingRequestOpenAI2Baidu(textRequest)
+		case constant.RelayModeEmbeddings:
+			baiduEmbeddingRequest := baidu.ConvertEmbeddingRequest(textRequest)
 			jsonData, err = json.Marshal(baiduEmbeddingRequest)
 		default:
-			baiduRequest := requestOpenAI2Baidu(textRequest)
+			baiduRequest := baidu.ConvertRequest(textRequest)
 			jsonData, err = json.Marshal(baiduRequest)
 		}
 		if err != nil {
-			return errorWrapper(err, "marshal_text_request_failed", http.StatusInternalServerError)
+			return openai.ErrorWrapper(err, "marshal_text_request_failed", http.StatusInternalServerError)
 		}
 		requestBody = bytes.NewBuffer(jsonData)
 	case APITypePaLM:
-		palmRequest := requestOpenAI2PaLM(textRequest)
+		palmRequest := google.ConvertPaLMRequest(textRequest)
 		jsonStr, err := json.Marshal(palmRequest)
 		if err != nil {
-			return errorWrapper(err, "marshal_text_request_failed", http.StatusInternalServerError)
+			return openai.ErrorWrapper(err, "marshal_text_request_failed", http.StatusInternalServerError)
 		}
 		requestBody = bytes.NewBuffer(jsonStr)
 	case APITypeGemini:
-		geminiChatRequest := requestOpenAI2Gemini(textRequest)
+		geminiChatRequest := google.ConvertGeminiRequest(textRequest)
 		jsonStr, err := json.Marshal(geminiChatRequest)
 		if err != nil {
-			return errorWrapper(err, "marshal_text_request_failed", http.StatusInternalServerError)
+			return openai.ErrorWrapper(err, "marshal_text_request_failed", http.StatusInternalServerError)
 		}
 		requestBody = bytes.NewBuffer(jsonStr)
 	case APITypeZhipu:
-		zhipuRequest := requestOpenAI2Zhipu(textRequest)
+		zhipuRequest := zhipu.ConvertRequest(textRequest)
 		jsonStr, err := json.Marshal(zhipuRequest)
 		if err != nil {
-			return errorWrapper(err, "marshal_text_request_failed", http.StatusInternalServerError)
+			return openai.ErrorWrapper(err, "marshal_text_request_failed", http.StatusInternalServerError)
 		}
 		requestBody = bytes.NewBuffer(jsonStr)
 	case APITypeAli:
 		var jsonStr []byte
 		var err error
 		switch relayMode {
-		case RelayModeEmbeddings:
-			aliEmbeddingRequest := embeddingRequestOpenAI2Ali(textRequest)
+		case constant.RelayModeEmbeddings:
+			aliEmbeddingRequest := ali.ConvertEmbeddingRequest(textRequest)
 			jsonStr, err = json.Marshal(aliEmbeddingRequest)
 		default:
-			aliRequest := requestOpenAI2Ali(textRequest)
+			aliRequest := ali.ConvertRequest(textRequest)
 			jsonStr, err = json.Marshal(aliRequest)
 		}
 		if err != nil {
-			return errorWrapper(err, "marshal_text_request_failed", http.StatusInternalServerError)
+			return openai.ErrorWrapper(err, "marshal_text_request_failed", http.StatusInternalServerError)
 		}
 		requestBody = bytes.NewBuffer(jsonStr)
 	case APITypeTencent:
 		apiKey := c.Request.Header.Get("Authorization")
 		apiKey = strings.TrimPrefix(apiKey, "Bearer ")
-		appId, secretId, secretKey, err := parseTencentConfig(apiKey)
+		appId, secretId, secretKey, err := tencent.ParseConfig(apiKey)
 		if err != nil {
-			return errorWrapper(err, "invalid_tencent_config", http.StatusInternalServerError)
+			return openai.ErrorWrapper(err, "invalid_tencent_config", http.StatusInternalServerError)
 		}
-		tencentRequest := requestOpenAI2Tencent(textRequest)
+		tencentRequest := tencent.ConvertRequest(textRequest)
 		tencentRequest.AppId = appId
 		tencentRequest.SecretId = secretId
 		jsonStr, err := json.Marshal(tencentRequest)
 		if err != nil {
-			return errorWrapper(err, "marshal_text_request_failed", http.StatusInternalServerError)
+			return openai.ErrorWrapper(err, "marshal_text_request_failed", http.StatusInternalServerError)
 		}
-		sign := getTencentSign(*tencentRequest, secretKey)
+		sign := tencent.GetSign(*tencentRequest, secretKey)
 		c.Request.Header.Set("Authorization", sign)
 		requestBody = bytes.NewBuffer(jsonStr)
 	case APITypeAIProxyLibrary:
-		aiProxyLibraryRequest := requestOpenAI2AIProxyLibrary(textRequest)
+		aiProxyLibraryRequest := aiproxy.ConvertRequest(textRequest)
 		aiProxyLibraryRequest.LibraryId = c.GetString("library_id")
 		jsonStr, err := json.Marshal(aiProxyLibraryRequest)
 		if err != nil {
-			return errorWrapper(err, "marshal_text_request_failed", http.StatusInternalServerError)
+			return openai.ErrorWrapper(err, "marshal_text_request_failed", http.StatusInternalServerError)
 		}
 		requestBody = bytes.NewBuffer(jsonStr)
 	}
@@ -354,7 +346,7 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 	if apiType != APITypeXunfei { // cause xunfei use websocket
 		req, err = http.NewRequest(c.Request.Method, fullRequestURL, requestBody)
 		if err != nil {
-			return errorWrapper(err, "new_request_failed", http.StatusInternalServerError)
+			return openai.ErrorWrapper(err, "new_request_failed", http.StatusInternalServerError)
 		}
 		apiKey := c.Request.Header.Get("Authorization")
 		apiKey = strings.TrimPrefix(apiKey, "Bearer ")
@@ -377,7 +369,7 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 			}
 			req.Header.Set("anthropic-version", anthropicVersion)
 		case APITypeZhipu:
-			token := getZhipuToken(apiKey)
+			token := zhipu.GetToken(apiKey)
 			req.Header.Set("Authorization", token)
 		case APITypeAli:
 			req.Header.Set("Authorization", "Bearer "+apiKey)
@@ -402,17 +394,17 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 			req.Header.Set("Accept", "text/event-stream")
 		}
 		//req.Header.Set("Connection", c.Request.Header.Get("Connection"))
-		resp, err = httpClient.Do(req)
+		resp, err = util.HTTPClient.Do(req)
 		if err != nil {
-			return errorWrapper(err, "do_request_failed", http.StatusInternalServerError)
+			return openai.ErrorWrapper(err, "do_request_failed", http.StatusInternalServerError)
 		}
 		err = req.Body.Close()
 		if err != nil {
-			return errorWrapper(err, "close_request_body_failed", http.StatusInternalServerError)
+			return openai.ErrorWrapper(err, "close_request_body_failed", http.StatusInternalServerError)
 		}
 		err = c.Request.Body.Close()
 		if err != nil {
-			return errorWrapper(err, "close_request_body_failed", http.StatusInternalServerError)
+			return openai.ErrorWrapper(err, "close_request_body_failed", http.StatusInternalServerError)
 		}
 		isStream = isStream || strings.HasPrefix(resp.Header.Get("Content-Type"), "text/event-stream")
 
@@ -426,11 +418,11 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 					}
 				}(c.Request.Context())
 			}
-			return relayErrorHandler(resp)
+			return util.RelayErrorHandler(resp)
 		}
 	}
 
-	var textResponse TextResponse
+	var textResponse openai.SlimTextResponse
 	tokenName := c.GetString("token_name")
 
 	defer func(ctx context.Context) {
@@ -471,15 +463,15 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 	switch apiType {
 	case APITypeOpenAI:
 		if isStream {
-			err, responseText := openaiStreamHandler(c, resp, relayMode)
+			err, responseText := openai.StreamHandler(c, resp, relayMode)
 			if err != nil {
 				return err
 			}
 			textResponse.Usage.PromptTokens = promptTokens
-			textResponse.Usage.CompletionTokens = countTokenText(responseText, textRequest.Model)
+			textResponse.Usage.CompletionTokens = openai.CountTokenText(responseText, textRequest.Model)
 			return nil
 		} else {
-			err, usage := openaiHandler(c, resp, promptTokens, textRequest.Model)
+			err, usage := openai.Handler(c, resp, promptTokens, textRequest.Model)
 			if err != nil {
 				return err
 			}
@@ -490,15 +482,15 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 		}
 	case APITypeClaude:
 		if isStream {
-			err, responseText := claudeStreamHandler(c, resp)
+			err, responseText := anthropic.StreamHandler(c, resp)
 			if err != nil {
 				return err
 			}
 			textResponse.Usage.PromptTokens = promptTokens
-			textResponse.Usage.CompletionTokens = countTokenText(responseText, textRequest.Model)
+			textResponse.Usage.CompletionTokens = openai.CountTokenText(responseText, textRequest.Model)
 			return nil
 		} else {
-			err, usage := claudeHandler(c, resp, promptTokens, textRequest.Model)
+			err, usage := anthropic.Handler(c, resp, promptTokens, textRequest.Model)
 			if err != nil {
 				return err
 			}
@@ -509,7 +501,7 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 		}
 	case APITypeBaidu:
 		if isStream {
-			err, usage := baiduStreamHandler(c, resp)
+			err, usage := baidu.StreamHandler(c, resp)
 			if err != nil {
 				return err
 			}
@@ -518,13 +510,13 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 			}
 			return nil
 		} else {
-			var err *OpenAIErrorWithStatusCode
-			var usage *Usage
+			var err *openai.ErrorWithStatusCode
+			var usage *openai.Usage
 			switch relayMode {
-			case RelayModeEmbeddings:
-				err, usage = baiduEmbeddingHandler(c, resp)
+			case constant.RelayModeEmbeddings:
+				err, usage = baidu.EmbeddingHandler(c, resp)
 			default:
-				err, usage = baiduHandler(c, resp)
+				err, usage = baidu.Handler(c, resp)
 			}
 			if err != nil {
 				return err
@@ -536,15 +528,15 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 		}
 	case APITypePaLM:
 		if textRequest.Stream { // PaLM2 API does not support stream
-			err, responseText := palmStreamHandler(c, resp)
+			err, responseText := google.PaLMStreamHandler(c, resp)
 			if err != nil {
 				return err
 			}
 			textResponse.Usage.PromptTokens = promptTokens
-			textResponse.Usage.CompletionTokens = countTokenText(responseText, textRequest.Model)
+			textResponse.Usage.CompletionTokens = openai.CountTokenText(responseText, textRequest.Model)
 			return nil
 		} else {
-			err, usage := palmHandler(c, resp, promptTokens, textRequest.Model)
+			err, usage := google.PaLMHandler(c, resp, promptTokens, textRequest.Model)
 			if err != nil {
 				return err
 			}
@@ -555,15 +547,15 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 		}
 	case APITypeGemini:
 		if textRequest.Stream {
-			err, responseText := geminiChatStreamHandler(c, resp)
+			err, responseText := google.StreamHandler(c, resp)
 			if err != nil {
 				return err
 			}
 			textResponse.Usage.PromptTokens = promptTokens
-			textResponse.Usage.CompletionTokens = countTokenText(responseText, textRequest.Model)
+			textResponse.Usage.CompletionTokens = openai.CountTokenText(responseText, textRequest.Model)
 			return nil
 		} else {
-			err, usage := geminiChatHandler(c, resp, promptTokens, textRequest.Model)
+			err, usage := google.GeminiHandler(c, resp, promptTokens, textRequest.Model)
 			if err != nil {
 				return err
 			}
@@ -574,7 +566,7 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 		}
 	case APITypeZhipu:
 		if isStream {
-			err, usage := zhipuStreamHandler(c, resp)
+			err, usage := zhipu.StreamHandler(c, resp)
 			if err != nil {
 				return err
 			}
@@ -585,7 +577,7 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 			textResponse.Usage.PromptTokens = textResponse.Usage.TotalTokens
 			return nil
 		} else {
-			err, usage := zhipuHandler(c, resp)
+			err, usage := zhipu.Handler(c, resp)
 			if err != nil {
 				return err
 			}
@@ -598,7 +590,7 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 		}
 	case APITypeAli:
 		if isStream {
-			err, usage := aliStreamHandler(c, resp)
+			err, usage := ali.StreamHandler(c, resp)
 			if err != nil {
 				return err
 			}
@@ -607,13 +599,13 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 			}
 			return nil
 		} else {
-			var err *OpenAIErrorWithStatusCode
-			var usage *Usage
+			var err *openai.ErrorWithStatusCode
+			var usage *openai.Usage
 			switch relayMode {
-			case RelayModeEmbeddings:
-				err, usage = aliEmbeddingHandler(c, resp)
+			case constant.RelayModeEmbeddings:
+				err, usage = ali.EmbeddingHandler(c, resp)
 			default:
-				err, usage = aliHandler(c, resp)
+				err, usage = ali.Handler(c, resp)
 			}
 			if err != nil {
 				return err
@@ -628,14 +620,14 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 		auth = strings.TrimPrefix(auth, "Bearer ")
 		splits := strings.Split(auth, "|")
 		if len(splits) != 3 {
-			return errorWrapper(errors.New("invalid auth"), "invalid_auth", http.StatusBadRequest)
+			return openai.ErrorWrapper(errors.New("invalid auth"), "invalid_auth", http.StatusBadRequest)
 		}
-		var err *OpenAIErrorWithStatusCode
-		var usage *Usage
+		var err *openai.ErrorWithStatusCode
+		var usage *openai.Usage
 		if isStream {
-			err, usage = xunfeiStreamHandler(c, textRequest, splits[0], splits[1], splits[2])
+			err, usage = xunfei.StreamHandler(c, textRequest, splits[0], splits[1], splits[2])
 		} else {
-			err, usage = xunfeiHandler(c, textRequest, splits[0], splits[1], splits[2])
+			err, usage = xunfei.Handler(c, textRequest, splits[0], splits[1], splits[2])
 		}
 		if err != nil {
 			return err
@@ -646,7 +638,7 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 		return nil
 	case APITypeAIProxyLibrary:
 		if isStream {
-			err, usage := aiProxyLibraryStreamHandler(c, resp)
+			err, usage := aiproxy.StreamHandler(c, resp)
 			if err != nil {
 				return err
 			}
@@ -655,7 +647,7 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 			}
 			return nil
 		} else {
-			err, usage := aiProxyLibraryHandler(c, resp)
+			err, usage := aiproxy.Handler(c, resp)
 			if err != nil {
 				return err
 			}
@@ -666,15 +658,15 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 		}
 	case APITypeTencent:
 		if isStream {
-			err, responseText := tencentStreamHandler(c, resp)
+			err, responseText := tencent.StreamHandler(c, resp)
 			if err != nil {
 				return err
 			}
 			textResponse.Usage.PromptTokens = promptTokens
-			textResponse.Usage.CompletionTokens = countTokenText(responseText, textRequest.Model)
+			textResponse.Usage.CompletionTokens = openai.CountTokenText(responseText, textRequest.Model)
 			return nil
 		} else {
-			err, usage := tencentHandler(c, resp)
+			err, usage := tencent.Handler(c, resp)
 			if err != nil {
 				return err
 			}
@@ -684,6 +676,6 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 			return nil
 		}
 	default:
-		return errorWrapper(errors.New("unknown api type"), "unknown_api_type", http.StatusInternalServerError)
+		return openai.ErrorWrapper(errors.New("unknown api type"), "unknown_api_type", http.StatusInternalServerError)
 	}
 }

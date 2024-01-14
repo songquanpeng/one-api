@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"one-api/common"
 	"one-api/model"
+	"one-api/relay/util"
 	"strconv"
 	"time"
 
@@ -92,7 +93,7 @@ func GetResponseBody(method, url string, channel *model.Channel, headers http.He
 	for k := range headers {
 		req.Header.Add(k, headers.Get(k))
 	}
-	res, err := httpClient.Do(req)
+	res, err := util.HTTPClient.Do(req)
 	if err != nil {
 		return nil, err
 	}

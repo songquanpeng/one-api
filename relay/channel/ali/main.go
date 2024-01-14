@@ -1,4 +1,4 @@
-package controller
+package ali
 
 import (
 	"bufio"
@@ -7,112 +7,43 @@ import (
 	"io"
 	"net/http"
 	"one-api/common"
+	"one-api/relay/channel/openai"
 	"strings"
 )
 
 // https://help.aliyun.com/document_detail/613695.html?spm=a2c4g.2399480.0.0.1adb778fAdzP9w#341800c0f8w0r
 
-type AliMessage struct {
-	Content string `json:"content"`
-	Role    string `json:"role"`
-}
+const EnableSearchModelSuffix = "-internet"
 
-type AliInput struct {
-	//Prompt   string       `json:"prompt"`
-	Messages []AliMessage `json:"messages"`
-}
-
-type AliParameters struct {
-	TopP              float64 `json:"top_p,omitempty"`
-	TopK              int     `json:"top_k,omitempty"`
-	Seed              uint64  `json:"seed,omitempty"`
-	EnableSearch      bool    `json:"enable_search,omitempty"`
-	IncrementalOutput bool    `json:"incremental_output,omitempty"`
-}
-
-type AliChatRequest struct {
-	Model      string        `json:"model"`
-	Input      AliInput      `json:"input"`
-	Parameters AliParameters `json:"parameters,omitempty"`
-}
-
-type AliEmbeddingRequest struct {
-	Model string `json:"model"`
-	Input struct {
-		Texts []string `json:"texts"`
-	} `json:"input"`
-	Parameters *struct {
-		TextType string `json:"text_type,omitempty"`
-	} `json:"parameters,omitempty"`
-}
-
-type AliEmbedding struct {
-	Embedding []float64 `json:"embedding"`
-	TextIndex int       `json:"text_index"`
-}
-
-type AliEmbeddingResponse struct {
-	Output struct {
-		Embeddings []AliEmbedding `json:"embeddings"`
-	} `json:"output"`
-	Usage AliUsage `json:"usage"`
-	AliError
-}
-
-type AliError struct {
-	Code      string `json:"code"`
-	Message   string `json:"message"`
-	RequestId string `json:"request_id"`
-}
-
-type AliUsage struct {
-	InputTokens  int `json:"input_tokens"`
-	OutputTokens int `json:"output_tokens"`
-	TotalTokens  int `json:"total_tokens"`
-}
-
-type AliOutput struct {
-	Text         string `json:"text"`
-	FinishReason string `json:"finish_reason"`
-}
-
-type AliChatResponse struct {
-	Output AliOutput `json:"output"`
-	Usage  AliUsage  `json:"usage"`
-	AliError
-}
-
-const AliEnableSearchModelSuffix = "-internet"
-
-func requestOpenAI2Ali(request GeneralOpenAIRequest) *AliChatRequest {
-	messages := make([]AliMessage, 0, len(request.Messages))
+func ConvertRequest(request openai.GeneralOpenAIRequest) *ChatRequest {
+	messages := make([]Message, 0, len(request.Messages))
 	for i := 0; i < len(request.Messages); i++ {
 		message := request.Messages[i]
-		messages = append(messages, AliMessage{
+		messages = append(messages, Message{
 			Content: message.StringContent(),
 			Role:    strings.ToLower(message.Role),
 		})
 	}
 	enableSearch := false
 	aliModel := request.Model
-	if strings.HasSuffix(aliModel, AliEnableSearchModelSuffix) {
+	if strings.HasSuffix(aliModel, EnableSearchModelSuffix) {
 		enableSearch = true
-		aliModel = strings.TrimSuffix(aliModel, AliEnableSearchModelSuffix)
+		aliModel = strings.TrimSuffix(aliModel, EnableSearchModelSuffix)
 	}
-	return &AliChatRequest{
+	return &ChatRequest{
 		Model: aliModel,
-		Input: AliInput{
+		Input: Input{
 			Messages: messages,
 		},
-		Parameters: AliParameters{
+		Parameters: Parameters{
 			EnableSearch:      enableSearch,
 			IncrementalOutput: request.Stream,
 		},
 	}
 }
 
-func embeddingRequestOpenAI2Ali(request GeneralOpenAIRequest) *AliEmbeddingRequest {
-	return &AliEmbeddingRequest{
+func ConvertEmbeddingRequest(request openai.GeneralOpenAIRequest) *EmbeddingRequest {
+	return &EmbeddingRequest{
 		Model: "text-embedding-v1",
 		Input: struct {
 			Texts []string `json:"texts"`
@@ -122,21 +53,21 @@ func embeddingRequestOpenAI2Ali(request GeneralOpenAIRequest) *AliEmbeddingReque
 	}
 }
 
-func aliEmbeddingHandler(c *gin.Context, resp *http.Response) (*OpenAIErrorWithStatusCode, *Usage) {
-	var aliResponse AliEmbeddingResponse
+func EmbeddingHandler(c *gin.Context, resp *http.Response) (*openai.ErrorWithStatusCode, *openai.Usage) {
+	var aliResponse EmbeddingResponse
 	err := json.NewDecoder(resp.Body).Decode(&aliResponse)
 	if err != nil {
-		return errorWrapper(err, "unmarshal_response_body_failed", http.StatusInternalServerError), nil
+		return openai.ErrorWrapper(err, "unmarshal_response_body_failed", http.StatusInternalServerError), nil
 	}
 
 	err = resp.Body.Close()
 	if err != nil {
-		return errorWrapper(err, "close_response_body_failed", http.StatusInternalServerError), nil
+		return openai.ErrorWrapper(err, "close_response_body_failed", http.StatusInternalServerError), nil
 	}
 
 	if aliResponse.Code != "" {
-		return &OpenAIErrorWithStatusCode{
-			OpenAIError: OpenAIError{
+		return &openai.ErrorWithStatusCode{
+			Error: openai.Error{
 				Message: aliResponse.Message,
 				Type:    aliResponse.Code,
 				Param:   aliResponse.RequestId,
@@ -149,7 +80,7 @@ func aliEmbeddingHandler(c *gin.Context, resp *http.Response) (*OpenAIErrorWithS
 	fullTextResponse := embeddingResponseAli2OpenAI(&aliResponse)
 	jsonResponse, err := json.Marshal(fullTextResponse)
 	if err != nil {
-		return errorWrapper(err, "marshal_response_body_failed", http.StatusInternalServerError), nil
+		return openai.ErrorWrapper(err, "marshal_response_body_failed", http.StatusInternalServerError), nil
 	}
 	c.Writer.Header().Set("Content-Type", "application/json")
 	c.Writer.WriteHeader(resp.StatusCode)
@@ -157,16 +88,16 @@ func aliEmbeddingHandler(c *gin.Context, resp *http.Response) (*OpenAIErrorWithS
 	return nil, &fullTextResponse.Usage
 }
 
-func embeddingResponseAli2OpenAI(response *AliEmbeddingResponse) *OpenAIEmbeddingResponse {
-	openAIEmbeddingResponse := OpenAIEmbeddingResponse{
+func embeddingResponseAli2OpenAI(response *EmbeddingResponse) *openai.EmbeddingResponse {
+	openAIEmbeddingResponse := openai.EmbeddingResponse{
 		Object: "list",
-		Data:   make([]OpenAIEmbeddingResponseItem, 0, len(response.Output.Embeddings)),
+		Data:   make([]openai.EmbeddingResponseItem, 0, len(response.Output.Embeddings)),
 		Model:  "text-embedding-v1",
-		Usage:  Usage{TotalTokens: response.Usage.TotalTokens},
+		Usage:  openai.Usage{TotalTokens: response.Usage.TotalTokens},
 	}
 
 	for _, item := range response.Output.Embeddings {
-		openAIEmbeddingResponse.Data = append(openAIEmbeddingResponse.Data, OpenAIEmbeddingResponseItem{
+		openAIEmbeddingResponse.Data = append(openAIEmbeddingResponse.Data, openai.EmbeddingResponseItem{
 			Object:    `embedding`,
 			Index:     item.TextIndex,
 			Embedding: item.Embedding,
@@ -175,21 +106,21 @@ func embeddingResponseAli2OpenAI(response *AliEmbeddingResponse) *OpenAIEmbeddin
 	return &openAIEmbeddingResponse
 }
 
-func responseAli2OpenAI(response *AliChatResponse) *OpenAITextResponse {
-	choice := OpenAITextResponseChoice{
+func responseAli2OpenAI(response *ChatResponse) *openai.TextResponse {
+	choice := openai.TextResponseChoice{
 		Index: 0,
-		Message: Message{
+		Message: openai.Message{
 			Role:    "assistant",
 			Content: response.Output.Text,
 		},
 		FinishReason: response.Output.FinishReason,
 	}
-	fullTextResponse := OpenAITextResponse{
+	fullTextResponse := openai.TextResponse{
 		Id:      response.RequestId,
 		Object:  "chat.completion",
 		Created: common.GetTimestamp(),
-		Choices: []OpenAITextResponseChoice{choice},
-		Usage: Usage{
+		Choices: []openai.TextResponseChoice{choice},
+		Usage: openai.Usage{
 			PromptTokens:     response.Usage.InputTokens,
 			CompletionTokens: response.Usage.OutputTokens,
 			TotalTokens:      response.Usage.InputTokens + response.Usage.OutputTokens,
@@ -198,25 +129,25 @@ func responseAli2OpenAI(response *AliChatResponse) *OpenAITextResponse {
 	return &fullTextResponse
 }
 
-func streamResponseAli2OpenAI(aliResponse *AliChatResponse) *ChatCompletionsStreamResponse {
-	var choice ChatCompletionsStreamResponseChoice
+func streamResponseAli2OpenAI(aliResponse *ChatResponse) *openai.ChatCompletionsStreamResponse {
+	var choice openai.ChatCompletionsStreamResponseChoice
 	choice.Delta.Content = aliResponse.Output.Text
 	if aliResponse.Output.FinishReason != "null" {
 		finishReason := aliResponse.Output.FinishReason
 		choice.FinishReason = &finishReason
 	}
-	response := ChatCompletionsStreamResponse{
+	response := openai.ChatCompletionsStreamResponse{
 		Id:      aliResponse.RequestId,
 		Object:  "chat.completion.chunk",
 		Created: common.GetTimestamp(),
 		Model:   "qwen",
-		Choices: []ChatCompletionsStreamResponseChoice{choice},
+		Choices: []openai.ChatCompletionsStreamResponseChoice{choice},
 	}
 	return &response
 }
 
-func aliStreamHandler(c *gin.Context, resp *http.Response) (*OpenAIErrorWithStatusCode, *Usage) {
-	var usage Usage
+func StreamHandler(c *gin.Context, resp *http.Response) (*openai.ErrorWithStatusCode, *openai.Usage) {
+	var usage openai.Usage
 	scanner := bufio.NewScanner(resp.Body)
 	scanner.Split(func(data []byte, atEOF bool) (advance int, token []byte, err error) {
 		if atEOF && len(data) == 0 {
@@ -246,12 +177,12 @@ func aliStreamHandler(c *gin.Context, resp *http.Response) (*OpenAIErrorWithStat
 		}
 		stopChan <- true
 	}()
-	setEventStreamHeaders(c)
+	common.SetEventStreamHeaders(c)
 	//lastResponseText := ""
 	c.Stream(func(w io.Writer) bool {
 		select {
 		case data := <-dataChan:
-			var aliResponse AliChatResponse
+			var aliResponse ChatResponse
 			err := json.Unmarshal([]byte(data), &aliResponse)
 			if err != nil {
 				common.SysError("error unmarshalling stream response: " + err.Error())
@@ -279,28 +210,28 @@ func aliStreamHandler(c *gin.Context, resp *http.Response) (*OpenAIErrorWithStat
 	})
 	err := resp.Body.Close()
 	if err != nil {
-		return errorWrapper(err, "close_response_body_failed", http.StatusInternalServerError), nil
+		return openai.ErrorWrapper(err, "close_response_body_failed", http.StatusInternalServerError), nil
 	}
 	return nil, &usage
 }
 
-func aliHandler(c *gin.Context, resp *http.Response) (*OpenAIErrorWithStatusCode, *Usage) {
-	var aliResponse AliChatResponse
+func Handler(c *gin.Context, resp *http.Response) (*openai.ErrorWithStatusCode, *openai.Usage) {
+	var aliResponse ChatResponse
 	responseBody, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return errorWrapper(err, "read_response_body_failed", http.StatusInternalServerError), nil
+		return openai.ErrorWrapper(err, "read_response_body_failed", http.StatusInternalServerError), nil
 	}
 	err = resp.Body.Close()
 	if err != nil {
-		return errorWrapper(err, "close_response_body_failed", http.StatusInternalServerError), nil
+		return openai.ErrorWrapper(err, "close_response_body_failed", http.StatusInternalServerError), nil
 	}
 	err = json.Unmarshal(responseBody, &aliResponse)
 	if err != nil {
-		return errorWrapper(err, "unmarshal_response_body_failed", http.StatusInternalServerError), nil
+		return openai.ErrorWrapper(err, "unmarshal_response_body_failed", http.StatusInternalServerError), nil
 	}
 	if aliResponse.Code != "" {
-		return &OpenAIErrorWithStatusCode{
-			OpenAIError: OpenAIError{
+		return &openai.ErrorWithStatusCode{
+			Error: openai.Error{
 				Message: aliResponse.Message,
 				Type:    aliResponse.Code,
 				Param:   aliResponse.RequestId,
@@ -313,7 +244,7 @@ func aliHandler(c *gin.Context, resp *http.Response) (*OpenAIErrorWithStatusCode
 	fullTextResponse.Model = "qwen"
 	jsonResponse, err := json.Marshal(fullTextResponse)
 	if err != nil {
-		return errorWrapper(err, "marshal_response_body_failed", http.StatusInternalServerError), nil
+		return openai.ErrorWrapper(err, "marshal_response_body_failed", http.StatusInternalServerError), nil
 	}
 	c.Writer.Header().Set("Content-Type", "application/json")
 	c.Writer.WriteHeader(resp.StatusCode)
