@@ -26,7 +26,7 @@ const MinimalLayout = () => {
           <Header />
         </Toolbar>
       </AppBar>
-      <Box sx={{ flex: '1 1 auto', overflow: 'auto' }} paddingTop={'64px'}>
+      <Box sx={{ flex: '1 1 auto', overflow: 'auto' }} marginTop={'80px'}>
         <Outlet />
       </Box>
       <Box sx={{ flex: 'none' }}>
