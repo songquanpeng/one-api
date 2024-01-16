@@ -10,6 +10,7 @@ import (
 	"one-api/controller"
 	"one-api/middleware"
 	"one-api/model"
+	"one-api/relay/channel/openai"
 	"one-api/router"
 	"os"
 	"strconv"
@@ -80,7 +81,7 @@ func main() {
 		common.SysLog("batch update enabled with interval " + strconv.Itoa(common.BatchUpdateInterval) + "s")
 		model.InitBatchUpdater()
 	}
-	controller.InitTokenEncoders()
+	openai.InitTokenEncoders()
 
 	// Initialize HTTP server
 	server := gin.New()

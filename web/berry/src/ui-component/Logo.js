@@ -15,7 +15,7 @@ import { useSelector } from 'react-redux';
 const Logo = () => {
   const siteInfo = useSelector((state) => state.siteInfo);
 
-  return <img src={siteInfo.logo || logo} alt={siteInfo.system_name} width="80" />;
+  return <img src={siteInfo.logo || logo} alt={siteInfo.system_name} height="50" />;
 };
 
 export default Logo;

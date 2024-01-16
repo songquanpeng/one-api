@@ -1,4 +1,4 @@
-package controller
+package aiproxy
 
 import (
 	"bufio"
@@ -8,56 +8,27 @@ import (
 	"io"
 	"net/http"
 	"one-api/common"
+	"one-api/relay/channel/openai"
+	"one-api/relay/constant"
 	"strconv"
 	"strings"
 )
 
 // https://docs.aiproxy.io/dev/library#使用已经定制好的知识库进行对话问答
 
-type AIProxyLibraryRequest struct {
-	Model     string `json:"model"`
-	Query     string `json:"query"`
-	LibraryId string `json:"libraryId"`
-	Stream    bool   `json:"stream"`
-}
-
-type AIProxyLibraryError struct {
-	ErrCode int    `json:"errCode"`
-	Message string `json:"message"`
-}
-
-type AIProxyLibraryDocument struct {
-	Title string `json:"title"`
-	URL   string `json:"url"`
-}
-
-type AIProxyLibraryResponse struct {
-	Success   bool                     `json:"success"`
-	Answer    string                   `json:"answer"`
-	Documents []AIProxyLibraryDocument `json:"documents"`
-	AIProxyLibraryError
-}
-
-type AIProxyLibraryStreamResponse struct {
-	Content   string                   `json:"content"`
-	Finish    bool                     `json:"finish"`
-	Model     string                   `json:"model"`
-	Documents []AIProxyLibraryDocument `json:"documents"`
-}
-
-func requestOpenAI2AIProxyLibrary(request GeneralOpenAIRequest) *AIProxyLibraryRequest {
+func ConvertRequest(request openai.GeneralOpenAIRequest) *LibraryRequest {
 	query := ""
 	if len(request.Messages) != 0 {
 		query = request.Messages[len(request.Messages)-1].StringContent()
 	}
-	return &AIProxyLibraryRequest{
+	return &LibraryRequest{
 		Model:  request.Model,
 		Stream: request.Stream,
 		Query:  query,
 	}
 }
 
-func aiProxyDocuments2Markdown(documents []AIProxyLibraryDocument) string {
+func aiProxyDocuments2Markdown(documents []LibraryDocument) string {
 	if len(documents) == 0 {
 		return ""
 	}
@@ -68,52 +39,52 @@ func aiProxyDocuments2Markdown(documents []AIProxyLibraryDocument) string {
 	return content
 }
 
-func responseAIProxyLibrary2OpenAI(response *AIProxyLibraryResponse) *OpenAITextResponse {
+func responseAIProxyLibrary2OpenAI(response *LibraryResponse) *openai.TextResponse {
 	content := response.Answer + aiProxyDocuments2Markdown(response.Documents)
-	choice := OpenAITextResponseChoice{
+	choice := openai.TextResponseChoice{
 		Index: 0,
-		Message: Message{
+		Message: openai.Message{
 			Role:    "assistant",
 			Content: content,
 		},
 		FinishReason: "stop",
 	}
-	fullTextResponse := OpenAITextResponse{
+	fullTextResponse := openai.TextResponse{
 		Id:      common.GetUUID(),
 		Object:  "chat.completion",
 		Created: common.GetTimestamp(),
-		Choices: []OpenAITextResponseChoice{choice},
+		Choices: []openai.TextResponseChoice{choice},
 	}
 	return &fullTextResponse
 }
 
-func documentsAIProxyLibrary(documents []AIProxyLibraryDocument) *ChatCompletionsStreamResponse {
-	var choice ChatCompletionsStreamResponseChoice
+func documentsAIProxyLibrary(documents []LibraryDocument) *openai.ChatCompletionsStreamResponse {
+	var choice openai.ChatCompletionsStreamResponseChoice
 	choice.Delta.Content = aiProxyDocuments2Markdown(documents)
-	choice.FinishReason = &stopFinishReason
-	return &ChatCompletionsStreamResponse{
+	choice.FinishReason = &constant.StopFinishReason
+	return &openai.ChatCompletionsStreamResponse{
 		Id:      common.GetUUID(),
 		Object:  "chat.completion.chunk",
 		Created: common.GetTimestamp(),
 		Model:   "",
-		Choices: []ChatCompletionsStreamResponseChoice{choice},
+		Choices: []openai.ChatCompletionsStreamResponseChoice{choice},
 	}
 }
 
-func streamResponseAIProxyLibrary2OpenAI(response *AIProxyLibraryStreamResponse) *ChatCompletionsStreamResponse {
-	var choice ChatCompletionsStreamResponseChoice
+func streamResponseAIProxyLibrary2OpenAI(response *LibraryStreamResponse) *openai.ChatCompletionsStreamResponse {
+	var choice openai.ChatCompletionsStreamResponseChoice
 	choice.Delta.Content = response.Content
-	return &ChatCompletionsStreamResponse{
+	return &openai.ChatCompletionsStreamResponse{
 		Id:      common.GetUUID(),
 		Object:  "chat.completion.chunk",
 		Created: common.GetTimestamp(),
 		Model:   response.Model,
-		Choices: []ChatCompletionsStreamResponseChoice{choice},
+		Choices: []openai.ChatCompletionsStreamResponseChoice{choice},
 	}
 }
 
-func aiProxyLibraryStreamHandler(c *gin.Context, resp *http.Response) (*OpenAIErrorWithStatusCode, *Usage) {
-	var usage Usage
+func StreamHandler(c *gin.Context, resp *http.Response) (*openai.ErrorWithStatusCode, *openai.Usage) {
+	var usage openai.Usage
 	scanner := bufio.NewScanner(resp.Body)
 	scanner.Split(func(data []byte, atEOF bool) (advance int, token []byte, err error) {
 		if atEOF && len(data) == 0 {
@@ -143,12 +114,12 @@ func aiProxyLibraryStreamHandler(c *gin.Context, resp *http.Response) (*OpenAIEr
 		}
 		stopChan <- true
 	}()
-	setEventStreamHeaders(c)
-	var documents []AIProxyLibraryDocument
+	common.SetEventStreamHeaders(c)
+	var documents []LibraryDocument
 	c.Stream(func(w io.Writer) bool {
 		select {
 		case data := <-dataChan:
-			var AIProxyLibraryResponse AIProxyLibraryStreamResponse
+			var AIProxyLibraryResponse LibraryStreamResponse
 			err := json.Unmarshal([]byte(data), &AIProxyLibraryResponse)
 			if err != nil {
 				common.SysError("error unmarshalling stream response: " + err.Error())
@@ -179,28 +150,28 @@ func aiProxyLibraryStreamHandler(c *gin.Context, resp *http.Response) (*OpenAIEr
 	})
 	err := resp.Body.Close()
 	if err != nil {
-		return errorWrapper(err, "close_response_body_failed", http.StatusInternalServerError), nil
+		return openai.ErrorWrapper(err, "close_response_body_failed", http.StatusInternalServerError), nil
 	}
 	return nil, &usage
 }
 
-func aiProxyLibraryHandler(c *gin.Context, resp *http.Response) (*OpenAIErrorWithStatusCode, *Usage) {
-	var AIProxyLibraryResponse AIProxyLibraryResponse
+func Handler(c *gin.Context, resp *http.Response) (*openai.ErrorWithStatusCode, *openai.Usage) {
+	var AIProxyLibraryResponse LibraryResponse
 	responseBody, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return errorWrapper(err, "read_response_body_failed", http.StatusInternalServerError), nil
+		return openai.ErrorWrapper(err, "read_response_body_failed", http.StatusInternalServerError), nil
 	}
 	err = resp.Body.Close()
 	if err != nil {
-		return errorWrapper(err, "close_response_body_failed", http.StatusInternalServerError), nil
+		return openai.ErrorWrapper(err, "close_response_body_failed", http.StatusInternalServerError), nil
 	}
 	err = json.Unmarshal(responseBody, &AIProxyLibraryResponse)
 	if err != nil {
-		return errorWrapper(err, "unmarshal_response_body_failed", http.StatusInternalServerError), nil
+		return openai.ErrorWrapper(err, "unmarshal_response_body_failed", http.StatusInternalServerError), nil
 	}
 	if AIProxyLibraryResponse.ErrCode != 0 {
-		return &OpenAIErrorWithStatusCode{
-			OpenAIError: OpenAIError{
+		return &openai.ErrorWithStatusCode{
+			Error: openai.Error{
 				Message: AIProxyLibraryResponse.Message,
 				Type:    strconv.Itoa(AIProxyLibraryResponse.ErrCode),
 				Code:    AIProxyLibraryResponse.ErrCode,
@@ -211,7 +182,7 @@ func aiProxyLibraryHandler(c *gin.Context, resp *http.Response) (*OpenAIErrorWit
 	fullTextResponse := responseAIProxyLibrary2OpenAI(&AIProxyLibraryResponse)
 	jsonResponse, err := json.Marshal(fullTextResponse)
 	if err != nil {
-		return errorWrapper(err, "marshal_response_body_failed", http.StatusInternalServerError), nil
+		return openai.ErrorWrapper(err, "marshal_response_body_failed", http.StatusInternalServerError), nil
 	}
 	c.Writer.Header().Set("Content-Type", "application/json")
 	c.Writer.WriteHeader(resp.StatusCode)

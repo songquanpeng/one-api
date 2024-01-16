@@ -15,7 +15,7 @@ type User struct {
 	Username         string `json:"username" gorm:"unique;index" validate:"max=12"`
 	Password         string `json:"password" gorm:"not null;" validate:"min=8,max=20"`
 	DisplayName      string `json:"display_name" gorm:"index" validate:"max=20"`
-	Role             int    `json:"role" gorm:"type:int;default:1"`   // admin, common
+	Role             int    `json:"role" gorm:"type:int;default:1"`   // admin, util
 	Status           int    `json:"status" gorm:"type:int;default:1"` // enabled, disabled
 	Email            string `json:"email" gorm:"index" validate:"max=50"`
 	GitHubId         string `json:"github_id" gorm:"column:github_id;index"`
@@ -141,7 +141,15 @@ func (user *User) ValidateAndFill() (err error) {
 	if user.Username == "" || password == "" {
 		return errors.New("用户名或密码为空")
 	}
-	DB.Where(User{Username: user.Username}).First(user)
+	err = DB.Where("username = ?", user.Username).First(user).Error
+	if err != nil {
+		// we must make sure check username firstly
+		// consider this case: a malicious user set his username as other's email
+		err := DB.Where("email = ?", user.Username).First(user).Error
+		if err != nil {
+			return errors.New("用户名或密码错误，或用户已被封禁")
+		}
+	}
 	okay := common.ValidatePasswordAndHash(password, user.Password)
 	if !okay || user.Status != common.UserStatusEnabled {
 		return errors.New("用户名或密码错误，或用户已被封禁")
