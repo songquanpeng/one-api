@@ -191,7 +191,7 @@ func RelayTextHelper(c *gin.Context, relayMode int) *openai.ErrorWithStatusCode 
 		if textRequest.Stream {
 			method = "sse-invoke"
 		}
-		fullRequestURL = fmt.Sprintf("https://open.bigmodel.cn/api/paas/v3/model-api/%s/%s", textRequest.Model, method)
+		fullRequestURL = fmt.Sprintf("https://open.bigmodel.cn/api/paas/v4/model-api/%s/%s", textRequest.Model, method)
 	case APITypeAli:
 		fullRequestURL = "https://dashscope.aliyuncs.com/api/v1/services/aigc/text-generation/generation"
 		if relayMode == constant.RelayModeEmbeddings {
