@@ -36,6 +36,8 @@ function renderType(type) {
       return <Label basic color='orange'> 管理 </Label>;
     case 4:
       return <Label basic color='purple'> 系统 </Label>;
+    case 5:
+      return <Label basic color='green'> 分销 </Label>;
     default:
       return <Label basic color='black'> 未知 </Label>;
   }

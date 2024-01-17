@@ -12,6 +12,7 @@ const OperationSetting = () => {
     PreConsumedQuota: 0,
     ModelRatio: '',
     GroupRatio: '',
+    SaleRatio: '{}',
     TopUpLink: '',
     ChatLink: '',
     QuotaPerUnit: 0,
@@ -34,7 +35,7 @@ const OperationSetting = () => {
     if (success) {
       let newInputs = {};
       data.forEach((item) => {
-        if (item.key === 'ModelRatio' || item.key === 'GroupRatio') {
+        if (item.key === 'ModelRatio' || item.key === 'GroupRatio' || item.key === 'SaleRatio') {
           item.value = JSON.stringify(JSON.parse(item.value), null, 2);
         }
         newInputs[item.key] = item.value;
@@ -100,6 +101,13 @@ const OperationSetting = () => {
             return;
           }
           await updateOption('GroupRatio', inputs.GroupRatio);
+        }
+        if (originInputs['SaleRatio'] !== inputs.SaleRatio) {
+          if (!verifyJSON(inputs.SaleRatio)) {
+            showError('分销倍率不是合法的 JSON 字符串');
+            return;
+          }
+          await updateOption('SaleRatio', inputs.SaleRatio);
         }
         break;
       case 'quota':
@@ -353,6 +361,17 @@ const OperationSetting = () => {
               autoComplete='new-password'
               value={inputs.GroupRatio}
               placeholder='为一个 JSON 文本，键为分组名称，值为倍率'
+            />
+          </Form.Group>
+          <Form.Group widths='equal'>
+            <Form.TextArea
+                label='分销倍率'
+                name='SaleRatio'
+                onChange={handleInputChange}
+                style={{ minHeight: 250, fontFamily: 'JetBrains Mono, Consolas' }}
+                autoComplete='new-password'
+                value={inputs.SaleRatio}
+                placeholder='为一个 JSON 文本，键为分组名称，值为分销倍率,如果不设置默认不分销'
             />
           </Form.Group>
           <Form.Button onClick={() => {

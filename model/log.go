@@ -28,6 +28,7 @@ const (
 	LogTypeConsume
 	LogTypeManage
 	LogTypeSystem
+	LogTypeSale
 )
 
 func RecordLog(userId int, logType int, content string) {
