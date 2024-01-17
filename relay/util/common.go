@@ -136,11 +136,13 @@ func GetFullRequestURL(baseURL string, requestURL string, channelType int) strin
 
 func PostConsumeQuota(ctx context.Context, tokenId int, quotaDelta int, totalQuota int, userId int, channelId int, modelRatio float64, groupRatio float64, modelName string, tokenName string) {
 	// quotaDelta is remaining quota to be consumed
-	err := model.PostConsumeTokenQuota(tokenId, quotaDelta)
-	if err != nil {
-		common.SysError("error consuming token remain quota: " + err.Error())
+	if quotaDelta != 0 {
+		err := model.PostConsumeTokenQuota(tokenId, quotaDelta)
+		if err != nil {
+			common.SysError("error consuming token remain quota: " + err.Error())
+		}
 	}
-	err = model.CacheUpdateUserQuota(userId)
+	err := model.CacheUpdateUserQuota(userId)
 	if err != nil {
 		common.SysError("error update user quota cache: " + err.Error())
 	}

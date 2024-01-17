@@ -61,7 +61,7 @@ var ModelRatio = map[string]float64{
 	"text-davinci-003":          10,
 	"text-davinci-edit-001":     10,
 	"code-davinci-edit-001":     10,
-	"whisper-1":                 15,  // $0.006 / minute -> $0.006 / 150 words -> $0.006 / 200 tokens -> $0.03 / 1k tokens
+	"whisper-1":                 1,   // $0.006 / minute -> $0.002 / 20 seconds -> $0.002 / 1K tokens
 	"tts-1":                     7.5, // $0.015 / 1K characters
 	"tts-1-1106":                7.5,
 	"tts-1-hd":                  15, // $0.030 / 1K characters
@@ -156,6 +156,9 @@ func GetCompletionRatio(name string) float64 {
 	}
 	if strings.HasPrefix(name, "claude-2") {
 		return 2.965517
+	}
+	if strings.HasPrefix(name, "whisper-1") {
+		return 0 // only count input audio duration
 	}
 	return 1
 }
