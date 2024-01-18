@@ -103,7 +103,7 @@ const EditModal = ({ open, tokenId, onCancel, onOk }) => {
   return (
     <Dialog open={open} onClose={onCancel} fullWidth maxWidth={'md'}>
       <DialogTitle sx={{ margin: '0px', fontWeight: 700, lineHeight: '1.55556', padding: '24px', fontSize: '1.125rem' }}>
-        {tokenId ? '编辑Token' : '新建Token'}
+        {tokenId ? '编辑令牌' : '新建令牌'}
       </DialogTitle>
       <Divider />
       <DialogContent>
