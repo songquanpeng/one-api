@@ -1,14 +1,18 @@
 package zhipu
 
 import (
+	"encoding/json"
 	"fmt"
+	"net/http"
 	"one-api/common"
+	"one-api/common/requester"
+	"one-api/model"
 	"one-api/providers/base"
+	"one-api/types"
 	"strings"
 	"sync"
 	"time"
 
-	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
 )
 
@@ -18,18 +22,48 @@ var expSeconds int64 = 24 * 3600
 type ZhipuProviderFactory struct{}
 
 // 创建 ZhipuProvider
-func (f ZhipuProviderFactory) Create(c *gin.Context) base.ProviderInterface {
+func (f ZhipuProviderFactory) Create(channel *model.Channel) base.ProviderInterface {
 	return &ZhipuProvider{
 		BaseProvider: base.BaseProvider{
-			BaseURL:         "https://open.bigmodel.cn",
-			ChatCompletions: "/api/paas/v3/model-api",
-			Context:         c,
+			Config:    getConfig(),
+			Channel:   channel,
+			Requester: requester.NewHTTPRequester(channel.Proxy, requestErrorHandle),
 		},
 	}
 }
 
 type ZhipuProvider struct {
 	base.BaseProvider
+}
+
+func getConfig() base.ProviderConfig {
+	return base.ProviderConfig{
+		BaseURL:         "https://open.bigmodel.cn",
+		ChatCompletions: "/api/paas/v3/model-api",
+	}
+}
+
+// 请求错误处理
+func requestErrorHandle(resp *http.Response) *types.OpenAIError {
+	var zhipuError *ZhipuResponse
+	err := json.NewDecoder(resp.Body).Decode(zhipuError)
+	if err != nil {
+		return nil
+	}
+
+	return errorHandle(zhipuError)
+}
+
+// 错误处理
+func errorHandle(zhipuError *ZhipuResponse) *types.OpenAIError {
+	if zhipuError.Success {
+		return nil
+	}
+	return &types.OpenAIError{
+		Message: zhipuError.Msg,
+		Type:    "zhipu_error",
+		Code:    zhipuError.Code,
+	}
 }
 
 // 获取请求头

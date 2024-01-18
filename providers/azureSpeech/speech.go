@@ -55,9 +55,12 @@ func (p *AzureSpeechProvider) getRequestBody(request *types.SpeechAudioRequest) 
 
 }
 
-func (p *AzureSpeechProvider) SpeechAction(request *types.SpeechAudioRequest, isModelMapped bool, promptTokens int) (usage *types.Usage, errWithCode *types.OpenAIErrorWithStatusCode) {
-
-	fullRequestURL := p.GetFullRequestURL(p.AudioSpeech, request.Model)
+func (p *AzureSpeechProvider) CreateSpeech(request *types.SpeechAudioRequest) (*http.Response, *types.OpenAIErrorWithStatusCode) {
+	url, errWithCode := p.GetSupportedAPIUri(common.RelayModeAudioSpeech)
+	if errWithCode != nil {
+		return nil, errWithCode
+	}
+	fullRequestURL := p.GetFullRequestURL(url, request.Model)
 	headers := p.GetRequestHeaders()
 	responseFormatr := outputFormatMap[request.ResponseFormat]
 	if responseFormatr == "" {
@@ -67,22 +70,19 @@ func (p *AzureSpeechProvider) SpeechAction(request *types.SpeechAudioRequest, is
 
 	requestBody := p.getRequestBody(request)
 
-	client := common.NewClient()
-	req, err := client.NewRequest(p.Context.Request.Method, fullRequestURL, common.WithBody(requestBody), common.WithHeader(headers))
+	req, err := p.Requester.NewRequest(http.MethodPost, fullRequestURL, p.Requester.WithBody(requestBody), p.Requester.WithHeader(headers))
 	if err != nil {
 		return nil, common.ErrorWrapper(err, "new_request_failed", http.StatusInternalServerError)
 	}
+	defer req.Body.Close()
 
-	errWithCode = p.SendRequestRaw(req)
+	var resp *http.Response
+	resp, errWithCode = p.Requester.SendRequestRaw(req)
 	if errWithCode != nil {
-		return
+		return nil, errWithCode
 	}
 
-	usage = &types.Usage{
-		PromptTokens:     promptTokens,
-		CompletionTokens: 0,
-		TotalTokens:      promptTokens,
-	}
+	p.Usage.TotalTokens = p.Usage.PromptTokens
 
-	return
+	return resp, nil
 }

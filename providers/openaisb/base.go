@@ -1,18 +1,17 @@
 package openaisb
 
 import (
+	"one-api/model"
 	"one-api/providers/base"
 	"one-api/providers/openai"
-
-	"github.com/gin-gonic/gin"
 )
 
 type OpenaiSBProviderFactory struct{}
 
 // 创建 OpenaiSBProvider
-func (f OpenaiSBProviderFactory) Create(c *gin.Context) base.ProviderInterface {
+func (f OpenaiSBProviderFactory) Create(channel *model.Channel) base.ProviderInterface {
 	return &OpenaiSBProvider{
-		OpenAIProvider: openai.CreateOpenAIProvider(c, "https://api.openai-sb.com"),
+		OpenAIProvider: openai.CreateOpenAIProvider(channel, "https://api.openai-sb.com"),
 	}
 }
 

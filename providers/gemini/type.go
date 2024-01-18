@@ -42,11 +42,22 @@ type GeminiChatGenerationConfig struct {
 	StopSequences   []string `json:"stopSequences,omitempty"`
 }
 
+type GeminiError struct {
+	Code    string `json:"code"`
+	Message string `json:"message"`
+	Status  string `json:"status"`
+}
+
+type GeminiErrorResponse struct {
+	Error GeminiError `json:"error,omitempty"`
+}
+
 type GeminiChatResponse struct {
 	Candidates     []GeminiChatCandidate    `json:"candidates"`
 	PromptFeedback GeminiChatPromptFeedback `json:"promptFeedback"`
 	Usage          *types.Usage             `json:"usage,omitempty"`
 	Model          string                   `json:"model,omitempty"`
+	GeminiErrorResponse
 }
 
 type GeminiChatCandidate struct {

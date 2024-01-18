@@ -1,21 +1,23 @@
 package azureSpeech
 
 import (
+	"one-api/common/requester"
+	"one-api/model"
 	"one-api/providers/base"
-
-	"github.com/gin-gonic/gin"
 )
 
 // 定义供应商工厂
 type AzureSpeechProviderFactory struct{}
 
 // 创建 AliProvider
-func (f AzureSpeechProviderFactory) Create(c *gin.Context) base.ProviderInterface {
+func (f AzureSpeechProviderFactory) Create(channel *model.Channel) base.ProviderInterface {
 	return &AzureSpeechProvider{
 		BaseProvider: base.BaseProvider{
-			BaseURL:     "",
-			AudioSpeech: "/cognitiveservices/v1",
-			Context:     c,
+			Config: base.ProviderConfig{
+				AudioSpeech: "/cognitiveservices/v1",
+			},
+			Channel:   channel,
+			Requester: requester.NewHTTPRequester(channel.Proxy, nil),
 		},
 	}
 }

@@ -3,30 +3,98 @@ package palm
 import (
 	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 	"one-api/common"
-	"one-api/providers/base"
+	"one-api/common/requester"
 	"one-api/types"
+	"strings"
 )
 
-func (palmResponse *PaLMChatResponse) ResponseHandler(resp *http.Response) (OpenAIResponse any, errWithCode *types.OpenAIErrorWithStatusCode) {
-	if palmResponse.Error.Code != 0 || len(palmResponse.Candidates) == 0 {
-		return nil, &types.OpenAIErrorWithStatusCode{
-			OpenAIError: types.OpenAIError{
-				Message: palmResponse.Error.Message,
-				Type:    palmResponse.Error.Status,
-				Param:   "",
-				Code:    palmResponse.Error.Code,
-			},
-			StatusCode: resp.StatusCode,
-		}
+type palmStreamHandler struct {
+	Usage   *types.Usage
+	Request *types.ChatCompletionRequest
+}
+
+func (p *PalmProvider) CreateChatCompletion(request *types.ChatCompletionRequest) (*types.ChatCompletionResponse, *types.OpenAIErrorWithStatusCode) {
+	req, errWithCode := p.getChatRequest(request)
+	if errWithCode != nil {
+		return nil, errWithCode
+	}
+	defer req.Body.Close()
+
+	palmResponse := &PaLMChatResponse{}
+	// 发送请求
+	_, errWithCode = p.Requester.SendRequest(req, palmResponse, false)
+	if errWithCode != nil {
+		return nil, errWithCode
 	}
 
-	fullTextResponse := types.ChatCompletionResponse{
-		Choices: make([]types.ChatCompletionChoice, 0, len(palmResponse.Candidates)),
+	return p.convertToChatOpenai(palmResponse, request)
+}
+
+func (p *PalmProvider) CreateChatCompletionStream(request *types.ChatCompletionRequest) (requester.StreamReaderInterface[types.ChatCompletionStreamResponse], *types.OpenAIErrorWithStatusCode) {
+	req, errWithCode := p.getChatRequest(request)
+	if errWithCode != nil {
+		return nil, errWithCode
 	}
-	for i, candidate := range palmResponse.Candidates {
+	defer req.Body.Close()
+
+	// 发送请求
+	resp, errWithCode := p.Requester.SendRequestRaw(req)
+	if errWithCode != nil {
+		return nil, errWithCode
+	}
+
+	chatHandler := &palmStreamHandler{
+		Usage:   p.Usage,
+		Request: request,
+	}
+
+	return requester.RequestStream[types.ChatCompletionStreamResponse](p.Requester, resp, chatHandler.handlerStream)
+}
+
+func (p *PalmProvider) getChatRequest(request *types.ChatCompletionRequest) (*http.Request, *types.OpenAIErrorWithStatusCode) {
+	url, errWithCode := p.GetSupportedAPIUri(common.RelayModeChatCompletions)
+	if errWithCode != nil {
+		return nil, errWithCode
+	}
+	// 获取请求地址
+	fullRequestURL := p.GetFullRequestURL(url, request.Model)
+	if fullRequestURL == "" {
+		return nil, common.ErrorWrapper(nil, "invalid_baidu_config", http.StatusInternalServerError)
+	}
+
+	// 获取请求头
+	headers := p.GetRequestHeaders()
+	if request.Stream {
+		headers["Accept"] = "text/event-stream"
+	}
+
+	palmRequest := convertFromChatOpenai(request)
+	// 创建请求
+	req, err := p.Requester.NewRequest(http.MethodPost, fullRequestURL, p.Requester.WithBody(palmRequest), p.Requester.WithHeader(headers))
+	if err != nil {
+		return nil, common.ErrorWrapper(err, "new_request_failed", http.StatusInternalServerError)
+	}
+
+	return req, nil
+}
+
+func (p *PalmProvider) convertToChatOpenai(response *PaLMChatResponse, request *types.ChatCompletionRequest) (openaiResponse *types.ChatCompletionResponse, errWithCode *types.OpenAIErrorWithStatusCode) {
+	error := errorHandle(&response.PaLMErrorResponse)
+	if error != nil {
+		errWithCode = &types.OpenAIErrorWithStatusCode{
+			OpenAIError: *error,
+			StatusCode:  http.StatusBadRequest,
+		}
+		return
+	}
+
+	openaiResponse = &types.ChatCompletionResponse{
+		Choices: make([]types.ChatCompletionChoice, 0, len(response.Candidates)),
+		Model:   request.Model,
+	}
+	for i, candidate := range response.Candidates {
 		choice := types.ChatCompletionChoice{
 			Index: i,
 			Message: types.ChatCompletionMessage{
@@ -35,20 +103,21 @@ func (palmResponse *PaLMChatResponse) ResponseHandler(resp *http.Response) (Open
 			},
 			FinishReason: "stop",
 		}
-		fullTextResponse.Choices = append(fullTextResponse.Choices, choice)
+		openaiResponse.Choices = append(openaiResponse.Choices, choice)
 	}
 
-	completionTokens := common.CountTokenText(palmResponse.Candidates[0].Content, palmResponse.Model)
-	palmResponse.Usage.CompletionTokens = completionTokens
-	palmResponse.Usage.TotalTokens = palmResponse.Usage.PromptTokens + completionTokens
+	completionTokens := common.CountTokenText(response.Candidates[0].Content, request.Model)
+	response.Usage.CompletionTokens = completionTokens
+	response.Usage.TotalTokens = response.Usage.PromptTokens + completionTokens
 
-	fullTextResponse.Usage = palmResponse.Usage
-	fullTextResponse.Model = palmResponse.Model
+	openaiResponse.Usage = response.Usage
 
-	return fullTextResponse, nil
+	*p.Usage = *response.Usage
+
+	return
 }
 
-func (p *PalmProvider) getChatRequestBody(request *types.ChatCompletionRequest) *PaLMChatRequest {
+func convertFromChatOpenai(request *types.ChatCompletionRequest) *PaLMChatRequest {
 	palmRequest := PaLMChatRequest{
 		Prompt: PaLMPrompt{
 			Messages: make([]PaLMChatMessage, 0, len(request.Messages)),
@@ -72,132 +141,51 @@ func (p *PalmProvider) getChatRequestBody(request *types.ChatCompletionRequest) 
 	return &palmRequest
 }
 
-func (p *PalmProvider) ChatAction(request *types.ChatCompletionRequest, isModelMapped bool, promptTokens int) (usage *types.Usage, errWithCode *types.OpenAIErrorWithStatusCode) {
-	requestBody := p.getChatRequestBody(request)
-	fullRequestURL := p.GetFullRequestURL(p.ChatCompletions, request.Model)
-	headers := p.GetRequestHeaders()
-	if request.Stream {
-		headers["Accept"] = "text/event-stream"
+// 转换为OpenAI聊天流式请求体
+func (h *palmStreamHandler) handlerStream(rawLine *[]byte, isFinished *bool, response *[]types.ChatCompletionStreamResponse) error {
+	// 如果rawLine 前缀不为data:，则直接返回
+	if !strings.HasPrefix(string(*rawLine), "data: ") {
+		*rawLine = nil
+		return nil
 	}
 
-	client := common.NewClient()
-	req, err := client.NewRequest(p.Context.Request.Method, fullRequestURL, common.WithBody(requestBody), common.WithHeader(headers))
+	// 去除前缀
+	*rawLine = (*rawLine)[6:]
+
+	var palmChatResponse PaLMChatResponse
+	err := json.Unmarshal(*rawLine, &palmChatResponse)
 	if err != nil {
-		return nil, common.ErrorWrapper(err, "new_request_failed", http.StatusInternalServerError)
+		return common.ErrorToOpenAIError(err)
 	}
 
-	if request.Stream {
-		var responseText string
-		errWithCode, responseText = p.sendStreamRequest(req)
-		if errWithCode != nil {
-			return
-		}
-
-		usage = &types.Usage{
-			PromptTokens:     promptTokens,
-			CompletionTokens: common.CountTokenText(responseText, request.Model),
-		}
-		usage.TotalTokens = promptTokens + usage.CompletionTokens
-
-	} else {
-		var palmChatResponse = &PaLMChatResponse{
-			Model: request.Model,
-			Usage: &types.Usage{
-				PromptTokens: promptTokens,
-			},
-		}
-		errWithCode = p.SendRequest(req, palmChatResponse, false)
-		if errWithCode != nil {
-			return
-		}
-
-		usage = palmChatResponse.Usage
+	error := errorHandle(&palmChatResponse.PaLMErrorResponse)
+	if error != nil {
+		return error
 	}
-	return
+
+	return h.convertToOpenaiStream(&palmChatResponse, response)
 
 }
 
-func (p *PalmProvider) streamResponsePaLM2OpenAI(palmResponse *PaLMChatResponse) *types.ChatCompletionStreamResponse {
+func (h *palmStreamHandler) convertToOpenaiStream(palmChatResponse *PaLMChatResponse, response *[]types.ChatCompletionStreamResponse) error {
 	var choice types.ChatCompletionStreamChoice
-	if len(palmResponse.Candidates) > 0 {
-		choice.Delta.Content = palmResponse.Candidates[0].Content
+	if len(palmChatResponse.Candidates) > 0 {
+		choice.Delta.Content = palmChatResponse.Candidates[0].Content
 	}
-	choice.FinishReason = &base.StopFinishReason
-	var response types.ChatCompletionStreamResponse
-	response.Object = "chat.completion.chunk"
-	response.Model = "palm2"
-	response.Choices = []types.ChatCompletionStreamChoice{choice}
-	return &response
-}
+	choice.FinishReason = types.FinishReasonStop
 
-func (p *PalmProvider) sendStreamRequest(req *http.Request) (*types.OpenAIErrorWithStatusCode, string) {
-	defer req.Body.Close()
-
-	// 发送请求
-	client := common.GetHttpClient(p.Channel.Proxy)
-	resp, err := client.Do(req)
-	if err != nil {
-		return common.ErrorWrapper(err, "http_request_failed", http.StatusInternalServerError), ""
-	}
-	common.PutHttpClient(client)
-
-	if common.IsFailureStatusCode(resp) {
-		return common.HandleErrorResp(resp), ""
+	streamResponse := types.ChatCompletionStreamResponse{
+		ID:      fmt.Sprintf("chatcmpl-%s", common.GetUUID()),
+		Object:  "chat.completion.chunk",
+		Model:   h.Request.Model,
+		Choices: []types.ChatCompletionStreamChoice{choice},
+		Created: common.GetTimestamp(),
 	}
 
-	defer resp.Body.Close()
+	*response = append(*response, streamResponse)
 
-	responseText := ""
-	responseId := fmt.Sprintf("chatcmpl-%s", common.GetUUID())
-	createdTime := common.GetTimestamp()
-	dataChan := make(chan string)
-	stopChan := make(chan bool)
-	go func() {
-		responseBody, err := io.ReadAll(resp.Body)
-		if err != nil {
-			common.SysError("error reading stream response: " + err.Error())
-			stopChan <- true
-			return
-		}
-		err = resp.Body.Close()
-		if err != nil {
-			common.SysError("error closing stream response: " + err.Error())
-			stopChan <- true
-			return
-		}
-		var palmResponse PaLMChatResponse
-		err = json.Unmarshal(responseBody, &palmResponse)
-		if err != nil {
-			common.SysError("error unmarshalling stream response: " + err.Error())
-			stopChan <- true
-			return
-		}
-		fullTextResponse := p.streamResponsePaLM2OpenAI(&palmResponse)
-		fullTextResponse.ID = responseId
-		fullTextResponse.Created = createdTime
-		if len(palmResponse.Candidates) > 0 {
-			responseText = palmResponse.Candidates[0].Content
-		}
-		jsonResponse, err := json.Marshal(fullTextResponse)
-		if err != nil {
-			common.SysError("error marshalling stream response: " + err.Error())
-			stopChan <- true
-			return
-		}
-		dataChan <- string(jsonResponse)
-		stopChan <- true
-	}()
-	common.SetEventStreamHeaders(p.Context)
-	p.Context.Stream(func(w io.Writer) bool {
-		select {
-		case data := <-dataChan:
-			p.Context.Render(-1, common.CustomEvent{Data: "data: " + data})
-			return true
-		case <-stopChan:
-			p.Context.Render(-1, common.CustomEvent{Data: "data: [DONE]"})
-			return false
-		}
-	})
+	h.Usage.CompletionTokens += common.CountTokenText(palmChatResponse.Candidates[0].Content, h.Request.Model)
+	h.Usage.TotalTokens = h.Usage.PromptTokens + h.Usage.CompletionTokens
 
-	return nil, responseText
+	return nil
 }

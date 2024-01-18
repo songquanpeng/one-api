@@ -1,38 +1,108 @@
 package zhipu
 
 import (
-	"bufio"
 	"encoding/json"
-	"io"
+	"fmt"
 	"net/http"
 	"one-api/common"
-	"one-api/providers/base"
+	"one-api/common/requester"
 	"one-api/types"
 	"strings"
 )
 
-func (zhipuResponse *ZhipuResponse) ResponseHandler(resp *http.Response) (OpenAIResponse any, errWithCode *types.OpenAIErrorWithStatusCode) {
-	if !zhipuResponse.Success {
-		return &types.OpenAIErrorWithStatusCode{
-			OpenAIError: types.OpenAIError{
-				Message: zhipuResponse.Msg,
-				Type:    "zhipu_error",
-				Param:   "",
-				Code:    zhipuResponse.Code,
-			},
-			StatusCode: resp.StatusCode,
-		}, nil
+type zhipuStreamHandler struct {
+	Usage   *types.Usage
+	Request *types.ChatCompletionRequest
+}
+
+func (p *ZhipuProvider) CreateChatCompletion(request *types.ChatCompletionRequest) (*types.ChatCompletionResponse, *types.OpenAIErrorWithStatusCode) {
+	req, errWithCode := p.getChatRequest(request)
+	if errWithCode != nil {
+		return nil, errWithCode
+	}
+	defer req.Body.Close()
+
+	zhipuChatResponse := &ZhipuResponse{}
+	// 发送请求
+	_, errWithCode = p.Requester.SendRequest(req, zhipuChatResponse, false)
+	if errWithCode != nil {
+		return nil, errWithCode
 	}
 
-	fullTextResponse := types.ChatCompletionResponse{
-		ID:      zhipuResponse.Data.TaskId,
+	return p.convertToChatOpenai(zhipuChatResponse, request)
+}
+
+func (p *ZhipuProvider) CreateChatCompletionStream(request *types.ChatCompletionRequest) (requester.StreamReaderInterface[types.ChatCompletionStreamResponse], *types.OpenAIErrorWithStatusCode) {
+	req, errWithCode := p.getChatRequest(request)
+	if errWithCode != nil {
+		return nil, errWithCode
+	}
+	defer req.Body.Close()
+
+	// 发送请求
+	resp, errWithCode := p.Requester.SendRequestRaw(req)
+	if errWithCode != nil {
+		return nil, errWithCode
+	}
+
+	chatHandler := &zhipuStreamHandler{
+		Usage:   p.Usage,
+		Request: request,
+	}
+
+	return requester.RequestStream[types.ChatCompletionStreamResponse](p.Requester, resp, chatHandler.handlerStream)
+}
+
+func (p *ZhipuProvider) getChatRequest(request *types.ChatCompletionRequest) (*http.Request, *types.OpenAIErrorWithStatusCode) {
+	url, errWithCode := p.GetSupportedAPIUri(common.RelayModeChatCompletions)
+	if errWithCode != nil {
+		return nil, errWithCode
+	}
+
+	// 获取请求地址
+	fullRequestURL := p.GetFullRequestURL(url, request.Model)
+	if fullRequestURL == "" {
+		return nil, common.ErrorWrapper(nil, "invalid_baidu_config", http.StatusInternalServerError)
+	}
+
+	// 获取请求头
+	headers := p.GetRequestHeaders()
+	if request.Stream {
+		headers["Accept"] = "text/event-stream"
+		fullRequestURL += "/sse-invoke"
+	} else {
+		fullRequestURL += "/invoke"
+	}
+
+	zhipuRequest := convertFromChatOpenai(request)
+	// 创建请求
+	req, err := p.Requester.NewRequest(http.MethodPost, fullRequestURL, p.Requester.WithBody(zhipuRequest), p.Requester.WithHeader(headers))
+	if err != nil {
+		return nil, common.ErrorWrapper(err, "new_request_failed", http.StatusInternalServerError)
+	}
+
+	return req, nil
+}
+
+func (p *ZhipuProvider) convertToChatOpenai(response *ZhipuResponse, request *types.ChatCompletionRequest) (openaiResponse *types.ChatCompletionResponse, errWithCode *types.OpenAIErrorWithStatusCode) {
+	error := errorHandle(response)
+	if error != nil {
+		errWithCode = &types.OpenAIErrorWithStatusCode{
+			OpenAIError: *error,
+			StatusCode:  http.StatusBadRequest,
+		}
+		return
+	}
+
+	openaiResponse = &types.ChatCompletionResponse{
+		ID:      response.Data.TaskId,
 		Object:  "chat.completion",
 		Created: common.GetTimestamp(),
-		Model:   zhipuResponse.Model,
-		Choices: make([]types.ChatCompletionChoice, 0, len(zhipuResponse.Data.Choices)),
-		Usage:   &zhipuResponse.Data.Usage,
+		Model:   request.Model,
+		Choices: make([]types.ChatCompletionChoice, 0, len(response.Data.Choices)),
+		Usage:   &response.Data.Usage,
 	}
-	for i, choice := range zhipuResponse.Data.Choices {
+	for i, choice := range response.Data.Choices {
 		openaiChoice := types.ChatCompletionChoice{
 			Index: i,
 			Message: types.ChatCompletionMessage{
@@ -41,16 +111,18 @@ func (zhipuResponse *ZhipuResponse) ResponseHandler(resp *http.Response) (OpenAI
 			},
 			FinishReason: "",
 		}
-		if i == len(zhipuResponse.Data.Choices)-1 {
+		if i == len(response.Data.Choices)-1 {
 			openaiChoice.FinishReason = "stop"
 		}
-		fullTextResponse.Choices = append(fullTextResponse.Choices, openaiChoice)
+		openaiResponse.Choices = append(openaiResponse.Choices, openaiChoice)
 	}
-	return fullTextResponse, nil
 
+	*p.Usage = response.Data.Usage
+
+	return
 }
 
-func (p *ZhipuProvider) getChatRequestBody(request *types.ChatCompletionRequest) *ZhipuRequest {
+func convertFromChatOpenai(request *types.ChatCompletionRequest) *ZhipuRequest {
 	messages := make([]ZhipuMessage, 0, len(request.Messages))
 	for _, message := range request.Messages {
 		if message.Role == "system" {
@@ -77,158 +149,60 @@ func (p *ZhipuProvider) getChatRequestBody(request *types.ChatCompletionRequest)
 	}
 }
 
-func (p *ZhipuProvider) ChatAction(request *types.ChatCompletionRequest, isModelMapped bool, promptTokens int) (usage *types.Usage, errWithCode *types.OpenAIErrorWithStatusCode) {
-	requestBody := p.getChatRequestBody(request)
-	fullRequestURL := p.GetFullRequestURL(p.ChatCompletions, request.Model)
-	headers := p.GetRequestHeaders()
-	if request.Stream {
-		headers["Accept"] = "text/event-stream"
-		fullRequestURL += "/sse-invoke"
-	} else {
-		fullRequestURL += "/invoke"
+// 转换为OpenAI聊天流式请求体
+func (h *zhipuStreamHandler) handlerStream(rawLine *[]byte, isFinished *bool, response *[]types.ChatCompletionStreamResponse) error {
+	// 如果rawLine 前缀不为data: 或者 meta:，则直接返回
+	if !strings.HasPrefix(string(*rawLine), "data:") && !strings.HasPrefix(string(*rawLine), "meta:") {
+		*rawLine = nil
+		return nil
 	}
 
-	client := common.NewClient()
-	req, err := client.NewRequest(p.Context.Request.Method, fullRequestURL, common.WithBody(requestBody), common.WithHeader(headers))
-	if err != nil {
-		return nil, common.ErrorWrapper(err, "new_request_failed", http.StatusInternalServerError)
+	if strings.HasPrefix(string(*rawLine), "meta:") {
+		*rawLine = (*rawLine)[5:]
+		var zhipuStreamMetaResponse ZhipuStreamMetaResponse
+		err := json.Unmarshal(*rawLine, &zhipuStreamMetaResponse)
+		if err != nil {
+			return common.ErrorToOpenAIError(err)
+		}
+		*isFinished = true
+		return h.handlerMeta(&zhipuStreamMetaResponse, response)
 	}
 
-	if request.Stream {
-		errWithCode, usage = p.sendStreamRequest(req, request.Model)
-		if errWithCode != nil {
-			return
-		}
-
-	} else {
-		zhipuResponse := &ZhipuResponse{
-			Model: request.Model,
-		}
-		errWithCode = p.SendRequest(req, zhipuResponse, false)
-		if errWithCode != nil {
-			return
-		}
-
-		usage = &zhipuResponse.Data.Usage
-	}
-	return
-
+	*rawLine = (*rawLine)[5:]
+	return h.convertToOpenaiStream(string(*rawLine), response)
 }
 
-func (p *ZhipuProvider) streamResponseZhipu2OpenAI(zhipuResponse string) *types.ChatCompletionStreamResponse {
+func (h *zhipuStreamHandler) convertToOpenaiStream(content string, response *[]types.ChatCompletionStreamResponse) error {
 	var choice types.ChatCompletionStreamChoice
-	choice.Delta.Content = zhipuResponse
-	response := types.ChatCompletionStreamResponse{
+	choice.Delta.Content = content
+	streamResponse := types.ChatCompletionStreamResponse{
+		ID:      fmt.Sprintf("chatcmpl-%s", common.GetUUID()),
 		Object:  "chat.completion.chunk",
 		Created: common.GetTimestamp(),
-		Model:   "chatglm",
+		Model:   h.Request.Model,
 		Choices: []types.ChatCompletionStreamChoice{choice},
 	}
-	return &response
+
+	*response = append(*response, streamResponse)
+
+	return nil
 }
 
-func (p *ZhipuProvider) streamMetaResponseZhipu2OpenAI(zhipuResponse *ZhipuStreamMetaResponse) (*types.ChatCompletionStreamResponse, *types.Usage) {
+func (h *zhipuStreamHandler) handlerMeta(zhipuResponse *ZhipuStreamMetaResponse, response *[]types.ChatCompletionStreamResponse) error {
 	var choice types.ChatCompletionStreamChoice
 	choice.Delta.Content = ""
-	choice.FinishReason = &base.StopFinishReason
-	response := types.ChatCompletionStreamResponse{
+	choice.FinishReason = types.FinishReasonStop
+	streamResponse := types.ChatCompletionStreamResponse{
 		ID:      zhipuResponse.RequestId,
 		Object:  "chat.completion.chunk",
 		Created: common.GetTimestamp(),
-		Model:   zhipuResponse.Model,
+		Model:   h.Request.Model,
 		Choices: []types.ChatCompletionStreamChoice{choice},
 	}
-	return &response, &zhipuResponse.Usage
-}
 
-func (p *ZhipuProvider) sendStreamRequest(req *http.Request, model string) (*types.OpenAIErrorWithStatusCode, *types.Usage) {
-	defer req.Body.Close()
+	*response = append(*response, streamResponse)
 
-	// 发送请求
-	client := common.GetHttpClient(p.Channel.Proxy)
-	resp, err := client.Do(req)
-	if err != nil {
-		return common.ErrorWrapper(err, "http_request_failed", http.StatusInternalServerError), nil
-	}
-	common.PutHttpClient(client)
+	*h.Usage = zhipuResponse.Usage
 
-	if common.IsFailureStatusCode(resp) {
-		return common.HandleErrorResp(resp), nil
-	}
-
-	defer resp.Body.Close()
-
-	var usage *types.Usage
-	scanner := bufio.NewScanner(resp.Body)
-	scanner.Split(func(data []byte, atEOF bool) (advance int, token []byte, err error) {
-		if atEOF && len(data) == 0 {
-			return 0, nil, nil
-		}
-		if i := strings.Index(string(data), "\n\n"); i >= 0 && strings.Contains(string(data), ":") {
-			return i + 2, data[0:i], nil
-		}
-		if atEOF {
-			return len(data), data, nil
-		}
-		return 0, nil, nil
-	})
-	dataChan := make(chan string)
-	metaChan := make(chan string)
-	stopChan := make(chan bool)
-	go func() {
-		for scanner.Scan() {
-			data := scanner.Text()
-			lines := strings.Split(data, "\n")
-			for i, line := range lines {
-				if len(line) < 5 {
-					continue
-				}
-				if line[:5] == "data:" {
-					dataChan <- line[5:]
-					if i != len(lines)-1 {
-						dataChan <- "\n"
-					}
-				} else if line[:5] == "meta:" {
-					metaChan <- line[5:]
-				}
-			}
-		}
-		stopChan <- true
-	}()
-	common.SetEventStreamHeaders(p.Context)
-	p.Context.Stream(func(w io.Writer) bool {
-		select {
-		case data := <-dataChan:
-			response := p.streamResponseZhipu2OpenAI(data)
-			response.Model = model
-			jsonResponse, err := json.Marshal(response)
-			if err != nil {
-				common.SysError("error marshalling stream response: " + err.Error())
-				return true
-			}
-			p.Context.Render(-1, common.CustomEvent{Data: "data: " + string(jsonResponse)})
-			return true
-		case data := <-metaChan:
-			var zhipuResponse ZhipuStreamMetaResponse
-			err := json.Unmarshal([]byte(data), &zhipuResponse)
-			if err != nil {
-				common.SysError("error unmarshalling stream response: " + err.Error())
-				return true
-			}
-			zhipuResponse.Model = model
-			response, zhipuUsage := p.streamMetaResponseZhipu2OpenAI(&zhipuResponse)
-			jsonResponse, err := json.Marshal(response)
-			if err != nil {
-				common.SysError("error marshalling stream response: " + err.Error())
-				return true
-			}
-			usage = zhipuUsage
-			p.Context.Render(-1, common.CustomEvent{Data: "data: " + string(jsonResponse)})
-			return true
-		case <-stopChan:
-			p.Context.Render(-1, common.CustomEvent{Data: "data: [DONE]"})
-			return false
-		}
-	})
-	return nil, usage
+	return nil
 }

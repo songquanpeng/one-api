@@ -1,5 +1,7 @@
 package types
 
+import "encoding/json"
+
 type Usage struct {
 	PromptTokens     int `json:"prompt_tokens"`
 	CompletionTokens int `json:"completion_tokens"`
@@ -12,6 +14,16 @@ type OpenAIError struct {
 	Param      string `json:"param,omitempty"`
 	Type       string `json:"type"`
 	InnerError any    `json:"innererror,omitempty"`
+}
+
+func (e *OpenAIError) Error() string {
+	response := &OpenAIErrorResponse{
+		Error: *e,
+	}
+
+	// 转换为JSON
+	bytes, _ := json.Marshal(response)
+	return string(bytes)
 }
 
 type OpenAIErrorWithStatusCode struct {

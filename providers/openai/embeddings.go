@@ -6,40 +6,30 @@ import (
 	"one-api/types"
 )
 
-func (c *OpenAIProviderEmbeddingsResponse) ResponseHandler(resp *http.Response) (OpenAIResponse any, errWithCode *types.OpenAIErrorWithStatusCode) {
-	if c.Error.Type != "" {
-		errWithCode = &types.OpenAIErrorWithStatusCode{
-			OpenAIError: c.Error,
-			StatusCode:  resp.StatusCode,
-		}
-		return
-	}
-	return nil, nil
-}
-
-func (p *OpenAIProvider) EmbeddingsAction(request *types.EmbeddingRequest, isModelMapped bool, promptTokens int) (usage *types.Usage, errWithCode *types.OpenAIErrorWithStatusCode) {
-
-	requestBody, err := p.GetRequestBody(&request, isModelMapped)
-	if err != nil {
-		return nil, common.ErrorWrapper(err, "json_marshal_failed", http.StatusInternalServerError)
-	}
-
-	fullRequestURL := p.GetFullRequestURL(p.Embeddings, request.Model)
-	headers := p.GetRequestHeaders()
-
-	client := common.NewClient()
-	req, err := client.NewRequest(p.Context.Request.Method, fullRequestURL, common.WithBody(requestBody), common.WithHeader(headers))
-	if err != nil {
-		return nil, common.ErrorWrapper(err, "new_request_failed", http.StatusInternalServerError)
-	}
-
-	openAIProviderEmbeddingsResponse := &OpenAIProviderEmbeddingsResponse{}
-	errWithCode = p.SendRequest(req, openAIProviderEmbeddingsResponse, true)
+func (p *OpenAIProvider) CreateEmbeddings(request *types.EmbeddingRequest) (*types.EmbeddingResponse, *types.OpenAIErrorWithStatusCode) {
+	req, errWithCode := p.GetRequestTextBody(common.RelayModeEmbeddings, request.Model, request)
 	if errWithCode != nil {
-		return
+		return nil, errWithCode
+	}
+	defer req.Body.Close()
+
+	response := &OpenAIProviderEmbeddingsResponse{}
+	// 发送请求
+	_, errWithCode = p.Requester.SendRequest(req, response, false)
+	if errWithCode != nil {
+		return nil, errWithCode
 	}
 
-	usage = openAIProviderEmbeddingsResponse.Usage
+	openaiErr := ErrorHandle(&response.OpenAIErrorResponse)
+	if openaiErr != nil {
+		errWithCode = &types.OpenAIErrorWithStatusCode{
+			OpenAIError: *openaiErr,
+			StatusCode:  http.StatusBadRequest,
+		}
+		return nil, errWithCode
+	}
 
-	return
+	*p.Usage = *response.Usage
+
+	return &response.EmbeddingResponse, nil
 }

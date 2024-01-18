@@ -8,5 +8,5 @@ build
 logs
 data
 tmp/
-test/
+/test/
 .env

@@ -30,11 +30,15 @@ type PaLMError struct {
 	Status  string `json:"status"`
 }
 
+type PaLMErrorResponse struct {
+	Error PaLMError `json:"error,omitempty"`
+}
+
 type PaLMChatResponse struct {
 	Candidates []PaLMChatMessage             `json:"candidates"`
 	Messages   []types.ChatCompletionMessage `json:"messages"`
 	Filters    []PaLMFilter                  `json:"filters"`
-	Error      PaLMError                     `json:"error"`
 	Usage      *types.Usage                  `json:"usage,omitempty"`
 	Model      string                        `json:"model,omitempty"`
+	PaLMErrorResponse
 }

@@ -7,31 +7,53 @@ import (
 	"fmt"
 	"net/url"
 	"one-api/common"
+	"one-api/common/requester"
+	"one-api/model"
 	"one-api/providers/base"
+	"one-api/types"
 	"strings"
 	"time"
-
-	"github.com/gin-gonic/gin"
 )
 
 type XunfeiProviderFactory struct{}
 
 // 创建 XunfeiProvider
-func (f XunfeiProviderFactory) Create(c *gin.Context) base.ProviderInterface {
+func (f XunfeiProviderFactory) Create(channel *model.Channel) base.ProviderInterface {
 	return &XunfeiProvider{
 		BaseProvider: base.BaseProvider{
-			BaseURL:         "wss://spark-api.xf-yun.com",
-			ChatCompletions: "true",
-			Context:         c,
+			Config:    getConfig(),
+			Channel:   channel,
+			Requester: requester.NewHTTPRequester(channel.Proxy, nil),
 		},
+		wsRequester: requester.NewWSRequester(channel.Proxy),
 	}
 }
 
 // https://www.xfyun.cn/doc/spark/Web.html
 type XunfeiProvider struct {
 	base.BaseProvider
-	domain string
-	apiId  string
+	domain      string
+	apiId       string
+	wsRequester *requester.WSRequester
+}
+
+func getConfig() base.ProviderConfig {
+	return base.ProviderConfig{
+		BaseURL:         "wss://spark-api.xf-yun.com",
+		ChatCompletions: "/",
+	}
+}
+
+// 错误处理
+func errorHandle(xunfeiError *XunfeiChatResponse) *types.OpenAIError {
+	if xunfeiError.Header.Code == 0 {
+		return nil
+	}
+	return &types.OpenAIError{
+		Message: xunfeiError.Header.Message,
+		Type:    "xunfei_error",
+		Code:    xunfeiError.Header.Code,
+	}
 }
 
 // 获取请求头
@@ -68,7 +90,7 @@ func (p *XunfeiProvider) getXunfeiAuthUrl(apiKey string, apiSecret string) (stri
 	if apiVersion != "v1.1" {
 		domain += strings.Split(apiVersion, ".")[0]
 	}
-	authUrl := p.buildXunfeiAuthUrl(fmt.Sprintf("%s/%s/chat", p.BaseURL, apiVersion), apiKey, apiSecret)
+	authUrl := p.buildXunfeiAuthUrl(fmt.Sprintf("%s/%s/chat", p.Config.BaseURL, apiVersion), apiKey, apiSecret)
 	return domain, authUrl
 }
 

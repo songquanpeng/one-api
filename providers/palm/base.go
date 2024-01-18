@@ -1,28 +1,62 @@
 package palm
 
 import (
+	"encoding/json"
 	"fmt"
+	"net/http"
+	"one-api/common/requester"
+	"one-api/model"
 	"one-api/providers/base"
+	"one-api/types"
 	"strings"
-
-	"github.com/gin-gonic/gin"
 )
 
 type PalmProviderFactory struct{}
 
 // 创建 PalmProvider
-func (f PalmProviderFactory) Create(c *gin.Context) base.ProviderInterface {
+func (f PalmProviderFactory) Create(channel *model.Channel) base.ProviderInterface {
 	return &PalmProvider{
 		BaseProvider: base.BaseProvider{
-			BaseURL:         "https://generativelanguage.googleapis.com",
-			ChatCompletions: "/v1beta2/models/chat-bison-001:generateMessage",
-			Context:         c,
+			Config:    getConfig(),
+			Channel:   channel,
+			Requester: requester.NewHTTPRequester(channel.Proxy, requestErrorHandle),
 		},
 	}
 }
 
 type PalmProvider struct {
 	base.BaseProvider
+}
+
+func getConfig() base.ProviderConfig {
+	return base.ProviderConfig{
+		BaseURL:         "https://generativelanguage.googleapis.com",
+		ChatCompletions: "/v1beta2/models/chat-bison-001:generateMessage",
+	}
+}
+
+// 请求错误处理
+func requestErrorHandle(resp *http.Response) *types.OpenAIError {
+	var palmError *PaLMErrorResponse
+	err := json.NewDecoder(resp.Body).Decode(palmError)
+	if err != nil {
+		return nil
+	}
+
+	return errorHandle(palmError)
+}
+
+// 错误处理
+func errorHandle(palmError *PaLMErrorResponse) *types.OpenAIError {
+	if palmError.Error.Code == 0 {
+		return nil
+	}
+	return &types.OpenAIError{
+		Message: palmError.Error.Message,
+		Type:    "palm_error",
+		Param:   palmError.Error.Status,
+		Code:    palmError.Error.Code,
+	}
 }
 
 // 获取请求头

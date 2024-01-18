@@ -6,44 +6,31 @@ import (
 	"one-api/types"
 )
 
-func (c *OpenAIProviderModerationResponse) ResponseHandler(resp *http.Response) (OpenAIResponse any, errWithCode *types.OpenAIErrorWithStatusCode) {
-	if c.Error.Type != "" {
-		errWithCode = &types.OpenAIErrorWithStatusCode{
-			OpenAIError: c.Error,
-			StatusCode:  resp.StatusCode,
-		}
-		return
-	}
-	return nil, nil
-}
+func (p *OpenAIProvider) CreateModeration(request *types.ModerationRequest) (*types.ModerationResponse, *types.OpenAIErrorWithStatusCode) {
 
-func (p *OpenAIProvider) ModerationAction(request *types.ModerationRequest, isModelMapped bool, promptTokens int) (usage *types.Usage, errWithCode *types.OpenAIErrorWithStatusCode) {
-
-	requestBody, err := p.GetRequestBody(&request, isModelMapped)
-	if err != nil {
-		return nil, common.ErrorWrapper(err, "json_marshal_failed", http.StatusInternalServerError)
-	}
-
-	fullRequestURL := p.GetFullRequestURL(p.Moderation, request.Model)
-	headers := p.GetRequestHeaders()
-
-	client := common.NewClient()
-	req, err := client.NewRequest(p.Context.Request.Method, fullRequestURL, common.WithBody(requestBody), common.WithHeader(headers))
-	if err != nil {
-		return nil, common.ErrorWrapper(err, "new_request_failed", http.StatusInternalServerError)
-	}
-
-	openAIProviderModerationResponse := &OpenAIProviderModerationResponse{}
-	errWithCode = p.SendRequest(req, openAIProviderModerationResponse, true)
+	req, errWithCode := p.GetRequestTextBody(common.RelayModeModerations, request.Model, request)
 	if errWithCode != nil {
-		return
+		return nil, errWithCode
+	}
+	defer req.Body.Close()
+
+	response := &OpenAIProviderModerationResponse{}
+	// 发送请求
+	_, errWithCode = p.Requester.SendRequest(req, response, false)
+	if errWithCode != nil {
+		return nil, errWithCode
 	}
 
-	usage = &types.Usage{
-		PromptTokens:     promptTokens,
-		CompletionTokens: 0,
-		TotalTokens:      promptTokens,
+	openaiErr := ErrorHandle(&response.OpenAIErrorResponse)
+	if openaiErr != nil {
+		errWithCode = &types.OpenAIErrorWithStatusCode{
+			OpenAIError: *openaiErr,
+			StatusCode:  http.StatusBadRequest,
+		}
+		return nil, errWithCode
 	}
 
-	return
+	p.Usage.TotalTokens = p.Usage.PromptTokens
+
+	return &response.ModerationResponse, nil
 }

@@ -1,24 +1,46 @@
 package controller
 
 import (
-	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
-	"math"
+	"io"
 	"net/http"
 	"one-api/common"
+	"one-api/common/requester"
 	"one-api/model"
 	"one-api/providers"
 	providersBase "one-api/providers/base"
 	"one-api/types"
 	"reflect"
 	"strconv"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 )
+
+func getProvider(c *gin.Context, modeName string) (provider providersBase.ProviderInterface, newModelName string, fail bool) {
+	channel, fail := fetchChannel(c, modeName)
+	if fail {
+		return
+	}
+
+	provider = providers.GetProvider(channel, c)
+	if provider == nil {
+		common.AbortWithMessage(c, http.StatusNotImplemented, "channel not found")
+		fail = true
+		return
+	}
+
+	newModelName, err := provider.ModelMappingHandler(modeName)
+	if err != nil {
+		common.AbortWithMessage(c, http.StatusInternalServerError, err.Error())
+		fail = true
+		return
+	}
+
+	return
+}
 
 func GetValidFieldName(err error, obj interface{}) string {
 	getObj := reflect.TypeOf(obj)
@@ -32,17 +54,17 @@ func GetValidFieldName(err error, obj interface{}) string {
 	return err.Error()
 }
 
-func fetchChannel(c *gin.Context, modelName string) (channel *model.Channel, pass bool) {
+func fetchChannel(c *gin.Context, modelName string) (channel *model.Channel, fail bool) {
 	channelId, ok := c.Get("channelId")
 	if ok {
-		channel, pass = fetchChannelById(c, channelId.(int))
-		if pass {
+		channel, fail = fetchChannelById(c, channelId.(int))
+		if fail {
 			return
 		}
 
 	}
-	channel, pass = fetchChannelByModel(c, modelName)
-	if pass {
+	channel, fail = fetchChannelByModel(c, modelName)
+	if fail {
 		return
 	}
 
@@ -86,21 +108,6 @@ func fetchChannelByModel(c *gin.Context, modelName string) (*model.Channel, bool
 	return channel, false
 }
 
-func getProvider(c *gin.Context, channel *model.Channel, relayMode int) (providersBase.ProviderInterface, bool) {
-	provider := providers.GetProvider(channel, c)
-	if provider == nil {
-		common.AbortWithMessage(c, http.StatusNotImplemented, "channel not found")
-		return nil, true
-	}
-
-	if !provider.SupportAPI(relayMode) {
-		common.AbortWithMessage(c, http.StatusNotImplemented, "channel does not support this API")
-		return nil, true
-	}
-
-	return provider, false
-}
-
 func shouldDisableChannel(err *types.OpenAIError, statusCode int) bool {
 	if !common.AutomaticDisableChannelEnabled {
 		return false
@@ -130,138 +137,81 @@ func shouldEnableChannel(err error, openAIErr *types.OpenAIError) bool {
 	return true
 }
 
-func parseModelMapping(modelMapping string) (map[string]string, error) {
-	if modelMapping == "" || modelMapping == "{}" {
-		return nil, nil
-	}
-	modelMap := make(map[string]string)
-	err := json.Unmarshal([]byte(modelMapping), &modelMap)
+func responseJsonClient(c *gin.Context, data interface{}) *types.OpenAIErrorWithStatusCode {
+	// 将data转换为 JSON
+	responseBody, err := json.Marshal(data)
 	if err != nil {
-		return nil, err
-	}
-	return modelMap, nil
-}
-
-type QuotaInfo struct {
-	modelName         string
-	promptTokens      int
-	preConsumedTokens int
-	modelRatio        float64
-	groupRatio        float64
-	ratio             float64
-	preConsumedQuota  int
-	userId            int
-	channelId         int
-	tokenId           int
-	HandelStatus      bool
-}
-
-func generateQuotaInfo(c *gin.Context, modelName string, promptTokens int) (*QuotaInfo, *types.OpenAIErrorWithStatusCode) {
-	quotaInfo := &QuotaInfo{
-		modelName:    modelName,
-		promptTokens: promptTokens,
-		userId:       c.GetInt("id"),
-		channelId:    c.GetInt("channel_id"),
-		tokenId:      c.GetInt("token_id"),
-		HandelStatus: false,
-	}
-	quotaInfo.initQuotaInfo(c.GetString("group"))
-
-	errWithCode := quotaInfo.preQuotaConsumption()
-	if errWithCode != nil {
-		return nil, errWithCode
+		return common.ErrorWrapper(err, "marshal_response_body_failed", http.StatusInternalServerError)
 	}
 
-	return quotaInfo, nil
-}
-
-func (q *QuotaInfo) initQuotaInfo(groupName string) {
-	modelRatio := common.GetModelRatio(q.modelName)
-	groupRatio := common.GetGroupRatio(groupName)
-	preConsumedTokens := common.PreConsumedQuota
-	ratio := modelRatio * groupRatio
-	preConsumedQuota := int(float64(q.promptTokens+preConsumedTokens) * ratio)
-
-	q.preConsumedTokens = preConsumedTokens
-	q.modelRatio = modelRatio
-	q.groupRatio = groupRatio
-	q.ratio = ratio
-	q.preConsumedQuota = preConsumedQuota
-
-	return
-}
-
-func (q *QuotaInfo) preQuotaConsumption() *types.OpenAIErrorWithStatusCode {
-	userQuota, err := model.CacheGetUserQuota(q.userId)
+	c.Writer.Header().Set("Content-Type", "application/json")
+	c.Writer.WriteHeader(http.StatusOK)
+	_, err = c.Writer.Write(responseBody)
 	if err != nil {
-		return common.ErrorWrapper(err, "get_user_quota_failed", http.StatusInternalServerError)
-	}
-
-	if userQuota < q.preConsumedQuota {
-		return common.ErrorWrapper(errors.New("user quota is not enough"), "insufficient_user_quota", http.StatusForbidden)
-	}
-
-	err = model.CacheDecreaseUserQuota(q.userId, q.preConsumedQuota)
-	if err != nil {
-		return common.ErrorWrapper(err, "decrease_user_quota_failed", http.StatusInternalServerError)
-	}
-
-	if userQuota > 100*q.preConsumedQuota {
-		// in this case, we do not pre-consume quota
-		// because the user has enough quota
-		q.preConsumedQuota = 0
-		// common.LogInfo(c.Request.Context(), fmt.Sprintf("user %d has enough quota %d, trusted and no need to pre-consume", userId, userQuota))
-	}
-
-	if q.preConsumedQuota > 0 {
-		err := model.PreConsumeTokenQuota(q.tokenId, q.preConsumedQuota)
-		if err != nil {
-			return common.ErrorWrapper(err, "pre_consume_token_quota_failed", http.StatusForbidden)
-		}
-		q.HandelStatus = true
+		return common.ErrorWrapper(err, "write_response_body_failed", http.StatusInternalServerError)
 	}
 
 	return nil
 }
 
-func (q *QuotaInfo) completedQuotaConsumption(usage *types.Usage, tokenName string, ctx context.Context) error {
-	quota := 0
-	completionRatio := common.GetCompletionRatio(q.modelName)
-	promptTokens := usage.PromptTokens
-	completionTokens := usage.CompletionTokens
-	quota = int(math.Ceil((float64(promptTokens) + float64(completionTokens)*completionRatio) * q.ratio))
-	if q.ratio != 0 && quota <= 0 {
-		quota = 1
-	}
-	totalTokens := promptTokens + completionTokens
-	if totalTokens == 0 {
-		// in this case, must be some error happened
-		// we cannot just return, because we may have to return the pre-consumed quota
-		quota = 0
-	}
-	quotaDelta := quota - q.preConsumedQuota
-	err := model.PostConsumeTokenQuota(q.tokenId, quotaDelta)
-	if err != nil {
-		return errors.New("error consuming token remain quota: " + err.Error())
-	}
-	err = model.CacheUpdateUserQuota(q.userId)
-	if err != nil {
-		return errors.New("error consuming token remain quota: " + err.Error())
-	}
-	if quota != 0 {
-		requestTime := 0
-		requestStartTimeValue := ctx.Value("requestStartTime")
-		if requestStartTimeValue != nil {
-			requestStartTime, ok := requestStartTimeValue.(time.Time)
-			if ok {
-				requestTime = int(time.Since(requestStartTime).Milliseconds())
+func responseStreamClient[T any](c *gin.Context, stream requester.StreamReaderInterface[T]) *types.OpenAIErrorWithStatusCode {
+	requester.SetEventStreamHeaders(c)
+	defer stream.Close()
+
+	for {
+		response, err := stream.Recv()
+		if errors.Is(err, io.EOF) {
+			if response != nil && len(*response) > 0 {
+				for _, streamResponse := range *response {
+					responseBody, _ := json.Marshal(streamResponse)
+					c.Render(-1, common.CustomEvent{Data: "data: " + string(responseBody)})
+				}
 			}
+			c.Render(-1, common.CustomEvent{Data: "data: [DONE]"})
+			break
 		}
 
-		logContent := fmt.Sprintf("模型倍率 %.2f，分组倍率 %.2f", q.modelRatio, q.groupRatio)
-		model.RecordConsumeLog(ctx, q.userId, q.channelId, promptTokens, completionTokens, q.modelName, tokenName, quota, logContent, requestTime)
-		model.UpdateUserUsedQuotaAndRequestCount(q.userId, quota)
-		model.UpdateChannelUsedQuota(q.channelId, quota)
+		if err != nil {
+			c.Render(-1, common.CustomEvent{Data: "data: " + err.Error()})
+			c.Render(-1, common.CustomEvent{Data: "data: [DONE]"})
+			break
+		}
+
+		for _, streamResponse := range *response {
+			responseBody, _ := json.Marshal(streamResponse)
+			c.Render(-1, common.CustomEvent{Data: "data: " + string(responseBody)})
+		}
+	}
+
+	return nil
+}
+
+func responseMultipart(c *gin.Context, resp *http.Response) *types.OpenAIErrorWithStatusCode {
+	defer resp.Body.Close()
+
+	for k, v := range resp.Header {
+		c.Writer.Header().Set(k, v[0])
+	}
+
+	c.Writer.WriteHeader(resp.StatusCode)
+
+	_, err := io.Copy(c.Writer, resp.Body)
+	if err != nil {
+		return common.ErrorWrapper(err, "write_response_body_failed", http.StatusInternalServerError)
+	}
+
+	return nil
+}
+
+func responseCustom(c *gin.Context, response *types.AudioResponseWrapper) *types.OpenAIErrorWithStatusCode {
+	for k, v := range response.Headers {
+		c.Writer.Header().Set(k, v)
+	}
+	c.Writer.WriteHeader(http.StatusOK)
+
+	_, err := c.Writer.Write(response.Body)
+	if err != nil {
+		return common.ErrorWrapper(err, "write_response_body_failed", http.StatusInternalServerError)
 	}
 
 	return nil

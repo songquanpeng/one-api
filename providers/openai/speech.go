@@ -3,35 +3,29 @@ package openai
 import (
 	"net/http"
 	"one-api/common"
+	"one-api/common/requester"
 	"one-api/types"
 )
 
-func (p *OpenAIProvider) SpeechAction(request *types.SpeechAudioRequest, isModelMapped bool, promptTokens int) (usage *types.Usage, errWithCode *types.OpenAIErrorWithStatusCode) {
-
-	requestBody, err := p.GetRequestBody(&request, isModelMapped)
-	if err != nil {
-		return nil, common.ErrorWrapper(err, "json_marshal_failed", http.StatusInternalServerError)
-	}
-
-	fullRequestURL := p.GetFullRequestURL(p.AudioSpeech, request.Model)
-	headers := p.GetRequestHeaders()
-
-	client := common.NewClient()
-	req, err := client.NewRequest(p.Context.Request.Method, fullRequestURL, common.WithBody(requestBody), common.WithHeader(headers))
-	if err != nil {
-		return nil, common.ErrorWrapper(err, "new_request_failed", http.StatusInternalServerError)
-	}
-
-	errWithCode = p.SendRequestRaw(req)
+func (p *OpenAIProvider) CreateSpeech(request *types.SpeechAudioRequest) (*http.Response, *types.OpenAIErrorWithStatusCode) {
+	req, errWithCode := p.GetRequestTextBody(common.RelayModeAudioSpeech, request.Model, request)
 	if errWithCode != nil {
-		return
+		return nil, errWithCode
+	}
+	defer req.Body.Close()
+
+	// 发送请求
+	var resp *http.Response
+	resp, errWithCode = p.Requester.SendRequestRaw(req)
+	if errWithCode != nil {
+		return nil, errWithCode
 	}
 
-	usage = &types.Usage{
-		PromptTokens:     promptTokens,
-		CompletionTokens: 0,
-		TotalTokens:      promptTokens,
+	if resp.Header.Get("Content-Type") == "application/json" {
+		return nil, requester.HandleErrorResp(resp, p.Requester.ErrorHandler)
 	}
 
-	return
+	p.Usage.TotalTokens = p.Usage.PromptTokens
+
+	return resp, nil
 }

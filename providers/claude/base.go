@@ -1,26 +1,59 @@
 package claude
 
 import (
+	"encoding/json"
+	"net/http"
+	"one-api/common/requester"
+	"one-api/model"
 	"one-api/providers/base"
-
-	"github.com/gin-gonic/gin"
+	"one-api/types"
 )
 
 type ClaudeProviderFactory struct{}
 
 // 创建 ClaudeProvider
-func (f ClaudeProviderFactory) Create(c *gin.Context) base.ProviderInterface {
+func (f ClaudeProviderFactory) Create(channel *model.Channel) base.ProviderInterface {
 	return &ClaudeProvider{
 		BaseProvider: base.BaseProvider{
-			BaseURL:         "https://api.anthropic.com",
-			ChatCompletions: "/v1/complete",
-			Context:         c,
+			Config:    getConfig(),
+			Channel:   channel,
+			Requester: requester.NewHTTPRequester(channel.Proxy, requestErrorHandle),
 		},
 	}
 }
 
 type ClaudeProvider struct {
 	base.BaseProvider
+}
+
+func getConfig() base.ProviderConfig {
+	return base.ProviderConfig{
+		BaseURL:         "https://api.anthropic.com",
+		ChatCompletions: "/v1/complete",
+	}
+}
+
+// 请求错误处理
+func requestErrorHandle(resp *http.Response) *types.OpenAIError {
+	var claudeError *ClaudeResponseError
+	err := json.NewDecoder(resp.Body).Decode(claudeError)
+	if err != nil {
+		return nil
+	}
+
+	return errorHandle(claudeError)
+}
+
+// 错误处理
+func errorHandle(claudeError *ClaudeResponseError) *types.OpenAIError {
+	if claudeError.Error.Type == "" {
+		return nil
+	}
+	return &types.OpenAIError{
+		Message: claudeError.Error.Message,
+		Type:    claudeError.Error.Type,
+		Code:    claudeError.Error.Type,
+	}
 }
 
 // 获取请求头
@@ -41,9 +74,9 @@ func (p *ClaudeProvider) GetRequestHeaders() (headers map[string]string) {
 func stopReasonClaude2OpenAI(reason string) string {
 	switch reason {
 	case "stop_sequence":
-		return "stop"
+		return types.FinishReasonStop
 	case "max_tokens":
-		return "length"
+		return types.FinishReasonLength
 	default:
 		return reason
 	}

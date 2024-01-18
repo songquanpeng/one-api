@@ -1,11 +1,11 @@
 package controller
 
 import (
-	"context"
+	"fmt"
 	"math"
 	"net/http"
 	"one-api/common"
-	"one-api/model"
+	"one-api/common/requester"
 	providersBase "one-api/providers/base"
 	"one-api/types"
 
@@ -20,33 +20,18 @@ func RelayChat(c *gin.Context) {
 		return
 	}
 
-	channel, pass := fetchChannel(c, chatRequest.Model)
-	if pass {
-		return
-	}
-
 	if chatRequest.MaxTokens < 0 || chatRequest.MaxTokens > math.MaxInt32/2 {
 		common.AbortWithMessage(c, http.StatusBadRequest, "max_tokens is invalid")
 		return
 	}
 
-	// 解析模型映射
-	var isModelMapped bool
-	modelMap, err := parseModelMapping(channel.GetModelMapping())
-	if err != nil {
-		common.AbortWithMessage(c, http.StatusInternalServerError, err.Error())
-		return
-	}
-	if modelMap != nil && modelMap[chatRequest.Model] != "" {
-		chatRequest.Model = modelMap[chatRequest.Model]
-		isModelMapped = true
-	}
-
 	// 获取供应商
-	provider, pass := getProvider(c, channel, common.RelayModeChatCompletions)
-	if pass {
+	provider, modelName, fail := getProvider(c, chatRequest.Model)
+	if fail {
 		return
 	}
+	chatRequest.Model = modelName
+
 	chatProvider, ok := provider.(providersBase.ChatInterface)
 	if !ok {
 		common.AbortWithMessage(c, http.StatusNotImplemented, "channel not implemented")
@@ -56,39 +41,42 @@ func RelayChat(c *gin.Context) {
 	// 获取Input Tokens
 	promptTokens := common.CountTokenMessages(chatRequest.Messages, chatRequest.Model)
 
-	var quotaInfo *QuotaInfo
-	var errWithCode *types.OpenAIErrorWithStatusCode
-	var usage *types.Usage
-	quotaInfo, errWithCode = generateQuotaInfo(c, chatRequest.Model, promptTokens)
+	usage := &types.Usage{
+		PromptTokens: promptTokens,
+	}
+	provider.SetUsage(usage)
+
+	quotaInfo, errWithCode := generateQuotaInfo(c, chatRequest.Model, promptTokens)
 	if errWithCode != nil {
 		errorHelper(c, errWithCode)
 		return
 	}
 
-	usage, errWithCode = chatProvider.ChatAction(&chatRequest, isModelMapped, promptTokens)
+	if chatRequest.Stream {
+		var response requester.StreamReaderInterface[types.ChatCompletionStreamResponse]
+		response, errWithCode = chatProvider.CreateChatCompletionStream(&chatRequest)
+		if errWithCode != nil {
+			errorHelper(c, errWithCode)
+			return
+		}
+		errWithCode = responseStreamClient[types.ChatCompletionStreamResponse](c, response)
+	} else {
+		var response *types.ChatCompletionResponse
+		response, errWithCode = chatProvider.CreateChatCompletion(&chatRequest)
+		if errWithCode != nil {
+			errorHelper(c, errWithCode)
+			return
+		}
+		errWithCode = responseJsonClient(c, response)
+	}
+
+	fmt.Println(usage)
 
 	// 如果报错，则退还配额
 	if errWithCode != nil {
-		tokenId := c.GetInt("token_id")
-		if quotaInfo.HandelStatus {
-			go func(ctx context.Context) {
-				// return pre-consumed quota
-				err := model.PostConsumeTokenQuota(tokenId, -quotaInfo.preConsumedQuota)
-				if err != nil {
-					common.LogError(ctx, "error return pre-consumed quota: "+err.Error())
-				}
-			}(c.Request.Context())
-		}
-		errorHelper(c, errWithCode)
+		quotaInfo.undo(c, errWithCode)
 		return
-	} else {
-		tokenName := c.GetString("token_name")
-		// 如果没有报错，则消费配额
-		go func(ctx context.Context) {
-			err = quotaInfo.completedQuotaConsumption(usage, tokenName, ctx)
-			if err != nil {
-				common.LogError(ctx, err.Error())
-			}
-		}(c.Request.Context())
 	}
+
+	quotaInfo.consume(c, usage)
 }

@@ -1,28 +1,62 @@
 package gemini
 
 import (
+	"encoding/json"
 	"fmt"
+	"net/http"
+	"one-api/common/requester"
+	"one-api/model"
 	"one-api/providers/base"
+	"one-api/types"
 	"strings"
-
-	"github.com/gin-gonic/gin"
 )
 
 type GeminiProviderFactory struct{}
 
 // 创建 ClaudeProvider
-func (f GeminiProviderFactory) Create(c *gin.Context) base.ProviderInterface {
+func (f GeminiProviderFactory) Create(channel *model.Channel) base.ProviderInterface {
 	return &GeminiProvider{
 		BaseProvider: base.BaseProvider{
-			BaseURL:         "https://generativelanguage.googleapis.com",
-			ChatCompletions: "/",
-			Context:         c,
+			Config:    getConfig(),
+			Channel:   channel,
+			Requester: requester.NewHTTPRequester(channel.Proxy, requestErrorHandle),
 		},
 	}
 }
 
 type GeminiProvider struct {
 	base.BaseProvider
+}
+
+func getConfig() base.ProviderConfig {
+	return base.ProviderConfig{
+		BaseURL:         "https://generativelanguage.googleapis.com",
+		ChatCompletions: "/",
+	}
+}
+
+// 请求错误处理
+func requestErrorHandle(resp *http.Response) *types.OpenAIError {
+	var geminiError *GeminiErrorResponse
+	err := json.NewDecoder(resp.Body).Decode(geminiError)
+	if err != nil {
+		return nil
+	}
+
+	return errorHandle(geminiError)
+}
+
+// 错误处理
+func errorHandle(geminiError *GeminiErrorResponse) *types.OpenAIError {
+	if geminiError.Error.Message == "" {
+		return nil
+	}
+	return &types.OpenAIError{
+		Message: geminiError.Error.Message,
+		Type:    "gemini_error",
+		Param:   geminiError.Error.Status,
+		Code:    geminiError.Error.Code,
+	}
 }
 
 func (p *GeminiProvider) GetFullRequestURL(requestURL string, modelName string) string {

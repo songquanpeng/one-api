@@ -1,50 +1,127 @@
 package tencent
 
 import (
-	"bufio"
 	"encoding/json"
 	"errors"
-	"io"
 	"net/http"
 	"one-api/common"
-	"one-api/providers/base"
+	"one-api/common/requester"
 	"one-api/types"
 	"strings"
 )
 
-func (TencentResponse *TencentChatResponse) ResponseHandler(resp *http.Response) (OpenAIResponse any, errWithCode *types.OpenAIErrorWithStatusCode) {
-	if TencentResponse.Error.Code != 0 {
-		return &types.OpenAIErrorWithStatusCode{
-			OpenAIError: types.OpenAIError{
-				Message: TencentResponse.Error.Message,
-				Code:    TencentResponse.Error.Code,
-			},
-			StatusCode: resp.StatusCode,
-		}, nil
+type tencentStreamHandler struct {
+	Usage   *types.Usage
+	Request *types.ChatCompletionRequest
+}
+
+func (p *TencentProvider) CreateChatCompletion(request *types.ChatCompletionRequest) (*types.ChatCompletionResponse, *types.OpenAIErrorWithStatusCode) {
+	req, errWithCode := p.getChatRequest(request)
+	if errWithCode != nil {
+		return nil, errWithCode
+	}
+	defer req.Body.Close()
+
+	tencentChatResponse := &TencentChatResponse{}
+	// 发送请求
+	_, errWithCode = p.Requester.SendRequest(req, tencentChatResponse, false)
+	if errWithCode != nil {
+		return nil, errWithCode
 	}
 
-	fullTextResponse := types.ChatCompletionResponse{
+	return p.convertToChatOpenai(tencentChatResponse, request)
+}
+
+func (p *TencentProvider) CreateChatCompletionStream(request *types.ChatCompletionRequest) (requester.StreamReaderInterface[types.ChatCompletionStreamResponse], *types.OpenAIErrorWithStatusCode) {
+	req, errWithCode := p.getChatRequest(request)
+	if errWithCode != nil {
+		return nil, errWithCode
+	}
+	defer req.Body.Close()
+
+	// 发送请求
+	resp, errWithCode := p.Requester.SendRequestRaw(req)
+	if errWithCode != nil {
+		return nil, errWithCode
+	}
+
+	chatHandler := &tencentStreamHandler{
+		Usage:   p.Usage,
+		Request: request,
+	}
+
+	return requester.RequestStream[types.ChatCompletionStreamResponse](p.Requester, resp, chatHandler.handlerStream)
+}
+
+func (p *TencentProvider) getChatRequest(request *types.ChatCompletionRequest) (*http.Request, *types.OpenAIErrorWithStatusCode) {
+	url, errWithCode := p.GetSupportedAPIUri(common.RelayModeChatCompletions)
+	if errWithCode != nil {
+		return nil, errWithCode
+	}
+
+	tencentRequest := convertFromChatOpenai(request)
+
+	sign := p.getTencentSign(*tencentRequest)
+	if sign == "" {
+		return nil, common.ErrorWrapper(errors.New("get tencent sign failed"), "get_tencent_sign_failed", http.StatusInternalServerError)
+	}
+
+	// 获取请求地址
+	fullRequestURL := p.GetFullRequestURL(url, request.Model)
+	if fullRequestURL == "" {
+		return nil, common.ErrorWrapper(nil, "invalid_baidu_config", http.StatusInternalServerError)
+	}
+
+	// 获取请求头
+	headers := p.GetRequestHeaders()
+	headers["Authorization"] = sign
+	if request.Stream {
+		headers["Accept"] = "text/event-stream"
+	}
+
+	// 创建请求
+	req, err := p.Requester.NewRequest(http.MethodPost, fullRequestURL, p.Requester.WithBody(tencentRequest), p.Requester.WithHeader(headers))
+	if err != nil {
+		return nil, common.ErrorWrapper(err, "new_request_failed", http.StatusInternalServerError)
+	}
+
+	return req, nil
+}
+
+func (p *TencentProvider) convertToChatOpenai(response *TencentChatResponse, request *types.ChatCompletionRequest) (openaiResponse *types.ChatCompletionResponse, errWithCode *types.OpenAIErrorWithStatusCode) {
+	error := errorHandle(&response.TencentResponseError)
+	if error != nil {
+		errWithCode = &types.OpenAIErrorWithStatusCode{
+			OpenAIError: *error,
+			StatusCode:  http.StatusBadRequest,
+		}
+		return
+	}
+
+	openaiResponse = &types.ChatCompletionResponse{
 		Object:  "chat.completion",
 		Created: common.GetTimestamp(),
-		Usage:   TencentResponse.Usage,
-		Model:   TencentResponse.Model,
+		Usage:   response.Usage,
+		Model:   request.Model,
 	}
-	if len(TencentResponse.Choices) > 0 {
+	if len(response.Choices) > 0 {
 		choice := types.ChatCompletionChoice{
 			Index: 0,
 			Message: types.ChatCompletionMessage{
 				Role:    "assistant",
-				Content: TencentResponse.Choices[0].Messages.Content,
+				Content: response.Choices[0].Messages.Content,
 			},
-			FinishReason: TencentResponse.Choices[0].FinishReason,
+			FinishReason: response.Choices[0].FinishReason,
 		}
-		fullTextResponse.Choices = append(fullTextResponse.Choices, choice)
+		openaiResponse.Choices = append(openaiResponse.Choices, choice)
 	}
 
-	return fullTextResponse, nil
+	*p.Usage = *response.Usage
+
+	return
 }
 
-func (p *TencentProvider) getChatRequestBody(request *types.ChatCompletionRequest) *TencentChatRequest {
+func convertFromChatOpenai(request *types.ChatCompletionRequest) *TencentChatRequest {
 	messages := make([]TencentMessage, 0, len(request.Messages))
 	for i := 0; i < len(request.Messages); i++ {
 		message := request.Messages[i]
@@ -79,143 +156,51 @@ func (p *TencentProvider) getChatRequestBody(request *types.ChatCompletionReques
 	}
 }
 
-func (p *TencentProvider) ChatAction(request *types.ChatCompletionRequest, isModelMapped bool, promptTokens int) (usage *types.Usage, errWithCode *types.OpenAIErrorWithStatusCode) {
-	requestBody := p.getChatRequestBody(request)
-	sign := p.getTencentSign(*requestBody)
-	if sign == "" {
-		return nil, common.ErrorWrapper(errors.New("get tencent sign failed"), "get_tencent_sign_failed", http.StatusInternalServerError)
+// 转换为OpenAI聊天流式请求体
+func (h *tencentStreamHandler) handlerStream(rawLine *[]byte, isFinished *bool, response *[]types.ChatCompletionStreamResponse) error {
+	// 如果rawLine 前缀不为data:，则直接返回
+	if !strings.HasPrefix(string(*rawLine), "data:") {
+		*rawLine = nil
+		return nil
 	}
 
-	fullRequestURL := p.GetFullRequestURL(p.ChatCompletions, request.Model)
-	headers := p.GetRequestHeaders()
-	headers["Authorization"] = sign
-	if request.Stream {
-		headers["Accept"] = "text/event-stream"
-	}
+	// 去除前缀
+	*rawLine = (*rawLine)[5:]
 
-	client := common.NewClient()
-	req, err := client.NewRequest(p.Context.Request.Method, fullRequestURL, common.WithBody(requestBody), common.WithHeader(headers))
+	var tencentChatResponse TencentChatResponse
+	err := json.Unmarshal(*rawLine, &tencentChatResponse)
 	if err != nil {
-		return nil, common.ErrorWrapper(err, "new_request_failed", http.StatusInternalServerError)
+		return common.ErrorToOpenAIError(err)
 	}
 
-	if request.Stream {
-		var responseText string
-		errWithCode, responseText = p.sendStreamRequest(req, request.Model)
-		if errWithCode != nil {
-			return
-		}
-
-		usage = &types.Usage{
-			PromptTokens:     promptTokens,
-			CompletionTokens: common.CountTokenText(responseText, request.Model),
-		}
-		usage.TotalTokens = promptTokens + usage.CompletionTokens
-
-	} else {
-		tencentResponse := &TencentChatResponse{
-			Model: request.Model,
-		}
-		errWithCode = p.SendRequest(req, tencentResponse, false)
-		if errWithCode != nil {
-			return
-		}
-
-		usage = tencentResponse.Usage
+	error := errorHandle(&tencentChatResponse.TencentResponseError)
+	if error != nil {
+		return error
 	}
-	return
+
+	return h.convertToOpenaiStream(&tencentChatResponse, response)
 
 }
 
-func (p *TencentProvider) streamResponseTencent2OpenAI(TencentResponse *TencentChatResponse) *types.ChatCompletionStreamResponse {
-	response := types.ChatCompletionStreamResponse{
+func (h *tencentStreamHandler) convertToOpenaiStream(tencentChatResponse *TencentChatResponse, response *[]types.ChatCompletionStreamResponse) error {
+	streamResponse := types.ChatCompletionStreamResponse{
 		Object:  "chat.completion.chunk",
 		Created: common.GetTimestamp(),
-		Model:   TencentResponse.Model,
+		Model:   h.Request.Model,
 	}
-	if len(TencentResponse.Choices) > 0 {
+	if len(tencentChatResponse.Choices) > 0 {
 		var choice types.ChatCompletionStreamChoice
-		choice.Delta.Content = TencentResponse.Choices[0].Delta.Content
-		if TencentResponse.Choices[0].FinishReason == "stop" {
-			choice.FinishReason = &base.StopFinishReason
+		choice.Delta.Content = tencentChatResponse.Choices[0].Delta.Content
+		if tencentChatResponse.Choices[0].FinishReason == "stop" {
+			choice.FinishReason = types.FinishReasonStop
 		}
-		response.Choices = append(response.Choices, choice)
-	}
-	return &response
-}
-
-func (p *TencentProvider) sendStreamRequest(req *http.Request, model string) (*types.OpenAIErrorWithStatusCode, string) {
-	defer req.Body.Close()
-	// 发送请求
-	client := common.GetHttpClient(p.Channel.Proxy)
-	resp, err := client.Do(req)
-	if err != nil {
-		return common.ErrorWrapper(err, "http_request_failed", http.StatusInternalServerError), ""
-	}
-	common.PutHttpClient(client)
-
-	if common.IsFailureStatusCode(resp) {
-		return common.HandleErrorResp(resp), ""
+		streamResponse.Choices = append(streamResponse.Choices, choice)
 	}
 
-	defer resp.Body.Close()
+	*response = append(*response, streamResponse)
 
-	var responseText string
-	scanner := bufio.NewScanner(resp.Body)
-	scanner.Split(func(data []byte, atEOF bool) (advance int, token []byte, err error) {
-		if atEOF && len(data) == 0 {
-			return 0, nil, nil
-		}
-		if i := strings.Index(string(data), "\n"); i >= 0 {
-			return i + 1, data[0:i], nil
-		}
-		if atEOF {
-			return len(data), data, nil
-		}
-		return 0, nil, nil
-	})
-	dataChan := make(chan string)
-	stopChan := make(chan bool)
-	go func() {
-		for scanner.Scan() {
-			data := scanner.Text()
-			if len(data) < 5 { // ignore blank line or wrong format
-				continue
-			}
-			if data[:5] != "data:" {
-				continue
-			}
-			data = data[5:]
-			dataChan <- data
-		}
-		stopChan <- true
-	}()
-	common.SetEventStreamHeaders(p.Context)
-	p.Context.Stream(func(w io.Writer) bool {
-		select {
-		case data := <-dataChan:
-			var TencentResponse TencentChatResponse
-			err := json.Unmarshal([]byte(data), &TencentResponse)
-			if err != nil {
-				common.SysError("error unmarshalling stream response: " + err.Error())
-				return true
-			}
-			TencentResponse.Model = model
-			response := p.streamResponseTencent2OpenAI(&TencentResponse)
-			if len(response.Choices) != 0 {
-				responseText += response.Choices[0].Delta.Content
-			}
-			jsonResponse, err := json.Marshal(response)
-			if err != nil {
-				common.SysError("error marshalling stream response: " + err.Error())
-				return true
-			}
-			p.Context.Render(-1, common.CustomEvent{Data: "data: " + string(jsonResponse)})
-			return true
-		case <-stopChan:
-			p.Context.Render(-1, common.CustomEvent{Data: "data: [DONE]"})
-			return false
-		}
-	})
-	return nil, responseText
+	h.Usage.CompletionTokens += common.CountTokenText(tencentChatResponse.Choices[0].Delta.Content, h.Request.Model)
+	h.Usage.TotalTokens = h.Usage.PromptTokens + h.Usage.CompletionTokens
+
+	return nil
 }

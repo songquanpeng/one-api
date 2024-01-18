@@ -1,78 +1,154 @@
 package baidu
 
 import (
-	"bufio"
 	"encoding/json"
-	"io"
 	"net/http"
 	"one-api/common"
-	"one-api/providers/base"
+	"one-api/common/requester"
 	"one-api/types"
 	"strings"
 )
 
-func (baiduResponse *BaiduChatResponse) ResponseHandler(resp *http.Response) (OpenAIResponse any, errWithCode *types.OpenAIErrorWithStatusCode) {
-	if baiduResponse.ErrorMsg != "" {
-		return nil, &types.OpenAIErrorWithStatusCode{
-			OpenAIError: types.OpenAIError{
-				Message: baiduResponse.ErrorMsg,
-				Type:    "baidu_error",
-				Param:   "",
-				Code:    baiduResponse.ErrorCode,
-			},
-			StatusCode: resp.StatusCode,
+type baiduStreamHandler struct {
+	Usage   *types.Usage
+	Request *types.ChatCompletionRequest
+}
+
+func (p *BaiduProvider) CreateChatCompletion(request *types.ChatCompletionRequest) (*types.ChatCompletionResponse, *types.OpenAIErrorWithStatusCode) {
+	req, errWithCode := p.getBaiduChatRequest(request)
+	if errWithCode != nil {
+		return nil, errWithCode
+	}
+	defer req.Body.Close()
+
+	baiduResponse := &BaiduChatResponse{}
+	// 发送请求
+	_, errWithCode = p.Requester.SendRequest(req, baiduResponse, false)
+	if errWithCode != nil {
+		return nil, errWithCode
+	}
+
+	return p.convertToChatOpenai(baiduResponse, request)
+}
+
+func (p *BaiduProvider) CreateChatCompletionStream(request *types.ChatCompletionRequest) (requester.StreamReaderInterface[types.ChatCompletionStreamResponse], *types.OpenAIErrorWithStatusCode) {
+	req, errWithCode := p.getBaiduChatRequest(request)
+	if errWithCode != nil {
+		return nil, errWithCode
+	}
+	defer req.Body.Close()
+
+	// 发送请求
+	resp, errWithCode := p.Requester.SendRequestRaw(req)
+	if errWithCode != nil {
+		return nil, errWithCode
+	}
+
+	chatHandler := &baiduStreamHandler{
+		Usage:   p.Usage,
+		Request: request,
+	}
+
+	return requester.RequestStream[types.ChatCompletionStreamResponse](p.Requester, resp, chatHandler.handlerStream)
+}
+
+func (p *BaiduProvider) getBaiduChatRequest(request *types.ChatCompletionRequest) (*http.Request, *types.OpenAIErrorWithStatusCode) {
+	url, errWithCode := p.GetSupportedAPIUri(common.RelayModeChatCompletions)
+	if errWithCode != nil {
+		return nil, errWithCode
+	}
+	// 获取请求地址
+	fullRequestURL := p.GetFullRequestURL(url, request.Model)
+	if fullRequestURL == "" {
+		return nil, common.ErrorWrapper(nil, "invalid_baidu_config", http.StatusInternalServerError)
+	}
+
+	// 获取请求头
+	headers := p.GetRequestHeaders()
+	if request.Stream {
+		headers["Accept"] = "text/event-stream"
+	}
+
+	baiduRequest := convertFromChatOpenai(request)
+	// 创建请求
+	req, err := p.Requester.NewRequest(http.MethodPost, fullRequestURL, p.Requester.WithBody(baiduRequest), p.Requester.WithHeader(headers))
+	if err != nil {
+		return nil, common.ErrorWrapper(err, "new_request_failed", http.StatusInternalServerError)
+	}
+
+	return req, nil
+}
+
+func (p *BaiduProvider) convertToChatOpenai(response *BaiduChatResponse, request *types.ChatCompletionRequest) (openaiResponse *types.ChatCompletionResponse, errWithCode *types.OpenAIErrorWithStatusCode) {
+	error := errorHandle(&response.BaiduError)
+	if error != nil {
+		errWithCode = &types.OpenAIErrorWithStatusCode{
+			OpenAIError: *error,
+			StatusCode:  http.StatusBadRequest,
 		}
+		return
 	}
 
 	choice := types.ChatCompletionChoice{
 		Index: 0,
 		Message: types.ChatCompletionMessage{
 			Role: "assistant",
-			// 	Content: baiduResponse.Result,
 		},
-		FinishReason: base.StopFinishReason,
+		FinishReason: types.FinishReasonStop,
 	}
 
-	if baiduResponse.FunctionCall != nil {
-		if baiduResponse.FunctionCate == "tool" {
+	if response.FunctionCall != nil {
+		if request.Tools != nil {
 			choice.Message.ToolCalls = []*types.ChatCompletionToolCalls{
 				{
-					Id:       baiduResponse.Id,
+					Id:       response.Id,
 					Type:     "function",
-					Function: *baiduResponse.FunctionCall,
+					Function: response.FunctionCall,
 				},
 			}
-			choice.FinishReason = &base.StopFinishReasonToolFunction
+			choice.FinishReason = types.FinishReasonToolCalls
 		} else {
-			choice.Message.FunctionCall = baiduResponse.FunctionCall
-			choice.FinishReason = &base.StopFinishReasonCallFunction
+			choice.Message.FunctionCall = response.FunctionCall
+			choice.FinishReason = types.FinishReasonFunctionCall
 		}
 	} else {
-		choice.Message.Content = baiduResponse.Result
+		choice.Message.Content = response.Result
 	}
 
-	OpenAIResponse = types.ChatCompletionResponse{
-		ID:      baiduResponse.Id,
+	openaiResponse = &types.ChatCompletionResponse{
+		ID:      response.Id,
 		Object:  "chat.completion",
-		Created: baiduResponse.Created,
+		Model:   request.Model,
+		Created: response.Created,
 		Choices: []types.ChatCompletionChoice{choice},
-		Usage:   baiduResponse.Usage,
+		Usage:   response.Usage,
 	}
+
+	*p.Usage = *openaiResponse.Usage
 
 	return
 }
 
-func (p *BaiduProvider) getChatRequestBody(request *types.ChatCompletionRequest) *BaiduChatRequest {
+func convertFromChatOpenai(request *types.ChatCompletionRequest) *BaiduChatRequest {
 	messages := make([]BaiduMessage, 0, len(request.Messages))
 	for _, message := range request.Messages {
-		if message.Role == "system" {
+		if message.Role == types.ChatMessageRoleSystem {
 			messages = append(messages, BaiduMessage{
-				Role:    "user",
+				Role:    types.ChatMessageRoleUser,
 				Content: message.StringContent(),
 			})
 			messages = append(messages, BaiduMessage{
-				Role:    "assistant",
+				Role:    types.ChatMessageRoleAssistant,
 				Content: "Okay",
+			})
+		} else if message.Role == types.ChatMessageRoleFunction {
+			messages = append(messages, BaiduMessage{
+				Role:    types.ChatMessageRoleAssistant,
+				Content: "Okay",
+			})
+			messages = append(messages, BaiduMessage{
+				Role:    types.ChatMessageRoleUser,
+				Content: "这是函数调用返回的内容，请回答之前的问题：\n" + message.StringContent(),
 			})
 		} else {
 			messages = append(messages, BaiduMessage{
@@ -101,154 +177,82 @@ func (p *BaiduProvider) getChatRequestBody(request *types.ChatCompletionRequest)
 	return baiduChatRequest
 }
 
-func (p *BaiduProvider) ChatAction(request *types.ChatCompletionRequest, isModelMapped bool, promptTokens int) (usage *types.Usage, errWithCode *types.OpenAIErrorWithStatusCode) {
-	requestBody := p.getChatRequestBody(request)
-	fullRequestURL := p.GetFullRequestURL(p.ChatCompletions, request.Model)
-	if fullRequestURL == "" {
-		return nil, common.ErrorWrapper(nil, "invalid_baidu_config", http.StatusInternalServerError)
+// 转换为OpenAI聊天流式请求体
+func (h *baiduStreamHandler) handlerStream(rawLine *[]byte, isFinished *bool, response *[]types.ChatCompletionStreamResponse) error {
+	// 如果rawLine 前缀不为data:，则直接返回
+	if !strings.HasPrefix(string(*rawLine), "data: ") {
+		*rawLine = nil
+		return nil
 	}
 
-	headers := p.GetRequestHeaders()
-	if request.Stream {
-		headers["Accept"] = "text/event-stream"
-	}
+	// 去除前缀
+	*rawLine = (*rawLine)[6:]
 
-	client := common.NewClient()
-	req, err := client.NewRequest(p.Context.Request.Method, fullRequestURL, common.WithBody(requestBody), common.WithHeader(headers))
+	var baiduResponse BaiduChatStreamResponse
+	err := json.Unmarshal(*rawLine, &baiduResponse)
 	if err != nil {
-		return nil, common.ErrorWrapper(err, "new_request_failed", http.StatusInternalServerError)
+		return common.ErrorToOpenAIError(err)
 	}
 
-	if request.Stream {
-		usage, errWithCode = p.sendStreamRequest(req, request.Model, request.GetFunctionCate())
-		if errWithCode != nil {
-			return
-		}
-
-	} else {
-		baiduChatRequest := &BaiduChatResponse{
-			Model:        request.Model,
-			FunctionCate: request.GetFunctionCate(),
-		}
-		errWithCode = p.SendRequest(req, baiduChatRequest, false)
-		if errWithCode != nil {
-			return
-		}
-
-		usage = baiduChatRequest.Usage
+	if baiduResponse.IsEnd {
+		*isFinished = true
 	}
-	return
+
+	return h.convertToOpenaiStream(&baiduResponse, response)
 
 }
 
-func (p *BaiduProvider) streamResponseBaidu2OpenAI(baiduResponse *BaiduChatStreamResponse) *types.ChatCompletionStreamResponse {
-	var choice types.ChatCompletionStreamChoice
+func (h *baiduStreamHandler) convertToOpenaiStream(baiduResponse *BaiduChatStreamResponse, response *[]types.ChatCompletionStreamResponse) error {
+	choice := types.ChatCompletionStreamChoice{
+		Index: 0,
+		Delta: types.ChatCompletionStreamChoiceDelta{
+			Role: "assistant",
+		},
+	}
 
 	if baiduResponse.FunctionCall != nil {
-		if baiduResponse.FunctionCate == "tool" {
+		if h.Request.Tools != nil {
 			choice.Delta.ToolCalls = []*types.ChatCompletionToolCalls{
 				{
 					Id:       baiduResponse.Id,
 					Type:     "function",
-					Function: *baiduResponse.FunctionCall,
+					Function: baiduResponse.FunctionCall,
 				},
 			}
-			choice.FinishReason = &base.StopFinishReasonToolFunction
+			choice.FinishReason = types.FinishReasonToolCalls
 		} else {
 			choice.Delta.FunctionCall = baiduResponse.FunctionCall
-			choice.FinishReason = &base.StopFinishReasonCallFunction
+			choice.FinishReason = types.FinishReasonFunctionCall
 		}
 	} else {
 		choice.Delta.Content = baiduResponse.Result
 		if baiduResponse.IsEnd {
-			choice.FinishReason = &base.StopFinishReason
+			choice.FinishReason = types.FinishReasonStop
 		}
 	}
 
-	response := types.ChatCompletionStreamResponse{
+	chatCompletion := types.ChatCompletionStreamResponse{
 		ID:      baiduResponse.Id,
 		Object:  "chat.completion.chunk",
 		Created: baiduResponse.Created,
-		Model:   baiduResponse.Model,
-		Choices: []types.ChatCompletionStreamChoice{choice},
-	}
-	return &response
-}
-
-func (p *BaiduProvider) sendStreamRequest(req *http.Request, model string, functionCate string) (usage *types.Usage, errWithCode *types.OpenAIErrorWithStatusCode) {
-	defer req.Body.Close()
-
-	usage = &types.Usage{}
-	// 发送请求
-	client := common.GetHttpClient(p.Channel.Proxy)
-	resp, err := client.Do(req)
-	if err != nil {
-		return nil, common.ErrorWrapper(err, "http_request_failed", http.StatusInternalServerError)
-	}
-	common.PutHttpClient(client)
-
-	if common.IsFailureStatusCode(resp) {
-		return nil, common.HandleErrorResp(resp)
+		Model:   h.Request.Model,
 	}
 
-	defer resp.Body.Close()
+	if baiduResponse.FunctionCall == nil {
+		chatCompletion.Choices = []types.ChatCompletionStreamChoice{choice}
+		*response = append(*response, chatCompletion)
+	} else {
+		choices := choice.ConvertOpenaiStream()
+		for _, choice := range choices {
+			chatCompletionCopy := chatCompletion
+			chatCompletionCopy.Choices = []types.ChatCompletionStreamChoice{choice}
+			*response = append(*response, chatCompletionCopy)
+		}
+	}
 
-	scanner := bufio.NewScanner(resp.Body)
-	scanner.Split(func(data []byte, atEOF bool) (advance int, token []byte, err error) {
-		if atEOF && len(data) == 0 {
-			return 0, nil, nil
-		}
-		if i := strings.Index(string(data), "\n"); i >= 0 {
-			return i + 1, data[0:i], nil
-		}
-		if atEOF {
-			return len(data), data, nil
-		}
-		return 0, nil, nil
-	})
-	dataChan := make(chan string)
-	stopChan := make(chan bool)
-	go func() {
-		for scanner.Scan() {
-			data := scanner.Text()
-			if len(data) < 6 { // ignore blank line or wrong format
-				continue
-			}
-			data = data[6:]
-			dataChan <- data
-		}
-		stopChan <- true
-	}()
-	common.SetEventStreamHeaders(p.Context)
-	p.Context.Stream(func(w io.Writer) bool {
-		select {
-		case data := <-dataChan:
-			var baiduResponse BaiduChatStreamResponse
-			baiduResponse.FunctionCate = functionCate
-			err := json.Unmarshal([]byte(data), &baiduResponse)
-			if err != nil {
-				common.SysError("error unmarshalling stream response: " + err.Error())
-				return true
-			}
-			if baiduResponse.Usage.TotalTokens != 0 {
-				usage.TotalTokens = baiduResponse.Usage.TotalTokens
-				usage.PromptTokens = baiduResponse.Usage.PromptTokens
-				usage.CompletionTokens = baiduResponse.Usage.TotalTokens - baiduResponse.Usage.PromptTokens
-			}
-			baiduResponse.Model = model
-			response := p.streamResponseBaidu2OpenAI(&baiduResponse)
-			jsonResponse, err := json.Marshal(response)
-			if err != nil {
-				common.SysError("error marshalling stream response: " + err.Error())
-				return true
-			}
-			p.Context.Render(-1, common.CustomEvent{Data: "data: " + string(jsonResponse)})
-			return true
-		case <-stopChan:
-			p.Context.Render(-1, common.CustomEvent{Data: "data: [DONE]"})
-			return false
-		}
-	})
+	h.Usage.TotalTokens = baiduResponse.Usage.TotalTokens
+	h.Usage.PromptTokens = baiduResponse.Usage.PromptTokens
+	h.Usage.CompletionTokens += baiduResponse.Usage.CompletionTokens
 
-	return usage, nil
+	return nil
 }

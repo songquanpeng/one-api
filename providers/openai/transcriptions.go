@@ -4,48 +4,99 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
+	"io"
 	"net/http"
 	"one-api/common"
+	"one-api/common/requester"
 	"one-api/types"
 	"regexp"
 	"strconv"
 	"strings"
 )
 
-func (c *OpenAIProviderTranscriptionsResponse) ResponseHandler(resp *http.Response) (OpenAIResponse any, errWithCode *types.OpenAIErrorWithStatusCode) {
-	if c.Error.Type != "" {
-		errWithCode = &types.OpenAIErrorWithStatusCode{
-			OpenAIError: c.Error,
-			StatusCode:  resp.StatusCode,
-		}
-		return
+func (p *OpenAIProvider) CreateTranscriptions(request *types.AudioRequest) (*types.AudioResponseWrapper, *types.OpenAIErrorWithStatusCode) {
+	req, errWithCode := p.getRequestAudioBody(common.RelayModeAudioTranscription, request.Model, request)
+	if errWithCode != nil {
+		return nil, errWithCode
 	}
-	return nil, nil
+	defer req.Body.Close()
+
+	var textResponse string
+	var resp *http.Response
+	var err error
+	audioResponseWrapper := &types.AudioResponseWrapper{}
+	if hasJSONResponse(request) {
+		openAIProviderTranscriptionsResponse := &OpenAIProviderTranscriptionsResponse{}
+		resp, errWithCode = p.Requester.SendRequest(req, openAIProviderTranscriptionsResponse, true)
+		if errWithCode != nil {
+			return nil, errWithCode
+		}
+		textResponse = openAIProviderTranscriptionsResponse.Text
+	} else {
+		openAIProviderTranscriptionsTextResponse := new(OpenAIProviderTranscriptionsTextResponse)
+		resp, errWithCode = p.Requester.SendRequest(req, openAIProviderTranscriptionsTextResponse, true)
+		if errWithCode != nil {
+			return nil, errWithCode
+		}
+		textResponse = getTextContent(*openAIProviderTranscriptionsTextResponse.GetString(), request.ResponseFormat)
+	}
+
+	defer resp.Body.Close()
+
+	audioResponseWrapper.Headers = map[string]string{
+		"Content-Type": resp.Header.Get("Content-Type"),
+	}
+
+	audioResponseWrapper.Body, err = io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, common.ErrorWrapper(err, "read_response_body_failed", http.StatusInternalServerError)
+	}
+
+	completionTokens := common.CountTokenText(textResponse, request.Model)
+
+	p.Usage.CompletionTokens = completionTokens
+	p.Usage.TotalTokens = p.Usage.PromptTokens + p.Usage.CompletionTokens
+
+	return audioResponseWrapper, nil
 }
 
-func (c *OpenAIProviderTranscriptionsTextResponse) ResponseHandler(resp *http.Response) (OpenAIResponse any, errWithCode *types.OpenAIErrorWithStatusCode) {
-	return nil, nil
+func hasJSONResponse(request *types.AudioRequest) bool {
+	return request.ResponseFormat == "" || request.ResponseFormat == "json" || request.ResponseFormat == "verbose_json"
 }
 
-func (p *OpenAIProvider) TranscriptionsAction(request *types.AudioRequest, isModelMapped bool, promptTokens int) (usage *types.Usage, errWithCode *types.OpenAIErrorWithStatusCode) {
-	fullRequestURL := p.GetFullRequestURL(p.AudioTranscriptions, request.Model)
+func (p *OpenAIProvider) getRequestAudioBody(relayMode int, ModelName string, request *types.AudioRequest) (*http.Request, *types.OpenAIErrorWithStatusCode) {
+	url, errWithCode := p.GetSupportedAPIUri(relayMode)
+	if errWithCode != nil {
+		return nil, errWithCode
+	}
+	// 获取请求地址
+	fullRequestURL := p.GetFullRequestURL(url, ModelName)
+
+	// 获取请求头
 	headers := p.GetRequestHeaders()
-
-	client := common.NewClient()
-
-	var formBody bytes.Buffer
+	// 创建请求
 	var req *http.Request
 	var err error
-	if isModelMapped {
-		builder := client.CreateFormBuilder(&formBody)
+	if p.OriginalModel != request.Model {
+		var formBody bytes.Buffer
+		builder := p.Requester.CreateFormBuilder(&formBody)
 		if err := audioMultipartForm(request, builder); err != nil {
 			return nil, common.ErrorWrapper(err, "create_form_builder_failed", http.StatusInternalServerError)
 		}
-		req, err = client.NewRequest(p.Context.Request.Method, fullRequestURL, common.WithBody(&formBody), common.WithHeader(headers), common.WithContentType(builder.FormDataContentType()))
+		req, err = p.Requester.NewRequest(
+			http.MethodPost,
+			fullRequestURL,
+			p.Requester.WithBody(&formBody),
+			p.Requester.WithHeader(headers),
+			p.Requester.WithContentType(builder.FormDataContentType()))
 		req.ContentLength = int64(formBody.Len())
-
 	} else {
-		req, err = client.NewRequest(p.Context.Request.Method, fullRequestURL, common.WithBody(p.Context.Request.Body), common.WithHeader(headers), common.WithContentType(p.Context.Request.Header.Get("Content-Type")))
+		req, err = p.Requester.NewRequest(
+			http.MethodPost,
+			fullRequestURL,
+			p.Requester.WithBody(p.Context.Request.Body),
+			p.Requester.WithHeader(headers),
+			p.Requester.WithContentType(p.Context.Request.Header.Get("Content-Type")))
 		req.ContentLength = p.Context.Request.ContentLength
 	}
 
@@ -53,37 +104,10 @@ func (p *OpenAIProvider) TranscriptionsAction(request *types.AudioRequest, isMod
 		return nil, common.ErrorWrapper(err, "new_request_failed", http.StatusInternalServerError)
 	}
 
-	var textResponse string
-	if hasJSONResponse(request) {
-		openAIProviderTranscriptionsResponse := &OpenAIProviderTranscriptionsResponse{}
-		errWithCode = p.SendRequest(req, openAIProviderTranscriptionsResponse, true)
-		if errWithCode != nil {
-			return
-		}
-		textResponse = openAIProviderTranscriptionsResponse.Text
-	} else {
-		openAIProviderTranscriptionsTextResponse := new(OpenAIProviderTranscriptionsTextResponse)
-		errWithCode = p.SendRequest(req, openAIProviderTranscriptionsTextResponse, true)
-		if errWithCode != nil {
-			return
-		}
-		textResponse = getTextContent(*openAIProviderTranscriptionsTextResponse.GetString(), request.ResponseFormat)
-	}
-
-	completionTokens := common.CountTokenText(textResponse, request.Model)
-	usage = &types.Usage{
-		PromptTokens:     promptTokens,
-		CompletionTokens: completionTokens,
-		TotalTokens:      promptTokens + completionTokens,
-	}
-	return
+	return req, nil
 }
 
-func hasJSONResponse(request *types.AudioRequest) bool {
-	return request.ResponseFormat == "" || request.ResponseFormat == "json" || request.ResponseFormat == "verbose_json"
-}
-
-func audioMultipartForm(request *types.AudioRequest, b common.FormBuilder) error {
+func audioMultipartForm(request *types.AudioRequest, b requester.FormBuilder) error {
 
 	err := b.CreateFormFile("file", request.File)
 	if err != nil {

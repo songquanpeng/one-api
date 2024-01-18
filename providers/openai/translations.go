@@ -1,60 +1,53 @@
 package openai
 
 import (
-	"bytes"
+	"io"
 	"net/http"
 	"one-api/common"
 	"one-api/types"
 )
 
-func (p *OpenAIProvider) TranslationAction(request *types.AudioRequest, isModelMapped bool, promptTokens int) (usage *types.Usage, errWithCode *types.OpenAIErrorWithStatusCode) {
-	fullRequestURL := p.GetFullRequestURL(p.AudioTranslations, request.Model)
-	headers := p.GetRequestHeaders()
-
-	client := common.NewClient()
-
-	var formBody bytes.Buffer
-	var req *http.Request
-	var err error
-	if isModelMapped {
-		builder := client.CreateFormBuilder(&formBody)
-		if err := audioMultipartForm(request, builder); err != nil {
-			return nil, common.ErrorWrapper(err, "create_form_builder_failed", http.StatusInternalServerError)
-		}
-		req, err = client.NewRequest(p.Context.Request.Method, fullRequestURL, common.WithBody(&formBody), common.WithHeader(headers), common.WithContentType(builder.FormDataContentType()))
-		req.ContentLength = int64(formBody.Len())
-
-	} else {
-		req, err = client.NewRequest(p.Context.Request.Method, fullRequestURL, common.WithBody(p.Context.Request.Body), common.WithHeader(headers), common.WithContentType(p.Context.Request.Header.Get("Content-Type")))
-		req.ContentLength = p.Context.Request.ContentLength
+func (p *OpenAIProvider) CreateTranslation(request *types.AudioRequest) (*types.AudioResponseWrapper, *types.OpenAIErrorWithStatusCode) {
+	req, errWithCode := p.getRequestAudioBody(common.RelayModeAudioTranslation, request.Model, request)
+	if errWithCode != nil {
+		return nil, errWithCode
 	}
-
-	if err != nil {
-		return nil, common.ErrorWrapper(err, "new_request_failed", http.StatusInternalServerError)
-	}
+	defer req.Body.Close()
 
 	var textResponse string
+	var resp *http.Response
+	var err error
+	audioResponseWrapper := &types.AudioResponseWrapper{}
 	if hasJSONResponse(request) {
 		openAIProviderTranscriptionsResponse := &OpenAIProviderTranscriptionsResponse{}
-		errWithCode = p.SendRequest(req, openAIProviderTranscriptionsResponse, true)
+		resp, errWithCode = p.Requester.SendRequest(req, openAIProviderTranscriptionsResponse, true)
 		if errWithCode != nil {
-			return
+			return nil, errWithCode
 		}
 		textResponse = openAIProviderTranscriptionsResponse.Text
 	} else {
 		openAIProviderTranscriptionsTextResponse := new(OpenAIProviderTranscriptionsTextResponse)
-		errWithCode = p.SendRequest(req, openAIProviderTranscriptionsTextResponse, true)
+		resp, errWithCode = p.Requester.SendRequest(req, openAIProviderTranscriptionsTextResponse, true)
 		if errWithCode != nil {
-			return
+			return nil, errWithCode
 		}
 		textResponse = getTextContent(*openAIProviderTranscriptionsTextResponse.GetString(), request.ResponseFormat)
 	}
+	defer resp.Body.Close()
+
+	audioResponseWrapper.Headers = map[string]string{
+		"Content-Type": resp.Header.Get("Content-Type"),
+	}
+
+	audioResponseWrapper.Body, err = io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, common.ErrorWrapper(err, "read_response_body_failed", http.StatusInternalServerError)
+	}
 
 	completionTokens := common.CountTokenText(textResponse, request.Model)
-	usage = &types.Usage{
-		PromptTokens:     promptTokens,
-		CompletionTokens: completionTokens,
-		TotalTokens:      promptTokens + completionTokens,
-	}
-	return
+
+	p.Usage.CompletionTokens = completionTokens
+	p.Usage.TotalTokens = p.Usage.PromptTokens + p.Usage.CompletionTokens
+
+	return audioResponseWrapper, nil
 }

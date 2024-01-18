@@ -1,34 +1,39 @@
 package azure
 
 import (
+	"one-api/common/requester"
+	"one-api/model"
 	"one-api/providers/base"
 	"one-api/providers/openai"
-
-	"github.com/gin-gonic/gin"
 )
 
 type AzureProviderFactory struct{}
 
 // 创建 AzureProvider
-func (f AzureProviderFactory) Create(c *gin.Context) base.ProviderInterface {
+func (f AzureProviderFactory) Create(channel *model.Channel) base.ProviderInterface {
+	config := getAzureConfig()
 	return &AzureProvider{
 		OpenAIProvider: openai.OpenAIProvider{
 			BaseProvider: base.BaseProvider{
-				BaseURL:             "",
-				Completions:         "/completions",
-				ChatCompletions:     "/chat/completions",
-				Embeddings:          "/embeddings",
-				AudioTranscriptions: "/audio/transcriptions",
-				AudioTranslations:   "/audio/translations",
-				ImagesGenerations:   "/images/generations",
-				// ImagesEdit:          "/images/edit",
-				// ImagesVariations:    "/images/variations",
-				Context: c,
-				// AudioSpeech:         "/audio/speech",
+				Config:    config,
+				Channel:   channel,
+				Requester: requester.NewHTTPRequester(channel.Proxy, openai.RequestErrorHandle),
 			},
 			IsAzure:       true,
 			BalanceAction: false,
 		},
+	}
+}
+
+func getAzureConfig() base.ProviderConfig {
+	return base.ProviderConfig{
+		BaseURL:             "",
+		Completions:         "/completions",
+		ChatCompletions:     "/chat/completions",
+		Embeddings:          "/embeddings",
+		AudioTranscriptions: "/audio/transcriptions",
+		AudioTranslations:   "/audio/translations",
+		ImagesGenerations:   "/images/generations",
 	}
 }
 

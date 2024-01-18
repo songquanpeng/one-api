@@ -10,13 +10,60 @@ import (
 	"time"
 )
 
-func (c *ImageAzureResponse) ResponseHandler(resp *http.Response) (OpenAIResponse any, errWithCode *types.OpenAIErrorWithStatusCode) {
-	if c.Status == "canceled" || c.Status == "failed" {
+func (p *AzureProvider) CreateImageGenerations(request *types.ImageRequest) (*types.ImageResponse, *types.OpenAIErrorWithStatusCode) {
+	if !openai.IsWithinRange(request.Model, request.N) {
+		return nil, common.StringErrorWrapper("n_not_within_range", "n_not_within_range", http.StatusBadRequest)
+	}
+
+	req, errWithCode := p.GetRequestTextBody(common.RelayModeImagesGenerations, request.Model, request)
+	if errWithCode != nil {
+		return nil, errWithCode
+	}
+	defer req.Body.Close()
+
+	var response *types.ImageResponse
+	var resp *http.Response
+	if request.Model == "dall-e-2" {
+		imageAzureResponse := &ImageAzureResponse{}
+		resp, errWithCode = p.Requester.SendRequest(req, imageAzureResponse, false)
+		if errWithCode != nil {
+			return nil, errWithCode
+		}
+		response, errWithCode = p.ResponseAzureImageHandler(resp, imageAzureResponse)
+		if errWithCode != nil {
+			return nil, errWithCode
+		}
+	} else {
+		var openaiResponse openai.OpenAIProviderImageResponse
+		_, errWithCode = p.Requester.SendRequest(req, &openaiResponse, false)
+		if errWithCode != nil {
+			return nil, errWithCode
+		}
+		// 检测是否错误
+		openaiErr := openai.ErrorHandle(&openaiResponse.OpenAIErrorResponse)
+		if openaiErr != nil {
+			errWithCode = &types.OpenAIErrorWithStatusCode{
+				OpenAIError: *openaiErr,
+				StatusCode:  http.StatusBadRequest,
+			}
+			return nil, errWithCode
+		}
+		response = &openaiResponse.ImageResponse
+	}
+
+	p.Usage.TotalTokens = p.Usage.PromptTokens
+
+	return response, nil
+
+}
+
+func (p *AzureProvider) ResponseAzureImageHandler(resp *http.Response, azure *ImageAzureResponse) (OpenAIResponse *types.ImageResponse, errWithCode *types.OpenAIErrorWithStatusCode) {
+	if azure.Status == "canceled" || azure.Status == "failed" {
 		errWithCode = &types.OpenAIErrorWithStatusCode{
 			OpenAIError: types.OpenAIError{
-				Message: c.Error.Message,
+				Message: azure.Error.Message,
 				Type:    "one_api_error",
-				Code:    c.Error.Code,
+				Code:    azure.Error.Code,
 			},
 			StatusCode: resp.StatusCode,
 		}
@@ -28,8 +75,7 @@ func (c *ImageAzureResponse) ResponseHandler(resp *http.Response) (OpenAIRespons
 		return nil, common.ErrorWrapper(errors.New("image url is empty"), "get_images_url_failed", http.StatusInternalServerError)
 	}
 
-	client := common.NewClient()
-	req, err := client.NewRequest("GET", operation_location, common.WithHeader(c.Header))
+	req, err := p.Requester.NewRequest("GET", operation_location, p.Requester.WithHeader(p.GetRequestHeaders()))
 	if err != nil {
 		return nil, common.ErrorWrapper(err, "get_images_request_failed", http.StatusInternalServerError)
 	}
@@ -38,7 +84,7 @@ func (c *ImageAzureResponse) ResponseHandler(resp *http.Response) (OpenAIRespons
 	for i := 0; i < 3; i++ {
 		// 休眠 2 秒
 		time.Sleep(2 * time.Second)
-		_, errWithCode = common.SendRequest(req, &getImageAzureResponse, false, c.Proxy)
+		_, errWithCode = p.Requester.SendRequest(req, &getImageAzureResponse, false)
 		fmt.Println("getImageAzureResponse", getImageAzureResponse)
 		if errWithCode != nil {
 			return
@@ -47,57 +93,17 @@ func (c *ImageAzureResponse) ResponseHandler(resp *http.Response) (OpenAIRespons
 		if getImageAzureResponse.Status == "canceled" || getImageAzureResponse.Status == "failed" {
 			return nil, &types.OpenAIErrorWithStatusCode{
 				OpenAIError: types.OpenAIError{
-					Message: c.Error.Message,
+					Message: getImageAzureResponse.Error.Message,
 					Type:    "get_images_request_failed",
-					Code:    c.Error.Code,
+					Code:    getImageAzureResponse.Error.Code,
 				},
 				StatusCode: resp.StatusCode,
 			}
 		}
 		if getImageAzureResponse.Status == "succeeded" {
-			return getImageAzureResponse.Result, nil
+			return &getImageAzureResponse.Result, nil
 		}
 	}
 
 	return nil, common.ErrorWrapper(errors.New("get image Timeout"), "get_images_url_failed", http.StatusInternalServerError)
-}
-
-func (p *AzureProvider) ImageGenerationsAction(request *types.ImageRequest, isModelMapped bool, promptTokens int) (usage *types.Usage, errWithCode *types.OpenAIErrorWithStatusCode) {
-
-	requestBody, err := p.GetRequestBody(&request, isModelMapped)
-	if err != nil {
-		return nil, common.ErrorWrapper(err, "json_marshal_failed", http.StatusInternalServerError)
-	}
-
-	fullRequestURL := p.GetFullRequestURL(p.ImagesGenerations, request.Model)
-	headers := p.GetRequestHeaders()
-
-	client := common.NewClient()
-	req, err := client.NewRequest(p.Context.Request.Method, fullRequestURL, common.WithBody(requestBody), common.WithHeader(headers))
-	if err != nil {
-		return nil, common.ErrorWrapper(err, "new_request_failed", http.StatusInternalServerError)
-	}
-
-	if request.Model == "dall-e-2" {
-		imageAzureResponse := &ImageAzureResponse{
-			Header: headers,
-			Proxy:  p.Channel.Proxy,
-		}
-		errWithCode = p.SendRequest(req, imageAzureResponse, false)
-	} else {
-		openAIProviderImageResponseResponse := &openai.OpenAIProviderImageResponseResponse{}
-		errWithCode = p.SendRequest(req, openAIProviderImageResponseResponse, true)
-	}
-
-	if errWithCode != nil {
-		return
-	}
-
-	usage = &types.Usage{
-		PromptTokens:     promptTokens,
-		CompletionTokens: 0,
-		TotalTokens:      promptTokens,
-	}
-
-	return
 }

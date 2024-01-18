@@ -1,17 +1,16 @@
 package api2gpt
 
 import (
+	"one-api/model"
 	"one-api/providers/base"
 	"one-api/providers/openai"
-
-	"github.com/gin-gonic/gin"
 )
 
 type Api2gptProviderFactory struct{}
 
-func (f Api2gptProviderFactory) Create(c *gin.Context) base.ProviderInterface {
+func (f Api2gptProviderFactory) Create(channel *model.Channel) base.ProviderInterface {
 	return &Api2gptProvider{
-		OpenAIProvider: openai.CreateOpenAIProvider(c, "https://api.api2gpt.com"),
+		OpenAIProvider: openai.CreateOpenAIProvider(channel, "https://api.api2gpt.com"),
 	}
 }
 

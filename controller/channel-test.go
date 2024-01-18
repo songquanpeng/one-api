@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
@@ -38,30 +39,36 @@ func testChannel(channel *model.Channel, request types.ChatCompletionRequest) (e
 	if provider == nil {
 		return errors.New("channel not implemented"), nil
 	}
+
+	newModelName, err := provider.ModelMappingHandler(request.Model)
+	if err != nil {
+		return err, nil
+	}
+
+	request.Model = newModelName
+
 	chatProvider, ok := provider.(providers_base.ChatInterface)
 	if !ok {
 		return errors.New("channel not implemented"), nil
 	}
 
-	modelMap, err := parseModelMapping(channel.GetModelMapping())
-	if err != nil {
-		return err, nil
-	}
-	if modelMap != nil && modelMap[request.Model] != "" {
-		request.Model = modelMap[request.Model]
-	}
+	chatProvider.SetUsage(&types.Usage{})
 
-	promptTokens := common.CountTokenMessages(request.Messages, request.Model)
-	Usage, openAIErrorWithStatusCode := chatProvider.ChatAction(&request, true, promptTokens)
+	response, openAIErrorWithStatusCode := chatProvider.CreateChatCompletion(&request)
+
 	if openAIErrorWithStatusCode != nil {
 		return errors.New(openAIErrorWithStatusCode.Message), &openAIErrorWithStatusCode.OpenAIError
 	}
 
-	if Usage.CompletionTokens == 0 {
+	usage := chatProvider.GetUsage()
+
+	if usage.CompletionTokens == 0 {
 		return fmt.Errorf("channel %s, message 补全 tokens 非预期返回 0", channel.Name), nil
 	}
 
-	common.SysLog(fmt.Sprintf("测试模型 %s 返回内容为：%s", channel.Name, w.Body.String()))
+	// 转换为JSON字符串
+	jsonBytes, _ := json.Marshal(response)
+	common.SysLog(fmt.Sprintf("测试模型 %s 返回内容为：%s", channel.Name, string(jsonBytes)))
 
 	return nil, nil
 }
@@ -74,9 +81,9 @@ func buildTestRequest() *types.ChatCompletionRequest {
 				Content: "You just need to output 'hi' next.",
 			},
 		},
-		Model:     "",
-		MaxTokens: 1,
-		Stream:    false,
+		Model: "",
+		// MaxTokens: 1,
+		Stream: false,
 	}
 	return testRequest
 }

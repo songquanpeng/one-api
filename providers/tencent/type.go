@@ -50,13 +50,17 @@ type TencentResponseChoices struct {
 	Delta        TencentMessage `json:"delta,omitempty"`         // 内容，流模式返回内容，同步模式为 null 输出 content 内容总数最多支持 1024token。
 }
 
+type TencentResponseError struct {
+	Error TencentError `json:"error,omitempty"`
+}
+
 type TencentChatResponse struct {
 	Choices []TencentResponseChoices `json:"choices,omitempty"` // 结果
 	Created string                   `json:"created,omitempty"` // unix 时间戳的字符串
 	Id      string                   `json:"id,omitempty"`      // 会话 id
 	Usage   *types.Usage             `json:"usage,omitempty"`   // token 数量
-	Error   TencentError             `json:"error,omitempty"`   // 错误信息 注意：此字段可能返回 null，表示取不到有效值
 	Note    string                   `json:"note,omitempty"`    // 注释
 	ReqID   string                   `json:"req_id,omitempty"`  // 唯一请求 Id，每次请求都会返回。用于反馈接口入参
 	Model   string                   `json:"model,omitempty"`   // 模型名称
+	TencentResponseError
 }

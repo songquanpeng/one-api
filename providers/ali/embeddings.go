@@ -6,40 +6,37 @@ import (
 	"one-api/types"
 )
 
-// 嵌入请求处理
-func (aliResponse *AliEmbeddingResponse) ResponseHandler(resp *http.Response) (any, *types.OpenAIErrorWithStatusCode) {
-	if aliResponse.Code != "" {
-		return nil, &types.OpenAIErrorWithStatusCode{
-			OpenAIError: types.OpenAIError{
-				Message: aliResponse.Message,
-				Type:    aliResponse.Code,
-				Param:   aliResponse.RequestId,
-				Code:    aliResponse.Code,
-			},
-			StatusCode: resp.StatusCode,
-		}
+func (p *AliProvider) CreateEmbeddings(request *types.EmbeddingRequest) (*types.EmbeddingResponse, *types.OpenAIErrorWithStatusCode) {
+	url, errWithCode := p.GetSupportedAPIUri(common.RelayModeEmbeddings)
+	if errWithCode != nil {
+		return nil, errWithCode
+	}
+	// 获取请求地址
+	fullRequestURL := p.GetFullRequestURL(url, request.Model)
+
+	// 获取请求头
+	headers := p.GetRequestHeaders()
+
+	aliRequest := convertFromEmbeddingOpenai(request)
+	// 创建请求
+	req, err := p.Requester.NewRequest(http.MethodPost, fullRequestURL, p.Requester.WithBody(aliRequest), p.Requester.WithHeader(headers))
+	if err != nil {
+		return nil, common.ErrorWrapper(err, "new_request_failed", http.StatusInternalServerError)
+	}
+	defer req.Body.Close()
+
+	aliResponse := &AliEmbeddingResponse{}
+
+	// 发送请求
+	_, errWithCode = p.Requester.SendRequest(req, aliResponse, false)
+	if errWithCode != nil {
+		return nil, errWithCode
 	}
 
-	openAIEmbeddingResponse := &types.EmbeddingResponse{
-		Object: "list",
-		Data:   make([]types.Embedding, 0, len(aliResponse.Output.Embeddings)),
-		Model:  "text-embedding-v1",
-		Usage:  &types.Usage{TotalTokens: aliResponse.Usage.TotalTokens},
-	}
-
-	for _, item := range aliResponse.Output.Embeddings {
-		openAIEmbeddingResponse.Data = append(openAIEmbeddingResponse.Data, types.Embedding{
-			Object:    `embedding`,
-			Index:     item.TextIndex,
-			Embedding: item.Embedding,
-		})
-	}
-
-	return openAIEmbeddingResponse, nil
+	return p.convertToEmbeddingOpenai(aliResponse, request)
 }
 
-// 获取嵌入请求体
-func (p *AliProvider) getEmbeddingsRequestBody(request *types.EmbeddingRequest) *AliEmbeddingRequest {
+func convertFromEmbeddingOpenai(request *types.EmbeddingRequest) *AliEmbeddingRequest {
 	return &AliEmbeddingRequest{
 		Model: "text-embedding-v1",
 		Input: struct {
@@ -50,24 +47,36 @@ func (p *AliProvider) getEmbeddingsRequestBody(request *types.EmbeddingRequest) 
 	}
 }
 
-func (p *AliProvider) EmbeddingsAction(request *types.EmbeddingRequest, isModelMapped bool, promptTokens int) (usage *types.Usage, errWithCode *types.OpenAIErrorWithStatusCode) {
-
-	requestBody := p.getEmbeddingsRequestBody(request)
-	fullRequestURL := p.GetFullRequestURL(p.Embeddings, request.Model)
-	headers := p.GetRequestHeaders()
-
-	client := common.NewClient()
-	req, err := client.NewRequest(p.Context.Request.Method, fullRequestURL, common.WithBody(requestBody), common.WithHeader(headers))
-	if err != nil {
-		return nil, common.ErrorWrapper(err, "new_request_failed", http.StatusInternalServerError)
-	}
-
-	aliEmbeddingResponse := &AliEmbeddingResponse{}
-	errWithCode = p.SendRequest(req, aliEmbeddingResponse, false)
-	if errWithCode != nil {
+func (p *AliProvider) convertToEmbeddingOpenai(response *AliEmbeddingResponse, request *types.EmbeddingRequest) (openaiResponse *types.EmbeddingResponse, errWithCode *types.OpenAIErrorWithStatusCode) {
+	error := errorHandle(&response.AliError)
+	if error != nil {
+		errWithCode = &types.OpenAIErrorWithStatusCode{
+			OpenAIError: *error,
+			StatusCode:  http.StatusBadRequest,
+		}
 		return
 	}
-	usage = &types.Usage{TotalTokens: aliEmbeddingResponse.Usage.TotalTokens}
 
-	return usage, nil
+	openaiResponse = &types.EmbeddingResponse{
+		Object: "list",
+		Data:   make([]types.Embedding, 0, len(response.Output.Embeddings)),
+		Model:  request.Model,
+		Usage: &types.Usage{
+			PromptTokens:     response.Usage.TotalTokens,
+			CompletionTokens: response.Usage.OutputTokens,
+			TotalTokens:      response.Usage.TotalTokens,
+		},
+	}
+
+	for _, item := range response.Output.Embeddings {
+		openaiResponse.Data = append(openaiResponse.Data, types.Embedding{
+			Object:    `embedding`,
+			Index:     item.TextIndex,
+			Embedding: item.Embedding,
+		})
+	}
+
+	*p.Usage = *openaiResponse.Usage
+
+	return
 }

@@ -6,33 +6,63 @@ import (
 	"one-api/types"
 )
 
-func (p *BaiduProvider) getEmbeddingsRequestBody(request *types.EmbeddingRequest) *BaiduEmbeddingRequest {
+func (p *BaiduProvider) CreateEmbeddings(request *types.EmbeddingRequest) (*types.EmbeddingResponse, *types.OpenAIErrorWithStatusCode) {
+	url, errWithCode := p.GetSupportedAPIUri(common.RelayModeEmbeddings)
+	if errWithCode != nil {
+		return nil, errWithCode
+	}
+	// 获取请求地址
+	fullRequestURL := p.GetFullRequestURL(url, request.Model)
+	if fullRequestURL == "" {
+		return nil, common.ErrorWrapper(nil, "invalid_baidu_config", http.StatusInternalServerError)
+	}
+
+	// 获取请求头
+	headers := p.GetRequestHeaders()
+
+	aliRequest := convertFromEmbeddingOpenai(request)
+	// 创建请求
+	req, err := p.Requester.NewRequest(http.MethodPost, fullRequestURL, p.Requester.WithBody(aliRequest), p.Requester.WithHeader(headers))
+	if err != nil {
+		return nil, common.ErrorWrapper(err, "new_request_failed", http.StatusInternalServerError)
+	}
+	defer req.Body.Close()
+
+	baiduResponse := &BaiduEmbeddingResponse{}
+
+	// 发送请求
+	_, errWithCode = p.Requester.SendRequest(req, baiduResponse, false)
+	if errWithCode != nil {
+		return nil, errWithCode
+	}
+
+	return p.convertToEmbeddingOpenai(baiduResponse, request)
+}
+
+func convertFromEmbeddingOpenai(request *types.EmbeddingRequest) *BaiduEmbeddingRequest {
 	return &BaiduEmbeddingRequest{
 		Input: request.ParseInput(),
 	}
 }
 
-func (baiduResponse *BaiduEmbeddingResponse) ResponseHandler(resp *http.Response) (OpenAIResponse any, errWithCode *types.OpenAIErrorWithStatusCode) {
-	if baiduResponse.ErrorMsg != "" {
-		return nil, &types.OpenAIErrorWithStatusCode{
-			OpenAIError: types.OpenAIError{
-				Message: baiduResponse.ErrorMsg,
-				Type:    "baidu_error",
-				Param:   "",
-				Code:    baiduResponse.ErrorCode,
-			},
-			StatusCode: resp.StatusCode,
+func (p *BaiduProvider) convertToEmbeddingOpenai(response *BaiduEmbeddingResponse, request *types.EmbeddingRequest) (openaiResponse *types.EmbeddingResponse, errWithCode *types.OpenAIErrorWithStatusCode) {
+	error := errorHandle(&response.BaiduError)
+	if error != nil {
+		errWithCode = &types.OpenAIErrorWithStatusCode{
+			OpenAIError: *error,
+			StatusCode:  http.StatusBadRequest,
 		}
+		return
 	}
 
 	openAIEmbeddingResponse := &types.EmbeddingResponse{
 		Object: "list",
-		Data:   make([]types.Embedding, 0, len(baiduResponse.Data)),
-		Model:  "text-embedding-v1",
-		Usage:  &baiduResponse.Usage,
+		Data:   make([]types.Embedding, 0, len(response.Data)),
+		Model:  request.Model,
+		Usage:  &response.Usage,
 	}
 
-	for _, item := range baiduResponse.Data {
+	for _, item := range response.Data {
 		openAIEmbeddingResponse.Data = append(openAIEmbeddingResponse.Data, types.Embedding{
 			Object:    item.Object,
 			Index:     item.Index,
@@ -40,30 +70,7 @@ func (baiduResponse *BaiduEmbeddingResponse) ResponseHandler(resp *http.Response
 		})
 	}
 
+	*p.Usage = response.Usage
+
 	return openAIEmbeddingResponse, nil
-}
-
-func (p *BaiduProvider) EmbeddingsAction(request *types.EmbeddingRequest, isModelMapped bool, promptTokens int) (usage *types.Usage, errWithCode *types.OpenAIErrorWithStatusCode) {
-
-	requestBody := p.getEmbeddingsRequestBody(request)
-	fullRequestURL := p.GetFullRequestURL(p.Embeddings, request.Model)
-	if fullRequestURL == "" {
-		return nil, common.ErrorWrapper(nil, "invalid_baidu_config", http.StatusInternalServerError)
-	}
-
-	headers := p.GetRequestHeaders()
-	client := common.NewClient()
-	req, err := client.NewRequest(p.Context.Request.Method, fullRequestURL, common.WithBody(requestBody), common.WithHeader(headers))
-	if err != nil {
-		return nil, common.ErrorWrapper(err, "new_request_failed", http.StatusInternalServerError)
-	}
-
-	baiduEmbeddingResponse := &BaiduEmbeddingResponse{}
-	errWithCode = p.SendRequest(req, baiduEmbeddingResponse, false)
-	if errWithCode != nil {
-		return
-	}
-	usage = &baiduEmbeddingResponse.Usage
-
-	return usage, nil
 }

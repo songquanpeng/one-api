@@ -1,14 +1,12 @@
 package gemini
 
 import (
-	"bufio"
 	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 	"one-api/common"
 	"one-api/common/image"
-	"one-api/providers/base"
+	"one-api/common/requester"
 	"one-api/types"
 	"strings"
 )
@@ -17,50 +15,78 @@ const (
 	GeminiVisionMaxImageNum = 16
 )
 
-func (response *GeminiChatResponse) ResponseHandler(resp *http.Response) (OpenAIResponse any, errWithCode *types.OpenAIErrorWithStatusCode) {
-	if len(response.Candidates) == 0 {
-		return nil, &types.OpenAIErrorWithStatusCode{
-			OpenAIError: types.OpenAIError{
-				Message: "No candidates returned",
-				Type:    "server_error",
-				Param:   "",
-				Code:    500,
-			},
-			StatusCode: resp.StatusCode,
-		}
-	}
-
-	fullTextResponse := &types.ChatCompletionResponse{
-		ID:      fmt.Sprintf("chatcmpl-%s", common.GetUUID()),
-		Object:  "chat.completion",
-		Created: common.GetTimestamp(),
-		Model:   response.Model,
-		Choices: make([]types.ChatCompletionChoice, 0, len(response.Candidates)),
-	}
-	for i, candidate := range response.Candidates {
-		choice := types.ChatCompletionChoice{
-			Index: i,
-			Message: types.ChatCompletionMessage{
-				Role:    "assistant",
-				Content: "",
-			},
-			FinishReason: base.StopFinishReason,
-		}
-		if len(candidate.Content.Parts) > 0 {
-			choice.Message.Content = candidate.Content.Parts[0].Text
-		}
-		fullTextResponse.Choices = append(fullTextResponse.Choices, choice)
-	}
-
-	completionTokens := common.CountTokenText(response.GetResponseText(), response.Model)
-	response.Usage.CompletionTokens = completionTokens
-	response.Usage.TotalTokens = response.Usage.PromptTokens + completionTokens
-
-	return fullTextResponse, nil
+type geminiStreamHandler struct {
+	Usage   *types.Usage
+	Request *types.ChatCompletionRequest
 }
 
-// Setting safety to the lowest possible values since Gemini is already powerless enough
-func (p *GeminiProvider) getChatRequestBody(request *types.ChatCompletionRequest) (requestBody *GeminiChatRequest, errWithCode *types.OpenAIErrorWithStatusCode) {
+func (p *GeminiProvider) CreateChatCompletion(request *types.ChatCompletionRequest) (*types.ChatCompletionResponse, *types.OpenAIErrorWithStatusCode) {
+	req, errWithCode := p.getChatRequest(request)
+	if errWithCode != nil {
+		return nil, errWithCode
+	}
+	defer req.Body.Close()
+
+	geminiChatResponse := &GeminiChatResponse{}
+	// 发送请求
+	_, errWithCode = p.Requester.SendRequest(req, geminiChatResponse, false)
+	if errWithCode != nil {
+		return nil, errWithCode
+	}
+
+	return p.convertToChatOpenai(geminiChatResponse, request)
+}
+
+func (p *GeminiProvider) CreateChatCompletionStream(request *types.ChatCompletionRequest) (requester.StreamReaderInterface[types.ChatCompletionStreamResponse], *types.OpenAIErrorWithStatusCode) {
+	req, errWithCode := p.getChatRequest(request)
+	if errWithCode != nil {
+		return nil, errWithCode
+	}
+	defer req.Body.Close()
+
+	// 发送请求
+	resp, errWithCode := p.Requester.SendRequestRaw(req)
+	if errWithCode != nil {
+		return nil, errWithCode
+	}
+
+	chatHandler := &geminiStreamHandler{
+		Usage:   p.Usage,
+		Request: request,
+	}
+
+	return requester.RequestStream[types.ChatCompletionStreamResponse](p.Requester, resp, chatHandler.handlerStream)
+}
+
+func (p *GeminiProvider) getChatRequest(request *types.ChatCompletionRequest) (*http.Request, *types.OpenAIErrorWithStatusCode) {
+	url := "generateContent"
+	if request.Stream {
+		url = "streamGenerateContent?alt=sse"
+	}
+	// 获取请求地址
+	fullRequestURL := p.GetFullRequestURL(url, request.Model)
+
+	// 获取请求头
+	headers := p.GetRequestHeaders()
+	if request.Stream {
+		headers["Accept"] = "text/event-stream"
+	}
+
+	geminiRequest, errWithCode := convertFromChatOpenai(request)
+	if errWithCode != nil {
+		return nil, errWithCode
+	}
+
+	// 创建请求
+	req, err := p.Requester.NewRequest(http.MethodPost, fullRequestURL, p.Requester.WithBody(geminiRequest), p.Requester.WithHeader(headers))
+	if err != nil {
+		return nil, common.ErrorWrapper(err, "new_request_failed", http.StatusInternalServerError)
+	}
+
+	return req, nil
+}
+
+func convertFromChatOpenai(request *types.ChatCompletionRequest) (*GeminiChatRequest, *types.OpenAIErrorWithStatusCode) {
 	geminiRequest := GeminiChatRequest{
 		Contents: make([]GeminiChatContent, 0, len(request.Messages)),
 		SafetySettings: []GeminiChatSafetySettings{
@@ -160,144 +186,99 @@ func (p *GeminiProvider) getChatRequestBody(request *types.ChatCompletionRequest
 	return &geminiRequest, nil
 }
 
-func (p *GeminiProvider) ChatAction(request *types.ChatCompletionRequest, isModelMapped bool, promptTokens int) (usage *types.Usage, errWithCode *types.OpenAIErrorWithStatusCode) {
-	requestBody, errWithCode := p.getChatRequestBody(request)
-	if errWithCode != nil {
+func (p *GeminiProvider) convertToChatOpenai(response *GeminiChatResponse, request *types.ChatCompletionRequest) (openaiResponse *types.ChatCompletionResponse, errWithCode *types.OpenAIErrorWithStatusCode) {
+	error := errorHandle(&response.GeminiErrorResponse)
+	if error != nil {
+		errWithCode = &types.OpenAIErrorWithStatusCode{
+			OpenAIError: *error,
+			StatusCode:  http.StatusBadRequest,
+		}
 		return
 	}
-	fullRequestURL := p.GetFullRequestURL("generateContent", request.Model)
-	headers := p.GetRequestHeaders()
-	if request.Stream {
-		headers["Accept"] = "text/event-stream"
+
+	openaiResponse = &types.ChatCompletionResponse{
+		ID:      fmt.Sprintf("chatcmpl-%s", common.GetUUID()),
+		Object:  "chat.completion",
+		Created: common.GetTimestamp(),
+		Model:   request.Model,
+		Choices: make([]types.ChatCompletionChoice, 0, len(response.Candidates)),
 	}
-
-	client := common.NewClient()
-	req, err := client.NewRequest(p.Context.Request.Method, fullRequestURL, common.WithBody(requestBody), common.WithHeader(headers))
-	if err != nil {
-		return nil, common.ErrorWrapper(err, "new_request_failed", http.StatusInternalServerError)
-	}
-
-	if request.Stream {
-		var responseText string
-		errWithCode, responseText = p.sendStreamRequest(req, request.Model)
-		if errWithCode != nil {
-			return
-		}
-
-		usage = &types.Usage{
-			PromptTokens:     promptTokens,
-			CompletionTokens: common.CountTokenText(responseText, request.Model),
-		}
-		usage.TotalTokens = promptTokens + usage.CompletionTokens
-
-	} else {
-		var geminiResponse = &GeminiChatResponse{
-			Model: request.Model,
-			Usage: &types.Usage{
-				PromptTokens: promptTokens,
+	for i, candidate := range response.Candidates {
+		choice := types.ChatCompletionChoice{
+			Index: i,
+			Message: types.ChatCompletionMessage{
+				Role:    "assistant",
+				Content: "",
 			},
+			FinishReason: types.FinishReasonStop,
 		}
-		errWithCode = p.SendRequest(req, geminiResponse, false)
-		if errWithCode != nil {
-			return
+		if len(candidate.Content.Parts) > 0 {
+			choice.Message.Content = candidate.Content.Parts[0].Text
 		}
-
-		usage = geminiResponse.Usage
+		openaiResponse.Choices = append(openaiResponse.Choices, choice)
 	}
+
+	completionTokens := common.CountTokenText(response.GetResponseText(), response.Model)
+
+	p.Usage.CompletionTokens = completionTokens
+	p.Usage.TotalTokens = p.Usage.PromptTokens + completionTokens
+	openaiResponse.Usage = p.Usage
+
 	return
+}
+
+// 转换为OpenAI聊天流式请求体
+func (h *geminiStreamHandler) handlerStream(rawLine *[]byte, isFinished *bool, response *[]types.ChatCompletionStreamResponse) error {
+	// 如果rawLine 前缀不为data:，则直接返回
+	if !strings.HasPrefix(string(*rawLine), "data: ") {
+		*rawLine = nil
+		return nil
+	}
+
+	// 去除前缀
+	*rawLine = (*rawLine)[6:]
+
+	var geminiResponse GeminiChatResponse
+	err := json.Unmarshal(*rawLine, &geminiResponse)
+	if err != nil {
+		return common.ErrorToOpenAIError(err)
+	}
+
+	error := errorHandle(&geminiResponse.GeminiErrorResponse)
+	if error != nil {
+		return error
+	}
+
+	return h.convertToOpenaiStream(&geminiResponse, response)
 
 }
 
-// func (p *GeminiProvider) streamResponseClaude2OpenAI(geminiResponse *GeminiChatResponse) *types.ChatCompletionStreamResponse {
-// 	var choice types.ChatCompletionStreamChoice
-// 	choice.Delta.Content = geminiResponse.GetResponseText()
-// 	choice.FinishReason = &base.StopFinishReason
-// 	var response types.ChatCompletionStreamResponse
-// 	response.Object = "chat.completion.chunk"
-// 	response.Model = "gemini"
-// 	response.Choices = []types.ChatCompletionStreamChoice{choice}
-// 	return &response
-// }
+func (h *geminiStreamHandler) convertToOpenaiStream(geminiResponse *GeminiChatResponse, response *[]types.ChatCompletionStreamResponse) error {
+	choices := make([]types.ChatCompletionStreamChoice, 0, len(geminiResponse.Candidates))
 
-func (p *GeminiProvider) sendStreamRequest(req *http.Request, model string) (*types.OpenAIErrorWithStatusCode, string) {
-	defer req.Body.Close()
-
-	// 发送请求
-	client := common.GetHttpClient(p.Channel.Proxy)
-	resp, err := client.Do(req)
-	if err != nil {
-		return common.ErrorWrapper(err, "http_request_failed", http.StatusInternalServerError), ""
-	}
-	common.PutHttpClient(client)
-
-	if common.IsFailureStatusCode(resp) {
-		return common.HandleErrorResp(resp), ""
+	for i, candidate := range geminiResponse.Candidates {
+		choice := types.ChatCompletionStreamChoice{
+			Index: i,
+			Delta: types.ChatCompletionStreamChoiceDelta{
+				Content: candidate.Content.Parts[0].Text,
+			},
+			FinishReason: types.FinishReasonStop,
+		}
+		choices = append(choices, choice)
 	}
 
-	defer resp.Body.Close()
+	streamResponse := types.ChatCompletionStreamResponse{
+		ID:      fmt.Sprintf("chatcmpl-%s", common.GetUUID()),
+		Object:  "chat.completion.chunk",
+		Created: common.GetTimestamp(),
+		Model:   h.Request.Model,
+		Choices: choices,
+	}
 
-	responseText := ""
-	dataChan := make(chan string)
-	stopChan := make(chan bool)
-	scanner := bufio.NewScanner(resp.Body)
-	scanner.Split(func(data []byte, atEOF bool) (advance int, token []byte, err error) {
-		if atEOF && len(data) == 0 {
-			return 0, nil, nil
-		}
-		if i := strings.Index(string(data), "\n"); i >= 0 {
-			return i + 1, data[0:i], nil
-		}
-		if atEOF {
-			return len(data), data, nil
-		}
-		return 0, nil, nil
-	})
-	go func() {
-		for scanner.Scan() {
-			data := scanner.Text()
-			data = strings.TrimSpace(data)
-			if !strings.HasPrefix(data, "\"text\": \"") {
-				continue
-			}
-			data = strings.TrimPrefix(data, "\"text\": \"")
-			data = strings.TrimSuffix(data, "\"")
-			dataChan <- data
-		}
-		stopChan <- true
-	}()
-	common.SetEventStreamHeaders(p.Context)
-	p.Context.Stream(func(w io.Writer) bool {
-		select {
-		case data := <-dataChan:
-			// this is used to prevent annoying \ related format bug
-			data = fmt.Sprintf("{\"content\": \"%s\"}", data)
-			type dummyStruct struct {
-				Content string `json:"content"`
-			}
-			var dummy dummyStruct
-			json.Unmarshal([]byte(data), &dummy)
-			responseText += dummy.Content
-			var choice types.ChatCompletionStreamChoice
-			choice.Delta.Content = dummy.Content
-			response := types.ChatCompletionStreamResponse{
-				ID:      fmt.Sprintf("chatcmpl-%s", common.GetUUID()),
-				Object:  "chat.completion.chunk",
-				Created: common.GetTimestamp(),
-				Model:   model,
-				Choices: []types.ChatCompletionStreamChoice{choice},
-			}
-			jsonResponse, err := json.Marshal(response)
-			if err != nil {
-				common.SysError("error marshalling stream response: " + err.Error())
-				return true
-			}
-			p.Context.Render(-1, common.CustomEvent{Data: "data: " + string(jsonResponse)})
-			return true
-		case <-stopChan:
-			p.Context.Render(-1, common.CustomEvent{Data: "data: [DONE]"})
-			return false
-		}
-	})
+	*response = append(*response, streamResponse)
 
-	return nil, responseText
+	h.Usage.CompletionTokens += common.CountTokenText(geminiResponse.GetResponseText(), h.Request.Model)
+	h.Usage.TotalTokens = h.Usage.PromptTokens + h.Usage.CompletionTokens
+
+	return nil
 }

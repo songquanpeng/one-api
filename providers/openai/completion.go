@@ -1,82 +1,96 @@
 package openai
 
 import (
+	"encoding/json"
 	"net/http"
 	"one-api/common"
+	"one-api/common/requester"
 	"one-api/types"
+	"strings"
 )
 
-func (c *OpenAIProviderCompletionResponse) ResponseHandler(resp *http.Response) (OpenAIResponse any, errWithCode *types.OpenAIErrorWithStatusCode) {
-	if c.Error.Type != "" {
+func (p *OpenAIProvider) CreateCompletion(request *types.CompletionRequest) (openaiResponse *types.CompletionResponse, errWithCode *types.OpenAIErrorWithStatusCode) {
+	req, errWithCode := p.GetRequestTextBody(common.RelayModeCompletions, request.Model, request)
+	if errWithCode != nil {
+		return nil, errWithCode
+	}
+	defer req.Body.Close()
+
+	response := &OpenAIProviderCompletionResponse{}
+	// 发送请求
+	_, errWithCode = p.Requester.SendRequest(req, response, false)
+	if errWithCode != nil {
+		return nil, errWithCode
+	}
+
+	// 检测是否错误
+	openaiErr := ErrorHandle(&response.OpenAIErrorResponse)
+	if openaiErr != nil {
 		errWithCode = &types.OpenAIErrorWithStatusCode{
-			OpenAIError: c.Error,
-			StatusCode:  resp.StatusCode,
+			OpenAIError: *openaiErr,
+			StatusCode:  http.StatusBadRequest,
 		}
-		return
+		return nil, errWithCode
 	}
-	return nil, nil
+
+	*p.Usage = *response.Usage
+
+	return &response.CompletionResponse, nil
 }
 
-func (c *OpenAIProviderCompletionResponse) responseStreamHandler() (responseText string) {
-	for _, choice := range c.Choices {
-		responseText += choice.Text
+func (p *OpenAIProvider) CreateCompletionStream(request *types.CompletionRequest) (stream requester.StreamReaderInterface[types.CompletionResponse], errWithCode *types.OpenAIErrorWithStatusCode) {
+	req, errWithCode := p.GetRequestTextBody(common.RelayModeChatCompletions, request.Model, request)
+	if errWithCode != nil {
+		return nil, errWithCode
+	}
+	defer req.Body.Close()
+
+	// 发送请求
+	resp, errWithCode := p.Requester.SendRequestRaw(req)
+	if errWithCode != nil {
+		return nil, errWithCode
 	}
 
-	return
+	chatHandler := OpenAIStreamHandler{
+		Usage:     p.Usage,
+		ModelName: request.Model,
+	}
+
+	return requester.RequestStream[types.CompletionResponse](p.Requester, resp, chatHandler.handlerCompletionStream)
 }
 
-func (p *OpenAIProvider) CompleteAction(request *types.CompletionRequest, isModelMapped bool, promptTokens int) (usage *types.Usage, errWithCode *types.OpenAIErrorWithStatusCode) {
-	requestBody, err := p.GetRequestBody(&request, isModelMapped)
+func (h *OpenAIStreamHandler) handlerCompletionStream(rawLine *[]byte, isFinished *bool, response *[]types.CompletionResponse) error {
+	// 如果rawLine 前缀不为data:，则直接返回
+	if !strings.HasPrefix(string(*rawLine), "data: ") {
+		*rawLine = nil
+		return nil
+	}
+
+	// 去除前缀
+	*rawLine = (*rawLine)[6:]
+
+	// 如果等于 DONE 则结束
+	if string(*rawLine) == "[DONE]" {
+		*isFinished = true
+		return nil
+	}
+
+	var openaiResponse OpenAIProviderCompletionResponse
+	err := json.Unmarshal(*rawLine, &openaiResponse)
 	if err != nil {
-		return nil, common.ErrorWrapper(err, "json_marshal_failed", http.StatusInternalServerError)
+		return common.ErrorToOpenAIError(err)
 	}
 
-	fullRequestURL := p.GetFullRequestURL(p.Completions, request.Model)
-	headers := p.GetRequestHeaders()
-	if request.Stream && headers["Accept"] == "" {
-		headers["Accept"] = "text/event-stream"
+	error := ErrorHandle(&openaiResponse.OpenAIErrorResponse)
+	if error != nil {
+		return error
 	}
 
-	client := common.NewClient()
-	req, err := client.NewRequest(p.Context.Request.Method, fullRequestURL, common.WithBody(requestBody), common.WithHeader(headers))
-	if err != nil {
-		return nil, common.ErrorWrapper(err, "new_request_failed", http.StatusInternalServerError)
-	}
+	countTokenText := common.CountTokenText(openaiResponse.getResponseText(), h.ModelName)
+	h.Usage.CompletionTokens += countTokenText
+	h.Usage.TotalTokens += countTokenText
 
-	openAIProviderCompletionResponse := &OpenAIProviderCompletionResponse{}
-	if request.Stream {
-		// TODO
-		var textResponse string
-		errWithCode, textResponse = p.SendStreamRequest(req, openAIProviderCompletionResponse)
-		if errWithCode != nil {
-			return
-		}
+	*response = append(*response, openaiResponse.CompletionResponse)
 
-		usage = &types.Usage{
-			PromptTokens:     promptTokens,
-			CompletionTokens: common.CountTokenText(textResponse, request.Model),
-			TotalTokens:      promptTokens + common.CountTokenText(textResponse, request.Model),
-		}
-
-	} else {
-		errWithCode = p.SendRequest(req, openAIProviderCompletionResponse, true)
-		if errWithCode != nil {
-			return
-		}
-
-		usage = openAIProviderCompletionResponse.Usage
-
-		if usage.TotalTokens == 0 {
-			completionTokens := 0
-			for _, choice := range openAIProviderCompletionResponse.Choices {
-				completionTokens += common.CountTokenText(choice.Text, openAIProviderCompletionResponse.Model)
-			}
-			usage = &types.Usage{
-				PromptTokens:     promptTokens,
-				CompletionTokens: completionTokens,
-				TotalTokens:      promptTokens + completionTokens,
-			}
-		}
-	}
-	return
+	return nil
 }

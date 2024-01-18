@@ -1,9 +1,10 @@
-package common
+package requester
 
 import (
 	"bytes"
 	"io"
 	"net/http"
+	"one-api/common"
 )
 
 type RequestBuilder interface {
@@ -11,12 +12,12 @@ type RequestBuilder interface {
 }
 
 type HTTPRequestBuilder struct {
-	marshaller Marshaller
+	marshaller common.Marshaller
 }
 
 func NewRequestBuilder() *HTTPRequestBuilder {
 	return &HTTPRequestBuilder{
-		marshaller: &JSONMarshaller{},
+		marshaller: &common.JSONMarshaller{},
 	}
 }
 

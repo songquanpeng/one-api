@@ -23,10 +23,13 @@ type ClaudeRequest struct {
 	Stream bool `json:"stream,omitempty"`
 }
 
+type ClaudeResponseError struct {
+	Error ClaudeError `json:"error,omitempty"`
+}
 type ClaudeResponse struct {
 	Completion string       `json:"completion"`
 	StopReason string       `json:"stop_reason"`
 	Model      string       `json:"model"`
-	Error      ClaudeError  `json:"error"`
 	Usage      *types.Usage `json:"usage,omitempty"`
+	ClaudeResponseError
 }

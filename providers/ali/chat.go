@@ -1,51 +1,116 @@
 package ali
 
 import (
-	"bufio"
 	"encoding/json"
-	"io"
 	"net/http"
 	"one-api/common"
+	"one-api/common/requester"
 	"one-api/types"
 	"strings"
 )
 
-// 阿里云响应处理
-func (aliResponse *AliChatResponse) ResponseHandler(resp *http.Response) (OpenAIResponse any, errWithCode *types.OpenAIErrorWithStatusCode) {
-	if aliResponse.Code != "" {
-		errWithCode = &types.OpenAIErrorWithStatusCode{
-			OpenAIError: types.OpenAIError{
-				Message: aliResponse.Message,
-				Type:    aliResponse.Code,
-				Param:   aliResponse.RequestId,
-				Code:    aliResponse.Code,
-			},
-			StatusCode: resp.StatusCode,
-		}
-
-		return
-	}
-
-	OpenAIResponse = types.ChatCompletionResponse{
-		ID:      aliResponse.RequestId,
-		Object:  "chat.completion",
-		Created: common.GetTimestamp(),
-		Model:   aliResponse.Model,
-		Choices: aliResponse.Output.ToChatCompletionChoices(),
-		Usage: &types.Usage{
-			PromptTokens:     aliResponse.Usage.InputTokens,
-			CompletionTokens: aliResponse.Usage.OutputTokens,
-			TotalTokens:      aliResponse.Usage.InputTokens + aliResponse.Usage.OutputTokens,
-		},
-	}
-
-	return
+type aliStreamHandler struct {
+	Usage              *types.Usage
+	Request            *types.ChatCompletionRequest
+	lastStreamResponse string
 }
 
 const AliEnableSearchModelSuffix = "-internet"
 
-// 获取聊天请求体
-func (p *AliProvider) getChatRequestBody(request *types.ChatCompletionRequest) *AliChatRequest {
+func (p *AliProvider) CreateChatCompletion(request *types.ChatCompletionRequest) (*types.ChatCompletionResponse, *types.OpenAIErrorWithStatusCode) {
+	req, errWithCode := p.getAliChatRequest(request)
+	if errWithCode != nil {
+		return nil, errWithCode
+	}
+	defer req.Body.Close()
+
+	aliResponse := &AliChatResponse{}
+	// 发送请求
+	_, errWithCode = p.Requester.SendRequest(req, aliResponse, false)
+	if errWithCode != nil {
+		return nil, errWithCode
+	}
+
+	return p.convertToChatOpenai(aliResponse, request)
+}
+
+func (p *AliProvider) CreateChatCompletionStream(request *types.ChatCompletionRequest) (requester.StreamReaderInterface[types.ChatCompletionStreamResponse], *types.OpenAIErrorWithStatusCode) {
+	req, errWithCode := p.getAliChatRequest(request)
+	if errWithCode != nil {
+		return nil, errWithCode
+	}
+	defer req.Body.Close()
+
+	// 发送请求
+	resp, errWithCode := p.Requester.SendRequestRaw(req)
+	if errWithCode != nil {
+		return nil, errWithCode
+	}
+
+	chatHandler := &aliStreamHandler{
+		Usage:   p.Usage,
+		Request: request,
+	}
+
+	return requester.RequestStream[types.ChatCompletionStreamResponse](p.Requester, resp, chatHandler.handlerStream)
+}
+
+func (p *AliProvider) getAliChatRequest(request *types.ChatCompletionRequest) (*http.Request, *types.OpenAIErrorWithStatusCode) {
+	url, errWithCode := p.GetSupportedAPIUri(common.RelayModeChatCompletions)
+	if errWithCode != nil {
+		return nil, errWithCode
+	}
+	// 获取请求地址
+	fullRequestURL := p.GetFullRequestURL(url, request.Model)
+
+	// 获取请求头
+	headers := p.GetRequestHeaders()
+	if request.Stream {
+		headers["Accept"] = "text/event-stream"
+		headers["X-DashScope-SSE"] = "enable"
+	}
+
+	aliRequest := convertFromChatOpenai(request)
+	// 创建请求
+	req, err := p.Requester.NewRequest(http.MethodPost, fullRequestURL, p.Requester.WithBody(aliRequest), p.Requester.WithHeader(headers))
+	if err != nil {
+		return nil, common.ErrorWrapper(err, "new_request_failed", http.StatusInternalServerError)
+	}
+
+	return req, nil
+}
+
+// 转换为OpenAI聊天请求体
+func (p *AliProvider) convertToChatOpenai(response *AliChatResponse, request *types.ChatCompletionRequest) (openaiResponse *types.ChatCompletionResponse, errWithCode *types.OpenAIErrorWithStatusCode) {
+	error := errorHandle(&response.AliError)
+	if error != nil {
+		errWithCode = &types.OpenAIErrorWithStatusCode{
+			OpenAIError: *error,
+			StatusCode:  http.StatusBadRequest,
+		}
+		return
+	}
+
+	openaiResponse = &types.ChatCompletionResponse{
+		ID:      response.RequestId,
+		Object:  "chat.completion",
+		Created: common.GetTimestamp(),
+		Model:   request.Model,
+		Choices: response.Output.ToChatCompletionChoices(),
+		Usage: &types.Usage{
+			PromptTokens:     response.Usage.InputTokens,
+			CompletionTokens: response.Usage.OutputTokens,
+			TotalTokens:      response.Usage.InputTokens + response.Usage.OutputTokens,
+		},
+	}
+
+	*p.Usage = *openaiResponse.Usage
+
+	return
+}
+
+// 阿里云聊天请求体
+func convertFromChatOpenai(request *types.ChatCompletionRequest) *AliChatRequest {
 	messages := make([]AliMessage, 0, len(request.Messages))
 	for i := 0; i < len(request.Messages); i++ {
 		message := request.Messages[i]
@@ -96,163 +161,68 @@ func (p *AliProvider) getChatRequestBody(request *types.ChatCompletionRequest) *
 	}
 }
 
-// 聊天
-func (p *AliProvider) ChatAction(request *types.ChatCompletionRequest, isModelMapped bool, promptTokens int) (usage *types.Usage, errWithCode *types.OpenAIErrorWithStatusCode) {
-
-	requestBody := p.getChatRequestBody(request)
-
-	fullRequestURL := p.GetFullRequestURL(p.ChatCompletions, request.Model)
-	headers := p.GetRequestHeaders()
-	if request.Stream {
-		headers["Accept"] = "text/event-stream"
-		headers["X-DashScope-SSE"] = "enable"
+// 转换为OpenAI聊天流式请求体
+func (h *aliStreamHandler) handlerStream(rawLine *[]byte, isFinished *bool, response *[]types.ChatCompletionStreamResponse) error {
+	// 如果rawLine 前缀不为data:，则直接返回
+	if !strings.HasPrefix(string(*rawLine), "data:") {
+		*rawLine = nil
+		return nil
 	}
 
-	client := common.NewClient()
-	req, err := client.NewRequest(p.Context.Request.Method, fullRequestURL, common.WithBody(requestBody), common.WithHeader(headers))
+	// 去除前缀
+	*rawLine = (*rawLine)[5:]
+
+	var aliResponse AliChatResponse
+	err := json.Unmarshal(*rawLine, &aliResponse)
 	if err != nil {
-		return nil, common.ErrorWrapper(err, "new_request_failed", http.StatusInternalServerError)
+		return common.ErrorToOpenAIError(err)
 	}
 
-	if request.Stream {
-		usage, errWithCode = p.sendStreamRequest(req, request.Model)
-		if errWithCode != nil {
-			return
-		}
-
-		if usage == nil {
-			usage = &types.Usage{
-				PromptTokens:     0,
-				CompletionTokens: 0,
-				TotalTokens:      0,
-			}
-		}
-
-	} else {
-		aliResponse := &AliChatResponse{
-			Model: request.Model,
-		}
-		errWithCode = p.SendRequest(req, aliResponse, false)
-		if errWithCode != nil {
-			return
-		}
-
-		usage = &types.Usage{
-			PromptTokens:     aliResponse.Usage.InputTokens,
-			CompletionTokens: aliResponse.Usage.OutputTokens,
-			TotalTokens:      aliResponse.Usage.InputTokens + aliResponse.Usage.OutputTokens,
-		}
+	error := errorHandle(&aliResponse.AliError)
+	if error != nil {
+		return error
 	}
-	return
+
+	return h.convertToOpenaiStream(&aliResponse, response)
+
 }
 
-// 阿里云响应转OpenAI响应
-func (p *AliProvider) streamResponseAli2OpenAI(aliResponse *AliChatResponse) *types.ChatCompletionStreamResponse {
-	// chatChoice := aliResponse.Output.ToChatCompletionChoices()
-	// jsonBody, _ := json.MarshalIndent(chatChoice, "", "  ")
-	// fmt.Println("requestBody:", string(jsonBody))
+func (h *aliStreamHandler) convertToOpenaiStream(aliResponse *AliChatResponse, response *[]types.ChatCompletionStreamResponse) error {
+	content := aliResponse.Output.Choices[0].Message.StringContent()
+
 	var choice types.ChatCompletionStreamChoice
 	choice.Index = aliResponse.Output.Choices[0].Index
-	choice.Delta.Content = aliResponse.Output.Choices[0].Message.StringContent()
-	// fmt.Println("choice.Delta.Content:", chatChoice[0].Message)
-	if aliResponse.Output.Choices[0].FinishReason != "null" {
-		finishReason := aliResponse.Output.Choices[0].FinishReason
-		choice.FinishReason = &finishReason
+	choice.Delta.Content = strings.TrimPrefix(content, h.lastStreamResponse)
+	if aliResponse.Output.Choices[0].FinishReason != "" {
+		if aliResponse.Output.Choices[0].FinishReason != "null" {
+			finishReason := aliResponse.Output.Choices[0].FinishReason
+			choice.FinishReason = &finishReason
+		}
 	}
 
-	response := types.ChatCompletionStreamResponse{
+	if aliResponse.Output.FinishReason != "" {
+		if aliResponse.Output.FinishReason != "null" {
+			finishReason := aliResponse.Output.FinishReason
+			choice.FinishReason = &finishReason
+		}
+	}
+
+	h.lastStreamResponse = content
+	streamResponse := types.ChatCompletionStreamResponse{
 		ID:      aliResponse.RequestId,
 		Object:  "chat.completion.chunk",
 		Created: common.GetTimestamp(),
-		Model:   aliResponse.Model,
+		Model:   h.Request.Model,
 		Choices: []types.ChatCompletionStreamChoice{choice},
 	}
-	return &response
-}
 
-// 发送流请求
-func (p *AliProvider) sendStreamRequest(req *http.Request, model string) (usage *types.Usage, errWithCode *types.OpenAIErrorWithStatusCode) {
-	defer req.Body.Close()
-
-	usage = &types.Usage{}
-	// 发送请求
-	client := common.GetHttpClient(p.Channel.Proxy)
-	resp, err := client.Do(req)
-	if err != nil {
-		return nil, common.ErrorWrapper(err, "http_request_failed", http.StatusInternalServerError)
-	}
-	common.PutHttpClient(client)
-
-	if common.IsFailureStatusCode(resp) {
-		return nil, common.HandleErrorResp(resp)
+	if aliResponse.Usage.OutputTokens != 0 {
+		h.Usage.PromptTokens = aliResponse.Usage.InputTokens
+		h.Usage.CompletionTokens = aliResponse.Usage.OutputTokens
+		h.Usage.TotalTokens = aliResponse.Usage.InputTokens + aliResponse.Usage.OutputTokens
 	}
 
-	defer resp.Body.Close()
+	*response = append(*response, streamResponse)
 
-	scanner := bufio.NewScanner(resp.Body)
-	scanner.Split(func(data []byte, atEOF bool) (advance int, token []byte, err error) {
-		if atEOF && len(data) == 0 {
-			return 0, nil, nil
-		}
-		if i := strings.Index(string(data), "\n"); i >= 0 {
-			return i + 1, data[0:i], nil
-		}
-		if atEOF {
-			return len(data), data, nil
-		}
-		return 0, nil, nil
-	})
-	dataChan := make(chan string)
-	stopChan := make(chan bool)
-	go func() {
-		for scanner.Scan() {
-			data := scanner.Text()
-			if len(data) < 5 { // ignore blank line or wrong format
-				continue
-			}
-			if data[:5] != "data:" {
-				continue
-			}
-			data = data[5:]
-			dataChan <- data
-		}
-		stopChan <- true
-	}()
-	common.SetEventStreamHeaders(p.Context)
-	lastResponseText := ""
-	index := 0
-	p.Context.Stream(func(w io.Writer) bool {
-		select {
-		case data := <-dataChan:
-			var aliResponse AliChatResponse
-			err := json.Unmarshal([]byte(data), &aliResponse)
-			if err != nil {
-				common.SysError("error unmarshalling stream response: " + err.Error())
-				return true
-			}
-			if aliResponse.Usage.OutputTokens != 0 {
-				usage.PromptTokens = aliResponse.Usage.InputTokens
-				usage.CompletionTokens = aliResponse.Usage.OutputTokens
-				usage.TotalTokens = aliResponse.Usage.InputTokens + aliResponse.Usage.OutputTokens
-			}
-			aliResponse.Model = model
-			aliResponse.Output.Choices[0].Index = index
-			index++
-			response := p.streamResponseAli2OpenAI(&aliResponse)
-			response.Choices[0].Delta.Content = strings.TrimPrefix(response.Choices[0].Delta.Content, lastResponseText)
-			lastResponseText = aliResponse.Output.Choices[0].Message.StringContent()
-			jsonResponse, err := json.Marshal(response)
-			if err != nil {
-				common.SysError("error marshalling stream response: " + err.Error())
-				return true
-			}
-			p.Context.Render(-1, common.CustomEvent{Data: "data: " + string(jsonResponse)})
-			return true
-		case <-stopChan:
-			p.Context.Render(-1, common.CustomEvent{Data: "data: [DONE]"})
-			return false
-		}
-	})
-
-	return
+	return nil
 }

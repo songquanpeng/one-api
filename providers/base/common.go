@@ -3,9 +3,9 @@ package base
 import (
 	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 	"one-api/common"
+	"one-api/common/requester"
 	"one-api/model"
 	"one-api/types"
 	"strings"
@@ -13,11 +13,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var StopFinishReason = "stop"
-var StopFinishReasonToolFunction = "tool_calls"
-var StopFinishReasonCallFunction = "function_call"
-
-type BaseProvider struct {
+type ProviderConfig struct {
 	BaseURL             string
 	Completions         string
 	ChatCompletions     string
@@ -29,8 +25,15 @@ type BaseProvider struct {
 	ImagesGenerations   string
 	ImagesEdit          string
 	ImagesVariations    string
-	Context             *gin.Context
-	Channel             *model.Channel
+}
+
+type BaseProvider struct {
+	OriginalModel string
+	Usage         *types.Usage
+	Config        ProviderConfig
+	Context       *gin.Context
+	Channel       *model.Channel
+	Requester     *requester.HTTPRequester
 }
 
 // 获取基础URL
@@ -39,11 +42,7 @@ func (p *BaseProvider) GetBaseURL() string {
 		return p.Channel.GetBaseURL()
 	}
 
-	return p.BaseURL
-}
-
-func (p *BaseProvider) SetChannel(channel *model.Channel) {
-	p.Channel = channel
+	return p.Config.BaseURL
 }
 
 // 获取完整请求URL
@@ -62,104 +61,85 @@ func (p *BaseProvider) CommonRequestHeaders(headers map[string]string) {
 	}
 }
 
-// 发送请求
-func (p *BaseProvider) SendRequest(req *http.Request, response ProviderResponseHandler, rawOutput bool) (openAIErrorWithStatusCode *types.OpenAIErrorWithStatusCode) {
-	defer req.Body.Close()
-
-	resp, openAIErrorWithStatusCode := common.SendRequest(req, response, true, p.Channel.Proxy)
-	if openAIErrorWithStatusCode != nil {
-		return
-	}
-
-	defer resp.Body.Close()
-
-	openAIResponse, openAIErrorWithStatusCode := response.ResponseHandler(resp)
-	if openAIErrorWithStatusCode != nil {
-		return
-	}
-
-	if rawOutput {
-		for k, v := range resp.Header {
-			p.Context.Writer.Header().Set(k, v[0])
-		}
-
-		p.Context.Writer.WriteHeader(resp.StatusCode)
-		_, err := io.Copy(p.Context.Writer, resp.Body)
-		if err != nil {
-			return common.ErrorWrapper(err, "copy_response_body_failed", http.StatusInternalServerError)
-		}
-	} else {
-		jsonResponse, err := json.Marshal(openAIResponse)
-		if err != nil {
-			return common.ErrorWrapper(err, "marshal_response_body_failed", http.StatusInternalServerError)
-		}
-		p.Context.Writer.Header().Set("Content-Type", "application/json")
-		p.Context.Writer.WriteHeader(resp.StatusCode)
-		_, err = p.Context.Writer.Write(jsonResponse)
-
-		if err != nil {
-			return common.ErrorWrapper(err, "write_response_body_failed", http.StatusInternalServerError)
-		}
-	}
-
-	return nil
+func (p *BaseProvider) GetUsage() *types.Usage {
+	return p.Usage
 }
 
-func (p *BaseProvider) SendRequestRaw(req *http.Request) (openAIErrorWithStatusCode *types.OpenAIErrorWithStatusCode) {
-	defer req.Body.Close()
-
-	// 发送请求
-	client := common.GetHttpClient(p.Channel.Proxy)
-	resp, err := client.Do(req)
-	if err != nil {
-		return common.ErrorWrapper(err, "http_request_failed", http.StatusInternalServerError)
-	}
-	common.PutHttpClient(client)
-
-	defer resp.Body.Close()
-
-	// 处理响应
-	if common.IsFailureStatusCode(resp) {
-		return common.HandleErrorResp(resp)
-	}
-
-	for k, v := range resp.Header {
-		p.Context.Writer.Header().Set(k, v[0])
-	}
-
-	p.Context.Writer.WriteHeader(resp.StatusCode)
-
-	_, err = io.Copy(p.Context.Writer, resp.Body)
-	if err != nil {
-		return common.ErrorWrapper(err, "write_response_body_failed", http.StatusInternalServerError)
-	}
-
-	return nil
+func (p *BaseProvider) SetUsage(usage *types.Usage) {
+	p.Usage = usage
 }
 
-func (p *BaseProvider) SupportAPI(relayMode int) bool {
+func (p *BaseProvider) SetContext(c *gin.Context) {
+	p.Context = c
+}
+
+func (p *BaseProvider) SetOriginalModel(ModelName string) {
+	p.OriginalModel = ModelName
+}
+
+func (p *BaseProvider) GetOriginalModel() string {
+	return p.OriginalModel
+}
+
+func (p *BaseProvider) GetChannel() *model.Channel {
+	return p.Channel
+}
+
+func (p *BaseProvider) ModelMappingHandler(modelName string) (string, error) {
+	p.OriginalModel = modelName
+
+	modelMapping := p.Channel.GetModelMapping()
+
+	if modelMapping == "" || modelMapping == "{}" {
+		return modelName, nil
+	}
+
+	modelMap := make(map[string]string)
+	err := json.Unmarshal([]byte(modelMapping), &modelMap)
+	if err != nil {
+		return "", err
+	}
+
+	if modelMap[modelName] != "" {
+		return modelMap[modelName], nil
+	}
+
+	return modelName, nil
+}
+
+func (p *BaseProvider) GetAPIUri(relayMode int) string {
 	switch relayMode {
 	case common.RelayModeChatCompletions:
-		return p.ChatCompletions != ""
+		return p.Config.ChatCompletions
 	case common.RelayModeCompletions:
-		return p.Completions != ""
+		return p.Config.Completions
 	case common.RelayModeEmbeddings:
-		return p.Embeddings != ""
+		return p.Config.Embeddings
 	case common.RelayModeAudioSpeech:
-		return p.AudioSpeech != ""
+		return p.Config.AudioSpeech
 	case common.RelayModeAudioTranscription:
-		return p.AudioTranscriptions != ""
+		return p.Config.AudioTranscriptions
 	case common.RelayModeAudioTranslation:
-		return p.AudioTranslations != ""
+		return p.Config.AudioTranslations
 	case common.RelayModeModerations:
-		return p.Moderation != ""
+		return p.Config.Moderation
 	case common.RelayModeImagesGenerations:
-		return p.ImagesGenerations != ""
+		return p.Config.ImagesGenerations
 	case common.RelayModeImagesEdits:
-		return p.ImagesEdit != ""
+		return p.Config.ImagesEdit
 	case common.RelayModeImagesVariations:
-		return p.ImagesVariations != ""
+		return p.Config.ImagesVariations
 	default:
-		return false
+		return ""
 	}
+}
+
+func (p *BaseProvider) GetSupportedAPIUri(relayMode int) (url string, err *types.OpenAIErrorWithStatusCode) {
+	url = p.GetAPIUri(relayMode)
+	if url == "" {
+		err = common.StringErrorWrapper("The API interface is not supported", "unsupported_api", http.StatusNotImplemented)
+		return
+	}
+
+	return
 }

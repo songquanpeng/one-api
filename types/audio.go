@@ -26,3 +26,8 @@ type AudioResponse struct {
 	Segments any     `json:"segments,omitempty"`
 	Text     string  `json:"text"`
 }
+
+type AudioResponseWrapper struct {
+	Headers map[string]string
+	Body    []byte
+}

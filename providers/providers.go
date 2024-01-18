@@ -28,7 +28,7 @@ import (
 
 // 定义供应商工厂接口
 type ProviderFactory interface {
-	Create(c *gin.Context) base.ProviderInterface
+	Create(Channel *model.Channel) base.ProviderInterface
 }
 
 // 创建全局的供应商工厂映射
@@ -71,11 +71,11 @@ func GetProvider(channel *model.Channel, c *gin.Context) base.ProviderInterface 
 			return nil
 		}
 
-		provider = openai.CreateOpenAIProvider(c, baseURL)
+		provider = openai.CreateOpenAIProvider(channel, baseURL)
 	} else {
-		provider = factory.Create(c)
+		provider = factory.Create(channel)
 	}
-	provider.SetChannel(channel)
+	provider.SetContext(c)
 
 	return provider
 }

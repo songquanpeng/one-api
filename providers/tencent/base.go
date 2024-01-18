@@ -4,31 +4,64 @@ import (
 	"crypto/hmac"
 	"crypto/sha1"
 	"encoding/base64"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"net/http"
+	"one-api/common/requester"
+	"one-api/model"
 	"one-api/providers/base"
+	"one-api/types"
 	"sort"
 	"strconv"
 	"strings"
-
-	"github.com/gin-gonic/gin"
 )
 
 type TencentProviderFactory struct{}
 
 // 创建 TencentProvider
-func (f TencentProviderFactory) Create(c *gin.Context) base.ProviderInterface {
+func (f TencentProviderFactory) Create(channel *model.Channel) base.ProviderInterface {
 	return &TencentProvider{
 		BaseProvider: base.BaseProvider{
-			BaseURL:         "https://hunyuan.cloud.tencent.com",
-			ChatCompletions: "/hyllm/v1/chat/completions",
-			Context:         c,
+			Config:    getConfig(),
+			Channel:   channel,
+			Requester: requester.NewHTTPRequester(channel.Proxy, requestErrorHandle),
 		},
 	}
 }
 
 type TencentProvider struct {
 	base.BaseProvider
+}
+
+func getConfig() base.ProviderConfig {
+	return base.ProviderConfig{
+		BaseURL:         "https://hunyuan.cloud.tencent.com",
+		ChatCompletions: "/hyllm/v1/chat/completions",
+	}
+}
+
+// 请求错误处理
+func requestErrorHandle(resp *http.Response) *types.OpenAIError {
+	var tencentError *TencentResponseError
+	err := json.NewDecoder(resp.Body).Decode(tencentError)
+	if err != nil {
+		return nil
+	}
+
+	return errorHandle(tencentError)
+}
+
+// 错误处理
+func errorHandle(tencentError *TencentResponseError) *types.OpenAIError {
+	if tencentError.Error.Code == 0 {
+		return nil
+	}
+	return &types.OpenAIError{
+		Message: tencentError.Error.Message,
+		Type:    "tencent_error",
+		Code:    tencentError.Error.Code,
+	}
 }
 
 // 获取请求头
@@ -77,7 +110,7 @@ func (p *TencentProvider) getTencentSign(req TencentChatRequest) string {
 	messageStr = strings.TrimSuffix(messageStr, ",")
 	params = append(params, "messages=["+messageStr+"]")
 
-	sort.Sort(sort.StringSlice(params))
+	sort.Strings(params)
 	url := "hunyuan.cloud.tencent.com/hyllm/v1/chat/completions?" + strings.Join(params, "&")
 	mac := hmac.New(sha1.New, []byte(secretKey))
 	signURL := url

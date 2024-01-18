@@ -52,7 +52,8 @@ type AliChoice struct {
 }
 
 type AliOutput struct {
-	Choices []types.ChatCompletionChoice `json:"choices"`
+	Choices      []types.ChatCompletionChoice `json:"choices"`
+	FinishReason string                       `json:"finish_reason,omitempty"`
 }
 
 func (o *AliOutput) ToChatCompletionChoices() []types.ChatCompletionChoice {
@@ -70,7 +71,6 @@ func (o *AliOutput) ToChatCompletionChoices() []types.ChatCompletionChoice {
 type AliChatResponse struct {
 	Output AliOutput `json:"output"`
 	Usage  AliUsage  `json:"usage"`
-	Model  string    `json:"model,omitempty"`
 	AliError
 }
 

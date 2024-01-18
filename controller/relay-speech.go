@@ -1,10 +1,8 @@
 package controller
 
 import (
-	"context"
 	"net/http"
 	"one-api/common"
-	"one-api/model"
 	providersBase "one-api/providers/base"
 	"one-api/types"
 
@@ -20,28 +18,13 @@ func RelaySpeech(c *gin.Context) {
 		return
 	}
 
-	channel, pass := fetchChannel(c, speechRequest.Model)
-	if pass {
-		return
-	}
-
-	// 解析模型映射
-	var isModelMapped bool
-	modelMap, err := parseModelMapping(channel.GetModelMapping())
-	if err != nil {
-		common.AbortWithMessage(c, http.StatusInternalServerError, err.Error())
-		return
-	}
-	if modelMap != nil && modelMap[speechRequest.Model] != "" {
-		speechRequest.Model = modelMap[speechRequest.Model]
-		isModelMapped = true
-	}
-
 	// 获取供应商
-	provider, pass := getProvider(c, channel, common.RelayModeAudioSpeech)
-	if pass {
+	provider, modelName, fail := getProvider(c, speechRequest.Model)
+	if fail {
 		return
 	}
+	speechRequest.Model = modelName
+
 	speechProvider, ok := provider.(providersBase.SpeechInterface)
 	if !ok {
 		common.AbortWithMessage(c, http.StatusNotImplemented, "channel not implemented")
@@ -51,39 +34,29 @@ func RelaySpeech(c *gin.Context) {
 	// 获取Input Tokens
 	promptTokens := len(speechRequest.Input)
 
-	var quotaInfo *QuotaInfo
-	var errWithCode *types.OpenAIErrorWithStatusCode
-	var usage *types.Usage
-	quotaInfo, errWithCode = generateQuotaInfo(c, speechRequest.Model, promptTokens)
+	usage := &types.Usage{
+		PromptTokens: promptTokens,
+	}
+	provider.SetUsage(usage)
+
+	quotaInfo, errWithCode := generateQuotaInfo(c, speechRequest.Model, promptTokens)
 	if errWithCode != nil {
 		errorHelper(c, errWithCode)
 		return
 	}
 
-	usage, errWithCode = speechProvider.SpeechAction(&speechRequest, isModelMapped, promptTokens)
+	response, errWithCode := speechProvider.CreateSpeech(&speechRequest)
+	if errWithCode != nil {
+		errorHelper(c, errWithCode)
+		return
+	}
+	errWithCode = responseMultipart(c, response)
 
 	// 如果报错，则退还配额
 	if errWithCode != nil {
-		tokenId := c.GetInt("token_id")
-		if quotaInfo.HandelStatus {
-			go func(ctx context.Context) {
-				// return pre-consumed quota
-				err := model.PostConsumeTokenQuota(tokenId, -quotaInfo.preConsumedQuota)
-				if err != nil {
-					common.LogError(ctx, "error return pre-consumed quota: "+err.Error())
-				}
-			}(c.Request.Context())
-		}
-		errorHelper(c, errWithCode)
+		quotaInfo.undo(c, errWithCode)
 		return
-	} else {
-		tokenName := c.GetString("token_name")
-		// 如果没有报错，则消费配额
-		go func(ctx context.Context) {
-			err = quotaInfo.completedQuotaConsumption(usage, tokenName, ctx)
-			if err != nil {
-				common.LogError(ctx, err.Error())
-			}
-		}(c.Request.Context())
 	}
+
+	quotaInfo.consume(c, usage)
 }

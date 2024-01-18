@@ -67,7 +67,7 @@ func updateChannelBalance(channel *model.Channel) (float64, error) {
 		return 0, errors.New("provider not implemented")
 	}
 
-	return balanceProvider.Balance(channel)
+	return balanceProvider.Balance()
 
 }
 

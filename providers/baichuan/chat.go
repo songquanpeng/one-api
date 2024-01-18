@@ -3,31 +3,61 @@ package baichuan
 import (
 	"net/http"
 	"one-api/common"
+	"one-api/common/requester"
 	"one-api/providers/openai"
 	"one-api/types"
 	"strings"
 )
 
-func (baichuanResponse *BaichuanChatResponse) ResponseHandler(resp *http.Response) (OpenAIResponse any, errWithCode *types.OpenAIErrorWithStatusCode) {
-	if baichuanResponse.Error.Message != "" {
+func (p *BaichuanProvider) CreateChatCompletion(request *types.ChatCompletionRequest) (openaiResponse *types.ChatCompletionResponse, errWithCode *types.OpenAIErrorWithStatusCode) {
+	requestBody := p.getChatRequestBody(request)
+	req, errWithCode := p.GetRequestTextBody(common.RelayModeChatCompletions, request.Model, requestBody)
+	if errWithCode != nil {
+		return nil, errWithCode
+	}
+	defer req.Body.Close()
+
+	response := &BaichuanChatResponse{}
+	// 发送请求
+	_, errWithCode = p.Requester.SendRequest(req, response, false)
+	if errWithCode != nil {
+		return nil, errWithCode
+	}
+
+	// 检测是否错误
+	openaiErr := openai.ErrorHandle(&response.OpenAIErrorResponse)
+	if openaiErr != nil {
 		errWithCode = &types.OpenAIErrorWithStatusCode{
-			OpenAIError: baichuanResponse.Error,
-			StatusCode:  resp.StatusCode,
+			OpenAIError: *openaiErr,
+			StatusCode:  http.StatusBadRequest,
 		}
-
-		return
+		return nil, errWithCode
 	}
 
-	OpenAIResponse = types.ChatCompletionResponse{
-		ID:      baichuanResponse.ID,
-		Object:  baichuanResponse.Object,
-		Created: baichuanResponse.Created,
-		Model:   baichuanResponse.Model,
-		Choices: baichuanResponse.Choices,
-		Usage:   baichuanResponse.Usage,
+	*p.Usage = *response.Usage
+
+	return &response.ChatCompletionResponse, nil
+}
+
+func (p *BaichuanProvider) CreateChatCompletionStream(request *types.ChatCompletionRequest) (requester.StreamReaderInterface[types.ChatCompletionStreamResponse], *types.OpenAIErrorWithStatusCode) {
+	req, errWithCode := p.GetRequestTextBody(common.RelayModeChatCompletions, request.Model, request)
+	if errWithCode != nil {
+		return nil, errWithCode
+	}
+	defer req.Body.Close()
+
+	// 发送请求
+	resp, errWithCode := p.Requester.SendRequestRaw(req)
+	if errWithCode != nil {
+		return nil, errWithCode
 	}
 
-	return
+	chatHandler := openai.OpenAIStreamHandler{
+		Usage:     p.Usage,
+		ModelName: request.Model,
+	}
+
+	return requester.RequestStream[types.ChatCompletionStreamResponse](p.Requester, resp, chatHandler.HandlerChatStream)
 }
 
 // 获取聊天请求体
@@ -54,47 +84,4 @@ func (p *BaichuanProvider) getChatRequestBody(request *types.ChatCompletionReque
 		TopP:        request.TopP,
 		TopK:        request.N,
 	}
-}
-
-// 聊天
-func (p *BaichuanProvider) ChatAction(request *types.ChatCompletionRequest, isModelMapped bool, promptTokens int) (usage *types.Usage, errWithCode *types.OpenAIErrorWithStatusCode) {
-
-	requestBody := p.getChatRequestBody(request)
-
-	fullRequestURL := p.GetFullRequestURL(p.ChatCompletions, request.Model)
-	headers := p.GetRequestHeaders()
-	if request.Stream {
-		headers["Accept"] = "text/event-stream"
-	}
-
-	client := common.NewClient()
-	req, err := client.NewRequest(p.Context.Request.Method, fullRequestURL, common.WithBody(requestBody), common.WithHeader(headers))
-	if err != nil {
-		return nil, common.ErrorWrapper(err, "new_request_failed", http.StatusInternalServerError)
-	}
-
-	if request.Stream {
-		openAIProviderChatStreamResponse := &openai.OpenAIProviderChatStreamResponse{}
-		var textResponse string
-		errWithCode, textResponse = p.SendStreamRequest(req, openAIProviderChatStreamResponse)
-		if errWithCode != nil {
-			return
-		}
-
-		usage = &types.Usage{
-			PromptTokens:     promptTokens,
-			CompletionTokens: common.CountTokenText(textResponse, request.Model),
-			TotalTokens:      promptTokens + common.CountTokenText(textResponse, request.Model),
-		}
-
-	} else {
-		baichuanResponse := &BaichuanChatResponse{}
-		errWithCode = p.SendRequest(req, baichuanResponse, false)
-		if errWithCode != nil {
-			return
-		}
-
-		usage = baichuanResponse.Usage
-	}
-	return
 }

@@ -37,6 +37,14 @@ func ErrorWrapper(err error, code string, statusCode int) *types.OpenAIErrorWith
 	return StringErrorWrapper(err.Error(), code, statusCode)
 }
 
+func ErrorToOpenAIError(err error) *types.OpenAIError {
+	return &types.OpenAIError{
+		Code:    "system error",
+		Message: err.Error(),
+		Type:    "one_api_error",
+	}
+}
+
 func StringErrorWrapper(err string, code string, statusCode int) *types.OpenAIErrorWithStatusCode {
 	openAIError := types.OpenAIError{
 		Message: err,
