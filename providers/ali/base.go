@@ -41,7 +41,7 @@ func getConfig() base.ProviderConfig {
 
 // 请求错误处理
 func requestErrorHandle(resp *http.Response) *types.OpenAIError {
-	var aliError *AliError
+	aliError := &AliError{}
 	err := json.NewDecoder(resp.Body).Decode(aliError)
 	if err != nil {
 		return nil

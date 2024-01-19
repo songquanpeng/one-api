@@ -2,7 +2,6 @@ package zhipu
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"one-api/common"
 	"one-api/common/requester"
@@ -62,19 +61,14 @@ func (p *ZhipuProvider) getChatRequest(request *types.ChatCompletionRequest) (*h
 	// 获取请求地址
 	fullRequestURL := p.GetFullRequestURL(url, request.Model)
 	if fullRequestURL == "" {
-		return nil, common.ErrorWrapper(nil, "invalid_baidu_config", http.StatusInternalServerError)
+		return nil, common.ErrorWrapper(nil, "invalid_zhipu_config", http.StatusInternalServerError)
 	}
 
 	// 获取请求头
 	headers := p.GetRequestHeaders()
-	if request.Stream {
-		headers["Accept"] = "text/event-stream"
-		fullRequestURL += "/sse-invoke"
-	} else {
-		fullRequestURL += "/invoke"
-	}
 
 	zhipuRequest := convertFromChatOpenai(request)
+
 	// 创建请求
 	req, err := p.Requester.NewRequest(http.MethodPost, fullRequestURL, p.Requester.WithBody(zhipuRequest), p.Requester.WithHeader(headers))
 	if err != nil {
@@ -85,7 +79,7 @@ func (p *ZhipuProvider) getChatRequest(request *types.ChatCompletionRequest) (*h
 }
 
 func (p *ZhipuProvider) convertToChatOpenai(response *ZhipuResponse, request *types.ChatCompletionRequest) (openaiResponse *types.ChatCompletionResponse, errWithCode *types.OpenAIErrorWithStatusCode) {
-	error := errorHandle(response)
+	error := errorHandle(&response.Error)
 	if error != nil {
 		errWithCode = &types.OpenAIErrorWithStatusCode{
 			OpenAIError: *error,
@@ -95,114 +89,110 @@ func (p *ZhipuProvider) convertToChatOpenai(response *ZhipuResponse, request *ty
 	}
 
 	openaiResponse = &types.ChatCompletionResponse{
-		ID:      response.Data.TaskId,
+		ID:      response.ID,
 		Object:  "chat.completion",
-		Created: common.GetTimestamp(),
-		Model:   request.Model,
-		Choices: make([]types.ChatCompletionChoice, 0, len(response.Data.Choices)),
-		Usage:   &response.Data.Usage,
-	}
-	for i, choice := range response.Data.Choices {
-		openaiChoice := types.ChatCompletionChoice{
-			Index: i,
-			Message: types.ChatCompletionMessage{
-				Role:    choice.Role,
-				Content: strings.Trim(choice.Content, "\""),
-			},
-			FinishReason: "",
-		}
-		if i == len(response.Data.Choices)-1 {
-			openaiChoice.FinishReason = "stop"
-		}
-		openaiResponse.Choices = append(openaiResponse.Choices, openaiChoice)
+		Created: response.Created,
+		Model:   response.Model,
+		Choices: response.Choices,
+		Usage:   response.Usage,
 	}
 
-	*p.Usage = response.Data.Usage
+	*p.Usage = *response.Usage
 
 	return
 }
 
 func convertFromChatOpenai(request *types.ChatCompletionRequest) *ZhipuRequest {
-	messages := make([]ZhipuMessage, 0, len(request.Messages))
-	for _, message := range request.Messages {
-		if message.Role == "system" {
-			messages = append(messages, ZhipuMessage{
-				Role:    "system",
-				Content: message.StringContent(),
+	for i := range request.Messages {
+		request.Messages[i].Role = convertRole(request.Messages[i].Role)
+	}
+
+	zhipuRequest := &ZhipuRequest{
+		Model:       request.Model,
+		Messages:    request.Messages,
+		Stream:      request.Stream,
+		Temperature: request.Temperature,
+		TopP:        convertTopP(request.TopP),
+		MaxTokens:   request.MaxTokens,
+		Stop:        request.Stop,
+		ToolChoice:  request.ToolChoice,
+	}
+
+	if request.Functions != nil {
+		zhipuRequest.Tools = make([]ZhipuTool, 0, len(request.Functions))
+		for _, function := range request.Functions {
+			zhipuRequest.Tools = append(zhipuRequest.Tools, ZhipuTool{
+				Type:     "function",
+				Function: *function,
 			})
-			messages = append(messages, ZhipuMessage{
-				Role:    "user",
-				Content: "Okay",
-			})
-		} else {
-			messages = append(messages, ZhipuMessage{
-				Role:    message.Role,
-				Content: message.StringContent(),
+		}
+	} else if request.Tools != nil {
+		zhipuRequest.Tools = make([]ZhipuTool, 0, len(request.Tools))
+		for _, tool := range request.Tools {
+			zhipuRequest.Tools = append(zhipuRequest.Tools, ZhipuTool{
+				Type:     "function",
+				Function: tool.Function,
 			})
 		}
 	}
-	return &ZhipuRequest{
-		Prompt:      messages,
-		Temperature: request.Temperature,
-		TopP:        request.TopP,
-		Incremental: false,
-	}
+
+	return zhipuRequest
 }
 
 // 转换为OpenAI聊天流式请求体
 func (h *zhipuStreamHandler) handlerStream(rawLine *[]byte, isFinished *bool, response *[]types.ChatCompletionStreamResponse) error {
 	// 如果rawLine 前缀不为data: 或者 meta:，则直接返回
-	if !strings.HasPrefix(string(*rawLine), "data:") && !strings.HasPrefix(string(*rawLine), "meta:") {
+	if !strings.HasPrefix(string(*rawLine), "data: ") {
 		*rawLine = nil
 		return nil
 	}
 
-	if strings.HasPrefix(string(*rawLine), "meta:") {
-		*rawLine = (*rawLine)[5:]
-		var zhipuStreamMetaResponse ZhipuStreamMetaResponse
-		err := json.Unmarshal(*rawLine, &zhipuStreamMetaResponse)
-		if err != nil {
-			return common.ErrorToOpenAIError(err)
-		}
+	*rawLine = (*rawLine)[6:]
+
+	if strings.HasPrefix(string(*rawLine), "[DONE]") {
 		*isFinished = true
-		return h.handlerMeta(&zhipuStreamMetaResponse, response)
+		return nil
 	}
 
-	*rawLine = (*rawLine)[5:]
-	return h.convertToOpenaiStream(string(*rawLine), response)
+	zhipuResponse := &ZhipuStreamResponse{}
+	err := json.Unmarshal(*rawLine, zhipuResponse)
+	if err != nil {
+		return common.ErrorToOpenAIError(err)
+	}
+
+	error := errorHandle(&zhipuResponse.Error)
+	if error != nil {
+		return error
+	}
+
+	return h.convertToOpenaiStream(zhipuResponse, response)
 }
 
-func (h *zhipuStreamHandler) convertToOpenaiStream(content string, response *[]types.ChatCompletionStreamResponse) error {
-	var choice types.ChatCompletionStreamChoice
-	choice.Delta.Content = content
+func (h *zhipuStreamHandler) convertToOpenaiStream(zhipuResponse *ZhipuStreamResponse, response *[]types.ChatCompletionStreamResponse) error {
 	streamResponse := types.ChatCompletionStreamResponse{
-		ID:      fmt.Sprintf("chatcmpl-%s", common.GetUUID()),
+		ID:      zhipuResponse.ID,
 		Object:  "chat.completion.chunk",
-		Created: common.GetTimestamp(),
+		Created: zhipuResponse.Created,
 		Model:   h.Request.Model,
-		Choices: []types.ChatCompletionStreamChoice{choice},
 	}
 
-	*response = append(*response, streamResponse)
+	choice := zhipuResponse.Choices[0]
 
-	return nil
-}
-
-func (h *zhipuStreamHandler) handlerMeta(zhipuResponse *ZhipuStreamMetaResponse, response *[]types.ChatCompletionStreamResponse) error {
-	var choice types.ChatCompletionStreamChoice
-	choice.Delta.Content = ""
-	choice.FinishReason = types.FinishReasonStop
-	streamResponse := types.ChatCompletionStreamResponse{
-		ID:      zhipuResponse.RequestId,
-		Object:  "chat.completion.chunk",
-		Created: common.GetTimestamp(),
-		Model:   h.Request.Model,
-		Choices: []types.ChatCompletionStreamChoice{choice},
+	if choice.Delta.ToolCalls != nil {
+		choices := choice.ConvertOpenaiStream()
+		for _, choice := range choices {
+			chatCompletionCopy := streamResponse
+			chatCompletionCopy.Choices = []types.ChatCompletionStreamChoice{choice}
+			*response = append(*response, chatCompletionCopy)
+		}
+	} else {
+		streamResponse.Choices = []types.ChatCompletionStreamChoice{choice}
+		*response = append(*response, streamResponse)
 	}
 
-	*response = append(*response, streamResponse)
-
-	*h.Usage = zhipuResponse.Usage
+	if zhipuResponse.Usage != nil {
+		*h.Usage = *zhipuResponse.Usage
+	}
 
 	return nil
 }

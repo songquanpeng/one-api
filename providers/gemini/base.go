@@ -37,7 +37,7 @@ func getConfig() base.ProviderConfig {
 
 // 请求错误处理
 func requestErrorHandle(resp *http.Response) *types.OpenAIError {
-	var geminiError *GeminiErrorResponse
+	geminiError := &GeminiErrorResponse{}
 	err := json.NewDecoder(resp.Body).Decode(geminiError)
 	if err != nil {
 		return nil

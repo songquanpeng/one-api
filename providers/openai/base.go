@@ -62,7 +62,7 @@ func getOpenAIConfig(baseURL string) base.ProviderConfig {
 
 // 请求错误处理
 func RequestErrorHandle(resp *http.Response) *types.OpenAIError {
-	var errorResponse *types.OpenAIErrorResponse
+	errorResponse := &types.OpenAIErrorResponse{}
 	err := json.NewDecoder(resp.Body).Decode(errorResponse)
 	if err != nil {
 		return nil

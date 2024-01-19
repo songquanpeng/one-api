@@ -43,7 +43,7 @@ func getConfig() base.ProviderConfig {
 
 // 请求错误处理
 func requestErrorHandle(resp *http.Response) *types.OpenAIError {
-	var tencentError *TencentResponseError
+	tencentError := &TencentResponseError{}
 	err := json.NewDecoder(resp.Body).Decode(tencentError)
 	if err != nil {
 		return nil

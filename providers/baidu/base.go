@@ -44,7 +44,7 @@ func getConfig() base.ProviderConfig {
 
 // 请求错误处理
 func requestErrorHandle(resp *http.Response) *types.OpenAIError {
-	var baiduError *BaiduError
+	baiduError := &BaiduError{}
 	err := json.NewDecoder(resp.Body).Decode(baiduError)
 	if err != nil {
 		return nil

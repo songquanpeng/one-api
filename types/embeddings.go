@@ -38,3 +38,21 @@ func (r EmbeddingRequest) ParseInput() []string {
 	}
 	return input
 }
+
+func (r EmbeddingRequest) ParseInputString() string {
+	if r.Input == nil {
+		return ""
+	}
+
+	var input string
+	switch r.Input.(type) {
+	case string:
+		input = r.Input.(string)
+	case []any:
+		// 取第一个
+		if len(r.Input.([]any)) > 0 {
+			input = r.Input.([]any)[0].(string)
+		}
+	}
+	return input
+}

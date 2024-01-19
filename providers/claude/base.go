@@ -35,7 +35,7 @@ func getConfig() base.ProviderConfig {
 
 // 请求错误处理
 func requestErrorHandle(resp *http.Response) *types.OpenAIError {
-	var claudeError *ClaudeResponseError
+	claudeError := &ClaudeResponseError{}
 	err := json.NewDecoder(resp.Body).Decode(claudeError)
 	if err != nil {
 		return nil

@@ -231,7 +231,8 @@ func calculateToken(model string, size string, n int, quality string) (int, erro
 			}
 		}
 	} else {
-		return 0, errors.New("size not supported for this image model")
+		imageCostRatio = 1
+		// return 0, errors.New("size not supported for this image model")
 	}
 
 	return int(imageCostRatio*1000) * n, nil

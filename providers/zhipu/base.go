@@ -38,29 +38,31 @@ type ZhipuProvider struct {
 
 func getConfig() base.ProviderConfig {
 	return base.ProviderConfig{
-		BaseURL:         "https://open.bigmodel.cn",
-		ChatCompletions: "/api/paas/v3/model-api",
+		BaseURL:           "https://open.bigmodel.cn/api/paas/v4",
+		ChatCompletions:   "/chat/completions",
+		Embeddings:        "/embeddings",
+		ImagesGenerations: "/images/generations",
 	}
 }
 
 // 请求错误处理
 func requestErrorHandle(resp *http.Response) *types.OpenAIError {
-	var zhipuError *ZhipuResponse
+	zhipuError := &ZhipuResponseError{}
 	err := json.NewDecoder(resp.Body).Decode(zhipuError)
 	if err != nil {
 		return nil
 	}
 
-	return errorHandle(zhipuError)
+	return errorHandle(&zhipuError.Error)
 }
 
 // 错误处理
-func errorHandle(zhipuError *ZhipuResponse) *types.OpenAIError {
-	if zhipuError.Success {
+func errorHandle(zhipuError *ZhipuError) *types.OpenAIError {
+	if zhipuError.Message == "" {
 		return nil
 	}
 	return &types.OpenAIError{
-		Message: zhipuError.Msg,
+		Message: zhipuError.Message,
 		Type:    "zhipu_error",
 		Code:    zhipuError.Code,
 	}
@@ -79,7 +81,7 @@ func (p *ZhipuProvider) GetRequestHeaders() (headers map[string]string) {
 func (p *ZhipuProvider) GetFullRequestURL(requestURL string, modelName string) string {
 	baseURL := strings.TrimSuffix(p.GetBaseURL(), "/")
 
-	return fmt.Sprintf("%s%s/%s", baseURL, requestURL, modelName)
+	return fmt.Sprintf("%s%s", baseURL, requestURL)
 }
 
 func (p *ZhipuProvider) getZhipuToken() string {
@@ -128,4 +130,25 @@ func (p *ZhipuProvider) getZhipuToken() string {
 	})
 
 	return tokenString
+}
+
+func convertRole(roleName string) string {
+	switch roleName {
+	case types.ChatMessageRoleFunction:
+		return types.ChatMessageRoleTool
+	case types.ChatMessageRoleTool, types.ChatMessageRoleSystem, types.ChatMessageRoleAssistant:
+		return roleName
+	default:
+		return types.ChatMessageRoleUser
+	}
+}
+
+func convertTopP(topP float64) float64 {
+	// 检测 topP 是否在 0-1 之间 如果等于0 设为0.1 如果大于等于1 设为0.9
+	if topP <= 0 {
+		return 0.1
+	} else if topP >= 1 {
+		return 0.9
+	}
+	return topP
 }
