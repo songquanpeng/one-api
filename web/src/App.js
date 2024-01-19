@@ -16,6 +16,7 @@ import NavigationScroll from 'layout/NavigationScroll';
 import UserProvider from 'contexts/UserContext';
 import StatusProvider from 'contexts/StatusContext';
 import { SnackbarProvider } from 'notistack';
+import CopySnackbar from 'ui-component/Snackbar';
 
 // ==============================|| APP ||============================== //
 
@@ -27,7 +28,12 @@ const App = () => {
       <ThemeProvider theme={themes(customization)}>
         <CssBaseline />
         <NavigationScroll>
-          <SnackbarProvider autoHideDuration={5000} maxSnack={3} anchorOrigin={{ vertical: 'top', horizontal: 'right' }}>
+          <SnackbarProvider
+            autoHideDuration={5000}
+            maxSnack={3}
+            anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+            Components={{ copy: CopySnackbar }}
+          >
             <UserProvider>
               <StatusProvider>
                 <Routes />

@@ -20,7 +20,7 @@ import {
 } from '@mui/material';
 
 import TableSwitch from 'ui-component/Switch';
-import { renderQuota, showSuccess, timestamp2string } from 'utils/common';
+import { renderQuota, timestamp2string, copy } from 'utils/common';
 
 import { IconDotsVertical, IconEdit, IconTrash, IconCaretDownFilled } from '@tabler/icons-react';
 
@@ -141,8 +141,7 @@ export default function TokensTableRow({ item, manageToken, handleOpenModal, set
     if (type === 'link') {
       window.open(text);
     } else {
-      navigator.clipboard.writeText(text);
-      showSuccess('已复制到剪贴板！');
+      copy(text, '链接');
     }
     handleCloseMenu();
   };
@@ -211,8 +210,7 @@ export default function TokensTableRow({ item, manageToken, handleOpenModal, set
               <Button
                 color="primary"
                 onClick={() => {
-                  navigator.clipboard.writeText(`sk-${item.key}`);
-                  showSuccess('已复制到剪贴板！');
+                  copy(`sk-${item.key}`, '令牌');
                 }}
               >
                 复制

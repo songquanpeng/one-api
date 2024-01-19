@@ -5,7 +5,7 @@ import { useSearchParams } from 'react-router-dom';
 import { Button, Stack, Typography, Alert } from '@mui/material';
 
 // assets
-import { showError, showInfo } from 'utils/common';
+import { showError, copy } from 'utils/common';
 import { API } from 'utils/api';
 
 // ===========================|| FIREBASE - REGISTER ||=========================== //
@@ -25,8 +25,7 @@ const ResetPasswordForm = () => {
       if (success) {
         let password = res.data.data;
         setNewPassword(password);
-        navigator.clipboard.writeText(password);
-        showInfo(`新密码已复制到剪贴板：${password}`);
+        copy(password, '新密码');
       } else {
         showError(message);
       }

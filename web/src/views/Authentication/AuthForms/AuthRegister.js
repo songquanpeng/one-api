@@ -296,7 +296,7 @@ const RegisterForm = ({ ...others }) => {
             <Box sx={{ mt: 2 }}>
               <AnimateButton>
                 <Button disableElevation disabled={isSubmitting} fullWidth size="large" type="submit" variant="contained" color="primary">
-                  Sign up
+                  注册
                 </Button>
               </AnimateButton>
             </Box>

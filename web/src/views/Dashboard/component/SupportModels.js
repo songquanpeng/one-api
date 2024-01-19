@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import SubCard from 'ui-component/cards/SubCard';
 // import { gridSpacing } from 'store/constant';
 import { API } from 'utils/api';
-import { showError, showSuccess } from 'utils/common';
+import { showError, copy } from 'utils/common';
 import { Typography, Accordion, AccordionSummary, AccordionDetails, Box, Stack } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import Label from 'ui-component/Label';
@@ -50,8 +50,7 @@ const SupportModels = () => {
                     color="primary"
                     key={model}
                     onClick={() => {
-                      navigator.clipboard.writeText(model);
-                      showSuccess('复制模型名称成功！');
+                      copy(model, '模型名称');
                     }}
                   >
                     {model}

@@ -33,7 +33,7 @@ import { Box, Avatar } from '@mui/material';
 import { alpha } from '@mui/material/styles';
 import Card from '@mui/material/Card';
 import shapeAvatar from 'assets/images/icons/shape-avatar.svg';
-import coverAvatar from 'assets/images/invite/cover.jpg';
+import coverAvatar from 'assets/images/invite/cover.webp';
 import userAvatar from 'assets/images/users/user-round.svg';
 import SvgColor from 'ui-component/SvgColor';
 

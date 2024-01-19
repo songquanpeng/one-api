@@ -69,6 +69,17 @@ export function showInfo(message) {
   enqueueSnackbar(message, getSnackbarOptions('INFO'));
 }
 
+export function copy(text, name = '') {
+  try {
+    navigator.clipboard.writeText(text);
+  } catch (error) {
+    text = `复制${name}失败，请手动复制：<br /><br />${text}`;
+    enqueueSnackbar(<SnackbarHTMLContent htmlContent={text} />, getSnackbarOptions('COPY'));
+    return;
+  }
+  showSuccess(`复制${name}成功！`);
+}
+
 export async function getOAuthState() {
   try {
     const res = await API.get('/api/oauth/state');

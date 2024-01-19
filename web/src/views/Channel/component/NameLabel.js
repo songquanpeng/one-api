@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import { Tooltip, Stack, Container } from '@mui/material';
 import Label from 'ui-component/Label';
 import { styled } from '@mui/material/styles';
-import { showSuccess } from 'utils/common';
+import { copy } from 'utils/common';
 
 const TooltipContainer = styled(Container)({
   maxHeight: '250px',
@@ -28,8 +28,7 @@ const NameLabel = ({ name, models }) => {
                   variant="ghost"
                   key={index}
                   onClick={() => {
-                    navigator.clipboard.writeText(item);
-                    showSuccess('复制模型名称成功！');
+                    copy(item, '模型名称');
                   }}
                 >
                   {item}
