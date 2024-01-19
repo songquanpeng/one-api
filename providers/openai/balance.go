@@ -3,11 +3,10 @@ package openai
 import (
 	"errors"
 	"fmt"
-	"one-api/model"
 	"time"
 )
 
-func (p *OpenAIProvider) Balance(channel *model.Channel) (float64, error) {
+func (p *OpenAIProvider) Balance() (float64, error) {
 	if !p.BalanceAction {
 		return 0, errors.New("不支持余额查询")
 	}
@@ -46,6 +45,6 @@ func (p *OpenAIProvider) Balance(channel *model.Channel) (float64, error) {
 	}
 
 	balance := subscription.HardLimitUSD - usage.TotalUsage/100
-	channel.UpdateBalance(balance)
+	p.Channel.UpdateBalance(balance)
 	return balance, nil
 }

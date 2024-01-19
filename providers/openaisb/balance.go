@@ -3,13 +3,12 @@ package openaisb
 import (
 	"errors"
 	"fmt"
-	"one-api/model"
 	"strconv"
 )
 
-func (p *OpenaiSBProvider) Balance(channel *model.Channel) (float64, error) {
+func (p *OpenaiSBProvider) Balance() (float64, error) {
 	fullRequestURL := p.GetFullRequestURL("/sb-api/user/status", "")
-	fullRequestURL = fmt.Sprintf("%s?api_key=%s", fullRequestURL, channel.Key)
+	fullRequestURL = fmt.Sprintf("%s?api_key=%s", fullRequestURL, p.Channel.Key)
 	headers := p.GetRequestHeaders()
 
 	req, err := p.Requester.NewRequest("GET", fullRequestURL, p.Requester.WithHeader(headers))
@@ -31,6 +30,6 @@ func (p *OpenaiSBProvider) Balance(channel *model.Channel) (float64, error) {
 	if err != nil {
 		return 0, err
 	}
-	channel.UpdateBalance(balance)
+	p.Channel.UpdateBalance(balance)
 	return balance, nil
 }

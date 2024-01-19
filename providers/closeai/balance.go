@@ -2,10 +2,9 @@ package closeai
 
 import (
 	"errors"
-	"one-api/model"
 )
 
-func (p *CloseaiProxyProvider) Balance(channel *model.Channel) (float64, error) {
+func (p *CloseaiProxyProvider) Balance() (float64, error) {
 	fullRequestURL := p.GetFullRequestURL("/dashboard/billing/credit_grants", "")
 	headers := p.GetRequestHeaders()
 
@@ -21,7 +20,7 @@ func (p *CloseaiProxyProvider) Balance(channel *model.Channel) (float64, error) 
 		return 0, errors.New(errWithCode.OpenAIError.Message)
 	}
 
-	channel.UpdateBalance(response.TotalAvailable)
+	p.Channel.UpdateBalance(response.TotalAvailable)
 
 	return response.TotalAvailable, nil
 }
