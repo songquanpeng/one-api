@@ -48,7 +48,7 @@ func GetChannel(channelType int, baseUrl, other, porxy, modelMapping string) mod
 		Type:         channelType,
 		BaseURL:      &baseUrl,
 		Other:        other,
-		Proxy:        porxy,
+		Proxy:        &porxy,
 		ModelMapping: &modelMapping,
 		Key:          GetTestToken(),
 	}

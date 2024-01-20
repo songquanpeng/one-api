@@ -23,9 +23,9 @@ func (f XunfeiProviderFactory) Create(channel *model.Channel) base.ProviderInter
 		BaseProvider: base.BaseProvider{
 			Config:    getConfig(),
 			Channel:   channel,
-			Requester: requester.NewHTTPRequester(channel.Proxy, nil),
+			Requester: requester.NewHTTPRequester(*channel.Proxy, nil),
 		},
-		wsRequester: requester.NewWSRequester(channel.Proxy),
+		wsRequester: requester.NewWSRequester(*channel.Proxy),
 	}
 }
 
@@ -103,7 +103,8 @@ func (p *XunfeiProvider) buildXunfeiAuthUrl(hostUrl string, apiKey, apiSecret st
 	}
 	ul, err := url.Parse(hostUrl)
 	if err != nil {
-		fmt.Println(err)
+		common.SysError("url parse error: " + err.Error())
+		return ""
 	}
 	date := time.Now().UTC().Format(time.RFC1123)
 	signString := []string{"host: " + ul.Host, "date: " + date, "GET " + ul.Path + " HTTP/1.1"}

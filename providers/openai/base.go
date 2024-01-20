@@ -37,7 +37,7 @@ func CreateOpenAIProvider(channel *model.Channel, baseURL string) *OpenAIProvide
 		BaseProvider: base.BaseProvider{
 			Config:    config,
 			Channel:   channel,
-			Requester: requester.NewHTTPRequester(channel.Proxy, RequestErrorHandle),
+			Requester: requester.NewHTTPRequester(*channel.Proxy, RequestErrorHandle),
 		},
 		IsAzure:       false,
 		BalanceAction: true,

@@ -29,7 +29,7 @@ func (f BaiduProviderFactory) Create(channel *model.Channel) base.ProviderInterf
 		BaseProvider: base.BaseProvider{
 			Config:    getConfig(),
 			Channel:   channel,
-			Requester: requester.NewHTTPRequester(channel.Proxy, requestErrorHandle),
+			Requester: requester.NewHTTPRequester(*channel.Proxy, requestErrorHandle),
 		},
 	}
 }

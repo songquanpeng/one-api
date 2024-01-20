@@ -17,7 +17,7 @@ func (f AzureSpeechProviderFactory) Create(channel *model.Channel) base.Provider
 				AudioSpeech: "/cognitiveservices/v1",
 			},
 			Channel:   channel,
-			Requester: requester.NewHTTPRequester(channel.Proxy, nil),
+			Requester: requester.NewHTTPRequester(*channel.Proxy, nil),
 		},
 	}
 }

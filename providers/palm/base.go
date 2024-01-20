@@ -19,7 +19,7 @@ func (f PalmProviderFactory) Create(channel *model.Channel) base.ProviderInterfa
 		BaseProvider: base.BaseProvider{
 			Config:    getConfig(),
 			Channel:   channel,
-			Requester: requester.NewHTTPRequester(channel.Proxy, requestErrorHandle),
+			Requester: requester.NewHTTPRequester(*channel.Proxy, requestErrorHandle),
 		},
 	}
 }

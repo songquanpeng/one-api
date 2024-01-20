@@ -18,7 +18,7 @@ func (f BaichuanProviderFactory) Create(channel *model.Channel) base.ProviderInt
 			BaseProvider: base.BaseProvider{
 				Config:    getConfig(),
 				Channel:   channel,
-				Requester: requester.NewHTTPRequester(channel.Proxy, openai.RequestErrorHandle),
+				Requester: requester.NewHTTPRequester(*channel.Proxy, openai.RequestErrorHandle),
 			},
 		},
 	}

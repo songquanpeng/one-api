@@ -25,7 +25,7 @@ func (f TencentProviderFactory) Create(channel *model.Channel) base.ProviderInte
 		BaseProvider: base.BaseProvider{
 			Config:    getConfig(),
 			Channel:   channel,
-			Requester: requester.NewHTTPRequester(channel.Proxy, requestErrorHandle),
+			Requester: requester.NewHTTPRequester(*channel.Proxy, requestErrorHandle),
 		},
 	}
 }

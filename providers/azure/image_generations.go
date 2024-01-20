@@ -2,7 +2,6 @@ package azure
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 	"one-api/common"
 	"one-api/providers/openai"
@@ -85,7 +84,6 @@ func (p *AzureProvider) ResponseAzureImageHandler(resp *http.Response, azure *Im
 		// 休眠 2 秒
 		time.Sleep(2 * time.Second)
 		_, errWithCode = p.Requester.SendRequest(req, &getImageAzureResponse, false)
-		fmt.Println("getImageAzureResponse", getImageAzureResponse)
 		if errWithCode != nil {
 			return
 		}

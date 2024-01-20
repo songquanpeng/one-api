@@ -26,7 +26,7 @@ func (f AliProviderFactory) Create(channel *model.Channel) base.ProviderInterfac
 		BaseProvider: base.BaseProvider{
 			Config:    getConfig(),
 			Channel:   channel,
-			Requester: requester.NewHTTPRequester(channel.Proxy, requestErrorHandle),
+			Requester: requester.NewHTTPRequester(*channel.Proxy, requestErrorHandle),
 		},
 	}
 }

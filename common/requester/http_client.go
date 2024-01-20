@@ -38,6 +38,8 @@ func (h *HTTPClient) getClientFromPool(proxyAddr string) *http.Client {
 }
 
 func (h *HTTPClient) returnClientToPool(client *http.Client) {
+	// 清除代理设置
+	client.Transport = nil
 	clientPool.Put(client)
 }
 
