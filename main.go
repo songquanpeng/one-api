@@ -7,6 +7,8 @@ import (
 	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
 	"one-api/common"
+	"one-api/common/config"
+	"one-api/common/logger"
 	"one-api/controller"
 	"one-api/middleware"
 	"one-api/model"
@@ -20,65 +22,65 @@ import (
 var buildFS embed.FS
 
 func main() {
-	common.SetupLogger()
-	common.SysLog(fmt.Sprintf("One API %s started", common.Version))
+	logger.SetupLogger()
+	logger.SysLog(fmt.Sprintf("One API %s started", common.Version))
 	if os.Getenv("GIN_MODE") != "debug" {
 		gin.SetMode(gin.ReleaseMode)
 	}
-	if common.DebugEnabled {
-		common.SysLog("running in debug mode")
+	if config.DebugEnabled {
+		logger.SysLog("running in debug mode")
 	}
 	// Initialize SQL Database
 	err := model.InitDB()
 	if err != nil {
-		common.FatalLog("failed to initialize database: " + err.Error())
+		logger.FatalLog("failed to initialize database: " + err.Error())
 	}
 	defer func() {
 		err := model.CloseDB()
 		if err != nil {
-			common.FatalLog("failed to close database: " + err.Error())
+			logger.FatalLog("failed to close database: " + err.Error())
 		}
 	}()
 
 	// Initialize Redis
 	err = common.InitRedisClient()
 	if err != nil {
-		common.FatalLog("failed to initialize Redis: " + err.Error())
+		logger.FatalLog("failed to initialize Redis: " + err.Error())
 	}
 
 	// Initialize options
 	model.InitOptionMap()
-	common.SysLog(fmt.Sprintf("using theme %s", common.Theme))
+	logger.SysLog(fmt.Sprintf("using theme %s", config.Theme))
 	if common.RedisEnabled {
 		// for compatibility with old versions
-		common.MemoryCacheEnabled = true
+		config.MemoryCacheEnabled = true
 	}
-	if common.MemoryCacheEnabled {
-		common.SysLog("memory cache enabled")
-		common.SysError(fmt.Sprintf("sync frequency: %d seconds", common.SyncFrequency))
+	if config.MemoryCacheEnabled {
+		logger.SysLog("memory cache enabled")
+		logger.SysError(fmt.Sprintf("sync frequency: %d seconds", config.SyncFrequency))
 		model.InitChannelCache()
 	}
-	if common.MemoryCacheEnabled {
-		go model.SyncOptions(common.SyncFrequency)
-		go model.SyncChannelCache(common.SyncFrequency)
+	if config.MemoryCacheEnabled {
+		go model.SyncOptions(config.SyncFrequency)
+		go model.SyncChannelCache(config.SyncFrequency)
 	}
 	if os.Getenv("CHANNEL_UPDATE_FREQUENCY") != "" {
 		frequency, err := strconv.Atoi(os.Getenv("CHANNEL_UPDATE_FREQUENCY"))
 		if err != nil {
-			common.FatalLog("failed to parse CHANNEL_UPDATE_FREQUENCY: " + err.Error())
+			logger.FatalLog("failed to parse CHANNEL_UPDATE_FREQUENCY: " + err.Error())
 		}
 		go controller.AutomaticallyUpdateChannels(frequency)
 	}
 	if os.Getenv("CHANNEL_TEST_FREQUENCY") != "" {
 		frequency, err := strconv.Atoi(os.Getenv("CHANNEL_TEST_FREQUENCY"))
 		if err != nil {
-			common.FatalLog("failed to parse CHANNEL_TEST_FREQUENCY: " + err.Error())
+			logger.FatalLog("failed to parse CHANNEL_TEST_FREQUENCY: " + err.Error())
 		}
 		go controller.AutomaticallyTestChannels(frequency)
 	}
 	if os.Getenv("BATCH_UPDATE_ENABLED") == "true" {
-		common.BatchUpdateEnabled = true
-		common.SysLog("batch update enabled with interval " + strconv.Itoa(common.BatchUpdateInterval) + "s")
+		config.BatchUpdateEnabled = true
+		logger.SysLog("batch update enabled with interval " + strconv.Itoa(config.BatchUpdateInterval) + "s")
 		model.InitBatchUpdater()
 	}
 	openai.InitTokenEncoders()
@@ -91,7 +93,7 @@ func main() {
 	server.Use(middleware.RequestId())
 	middleware.SetUpLogger(server)
 	// Initialize session store
-	store := cookie.NewStore([]byte(common.SessionSecret))
+	store := cookie.NewStore([]byte(config.SessionSecret))
 	server.Use(sessions.Sessions("session", store))
 
 	router.SetRouter(server, buildFS)
@@ -101,6 +103,6 @@ func main() {
 	}
 	err = server.Run(":" + port)
 	if err != nil {
-		common.FatalLog("failed to start HTTP server: " + err.Error())
+		logger.FatalLog("failed to start HTTP server: " + err.Error())
 	}
 }

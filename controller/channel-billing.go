@@ -7,6 +7,8 @@ import (
 	"io"
 	"net/http"
 	"one-api/common"
+	"one-api/common/config"
+	"one-api/common/logger"
 	"one-api/model"
 	"one-api/relay/util"
 	"strconv"
@@ -314,7 +316,7 @@ func updateAllChannelsBalance() error {
 				disableChannel(channel.Id, channel.Name, "余额不足")
 			}
 		}
-		time.Sleep(common.RequestInterval)
+		time.Sleep(config.RequestInterval)
 	}
 	return nil
 }
@@ -339,8 +341,8 @@ func UpdateAllChannelsBalance(c *gin.Context) {
 func AutomaticallyUpdateChannels(frequency int) {
 	for {
 		time.Sleep(time.Duration(frequency) * time.Minute)
-		common.SysLog("updating all channels")
+		logger.SysLog("updating all channels")
 		_ = updateAllChannelsBalance()
-		common.SysLog("channels update done")
+		logger.SysLog("channels update done")
 	}
 }

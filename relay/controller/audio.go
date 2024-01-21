@@ -11,6 +11,8 @@ import (
 	"io"
 	"net/http"
 	"one-api/common"
+	"one-api/common/config"
+	"one-api/common/logger"
 	"one-api/model"
 	"one-api/relay/channel/openai"
 	"one-api/relay/constant"
@@ -53,7 +55,7 @@ func RelayAudioHelper(c *gin.Context, relayMode int) *openai.ErrorWithStatusCode
 		preConsumedQuota = int(float64(len(ttsRequest.Input)) * ratio)
 		quota = preConsumedQuota
 	default:
-		preConsumedQuota = int(float64(common.PreConsumedQuota) * ratio)
+		preConsumedQuota = int(float64(config.PreConsumedQuota) * ratio)
 	}
 	userQuota, err := model.CacheGetUserQuota(userId)
 	if err != nil {
@@ -102,7 +104,7 @@ func RelayAudioHelper(c *gin.Context, relayMode int) *openai.ErrorWithStatusCode
 	fullRequestURL := util.GetFullRequestURL(baseURL, requestURL, channelType)
 	if relayMode == constant.RelayModeAudioTranscription && channelType == common.ChannelTypeAzure {
 		// https://learn.microsoft.com/en-us/azure/ai-services/openai/whisper-quickstart?tabs=command-line#rest-api
-		apiVersion := util.GetAPIVersion(c)
+		apiVersion := util.GetAzureAPIVersion(c)
 		fullRequestURL = fmt.Sprintf("%s/openai/deployments/%s/audio/transcriptions?api-version=%s", baseURL, audioModel, apiVersion)
 	}
 
@@ -191,7 +193,7 @@ func RelayAudioHelper(c *gin.Context, relayMode int) *openai.ErrorWithStatusCode
 					// negative means add quota back for token & user
 					err := model.PostConsumeTokenQuota(tokenId, -preConsumedQuota)
 					if err != nil {
-						common.LogError(ctx, fmt.Sprintf("error rollback pre-consumed quota: %s", err.Error()))
+						logger.Error(ctx, fmt.Sprintf("error rollback pre-consumed quota: %s", err.Error()))
 					}
 				}()
 			}(c.Request.Context())

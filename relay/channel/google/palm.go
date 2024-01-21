@@ -7,6 +7,8 @@ import (
 	"io"
 	"net/http"
 	"one-api/common"
+	"one-api/common/helper"
+	"one-api/common/logger"
 	"one-api/relay/channel/openai"
 	"one-api/relay/constant"
 )
@@ -71,27 +73,27 @@ func streamResponsePaLM2OpenAI(palmResponse *PaLMChatResponse) *openai.ChatCompl
 
 func PaLMStreamHandler(c *gin.Context, resp *http.Response) (*openai.ErrorWithStatusCode, string) {
 	responseText := ""
-	responseId := fmt.Sprintf("chatcmpl-%s", common.GetUUID())
-	createdTime := common.GetTimestamp()
+	responseId := fmt.Sprintf("chatcmpl-%s", helper.GetUUID())
+	createdTime := helper.GetTimestamp()
 	dataChan := make(chan string)
 	stopChan := make(chan bool)
 	go func() {
 		responseBody, err := io.ReadAll(resp.Body)
 		if err != nil {
-			common.SysError("error reading stream response: " + err.Error())
+			logger.SysError("error reading stream response: " + err.Error())
 			stopChan <- true
 			return
 		}
 		err = resp.Body.Close()
 		if err != nil {
-			common.SysError("error closing stream response: " + err.Error())
+			logger.SysError("error closing stream response: " + err.Error())
 			stopChan <- true
 			return
 		}
 		var palmResponse PaLMChatResponse
 		err = json.Unmarshal(responseBody, &palmResponse)
 		if err != nil {
-			common.SysError("error unmarshalling stream response: " + err.Error())
+			logger.SysError("error unmarshalling stream response: " + err.Error())
 			stopChan <- true
 			return
 		}
@@ -103,7 +105,7 @@ func PaLMStreamHandler(c *gin.Context, resp *http.Response) (*openai.ErrorWithSt
 		}
 		jsonResponse, err := json.Marshal(fullTextResponse)
 		if err != nil {
-			common.SysError("error marshalling stream response: " + err.Error())
+			logger.SysError("error marshalling stream response: " + err.Error())
 			stopChan <- true
 			return
 		}

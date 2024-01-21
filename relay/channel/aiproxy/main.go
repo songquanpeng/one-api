@@ -8,6 +8,8 @@ import (
 	"io"
 	"net/http"
 	"one-api/common"
+	"one-api/common/helper"
+	"one-api/common/logger"
 	"one-api/relay/channel/openai"
 	"one-api/relay/constant"
 	"strconv"
@@ -50,9 +52,9 @@ func responseAIProxyLibrary2OpenAI(response *LibraryResponse) *openai.TextRespon
 		FinishReason: "stop",
 	}
 	fullTextResponse := openai.TextResponse{
-		Id:      common.GetUUID(),
+		Id:      helper.GetUUID(),
 		Object:  "chat.completion",
-		Created: common.GetTimestamp(),
+		Created: helper.GetTimestamp(),
 		Choices: []openai.TextResponseChoice{choice},
 	}
 	return &fullTextResponse
@@ -63,9 +65,9 @@ func documentsAIProxyLibrary(documents []LibraryDocument) *openai.ChatCompletion
 	choice.Delta.Content = aiProxyDocuments2Markdown(documents)
 	choice.FinishReason = &constant.StopFinishReason
 	return &openai.ChatCompletionsStreamResponse{
-		Id:      common.GetUUID(),
+		Id:      helper.GetUUID(),
 		Object:  "chat.completion.chunk",
-		Created: common.GetTimestamp(),
+		Created: helper.GetTimestamp(),
 		Model:   "",
 		Choices: []openai.ChatCompletionsStreamResponseChoice{choice},
 	}
@@ -75,9 +77,9 @@ func streamResponseAIProxyLibrary2OpenAI(response *LibraryStreamResponse) *opena
 	var choice openai.ChatCompletionsStreamResponseChoice
 	choice.Delta.Content = response.Content
 	return &openai.ChatCompletionsStreamResponse{
-		Id:      common.GetUUID(),
+		Id:      helper.GetUUID(),
 		Object:  "chat.completion.chunk",
-		Created: common.GetTimestamp(),
+		Created: helper.GetTimestamp(),
 		Model:   response.Model,
 		Choices: []openai.ChatCompletionsStreamResponseChoice{choice},
 	}
@@ -122,7 +124,7 @@ func StreamHandler(c *gin.Context, resp *http.Response) (*openai.ErrorWithStatus
 			var AIProxyLibraryResponse LibraryStreamResponse
 			err := json.Unmarshal([]byte(data), &AIProxyLibraryResponse)
 			if err != nil {
-				common.SysError("error unmarshalling stream response: " + err.Error())
+				logger.SysError("error unmarshalling stream response: " + err.Error())
 				return true
 			}
 			if len(AIProxyLibraryResponse.Documents) != 0 {
@@ -131,7 +133,7 @@ func StreamHandler(c *gin.Context, resp *http.Response) (*openai.ErrorWithStatus
 			response := streamResponseAIProxyLibrary2OpenAI(&AIProxyLibraryResponse)
 			jsonResponse, err := json.Marshal(response)
 			if err != nil {
-				common.SysError("error marshalling stream response: " + err.Error())
+				logger.SysError("error marshalling stream response: " + err.Error())
 				return true
 			}
 			c.Render(-1, common.CustomEvent{Data: "data: " + string(jsonResponse)})
@@ -140,7 +142,7 @@ func StreamHandler(c *gin.Context, resp *http.Response) (*openai.ErrorWithStatus
 			response := documentsAIProxyLibrary(documents)
 			jsonResponse, err := json.Marshal(response)
 			if err != nil {
-				common.SysError("error marshalling stream response: " + err.Error())
+				logger.SysError("error marshalling stream response: " + err.Error())
 				return true
 			}
 			c.Render(-1, common.CustomEvent{Data: "data: " + string(jsonResponse)})

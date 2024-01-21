@@ -1,7 +1,8 @@
 package model
 
 import (
-	"one-api/common"
+	"one-api/common/config"
+	"one-api/common/logger"
 	"sync"
 	"time"
 )
@@ -28,7 +29,7 @@ func init() {
 func InitBatchUpdater() {
 	go func() {
 		for {
-			time.Sleep(time.Duration(common.BatchUpdateInterval) * time.Second)
+			time.Sleep(time.Duration(config.BatchUpdateInterval) * time.Second)
 			batchUpdate()
 		}
 	}()
@@ -45,7 +46,7 @@ func addNewRecord(type_ int, id int, value int) {
 }
 
 func batchUpdate() {
-	common.SysLog("batch update started")
+	logger.SysLog("batch update started")
 	for i := 0; i < BatchUpdateTypeCount; i++ {
 		batchUpdateLocks[i].Lock()
 		store := batchUpdateStores[i]
@@ -57,12 +58,12 @@ func batchUpdate() {
 			case BatchUpdateTypeUserQuota:
 				err := increaseUserQuota(key, value)
 				if err != nil {
-					common.SysError("failed to batch update user quota: " + err.Error())
+					logger.SysError("failed to batch update user quota: " + err.Error())
 				}
 			case BatchUpdateTypeTokenQuota:
 				err := increaseTokenQuota(key, value)
 				if err != nil {
-					common.SysError("failed to batch update token quota: " + err.Error())
+					logger.SysError("failed to batch update token quota: " + err.Error())
 				}
 			case BatchUpdateTypeUsedQuota:
 				updateUserUsedQuota(key, value)
@@ -73,5 +74,5 @@ func batchUpdate() {
 			}
 		}
 	}
-	common.SysLog("batch update finished")
+	logger.SysLog("batch update finished")
 }

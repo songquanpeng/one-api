@@ -7,6 +7,9 @@ import (
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"one-api/common"
+	"one-api/common/config"
+	"one-api/common/helper"
+	"one-api/common/logger"
 	"os"
 	"strings"
 	"time"
@@ -18,7 +21,7 @@ func createRootAccountIfNeed() error {
 	var user User
 	//if user.Status != util.UserStatusEnabled {
 	if err := DB.First(&user).Error; err != nil {
-		common.SysLog("no user exists, create a root user for you: username is root, password is 123456")
+		logger.SysLog("no user exists, create a root user for you: username is root, password is 123456")
 		hashedPassword, err := common.Password2Hash("123456")
 		if err != nil {
 			return err
@@ -29,7 +32,7 @@ func createRootAccountIfNeed() error {
 			Role:        common.RoleRootUser,
 			Status:      common.UserStatusEnabled,
 			DisplayName: "Root User",
-			AccessToken: common.GetUUID(),
+			AccessToken: helper.GetUUID(),
 			Quota:       100000000,
 		}
 		DB.Create(&rootUser)
@@ -42,7 +45,7 @@ func chooseDB() (*gorm.DB, error) {
 		dsn := os.Getenv("SQL_DSN")
 		if strings.HasPrefix(dsn, "postgres://") {
 			// Use PostgreSQL
-			common.SysLog("using PostgreSQL as database")
+			logger.SysLog("using PostgreSQL as database")
 			common.UsingPostgreSQL = true
 			return gorm.Open(postgres.New(postgres.Config{
 				DSN:                  dsn,
@@ -52,13 +55,13 @@ func chooseDB() (*gorm.DB, error) {
 			})
 		}
 		// Use MySQL
-		common.SysLog("using MySQL as database")
+		logger.SysLog("using MySQL as database")
 		return gorm.Open(mysql.Open(dsn), &gorm.Config{
 			PrepareStmt: true, // precompile SQL
 		})
 	}
 	// Use SQLite
-	common.SysLog("SQL_DSN not set, using SQLite as database")
+	logger.SysLog("SQL_DSN not set, using SQLite as database")
 	common.UsingSQLite = true
 	config := fmt.Sprintf("?_busy_timeout=%d", common.SQLiteBusyTimeout)
 	return gorm.Open(sqlite.Open(common.SQLitePath+config), &gorm.Config{
@@ -69,7 +72,7 @@ func chooseDB() (*gorm.DB, error) {
 func InitDB() (err error) {
 	db, err := chooseDB()
 	if err == nil {
-		if common.DebugEnabled {
+		if config.DebugEnabled {
 			db = db.Debug()
 		}
 		DB = db
@@ -77,14 +80,14 @@ func InitDB() (err error) {
 		if err != nil {
 			return err
 		}
-		sqlDB.SetMaxIdleConns(common.GetOrDefault("SQL_MAX_IDLE_CONNS", 100))
-		sqlDB.SetMaxOpenConns(common.GetOrDefault("SQL_MAX_OPEN_CONNS", 1000))
-		sqlDB.SetConnMaxLifetime(time.Second * time.Duration(common.GetOrDefault("SQL_MAX_LIFETIME", 60)))
+		sqlDB.SetMaxIdleConns(helper.GetOrDefaultEnvInt("SQL_MAX_IDLE_CONNS", 100))
+		sqlDB.SetMaxOpenConns(helper.GetOrDefaultEnvInt("SQL_MAX_OPEN_CONNS", 1000))
+		sqlDB.SetConnMaxLifetime(time.Second * time.Duration(helper.GetOrDefaultEnvInt("SQL_MAX_LIFETIME", 60)))
 
-		if !common.IsMasterNode {
+		if !config.IsMasterNode {
 			return nil
 		}
-		common.SysLog("database migration started")
+		logger.SysLog("database migration started")
 		err = db.AutoMigrate(&Channel{})
 		if err != nil {
 			return err
@@ -113,11 +116,11 @@ func InitDB() (err error) {
 		if err != nil {
 			return err
 		}
-		common.SysLog("database migrated")
+		logger.SysLog("database migrated")
 		err = createRootAccountIfNeed()
 		return err
 	} else {
-		common.FatalLog(err)
+		logger.FatalLog(err)
 	}
 	return err
 }
