@@ -7,6 +7,8 @@ import (
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"one-api/common"
+	"one-api/common/config"
+	"one-api/common/helper"
 	"one-api/common/logger"
 	"os"
 	"strings"
@@ -30,7 +32,7 @@ func createRootAccountIfNeed() error {
 			Role:        common.RoleRootUser,
 			Status:      common.UserStatusEnabled,
 			DisplayName: "Root User",
-			AccessToken: common.GetUUID(),
+			AccessToken: helper.GetUUID(),
 			Quota:       100000000,
 		}
 		DB.Create(&rootUser)
@@ -70,7 +72,7 @@ func chooseDB() (*gorm.DB, error) {
 func InitDB() (err error) {
 	db, err := chooseDB()
 	if err == nil {
-		if common.DebugEnabled {
+		if config.DebugEnabled {
 			db = db.Debug()
 		}
 		DB = db
@@ -78,11 +80,11 @@ func InitDB() (err error) {
 		if err != nil {
 			return err
 		}
-		sqlDB.SetMaxIdleConns(common.GetOrDefaultEnvInt("SQL_MAX_IDLE_CONNS", 100))
-		sqlDB.SetMaxOpenConns(common.GetOrDefaultEnvInt("SQL_MAX_OPEN_CONNS", 1000))
-		sqlDB.SetConnMaxLifetime(time.Second * time.Duration(common.GetOrDefaultEnvInt("SQL_MAX_LIFETIME", 60)))
+		sqlDB.SetMaxIdleConns(helper.GetOrDefaultEnvInt("SQL_MAX_IDLE_CONNS", 100))
+		sqlDB.SetMaxOpenConns(helper.GetOrDefaultEnvInt("SQL_MAX_OPEN_CONNS", 1000))
+		sqlDB.SetConnMaxLifetime(time.Second * time.Duration(helper.GetOrDefaultEnvInt("SQL_MAX_LIFETIME", 60)))
 
-		if !common.IsMasterNode {
+		if !config.IsMasterNode {
 			return nil
 		}
 		logger.SysLog("database migration started")

@@ -6,6 +6,7 @@ import (
 	"github.com/pkoukk/tiktoken-go"
 	"math"
 	"one-api/common"
+	"one-api/common/config"
 	"one-api/common/image"
 	"one-api/common/logger"
 	"strings"
@@ -56,7 +57,7 @@ func getTokenEncoder(model string) *tiktoken.Tiktoken {
 }
 
 func getTokenNum(tokenEncoder *tiktoken.Tiktoken, text string) int {
-	if common.ApproximateTokenEnabled {
+	if config.ApproximateTokenEnabled {
 		return int(float64(len(text)) * 0.38)
 	}
 	return len(tokenEncoder.Encode(text, nil, nil))

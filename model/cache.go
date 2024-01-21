@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"math/rand"
 	"one-api/common"
+	"one-api/common/config"
 	"one-api/common/logger"
 	"sort"
 	"strconv"
@@ -15,10 +16,10 @@ import (
 )
 
 var (
-	TokenCacheSeconds         = common.SyncFrequency
-	UserId2GroupCacheSeconds  = common.SyncFrequency
-	UserId2QuotaCacheSeconds  = common.SyncFrequency
-	UserId2StatusCacheSeconds = common.SyncFrequency
+	TokenCacheSeconds         = config.SyncFrequency
+	UserId2GroupCacheSeconds  = config.SyncFrequency
+	UserId2QuotaCacheSeconds  = config.SyncFrequency
+	UserId2StatusCacheSeconds = config.SyncFrequency
 )
 
 func CacheGetTokenByKey(key string) (*Token, error) {
@@ -191,7 +192,7 @@ func SyncChannelCache(frequency int) {
 }
 
 func CacheGetRandomSatisfiedChannel(group string, model string) (*Channel, error) {
-	if !common.MemoryCacheEnabled {
+	if !config.MemoryCacheEnabled {
 		return GetRandomSatisfiedChannel(group, model)
 	}
 	channelSyncLock.RLock()

@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"gorm.io/gorm"
 	"one-api/common"
+	"one-api/common/config"
+	"one-api/common/helper"
 	"one-api/common/logger"
 )
 
@@ -45,7 +47,7 @@ func SearchChannels(keyword string) (channels []*Channel, err error) {
 	if common.UsingPostgreSQL {
 		keyCol = `"key"`
 	}
-	err = DB.Omit("key").Where("id = ? or name LIKE ? or "+keyCol+" = ?", common.String2Int(keyword), keyword+"%", keyword).Find(&channels).Error
+	err = DB.Omit("key").Where("id = ? or name LIKE ? or "+keyCol+" = ?", helper.String2Int(keyword), keyword+"%", keyword).Find(&channels).Error
 	return channels, err
 }
 
@@ -125,7 +127,7 @@ func (channel *Channel) Update() error {
 
 func (channel *Channel) UpdateResponseTime(responseTime int64) {
 	err := DB.Model(channel).Select("response_time", "test_time").Updates(Channel{
-		TestTime:     common.GetTimestamp(),
+		TestTime:     helper.GetTimestamp(),
 		ResponseTime: int(responseTime),
 	}).Error
 	if err != nil {
@@ -135,7 +137,7 @@ func (channel *Channel) UpdateResponseTime(responseTime int64) {
 
 func (channel *Channel) UpdateBalance(balance float64) {
 	err := DB.Model(channel).Select("balance_updated_time", "balance").Updates(Channel{
-		BalanceUpdatedTime: common.GetTimestamp(),
+		BalanceUpdatedTime: helper.GetTimestamp(),
 		Balance:            balance,
 	}).Error
 	if err != nil {
@@ -165,7 +167,7 @@ func UpdateChannelStatusById(id int, status int) {
 }
 
 func UpdateChannelUsedQuota(id int, quota int) {
-	if common.BatchUpdateEnabled {
+	if config.BatchUpdateEnabled {
 		addNewRecord(BatchUpdateTypeChannelUsedQuota, id, quota)
 		return
 	}

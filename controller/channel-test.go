@@ -8,6 +8,7 @@ import (
 	"io"
 	"net/http"
 	"one-api/common"
+	"one-api/common/config"
 	"one-api/common/logger"
 	"one-api/model"
 	"one-api/relay/channel/openai"
@@ -151,10 +152,10 @@ var testAllChannelsLock sync.Mutex
 var testAllChannelsRunning bool = false
 
 func notifyRootUser(subject string, content string) {
-	if common.RootUserEmail == "" {
-		common.RootUserEmail = model.GetRootUserEmail()
+	if config.RootUserEmail == "" {
+		config.RootUserEmail = model.GetRootUserEmail()
 	}
-	err := common.SendEmail(subject, common.RootUserEmail, content)
+	err := common.SendEmail(subject, config.RootUserEmail, content)
 	if err != nil {
 		logger.SysError(fmt.Sprintf("failed to send email: %s", err.Error()))
 	}
@@ -177,8 +178,8 @@ func enableChannel(channelId int, channelName string) {
 }
 
 func testAllChannels(notify bool) error {
-	if common.RootUserEmail == "" {
-		common.RootUserEmail = model.GetRootUserEmail()
+	if config.RootUserEmail == "" {
+		config.RootUserEmail = model.GetRootUserEmail()
 	}
 	testAllChannelsLock.Lock()
 	if testAllChannelsRunning {
@@ -192,7 +193,7 @@ func testAllChannels(notify bool) error {
 		return err
 	}
 	testRequest := buildTestRequest()
-	var disableThreshold = int64(common.ChannelDisableThreshold * 1000)
+	var disableThreshold = int64(config.ChannelDisableThreshold * 1000)
 	if disableThreshold == 0 {
 		disableThreshold = 10000000 // a impossible value
 	}
@@ -214,13 +215,13 @@ func testAllChannels(notify bool) error {
 				enableChannel(channel.Id, channel.Name)
 			}
 			channel.UpdateResponseTime(milliseconds)
-			time.Sleep(common.RequestInterval)
+			time.Sleep(config.RequestInterval)
 		}
 		testAllChannelsLock.Lock()
 		testAllChannelsRunning = false
 		testAllChannelsLock.Unlock()
 		if notify {
-			err := common.SendEmail("通道测试完成", common.RootUserEmail, "通道测试完成，如果没有收到禁用通知，说明所有通道都正常")
+			err := common.SendEmail("通道测试完成", config.RootUserEmail, "通道测试完成，如果没有收到禁用通知，说明所有通道都正常")
 			if err != nil {
 				logger.SysError(fmt.Sprintf("failed to send email: %s", err.Error()))
 			}

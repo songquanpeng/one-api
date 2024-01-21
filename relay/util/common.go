@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"one-api/common"
+	"one-api/common/config"
 	"one-api/common/logger"
 	"one-api/model"
 	"one-api/relay/channel/openai"
@@ -17,7 +18,7 @@ import (
 )
 
 func ShouldDisableChannel(err *openai.Error, statusCode int) bool {
-	if !common.AutomaticDisableChannelEnabled {
+	if !config.AutomaticDisableChannelEnabled {
 		return false
 	}
 	if err == nil {
@@ -33,7 +34,7 @@ func ShouldDisableChannel(err *openai.Error, statusCode int) bool {
 }
 
 func ShouldEnableChannel(err error, openAIErr *openai.Error) bool {
-	if !common.AutomaticEnableChannelEnabled {
+	if !config.AutomaticEnableChannelEnabled {
 		return false
 	}
 	if err != nil {

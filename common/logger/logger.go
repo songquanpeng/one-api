@@ -6,7 +6,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"io"
 	"log"
-	"one-api/common"
 	"os"
 	"path/filepath"
 	"sync"
@@ -26,7 +25,7 @@ var setupLogLock sync.Mutex
 var setupLogWorking bool
 
 func SetupLogger() {
-	if *common.LogDir != "" {
+	if LogDir != "" {
 		ok := setupLogLock.TryLock()
 		if !ok {
 			log.Println("setup log is already working")
@@ -36,7 +35,7 @@ func SetupLogger() {
 			setupLogLock.Unlock()
 			setupLogWorking = false
 		}()
-		logPath := filepath.Join(*common.LogDir, fmt.Sprintf("oneapi-%s.log", time.Now().Format("20060102")))
+		logPath := filepath.Join(LogDir, fmt.Sprintf("oneapi-%s.log", time.Now().Format("20060102")))
 		fd, err := os.OpenFile(logPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 		if err != nil {
 			log.Fatal("failed to open log file")
@@ -85,7 +84,7 @@ func logHelper(ctx context.Context, level string, msg string) {
 	if level == loggerINFO {
 		writer = gin.DefaultWriter
 	}
-	id := ctx.Value(common.RequestIdKey)
+	id := ctx.Value(RequestIdKey)
 	now := time.Now()
 	_, _ = fmt.Fprintf(writer, "[%s] %v | %s | %s \n", level, now.Format("2006/01/02 - 15:04:05"), id, msg)
 	logCount++ // we don't need accurate count, so no lock here
@@ -102,12 +101,4 @@ func FatalLog(v ...any) {
 	t := time.Now()
 	_, _ = fmt.Fprintf(gin.DefaultErrorWriter, "[FATAL] %v | %v \n", t.Format("2006/01/02 - 15:04:05"), v)
 	os.Exit(1)
-}
-
-func LogQuota(quota int) string {
-	if common.DisplayInCurrencyEnabled {
-		return fmt.Sprintf("＄%.6f 额度", float64(quota)/common.QuotaPerUnit)
-	} else {
-		return fmt.Sprintf("%d 点额度", quota)
-	}
 }

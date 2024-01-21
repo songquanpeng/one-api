@@ -4,7 +4,8 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"one-api/common"
+	"one-api/common/config"
+	"one-api/common/helper"
 	"one-api/common/logger"
 	"one-api/relay/channel/openai"
 	"one-api/relay/constant"
@@ -31,11 +32,11 @@ func Relay(c *gin.Context) {
 		err = controller.RelayTextHelper(c, relayMode)
 	}
 	if err != nil {
-		requestId := c.GetString(common.RequestIdKey)
+		requestId := c.GetString(logger.RequestIdKey)
 		retryTimesStr := c.Query("retry")
 		retryTimes, _ := strconv.Atoi(retryTimesStr)
 		if retryTimesStr == "" {
-			retryTimes = common.RetryTimes
+			retryTimes = config.RetryTimes
 		}
 		if retryTimes > 0 {
 			c.Redirect(http.StatusTemporaryRedirect, fmt.Sprintf("%s?retry=%d", c.Request.URL.Path, retryTimes-1))
@@ -43,7 +44,7 @@ func Relay(c *gin.Context) {
 			if err.StatusCode == http.StatusTooManyRequests {
 				err.Error.Message = "当前分组上游负载已饱和，请稍后再试"
 			}
-			err.Error.Message = common.MessageWithRequestId(err.Error.Message, requestId)
+			err.Error.Message = helper.MessageWithRequestId(err.Error.Message, requestId)
 			c.JSON(err.StatusCode, gin.H{
 				"error": err.Error,
 			})

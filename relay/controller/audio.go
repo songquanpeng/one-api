@@ -11,6 +11,7 @@ import (
 	"io"
 	"net/http"
 	"one-api/common"
+	"one-api/common/config"
 	"one-api/common/logger"
 	"one-api/model"
 	"one-api/relay/channel/openai"
@@ -54,7 +55,7 @@ func RelayAudioHelper(c *gin.Context, relayMode int) *openai.ErrorWithStatusCode
 		preConsumedQuota = int(float64(len(ttsRequest.Input)) * ratio)
 		quota = preConsumedQuota
 	default:
-		preConsumedQuota = int(float64(common.PreConsumedQuota) * ratio)
+		preConsumedQuota = int(float64(config.PreConsumedQuota) * ratio)
 	}
 	userQuota, err := model.CacheGetUserQuota(userId)
 	if err != nil {

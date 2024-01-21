@@ -12,6 +12,7 @@ import (
 	"io"
 	"net/http"
 	"one-api/common"
+	"one-api/common/helper"
 	"one-api/common/logger"
 	"one-api/relay/channel/openai"
 	"one-api/relay/constant"
@@ -47,9 +48,9 @@ func ConvertRequest(request openai.GeneralOpenAIRequest) *ChatRequest {
 		stream = 1
 	}
 	return &ChatRequest{
-		Timestamp:   common.GetTimestamp(),
-		Expired:     common.GetTimestamp() + 24*60*60,
-		QueryID:     common.GetUUID(),
+		Timestamp:   helper.GetTimestamp(),
+		Expired:     helper.GetTimestamp() + 24*60*60,
+		QueryID:     helper.GetUUID(),
 		Temperature: request.Temperature,
 		TopP:        request.TopP,
 		Stream:      stream,
@@ -60,7 +61,7 @@ func ConvertRequest(request openai.GeneralOpenAIRequest) *ChatRequest {
 func responseTencent2OpenAI(response *ChatResponse) *openai.TextResponse {
 	fullTextResponse := openai.TextResponse{
 		Object:  "chat.completion",
-		Created: common.GetTimestamp(),
+		Created: helper.GetTimestamp(),
 		Usage:   response.Usage,
 	}
 	if len(response.Choices) > 0 {
@@ -80,7 +81,7 @@ func responseTencent2OpenAI(response *ChatResponse) *openai.TextResponse {
 func streamResponseTencent2OpenAI(TencentResponse *ChatResponse) *openai.ChatCompletionsStreamResponse {
 	response := openai.ChatCompletionsStreamResponse{
 		Object:  "chat.completion.chunk",
-		Created: common.GetTimestamp(),
+		Created: helper.GetTimestamp(),
 		Model:   "tencent-hunyuan",
 	}
 	if len(TencentResponse.Choices) > 0 {

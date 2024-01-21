@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"one-api/common"
+	"one-api/common/config"
 	"one-api/common/logger"
 	"os"
 	"strings"
@@ -16,7 +16,7 @@ func SetRouter(router *gin.Engine, buildFS embed.FS) {
 	SetDashboardRouter(router)
 	SetRelayRouter(router)
 	frontendBaseUrl := os.Getenv("FRONTEND_BASE_URL")
-	if common.IsMasterNode && frontendBaseUrl != "" {
+	if config.IsMasterNode && frontendBaseUrl != "" {
 		frontendBaseUrl = ""
 		logger.SysLog("FRONTEND_BASE_URL is ignored on master node")
 	}

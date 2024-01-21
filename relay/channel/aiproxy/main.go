@@ -8,6 +8,7 @@ import (
 	"io"
 	"net/http"
 	"one-api/common"
+	"one-api/common/helper"
 	"one-api/common/logger"
 	"one-api/relay/channel/openai"
 	"one-api/relay/constant"
@@ -51,9 +52,9 @@ func responseAIProxyLibrary2OpenAI(response *LibraryResponse) *openai.TextRespon
 		FinishReason: "stop",
 	}
 	fullTextResponse := openai.TextResponse{
-		Id:      common.GetUUID(),
+		Id:      helper.GetUUID(),
 		Object:  "chat.completion",
-		Created: common.GetTimestamp(),
+		Created: helper.GetTimestamp(),
 		Choices: []openai.TextResponseChoice{choice},
 	}
 	return &fullTextResponse
@@ -64,9 +65,9 @@ func documentsAIProxyLibrary(documents []LibraryDocument) *openai.ChatCompletion
 	choice.Delta.Content = aiProxyDocuments2Markdown(documents)
 	choice.FinishReason = &constant.StopFinishReason
 	return &openai.ChatCompletionsStreamResponse{
-		Id:      common.GetUUID(),
+		Id:      helper.GetUUID(),
 		Object:  "chat.completion.chunk",
-		Created: common.GetTimestamp(),
+		Created: helper.GetTimestamp(),
 		Model:   "",
 		Choices: []openai.ChatCompletionsStreamResponseChoice{choice},
 	}
@@ -76,9 +77,9 @@ func streamResponseAIProxyLibrary2OpenAI(response *LibraryStreamResponse) *opena
 	var choice openai.ChatCompletionsStreamResponseChoice
 	choice.Delta.Content = response.Content
 	return &openai.ChatCompletionsStreamResponse{
-		Id:      common.GetUUID(),
+		Id:      helper.GetUUID(),
 		Object:  "chat.completion.chunk",
-		Created: common.GetTimestamp(),
+		Created: helper.GetTimestamp(),
 		Model:   response.Model,
 		Choices: []openai.ChatCompletionsStreamResponseChoice{choice},
 	}

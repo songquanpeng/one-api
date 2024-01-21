@@ -7,6 +7,8 @@ import (
 	"io"
 	"net/http"
 	"one-api/common"
+	"one-api/common/config"
+	"one-api/common/helper"
 	"one-api/common/image"
 	"one-api/common/logger"
 	"one-api/relay/channel/openai"
@@ -29,19 +31,19 @@ func ConvertGeminiRequest(textRequest openai.GeneralOpenAIRequest) *GeminiChatRe
 		SafetySettings: []GeminiChatSafetySettings{
 			{
 				Category:  "HARM_CATEGORY_HARASSMENT",
-				Threshold: common.GeminiSafetySetting,
+				Threshold: config.GeminiSafetySetting,
 			},
 			{
 				Category:  "HARM_CATEGORY_HATE_SPEECH",
-				Threshold: common.GeminiSafetySetting,
+				Threshold: config.GeminiSafetySetting,
 			},
 			{
 				Category:  "HARM_CATEGORY_SEXUALLY_EXPLICIT",
-				Threshold: common.GeminiSafetySetting,
+				Threshold: config.GeminiSafetySetting,
 			},
 			{
 				Category:  "HARM_CATEGORY_DANGEROUS_CONTENT",
-				Threshold: common.GeminiSafetySetting,
+				Threshold: config.GeminiSafetySetting,
 			},
 		},
 		GenerationConfig: GeminiChatGenerationConfig{
@@ -152,9 +154,9 @@ type GeminiChatPromptFeedback struct {
 
 func responseGeminiChat2OpenAI(response *GeminiChatResponse) *openai.TextResponse {
 	fullTextResponse := openai.TextResponse{
-		Id:      fmt.Sprintf("chatcmpl-%s", common.GetUUID()),
+		Id:      fmt.Sprintf("chatcmpl-%s", helper.GetUUID()),
 		Object:  "chat.completion",
-		Created: common.GetTimestamp(),
+		Created: helper.GetTimestamp(),
 		Choices: make([]openai.TextResponseChoice, 0, len(response.Candidates)),
 	}
 	for i, candidate := range response.Candidates {
@@ -230,9 +232,9 @@ func StreamHandler(c *gin.Context, resp *http.Response) (*openai.ErrorWithStatus
 			var choice openai.ChatCompletionsStreamResponseChoice
 			choice.Delta.Content = dummy.Content
 			response := openai.ChatCompletionsStreamResponse{
-				Id:      fmt.Sprintf("chatcmpl-%s", common.GetUUID()),
+				Id:      fmt.Sprintf("chatcmpl-%s", helper.GetUUID()),
 				Object:  "chat.completion.chunk",
-				Created: common.GetTimestamp(),
+				Created: helper.GetTimestamp(),
 				Model:   "gemini-pro",
 				Choices: []openai.ChatCompletionsStreamResponseChoice{choice},
 			}

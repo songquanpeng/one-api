@@ -8,6 +8,7 @@ import (
 	"io"
 	"net/http"
 	"one-api/common"
+	"one-api/common/helper"
 	"one-api/common/logger"
 	"one-api/relay/channel/openai"
 	"strings"
@@ -79,9 +80,9 @@ func responseClaude2OpenAI(claudeResponse *Response) *openai.TextResponse {
 		FinishReason: stopReasonClaude2OpenAI(claudeResponse.StopReason),
 	}
 	fullTextResponse := openai.TextResponse{
-		Id:      fmt.Sprintf("chatcmpl-%s", common.GetUUID()),
+		Id:      fmt.Sprintf("chatcmpl-%s", helper.GetUUID()),
 		Object:  "chat.completion",
-		Created: common.GetTimestamp(),
+		Created: helper.GetTimestamp(),
 		Choices: []openai.TextResponseChoice{choice},
 	}
 	return &fullTextResponse
@@ -89,8 +90,8 @@ func responseClaude2OpenAI(claudeResponse *Response) *openai.TextResponse {
 
 func StreamHandler(c *gin.Context, resp *http.Response) (*openai.ErrorWithStatusCode, string) {
 	responseText := ""
-	responseId := fmt.Sprintf("chatcmpl-%s", common.GetUUID())
-	createdTime := common.GetTimestamp()
+	responseId := fmt.Sprintf("chatcmpl-%s", helper.GetUUID())
+	createdTime := helper.GetTimestamp()
 	scanner := bufio.NewScanner(resp.Body)
 	scanner.Split(func(data []byte, atEOF bool) (advance int, token []byte, err error) {
 		if atEOF && len(data) == 0 {

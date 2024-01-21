@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"one-api/common"
+	"one-api/common/config"
+	"one-api/common/helper"
 	"one-api/common/logger"
 
 	"gorm.io/gorm"
@@ -33,13 +35,13 @@ const (
 )
 
 func RecordLog(userId int, logType int, content string) {
-	if logType == LogTypeConsume && !common.LogConsumeEnabled {
+	if logType == LogTypeConsume && !config.LogConsumeEnabled {
 		return
 	}
 	log := &Log{
 		UserId:    userId,
 		Username:  GetUsernameById(userId),
-		CreatedAt: common.GetTimestamp(),
+		CreatedAt: helper.GetTimestamp(),
 		Type:      logType,
 		Content:   content,
 	}
@@ -51,13 +53,13 @@ func RecordLog(userId int, logType int, content string) {
 
 func RecordConsumeLog(ctx context.Context, userId int, channelId int, promptTokens int, completionTokens int, modelName string, tokenName string, quota int, content string) {
 	logger.Info(ctx, fmt.Sprintf("record consume log: userId=%d, channelId=%d, promptTokens=%d, completionTokens=%d, modelName=%s, tokenName=%s, quota=%d, content=%s", userId, channelId, promptTokens, completionTokens, modelName, tokenName, quota, content))
-	if !common.LogConsumeEnabled {
+	if !config.LogConsumeEnabled {
 		return
 	}
 	log := &Log{
 		UserId:           userId,
 		Username:         GetUsernameById(userId),
-		CreatedAt:        common.GetTimestamp(),
+		CreatedAt:        helper.GetTimestamp(),
 		Type:             LogTypeConsume,
 		Content:          content,
 		PromptTokens:     promptTokens,
@@ -126,12 +128,12 @@ func GetUserLogs(userId int, logType int, startTimestamp int64, endTimestamp int
 }
 
 func SearchAllLogs(keyword string) (logs []*Log, err error) {
-	err = DB.Where("type = ? or content LIKE ?", keyword, keyword+"%").Order("id desc").Limit(common.MaxRecentItems).Find(&logs).Error
+	err = DB.Where("type = ? or content LIKE ?", keyword, keyword+"%").Order("id desc").Limit(config.MaxRecentItems).Find(&logs).Error
 	return logs, err
 }
 
 func SearchUserLogs(userId int, keyword string) (logs []*Log, err error) {
-	err = DB.Where("user_id = ? and type = ?", userId, keyword).Order("id desc").Limit(common.MaxRecentItems).Omit("id").Find(&logs).Error
+	err = DB.Where("user_id = ? and type = ?", userId, keyword).Order("id desc").Limit(config.MaxRecentItems).Omit("id").Find(&logs).Error
 	return logs, err
 }
 

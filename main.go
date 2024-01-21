@@ -7,6 +7,7 @@ import (
 	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
 	"one-api/common"
+	"one-api/common/config"
 	"one-api/common/logger"
 	"one-api/controller"
 	"one-api/middleware"
@@ -26,7 +27,7 @@ func main() {
 	if os.Getenv("GIN_MODE") != "debug" {
 		gin.SetMode(gin.ReleaseMode)
 	}
-	if common.DebugEnabled {
+	if config.DebugEnabled {
 		logger.SysLog("running in debug mode")
 	}
 	// Initialize SQL Database
@@ -49,19 +50,19 @@ func main() {
 
 	// Initialize options
 	model.InitOptionMap()
-	logger.SysLog(fmt.Sprintf("using theme %s", common.Theme))
+	logger.SysLog(fmt.Sprintf("using theme %s", config.Theme))
 	if common.RedisEnabled {
 		// for compatibility with old versions
-		common.MemoryCacheEnabled = true
+		config.MemoryCacheEnabled = true
 	}
-	if common.MemoryCacheEnabled {
+	if config.MemoryCacheEnabled {
 		logger.SysLog("memory cache enabled")
-		logger.SysError(fmt.Sprintf("sync frequency: %d seconds", common.SyncFrequency))
+		logger.SysError(fmt.Sprintf("sync frequency: %d seconds", config.SyncFrequency))
 		model.InitChannelCache()
 	}
-	if common.MemoryCacheEnabled {
-		go model.SyncOptions(common.SyncFrequency)
-		go model.SyncChannelCache(common.SyncFrequency)
+	if config.MemoryCacheEnabled {
+		go model.SyncOptions(config.SyncFrequency)
+		go model.SyncChannelCache(config.SyncFrequency)
 	}
 	if os.Getenv("CHANNEL_UPDATE_FREQUENCY") != "" {
 		frequency, err := strconv.Atoi(os.Getenv("CHANNEL_UPDATE_FREQUENCY"))
@@ -78,8 +79,8 @@ func main() {
 		go controller.AutomaticallyTestChannels(frequency)
 	}
 	if os.Getenv("BATCH_UPDATE_ENABLED") == "true" {
-		common.BatchUpdateEnabled = true
-		logger.SysLog("batch update enabled with interval " + strconv.Itoa(common.BatchUpdateInterval) + "s")
+		config.BatchUpdateEnabled = true
+		logger.SysLog("batch update enabled with interval " + strconv.Itoa(config.BatchUpdateInterval) + "s")
 		model.InitBatchUpdater()
 	}
 	openai.InitTokenEncoders()
@@ -92,7 +93,7 @@ func main() {
 	server.Use(middleware.RequestId())
 	middleware.SetUpLogger(server)
 	// Initialize session store
-	store := cookie.NewStore([]byte(common.SessionSecret))
+	store := cookie.NewStore([]byte(config.SessionSecret))
 	server.Use(sessions.Sessions("session", store))
 
 	router.SetRouter(server, buildFS)

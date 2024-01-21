@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"gorm.io/gorm"
 	"one-api/common"
-	"one-api/common/logger"
+	"one-api/common/helper"
 )
 
 type Redemption struct {
@@ -68,7 +68,7 @@ func Redeem(key string, userId int) (quota int, err error) {
 		if err != nil {
 			return err
 		}
-		redemption.RedeemedTime = common.GetTimestamp()
+		redemption.RedeemedTime = helper.GetTimestamp()
 		redemption.Status = common.RedemptionCodeStatusUsed
 		err = tx.Save(redemption).Error
 		return err
@@ -76,7 +76,7 @@ func Redeem(key string, userId int) (quota int, err error) {
 	if err != nil {
 		return 0, errors.New("兑换失败，" + err.Error())
 	}
-	RecordLog(userId, LogTypeTopup, fmt.Sprintf("通过兑换码充值 %s", logger.LogQuota(redemption.Quota)))
+	RecordLog(userId, LogTypeTopup, fmt.Sprintf("通过兑换码充值 %s", common.LogQuota(redemption.Quota)))
 	return redemption.Quota, nil
 }
 

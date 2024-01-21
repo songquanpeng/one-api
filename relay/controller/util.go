@@ -9,6 +9,7 @@ import (
 	"io"
 	"net/http"
 	"one-api/common"
+	"one-api/common/helper"
 	"one-api/relay/channel/aiproxy"
 	"one-api/relay/channel/ali"
 	"one-api/relay/channel/anthropic"
@@ -66,7 +67,7 @@ func GetRequestURL(requestURL string, apiType int, relayMode int, meta *util.Rel
 	case constant.APITypePaLM:
 		fullRequestURL = fmt.Sprintf("%s/v1beta2/models/chat-bison-001:generateMessage", meta.BaseURL)
 	case constant.APITypeGemini:
-		version := common.AssignOrDefault(meta.APIVersion, "v1")
+		version := helper.AssignOrDefault(meta.APIVersion, "v1")
 		action := "generateContent"
 		if textRequest.Stream {
 			action = "streamGenerateContent"

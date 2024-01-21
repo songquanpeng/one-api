@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"one-api/common"
+	"one-api/common/helper"
 	"one-api/common/logger"
 	"one-api/relay/channel/openai"
 	"strings"
@@ -119,7 +120,7 @@ func responseAli2OpenAI(response *ChatResponse) *openai.TextResponse {
 	fullTextResponse := openai.TextResponse{
 		Id:      response.RequestId,
 		Object:  "chat.completion",
-		Created: common.GetTimestamp(),
+		Created: helper.GetTimestamp(),
 		Choices: []openai.TextResponseChoice{choice},
 		Usage: openai.Usage{
 			PromptTokens:     response.Usage.InputTokens,
@@ -140,7 +141,7 @@ func streamResponseAli2OpenAI(aliResponse *ChatResponse) *openai.ChatCompletions
 	response := openai.ChatCompletionsStreamResponse{
 		Id:      aliResponse.RequestId,
 		Object:  "chat.completion.chunk",
-		Created: common.GetTimestamp(),
+		Created: helper.GetTimestamp(),
 		Model:   "qwen",
 		Choices: []openai.ChatCompletionsStreamResponseChoice{choice},
 	}

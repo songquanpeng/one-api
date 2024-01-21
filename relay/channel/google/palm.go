@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"one-api/common"
+	"one-api/common/helper"
 	"one-api/common/logger"
 	"one-api/relay/channel/openai"
 	"one-api/relay/constant"
@@ -72,8 +73,8 @@ func streamResponsePaLM2OpenAI(palmResponse *PaLMChatResponse) *openai.ChatCompl
 
 func PaLMStreamHandler(c *gin.Context, resp *http.Response) (*openai.ErrorWithStatusCode, string) {
 	responseText := ""
-	responseId := fmt.Sprintf("chatcmpl-%s", common.GetUUID())
-	createdTime := common.GetTimestamp()
+	responseId := fmt.Sprintf("chatcmpl-%s", helper.GetUUID())
+	createdTime := helper.GetTimestamp()
 	dataChan := make(chan string)
 	stopChan := make(chan bool)
 	go func() {

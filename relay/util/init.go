@@ -2,7 +2,7 @@ package util
 
 import (
 	"net/http"
-	"one-api/common"
+	"one-api/common/config"
 	"time"
 )
 
@@ -10,11 +10,11 @@ var HTTPClient *http.Client
 var ImpatientHTTPClient *http.Client
 
 func init() {
-	if common.RelayTimeout == 0 {
+	if config.RelayTimeout == 0 {
 		HTTPClient = &http.Client{}
 	} else {
 		HTTPClient = &http.Client{
-			Timeout: time.Duration(common.RelayTimeout) * time.Second,
+			Timeout: time.Duration(config.RelayTimeout) * time.Second,
 		}
 	}
 

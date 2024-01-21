@@ -12,6 +12,7 @@ import (
 	"net/http"
 	"net/url"
 	"one-api/common"
+	"one-api/common/helper"
 	"one-api/common/logger"
 	"one-api/relay/channel/openai"
 	"one-api/relay/constant"
@@ -69,7 +70,7 @@ func responseXunfei2OpenAI(response *ChatResponse) *openai.TextResponse {
 	}
 	fullTextResponse := openai.TextResponse{
 		Object:  "chat.completion",
-		Created: common.GetTimestamp(),
+		Created: helper.GetTimestamp(),
 		Choices: []openai.TextResponseChoice{choice},
 		Usage:   response.Payload.Usage.Text,
 	}
@@ -91,7 +92,7 @@ func streamResponseXunfei2OpenAI(xunfeiResponse *ChatResponse) *openai.ChatCompl
 	}
 	response := openai.ChatCompletionsStreamResponse{
 		Object:  "chat.completion.chunk",
-		Created: common.GetTimestamp(),
+		Created: helper.GetTimestamp(),
 		Model:   "SparkDesk",
 		Choices: []openai.ChatCompletionsStreamResponseChoice{choice},
 	}

@@ -8,6 +8,7 @@ import (
 	"math"
 	"net/http"
 	"one-api/common"
+	"one-api/common/config"
 	"one-api/common/logger"
 	"one-api/model"
 	"one-api/relay/channel/openai"
@@ -52,7 +53,7 @@ func RelayTextHelper(c *gin.Context, relayMode int) *openai.ErrorWithStatusCode 
 	case constant.RelayModeModerations:
 		promptTokens = openai.CountTokenInput(textRequest.Input, textRequest.Model)
 	}
-	preConsumedTokens := common.PreConsumedQuota
+	preConsumedTokens := config.PreConsumedQuota
 	if textRequest.MaxTokens != 0 {
 		preConsumedTokens = promptTokens + textRequest.MaxTokens
 	}

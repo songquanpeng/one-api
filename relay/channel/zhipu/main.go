@@ -8,6 +8,7 @@ import (
 	"io"
 	"net/http"
 	"one-api/common"
+	"one-api/common/helper"
 	"one-api/common/logger"
 	"one-api/relay/channel/openai"
 	"one-api/relay/constant"
@@ -102,7 +103,7 @@ func responseZhipu2OpenAI(response *Response) *openai.TextResponse {
 	fullTextResponse := openai.TextResponse{
 		Id:      response.Data.TaskId,
 		Object:  "chat.completion",
-		Created: common.GetTimestamp(),
+		Created: helper.GetTimestamp(),
 		Choices: make([]openai.TextResponseChoice, 0, len(response.Data.Choices)),
 		Usage:   response.Data.Usage,
 	}
@@ -128,7 +129,7 @@ func streamResponseZhipu2OpenAI(zhipuResponse string) *openai.ChatCompletionsStr
 	choice.Delta.Content = zhipuResponse
 	response := openai.ChatCompletionsStreamResponse{
 		Object:  "chat.completion.chunk",
-		Created: common.GetTimestamp(),
+		Created: helper.GetTimestamp(),
 		Model:   "chatglm",
 		Choices: []openai.ChatCompletionsStreamResponseChoice{choice},
 	}
@@ -142,7 +143,7 @@ func streamMetaResponseZhipu2OpenAI(zhipuResponse *StreamMetaResponse) (*openai.
 	response := openai.ChatCompletionsStreamResponse{
 		Id:      zhipuResponse.RequestId,
 		Object:  "chat.completion.chunk",
-		Created: common.GetTimestamp(),
+		Created: helper.GetTimestamp(),
 		Model:   "chatglm",
 		Choices: []openai.ChatCompletionsStreamResponseChoice{choice},
 	}
