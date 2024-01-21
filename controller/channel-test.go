@@ -8,6 +8,7 @@ import (
 	"io"
 	"net/http"
 	"one-api/common"
+	"one-api/common/logger"
 	"one-api/model"
 	"one-api/relay/channel/openai"
 	"one-api/relay/util"
@@ -155,7 +156,7 @@ func notifyRootUser(subject string, content string) {
 	}
 	err := common.SendEmail(subject, common.RootUserEmail, content)
 	if err != nil {
-		common.SysError(fmt.Sprintf("failed to send email: %s", err.Error()))
+		logger.SysError(fmt.Sprintf("failed to send email: %s", err.Error()))
 	}
 }
 
@@ -221,7 +222,7 @@ func testAllChannels(notify bool) error {
 		if notify {
 			err := common.SendEmail("通道测试完成", common.RootUserEmail, "通道测试完成，如果没有收到禁用通知，说明所有通道都正常")
 			if err != nil {
-				common.SysError(fmt.Sprintf("failed to send email: %s", err.Error()))
+				logger.SysError(fmt.Sprintf("failed to send email: %s", err.Error()))
 			}
 		}
 	}()
@@ -247,8 +248,8 @@ func TestAllChannels(c *gin.Context) {
 func AutomaticallyTestChannels(frequency int) {
 	for {
 		time.Sleep(time.Duration(frequency) * time.Minute)
-		common.SysLog("testing all channels")
+		logger.SysLog("testing all channels")
 		_ = testAllChannels(false)
-		common.SysLog("channel test finished")
+		logger.SysLog("channel test finished")
 	}
 }

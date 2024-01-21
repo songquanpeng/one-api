@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"one-api/common"
+	"one-api/common/logger"
 	"one-api/relay/channel/openai"
 	"one-api/relay/constant"
 )
@@ -78,20 +79,20 @@ func PaLMStreamHandler(c *gin.Context, resp *http.Response) (*openai.ErrorWithSt
 	go func() {
 		responseBody, err := io.ReadAll(resp.Body)
 		if err != nil {
-			common.SysError("error reading stream response: " + err.Error())
+			logger.SysError("error reading stream response: " + err.Error())
 			stopChan <- true
 			return
 		}
 		err = resp.Body.Close()
 		if err != nil {
-			common.SysError("error closing stream response: " + err.Error())
+			logger.SysError("error closing stream response: " + err.Error())
 			stopChan <- true
 			return
 		}
 		var palmResponse PaLMChatResponse
 		err = json.Unmarshal(responseBody, &palmResponse)
 		if err != nil {
-			common.SysError("error unmarshalling stream response: " + err.Error())
+			logger.SysError("error unmarshalling stream response: " + err.Error())
 			stopChan <- true
 			return
 		}
@@ -103,7 +104,7 @@ func PaLMStreamHandler(c *gin.Context, resp *http.Response) (*openai.ErrorWithSt
 		}
 		jsonResponse, err := json.Marshal(fullTextResponse)
 		if err != nil {
-			common.SysError("error marshalling stream response: " + err.Error())
+			logger.SysError("error marshalling stream response: " + err.Error())
 			stopChan <- true
 			return
 		}

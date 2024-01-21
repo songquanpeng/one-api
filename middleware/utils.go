@@ -3,6 +3,7 @@ package middleware
 import (
 	"github.com/gin-gonic/gin"
 	"one-api/common"
+	"one-api/common/logger"
 )
 
 func abortWithMessage(c *gin.Context, statusCode int, message string) {
@@ -13,5 +14,5 @@ func abortWithMessage(c *gin.Context, statusCode int, message string) {
 		},
 	})
 	c.Abort()
-	common.LogError(c.Request.Context(), message)
+	logger.Error(c.Request.Context(), message)
 }

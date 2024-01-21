@@ -91,16 +91,16 @@ var IsMasterNode = os.Getenv("NODE_TYPE") != "slave"
 var requestInterval, _ = strconv.Atoi(os.Getenv("POLLING_INTERVAL"))
 var RequestInterval = time.Duration(requestInterval) * time.Second
 
-var SyncFrequency = GetOrDefault("SYNC_FREQUENCY", 10*60) // unit is second
+var SyncFrequency = GetOrDefaultEnvInt("SYNC_FREQUENCY", 10*60) // unit is second
 
 var BatchUpdateEnabled = false
-var BatchUpdateInterval = GetOrDefault("BATCH_UPDATE_INTERVAL", 5)
+var BatchUpdateInterval = GetOrDefaultEnvInt("BATCH_UPDATE_INTERVAL", 5)
 
-var RelayTimeout = GetOrDefault("RELAY_TIMEOUT", 0) // unit is second
+var RelayTimeout = GetOrDefaultEnvInt("RELAY_TIMEOUT", 0) // unit is second
 
-var GeminiSafetySetting = GetOrDefaultString("GEMINI_SAFETY_SETTING", "BLOCK_NONE")
+var GeminiSafetySetting = GetOrDefaultEnvString("GEMINI_SAFETY_SETTING", "BLOCK_NONE")
 
-var Theme = GetOrDefaultString("THEME", "default")
+var Theme = GetOrDefaultEnvString("THEME", "default")
 var ValidThemes = map[string]bool{
 	"default": true,
 	"berry":   true,
@@ -127,10 +127,10 @@ var (
 // All duration's unit is seconds
 // Shouldn't larger then RateLimitKeyExpirationDuration
 var (
-	GlobalApiRateLimitNum            = GetOrDefault("GLOBAL_API_RATE_LIMIT", 180)
+	GlobalApiRateLimitNum            = GetOrDefaultEnvInt("GLOBAL_API_RATE_LIMIT", 180)
 	GlobalApiRateLimitDuration int64 = 3 * 60
 
-	GlobalWebRateLimitNum            = GetOrDefault("GLOBAL_WEB_RATE_LIMIT", 60)
+	GlobalWebRateLimitNum            = GetOrDefaultEnvInt("GLOBAL_WEB_RATE_LIMIT", 60)
 	GlobalWebRateLimitDuration int64 = 3 * 60
 
 	UploadRateLimitNum            = 10
@@ -199,29 +199,29 @@ const (
 )
 
 var ChannelBaseURLs = []string{
-	"",                                  // 0
-	"https://api.openai.com",            // 1
-	"https://oa.api2d.net",              // 2
-	"",                                  // 3
-	"https://api.closeai-proxy.xyz",     // 4
-	"https://api.openai-sb.com",         // 5
-	"https://api.openaimax.com",         // 6
-	"https://api.ohmygpt.com",           // 7
-	"",                                  // 8
-	"https://api.caipacity.com",         // 9
-	"https://api.aiproxy.io",            // 10
-	"",                                  // 11
-	"https://api.api2gpt.com",           // 12
-	"https://api.aigc2d.com",            // 13
-	"https://api.anthropic.com",         // 14
-	"https://aip.baidubce.com",          // 15
-	"https://open.bigmodel.cn",          // 16
-	"https://dashscope.aliyuncs.com",    // 17
-	"",                                  // 18
-	"https://ai.360.cn",                 // 19
-	"https://openrouter.ai/api",         // 20
-	"https://api.aiproxy.io",            // 21
-	"https://fastgpt.run/api/openapi",   // 22
-	"https://hunyuan.cloud.tencent.com", //23
-	"",                                  //24
+	"",                              // 0
+	"https://api.openai.com",        // 1
+	"https://oa.api2d.net",          // 2
+	"",                              // 3
+	"https://api.closeai-proxy.xyz", // 4
+	"https://api.openai-sb.com",     // 5
+	"https://api.openaimax.com",     // 6
+	"https://api.ohmygpt.com",       // 7
+	"",                              // 8
+	"https://api.caipacity.com",     // 9
+	"https://api.aiproxy.io",        // 10
+	"https://generativelanguage.googleapis.com", // 11
+	"https://api.api2gpt.com",                   // 12
+	"https://api.aigc2d.com",                    // 13
+	"https://api.anthropic.com",                 // 14
+	"https://aip.baidubce.com",                  // 15
+	"https://open.bigmodel.cn",                  // 16
+	"https://dashscope.aliyuncs.com",            // 17
+	"",                                          // 18
+	"https://ai.360.cn",                         // 19
+	"https://openrouter.ai/api",                 // 20
+	"https://api.aiproxy.io",                    // 21
+	"https://fastgpt.run/api/openapi",           // 22
+	"https://hunyuan.cloud.tencent.com",         // 23
+	"https://generativelanguage.googleapis.com", // 24
 }

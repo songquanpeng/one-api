@@ -7,6 +7,7 @@ import (
 	"log"
 	"math/rand"
 	"net"
+	"one-api/common/logger"
 	"os"
 	"os/exec"
 	"runtime"
@@ -184,23 +185,30 @@ func Max(a int, b int) int {
 	}
 }
 
-func GetOrDefault(env string, defaultValue int) int {
+func GetOrDefaultEnvInt(env string, defaultValue int) int {
 	if env == "" || os.Getenv(env) == "" {
 		return defaultValue
 	}
 	num, err := strconv.Atoi(os.Getenv(env))
 	if err != nil {
-		SysError(fmt.Sprintf("failed to parse %s: %s, using default value: %d", env, err.Error(), defaultValue))
+		logger.SysError(fmt.Sprintf("failed to parse %s: %s, using default value: %d", env, err.Error(), defaultValue))
 		return defaultValue
 	}
 	return num
 }
 
-func GetOrDefaultString(env string, defaultValue string) string {
+func GetOrDefaultEnvString(env string, defaultValue string) string {
 	if env == "" || os.Getenv(env) == "" {
 		return defaultValue
 	}
 	return os.Getenv(env)
+}
+
+func AssignOrDefault(value string, defaultValue string) string {
+	if len(value) != 0 {
+		return value
+	}
+	return defaultValue
 }
 
 func MessageWithRequestId(message string, id string) string {

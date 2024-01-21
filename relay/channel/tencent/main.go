@@ -12,6 +12,7 @@ import (
 	"io"
 	"net/http"
 	"one-api/common"
+	"one-api/common/logger"
 	"one-api/relay/channel/openai"
 	"one-api/relay/constant"
 	"sort"
@@ -131,7 +132,7 @@ func StreamHandler(c *gin.Context, resp *http.Response) (*openai.ErrorWithStatus
 			var TencentResponse ChatResponse
 			err := json.Unmarshal([]byte(data), &TencentResponse)
 			if err != nil {
-				common.SysError("error unmarshalling stream response: " + err.Error())
+				logger.SysError("error unmarshalling stream response: " + err.Error())
 				return true
 			}
 			response := streamResponseTencent2OpenAI(&TencentResponse)
@@ -140,7 +141,7 @@ func StreamHandler(c *gin.Context, resp *http.Response) (*openai.ErrorWithStatus
 			}
 			jsonResponse, err := json.Marshal(response)
 			if err != nil {
-				common.SysError("error marshalling stream response: " + err.Error())
+				logger.SysError("error marshalling stream response: " + err.Error())
 				return true
 			}
 			c.Render(-1, common.CustomEvent{Data: "data: " + string(jsonResponse)})

@@ -12,6 +12,7 @@ import (
 	"net/http"
 	"net/url"
 	"one-api/common"
+	"one-api/common/logger"
 	"one-api/relay/channel/openai"
 	"one-api/relay/constant"
 	"strings"
@@ -140,7 +141,7 @@ func StreamHandler(c *gin.Context, textRequest openai.GeneralOpenAIRequest, appI
 			response := streamResponseXunfei2OpenAI(&xunfeiResponse)
 			jsonResponse, err := json.Marshal(response)
 			if err != nil {
-				common.SysError("error marshalling stream response: " + err.Error())
+				logger.SysError("error marshalling stream response: " + err.Error())
 				return true
 			}
 			c.Render(-1, common.CustomEvent{Data: "data: " + string(jsonResponse)})
@@ -215,20 +216,20 @@ func xunfeiMakeRequest(textRequest openai.GeneralOpenAIRequest, domain, authUrl,
 		for {
 			_, msg, err := conn.ReadMessage()
 			if err != nil {
-				common.SysError("error reading stream response: " + err.Error())
+				logger.SysError("error reading stream response: " + err.Error())
 				break
 			}
 			var response ChatResponse
 			err = json.Unmarshal(msg, &response)
 			if err != nil {
-				common.SysError("error unmarshalling stream response: " + err.Error())
+				logger.SysError("error unmarshalling stream response: " + err.Error())
 				break
 			}
 			dataChan <- response
 			if response.Payload.Choices.Status == 2 {
 				err := conn.Close()
 				if err != nil {
-					common.SysError("error closing websocket connection: " + err.Error())
+					logger.SysError("error closing websocket connection: " + err.Error())
 				}
 				break
 			}
@@ -247,7 +248,7 @@ func getXunfeiAuthUrl(c *gin.Context, apiKey string, apiSecret string) (string, 
 	}
 	if apiVersion == "" {
 		apiVersion = "v1.1"
-		common.SysLog("api_version not found, use default: " + apiVersion)
+		logger.SysLog("api_version not found, use default: " + apiVersion)
 	}
 	domain := "general"
 	if apiVersion != "v1.1" {

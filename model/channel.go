@@ -1,8 +1,11 @@
 package model
 
 import (
+	"encoding/json"
+	"fmt"
 	"gorm.io/gorm"
 	"one-api/common"
+	"one-api/common/logger"
 )
 
 type Channel struct {
@@ -86,11 +89,17 @@ func (channel *Channel) GetBaseURL() string {
 	return *channel.BaseURL
 }
 
-func (channel *Channel) GetModelMapping() string {
-	if channel.ModelMapping == nil {
-		return ""
+func (channel *Channel) GetModelMapping() map[string]string {
+	if channel.ModelMapping == nil || *channel.ModelMapping == "" || *channel.ModelMapping == "{}" {
+		return nil
 	}
-	return *channel.ModelMapping
+	modelMapping := make(map[string]string)
+	err := json.Unmarshal([]byte(*channel.ModelMapping), &modelMapping)
+	if err != nil {
+		logger.SysError(fmt.Sprintf("failed to unmarshal model mapping for channel %d, error: %s", channel.Id, err.Error()))
+		return nil
+	}
+	return modelMapping
 }
 
 func (channel *Channel) Insert() error {
@@ -120,7 +129,7 @@ func (channel *Channel) UpdateResponseTime(responseTime int64) {
 		ResponseTime: int(responseTime),
 	}).Error
 	if err != nil {
-		common.SysError("failed to update response time: " + err.Error())
+		logger.SysError("failed to update response time: " + err.Error())
 	}
 }
 
@@ -130,7 +139,7 @@ func (channel *Channel) UpdateBalance(balance float64) {
 		Balance:            balance,
 	}).Error
 	if err != nil {
-		common.SysError("failed to update balance: " + err.Error())
+		logger.SysError("failed to update balance: " + err.Error())
 	}
 }
 
@@ -147,11 +156,11 @@ func (channel *Channel) Delete() error {
 func UpdateChannelStatusById(id int, status int) {
 	err := UpdateAbilityStatus(id, status == common.ChannelStatusEnabled)
 	if err != nil {
-		common.SysError("failed to update ability status: " + err.Error())
+		logger.SysError("failed to update ability status: " + err.Error())
 	}
 	err = DB.Model(&Channel{}).Where("id = ?", id).Update("status", status).Error
 	if err != nil {
-		common.SysError("failed to update channel status: " + err.Error())
+		logger.SysError("failed to update channel status: " + err.Error())
 	}
 }
 
@@ -166,7 +175,7 @@ func UpdateChannelUsedQuota(id int, quota int) {
 func updateChannelUsedQuota(id int, quota int) {
 	err := DB.Model(&Channel{}).Where("id = ?", id).Update("used_quota", gorm.Expr("used_quota + ?", quota)).Error
 	if err != nil {
-		common.SysError("failed to update channel used quota: " + err.Error())
+		logger.SysError("failed to update channel used quota: " + err.Error())
 	}
 }
 

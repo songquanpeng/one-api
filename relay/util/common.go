@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"one-api/common"
+	"one-api/common/logger"
 	"one-api/model"
 	"one-api/relay/channel/openai"
 	"strconv"
@@ -138,11 +139,11 @@ func PostConsumeQuota(ctx context.Context, tokenId int, quotaDelta int, totalQuo
 	// quotaDelta is remaining quota to be consumed
 	err := model.PostConsumeTokenQuota(tokenId, quotaDelta)
 	if err != nil {
-		common.SysError("error consuming token remain quota: " + err.Error())
+		logger.SysError("error consuming token remain quota: " + err.Error())
 	}
 	err = model.CacheUpdateUserQuota(userId)
 	if err != nil {
-		common.SysError("error update user quota cache: " + err.Error())
+		logger.SysError("error update user quota cache: " + err.Error())
 	}
 	// totalQuota is total quota consumed
 	if totalQuota != 0 {
@@ -152,11 +153,11 @@ func PostConsumeQuota(ctx context.Context, tokenId int, quotaDelta int, totalQuo
 		model.UpdateChannelUsedQuota(channelId, totalQuota)
 	}
 	if totalQuota <= 0 {
-		common.LogError(ctx, fmt.Sprintf("totalQuota consumed is %d, something is wrong", totalQuota))
+		logger.Error(ctx, fmt.Sprintf("totalQuota consumed is %d, something is wrong", totalQuota))
 	}
 }
 
-func GetAPIVersion(c *gin.Context) string {
+func GetAzureAPIVersion(c *gin.Context) string {
 	query := c.Request.URL.Query()
 	apiVersion := query.Get("api-version")
 	if apiVersion == "" {

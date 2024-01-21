@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"gorm.io/gorm"
 	"one-api/common"
+	"one-api/common/logger"
 )
 
 type Token struct {
@@ -39,7 +40,7 @@ func ValidateUserToken(key string) (token *Token, err error) {
 	}
 	token, err = CacheGetTokenByKey(key)
 	if err != nil {
-		common.SysError("CacheGetTokenByKey failed: " + err.Error())
+		logger.SysError("CacheGetTokenByKey failed: " + err.Error())
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errors.New("无效的令牌")
 		}
@@ -58,7 +59,7 @@ func ValidateUserToken(key string) (token *Token, err error) {
 			token.Status = common.TokenStatusExpired
 			err := token.SelectUpdate()
 			if err != nil {
-				common.SysError("failed to update token status" + err.Error())
+				logger.SysError("failed to update token status" + err.Error())
 			}
 		}
 		return nil, errors.New("该令牌已过期")
@@ -69,7 +70,7 @@ func ValidateUserToken(key string) (token *Token, err error) {
 			token.Status = common.TokenStatusExhausted
 			err := token.SelectUpdate()
 			if err != nil {
-				common.SysError("failed to update token status" + err.Error())
+				logger.SysError("failed to update token status" + err.Error())
 			}
 		}
 		return nil, errors.New("该令牌额度已用尽")
@@ -202,7 +203,7 @@ func PreConsumeTokenQuota(tokenId int, quota int) (err error) {
 		go func() {
 			email, err := GetUserEmail(token.UserId)
 			if err != nil {
-				common.SysError("failed to fetch user email: " + err.Error())
+				logger.SysError("failed to fetch user email: " + err.Error())
 			}
 			prompt := "您的额度即将用尽"
 			if noMoreQuota {
@@ -213,7 +214,7 @@ func PreConsumeTokenQuota(tokenId int, quota int) (err error) {
 				err = common.SendEmail(prompt, email,
 					fmt.Sprintf("%s，当前剩余额度为 %d，为了不影响您的使用，请及时充值。<br/>充值链接：<a href='%s'>%s</a>", prompt, userQuota, topUpLink, topUpLink))
 				if err != nil {
-					common.SysError("failed to send email" + err.Error())
+					logger.SysError("failed to send email" + err.Error())
 				}
 			}
 		}()

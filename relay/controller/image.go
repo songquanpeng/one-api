@@ -9,6 +9,7 @@ import (
 	"io"
 	"net/http"
 	"one-api/common"
+	"one-api/common/logger"
 	"one-api/model"
 	"one-api/relay/channel/openai"
 	"one-api/relay/util"
@@ -112,7 +113,7 @@ func RelayImageHelper(c *gin.Context, relayMode int) *openai.ErrorWithStatusCode
 	fullRequestURL := util.GetFullRequestURL(baseURL, requestURL, channelType)
 	if channelType == common.ChannelTypeAzure {
 		// https://learn.microsoft.com/en-us/azure/ai-services/openai/dall-e-quickstart?tabs=dalle3%2Ccommand-line&pivots=rest-api
-		apiVersion := util.GetAPIVersion(c)
+		apiVersion := util.GetAzureAPIVersion(c)
 		// https://{resource_name}.openai.azure.com/openai/deployments/dall-e-3/images/generations?api-version=2023-06-01-preview
 		fullRequestURL = fmt.Sprintf("%s/openai/deployments/%s/images/generations?api-version=%s", baseURL, imageModel, apiVersion)
 	}
@@ -175,11 +176,11 @@ func RelayImageHelper(c *gin.Context, relayMode int) *openai.ErrorWithStatusCode
 		}
 		err := model.PostConsumeTokenQuota(tokenId, quota)
 		if err != nil {
-			common.SysError("error consuming token remain quota: " + err.Error())
+			logger.SysError("error consuming token remain quota: " + err.Error())
 		}
 		err = model.CacheUpdateUserQuota(userId)
 		if err != nil {
-			common.SysError("error update user quota cache: " + err.Error())
+			logger.SysError("error update user quota cache: " + err.Error())
 		}
 		if quota != 0 {
 			tokenName := c.GetString("token_name")

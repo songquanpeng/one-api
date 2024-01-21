@@ -8,6 +8,7 @@ import (
 	"io"
 	"net/http"
 	"one-api/common"
+	"one-api/common/logger"
 	"one-api/relay/constant"
 	"strings"
 )
@@ -46,7 +47,7 @@ func StreamHandler(c *gin.Context, resp *http.Response, relayMode int) (*ErrorWi
 					var streamResponse ChatCompletionsStreamResponse
 					err := json.Unmarshal([]byte(data), &streamResponse)
 					if err != nil {
-						common.SysError("error unmarshalling stream response: " + err.Error())
+						logger.SysError("error unmarshalling stream response: " + err.Error())
 						continue // just ignore the error
 					}
 					for _, choice := range streamResponse.Choices {
@@ -56,7 +57,7 @@ func StreamHandler(c *gin.Context, resp *http.Response, relayMode int) (*ErrorWi
 					var streamResponse CompletionsStreamResponse
 					err := json.Unmarshal([]byte(data), &streamResponse)
 					if err != nil {
-						common.SysError("error unmarshalling stream response: " + err.Error())
+						logger.SysError("error unmarshalling stream response: " + err.Error())
 						continue
 					}
 					for _, choice := range streamResponse.Choices {

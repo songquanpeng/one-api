@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"gorm.io/gorm"
 	"one-api/common"
+	"one-api/common/logger"
 	"strings"
 )
 
@@ -97,16 +98,16 @@ func (user *User) Insert(inviterId int) error {
 		return result.Error
 	}
 	if common.QuotaForNewUser > 0 {
-		RecordLog(user.Id, LogTypeSystem, fmt.Sprintf("新用户注册赠送 %s", common.LogQuota(common.QuotaForNewUser)))
+		RecordLog(user.Id, LogTypeSystem, fmt.Sprintf("新用户注册赠送 %s", logger.LogQuota(common.QuotaForNewUser)))
 	}
 	if inviterId != 0 {
 		if common.QuotaForInvitee > 0 {
 			_ = IncreaseUserQuota(user.Id, common.QuotaForInvitee)
-			RecordLog(user.Id, LogTypeSystem, fmt.Sprintf("使用邀请码赠送 %s", common.LogQuota(common.QuotaForInvitee)))
+			RecordLog(user.Id, LogTypeSystem, fmt.Sprintf("使用邀请码赠送 %s", logger.LogQuota(common.QuotaForInvitee)))
 		}
 		if common.QuotaForInviter > 0 {
 			_ = IncreaseUserQuota(inviterId, common.QuotaForInviter)
-			RecordLog(inviterId, LogTypeSystem, fmt.Sprintf("邀请用户赠送 %s", common.LogQuota(common.QuotaForInviter)))
+			RecordLog(inviterId, LogTypeSystem, fmt.Sprintf("邀请用户赠送 %s", logger.LogQuota(common.QuotaForInviter)))
 		}
 	}
 	return nil
@@ -232,7 +233,7 @@ func IsAdmin(userId int) bool {
 	var user User
 	err := DB.Where("id = ?", userId).Select("role").Find(&user).Error
 	if err != nil {
-		common.SysError("no such user " + err.Error())
+		logger.SysError("no such user " + err.Error())
 		return false
 	}
 	return user.Role >= common.RoleAdminUser
@@ -341,7 +342,7 @@ func updateUserUsedQuotaAndRequestCount(id int, quota int, count int) {
 		},
 	).Error
 	if err != nil {
-		common.SysError("failed to update user used quota and request count: " + err.Error())
+		logger.SysError("failed to update user used quota and request count: " + err.Error())
 	}
 }
 
@@ -352,14 +353,14 @@ func updateUserUsedQuota(id int, quota int) {
 		},
 	).Error
 	if err != nil {
-		common.SysError("failed to update user used quota: " + err.Error())
+		logger.SysError("failed to update user used quota: " + err.Error())
 	}
 }
 
 func updateUserRequestCount(id int, count int) {
 	err := DB.Model(&User{}).Where("id = ?", id).Update("request_count", gorm.Expr("request_count + ?", count)).Error
 	if err != nil {
-		common.SysError("failed to update user request count: " + err.Error())
+		logger.SysError("failed to update user request count: " + err.Error())
 	}
 }
 

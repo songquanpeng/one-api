@@ -2,6 +2,7 @@ package common
 
 import (
 	"encoding/json"
+	"one-api/common/logger"
 	"strings"
 	"time"
 )
@@ -107,7 +108,7 @@ var ModelRatio = map[string]float64{
 func ModelRatio2JSONString() string {
 	jsonBytes, err := json.Marshal(ModelRatio)
 	if err != nil {
-		SysError("error marshalling model ratio: " + err.Error())
+		logger.SysError("error marshalling model ratio: " + err.Error())
 	}
 	return string(jsonBytes)
 }
@@ -123,7 +124,7 @@ func GetModelRatio(name string) float64 {
 	}
 	ratio, ok := ModelRatio[name]
 	if !ok {
-		SysError("model ratio not found: " + name)
+		logger.SysError("model ratio not found: " + name)
 		return 30
 	}
 	return ratio

@@ -207,6 +207,11 @@ type Usage struct {
 	TotalTokens      int `json:"total_tokens"`
 }
 
+type UsageOrResponseText struct {
+	*Usage
+	ResponseText string
+}
+
 type Error struct {
 	Message string `json:"message"`
 	Type    string `json:"type"`

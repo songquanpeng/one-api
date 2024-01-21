@@ -8,6 +8,7 @@ import (
 	"io"
 	"net/http"
 	"one-api/common"
+	"one-api/common/logger"
 	"one-api/relay/channel/openai"
 	"one-api/relay/constant"
 	"strings"
@@ -34,7 +35,7 @@ func GetToken(apikey string) string {
 
 	split := strings.Split(apikey, ".")
 	if len(split) != 2 {
-		common.SysError("invalid zhipu key: " + apikey)
+		logger.SysError("invalid zhipu key: " + apikey)
 		return ""
 	}
 
@@ -193,7 +194,7 @@ func StreamHandler(c *gin.Context, resp *http.Response) (*openai.ErrorWithStatus
 			response := streamResponseZhipu2OpenAI(data)
 			jsonResponse, err := json.Marshal(response)
 			if err != nil {
-				common.SysError("error marshalling stream response: " + err.Error())
+				logger.SysError("error marshalling stream response: " + err.Error())
 				return true
 			}
 			c.Render(-1, common.CustomEvent{Data: "data: " + string(jsonResponse)})
@@ -202,13 +203,13 @@ func StreamHandler(c *gin.Context, resp *http.Response) (*openai.ErrorWithStatus
 			var zhipuResponse StreamMetaResponse
 			err := json.Unmarshal([]byte(data), &zhipuResponse)
 			if err != nil {
-				common.SysError("error unmarshalling stream response: " + err.Error())
+				logger.SysError("error unmarshalling stream response: " + err.Error())
 				return true
 			}
 			response, zhipuUsage := streamMetaResponseZhipu2OpenAI(&zhipuResponse)
 			jsonResponse, err := json.Marshal(response)
 			if err != nil {
-				common.SysError("error marshalling stream response: " + err.Error())
+				logger.SysError("error marshalling stream response: " + err.Error())
 				return true
 			}
 			usage = zhipuUsage

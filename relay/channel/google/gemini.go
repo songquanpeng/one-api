@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"one-api/common"
 	"one-api/common/image"
+	"one-api/common/logger"
 	"one-api/relay/channel/openai"
 	"one-api/relay/constant"
 	"strings"
@@ -237,7 +238,7 @@ func StreamHandler(c *gin.Context, resp *http.Response) (*openai.ErrorWithStatus
 			}
 			jsonResponse, err := json.Marshal(response)
 			if err != nil {
-				common.SysError("error marshalling stream response: " + err.Error())
+				logger.SysError("error marshalling stream response: " + err.Error())
 				return true
 			}
 			c.Render(-1, common.CustomEvent{Data: "data: " + string(jsonResponse)})
