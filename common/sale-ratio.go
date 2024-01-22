@@ -13,7 +13,7 @@ func SaleRatio2JSONString() string {
 }
 
 func UpdateSaleRatioByJSONString(jsonStr string) error {
-	GroupRatio = make(map[string]float64)
+	SaleRatio = make(map[string]float64)
 	return json.Unmarshal([]byte(jsonStr), &SaleRatio)
 }
 
