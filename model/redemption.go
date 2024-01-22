@@ -88,8 +88,8 @@ func Redeem(key string, userId int) (quota int, err error) {
 		return 0, errors.New("兑换失败，" + err.Error())
 	}
 	RecordLog(userId, LogTypeTopup, fmt.Sprintf("通过兑换码充值 %s", common.LogQuota(redemption.Quota)))
-	if user.InviterId != 0 {
-		RecordLog(user.InviterId, LogTypeSale, fmt.Sprintf("通过分销赠送 %s", extendQuota))
+	if user.InviterId != 0 && extendQuota > 0 {
+		RecordLog(user.InviterId, LogTypeSale, fmt.Sprintf("通过分销赠送 %s", common.LogQuota(int(float64(redemption.Quota)*common.GetSaleRatio(user.Group)))))
 	}
 	return redemption.Quota, nil
 }
