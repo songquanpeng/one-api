@@ -59,7 +59,7 @@ func Redeem(key string, userId int) (quota int, err error) {
 	if err != nil {
 		return 0, err
 	}
-	extendQuota := common.LogQuota(int(float64(redemption.Quota) * common.GetSaleRatio(user.Group)))
+	extendQuota := common.GetSaleRatio(user.Group)
 	err = DB.Transaction(func(tx *gorm.DB) error {
 		err := tx.Set("gorm:query_option", "FOR UPDATE").Where(keyCol+" = ?", key).First(redemption).Error
 		if err != nil {
@@ -75,7 +75,7 @@ func Redeem(key string, userId int) (quota int, err error) {
 		redemption.RedeemedTime = common.GetTimestamp()
 		redemption.Status = common.RedemptionCodeStatusUsed
 		err = tx.Save(redemption).Error
-		if user.InviterId != 0 {
+		if user.InviterId != 0 && extendQuota > 0 {
 			err = tx.Model(&User{}).Where("id = ?", user.InviterId).Update("quota", gorm.Expr("quota + ?", extendQuota)).Error
 			if err != nil {
 				return err
