@@ -71,6 +71,12 @@ export const CHANNEL_OPTIONS = {
     value: 26,
     color: 'orange'
   },
+  27: {
+    key: 27,
+    text: 'MiniMax',
+    value: 27,
+    color: 'orange'
+  },
   24: {
     key: 24,
     text: 'Azure Speech',

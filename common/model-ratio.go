@@ -99,6 +99,10 @@ func init() {
 		"Baichuan2-Turbo-192k":      {1.143, ChannelTypeBaichuan},  // ¥0.016 / 1k tokens
 		"Baichuan2-53B":             {1.4286, ChannelTypeBaichuan}, // ¥0.02 / 1k tokens
 		"Baichuan-Text-Embedding":   {0.0357, ChannelTypeBaichuan}, // ¥0.0005 / 1k tokens
+		"abab5.5s-chat":             {0.3572, ChannelTypeMiniMax},  // ¥0.005 / 1k tokens
+		"abab5.5-chat":              {1.0714, ChannelTypeMiniMax},  // ¥0.015 / 1k tokens
+		"abab6-chat":                {14.2857, ChannelTypeMiniMax}, // ¥0.2 / 1k tokens
+		"embo-01":                   {0.0357, ChannelTypeMiniMax},  // ¥0.0005 / 1k tokens
 	}
 
 	ModelRatio = make(map[string]float64)

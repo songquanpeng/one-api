@@ -190,6 +190,7 @@ const (
 	ChannelTypeAzureSpeech    = 24
 	ChannelTypeGemini         = 25
 	ChannelTypeBaichuan       = 26
+	ChannelTypeMiniMax        = 27
 )
 
 var ChannelBaseURLs = []string{
@@ -220,6 +221,7 @@ var ChannelBaseURLs = []string{
 	"",                                  //24
 	"",                                  //25
 	"https://api.baichuan-ai.com",       //26
+	"https://api.minimax.chat/v1",       //27
 }
 
 const (

@@ -166,6 +166,15 @@ const typeConfig = {
     prompt: {
       test_model: ''
     }
+  },
+  27: {
+    input: {
+      models: ['abab5.5-chat', 'abab5.5s-chat', 'abab6-chat', 'embo-01'],
+      test_model: 'abab5.5-chat'
+    },
+    prompt: {
+      key: '按照如下格式输入：APISecret|groupID'
+    }
   }
 };
 

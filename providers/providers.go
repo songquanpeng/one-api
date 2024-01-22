@@ -16,6 +16,7 @@ import (
 	"one-api/providers/claude"
 	"one-api/providers/closeai"
 	"one-api/providers/gemini"
+	"one-api/providers/minimax"
 	"one-api/providers/openai"
 	"one-api/providers/openaisb"
 	"one-api/providers/palm"
@@ -54,6 +55,7 @@ func init() {
 	providerFactories[common.ChannelTypeAzureSpeech] = azurespeech.AzureSpeechProviderFactory{}
 	providerFactories[common.ChannelTypeGemini] = gemini.GeminiProviderFactory{}
 	providerFactories[common.ChannelTypeBaichuan] = baichuan.BaichuanProviderFactory{}
+	providerFactories[common.ChannelTypeMiniMax] = minimax.MiniMaxProviderFactory{}
 
 }
 
