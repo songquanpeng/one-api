@@ -99,7 +99,7 @@ func ConvertRequest(request openai.GeneralOpenAIRequest) *Request {
 	}
 }
 
-func StreamResponseZhipuV42OpenAI(zhipuResponse *StreamResponse) (*openai.ChatCompletionsStreamResponse) {
+func StreamResponseZhipuV42OpenAI(zhipuResponse *StreamResponse, reqModel string) *openai.ChatCompletionsStreamResponse {
 	var choice openai.ChatCompletionsStreamResponseChoice
 	choice.Delta.Content = zhipuResponse.Choices[0].Delta.Content
 	choice.Delta.Role = zhipuResponse.Choices[0].Delta.Role
@@ -110,18 +110,18 @@ func StreamResponseZhipuV42OpenAI(zhipuResponse *StreamResponse) (*openai.ChatCo
 		Id:      zhipuResponse.Id,
 		Object:  "chat.completion.chunk",
 		Created: zhipuResponse.Created,
-		Model:   "glm-4",
+		Model:   reqModel,
 		Choices: []openai.ChatCompletionsStreamResponseChoice{choice},
 	}
 	return &response
 }
 
-func LastStreamResponseZhipuV42OpenAI(zhipuResponse *StreamResponse) (*openai.ChatCompletionsStreamResponse, *openai.Usage) {
-	response := StreamResponseZhipuV42OpenAI(zhipuResponse)
+func LastStreamResponseZhipuV42OpenAI(zhipuResponse *StreamResponse, reqModel string) (*openai.ChatCompletionsStreamResponse, *openai.Usage) {
+	response := StreamResponseZhipuV42OpenAI(zhipuResponse, reqModel)
 	return response, &zhipuResponse.Usage
 }
 
-func StreamHandler(c *gin.Context, resp *http.Response) (*openai.ErrorWithStatusCode, *openai.Usage) {
+func StreamHandler(c *gin.Context, resp *http.Response, reqModel string) (*openai.ErrorWithStatusCode, *openai.Usage) {
 	var usage *openai.Usage
 	scanner := bufio.NewScanner(resp.Body)
 	scanner.Split(func(data []byte, atEOF bool) (advance int, token []byte, err error) {
@@ -168,9 +168,9 @@ func StreamHandler(c *gin.Context, resp *http.Response) (*openai.ErrorWithStatus
 			}
 			var response *openai.ChatCompletionsStreamResponse
 			if strings.Contains(data, "prompt_tokens") {
-				response, usage = LastStreamResponseZhipuV42OpenAI(&streamResponse)
+				response, usage = LastStreamResponseZhipuV42OpenAI(&streamResponse, reqModel)
 			} else {
-				response = StreamResponseZhipuV42OpenAI(&streamResponse)
+				response = StreamResponseZhipuV42OpenAI(&streamResponse, reqModel)
 			}
 			jsonResponse, err := json.Marshal(response)
 			if err != nil {

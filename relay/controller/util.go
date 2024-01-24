@@ -301,7 +301,7 @@ func DoResponse(c *gin.Context, textRequest *openai.GeneralOpenAIRequest, resp *
 		}
 	case constant.APITypeZhipu_v4:
 		if isStream {
-			err, usage = zhipu_v4.StreamHandler(c, resp)
+			err, usage = zhipu_v4.StreamHandler(c, resp, textRequest.Model)
 		} else {
 			err, usage = zhipu_v4.Handler(c, resp)
 		}
