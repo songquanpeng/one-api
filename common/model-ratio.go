@@ -92,6 +92,8 @@ var ModelRatio = map[string]float64{
 	"chatglm_pro":               0.7143, // ￥0.01 / 1k tokens
 	"chatglm_std":               0.3572, // ￥0.005 / 1k tokens
 	"chatglm_lite":              0.1429, // ￥0.002 / 1k tokens
+	"glm-4":              		 7.143, // ￥0.1 / 1k tokens
+	"glm-3-turbo":               0.3572, // ￥0.005 / 1k tokens
 	"qwen-turbo":                0.5715, // ￥0.008 / 1k tokens  // https://help.aliyun.com/zh/dashscope/developer-reference/tongyi-thousand-questions-metering-and-billing
 	"qwen-plus":                 1.4286, // ￥0.02 / 1k tokens
 	"qwen-max":                  1.4286, // ￥0.02 / 1k tokens
