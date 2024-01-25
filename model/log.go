@@ -3,14 +3,18 @@ package model
 import (
 	"context"
 	"fmt"
-	"gorm.io/gorm"
 	"one-api/common"
+	"one-api/common/config"
+	"one-api/common/helper"
+	"one-api/common/logger"
+
+	"gorm.io/gorm"
 )
 
 type Log struct {
-	Id               int    `json:"id;index:idx_created_at_id,priority:1"`
+	Id               int    `json:"id"`
 	UserId           int    `json:"user_id" gorm:"index"`
-	CreatedAt        int64  `json:"created_at" gorm:"bigint;index:idx_created_at_id,priority:2;index:idx_created_at_type"`
+	CreatedAt        int64  `json:"created_at" gorm:"bigint;index:idx_created_at_type"`
 	Type             int    `json:"type" gorm:"index:idx_created_at_type"`
 	Content          string `json:"content"`
 	Username         string `json:"username" gorm:"index:index_username_model_name,priority:2;default:''"`
@@ -31,31 +35,31 @@ const (
 )
 
 func RecordLog(userId int, logType int, content string) {
-	if logType == LogTypeConsume && !common.LogConsumeEnabled {
+	if logType == LogTypeConsume && !config.LogConsumeEnabled {
 		return
 	}
 	log := &Log{
 		UserId:    userId,
 		Username:  GetUsernameById(userId),
-		CreatedAt: common.GetTimestamp(),
+		CreatedAt: helper.GetTimestamp(),
 		Type:      logType,
 		Content:   content,
 	}
 	err := DB.Create(log).Error
 	if err != nil {
-		common.SysError("failed to record log: " + err.Error())
+		logger.SysError("failed to record log: " + err.Error())
 	}
 }
 
 func RecordConsumeLog(ctx context.Context, userId int, channelId int, promptTokens int, completionTokens int, modelName string, tokenName string, quota int, content string) {
-	common.LogInfo(ctx, fmt.Sprintf("record consume log: userId=%d, channelId=%d, promptTokens=%d, completionTokens=%d, modelName=%s, tokenName=%s, quota=%d, content=%s", userId, channelId, promptTokens, completionTokens, modelName, tokenName, quota, content))
-	if !common.LogConsumeEnabled {
+	logger.Info(ctx, fmt.Sprintf("record consume log: userId=%d, channelId=%d, promptTokens=%d, completionTokens=%d, modelName=%s, tokenName=%s, quota=%d, content=%s", userId, channelId, promptTokens, completionTokens, modelName, tokenName, quota, content))
+	if !config.LogConsumeEnabled {
 		return
 	}
 	log := &Log{
 		UserId:           userId,
 		Username:         GetUsernameById(userId),
-		CreatedAt:        common.GetTimestamp(),
+		CreatedAt:        helper.GetTimestamp(),
 		Type:             LogTypeConsume,
 		Content:          content,
 		PromptTokens:     promptTokens,
@@ -67,7 +71,7 @@ func RecordConsumeLog(ctx context.Context, userId int, channelId int, promptToke
 	}
 	err := DB.Create(log).Error
 	if err != nil {
-		common.LogError(ctx, "failed to record log: "+err.Error())
+		logger.Error(ctx, "failed to record log: "+err.Error())
 	}
 }
 
@@ -124,12 +128,12 @@ func GetUserLogs(userId int, logType int, startTimestamp int64, endTimestamp int
 }
 
 func SearchAllLogs(keyword string) (logs []*Log, err error) {
-	err = DB.Where("type = ? or content LIKE ?", keyword, keyword+"%").Order("id desc").Limit(common.MaxRecentItems).Find(&logs).Error
+	err = DB.Where("type = ? or content LIKE ?", keyword, keyword+"%").Order("id desc").Limit(config.MaxRecentItems).Find(&logs).Error
 	return logs, err
 }
 
 func SearchUserLogs(userId int, keyword string) (logs []*Log, err error) {
-	err = DB.Where("user_id = ? and type = ?", userId, keyword).Order("id desc").Limit(common.MaxRecentItems).Omit("id").Find(&logs).Error
+	err = DB.Where("user_id = ? and type = ?", userId, keyword).Order("id desc").Limit(config.MaxRecentItems).Omit("id").Find(&logs).Error
 	return logs, err
 }
 
@@ -181,4 +185,41 @@ func SumUsedToken(logType int, startTimestamp int64, endTimestamp int64, modelNa
 func DeleteOldLog(targetTimestamp int64) (int64, error) {
 	result := DB.Where("created_at < ?", targetTimestamp).Delete(&Log{})
 	return result.RowsAffected, result.Error
+}
+
+type LogStatistic struct {
+	Day              string `gorm:"column:day"`
+	ModelName        string `gorm:"column:model_name"`
+	RequestCount     int    `gorm:"column:request_count"`
+	Quota            int    `gorm:"column:quota"`
+	PromptTokens     int    `gorm:"column:prompt_tokens"`
+	CompletionTokens int    `gorm:"column:completion_tokens"`
+}
+
+func SearchLogsByDayAndModel(userId, start, end int) (LogStatistics []*LogStatistic, err error) {
+	groupSelect := "DATE_FORMAT(FROM_UNIXTIME(created_at), '%Y-%m-%d') as day"
+
+	if common.UsingPostgreSQL {
+		groupSelect = "TO_CHAR(date_trunc('day', to_timestamp(created_at)), 'YYYY-MM-DD') as day"
+	}
+
+	if common.UsingSQLite {
+		groupSelect = "strftime('%Y-%m-%d', datetime(created_at, 'unixepoch')) as day"
+	}
+
+	err = DB.Raw(`
+		SELECT `+groupSelect+`,
+		model_name, count(1) as request_count,
+		sum(quota) as quota,
+		sum(prompt_tokens) as prompt_tokens,
+		sum(completion_tokens) as completion_tokens
+		FROM logs
+		WHERE type=2
+		AND user_id= ?
+		AND created_at BETWEEN ? AND ?
+		GROUP BY day, model_name
+		ORDER BY day, model_name
+	`, userId, start, end).Scan(&LogStatistics).Error
+
+	return LogStatistics, err
 }

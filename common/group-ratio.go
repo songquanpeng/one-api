@@ -1,6 +1,9 @@
 package common
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"one-api/common/logger"
+)
 
 var GroupRatio = map[string]float64{
 	"default": 1,
@@ -11,7 +14,7 @@ var GroupRatio = map[string]float64{
 func GroupRatio2JSONString() string {
 	jsonBytes, err := json.Marshal(GroupRatio)
 	if err != nil {
-		SysError("error marshalling model ratio: " + err.Error())
+		logger.SysError("error marshalling model ratio: " + err.Error())
 	}
 	return string(jsonBytes)
 }
@@ -24,7 +27,7 @@ func UpdateGroupRatioByJSONString(jsonStr string) error {
 func GetGroupRatio(name string) float64 {
 	ratio, ok := GroupRatio[name]
 	if !ok {
-		SysError("group ratio not found: " + name)
+		logger.SysError("group ratio not found: " + name)
 		return 1
 	}
 	return ratio

@@ -2,8 +2,9 @@ package controller
 
 import (
 	"github.com/gin-gonic/gin"
-	"one-api/common"
+	"one-api/common/config"
 	"one-api/model"
+	"one-api/relay/channel/openai"
 )
 
 func GetSubscription(c *gin.Context) {
@@ -12,7 +13,7 @@ func GetSubscription(c *gin.Context) {
 	var err error
 	var token *model.Token
 	var expiredTime int64
-	if common.DisplayTokenStatEnabled {
+	if config.DisplayTokenStatEnabled {
 		tokenId := c.GetInt("token_id")
 		token, err = model.GetTokenById(tokenId)
 		expiredTime = token.ExpiredTime
@@ -27,19 +28,19 @@ func GetSubscription(c *gin.Context) {
 		expiredTime = 0
 	}
 	if err != nil {
-		openAIError := OpenAIError{
+		Error := openai.Error{
 			Message: err.Error(),
 			Type:    "upstream_error",
 		}
 		c.JSON(200, gin.H{
-			"error": openAIError,
+			"error": Error,
 		})
 		return
 	}
 	quota := remainQuota + usedQuota
 	amount := float64(quota)
-	if common.DisplayInCurrencyEnabled {
-		amount /= common.QuotaPerUnit
+	if config.DisplayInCurrencyEnabled {
+		amount /= config.QuotaPerUnit
 	}
 	if token != nil && token.UnlimitedQuota {
 		amount = 100000000
@@ -60,7 +61,7 @@ func GetUsage(c *gin.Context) {
 	var quota int
 	var err error
 	var token *model.Token
-	if common.DisplayTokenStatEnabled {
+	if config.DisplayTokenStatEnabled {
 		tokenId := c.GetInt("token_id")
 		token, err = model.GetTokenById(tokenId)
 		quota = token.UsedQuota
@@ -69,18 +70,18 @@ func GetUsage(c *gin.Context) {
 		quota, err = model.GetUserUsedQuota(userId)
 	}
 	if err != nil {
-		openAIError := OpenAIError{
+		Error := openai.Error{
 			Message: err.Error(),
 			Type:    "one_api_error",
 		}
 		c.JSON(200, gin.H{
-			"error": openAIError,
+			"error": Error,
 		})
 		return
 	}
 	amount := float64(quota)
-	if common.DisplayInCurrencyEnabled {
-		amount /= common.QuotaPerUnit
+	if config.DisplayInCurrencyEnabled {
+		amount /= config.QuotaPerUnit
 	}
 	usage := OpenAIUsageResponse{
 		Object:     "list",

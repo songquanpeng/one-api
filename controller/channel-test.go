@@ -8,7 +8,11 @@ import (
 	"io"
 	"net/http"
 	"one-api/common"
+	"one-api/common/config"
+	"one-api/common/logger"
 	"one-api/model"
+	"one-api/relay/channel/openai"
+	"one-api/relay/util"
 	"strconv"
 	"sync"
 	"time"
@@ -16,7 +20,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func testChannel(channel *model.Channel, request ChatRequest) (err error, openaiErr *OpenAIError) {
+func testChannel(channel *model.Channel, request openai.ChatRequest) (err error, openaiErr *openai.Error) {
 	switch channel.Type {
 	case common.ChannelTypePaLM:
 		fallthrough
@@ -46,13 +50,13 @@ func testChannel(channel *model.Channel, request ChatRequest) (err error, openai
 	}
 	requestURL := common.ChannelBaseURLs[channel.Type]
 	if channel.Type == common.ChannelTypeAzure {
-		requestURL = getFullRequestURL(channel.GetBaseURL(), fmt.Sprintf("/openai/deployments/%s/chat/completions?api-version=2023-03-15-preview", request.Model), channel.Type)
+		requestURL = util.GetFullRequestURL(channel.GetBaseURL(), fmt.Sprintf("/openai/deployments/%s/chat/completions?api-version=2023-03-15-preview", request.Model), channel.Type)
 	} else {
 		if baseURL := channel.GetBaseURL(); len(baseURL) > 0 {
 			requestURL = baseURL
 		}
 
-		requestURL = getFullRequestURL(requestURL, "/v1/chat/completions", channel.Type)
+		requestURL = util.GetFullRequestURL(requestURL, "/v1/chat/completions", channel.Type)
 	}
 	jsonData, err := json.Marshal(request)
 	if err != nil {
@@ -68,12 +72,12 @@ func testChannel(channel *model.Channel, request ChatRequest) (err error, openai
 		req.Header.Set("Authorization", "Bearer "+channel.Key)
 	}
 	req.Header.Set("Content-Type", "application/json")
-	resp, err := httpClient.Do(req)
+	resp, err := util.HTTPClient.Do(req)
 	if err != nil {
 		return err, nil
 	}
 	defer resp.Body.Close()
-	var response TextResponse
+	var response openai.SlimTextResponse
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return err, nil
@@ -91,12 +95,12 @@ func testChannel(channel *model.Channel, request ChatRequest) (err error, openai
 	return nil, nil
 }
 
-func buildTestRequest() *ChatRequest {
-	testRequest := &ChatRequest{
+func buildTestRequest() *openai.ChatRequest {
+	testRequest := &openai.ChatRequest{
 		Model:     "", // this will be set later
 		MaxTokens: 1,
 	}
-	testMessage := Message{
+	testMessage := openai.Message{
 		Role:    "user",
 		Content: "hi",
 	}
@@ -148,12 +152,12 @@ var testAllChannelsLock sync.Mutex
 var testAllChannelsRunning bool = false
 
 func notifyRootUser(subject string, content string) {
-	if common.RootUserEmail == "" {
-		common.RootUserEmail = model.GetRootUserEmail()
+	if config.RootUserEmail == "" {
+		config.RootUserEmail = model.GetRootUserEmail()
 	}
-	err := common.SendEmail(subject, common.RootUserEmail, content)
+	err := common.SendEmail(subject, config.RootUserEmail, content)
 	if err != nil {
-		common.SysError(fmt.Sprintf("failed to send email: %s", err.Error()))
+		logger.SysError(fmt.Sprintf("failed to send email: %s", err.Error()))
 	}
 }
 
@@ -174,8 +178,8 @@ func enableChannel(channelId int, channelName string) {
 }
 
 func testAllChannels(notify bool) error {
-	if common.RootUserEmail == "" {
-		common.RootUserEmail = model.GetRootUserEmail()
+	if config.RootUserEmail == "" {
+		config.RootUserEmail = model.GetRootUserEmail()
 	}
 	testAllChannelsLock.Lock()
 	if testAllChannelsRunning {
@@ -189,7 +193,7 @@ func testAllChannels(notify bool) error {
 		return err
 	}
 	testRequest := buildTestRequest()
-	var disableThreshold = int64(common.ChannelDisableThreshold * 1000)
+	var disableThreshold = int64(config.ChannelDisableThreshold * 1000)
 	if disableThreshold == 0 {
 		disableThreshold = 10000000 // a impossible value
 	}
@@ -204,22 +208,22 @@ func testAllChannels(notify bool) error {
 				err = errors.New(fmt.Sprintf("响应时间 %.2fs 超过阈值 %.2fs", float64(milliseconds)/1000.0, float64(disableThreshold)/1000.0))
 				disableChannel(channel.Id, channel.Name, err.Error())
 			}
-			if isChannelEnabled && shouldDisableChannel(openaiErr, -1) {
+			if isChannelEnabled && util.ShouldDisableChannel(openaiErr, -1) {
 				disableChannel(channel.Id, channel.Name, err.Error())
 			}
-			if !isChannelEnabled && shouldEnableChannel(err, openaiErr) {
+			if !isChannelEnabled && util.ShouldEnableChannel(err, openaiErr) {
 				enableChannel(channel.Id, channel.Name)
 			}
 			channel.UpdateResponseTime(milliseconds)
-			time.Sleep(common.RequestInterval)
+			time.Sleep(config.RequestInterval)
 		}
 		testAllChannelsLock.Lock()
 		testAllChannelsRunning = false
 		testAllChannelsLock.Unlock()
 		if notify {
-			err := common.SendEmail("通道测试完成", common.RootUserEmail, "通道测试完成，如果没有收到禁用通知，说明所有通道都正常")
+			err := common.SendEmail("通道测试完成", config.RootUserEmail, "通道测试完成，如果没有收到禁用通知，说明所有通道都正常")
 			if err != nil {
-				common.SysError(fmt.Sprintf("failed to send email: %s", err.Error()))
+				logger.SysError(fmt.Sprintf("failed to send email: %s", err.Error()))
 			}
 		}
 	}()
@@ -245,8 +249,8 @@ func TestAllChannels(c *gin.Context) {
 func AutomaticallyTestChannels(frequency int) {
 	for {
 		time.Sleep(time.Duration(frequency) * time.Minute)
-		common.SysLog("testing all channels")
+		logger.SysLog("testing all channels")
 		_ = testAllChannels(false)
-		common.SysLog("channel test finished")
+		logger.SysLog("channel test finished")
 	}
 }
