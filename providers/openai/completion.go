@@ -2,6 +2,7 @@ package openai
 
 import (
 	"encoding/json"
+	"io"
 	"net/http"
 	"one-api/common"
 	"one-api/common/requester"
@@ -38,7 +39,7 @@ func (p *OpenAIProvider) CreateCompletion(request *types.CompletionRequest) (ope
 	return &response.CompletionResponse, nil
 }
 
-func (p *OpenAIProvider) CreateCompletionStream(request *types.CompletionRequest) (stream requester.StreamReaderInterface[types.CompletionResponse], errWithCode *types.OpenAIErrorWithStatusCode) {
+func (p *OpenAIProvider) CreateCompletionStream(request *types.CompletionRequest) (stream requester.StreamReaderInterface[string], errWithCode *types.OpenAIErrorWithStatusCode) {
 	req, errWithCode := p.GetRequestTextBody(common.RelayModeChatCompletions, request.Model, request)
 	if errWithCode != nil {
 		return nil, errWithCode
@@ -56,14 +57,14 @@ func (p *OpenAIProvider) CreateCompletionStream(request *types.CompletionRequest
 		ModelName: request.Model,
 	}
 
-	return requester.RequestStream[types.CompletionResponse](p.Requester, resp, chatHandler.handlerCompletionStream)
+	return requester.RequestStream[string](p.Requester, resp, chatHandler.handlerCompletionStream)
 }
 
-func (h *OpenAIStreamHandler) handlerCompletionStream(rawLine *[]byte, isFinished *bool, response *[]types.CompletionResponse) error {
+func (h *OpenAIStreamHandler) handlerCompletionStream(rawLine *[]byte, dataChan chan string, errChan chan error) {
 	// 如果rawLine 前缀不为data:，则直接返回
 	if !strings.HasPrefix(string(*rawLine), "data: ") {
 		*rawLine = nil
-		return nil
+		return
 	}
 
 	// 去除前缀
@@ -71,26 +72,27 @@ func (h *OpenAIStreamHandler) handlerCompletionStream(rawLine *[]byte, isFinishe
 
 	// 如果等于 DONE 则结束
 	if string(*rawLine) == "[DONE]" {
-		*isFinished = true
-		return nil
+		errChan <- io.EOF
+		*rawLine = requester.StreamClosed
+		return
 	}
 
 	var openaiResponse OpenAIProviderCompletionResponse
 	err := json.Unmarshal(*rawLine, &openaiResponse)
 	if err != nil {
-		return common.ErrorToOpenAIError(err)
+		errChan <- common.ErrorToOpenAIError(err)
+		return
 	}
 
 	error := ErrorHandle(&openaiResponse.OpenAIErrorResponse)
 	if error != nil {
-		return error
+		errChan <- error
+		return
 	}
+
+	dataChan <- string(*rawLine)
 
 	countTokenText := common.CountTokenText(openaiResponse.getResponseText(), h.ModelName)
 	h.Usage.CompletionTokens += countTokenText
 	h.Usage.TotalTokens += countTokenText
-
-	*response = append(*response, openaiResponse.CompletionResponse)
-
-	return nil
 }

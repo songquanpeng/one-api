@@ -3,16 +3,12 @@ package requester
 import (
 	"bufio"
 	"bytes"
-	"io"
 	"net/http"
 )
 
-// 流处理函数，判断依据如下：
-// 1.如果有错误信息，则直接返回错误信息
-// 2.如果isFinished=true，则返回io.EOF，并且如果response不为空，还将返回response
-// 3.如果rawLine=nil 或者 response长度为0，则直接跳过
-// 4.如果以上条件都不满足，则返回response
-type HandlerPrefix[T streamable] func(rawLine *[]byte, isFinished *bool, response *[]T) error
+var StreamClosed = []byte("stream_closed")
+
+type HandlerPrefix[T streamable] func(rawLine *[]byte, dataChan chan T, errChan chan error)
 
 type streamable interface {
 	// types.ChatCompletionStreamResponse | types.CompletionResponse
@@ -20,57 +16,48 @@ type streamable interface {
 }
 
 type StreamReaderInterface[T streamable] interface {
-	Recv() (*[]T, error)
+	Recv() (<-chan T, <-chan error)
 	Close()
 }
 
 type streamReader[T streamable] struct {
-	isFinished bool
-
 	reader   *bufio.Reader
 	response *http.Response
 
 	handlerPrefix HandlerPrefix[T]
+
+	DataChan chan T
+	ErrChan  chan error
 }
 
-func (stream *streamReader[T]) Recv() (response *[]T, err error) {
-	if stream.isFinished {
-		err = io.EOF
-		return
-	}
-	response, err = stream.processLines()
-	return
+func (stream *streamReader[T]) Recv() (<-chan T, <-chan error) {
+	go stream.processLines()
+
+	return stream.DataChan, stream.ErrChan
 }
 
 //nolint:gocognit
-func (stream *streamReader[T]) processLines() (*[]T, error) {
+func (stream *streamReader[T]) processLines() {
 	for {
 		rawLine, readErr := stream.reader.ReadBytes('\n')
 		if readErr != nil {
-			return nil, readErr
+			stream.ErrChan <- readErr
+			return
 		}
-
 		noSpaceLine := bytes.TrimSpace(rawLine)
-
-		var response []T
-		err := stream.handlerPrefix(&noSpaceLine, &stream.isFinished, &response)
-
-		if err != nil {
-			return nil, err
-		}
-
-		if stream.isFinished {
-			if len(response) > 0 {
-				return &response, io.EOF
-			}
-			return nil, io.EOF
-		}
-
-		if noSpaceLine == nil || len(response) == 0 {
+		if len(noSpaceLine) == 0 {
 			continue
 		}
 
-		return &response, nil
+		stream.handlerPrefix(&noSpaceLine, stream.DataChan, stream.ErrChan)
+
+		if noSpaceLine == nil {
+			continue
+		}
+
+		if bytes.Equal(noSpaceLine, StreamClosed) {
+			return
+		}
 	}
 }
 

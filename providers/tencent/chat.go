@@ -32,7 +32,7 @@ func (p *TencentProvider) CreateChatCompletion(request *types.ChatCompletionRequ
 	return p.convertToChatOpenai(tencentChatResponse, request)
 }
 
-func (p *TencentProvider) CreateChatCompletionStream(request *types.ChatCompletionRequest) (requester.StreamReaderInterface[types.ChatCompletionStreamResponse], *types.OpenAIErrorWithStatusCode) {
+func (p *TencentProvider) CreateChatCompletionStream(request *types.ChatCompletionRequest) (requester.StreamReaderInterface[string], *types.OpenAIErrorWithStatusCode) {
 	req, errWithCode := p.getChatRequest(request)
 	if errWithCode != nil {
 		return nil, errWithCode
@@ -50,7 +50,7 @@ func (p *TencentProvider) CreateChatCompletionStream(request *types.ChatCompleti
 		Request: request,
 	}
 
-	return requester.RequestStream[types.ChatCompletionStreamResponse](p.Requester, resp, chatHandler.handlerStream)
+	return requester.RequestStream[string](p.Requester, resp, chatHandler.handlerStream)
 }
 
 func (p *TencentProvider) getChatRequest(request *types.ChatCompletionRequest) (*http.Request, *types.OpenAIErrorWithStatusCode) {
@@ -157,11 +157,11 @@ func convertFromChatOpenai(request *types.ChatCompletionRequest) *TencentChatReq
 }
 
 // 转换为OpenAI聊天流式请求体
-func (h *tencentStreamHandler) handlerStream(rawLine *[]byte, isFinished *bool, response *[]types.ChatCompletionStreamResponse) error {
+func (h *tencentStreamHandler) handlerStream(rawLine *[]byte, dataChan chan string, errChan chan error) {
 	// 如果rawLine 前缀不为data:，则直接返回
 	if !strings.HasPrefix(string(*rawLine), "data:") {
 		*rawLine = nil
-		return nil
+		return
 	}
 
 	// 去除前缀
@@ -170,19 +170,21 @@ func (h *tencentStreamHandler) handlerStream(rawLine *[]byte, isFinished *bool, 
 	var tencentChatResponse TencentChatResponse
 	err := json.Unmarshal(*rawLine, &tencentChatResponse)
 	if err != nil {
-		return common.ErrorToOpenAIError(err)
+		errChan <- common.ErrorToOpenAIError(err)
+		return
 	}
 
 	error := errorHandle(&tencentChatResponse.TencentResponseError)
 	if error != nil {
-		return error
+		errChan <- error
+		return
 	}
 
-	return h.convertToOpenaiStream(&tencentChatResponse, response)
+	h.convertToOpenaiStream(&tencentChatResponse, dataChan, errChan)
 
 }
 
-func (h *tencentStreamHandler) convertToOpenaiStream(tencentChatResponse *TencentChatResponse, response *[]types.ChatCompletionStreamResponse) error {
+func (h *tencentStreamHandler) convertToOpenaiStream(tencentChatResponse *TencentChatResponse, dataChan chan string, errChan chan error) {
 	streamResponse := types.ChatCompletionStreamResponse{
 		Object:  "chat.completion.chunk",
 		Created: common.GetTimestamp(),
@@ -197,10 +199,9 @@ func (h *tencentStreamHandler) convertToOpenaiStream(tencentChatResponse *Tencen
 		streamResponse.Choices = append(streamResponse.Choices, choice)
 	}
 
-	*response = append(*response, streamResponse)
+	responseBody, _ := json.Marshal(streamResponse)
+	dataChan <- string(responseBody)
 
 	h.Usage.CompletionTokens += common.CountTokenText(tencentChatResponse.Choices[0].Delta.Content, h.Request.Model)
 	h.Usage.TotalTokens = h.Usage.PromptTokens + h.Usage.CompletionTokens
-
-	return nil
 }

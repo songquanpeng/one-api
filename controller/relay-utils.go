@@ -154,34 +154,25 @@ func responseJsonClient(c *gin.Context, data interface{}) *types.OpenAIErrorWith
 	return nil
 }
 
-func responseStreamClient[T any](c *gin.Context, stream requester.StreamReaderInterface[T]) *types.OpenAIErrorWithStatusCode {
+func responseStreamClient(c *gin.Context, stream requester.StreamReaderInterface[string]) *types.OpenAIErrorWithStatusCode {
 	requester.SetEventStreamHeaders(c)
+	dataChan, errChan := stream.Recv()
+
 	defer stream.Close()
-
-	for {
-		response, err := stream.Recv()
-		if errors.Is(err, io.EOF) {
-			if response != nil && len(*response) > 0 {
-				for _, streamResponse := range *response {
-					responseBody, _ := json.Marshal(streamResponse)
-					c.Render(-1, common.CustomEvent{Data: "data: " + string(responseBody)})
-				}
+	c.Stream(func(w io.Writer) bool {
+		select {
+		case data := <-dataChan:
+			fmt.Fprintln(w, "data: "+data+"\n")
+			return true
+		case err := <-errChan:
+			if !errors.Is(err, io.EOF) {
+				fmt.Fprintln(w, "data: "+err.Error()+"\n")
 			}
-			c.Render(-1, common.CustomEvent{Data: "data: [DONE]"})
-			break
-		}
 
-		if err != nil {
-			c.Render(-1, common.CustomEvent{Data: "data: " + err.Error()})
-			c.Render(-1, common.CustomEvent{Data: "data: [DONE]"})
-			break
+			fmt.Fprintln(w, "data: [DONE]")
+			return false
 		}
-
-		for _, streamResponse := range *response {
-			responseBody, _ := json.Marshal(streamResponse)
-			c.Render(-1, common.CustomEvent{Data: "data: " + string(responseBody)})
-		}
-	}
+	})
 
 	return nil
 }

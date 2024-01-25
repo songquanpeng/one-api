@@ -38,10 +38,15 @@ func SendWSJsonRequest[T streamable](conn *websocket.Conn, data any, handlerPref
 		return nil, common.ErrorWrapper(err, "ws_request_failed", http.StatusInternalServerError)
 	}
 
-	return &wsReader[T]{
+	stream := &wsReader[T]{
 		reader:        conn,
 		handlerPrefix: handlerPrefix,
-	}, nil
+
+		DataChan: make(chan T),
+		ErrChan:  make(chan error),
+	}
+
+	return stream, nil
 }
 
 // 设置请求头

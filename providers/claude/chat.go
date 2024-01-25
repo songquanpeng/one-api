@@ -3,6 +3,7 @@ package claude
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"one-api/common"
 	"one-api/common/requester"
@@ -32,7 +33,7 @@ func (p *ClaudeProvider) CreateChatCompletion(request *types.ChatCompletionReque
 	return p.convertToChatOpenai(claudeResponse, request)
 }
 
-func (p *ClaudeProvider) CreateChatCompletionStream(request *types.ChatCompletionRequest) (requester.StreamReaderInterface[types.ChatCompletionStreamResponse], *types.OpenAIErrorWithStatusCode) {
+func (p *ClaudeProvider) CreateChatCompletionStream(request *types.ChatCompletionRequest) (requester.StreamReaderInterface[string], *types.OpenAIErrorWithStatusCode) {
 	req, errWithCode := p.getChatRequest(request)
 	if errWithCode != nil {
 		return nil, errWithCode
@@ -50,7 +51,7 @@ func (p *ClaudeProvider) CreateChatCompletionStream(request *types.ChatCompletio
 		Request: request,
 	}
 
-	return requester.RequestStream[types.ChatCompletionStreamResponse](p.Requester, resp, chatHandler.handlerStream)
+	return requester.RequestStream[string](p.Requester, resp, chatHandler.handlerStream)
 }
 
 func (p *ClaudeProvider) getChatRequest(request *types.ChatCompletionRequest) (*http.Request, *types.OpenAIErrorWithStatusCode) {
@@ -149,11 +150,11 @@ func (p *ClaudeProvider) convertToChatOpenai(response *ClaudeResponse, request *
 }
 
 // 转换为OpenAI聊天流式请求体
-func (h *claudeStreamHandler) handlerStream(rawLine *[]byte, isFinished *bool, response *[]types.ChatCompletionStreamResponse) error {
+func (h *claudeStreamHandler) handlerStream(rawLine *[]byte, dataChan chan string, errChan chan error) {
 	// 如果rawLine 前缀不为data:，则直接返回
 	if !strings.HasPrefix(string(*rawLine), `data: {"type": "completion"`) {
 		*rawLine = nil
-		return nil
+		return
 	}
 
 	// 去除前缀
@@ -162,17 +163,26 @@ func (h *claudeStreamHandler) handlerStream(rawLine *[]byte, isFinished *bool, r
 	var claudeResponse *ClaudeResponse
 	err := json.Unmarshal(*rawLine, claudeResponse)
 	if err != nil {
-		return common.ErrorToOpenAIError(err)
+		errChan <- common.ErrorToOpenAIError(err)
+		return
+	}
+
+	error := errorHandle(&claudeResponse.ClaudeResponseError)
+	if error != nil {
+		errChan <- error
+		return
 	}
 
 	if claudeResponse.StopReason == "stop_sequence" {
-		*isFinished = true
+		errChan <- io.EOF
+		*rawLine = requester.StreamClosed
+		return
 	}
 
-	return h.convertToOpenaiStream(claudeResponse, response)
+	h.convertToOpenaiStream(claudeResponse, dataChan, errChan)
 }
 
-func (h *claudeStreamHandler) convertToOpenaiStream(claudeResponse *ClaudeResponse, response *[]types.ChatCompletionStreamResponse) error {
+func (h *claudeStreamHandler) convertToOpenaiStream(claudeResponse *ClaudeResponse, dataChan chan string, errChan chan error) {
 	var choice types.ChatCompletionStreamChoice
 	choice.Delta.Content = claudeResponse.Completion
 	finishReason := stopReasonClaude2OpenAI(claudeResponse.StopReason)
@@ -185,9 +195,8 @@ func (h *claudeStreamHandler) convertToOpenaiStream(claudeResponse *ClaudeRespon
 		Choices: []types.ChatCompletionStreamChoice{choice},
 	}
 
-	*response = append(*response, chatCompletion)
+	responseBody, _ := json.Marshal(chatCompletion)
+	dataChan <- string(responseBody)
 
 	h.Usage.PromptTokens += common.CountTokenText(claudeResponse.Completion, h.Request.Model)
-
-	return nil
 }

@@ -37,7 +37,7 @@ func (p *GeminiProvider) CreateChatCompletion(request *types.ChatCompletionReque
 	return p.convertToChatOpenai(geminiChatResponse, request)
 }
 
-func (p *GeminiProvider) CreateChatCompletionStream(request *types.ChatCompletionRequest) (requester.StreamReaderInterface[types.ChatCompletionStreamResponse], *types.OpenAIErrorWithStatusCode) {
+func (p *GeminiProvider) CreateChatCompletionStream(request *types.ChatCompletionRequest) (requester.StreamReaderInterface[string], *types.OpenAIErrorWithStatusCode) {
 	req, errWithCode := p.getChatRequest(request)
 	if errWithCode != nil {
 		return nil, errWithCode
@@ -55,7 +55,7 @@ func (p *GeminiProvider) CreateChatCompletionStream(request *types.ChatCompletio
 		Request: request,
 	}
 
-	return requester.RequestStream[types.ChatCompletionStreamResponse](p.Requester, resp, chatHandler.handlerStream)
+	return requester.RequestStream[string](p.Requester, resp, chatHandler.handlerStream)
 }
 
 func (p *GeminiProvider) getChatRequest(request *types.ChatCompletionRequest) (*http.Request, *types.OpenAIErrorWithStatusCode) {
@@ -228,11 +228,11 @@ func (p *GeminiProvider) convertToChatOpenai(response *GeminiChatResponse, reque
 }
 
 // 转换为OpenAI聊天流式请求体
-func (h *geminiStreamHandler) handlerStream(rawLine *[]byte, isFinished *bool, response *[]types.ChatCompletionStreamResponse) error {
+func (h *geminiStreamHandler) handlerStream(rawLine *[]byte, dataChan chan string, errChan chan error) {
 	// 如果rawLine 前缀不为data:，则直接返回
 	if !strings.HasPrefix(string(*rawLine), "data: ") {
 		*rawLine = nil
-		return nil
+		return
 	}
 
 	// 去除前缀
@@ -241,19 +241,21 @@ func (h *geminiStreamHandler) handlerStream(rawLine *[]byte, isFinished *bool, r
 	var geminiResponse GeminiChatResponse
 	err := json.Unmarshal(*rawLine, &geminiResponse)
 	if err != nil {
-		return common.ErrorToOpenAIError(err)
+		errChan <- common.ErrorToOpenAIError(err)
+		return
 	}
 
 	error := errorHandle(&geminiResponse.GeminiErrorResponse)
 	if error != nil {
-		return error
+		errChan <- error
+		return
 	}
 
-	return h.convertToOpenaiStream(&geminiResponse, response)
+	h.convertToOpenaiStream(&geminiResponse, dataChan, errChan)
 
 }
 
-func (h *geminiStreamHandler) convertToOpenaiStream(geminiResponse *GeminiChatResponse, response *[]types.ChatCompletionStreamResponse) error {
+func (h *geminiStreamHandler) convertToOpenaiStream(geminiResponse *GeminiChatResponse, dataChan chan string, errChan chan error) {
 	choices := make([]types.ChatCompletionStreamChoice, 0, len(geminiResponse.Candidates))
 
 	for i, candidate := range geminiResponse.Candidates {
@@ -275,10 +277,9 @@ func (h *geminiStreamHandler) convertToOpenaiStream(geminiResponse *GeminiChatRe
 		Choices: choices,
 	}
 
-	*response = append(*response, streamResponse)
+	responseBody, _ := json.Marshal(streamResponse)
+	dataChan <- string(responseBody)
 
 	h.Usage.CompletionTokens += common.CountTokenText(geminiResponse.GetResponseText(), h.Request.Model)
 	h.Usage.TotalTokens = h.Usage.PromptTokens + h.Usage.CompletionTokens
-
-	return nil
 }

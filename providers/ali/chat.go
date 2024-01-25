@@ -34,7 +34,7 @@ func (p *AliProvider) CreateChatCompletion(request *types.ChatCompletionRequest)
 	return p.convertToChatOpenai(aliResponse, request)
 }
 
-func (p *AliProvider) CreateChatCompletionStream(request *types.ChatCompletionRequest) (requester.StreamReaderInterface[types.ChatCompletionStreamResponse], *types.OpenAIErrorWithStatusCode) {
+func (p *AliProvider) CreateChatCompletionStream(request *types.ChatCompletionRequest) (requester.StreamReaderInterface[string], *types.OpenAIErrorWithStatusCode) {
 	req, errWithCode := p.getAliChatRequest(request)
 	if errWithCode != nil {
 		return nil, errWithCode
@@ -52,7 +52,7 @@ func (p *AliProvider) CreateChatCompletionStream(request *types.ChatCompletionRe
 		Request: request,
 	}
 
-	return requester.RequestStream[types.ChatCompletionStreamResponse](p.Requester, resp, chatHandler.handlerStream)
+	return requester.RequestStream[string](p.Requester, resp, chatHandler.handlerStream)
 }
 
 func (p *AliProvider) getAliChatRequest(request *types.ChatCompletionRequest) (*http.Request, *types.OpenAIErrorWithStatusCode) {
@@ -162,11 +162,11 @@ func convertFromChatOpenai(request *types.ChatCompletionRequest) *AliChatRequest
 }
 
 // 转换为OpenAI聊天流式请求体
-func (h *aliStreamHandler) handlerStream(rawLine *[]byte, isFinished *bool, response *[]types.ChatCompletionStreamResponse) error {
+func (h *aliStreamHandler) handlerStream(rawLine *[]byte, dataChan chan string, errChan chan error) {
 	// 如果rawLine 前缀不为data:，则直接返回
 	if !strings.HasPrefix(string(*rawLine), "data:") {
 		*rawLine = nil
-		return nil
+		return
 	}
 
 	// 去除前缀
@@ -175,19 +175,21 @@ func (h *aliStreamHandler) handlerStream(rawLine *[]byte, isFinished *bool, resp
 	var aliResponse AliChatResponse
 	err := json.Unmarshal(*rawLine, &aliResponse)
 	if err != nil {
-		return common.ErrorToOpenAIError(err)
+		errChan <- common.ErrorToOpenAIError(err)
+		return
 	}
 
 	error := errorHandle(&aliResponse.AliError)
 	if error != nil {
-		return error
+		errChan <- error
+		return
 	}
 
-	return h.convertToOpenaiStream(&aliResponse, response)
+	h.convertToOpenaiStream(&aliResponse, dataChan, errChan)
 
 }
 
-func (h *aliStreamHandler) convertToOpenaiStream(aliResponse *AliChatResponse, response *[]types.ChatCompletionStreamResponse) error {
+func (h *aliStreamHandler) convertToOpenaiStream(aliResponse *AliChatResponse, dataChan chan string, errChan chan error) {
 	content := aliResponse.Output.Choices[0].Message.StringContent()
 
 	var choice types.ChatCompletionStreamChoice
@@ -222,7 +224,6 @@ func (h *aliStreamHandler) convertToOpenaiStream(aliResponse *AliChatResponse, r
 		h.Usage.TotalTokens = aliResponse.Usage.InputTokens + aliResponse.Usage.OutputTokens
 	}
 
-	*response = append(*response, streamResponse)
-
-	return nil
+	responseBody, _ := json.Marshal(streamResponse)
+	dataChan <- string(responseBody)
 }

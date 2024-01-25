@@ -32,7 +32,7 @@ func (p *PalmProvider) CreateChatCompletion(request *types.ChatCompletionRequest
 	return p.convertToChatOpenai(palmResponse, request)
 }
 
-func (p *PalmProvider) CreateChatCompletionStream(request *types.ChatCompletionRequest) (requester.StreamReaderInterface[types.ChatCompletionStreamResponse], *types.OpenAIErrorWithStatusCode) {
+func (p *PalmProvider) CreateChatCompletionStream(request *types.ChatCompletionRequest) (requester.StreamReaderInterface[string], *types.OpenAIErrorWithStatusCode) {
 	req, errWithCode := p.getChatRequest(request)
 	if errWithCode != nil {
 		return nil, errWithCode
@@ -50,7 +50,7 @@ func (p *PalmProvider) CreateChatCompletionStream(request *types.ChatCompletionR
 		Request: request,
 	}
 
-	return requester.RequestStream[types.ChatCompletionStreamResponse](p.Requester, resp, chatHandler.handlerStream)
+	return requester.RequestStream[string](p.Requester, resp, chatHandler.handlerStream)
 }
 
 func (p *PalmProvider) getChatRequest(request *types.ChatCompletionRequest) (*http.Request, *types.OpenAIErrorWithStatusCode) {
@@ -142,11 +142,11 @@ func convertFromChatOpenai(request *types.ChatCompletionRequest) *PaLMChatReques
 }
 
 // 转换为OpenAI聊天流式请求体
-func (h *palmStreamHandler) handlerStream(rawLine *[]byte, isFinished *bool, response *[]types.ChatCompletionStreamResponse) error {
+func (h *palmStreamHandler) handlerStream(rawLine *[]byte, dataChan chan string, errChan chan error) {
 	// 如果rawLine 前缀不为data:，则直接返回
 	if !strings.HasPrefix(string(*rawLine), "data: ") {
 		*rawLine = nil
-		return nil
+		return
 	}
 
 	// 去除前缀
@@ -155,19 +155,21 @@ func (h *palmStreamHandler) handlerStream(rawLine *[]byte, isFinished *bool, res
 	var palmChatResponse PaLMChatResponse
 	err := json.Unmarshal(*rawLine, &palmChatResponse)
 	if err != nil {
-		return common.ErrorToOpenAIError(err)
+		errChan <- common.ErrorToOpenAIError(err)
+		return
 	}
 
 	error := errorHandle(&palmChatResponse.PaLMErrorResponse)
 	if error != nil {
-		return error
+		errChan <- error
+		return
 	}
 
-	return h.convertToOpenaiStream(&palmChatResponse, response)
+	h.convertToOpenaiStream(&palmChatResponse, dataChan, errChan)
 
 }
 
-func (h *palmStreamHandler) convertToOpenaiStream(palmChatResponse *PaLMChatResponse, response *[]types.ChatCompletionStreamResponse) error {
+func (h *palmStreamHandler) convertToOpenaiStream(palmChatResponse *PaLMChatResponse, dataChan chan string, errChan chan error) {
 	var choice types.ChatCompletionStreamChoice
 	if len(palmChatResponse.Candidates) > 0 {
 		choice.Delta.Content = palmChatResponse.Candidates[0].Content
@@ -182,10 +184,9 @@ func (h *palmStreamHandler) convertToOpenaiStream(palmChatResponse *PaLMChatResp
 		Created: common.GetTimestamp(),
 	}
 
-	*response = append(*response, streamResponse)
+	responseBody, _ := json.Marshal(streamResponse)
+	dataChan <- string(responseBody)
 
 	h.Usage.CompletionTokens += common.CountTokenText(palmChatResponse.Candidates[0].Content, h.Request.Model)
 	h.Usage.TotalTokens = h.Usage.PromptTokens + h.Usage.CompletionTokens
-
-	return nil
 }

@@ -32,7 +32,7 @@ func (p *MiniMaxProvider) CreateChatCompletion(request *types.ChatCompletionRequ
 	return p.convertToChatOpenai(response, request)
 }
 
-func (p *MiniMaxProvider) CreateChatCompletionStream(request *types.ChatCompletionRequest) (requester.StreamReaderInterface[types.ChatCompletionStreamResponse], *types.OpenAIErrorWithStatusCode) {
+func (p *MiniMaxProvider) CreateChatCompletionStream(request *types.ChatCompletionRequest) (requester.StreamReaderInterface[string], *types.OpenAIErrorWithStatusCode) {
 	req, errWithCode := p.getChatRequest(request)
 	if errWithCode != nil {
 		return nil, errWithCode
@@ -50,7 +50,7 @@ func (p *MiniMaxProvider) CreateChatCompletionStream(request *types.ChatCompleti
 		Request: request,
 	}
 
-	return requester.RequestStream[types.ChatCompletionStreamResponse](p.Requester, resp, chatHandler.handlerStream)
+	return requester.RequestStream[string](p.Requester, resp, chatHandler.handlerStream)
 }
 
 func (p *MiniMaxProvider) getChatRequest(request *types.ChatCompletionRequest) (*http.Request, *types.OpenAIErrorWithStatusCode) {
@@ -191,11 +191,11 @@ func convertFromChatOpenai(request *types.ChatCompletionRequest) *MiniMaxChatReq
 }
 
 // 转换为OpenAI聊天流式请求体
-func (h *minimaxStreamHandler) handlerStream(rawLine *[]byte, isFinished *bool, response *[]types.ChatCompletionStreamResponse) error {
+func (h *minimaxStreamHandler) handlerStream(rawLine *[]byte, dataChan chan string, errChan chan error) {
 	// 如果rawLine 前缀不为data: 或者 meta:，则直接返回
 	if !strings.HasPrefix(string(*rawLine), "data: ") {
 		*rawLine = nil
-		return nil
+		return
 	}
 
 	*rawLine = (*rawLine)[6:]
@@ -203,25 +203,27 @@ func (h *minimaxStreamHandler) handlerStream(rawLine *[]byte, isFinished *bool, 
 	miniResponse := &MiniMaxChatResponse{}
 	err := json.Unmarshal(*rawLine, miniResponse)
 	if err != nil {
-		return common.ErrorToOpenAIError(err)
+		errChan <- common.ErrorToOpenAIError(err)
+		return
 	}
 
 	error := errorHandle(&miniResponse.BaseResp)
 	if error != nil {
-		return error
+		errChan <- error
+		return
 	}
 
 	choice := miniResponse.Choices[0]
 
 	if choice.Messages[0].FunctionCall != nil && choice.FinishReason == "" {
 		*rawLine = nil
-		return nil
+		return
 	}
 
-	return h.convertToOpenaiStream(miniResponse, response)
+	h.convertToOpenaiStream(miniResponse, dataChan, errChan)
 }
 
-func (h *minimaxStreamHandler) convertToOpenaiStream(miniResponse *MiniMaxChatResponse, response *[]types.ChatCompletionStreamResponse) error {
+func (h *minimaxStreamHandler) convertToOpenaiStream(miniResponse *MiniMaxChatResponse, dataChan chan string, errChan chan error) {
 	streamResponse := types.ChatCompletionStreamResponse{
 		ID:      miniResponse.RequestID,
 		Object:  "chat.completion.chunk",
@@ -235,8 +237,8 @@ func (h *minimaxStreamHandler) convertToOpenaiStream(miniResponse *MiniMaxChatRe
 	if miniChoice.Messages[0].FunctionCall == nil && miniChoice.FinishReason != "" {
 		streamResponse.ID = miniResponse.ID
 		openaiChoice.FinishReason = convertFinishReason(miniChoice.FinishReason)
-		h.appendResponse(&streamResponse, &openaiChoice, response)
-		return nil
+		dataChan <- h.getResponseString(&streamResponse, &openaiChoice)
+		return
 	}
 
 	openaiChoice.Delta = types.ChatCompletionStreamChoiceDelta{
@@ -248,19 +250,17 @@ func (h *minimaxStreamHandler) convertToOpenaiStream(miniResponse *MiniMaxChatRe
 		convertChoices := openaiChoice.ConvertOpenaiStream()
 		for _, convertChoice := range convertChoices {
 			chatCompletionCopy := streamResponse
-			h.appendResponse(&chatCompletionCopy, &convertChoice, response)
+			dataChan <- h.getResponseString(&chatCompletionCopy, &convertChoice)
 		}
 
 	} else {
 		openaiChoice.Delta.Content = miniChoice.Messages[0].Text
-		h.appendResponse(&streamResponse, &openaiChoice, response)
+		dataChan <- h.getResponseString(&streamResponse, &openaiChoice)
 	}
 
 	if miniResponse.Usage != nil {
 		h.handleUsage(miniResponse)
 	}
-
-	return nil
 }
 
 func (h *minimaxStreamHandler) handleFunctionCall(choice *Choice, openaiChoice *types.ChatCompletionStreamChoice) {
@@ -274,9 +274,10 @@ func (h *minimaxStreamHandler) handleFunctionCall(choice *Choice, openaiChoice *
 	}
 }
 
-func (h *minimaxStreamHandler) appendResponse(streamResponse *types.ChatCompletionStreamResponse, openaiChoice *types.ChatCompletionStreamChoice, response *[]types.ChatCompletionStreamResponse) {
+func (h *minimaxStreamHandler) getResponseString(streamResponse *types.ChatCompletionStreamResponse, openaiChoice *types.ChatCompletionStreamChoice) string {
 	streamResponse.Choices = []types.ChatCompletionStreamChoice{*openaiChoice}
-	*response = append(*response, *streamResponse)
+	responseBody, _ := json.Marshal(streamResponse)
+	return string(responseBody)
 }
 
 func (h *minimaxStreamHandler) handleUsage(miniResponse *MiniMaxChatResponse) {

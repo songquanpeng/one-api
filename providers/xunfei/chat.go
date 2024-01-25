@@ -40,7 +40,7 @@ func (p *XunfeiProvider) CreateChatCompletion(request *types.ChatCompletionReque
 
 }
 
-func (p *XunfeiProvider) CreateChatCompletionStream(request *types.ChatCompletionRequest) (requester.StreamReaderInterface[types.ChatCompletionStreamResponse], *types.OpenAIErrorWithStatusCode) {
+func (p *XunfeiProvider) CreateChatCompletionStream(request *types.ChatCompletionRequest) (requester.StreamReaderInterface[string], *types.OpenAIErrorWithStatusCode) {
 	wsConn, errWithCode := p.getChatRequest(request)
 	if errWithCode != nil {
 		return nil, errWithCode
@@ -53,7 +53,7 @@ func (p *XunfeiProvider) CreateChatCompletionStream(request *types.ChatCompletio
 		Request: request,
 	}
 
-	return requester.SendWSJsonRequest[types.ChatCompletionStreamResponse](wsConn, xunfeiRequest, chatHandler.handlerStream)
+	return requester.SendWSJsonRequest[string](wsConn, xunfeiRequest, chatHandler.handlerStream)
 }
 
 func (p *XunfeiProvider) getChatRequest(request *types.ChatCompletionRequest) (*websocket.Conn, *types.OpenAIErrorWithStatusCode) {
@@ -123,23 +123,26 @@ func (p *XunfeiProvider) convertFromChatOpenai(request *types.ChatCompletionRequ
 func (h *xunfeiHandler) convertToChatOpenai(stream requester.StreamReaderInterface[XunfeiChatResponse]) (*types.ChatCompletionResponse, *types.OpenAIErrorWithStatusCode) {
 	var content string
 	var xunfeiResponse XunfeiChatResponse
+	dataChan, errChan := stream.Recv()
 
-	for {
-		response, err := stream.Recv()
+	stop := false
+	for !stop {
+		select {
+		case response := <-dataChan:
+			if len(response.Payload.Choices.Text) == 0 {
+				continue
+			}
+			xunfeiResponse = response
+			content += xunfeiResponse.Payload.Choices.Text[0].Content
+		case err := <-errChan:
+			if err != nil && !errors.Is(err, io.EOF) {
+				return nil, common.ErrorWrapper(err, "xunfei_failed", http.StatusInternalServerError)
+			}
 
-		if err != nil && !errors.Is(err, io.EOF) {
-			return nil, common.ErrorWrapper(err, "xunfei_failed", http.StatusInternalServerError)
+			if errors.Is(err, io.EOF) {
+				stop = true
+			}
 		}
-
-		if errors.Is(err, io.EOF) && response == nil {
-			break
-		}
-
-		if len((*response)[0].Payload.Choices.Text) == 0 {
-			continue
-		}
-		xunfeiResponse = (*response)[0]
-		content += xunfeiResponse.Payload.Choices.Text[0].Content
 	}
 
 	if len(xunfeiResponse.Payload.Choices.Text) == 0 {
@@ -193,7 +196,7 @@ func (h *xunfeiHandler) convertToChatOpenai(stream requester.StreamReaderInterfa
 }
 
 func (h *xunfeiHandler) handlerData(rawLine *[]byte, isFinished *bool) (*XunfeiChatResponse, error) {
-	// 如果rawLine 前缀不为data:，则直接返回
+	// 如果rawLine 前缀不为{，则直接返回
 	if !strings.HasPrefix(string(*rawLine), "{") {
 		*rawLine = nil
 		return nil, nil
@@ -221,34 +224,47 @@ func (h *xunfeiHandler) handlerData(rawLine *[]byte, isFinished *bool) (*XunfeiC
 	return &xunfeiChatResponse, nil
 }
 
-func (h *xunfeiHandler) handlerNotStream(rawLine *[]byte, isFinished *bool, response *[]XunfeiChatResponse) error {
-	xunfeiChatResponse, err := h.handlerData(rawLine, isFinished)
+func (h *xunfeiHandler) handlerNotStream(rawLine *[]byte, dataChan chan XunfeiChatResponse, errChan chan error) {
+	isFinished := false
+	xunfeiChatResponse, err := h.handlerData(rawLine, &isFinished)
 	if err != nil {
-		return err
+		errChan <- err
+		return
 	}
 
 	if *rawLine == nil {
-		return nil
+		return
 	}
 
-	*response = append(*response, *xunfeiChatResponse)
-	return nil
+	dataChan <- *xunfeiChatResponse
+
+	if isFinished {
+		errChan <- io.EOF
+		*rawLine = requester.StreamClosed
+	}
 }
 
-func (h *xunfeiHandler) handlerStream(rawLine *[]byte, isFinished *bool, response *[]types.ChatCompletionStreamResponse) error {
-	xunfeiChatResponse, err := h.handlerData(rawLine, isFinished)
+func (h *xunfeiHandler) handlerStream(rawLine *[]byte, dataChan chan string, errChan chan error) {
+	isFinished := false
+	xunfeiChatResponse, err := h.handlerData(rawLine, &isFinished)
 	if err != nil {
-		return err
+		errChan <- err
+		return
 	}
 
 	if *rawLine == nil {
-		return nil
+		return
 	}
 
-	return h.convertToOpenaiStream(xunfeiChatResponse, response)
+	h.convertToOpenaiStream(xunfeiChatResponse, dataChan, errChan)
+
+	if isFinished {
+		errChan <- io.EOF
+		*rawLine = requester.StreamClosed
+	}
 }
 
-func (h *xunfeiHandler) convertToOpenaiStream(xunfeiChatResponse *XunfeiChatResponse, response *[]types.ChatCompletionStreamResponse) error {
+func (h *xunfeiHandler) convertToOpenaiStream(xunfeiChatResponse *XunfeiChatResponse, dataChan chan string, errChan chan error) {
 	if len(xunfeiChatResponse.Payload.Choices.Text) == 0 {
 		xunfeiChatResponse.Payload.Choices.Text = []XunfeiChatResponseTextItem{{}}
 	}
@@ -293,15 +309,15 @@ func (h *xunfeiHandler) convertToOpenaiStream(xunfeiChatResponse *XunfeiChatResp
 
 	if xunfeiText.FunctionCall == nil {
 		chatCompletion.Choices = []types.ChatCompletionStreamChoice{choice}
-		*response = append(*response, chatCompletion)
+		responseBody, _ := json.Marshal(chatCompletion)
+		dataChan <- string(responseBody)
 	} else {
 		choices := choice.ConvertOpenaiStream()
 		for _, choice := range choices {
 			chatCompletionCopy := chatCompletion
 			chatCompletionCopy.Choices = []types.ChatCompletionStreamChoice{choice}
-			*response = append(*response, chatCompletionCopy)
+			responseBody, _ := json.Marshal(chatCompletionCopy)
+			dataChan <- string(responseBody)
 		}
 	}
-
-	return nil
 }

@@ -4,6 +4,7 @@ import (
 	"math"
 	"net/http"
 	"one-api/common"
+	"one-api/common/requester"
 	providersBase "one-api/providers/base"
 	"one-api/types"
 
@@ -51,14 +52,16 @@ func RelayCompletions(c *gin.Context) {
 	}
 
 	if completionRequest.Stream {
-		response, errWithCode := completionProvider.CreateCompletionStream(&completionRequest)
+		var response requester.StreamReaderInterface[string]
+		response, errWithCode = completionProvider.CreateCompletionStream(&completionRequest)
 		if errWithCode != nil {
 			errorHelper(c, errWithCode)
 			return
 		}
-		errWithCode = responseStreamClient[types.CompletionResponse](c, response)
+		errWithCode = responseStreamClient(c, response)
 	} else {
-		response, errWithCode := completionProvider.CreateCompletion(&completionRequest)
+		var response *types.CompletionResponse
+		response, errWithCode = completionProvider.CreateCompletion(&completionRequest)
 		if errWithCode != nil {
 			errorHelper(c, errWithCode)
 			return

@@ -1,55 +1,41 @@
 package requester
 
 import (
-	"io"
+	"bytes"
 
 	"github.com/gorilla/websocket"
 )
 
 type wsReader[T streamable] struct {
-	isFinished bool
-
 	reader        *websocket.Conn
 	handlerPrefix HandlerPrefix[T]
+
+	DataChan chan T
+	ErrChan  chan error
 }
 
-func (stream *wsReader[T]) Recv() (response *[]T, err error) {
-	if stream.isFinished {
-		err = io.EOF
-		return
-	}
-
-	response, err = stream.processLines()
-	return
+func (stream *wsReader[T]) Recv() (<-chan T, <-chan error) {
+	go stream.processLines()
+	return stream.DataChan, stream.ErrChan
 }
 
-func (stream *wsReader[T]) processLines() (*[]T, error) {
+func (stream *wsReader[T]) processLines() {
 	for {
 		_, msg, err := stream.reader.ReadMessage()
 		if err != nil {
-			return nil, err
+			stream.ErrChan <- err
+			return
 		}
 
-		var response []T
-		err = stream.handlerPrefix(&msg, &stream.isFinished, &response)
+		stream.handlerPrefix(&msg, stream.DataChan, stream.ErrChan)
 
-		if err != nil {
-			return nil, err
-		}
-
-		if stream.isFinished {
-			if len(response) > 0 {
-				return &response, io.EOF
-			}
-			return nil, io.EOF
-		}
-
-		if msg == nil || len(response) == 0 {
+		if msg == nil {
 			continue
 		}
 
-		return &response, nil
-
+		if bytes.Equal(msg, StreamClosed) {
+			return
+		}
 	}
 }
 

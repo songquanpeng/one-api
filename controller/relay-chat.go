@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"fmt"
 	"math"
 	"net/http"
 	"one-api/common"
@@ -53,13 +52,13 @@ func RelayChat(c *gin.Context) {
 	}
 
 	if chatRequest.Stream {
-		var response requester.StreamReaderInterface[types.ChatCompletionStreamResponse]
+		var response requester.StreamReaderInterface[string]
 		response, errWithCode = chatProvider.CreateChatCompletionStream(&chatRequest)
 		if errWithCode != nil {
 			errorHelper(c, errWithCode)
 			return
 		}
-		errWithCode = responseStreamClient[types.ChatCompletionStreamResponse](c, response)
+		errWithCode = responseStreamClient(c, response)
 	} else {
 		var response *types.ChatCompletionResponse
 		response, errWithCode = chatProvider.CreateChatCompletion(&chatRequest)
@@ -69,8 +68,6 @@ func RelayChat(c *gin.Context) {
 		}
 		errWithCode = responseJsonClient(c, response)
 	}
-
-	fmt.Println(usage)
 
 	// 如果报错，则退还配额
 	if errWithCode != nil {

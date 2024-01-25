@@ -2,6 +2,7 @@ package zhipu
 
 import (
 	"encoding/json"
+	"io"
 	"net/http"
 	"one-api/common"
 	"one-api/common/requester"
@@ -31,7 +32,7 @@ func (p *ZhipuProvider) CreateChatCompletion(request *types.ChatCompletionReques
 	return p.convertToChatOpenai(zhipuChatResponse, request)
 }
 
-func (p *ZhipuProvider) CreateChatCompletionStream(request *types.ChatCompletionRequest) (requester.StreamReaderInterface[types.ChatCompletionStreamResponse], *types.OpenAIErrorWithStatusCode) {
+func (p *ZhipuProvider) CreateChatCompletionStream(request *types.ChatCompletionRequest) (requester.StreamReaderInterface[string], *types.OpenAIErrorWithStatusCode) {
 	req, errWithCode := p.getChatRequest(request)
 	if errWithCode != nil {
 		return nil, errWithCode
@@ -49,7 +50,7 @@ func (p *ZhipuProvider) CreateChatCompletionStream(request *types.ChatCompletion
 		Request: request,
 	}
 
-	return requester.RequestStream[types.ChatCompletionStreamResponse](p.Requester, resp, chatHandler.handlerStream)
+	return requester.RequestStream[string](p.Requester, resp, chatHandler.handlerStream)
 }
 
 func (p *ZhipuProvider) getChatRequest(request *types.ChatCompletionRequest) (*http.Request, *types.OpenAIErrorWithStatusCode) {
@@ -140,35 +141,38 @@ func convertFromChatOpenai(request *types.ChatCompletionRequest) *ZhipuRequest {
 }
 
 // 转换为OpenAI聊天流式请求体
-func (h *zhipuStreamHandler) handlerStream(rawLine *[]byte, isFinished *bool, response *[]types.ChatCompletionStreamResponse) error {
+func (h *zhipuStreamHandler) handlerStream(rawLine *[]byte, dataChan chan string, errChan chan error) {
 	// 如果rawLine 前缀不为data: 或者 meta:，则直接返回
 	if !strings.HasPrefix(string(*rawLine), "data: ") {
 		*rawLine = nil
-		return nil
+		return
 	}
 
 	*rawLine = (*rawLine)[6:]
 
 	if strings.HasPrefix(string(*rawLine), "[DONE]") {
-		*isFinished = true
-		return nil
+		errChan <- io.EOF
+		*rawLine = requester.StreamClosed
+		return
 	}
 
 	zhipuResponse := &ZhipuStreamResponse{}
 	err := json.Unmarshal(*rawLine, zhipuResponse)
 	if err != nil {
-		return common.ErrorToOpenAIError(err)
+		errChan <- common.ErrorToOpenAIError(err)
+		return
 	}
 
 	error := errorHandle(&zhipuResponse.Error)
 	if error != nil {
-		return error
+		errChan <- error
+		return
 	}
 
-	return h.convertToOpenaiStream(zhipuResponse, response)
+	h.convertToOpenaiStream(zhipuResponse, dataChan, errChan)
 }
 
-func (h *zhipuStreamHandler) convertToOpenaiStream(zhipuResponse *ZhipuStreamResponse, response *[]types.ChatCompletionStreamResponse) error {
+func (h *zhipuStreamHandler) convertToOpenaiStream(zhipuResponse *ZhipuStreamResponse, dataChan chan string, errChan chan error) {
 	streamResponse := types.ChatCompletionStreamResponse{
 		ID:      zhipuResponse.ID,
 		Object:  "chat.completion.chunk",
@@ -183,16 +187,16 @@ func (h *zhipuStreamHandler) convertToOpenaiStream(zhipuResponse *ZhipuStreamRes
 		for _, choice := range choices {
 			chatCompletionCopy := streamResponse
 			chatCompletionCopy.Choices = []types.ChatCompletionStreamChoice{choice}
-			*response = append(*response, chatCompletionCopy)
+			responseBody, _ := json.Marshal(chatCompletionCopy)
+			dataChan <- string(responseBody)
 		}
 	} else {
 		streamResponse.Choices = []types.ChatCompletionStreamChoice{choice}
-		*response = append(*response, streamResponse)
+		responseBody, _ := json.Marshal(streamResponse)
+		dataChan <- string(responseBody)
 	}
 
 	if zhipuResponse.Usage != nil {
 		*h.Usage = *zhipuResponse.Usage
 	}
-
-	return nil
 }

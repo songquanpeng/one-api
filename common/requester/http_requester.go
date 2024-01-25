@@ -127,11 +127,16 @@ func RequestStream[T streamable](requester *HTTPRequester, resp *http.Response, 
 		return nil, HandleErrorResp(resp, requester.ErrorHandler)
 	}
 
-	return &streamReader[T]{
+	stream := &streamReader[T]{
 		reader:        bufio.NewReader(resp.Body),
 		response:      resp,
 		handlerPrefix: handlerPrefix,
-	}, nil
+
+		DataChan: make(chan T),
+		ErrChan:  make(chan error),
+	}
+
+	return stream, nil
 }
 
 // 设置请求体
