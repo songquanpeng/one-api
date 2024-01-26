@@ -13,7 +13,6 @@ import (
 	providersBase "one-api/providers/base"
 	"one-api/types"
 	"reflect"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
@@ -55,9 +54,9 @@ func GetValidFieldName(err error, obj interface{}) string {
 }
 
 func fetchChannel(c *gin.Context, modelName string) (channel *model.Channel, fail bool) {
-	channelId, ok := c.Get("channelId")
-	if ok {
-		channel, fail = fetchChannelById(c, channelId.(int))
+	channelId := c.GetInt("channelId")
+	if channelId > 0 {
+		channel, fail = fetchChannelById(c, channelId)
 		if fail {
 			return
 		}
@@ -73,13 +72,8 @@ func fetchChannel(c *gin.Context, modelName string) (channel *model.Channel, fai
 	return
 }
 
-func fetchChannelById(c *gin.Context, channelId any) (*model.Channel, bool) {
-	id, err := strconv.Atoi(channelId.(string))
-	if err != nil {
-		common.AbortWithMessage(c, http.StatusBadRequest, "无效的渠道 Id")
-		return nil, true
-	}
-	channel, err := model.GetChannelById(id, true)
+func fetchChannelById(c *gin.Context, channelId int) (*model.Channel, bool) {
+	channel, err := model.GetChannelById(channelId, true)
 	if err != nil {
 		common.AbortWithMessage(c, http.StatusBadRequest, "无效的渠道 Id")
 		return nil, true

@@ -1,12 +1,13 @@
 package middleware
 
 import (
-	"github.com/gin-contrib/sessions"
-	"github.com/gin-gonic/gin"
 	"net/http"
 	"one-api/common"
 	"one-api/model"
 	"strings"
+
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-gonic/gin"
 )
 
 func authHelper(c *gin.Context, minRole int) {
@@ -108,7 +109,12 @@ func TokenAuth() func(c *gin.Context) {
 		c.Set("token_name", token.Name)
 		if len(parts) > 1 {
 			if model.IsAdmin(token.UserId) {
-				c.Set("channelId", parts[1])
+				channelId := common.String2Int(parts[1])
+				if channelId == 0 {
+					abortWithMessage(c, http.StatusForbidden, "无效的渠道 Id")
+					return
+				}
+				c.Set("channelId", channelId)
 			} else {
 				abortWithMessage(c, http.StatusForbidden, "普通用户不支持指定渠道")
 				return
