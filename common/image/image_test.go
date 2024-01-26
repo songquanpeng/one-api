@@ -193,7 +193,7 @@ func TestGetImageFromUrl(t *testing.T) {
 		})
 	}
 
-	url := "https://raw.githubusercontent.com/songquanpeng/one-api/main/README.md"
+	url := "https://raw.githubusercontent.com/MartialBE/one-api/main/README.md"
 	_, _, err := img.GetImageFromUrl(url)
 	assert.Error(t, err)
 	encodedBase64 := "data:image/text;base64,"

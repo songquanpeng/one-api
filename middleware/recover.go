@@ -2,10 +2,11 @@ package middleware
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"net/http"
 	"one-api/common"
 	"runtime/debug"
+
+	"github.com/gin-gonic/gin"
 )
 
 func RelayPanicRecover() gin.HandlerFunc {
@@ -16,7 +17,7 @@ func RelayPanicRecover() gin.HandlerFunc {
 				common.SysError(fmt.Sprintf("stacktrace from panic: %s", string(debug.Stack())))
 				c.JSON(http.StatusInternalServerError, gin.H{
 					"error": gin.H{
-						"message": fmt.Sprintf("Panic detected, error: %v. Please submit a issue here: https://github.com/songquanpeng/one-api", err),
+						"message": fmt.Sprintf("Panic detected, error: %v. Please submit a issue here: https://github.com/MartialBE/one-api", err),
 						"type":    "one_api_panic",
 					},
 				})
