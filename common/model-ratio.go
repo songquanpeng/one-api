@@ -30,7 +30,9 @@ func init() {
 		"gpt-4-32k":                 {30, ChannelTypeOpenAI},
 		"gpt-4-32k-0314":            {30, ChannelTypeOpenAI},
 		"gpt-4-32k-0613":            {30, ChannelTypeOpenAI},
+		"gpt-4-preview":             {5, ChannelTypeOpenAI},    // $0.01 / 1K tokens
 		"gpt-4-1106-preview":        {5, ChannelTypeOpenAI},    // $0.01 / 1K tokens
+		"gpt-4-0125-preview":        {5, ChannelTypeOpenAI},    // $0.01 / 1K tokens
 		"gpt-4-vision-preview":      {5, ChannelTypeOpenAI},    // $0.01 / 1K tokens
 		"gpt-3.5-turbo":             {0.75, ChannelTypeOpenAI}, // $0.0015 / 1K tokens
 		"gpt-3.5-turbo-0301":        {0.75, ChannelTypeOpenAI},
@@ -39,6 +41,7 @@ func init() {
 		"gpt-3.5-turbo-16k-0613":    {1.5, ChannelTypeOpenAI},
 		"gpt-3.5-turbo-instruct":    {0.75, ChannelTypeOpenAI}, // $0.0015 / 1K tokens
 		"gpt-3.5-turbo-1106":        {0.5, ChannelTypeOpenAI},  // $0.001 / 1K tokens
+		"gpt-3.5-turbo-0125":        {0.25, ChannelTypeOpenAI}, // $0.0005 / $0.0015 / 1K tokens
 		"davinci-002":               {1, ChannelTypeOpenAI},    // $0.002 / 1K tokens
 		"babbage-002":               {0.2, ChannelTypeOpenAI},  // $0.002 / 1K tokens
 		"text-ada-001":              {0.2, ChannelTypeOpenAI},
@@ -58,6 +61,8 @@ func init() {
 		"babbage":                   {10, ChannelTypeOpenAI},
 		"ada":                       {10, ChannelTypeOpenAI},
 		"text-embedding-ada-002":    {0.05, ChannelTypeOpenAI},
+		"text-embedding-3-small":    {0.01, ChannelTypeOpenAI},  // 	$0.00002 / 1K tokens
+		"text-embedding-3-large":    {0.065, ChannelTypeOpenAI}, // 	$0.00013 / 1K tokens
 		"text-search-ada-doc-001":   {10, ChannelTypeOpenAI},
 		"text-moderation-stable":    {0.1, ChannelTypeOpenAI},
 		"text-moderation-latest":    {0.1, ChannelTypeOpenAI},
