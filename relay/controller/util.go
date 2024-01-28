@@ -19,6 +19,7 @@ import (
 	"one-api/relay/channel/tencent"
 	"one-api/relay/channel/xunfei"
 	"one-api/relay/channel/zhipu"
+	"one-api/relay/channel/zhipu_v4"
 	"one-api/relay/constant"
 	"one-api/relay/util"
 	"strings"
@@ -79,6 +80,8 @@ func GetRequestURL(requestURL string, apiType int, relayMode int, meta *util.Rel
 			method = "sse-invoke"
 		}
 		fullRequestURL = fmt.Sprintf("https://open.bigmodel.cn/api/paas/v3/model-api/%s/%s", textRequest.Model, method)
+	case constant.APITypeZhipu_v4:
+		fullRequestURL = "https://open.bigmodel.cn/api/paas/v4/chat/completions"
 	case constant.APITypeAli:
 		fullRequestURL = "https://dashscope.aliyuncs.com/api/v1/services/aigc/text-generation/generation"
 		if relayMode == constant.RelayModeEmbeddings {
@@ -142,6 +145,13 @@ func GetRequestBody(c *gin.Context, textRequest openai.GeneralOpenAIRequest, isM
 		requestBody = bytes.NewBuffer(jsonStr)
 	case constant.APITypeZhipu:
 		zhipuRequest := zhipu.ConvertRequest(textRequest)
+		jsonStr, err := json.Marshal(zhipuRequest)
+		if err != nil {
+			return nil, err
+		}
+		requestBody = bytes.NewBuffer(jsonStr)
+	case constant.APITypeZhipu_v4:
+		zhipuRequest := zhipu_v4.ConvertRequest(textRequest)
 		jsonStr, err := json.Marshal(zhipuRequest)
 		if err != nil {
 			return nil, err
@@ -223,6 +233,9 @@ func SetupAuthHeaders(c *gin.Context, req *http.Request, apiType int, meta *util
 	case constant.APITypeZhipu:
 		token := zhipu.GetToken(apiKey)
 		req.Header.Set("Authorization", token)
+	case constant.APITypeZhipu_v4:
+		token := zhipu_v4.GetToken(apiKey)
+		req.Header.Set("Authorization", token)
 	case constant.APITypeAli:
 		req.Header.Set("Authorization", "Bearer "+apiKey)
 		if isStream {
@@ -285,6 +298,12 @@ func DoResponse(c *gin.Context, textRequest *openai.GeneralOpenAIRequest, resp *
 			err, usage = zhipu.StreamHandler(c, resp)
 		} else {
 			err, usage = zhipu.Handler(c, resp)
+		}
+	case constant.APITypeZhipu_v4:
+		if isStream {
+			err, usage = zhipu_v4.StreamHandler(c, resp, textRequest.Model)
+		} else {
+			err, usage = zhipu_v4.Handler(c, resp)
 		}
 	case constant.APITypeAli:
 		if isStream {

@@ -139,6 +139,12 @@ const typeConfig = {
     },
     modelGroup: "google gemini",
   },
+  25: {
+    input: {
+      models: ["glm-4", "glm-3-turbo"],
+    },
+    modelGroup: "zhipu_v4",
+  },
 };
 
 export { defaultConfig, typeConfig };

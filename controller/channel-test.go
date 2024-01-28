@@ -32,6 +32,8 @@ func testChannel(channel *model.Channel, request openai.ChatRequest) (err error,
 		fallthrough
 	case common.ChannelTypeZhipu:
 		fallthrough
+	case common.ChannelTypeZhipu_v4:
+		fallthrough
 	case common.ChannelTypeAli:
 		fallthrough
 	case common.ChannelType360:

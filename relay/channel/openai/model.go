@@ -1,9 +1,11 @@
 package openai
 
 type Message struct {
-	Role    string  `json:"role"`
-	Content any     `json:"content"`
-	Name    *string `json:"name,omitempty"`
+	Role       string  `json:"role"`
+	Content    any     `json:"content"`
+	Name       *string `json:"name,omitempty"`
+	ToolCalls  any     `json:"tool_calls,omitempty"`
+	ToolCallId any     `json:"tool_call_id,omitempty"`
 }
 
 type ImageURL struct {
@@ -109,6 +111,7 @@ type GeneralOpenAIRequest struct {
 	MaxTokens        int             `json:"max_tokens,omitempty"`
 	Temperature      float64         `json:"temperature,omitempty"`
 	TopP             float64         `json:"top_p,omitempty"`
+	Stop             any             `json:"stop,omitempty"`
 	N                int             `json:"n,omitempty"`
 	Input            any             `json:"input,omitempty"`
 	Instruction      string          `json:"instruction,omitempty"`
@@ -267,9 +270,12 @@ type ImageResponse struct {
 
 type ChatCompletionsStreamResponseChoice struct {
 	Delta struct {
-		Content string `json:"content"`
+		Content   string `json:"content"`
+		Role      string `json:"role,omitempty"`
+		ToolCalls any    `json:"tool_calls,omitempty"`
 	} `json:"delta"`
 	FinishReason *string `json:"finish_reason,omitempty"`
+	Index        int     `json:"index,omitempty"`
 }
 
 type ChatCompletionsStreamResponse struct {
