@@ -3,10 +3,12 @@ package util
 import (
 	"github.com/gin-gonic/gin"
 	"one-api/common"
+	"one-api/relay/constant"
 	"strings"
 )
 
 type RelayMeta struct {
+	Mode         int
 	ChannelType  int
 	ChannelId    int
 	TokenId      int
@@ -17,11 +19,13 @@ type RelayMeta struct {
 	BaseURL      string
 	APIVersion   string
 	APIKey       string
+	APIType      int
 	Config       map[string]string
 }
 
 func GetRelayMeta(c *gin.Context) *RelayMeta {
 	meta := RelayMeta{
+		Mode:         constant.Path2RelayMode(c.Request.URL.Path),
 		ChannelType:  c.GetInt("channel"),
 		ChannelId:    c.GetInt("channel_id"),
 		TokenId:      c.GetInt("token_id"),
@@ -40,5 +44,6 @@ func GetRelayMeta(c *gin.Context) *RelayMeta {
 	if meta.BaseURL == "" {
 		meta.BaseURL = common.ChannelBaseURLs[meta.ChannelType]
 	}
+	meta.APIType = constant.ChannelType2APIType(meta.ChannelType)
 	return &meta
 }

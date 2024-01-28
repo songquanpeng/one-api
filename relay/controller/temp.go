@@ -24,9 +24,9 @@ import (
 	"strings"
 )
 
-func GetRequestURL(requestURL string, apiType int, relayMode int, meta *util.RelayMeta, textRequest *openai.GeneralOpenAIRequest) (string, error) {
+func GetRequestURL(requestURL string, meta *util.RelayMeta, textRequest *openai.GeneralOpenAIRequest) (string, error) {
 	fullRequestURL := util.GetFullRequestURL(meta.BaseURL, requestURL, meta.ChannelType)
-	switch apiType {
+	switch meta.APIType {
 	case constant.APITypeOpenAI:
 		if meta.ChannelType == common.ChannelTypeAzure {
 			// https://learn.microsoft.com/en-us/azure/cognitive-services/openai/chatgpt-quickstart?pivots=rest-api&tabs=command-line#rest-api
@@ -81,7 +81,7 @@ func GetRequestURL(requestURL string, apiType int, relayMode int, meta *util.Rel
 		fullRequestURL = fmt.Sprintf("https://open.bigmodel.cn/api/paas/v3/model-api/%s/%s", textRequest.Model, method)
 	case constant.APITypeAli:
 		fullRequestURL = "https://dashscope.aliyuncs.com/api/v1/services/aigc/text-generation/generation"
-		if relayMode == constant.RelayModeEmbeddings {
+		if meta.Mode == constant.RelayModeEmbeddings {
 			fullRequestURL = "https://dashscope.aliyuncs.com/api/v1/services/embeddings/text-embedding/text-embedding"
 		}
 	case constant.APITypeTencent:
@@ -191,8 +191,8 @@ func GetRequestBody(c *gin.Context, textRequest openai.GeneralOpenAIRequest, isM
 	return requestBody, nil
 }
 
-func SetupRequestHeaders(c *gin.Context, req *http.Request, apiType int, meta *util.RelayMeta, isStream bool) {
-	SetupAuthHeaders(c, req, apiType, meta, isStream)
+func SetupRequestHeaders(c *gin.Context, req *http.Request, meta *util.RelayMeta, isStream bool) {
+	SetupAuthHeaders(c, req, meta, isStream)
 	req.Header.Set("Content-Type", c.Request.Header.Get("Content-Type"))
 	req.Header.Set("Accept", c.Request.Header.Get("Accept"))
 	if isStream && c.Request.Header.Get("Accept") == "" {
@@ -200,9 +200,9 @@ func SetupRequestHeaders(c *gin.Context, req *http.Request, apiType int, meta *u
 	}
 }
 
-func SetupAuthHeaders(c *gin.Context, req *http.Request, apiType int, meta *util.RelayMeta, isStream bool) {
+func SetupAuthHeaders(c *gin.Context, req *http.Request, meta *util.RelayMeta, isStream bool) {
 	apiKey := meta.APIKey
-	switch apiType {
+	switch meta.APIType {
 	case constant.APITypeOpenAI:
 		if meta.ChannelType == common.ChannelTypeAzure {
 			req.Header.Set("api-key", apiKey)

@@ -29,7 +29,7 @@ func Relay(c *gin.Context) {
 	case constant.RelayModeAudioTranscription:
 		err = controller.RelayAudioHelper(c, relayMode)
 	default:
-		err = controller.RelayTextHelper(c, relayMode)
+		err = controller.RelayTextHelper(c)
 	}
 	if err != nil {
 		requestId := c.GetString(logger.RequestIdKey)
