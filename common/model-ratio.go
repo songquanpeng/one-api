@@ -78,8 +78,8 @@ var ModelRatio = map[string]float64{
 	"text-embedding-3-small":    0.01,
 	"text-embedding-3-large":    0.065,
 	"text-search-ada-doc-001":   10,
-	"text-moderation-stable":    0.1,
-	"text-moderation-latest":    0.1,
+	"text-moderation-stable":    0,		 // free to use
+	"text-moderation-latest":    0,	     // free to use
 	"dall-e-2":                  8,      // $0.016 - $0.020 / image
 	"dall-e-3":                  20,     // $0.040 - $0.120 / image
 	"claude-instant-1":          0.815,  // $1.63 / 1M tokens
