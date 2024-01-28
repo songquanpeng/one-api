@@ -11,6 +11,7 @@ const OperationSetting = () => {
     QuotaRemindThreshold: 0,
     PreConsumedQuota: 0,
     ModelRatio: '',
+    CompletionRatio: '',
     GroupRatio: '',
     TopUpLink: '',
     ChatLink: '',
@@ -34,8 +35,11 @@ const OperationSetting = () => {
     if (success) {
       let newInputs = {};
       data.forEach((item) => {
-        if (item.key === 'ModelRatio' || item.key === 'GroupRatio') {
+        if (item.key === 'ModelRatio' || item.key === 'GroupRatio' || item.key === 'CompletionRatio') {
           item.value = JSON.stringify(JSON.parse(item.value), null, 2);
+        }
+        if (item.value === '{}') {
+          item.value = '';
         }
         newInputs[item.key] = item.value;
       });
@@ -100,6 +104,13 @@ const OperationSetting = () => {
             return;
           }
           await updateOption('GroupRatio', inputs.GroupRatio);
+        }
+        if (originInputs['CompletionRatio'] !== inputs.CompletionRatio) {
+          if (!verifyJSON(inputs.CompletionRatio)) {
+            showError('补全倍率不是合法的 JSON 字符串');
+            return;
+          }
+          await updateOption('CompletionRatio', inputs.CompletionRatio);
         }
         break;
       case 'quota':
@@ -271,10 +282,10 @@ const OperationSetting = () => {
               onChange={handleInputChange}
             />
             <Form.Checkbox
-                checked={inputs.AutomaticEnableChannelEnabled === 'true'}
-                label='成功时自动启用通道'
-                name='AutomaticEnableChannelEnabled'
-                onChange={handleInputChange}
+              checked={inputs.AutomaticEnableChannelEnabled === 'true'}
+              label='成功时自动启用通道'
+              name='AutomaticEnableChannelEnabled'
+              onChange={handleInputChange}
             />
           </Form.Group>
           <Form.Button onClick={() => {
@@ -342,6 +353,17 @@ const OperationSetting = () => {
               autoComplete='new-password'
               value={inputs.ModelRatio}
               placeholder='为一个 JSON 文本，键为模型名称，值为倍率'
+            />
+          </Form.Group>
+          <Form.Group widths='equal'>
+            <Form.TextArea
+              label='补全倍率'
+              name='CompletionRatio'
+              onChange={handleInputChange}
+              style={{ minHeight: 250, fontFamily: 'JetBrains Mono, Consolas' }}
+              autoComplete='new-password'
+              value={inputs.CompletionRatio}
+              placeholder='为一个 JSON 文本，键为模型名称，值为倍率，此处的倍率设置是模型补全倍率相较于提示倍率的比例，使用该设置可强制覆盖 One API 的内部比例'
             />
           </Form.Group>
           <Form.Group widths='equal'>

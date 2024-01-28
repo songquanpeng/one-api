@@ -46,7 +46,7 @@ var ModelRatio = map[string]float64{
 	"gpt-4-32k-0613":            30,
 	"gpt-4-1106-preview":        5,    // $0.01 / 1K tokens
 	"gpt-4-0125-preview":        5,    // $0.01 / 1K tokens
-	"gpt-4-turbo-preview":        5,    // $0.01 / 1K tokens
+	"gpt-4-turbo-preview":       5,    // $0.01 / 1K tokens
 	"gpt-4-vision-preview":      5,    // $0.01 / 1K tokens
 	"gpt-3.5-turbo":             0.75, // $0.0015 / 1K tokens
 	"gpt-3.5-turbo-0301":        0.75,
@@ -55,7 +55,7 @@ var ModelRatio = map[string]float64{
 	"gpt-3.5-turbo-16k-0613":    1.5,
 	"gpt-3.5-turbo-instruct":    0.75, // $0.0015 / 1K tokens
 	"gpt-3.5-turbo-1106":        0.5,  // $0.001 / 1K tokens
-	"gpt-3.5-turbo-0125":        0.25,  // $0.0005 / 1K tokens
+	"gpt-3.5-turbo-0125":        0.25, // $0.0005 / 1K tokens
 	"davinci-002":               1,    // $0.002 / 1K tokens
 	"babbage-002":               0.2,  // $0.0004 / 1K tokens
 	"text-ada-001":              0.2,
@@ -135,7 +135,25 @@ func GetModelRatio(name string) float64 {
 	return ratio
 }
 
+var CompletionRatio = map[string]float64{}
+
+func CompletionRatio2JSONString() string {
+	jsonBytes, err := json.Marshal(CompletionRatio)
+	if err != nil {
+		logger.SysError("error marshalling completion ratio: " + err.Error())
+	}
+	return string(jsonBytes)
+}
+
+func UpdateCompletionRatioByJSONString(jsonStr string) error {
+	CompletionRatio = make(map[string]float64)
+	return json.Unmarshal([]byte(jsonStr), &CompletionRatio)
+}
+
 func GetCompletionRatio(name string) float64 {
+	if ratio, ok := CompletionRatio[name]; ok {
+		return ratio
+	}
 	if strings.HasPrefix(name, "gpt-3.5") {
 		if strings.HasSuffix(name, "0125") {
 			// https://openai.com/blog/new-embedding-models-and-api-updates

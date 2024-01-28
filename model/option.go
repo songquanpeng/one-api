@@ -66,6 +66,7 @@ func InitOptionMap() {
 	config.OptionMap["PreConsumedQuota"] = strconv.Itoa(config.PreConsumedQuota)
 	config.OptionMap["ModelRatio"] = common.ModelRatio2JSONString()
 	config.OptionMap["GroupRatio"] = common.GroupRatio2JSONString()
+	config.OptionMap["CompletionRatio"] = common.CompletionRatio2JSONString()
 	config.OptionMap["TopUpLink"] = config.TopUpLink
 	config.OptionMap["ChatLink"] = config.ChatLink
 	config.OptionMap["QuotaPerUnit"] = strconv.FormatFloat(config.QuotaPerUnit, 'f', -1, 64)
@@ -198,6 +199,8 @@ func updateOptionMap(key string, value string) (err error) {
 		err = common.UpdateModelRatioByJSONString(value)
 	case "GroupRatio":
 		err = common.UpdateGroupRatioByJSONString(value)
+	case "CompletionRatio":
+		err = common.UpdateCompletionRatioByJSONString(value)
 	case "TopUpLink":
 		config.TopUpLink = value
 	case "ChatLink":
