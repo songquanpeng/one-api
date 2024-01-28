@@ -1,7 +1,7 @@
 package baidu
 
 import (
-	"one-api/relay/channel/openai"
+	"github.com/songquanpeng/one-api/relay/channel/openai"
 	"time"
 )
 

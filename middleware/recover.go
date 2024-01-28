@@ -3,8 +3,8 @@ package middleware
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/songquanpeng/one-api/common/logger"
 	"net/http"
-	"one-api/common/logger"
 	"runtime/debug"
 )
 

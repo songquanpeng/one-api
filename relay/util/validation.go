@@ -2,9 +2,9 @@ package util
 
 import (
 	"errors"
+	"github.com/songquanpeng/one-api/relay/channel/openai"
+	"github.com/songquanpeng/one-api/relay/constant"
 	"math"
-	"one-api/relay/channel/openai"
-	"one-api/relay/constant"
 )
 
 func ValidateTextRequest(textRequest *openai.GeneralOpenAIRequest, relayMode int) error {

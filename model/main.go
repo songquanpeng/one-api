@@ -2,14 +2,14 @@ package model
 
 import (
 	"fmt"
+	"github.com/songquanpeng/one-api/common"
+	"github.com/songquanpeng/one-api/common/config"
+	"github.com/songquanpeng/one-api/common/helper"
+	"github.com/songquanpeng/one-api/common/logger"
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
-	"one-api/common"
-	"one-api/common/config"
-	"one-api/common/helper"
-	"one-api/common/logger"
 	"os"
 	"strings"
 	"time"

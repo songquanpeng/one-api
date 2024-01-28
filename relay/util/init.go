@@ -1,8 +1,8 @@
 package util
 
 import (
+	"github.com/songquanpeng/one-api/common/config"
 	"net/http"
-	"one-api/common/config"
 	"time"
 )
 

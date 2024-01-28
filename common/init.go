@@ -3,9 +3,9 @@ package common
 import (
 	"flag"
 	"fmt"
+	"github.com/songquanpeng/one-api/common/config"
+	"github.com/songquanpeng/one-api/common/logger"
 	"log"
-	"one-api/common/config"
-	"one-api/common/logger"
 	"os"
 	"path/filepath"
 )

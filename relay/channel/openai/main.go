@@ -5,11 +5,11 @@ import (
 	"bytes"
 	"encoding/json"
 	"github.com/gin-gonic/gin"
+	"github.com/songquanpeng/one-api/common"
+	"github.com/songquanpeng/one-api/common/logger"
+	"github.com/songquanpeng/one-api/relay/constant"
 	"io"
 	"net/http"
-	"one-api/common"
-	"one-api/common/logger"
-	"one-api/relay/constant"
 	"strings"
 )
 

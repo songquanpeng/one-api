@@ -2,8 +2,8 @@ package ali
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/songquanpeng/one-api/relay/channel/openai"
 	"net/http"
-	"one-api/relay/channel/openai"
 )
 
 type Adaptor struct {

@@ -4,11 +4,11 @@ import (
 	"errors"
 	"fmt"
 	"github.com/pkoukk/tiktoken-go"
+	"github.com/songquanpeng/one-api/common"
+	"github.com/songquanpeng/one-api/common/config"
+	"github.com/songquanpeng/one-api/common/image"
+	"github.com/songquanpeng/one-api/common/logger"
 	"math"
-	"one-api/common"
-	"one-api/common/config"
-	"one-api/common/image"
-	"one-api/common/logger"
 	"strings"
 )
 

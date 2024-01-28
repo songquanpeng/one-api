@@ -3,14 +3,14 @@ package controller
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/songquanpeng/one-api/common/config"
+	"github.com/songquanpeng/one-api/common/helper"
+	"github.com/songquanpeng/one-api/common/logger"
+	"github.com/songquanpeng/one-api/relay/channel/openai"
+	"github.com/songquanpeng/one-api/relay/constant"
+	"github.com/songquanpeng/one-api/relay/controller"
+	"github.com/songquanpeng/one-api/relay/util"
 	"net/http"
-	"one-api/common/config"
-	"one-api/common/helper"
-	"one-api/common/logger"
-	"one-api/relay/channel/openai"
-	"one-api/relay/constant"
-	"one-api/relay/controller"
-	"one-api/relay/util"
 	"strconv"
 )
 

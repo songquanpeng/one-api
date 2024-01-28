@@ -2,9 +2,9 @@ package controller
 
 import (
 	"github.com/gin-gonic/gin"
-	"one-api/common/config"
-	"one-api/model"
-	"one-api/relay/channel/openai"
+	"github.com/songquanpeng/one-api/common/config"
+	"github.com/songquanpeng/one-api/model"
+	"github.com/songquanpeng/one-api/relay/channel/openai"
 )
 
 func GetSubscription(c *gin.Context) {

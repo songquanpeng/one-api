@@ -2,10 +2,10 @@ package controller
 
 import (
 	"encoding/json"
+	"github.com/songquanpeng/one-api/common/config"
+	"github.com/songquanpeng/one-api/common/helper"
+	"github.com/songquanpeng/one-api/model"
 	"net/http"
-	"one-api/common/config"
-	"one-api/common/helper"
-	"one-api/model"
 	"strings"
 
 	"github.com/gin-gonic/gin"

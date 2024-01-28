@@ -1,7 +1,7 @@
 package tencent
 
 import (
-	"one-api/relay/channel/openai"
+	"github.com/songquanpeng/one-api/relay/channel/openai"
 )
 
 type Message struct {

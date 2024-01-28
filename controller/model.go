@@ -3,7 +3,7 @@ package controller
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"one-api/relay/channel/openai"
+	"github.com/songquanpeng/one-api/relay/channel/openai"
 )
 
 // https://platform.openai.com/docs/api-reference/models/list

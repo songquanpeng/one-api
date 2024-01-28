@@ -3,11 +3,11 @@ package model
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/songquanpeng/one-api/common"
+	"github.com/songquanpeng/one-api/common/config"
+	"github.com/songquanpeng/one-api/common/helper"
+	"github.com/songquanpeng/one-api/common/logger"
 	"gorm.io/gorm"
-	"one-api/common"
-	"one-api/common/config"
-	"one-api/common/helper"
-	"one-api/common/logger"
 )
 
 type Channel struct {

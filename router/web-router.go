@@ -6,11 +6,11 @@ import (
 	"github.com/gin-contrib/gzip"
 	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
+	"github.com/songquanpeng/one-api/common"
+	"github.com/songquanpeng/one-api/common/config"
+	"github.com/songquanpeng/one-api/controller"
+	"github.com/songquanpeng/one-api/middleware"
 	"net/http"
-	"one-api/common"
-	"one-api/common/config"
-	"one-api/controller"
-	"one-api/middleware"
 	"strings"
 )
 

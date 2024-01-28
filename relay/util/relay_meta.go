@@ -2,8 +2,8 @@ package util
 
 import (
 	"github.com/gin-gonic/gin"
-	"one-api/common"
-	"one-api/relay/constant"
+	"github.com/songquanpeng/one-api/common"
+	"github.com/songquanpeng/one-api/relay/constant"
 	"strings"
 )
 

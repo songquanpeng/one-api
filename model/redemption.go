@@ -3,9 +3,9 @@ package model
 import (
 	"errors"
 	"fmt"
+	"github.com/songquanpeng/one-api/common"
+	"github.com/songquanpeng/one-api/common/helper"
 	"gorm.io/gorm"
-	"one-api/common"
-	"one-api/common/helper"
 )
 
 type Redemption struct {

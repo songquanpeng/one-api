@@ -5,16 +5,16 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/songquanpeng/one-api/common"
+	"github.com/songquanpeng/one-api/common/config"
+	"github.com/songquanpeng/one-api/common/logger"
+	"github.com/songquanpeng/one-api/model"
+	"github.com/songquanpeng/one-api/relay/channel/openai"
+	"github.com/songquanpeng/one-api/relay/constant"
+	"github.com/songquanpeng/one-api/relay/util"
 	"io"
 	"math"
 	"net/http"
-	"one-api/common"
-	"one-api/common/config"
-	"one-api/common/logger"
-	"one-api/model"
-	"one-api/relay/channel/openai"
-	"one-api/relay/constant"
-	"one-api/relay/util"
 )
 
 func getAndValidateTextRequest(c *gin.Context, relayMode int) (*openai.GeneralOpenAIRequest, error) {

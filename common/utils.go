@@ -2,7 +2,7 @@ package common
 
 import (
 	"fmt"
-	"one-api/common/config"
+	"github.com/songquanpeng/one-api/common/config"
 )
 
 func LogQuota(quota int) string {
