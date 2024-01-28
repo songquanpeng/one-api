@@ -134,12 +134,12 @@ The initial account username is `root` and password is `123456`.
    git clone https://github.com/songquanpeng/one-api.git
    
    # Build the frontend
-   cd one-api/web
+   cd one-api/web/default
    npm install
    npm run build
    
    # Build the backend
-   cd ..
+   cd ../..
    go mod download
    go build -ldflags "-s -w" -o one-api
    ```
