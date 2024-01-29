@@ -8,6 +8,7 @@ import (
 	"one-api/common/requester"
 	"one-api/types"
 	"strings"
+	"time"
 )
 
 type zhipuStreamHandler struct {
@@ -194,6 +195,7 @@ func (h *zhipuStreamHandler) convertToOpenaiStream(zhipuResponse *ZhipuStreamRes
 		streamResponse.Choices = []types.ChatCompletionStreamChoice{choice}
 		responseBody, _ := json.Marshal(streamResponse)
 		dataChan <- string(responseBody)
+		time.Sleep(20 * time.Millisecond)
 	}
 
 	if zhipuResponse.Usage != nil {
