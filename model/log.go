@@ -24,15 +24,6 @@ type Log struct {
 	RequestTime      int    `json:"request_time" gorm:"default:0"`
 }
 
-type LogStatistic struct {
-	Day              string `gorm:"column:day"`
-	ModelName        string `gorm:"column:model_name"`
-	RequestCount     int    `gorm:"column:request_count"`
-	Quota            int    `gorm:"column:quota"`
-	PromptTokens     int    `gorm:"column:prompt_tokens"`
-	CompletionTokens int    `gorm:"column:completion_tokens"`
-}
-
 const (
 	LogTypeUnknown = iota
 	LogTypeTopup
@@ -195,16 +186,22 @@ func DeleteOldLog(targetTimestamp int64) (int64, error) {
 	return result.RowsAffected, result.Error
 }
 
-func SearchLogsByDayAndModel(user_id, start, end int) (LogStatistics []*LogStatistic, err error) {
-	groupSelect := "DATE_FORMAT(FROM_UNIXTIME(created_at), '%Y-%m-%d') as day"
+type LogStatistic struct {
+	Date             string `gorm:"column:date"`
+	RequestCount     int64  `gorm:"column:request_count"`
+	Quota            int64  `gorm:"column:quota"`
+	PromptTokens     int64  `gorm:"column:prompt_tokens"`
+	CompletionTokens int64  `gorm:"column:completion_tokens"`
+	RequestTime      int64  `gorm:"column:request_time"`
+}
 
-	if common.UsingPostgreSQL {
-		groupSelect = "TO_CHAR(date_trunc('day', to_timestamp(created_at)), 'YYYY-MM-DD') as day"
-	}
+type LogStatisticGroupModel struct {
+	LogStatistic
+	ModelName string `gorm:"column:model_name"`
+}
 
-	if common.UsingSQLite {
-		groupSelect = "strftime('%Y-%m-%d', datetime(created_at, 'unixepoch')) as day"
-	}
+func GetUserModelExpensesByPeriod(user_id, startTimestamp, endTimestamp int) (LogStatistic []*LogStatisticGroupModel, err error) {
+	groupSelect := getTimestampGroupsSelect("created_at", "day", "date")
 
 	err = DB.Raw(`
 		SELECT `+groupSelect+`,
@@ -216,11 +213,36 @@ func SearchLogsByDayAndModel(user_id, start, end int) (LogStatistics []*LogStati
 		WHERE type=2
 		AND user_id= ?
 		AND created_at BETWEEN ? AND ?
-		GROUP BY day, model_name
-		ORDER BY day, model_name
-	`, user_id, start, end).Scan(&LogStatistics).Error
+		GROUP BY date, model_name
+		ORDER BY date, model_name
+	`, user_id, startTimestamp, endTimestamp).Scan(&LogStatistic).Error
 
-	fmt.Println(user_id, start, end)
+	return
+}
+
+type LogStatisticGroupChannel struct {
+	LogStatistic
+	Channel string `gorm:"column:channel"`
+}
+
+func GetChannelExpensesByPeriod(startTimestamp, endTimestamp int64) (LogStatistics []*LogStatisticGroupChannel, err error) {
+	groupSelect := getTimestampGroupsSelect("created_at", "day", "date")
+
+	err = DB.Raw(`
+		SELECT `+groupSelect+`,
+		count(1) as request_count,
+		sum(quota) as quota,
+		sum(prompt_tokens) as prompt_tokens,
+		sum(completion_tokens) as completion_tokens,
+		sum(request_time) as request_time,
+		channels.name as channel
+		FROM logs
+		JOIN channels ON logs.channel_id = channels.id
+		WHERE logs.type=2
+		AND logs.created_at BETWEEN ? AND ?
+		GROUP BY date, channels.name
+		ORDER BY date, channels.name
+	`, startTimestamp, endTimestamp).Scan(&LogStatistics).Error
 
 	return LogStatistics, err
 }

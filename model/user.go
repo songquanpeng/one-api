@@ -29,6 +29,7 @@ type User struct {
 	Group            string `json:"group" gorm:"type:varchar(32);default:'default'"`
 	AffCode          string `json:"aff_code" gorm:"type:varchar(32);column:aff_code;uniqueIndex"`
 	InviterId        int    `json:"inviter_id" gorm:"type:int;column:inviter_id;index"`
+	CreatedTime      int64  `json:"created_time" gorm:"bigint"`
 }
 
 func GetMaxUserId() int {
@@ -90,6 +91,7 @@ func (user *User) Insert(inviterId int) error {
 	user.Quota = common.QuotaForNewUser
 	user.AccessToken = common.GetUUID()
 	user.AffCode = common.GetRandomString(4)
+	user.CreatedTime = common.GetTimestamp()
 	result := DB.Create(user)
 	if result.Error != nil {
 		return result.Error
@@ -364,4 +366,38 @@ func updateUserRequestCount(id int, count int) {
 func GetUsernameById(id int) (username string) {
 	DB.Model(&User{}).Where("id = ?", id).Select("username").Find(&username)
 	return username
+}
+
+type StatisticsUser struct {
+	TotalQuota       int64 `json:"total_quota"`
+	TotalUsedQuota   int64 `json:"total_used_quota"`
+	TotalUser        int64 `json:"total_user"`
+	TotalInviterUser int64 `json:"total_inviter_user"`
+}
+
+func GetStatisticsUser() (statisticsUser *StatisticsUser, err error) {
+	err = DB.Model(&User{}).Select("sum(quota) as total_quota, sum(used_quota) as total_used_quota, count(*) as total_user, count(CASE WHEN inviter_id != 0 THEN 1 END) as total_inviter_user").Scan(&statisticsUser).Error
+	return statisticsUser, err
+}
+
+type UserStatisticsByPeriod struct {
+	Date             string `json:"date"`
+	UserCount        int64  `json:"user_count"`
+	InviterUserCount int64  `json:"inviter_user_count"`
+}
+
+func GetUserStatisticsByPeriod(startTimestamp, endTimestamp int64) (statistics []*UserStatisticsByPeriod, err error) {
+	groupSelect := getTimestampGroupsSelect("created_time", "day", "date")
+
+	err = DB.Raw(`
+		SELECT `+groupSelect+`,
+		count(*) as user_count,
+		count(CASE WHEN inviter_id != 0 THEN 1 END) as inviter_user_count
+		FROM users
+		WHERE created_time BETWEEN ? AND ?
+		GROUP BY date
+		ORDER BY date
+	`, startTimestamp, endTimestamp).Scan(&statistics).Error
+
+	return statistics, err
 }

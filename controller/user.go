@@ -253,7 +253,7 @@ func GetUserDashboard(c *gin.Context) {
 	endOfDay := toDay.Add(time.Hour * 24).Add(-time.Second).Unix()
 	startOfDay := toDay.AddDate(0, 0, -7).Unix()
 
-	dashboards, err := model.SearchLogsByDayAndModel(id, int(startOfDay), int(endOfDay))
+	dashboards, err := model.GetUserModelExpensesByPeriod(id, int(startOfDay), int(endOfDay))
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,

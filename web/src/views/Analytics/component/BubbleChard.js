@@ -14,7 +14,7 @@ import { Box } from '@mui/material';
 
 // ==============================|| DASHBOARD DEFAULT - TOTAL GROWTH BAR CHART ||============================== //
 
-const StatisticalBarChart = ({ isLoading, chartDatas }) => {
+const BubbleChard = ({ isLoading, chartDatas, title = '统计' }) => {
   chartData.options.xaxis.categories = chartDatas.xaxis;
   chartData.series = chartDatas.data;
 
@@ -28,7 +28,7 @@ const StatisticalBarChart = ({ isLoading, chartDatas }) => {
             <Grid item xs={12}>
               <Grid container alignItems="center" justifyContent="space-between">
                 <Grid item>
-                  <Typography variant="h3">统计</Typography>
+                  <Typography variant="h3">{title}</Typography>
                 </Grid>
               </Grid>
             </Grid>
@@ -57,16 +57,17 @@ const StatisticalBarChart = ({ isLoading, chartDatas }) => {
   );
 };
 
-StatisticalBarChart.propTypes = {
+BubbleChard.propTypes = {
   isLoading: PropTypes.bool,
-  chartDatas: PropTypes.oneOfType([PropTypes.array, PropTypes.object])
+  chartDatas: PropTypes.oneOfType([PropTypes.array, PropTypes.object]),
+  title: PropTypes.string
 };
 
-export default StatisticalBarChart;
+export default BubbleChard;
 
 const chartData = {
   height: 480,
-  type: 'bar',
+  type: 'bubble',
   options: {
     colors: [
       '#008FFB',
@@ -92,7 +93,7 @@ const chartData = {
       '#e84393'
     ],
     chart: {
-      id: 'bar-chart',
+      id: 'bubble',
       stacked: true,
       toolbar: {
         show: true
@@ -155,11 +156,6 @@ const chartData = {
       theme: 'dark',
       fixed: {
         enabled: false
-      },
-      y: {
-        formatter: function (val) {
-          return '$' + val;
-        }
       },
       marker: {
         show: false

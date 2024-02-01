@@ -182,3 +182,13 @@ func DeleteDisabledChannel() (int64, error) {
 	result := DB.Where("status = ? or status = ?", common.ChannelStatusAutoDisabled, common.ChannelStatusManuallyDisabled).Delete(&Channel{})
 	return result.RowsAffected, result.Error
 }
+
+type ChannelStatistics struct {
+	TotalChannels int `json:"total_channels"`
+	Status        int `json:"status"`
+}
+
+func GetStatisticsChannel() (statistics []*ChannelStatistics, err error) {
+	err = DB.Table("channels").Select("count(*) as total_channels, status").Group("status").Scan(&statistics).Error
+	return statistics, err
+}

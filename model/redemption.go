@@ -115,3 +115,37 @@ func DeleteRedemptionById(id int) (err error) {
 	}
 	return redemption.Delete()
 }
+
+type RedemptionStatistics struct {
+	Count  int64 `json:"count"`
+	Quota  int64 `json:"quota"`
+	Status int   `json:"status"`
+}
+
+func GetStatisticsRedemption() (redemptionStatistics []*RedemptionStatistics, err error) {
+	err = DB.Model(&Redemption{}).Select("status", "count(*) as count", "sum(quota) as quota").Where("status != ?", 2).Group("status").Scan(&redemptionStatistics).Error
+	return redemptionStatistics, err
+}
+
+type RedemptionStatisticsGroup struct {
+	Date      string `json:"date"`
+	Quota     int64  `json:"quota"`
+	UserCount int64  `json:"user_count"`
+}
+
+func GetStatisticsRedemptionByPeriod(startTimestamp, endTimestamp int64) (redemptionStatistics []*RedemptionStatisticsGroup, err error) {
+	groupSelect := getTimestampGroupsSelect("redeemed_time", "day", "date")
+
+	err = DB.Raw(`
+		SELECT `+groupSelect+`,
+		sum(quota) as quota,
+		count(distinct user_id) as user_count
+		FROM redemptions
+		WHERE status=3
+		AND redeemed_time BETWEEN ? AND ?
+		GROUP BY date
+		ORDER BY date
+	`, startTimestamp, endTimestamp).Scan(&redemptionStatistics).Error
+
+	return redemptionStatistics, err
+}
