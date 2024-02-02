@@ -108,6 +108,8 @@ func init() {
 		"abab5.5-chat":              {1.0714, ChannelTypeMiniMax},  // ¥0.015 / 1k tokens
 		"abab6-chat":                {14.2857, ChannelTypeMiniMax}, // ¥0.2 / 1k tokens
 		"embo-01":                   {0.0357, ChannelTypeMiniMax},  // ¥0.0005 / 1k tokens
+		"deepseek-coder":            {0.75, ChannelTypeDeepseek},   // 暂定 $0.0015 / 1K tokens
+		"deepseek-chat":             {0.75, ChannelTypeDeepseek},   // 暂定 $0.0015 / 1K tokens
 	}
 
 	ModelRatio = make(map[string]float64)

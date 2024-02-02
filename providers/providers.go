@@ -15,6 +15,7 @@ import (
 	"one-api/providers/base"
 	"one-api/providers/claude"
 	"one-api/providers/closeai"
+	"one-api/providers/deepseek"
 	"one-api/providers/gemini"
 	"one-api/providers/minimax"
 	"one-api/providers/openai"
@@ -56,6 +57,7 @@ func init() {
 	providerFactories[common.ChannelTypeGemini] = gemini.GeminiProviderFactory{}
 	providerFactories[common.ChannelTypeBaichuan] = baichuan.BaichuanProviderFactory{}
 	providerFactories[common.ChannelTypeMiniMax] = minimax.MiniMaxProviderFactory{}
+	providerFactories[common.ChannelTypeDeepseek] = deepseek.DeepseekProviderFactory{}
 
 }
 

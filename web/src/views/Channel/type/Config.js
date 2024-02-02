@@ -175,6 +175,12 @@ const typeConfig = {
     prompt: {
       key: '按照如下格式输入：APISecret|groupID'
     }
+  },
+  28: {
+    input: {
+      models: ['deepseek-coder', 'deepseek-chat'],
+      test_model: 'deepseek-chat'
+    }
   }
 };
 

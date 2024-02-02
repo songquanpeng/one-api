@@ -191,6 +191,7 @@ const (
 	ChannelTypeGemini         = 25
 	ChannelTypeBaichuan       = 26
 	ChannelTypeMiniMax        = 27
+	ChannelTypeDeepseek       = 28
 )
 
 var ChannelBaseURLs = []string{
@@ -222,6 +223,7 @@ var ChannelBaseURLs = []string{
 	"",                                  //25
 	"https://api.baichuan-ai.com",       //26
 	"https://api.minimax.chat/v1",       //27
+	"https://api.deepseek.com",          //28
 }
 
 const (
