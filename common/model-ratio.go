@@ -84,8 +84,8 @@ func init() {
 		"chatglm_std":               {0.3572, ChannelTypeZhipu},    // ￥0.005 / 1k tokens
 		"chatglm_lite":              {0.1429, ChannelTypeZhipu},    // ￥0.002 / 1k tokens
 		"glm-3-turbo":               {0.3572, ChannelTypeZhipu},    // ￥0.005 / 1k tokens
-		"glm-4":                     {7.143, ChannelTypeZhipu},    // ￥0.1 / 1k tokens
-		"glm-4v":                    {7.143, ChannelTypeZhipu},    // ￥0.1 / 1k tokens
+		"glm-4":                     {7.143, ChannelTypeZhipu},     // ￥0.1 / 1k tokens
+		"glm-4v":                    {7.143, ChannelTypeZhipu},     // ￥0.1 / 1k tokens
 		"embedding-2":               {0.0357, ChannelTypeZhipu},    // ￥0.0005 / 1k tokens
 		"cogview-3":                 {17.8571, ChannelTypeZhipu},   // ￥0.25 / 1张图片
 		"qwen-turbo":                {0.5715, ChannelTypeAli},      // ￥0.008 / 1k tokens  // https://help.aliyun.com/zh/dashscope/developer-reference/tongyi-thousand-questions-metering-and-billing
@@ -110,6 +110,9 @@ func init() {
 		"embo-01":                   {0.0357, ChannelTypeMiniMax},  // ¥0.0005 / 1k tokens
 		"deepseek-coder":            {0.75, ChannelTypeDeepseek},   // 暂定 $0.0015 / 1K tokens
 		"deepseek-chat":             {0.75, ChannelTypeDeepseek},   // 暂定 $0.0015 / 1K tokens
+		"moonshot-v1-8k":            {0.8572, ChannelTypeMoonshot}, // ¥0.012 / 1K tokens
+		"moonshot-v1-32k":           {1.7143, ChannelTypeMoonshot}, // ¥0.024 / 1K tokens
+		"moonshot-v1-128k":          {4.2857, ChannelTypeMoonshot}, // ¥0.06 / 1K tokens
 	}
 
 	ModelRatio = make(map[string]float64)

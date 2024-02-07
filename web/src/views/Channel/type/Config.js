@@ -181,6 +181,12 @@ const typeConfig = {
       models: ['deepseek-coder', 'deepseek-chat'],
       test_model: 'deepseek-chat'
     }
+  },
+  29: {
+    input: {
+      models: ['moonshot-v1-8k', 'moonshot-v1-16k', 'moonshot-v1-128k'],
+      test_model: 'moonshot-v1-8k'
+    }
   }
 };
 

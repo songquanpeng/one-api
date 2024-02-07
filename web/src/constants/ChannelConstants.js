@@ -83,6 +83,12 @@ export const CHANNEL_OPTIONS = {
     value: 28,
     color: 'default'
   },
+  29: {
+    key: 29,
+    text: 'Moonshot',
+    value: 29,
+    color: 'default'
+  },
   24: {
     key: 24,
     text: 'Azure Speech',
