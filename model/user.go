@@ -38,15 +38,22 @@ func GetMaxUserId() int {
 	return user.Id
 }
 
-func GetAllUsers(startIdx int, num int) (users []*User, err error) {
-	err = DB.Order("id desc").Limit(num).Offset(startIdx).Omit("password").Find(&users).Error
-	return users, err
+var allowedUserOrderFields = map[string]bool{
+	"id":           true,
+	"username":     true,
+	"role":         true,
+	"status":       true,
+	"created_time": true,
 }
 
-func SearchUsers(keyword string) (users []*User, err error) {
-	err = DB.Omit("password").Where("id = ? or username LIKE ? or email LIKE ? or display_name LIKE ?", common.String2Int(keyword), keyword+"%", keyword+"%", keyword+"%").Find(&users).Error
+func GetUsersList(params *GenericParams) (*DataResult, error) {
+	var users []*User
+	db := DB.Omit("password")
+	if params.Keyword != "" {
+		db = db.Where("id = ? or username LIKE ? or email LIKE ? or display_name LIKE ?", common.String2Int(params.Keyword), params.Keyword+"%", params.Keyword+"%", params.Keyword+"%")
+	}
 
-	return users, err
+	return PaginateAndOrder(db, &params.PaginationParams, &users, allowedUserOrderFields)
 }
 
 func GetUserById(id int, selectAll bool) (*User, error) {

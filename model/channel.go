@@ -29,23 +29,35 @@ type Channel struct {
 	TestModel          string  `json:"test_model" gorm:"type:varchar(50);default:''"`
 }
 
-func GetAllChannels(startIdx int, num int, selectAll bool) ([]*Channel, error) {
-	var channels []*Channel
-	var err error
-	if selectAll {
-		err = DB.Order("id desc").Find(&channels).Error
-	} else {
-		err = DB.Order("id desc").Limit(num).Offset(startIdx).Omit("key").Find(&channels).Error
-	}
-	return channels, err
+var allowedChannelOrderFields = map[string]bool{
+	"id":            true,
+	"name":          true,
+	"group":         true,
+	"type":          true,
+	"status":        true,
+	"response_time": true,
+	"balance":       true,
+	"priority":      true,
 }
 
-func SearchChannels(keyword string) (channels []*Channel, err error) {
-	keyCol := "`key`"
-	if common.UsingPostgreSQL {
-		keyCol = `"key"`
+func GetChannelsList(params *GenericParams) (*DataResult, error) {
+	var channels []*Channel
+
+	db := DB.Omit("key")
+	if params.Keyword != "" {
+		keyCol := "`key`"
+		if common.UsingPostgreSQL {
+			keyCol = `"key"`
+		}
+		db = db.Where("id = ? or name LIKE ? or "+keyCol+" = ?", common.String2Int(params.Keyword), params.Keyword+"%", params.Keyword)
 	}
-	err = DB.Omit("key").Where("id = ? or name LIKE ? or "+keyCol+" = ?", common.String2Int(keyword), keyword+"%", keyword).Find(&channels).Error
+
+	return PaginateAndOrder(db, &params.PaginationParams, &channels, allowedChannelOrderFields)
+}
+
+func GetAllChannels() ([]*Channel, error) {
+	var channels []*Channel
+	err := DB.Order("id desc").Find(&channels).Error
 	return channels, err
 }
 

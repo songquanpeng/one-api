@@ -20,16 +20,23 @@ type Redemption struct {
 	Count        int    `json:"count" gorm:"-:all"` // only for api request
 }
 
-func GetAllRedemptions(startIdx int, num int) ([]*Redemption, error) {
-	var redemptions []*Redemption
-	var err error
-	err = DB.Order("id desc").Limit(num).Offset(startIdx).Find(&redemptions).Error
-	return redemptions, err
+var allowedRedemptionslOrderFields = map[string]bool{
+	"id":            true,
+	"name":          true,
+	"status":        true,
+	"quota":         true,
+	"created_time":  true,
+	"redeemed_time": true,
 }
 
-func SearchRedemptions(keyword string) (redemptions []*Redemption, err error) {
-	err = DB.Where("id = ? or name LIKE ?", common.String2Int(keyword), keyword+"%").Find(&redemptions).Error
-	return redemptions, err
+func GetRedemptionsList(params *GenericParams) (*DataResult, error) {
+	var redemptions []*Redemption
+	db := DB
+	if params.Keyword != "" {
+		db = db.Where("id = ? or name LIKE ?", common.String2Int(params.Keyword), params.Keyword+"%")
+	}
+
+	return PaginateAndOrder(db, &params.PaginationParams, &redemptions, allowedRedemptionslOrderFields)
 }
 
 func GetRedemptionById(id int) (*Redemption, error) {

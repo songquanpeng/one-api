@@ -9,7 +9,7 @@ import { IconSearch } from '@tabler/icons-react';
 
 // ----------------------------------------------------------------------
 
-export default function TableToolBar({ filterName, handleFilterName, placeholder }) {
+export default function TableToolBar({ placeholder }) {
   const theme = useTheme();
   const grey500 = theme.palette.grey[500];
 
@@ -24,11 +24,10 @@ export default function TableToolBar({ filterName, handleFilterName, placeholder
     >
       <OutlinedInput
         id="keyword"
+        name="keyword"
         sx={{
           minWidth: '100%'
         }}
-        value={filterName}
-        onChange={handleFilterName}
         placeholder={placeholder}
         startAdornment={
           <InputAdornment position="start">

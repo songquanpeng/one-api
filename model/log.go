@@ -74,56 +74,79 @@ func RecordConsumeLog(ctx context.Context, userId int, channelId int, promptToke
 	}
 }
 
-func GetAllLogs(logType int, startTimestamp int64, endTimestamp int64, modelName string, username string, tokenName string, startIdx int, num int, channel int) (logs []*Log, err error) {
-	var tx *gorm.DB
-	if logType == LogTypeUnknown {
-		tx = DB
-	} else {
-		tx = DB.Where("type = ?", logType)
-	}
-	if modelName != "" {
-		tx = tx.Where("model_name = ?", modelName)
-	}
-	if username != "" {
-		tx = tx.Where("username = ?", username)
-	}
-	if tokenName != "" {
-		tx = tx.Where("token_name = ?", tokenName)
-	}
-	if startTimestamp != 0 {
-		tx = tx.Where("created_at >= ?", startTimestamp)
-	}
-	if endTimestamp != 0 {
-		tx = tx.Where("created_at <= ?", endTimestamp)
-	}
-	if channel != 0 {
-		tx = tx.Where("channel_id = ?", channel)
-	}
-	err = tx.Order("id desc").Limit(num).Offset(startIdx).Find(&logs).Error
-	return logs, err
+type LogsListParams struct {
+	PaginationParams
+	LogType        int    `form:"log_type"`
+	StartTimestamp int64  `form:"start_timestamp"`
+	EndTimestamp   int64  `form:"end_timestamp"`
+	ModelName      string `form:"model_name"`
+	Username       string `form:"username"`
+	TokenName      string `form:"token_name"`
+	Channel        int    `form:"channel"`
 }
 
-func GetUserLogs(userId int, logType int, startTimestamp int64, endTimestamp int64, modelName string, tokenName string, startIdx int, num int) (logs []*Log, err error) {
+var allowedLogsOrderFields = map[string]bool{
+	"created_at": true,
+	"channel_id": true,
+	"user_id":    true,
+	"token_name": true,
+	"model_name": true,
+	"type":       true,
+}
+
+func GetLogsList(params *LogsListParams) (*DataResult, error) {
 	var tx *gorm.DB
-	if logType == LogTypeUnknown {
-		tx = DB.Where("user_id = ?", userId)
+	var logs []*Log
+
+	if params.LogType == LogTypeUnknown {
+		tx = DB
 	} else {
-		tx = DB.Where("user_id = ? and type = ?", userId, logType)
+		tx = DB.Where("type = ?", params.LogType)
 	}
-	if modelName != "" {
-		tx = tx.Where("model_name = ?", modelName)
+	if params.ModelName != "" {
+		tx = tx.Where("model_name = ?", params.ModelName)
 	}
-	if tokenName != "" {
-		tx = tx.Where("token_name = ?", tokenName)
+	if params.Username != "" {
+		tx = tx.Where("username = ?", params.Username)
 	}
-	if startTimestamp != 0 {
-		tx = tx.Where("created_at >= ?", startTimestamp)
+	if params.TokenName != "" {
+		tx = tx.Where("token_name = ?", params.TokenName)
 	}
-	if endTimestamp != 0 {
-		tx = tx.Where("created_at <= ?", endTimestamp)
+	if params.StartTimestamp != 0 {
+		tx = tx.Where("created_at >= ?", params.StartTimestamp)
 	}
-	err = tx.Order("id desc").Limit(num).Offset(startIdx).Omit("id").Find(&logs).Error
-	return logs, err
+	if params.EndTimestamp != 0 {
+		tx = tx.Where("created_at <= ?", params.EndTimestamp)
+	}
+	if params.Channel != 0 {
+		tx = tx.Where("channel_id = ?", params.Channel)
+	}
+
+	return PaginateAndOrder(tx, &params.PaginationParams, &logs, allowedLogsOrderFields)
+}
+
+func GetUserLogsList(userId int, params *LogsListParams) (*DataResult, error) {
+	var logs []*Log
+
+	tx := DB.Where("user_id = ?", userId).Omit("id")
+
+	if params.LogType != LogTypeUnknown {
+		tx = DB.Where("type = ?", params.LogType)
+	}
+	if params.ModelName != "" {
+		tx = tx.Where("model_name = ?", params.ModelName)
+	}
+	if params.TokenName != "" {
+		tx = tx.Where("token_name = ?", params.TokenName)
+	}
+	if params.StartTimestamp != 0 {
+		tx = tx.Where("created_at >= ?", params.StartTimestamp)
+	}
+	if params.EndTimestamp != 0 {
+		tx = tx.Where("created_at <= ?", params.EndTimestamp)
+	}
+
+	return PaginateAndOrder(tx, &params.PaginationParams, &logs, allowedLogsOrderFields)
 }
 
 func SearchAllLogs(keyword string) (logs []*Log, err error) {

@@ -9,24 +9,16 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func GetAllLogs(c *gin.Context) {
-	p, _ := strconv.Atoi(c.Query("p"))
-	if p < 0 {
-		p = 0
+func GetLogsList(c *gin.Context) {
+	var params model.LogsListParams
+	if err := c.ShouldBindQuery(&params); err != nil {
+		common.APIRespondWithError(c, http.StatusOK, err)
+		return
 	}
-	logType, _ := strconv.Atoi(c.Query("type"))
-	startTimestamp, _ := strconv.ParseInt(c.Query("start_timestamp"), 10, 64)
-	endTimestamp, _ := strconv.ParseInt(c.Query("end_timestamp"), 10, 64)
-	username := c.Query("username")
-	tokenName := c.Query("token_name")
-	modelName := c.Query("model_name")
-	channel, _ := strconv.Atoi(c.Query("channel"))
-	logs, err := model.GetAllLogs(logType, startTimestamp, endTimestamp, modelName, username, tokenName, p*common.ItemsPerPage, common.ItemsPerPage, channel)
+
+	logs, err := model.GetLogsList(&params)
 	if err != nil {
-		c.JSON(http.StatusOK, gin.H{
-			"success": false,
-			"message": err.Error(),
-		})
+		common.APIRespondWithError(c, http.StatusOK, err)
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{
@@ -36,23 +28,18 @@ func GetAllLogs(c *gin.Context) {
 	})
 }
 
-func GetUserLogs(c *gin.Context) {
-	p, _ := strconv.Atoi(c.Query("p"))
-	if p < 0 {
-		p = 0
-	}
+func GetUserLogsList(c *gin.Context) {
 	userId := c.GetInt("id")
-	logType, _ := strconv.Atoi(c.Query("type"))
-	startTimestamp, _ := strconv.ParseInt(c.Query("start_timestamp"), 10, 64)
-	endTimestamp, _ := strconv.ParseInt(c.Query("end_timestamp"), 10, 64)
-	tokenName := c.Query("token_name")
-	modelName := c.Query("model_name")
-	logs, err := model.GetUserLogs(userId, logType, startTimestamp, endTimestamp, modelName, tokenName, p*common.ItemsPerPage, common.ItemsPerPage)
+
+	var params model.LogsListParams
+	if err := c.ShouldBindQuery(&params); err != nil {
+		common.APIRespondWithError(c, http.StatusOK, err)
+		return
+	}
+
+	logs, err := model.GetUserLogsList(userId, &params)
 	if err != nil {
-		c.JSON(http.StatusOK, gin.H{
-			"success": false,
-			"message": err.Error(),
-		})
+		common.APIRespondWithError(c, http.StatusOK, err)
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{

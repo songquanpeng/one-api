@@ -12,7 +12,7 @@ import Toolbar from '@mui/material/Toolbar';
 
 import { Button, Card, Box, Stack, Container, Typography } from '@mui/material';
 import RedemptionTableRow from './component/TableRow';
-import RedemptionTableHead from './component/TableHead';
+import KeywordTableHead from 'ui-component/TableHead';
 import TableToolBar from 'ui-component/TableToolBar';
 import { API } from 'utils/api';
 import { ITEMS_PER_PAGE } from 'constants';
@@ -21,73 +21,80 @@ import EditeModal from './component/EditModal';
 
 // ----------------------------------------------------------------------
 export default function Redemption() {
-  const [redemptions, setRedemptions] = useState([]);
-  const [activePage, setActivePage] = useState(0);
-  const [searching, setSearching] = useState(false);
+  const [page, setPage] = useState(0);
+  const [order, setOrder] = useState('desc');
+  const [orderBy, setOrderBy] = useState('id');
+  const [rowsPerPage, setRowsPerPage] = useState(ITEMS_PER_PAGE);
+  const [listCount, setListCount] = useState(0);
   const [searchKeyword, setSearchKeyword] = useState('');
+  const [searching, setSearching] = useState(false);
+  const [redemptions, setRedemptions] = useState([]);
+  const [refreshFlag, setRefreshFlag] = useState(false);
+
   const [openModal, setOpenModal] = useState(false);
   const [editRedemptionId, setEditRedemptionId] = useState(0);
 
-  const loadRedemptions = async (startIdx) => {
-    setSearching(true);
-    try {
-      const res = await API.get(`/api/redemption/?p=${startIdx}`);
-      const { success, message, data } = res.data;
-      if (success) {
-        if (startIdx === 0) {
-          setRedemptions(data);
-        } else {
-          let newRedemptions = [...redemptions];
-          newRedemptions.splice(startIdx * ITEMS_PER_PAGE, data.length, ...data);
-          setRedemptions(newRedemptions);
-        }
-      } else {
-        showError(message);
-      }
-    } catch (error) {
-      console.log(error);
+  const handleSort = (event, id) => {
+    const isAsc = orderBy === id && order === 'asc';
+    if (id !== '') {
+      setOrder(isAsc ? 'desc' : 'asc');
+      setOrderBy(id);
     }
-    setSearching(false);
   };
 
-  const onPaginationChange = (event, activePage) => {
-    (async () => {
-      if (activePage === Math.ceil(redemptions.length / ITEMS_PER_PAGE)) {
-        // In this case we have to load more data and then append them.
-        await loadRedemptions(activePage);
-      }
-      setActivePage(activePage);
-    })();
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setPage(0);
+    setRowsPerPage(parseInt(event.target.value, 10));
   };
 
   const searchRedemptions = async (event) => {
     event.preventDefault();
-    if (searchKeyword === '') {
-      await loadRedemptions(0);
-      setActivePage(0);
-      return;
-    }
-    setSearching(true);
+    const formData = new FormData(event.target);
+    setPage(0);
+    setSearchKeyword(formData.get('keyword'));
+  };
 
+  const fetchData = async (page, rowsPerPage, keyword, order, orderBy) => {
+    setSearching(true);
     try {
-      const res = await API.get(`/api/redemption/search?keyword=${searchKeyword}`);
+      if (orderBy) {
+        orderBy = order === 'desc' ? '-' + orderBy : orderBy;
+      }
+      const res = await API.get(`/api/redemption/`, {
+        params: {
+          page: page + 1,
+          size: rowsPerPage,
+          keyword: keyword,
+          order: orderBy
+        }
+      });
       const { success, message, data } = res.data;
       if (success) {
-        setRedemptions(data);
-        setActivePage(0);
+        setListCount(data.total_count);
+        setRedemptions(data.data);
       } else {
         showError(message);
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
-
     setSearching(false);
   };
 
-  const handleSearchKeyword = (event) => {
-    setSearchKeyword(event.target.value);
+  // 处理刷新
+  const handleRefresh = async () => {
+    setOrderBy('id');
+    setOrder('desc');
+    setRefreshFlag(!refreshFlag);
   };
+
+  useEffect(() => {
+    fetchData(page, rowsPerPage, searchKeyword, order, orderBy);
+  }, [page, rowsPerPage, searchKeyword, order, orderBy, refreshFlag]);
 
   const manageRedemptions = async (id, action, value) => {
     const url = '/api/redemption/';
@@ -110,7 +117,7 @@ export default function Redemption() {
       if (success) {
         showSuccess('操作成功完成！');
         if (action === 'delete') {
-          await loadRedemptions(0);
+          await handleRefresh();
         }
       } else {
         showError(message);
@@ -120,13 +127,6 @@ export default function Redemption() {
     } catch (error) {
       return;
     }
-  };
-
-  // 处理刷新
-  const handleRefresh = async () => {
-    await loadRedemptions(0);
-    setActivePage(0);
-    setSearchKeyword('');
   };
 
   const handleOpenModal = (redemptionId) => {
@@ -146,15 +146,6 @@ export default function Redemption() {
     }
   };
 
-  useEffect(() => {
-    loadRedemptions(0)
-      .then()
-      .catch((reason) => {
-        showError(reason);
-      });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   return (
     <>
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
@@ -166,7 +157,7 @@ export default function Redemption() {
       </Stack>
       <Card>
         <Box component="form" onSubmit={searchRedemptions} noValidate>
-          <TableToolBar filterName={searchKeyword} handleFilterName={handleSearchKeyword} placeholder={'搜索兑换码的ID和名称...'} />
+          <TableToolBar placeholder={'搜索兑换码的ID和名称...'} />
         </Box>
         <Toolbar
           sx={{
@@ -189,9 +180,22 @@ export default function Redemption() {
         <PerfectScrollbar component="div">
           <TableContainer sx={{ overflow: 'unset' }}>
             <Table sx={{ minWidth: 800 }}>
-              <RedemptionTableHead />
+              <KeywordTableHead
+                order={order}
+                orderBy={orderBy}
+                onRequestSort={handleSort}
+                headLabel={[
+                  { id: 'id', label: 'ID', disableSort: false },
+                  { id: 'name', label: '名称', disableSort: false },
+                  { id: 'status', label: '状态', disableSort: false },
+                  { id: 'quota', label: '额度', disableSort: false },
+                  { id: 'created_time', label: '创建时间', disableSort: false },
+                  { id: 'redeemed_time', label: '兑换时间', disableSort: false },
+                  { id: 'action', label: '操作', disableSort: true }
+                ]}
+              />
               <TableBody>
-                {redemptions.slice(activePage * ITEMS_PER_PAGE, (activePage + 1) * ITEMS_PER_PAGE).map((row) => (
+                {redemptions.map((row) => (
                   <RedemptionTableRow
                     item={row}
                     manageRedemption={manageRedemptions}
@@ -205,12 +209,15 @@ export default function Redemption() {
           </TableContainer>
         </PerfectScrollbar>
         <TablePagination
-          page={activePage}
+          page={page}
           component="div"
-          count={redemptions.length + (redemptions.length % ITEMS_PER_PAGE === 0 ? 1 : 0)}
-          rowsPerPage={ITEMS_PER_PAGE}
-          onPageChange={onPaginationChange}
-          rowsPerPageOptions={[ITEMS_PER_PAGE]}
+          count={listCount}
+          rowsPerPage={rowsPerPage}
+          onPageChange={handleChangePage}
+          rowsPerPageOptions={[10, 25, 30]}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+          showFirstButton
+          showLastButton
         />
       </Card>
       <EditeModal open={openModal} onCancel={handleCloseModal} onOk={handleOkModal} redemptiondId={editRedemptionId} />

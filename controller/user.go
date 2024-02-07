@@ -176,34 +176,16 @@ func Register(c *gin.Context) {
 	})
 }
 
-func GetAllUsers(c *gin.Context) {
-	p, _ := strconv.Atoi(c.Query("p"))
-	if p < 0 {
-		p = 0
-	}
-	users, err := model.GetAllUsers(p*common.ItemsPerPage, common.ItemsPerPage)
-	if err != nil {
-		c.JSON(http.StatusOK, gin.H{
-			"success": false,
-			"message": err.Error(),
-		})
+func GetUsersList(c *gin.Context) {
+	var params model.GenericParams
+	if err := c.ShouldBindQuery(&params); err != nil {
+		common.APIRespondWithError(c, http.StatusOK, err)
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{
-		"success": true,
-		"message": "",
-		"data":    users,
-	})
-}
 
-func SearchUsers(c *gin.Context) {
-	keyword := c.Query("keyword")
-	users, err := model.SearchUsers(keyword)
+	users, err := model.GetUsersList(&params)
 	if err != nil {
-		c.JSON(http.StatusOK, gin.H{
-			"success": false,
-			"message": err.Error(),
-		})
+		common.APIRespondWithError(c, http.StatusOK, err)
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{

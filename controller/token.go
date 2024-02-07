@@ -9,36 +9,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func GetAllTokens(c *gin.Context) {
+func GetUserTokensList(c *gin.Context) {
 	userId := c.GetInt("id")
-	p, _ := strconv.Atoi(c.Query("p"))
-	if p < 0 {
-		p = 0
-	}
-	tokens, err := model.GetAllUserTokens(userId, p*common.ItemsPerPage, common.ItemsPerPage)
-	if err != nil {
-		c.JSON(http.StatusOK, gin.H{
-			"success": false,
-			"message": err.Error(),
-		})
+	var params model.GenericParams
+	if err := c.ShouldBindQuery(&params); err != nil {
+		common.APIRespondWithError(c, http.StatusOK, err)
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{
-		"success": true,
-		"message": "",
-		"data":    tokens,
-	})
-}
 
-func SearchTokens(c *gin.Context) {
-	userId := c.GetInt("id")
-	keyword := c.Query("keyword")
-	tokens, err := model.SearchUserTokens(userId, keyword)
+	tokens, err := model.GetUserTokensList(userId, &params)
 	if err != nil {
-		c.JSON(http.StatusOK, gin.H{
-			"success": false,
-			"message": err.Error(),
-		})
+		common.APIRespondWithError(c, http.StatusOK, err)
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{

@@ -15,83 +15,53 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 
 import { Button, IconButton, Card, Box, Stack, Container, Typography, Divider } from '@mui/material';
 import ChannelTableRow from './component/TableRow';
-import ChannelTableHead from './component/TableHead';
+import KeywordTableHead from 'ui-component/TableHead';
 import TableToolBar from 'ui-component/TableToolBar';
 import { API } from 'utils/api';
-import { ITEMS_PER_PAGE } from 'constants';
 import { IconRefresh, IconHttpDelete, IconPlus, IconBrandSpeedtest, IconCoinYuan } from '@tabler/icons-react';
 import EditeModal from './component/EditModal';
+import { ITEMS_PER_PAGE } from 'constants';
 
 // ----------------------------------------------------------------------
 // CHANNEL_OPTIONS,
 export default function ChannelPage() {
-  const [channels, setChannels] = useState([]);
-  const [activePage, setActivePage] = useState(0);
-  const [searching, setSearching] = useState(false);
+  const [page, setPage] = useState(0);
+  const [order, setOrder] = useState('desc');
+  const [orderBy, setOrderBy] = useState('id');
+  const [rowsPerPage, setRowsPerPage] = useState(ITEMS_PER_PAGE);
+  const [listCount, setListCount] = useState(0);
   const [searchKeyword, setSearchKeyword] = useState('');
+  const [searching, setSearching] = useState(false);
+  const [channels, setChannels] = useState([]);
+  const [refreshFlag, setRefreshFlag] = useState(false);
+
   const theme = useTheme();
   const matchUpMd = useMediaQuery(theme.breakpoints.up('sm'));
   const [openModal, setOpenModal] = useState(false);
   const [editChannelId, setEditChannelId] = useState(0);
 
-  const loadChannels = async (startIdx) => {
-    setSearching(true);
-    try {
-      const res = await API.get(`/api/channel/?p=${startIdx}`);
-      const { success, message, data } = res.data;
-      if (success) {
-        if (startIdx === 0) {
-          setChannels(data);
-        } else {
-          let newChannels = [...channels];
-          newChannels.splice(startIdx * ITEMS_PER_PAGE, data.length, ...data);
-          setChannels(newChannels);
-        }
-      } else {
-        showError(message);
-      }
-    } catch (error) {
-      console.error(error);
+  const handleSort = (event, id) => {
+    const isAsc = orderBy === id && order === 'asc';
+    if (id !== '') {
+      setOrder(isAsc ? 'desc' : 'asc');
+      setOrderBy(id);
     }
-
-    setSearching(false);
   };
 
-  const onPaginationChange = (event, activePage) => {
-    (async () => {
-      if (activePage === Math.ceil(channels.length / ITEMS_PER_PAGE)) {
-        // In this case we have to load more data and then append them.
-        await loadChannels(activePage);
-      }
-      setActivePage(activePage);
-    })();
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setPage(0);
+    setRowsPerPage(parseInt(event.target.value, 10));
   };
 
   const searchChannels = async (event) => {
     event.preventDefault();
-    if (searchKeyword === '') {
-      await loadChannels(0);
-      setActivePage(0);
-      return;
-    }
-    setSearching(true);
-    try {
-      const res = await API.get(`/api/channel/search?keyword=${searchKeyword}`);
-      const { success, message, data } = res.data;
-      if (success) {
-        setChannels(data);
-        setActivePage(0);
-      } else {
-        showError(message);
-      }
-    } catch (error) {
-      console.error(error);
-    }
-    setSearching(false);
-  };
-
-  const handleSearchKeyword = (event) => {
-    setSearchKeyword(event.target.value);
+    const formData = new FormData(event.target);
+    setPage(0);
+    setSearchKeyword(formData.get('keyword'));
   };
 
   const manageChannel = async (id, action, value) => {
@@ -141,7 +111,9 @@ export default function ChannelPage() {
 
   // 处理刷新
   const handleRefresh = async () => {
-    await loadChannels(activePage);
+    setOrderBy('id');
+    setOrder('desc');
+    setRefreshFlag(!refreshFlag);
   };
 
   // 处理测试所有启用渠道
@@ -210,14 +182,36 @@ export default function ChannelPage() {
     }
   };
 
-  useEffect(() => {
-    loadChannels(0)
-      .then()
-      .catch((reason) => {
-        showError(reason);
+  const fetchData = async (page, rowsPerPage, keyword, order, orderBy) => {
+    setSearching(true);
+    try {
+      if (orderBy) {
+        orderBy = order === 'desc' ? '-' + orderBy : orderBy;
+      }
+      const res = await API.get(`/api/channel/`, {
+        params: {
+          page: page + 1,
+          size: rowsPerPage,
+          keyword: keyword,
+          order: orderBy
+        }
       });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+      const { success, message, data } = res.data;
+      if (success) {
+        setListCount(data.total_count);
+        setChannels(data.data);
+      } else {
+        showError(message);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+    setSearching(false);
+  };
+
+  useEffect(() => {
+    fetchData(page, rowsPerPage, searchKeyword, order, orderBy);
+  }, [page, rowsPerPage, searchKeyword, order, orderBy, refreshFlag]);
 
   return (
     <>
@@ -237,7 +231,7 @@ export default function ChannelPage() {
       </Stack>
       <Card>
         <Box component="form" onSubmit={searchChannels} noValidate>
-          <TableToolBar filterName={searchKeyword} handleFilterName={handleSearchKeyword} placeholder={'搜索渠道的 ID，名称和密钥 ...'} />
+          <TableToolBar placeholder={'搜索渠道的 ID，名称和密钥 ...'} />
         </Box>
         <Toolbar
           sx={{
@@ -292,9 +286,24 @@ export default function ChannelPage() {
         <PerfectScrollbar component="div">
           <TableContainer sx={{ overflow: 'unset' }}>
             <Table sx={{ minWidth: 800 }}>
-              <ChannelTableHead />
+              <KeywordTableHead
+                order={order}
+                orderBy={orderBy}
+                onRequestSort={handleSort}
+                headLabel={[
+                  { id: 'id', label: 'ID', disableSort: false },
+                  { id: 'name', label: '名称', disableSort: false },
+                  { id: 'group', label: '分组', disableSort: true },
+                  { id: 'type', label: '类型', disableSort: false },
+                  { id: 'status', label: '状态', disableSort: false },
+                  { id: 'response_time', label: '响应时间', disableSort: false },
+                  { id: 'balance', label: '余额', disableSort: false },
+                  { id: 'priority', label: '优先级', disableSort: false },
+                  { id: 'action', label: '操作', disableSort: true }
+                ]}
+              />
               <TableBody>
-                {channels.slice(activePage * ITEMS_PER_PAGE, (activePage + 1) * ITEMS_PER_PAGE).map((row) => (
+                {channels.map((row) => (
                   <ChannelTableRow
                     item={row}
                     manageChannel={manageChannel}
@@ -308,12 +317,15 @@ export default function ChannelPage() {
           </TableContainer>
         </PerfectScrollbar>
         <TablePagination
-          page={activePage}
+          page={page}
           component="div"
-          count={channels.length + (channels.length % ITEMS_PER_PAGE === 0 ? 1 : 0)}
-          rowsPerPage={ITEMS_PER_PAGE}
-          onPageChange={onPaginationChange}
-          rowsPerPageOptions={[ITEMS_PER_PAGE]}
+          count={listCount}
+          rowsPerPage={rowsPerPage}
+          onPageChange={handleChangePage}
+          rowsPerPageOptions={[10, 25, 30]}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+          showFirstButton
+          showLastButton
         />
       </Card>
       <EditeModal open={openModal} onCancel={handleCloseModal} onOk={handleOkModal} channelId={editChannelId} />

@@ -10,34 +10,16 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func GetAllChannels(c *gin.Context) {
-	p, _ := strconv.Atoi(c.Query("p"))
-	if p < 0 {
-		p = 0
-	}
-	channels, err := model.GetAllChannels(p*common.ItemsPerPage, common.ItemsPerPage, false)
-	if err != nil {
-		c.JSON(http.StatusOK, gin.H{
-			"success": false,
-			"message": err.Error(),
-		})
+func GetChannelsList(c *gin.Context) {
+	var params model.GenericParams
+	if err := c.ShouldBindQuery(&params); err != nil {
+		common.APIRespondWithError(c, http.StatusOK, err)
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{
-		"success": true,
-		"message": "",
-		"data":    channels,
-	})
-}
 
-func SearchChannels(c *gin.Context) {
-	keyword := c.Query("keyword")
-	channels, err := model.SearchChannels(keyword)
+	channels, err := model.GetChannelsList(&params)
 	if err != nil {
-		c.JSON(http.StatusOK, gin.H{
-			"success": false,
-			"message": err.Error(),
-		})
+		common.APIRespondWithError(c, http.StatusOK, err)
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{

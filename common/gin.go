@@ -67,3 +67,10 @@ func AbortWithMessage(c *gin.Context, statusCode int, message string) {
 	c.Abort()
 	LogError(c.Request.Context(), message)
 }
+
+func APIRespondWithError(c *gin.Context, status int, err error) {
+	c.JSON(status, gin.H{
+		"success": false,
+		"message": err.Error(),
+	})
+}

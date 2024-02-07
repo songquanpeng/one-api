@@ -22,16 +22,25 @@ type Token struct {
 	UsedQuota      int    `json:"used_quota" gorm:"default:0"` // used quota
 }
 
-func GetAllUserTokens(userId int, startIdx int, num int) ([]*Token, error) {
-	var tokens []*Token
-	var err error
-	err = DB.Where("user_id = ?", userId).Order("id desc").Limit(num).Offset(startIdx).Find(&tokens).Error
-	return tokens, err
+var allowedTokenOrderFields = map[string]bool{
+	"id":           true,
+	"name":         true,
+	"status":       true,
+	"expired_time": true,
+	"created_time": true,
+	"remain_quota": true,
+	"used_quota":   true,
 }
 
-func SearchUserTokens(userId int, keyword string) (tokens []*Token, err error) {
-	err = DB.Where("user_id = ?", userId).Where("name LIKE ?", keyword+"%").Find(&tokens).Error
-	return tokens, err
+func GetUserTokensList(userId int, params *GenericParams) (*DataResult, error) {
+	var tokens []*Token
+	db := DB.Where("user_id = ?", userId)
+
+	if params.Keyword != "" {
+		db = db.Where("name LIKE ?", params.Keyword+"%")
+	}
+
+	return PaginateAndOrder(db, &params.PaginationParams, &tokens, allowedTokenOrderFields)
 }
 
 func ValidateUserToken(key string) (token *Token, err error) {

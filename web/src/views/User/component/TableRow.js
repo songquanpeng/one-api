@@ -19,7 +19,7 @@ import {
 
 import Label from 'ui-component/Label';
 import TableSwitch from 'ui-component/Switch';
-import { renderQuota, renderNumber } from 'utils/common';
+import { renderQuota, renderNumber, timestamp2string } from 'utils/common';
 import { IconDotsVertical, IconEdit, IconTrash, IconUser, IconBrandWechat, IconBrandGithub, IconMail } from '@tabler/icons-react';
 import { useTheme } from '@mui/material/styles';
 
@@ -119,7 +119,7 @@ export default function UsersTableRow({ item, manageUser, handleOpenModal, setMo
             </Tooltip>
           </Stack>
         </TableCell>
-
+        <TableCell>{item.created_time === 0 ? '未知' : timestamp2string(item.created_time)}</TableCell>
         <TableCell>
           {' '}
           <TableSwitch id={`switch-${item.id}`} checked={statusSwitch === 1} onChange={handleStatus} />
