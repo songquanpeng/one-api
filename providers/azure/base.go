@@ -31,6 +31,7 @@ func getAzureConfig() base.ProviderConfig {
 		Completions:         "/completions",
 		ChatCompletions:     "/chat/completions",
 		Embeddings:          "/embeddings",
+		AudioSpeech:         "/audio/speech",
 		AudioTranscriptions: "/audio/transcriptions",
 		AudioTranslations:   "/audio/translations",
 		ImagesGenerations:   "/images/generations",
