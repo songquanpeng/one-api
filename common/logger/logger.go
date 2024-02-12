@@ -68,15 +68,15 @@ func Error(ctx context.Context, msg string) {
 }
 
 func Infof(ctx context.Context, format string, a ...any) {
-	Info(ctx, fmt.Sprintf(format, a))
+	Info(ctx, fmt.Sprintf(format, a...))
 }
 
 func Warnf(ctx context.Context, format string, a ...any) {
-	Warn(ctx, fmt.Sprintf(format, a))
+	Warn(ctx, fmt.Sprintf(format, a...))
 }
 
 func Errorf(ctx context.Context, format string, a ...any) {
-	Error(ctx, fmt.Sprintf(format, a))
+	Error(ctx, fmt.Sprintf(format, a...))
 }
 
 func logHelper(ctx context.Context, level string, msg string) {

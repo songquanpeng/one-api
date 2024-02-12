@@ -90,7 +90,7 @@ func testChannel(channel *model.Channel, request openai.ChatRequest) (err error,
 		if response.Error.Message == "" {
 			response.Error.Message = "补全 tokens 非预期返回 0"
 		}
-		return errors.New(fmt.Sprintf("type %s, code %v, message %s", response.Error.Type, response.Error.Code, response.Error.Message)), &response.Error
+		return fmt.Errorf("type %s, code %v, message %s", response.Error.Type, response.Error.Code, response.Error.Message), &response.Error
 	}
 	return nil, nil
 }

@@ -84,7 +84,7 @@ func RelayImageHelper(c *gin.Context, relayMode int) *openai.ErrorWithStatusCode
 	}
 
 	// Number of generated images validation
-	if isWithinRange(imageModel, imageRequest.N) == false {
+	if !isWithinRange(imageModel, imageRequest.N) {
 		// channel not azure
 		if channelType != common.ChannelTypeAzure {
 			return openai.ErrorWrapper(errors.New("invalid value of n"), "n_not_within_range", http.StatusBadRequest)
