@@ -13,6 +13,13 @@ import { store } from 'store';
 import 'assets/scss/style.scss';
 import config from './config';
 
+// favicon
+let linkElement = document.querySelector("link[rel~='icon']");
+const siteInfo = JSON.parse(localStorage.getItem("siteInfo"));
+if(siteInfo && siteInfo.logo){
+  linkElement.href = siteInfo.logo;
+}
+
 // ==============================|| REACT DOM RENDER  ||============================== //
 
 const container = document.getElementById('root');
