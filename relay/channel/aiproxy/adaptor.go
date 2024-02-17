@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/songquanpeng/one-api/common"
 	"github.com/songquanpeng/one-api/relay/channel"
 	"github.com/songquanpeng/one-api/relay/model"
 	"github.com/songquanpeng/one-api/relay/util"
@@ -29,7 +30,7 @@ func (a *Adaptor) ConvertRequest(c *gin.Context, relayMode int, request *model.G
 		return nil, errors.New("request is nil")
 	}
 	aiProxyLibraryRequest := ConvertRequest(*request)
-	aiProxyLibraryRequest.LibraryId = c.GetString("library_id")
+	aiProxyLibraryRequest.LibraryId = c.GetString(common.ConfigKeyLibraryID)
 	return aiProxyLibraryRequest, nil
 }
 

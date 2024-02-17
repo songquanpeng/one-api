@@ -92,3 +92,11 @@ var ChannelBaseURLs = []string{
 	"https://hunyuan.cloud.tencent.com",         // 23
 	"https://generativelanguage.googleapis.com", // 24
 }
+
+const (
+	ConfigKeyPrefix = "cfg_"
+
+	ConfigKeyAPIVersion = ConfigKeyPrefix + "api_version"
+	ConfigKeyLibraryID  = ConfigKeyPrefix + "library_id"
+	ConfigKeyPlugin     = ConfigKeyPrefix + "plugin"
+)

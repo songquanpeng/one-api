@@ -39,7 +39,7 @@ func GetRelayMeta(c *gin.Context) *RelayMeta {
 		Group:          c.GetString("group"),
 		ModelMapping:   c.GetStringMapString("model_mapping"),
 		BaseURL:        c.GetString("base_url"),
-		APIVersion:     c.GetString("api_version"),
+		APIVersion:     c.GetString(common.ConfigKeyAPIVersion),
 		APIKey:         strings.TrimPrefix(c.Request.Header.Get("Authorization"), "Bearer "),
 		Config:         nil,
 		RequestURLPath: c.Request.URL.String(),

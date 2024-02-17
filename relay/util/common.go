@@ -162,7 +162,7 @@ func GetAzureAPIVersion(c *gin.Context) string {
 	query := c.Request.URL.Query()
 	apiVersion := query.Get("api-version")
 	if apiVersion == "" {
-		apiVersion = c.GetString("api_version")
+		apiVersion = c.GetString(common.ConfigKeyAPIVersion)
 	}
 	return apiVersion
 }

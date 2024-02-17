@@ -246,7 +246,7 @@ func getXunfeiAuthUrl(c *gin.Context, apiKey string, apiSecret string) (string, 
 	query := c.Request.URL.Query()
 	apiVersion := query.Get("api-version")
 	if apiVersion == "" {
-		apiVersion = c.GetString("api_version")
+		apiVersion = c.GetString(common.ConfigKeyAPIVersion)
 	}
 	if apiVersion == "" {
 		apiVersion = "v1.1"

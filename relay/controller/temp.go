@@ -174,7 +174,7 @@ func GetRequestBody(c *gin.Context, textRequest model.GeneralOpenAIRequest, isMo
 		requestBody = bytes.NewBuffer(jsonStr)
 	case constant.APITypeAIProxyLibrary:
 		aiProxyLibraryRequest := aiproxy.ConvertRequest(textRequest)
-		aiProxyLibraryRequest.LibraryId = c.GetString("library_id")
+		aiProxyLibraryRequest.LibraryId = c.GetString(common.ConfigKeyLibraryID)
 		jsonStr, err := json.Marshal(aiProxyLibraryRequest)
 		if err != nil {
 			return nil, err
@@ -222,8 +222,8 @@ func SetupAuthHeaders(c *gin.Context, req *http.Request, meta *util.RelayMeta, i
 		if isStream {
 			req.Header.Set("X-DashScope-SSE", "enable")
 		}
-		if c.GetString("plugin") != "" {
-			req.Header.Set("X-DashScope-Plugin", c.GetString("plugin"))
+		if c.GetString(common.ConfigKeyPlugin) != "" {
+			req.Header.Set("X-DashScope-Plugin", c.GetString(common.ConfigKeyPlugin))
 		}
 	case constant.APITypeTencent:
 		req.Header.Set("Authorization", apiKey)

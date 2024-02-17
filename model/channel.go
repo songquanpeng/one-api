@@ -21,7 +21,7 @@ type Channel struct {
 	TestTime           int64   `json:"test_time" gorm:"bigint"`
 	ResponseTime       int     `json:"response_time"` // in milliseconds
 	BaseURL            *string `json:"base_url" gorm:"column:base_url;default:''"`
-	Other              string  `json:"other"`
+	Other              string  `json:"other"`   // DEPRECATED: please save config to field Config
 	Balance            float64 `json:"balance"` // in USD
 	BalanceUpdatedTime int64   `json:"balance_updated_time" gorm:"bigint"`
 	Models             string  `json:"models"`
@@ -29,6 +29,7 @@ type Channel struct {
 	UsedQuota          int64   `json:"used_quota" gorm:"bigint;default:0"`
 	ModelMapping       *string `json:"model_mapping" gorm:"type:varchar(1024);default:''"`
 	Priority           *int64  `json:"priority" gorm:"bigint;default:0"`
+	Config             string  `json:"config"`
 }
 
 func GetAllChannels(startIdx int, num int, selectAll bool) ([]*Channel, error) {
@@ -153,6 +154,18 @@ func (channel *Channel) Delete() error {
 	}
 	err = channel.DeleteAbilities()
 	return err
+}
+
+func (channel *Channel) LoadConfig() (map[string]string, error) {
+	if channel.Config == "" {
+		return nil, nil
+	}
+	cfg := make(map[string]string)
+	err := json.Unmarshal([]byte(channel.Config), &cfg)
+	if err != nil {
+		return nil, err
+	}
+	return cfg, nil
 }
 
 func UpdateChannelStatusById(id int, status int) {
