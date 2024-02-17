@@ -8,6 +8,7 @@ import (
 	"github.com/songquanpeng/one-api/common/config"
 	"github.com/songquanpeng/one-api/common/image"
 	"github.com/songquanpeng/one-api/common/logger"
+	"github.com/songquanpeng/one-api/relay/model"
 	"math"
 	"strings"
 )
@@ -63,7 +64,7 @@ func getTokenNum(tokenEncoder *tiktoken.Tiktoken, text string) int {
 	return len(tokenEncoder.Encode(text, nil, nil))
 }
 
-func CountTokenMessages(messages []Message, model string) int {
+func CountTokenMessages(messages []model.Message, model string) int {
 	tokenEncoder := getTokenEncoder(model)
 	// Reference:
 	// https://github.com/openai/openai-cookbook/blob/main/examples/How_to_count_tokens_with_tiktoken.ipynb

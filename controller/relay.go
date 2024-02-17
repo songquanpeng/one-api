@@ -6,9 +6,9 @@ import (
 	"github.com/songquanpeng/one-api/common/config"
 	"github.com/songquanpeng/one-api/common/helper"
 	"github.com/songquanpeng/one-api/common/logger"
-	"github.com/songquanpeng/one-api/relay/channel/openai"
 	"github.com/songquanpeng/one-api/relay/constant"
 	"github.com/songquanpeng/one-api/relay/controller"
+	"github.com/songquanpeng/one-api/relay/model"
 	"github.com/songquanpeng/one-api/relay/util"
 	"net/http"
 	"strconv"
@@ -18,7 +18,7 @@ import (
 
 func Relay(c *gin.Context) {
 	relayMode := constant.Path2RelayMode(c.Request.URL.Path)
-	var err *openai.ErrorWithStatusCode
+	var err *model.ErrorWithStatusCode
 	switch relayMode {
 	case constant.RelayModeImagesGenerations:
 		err = controller.RelayImageHelper(c, relayMode)
@@ -61,7 +61,7 @@ func Relay(c *gin.Context) {
 }
 
 func RelayNotImplemented(c *gin.Context) {
-	err := openai.Error{
+	err := model.Error{
 		Message: "API not implemented",
 		Type:    "one_api_error",
 		Param:   "",
@@ -73,7 +73,7 @@ func RelayNotImplemented(c *gin.Context) {
 }
 
 func RelayNotFound(c *gin.Context) {
-	err := openai.Error{
+	err := model.Error{
 		Message: fmt.Sprintf("Invalid URL (%s %s)", c.Request.Method, c.Request.URL.Path),
 		Type:    "invalid_request_error",
 		Param:   "",

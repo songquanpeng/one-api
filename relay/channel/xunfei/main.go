@@ -13,6 +13,7 @@ import (
 	"github.com/songquanpeng/one-api/common/logger"
 	"github.com/songquanpeng/one-api/relay/channel/openai"
 	"github.com/songquanpeng/one-api/relay/constant"
+	"github.com/songquanpeng/one-api/relay/model"
 	"io"
 	"net/http"
 	"net/url"
@@ -23,7 +24,7 @@ import (
 // https://console.xfyun.cn/services/cbm
 // https://www.xfyun.cn/doc/spark/Web.html
 
-func requestOpenAI2Xunfei(request openai.GeneralOpenAIRequest, xunfeiAppId string, domain string) *ChatRequest {
+func requestOpenAI2Xunfei(request model.GeneralOpenAIRequest, xunfeiAppId string, domain string) *ChatRequest {
 	messages := make([]Message, 0, len(request.Messages))
 	for _, message := range request.Messages {
 		if message.Role == "system" {
@@ -62,7 +63,7 @@ func responseXunfei2OpenAI(response *ChatResponse) *openai.TextResponse {
 	}
 	choice := openai.TextResponseChoice{
 		Index: 0,
-		Message: openai.Message{
+		Message: model.Message{
 			Role:    "assistant",
 			Content: response.Payload.Choices.Text[0].Content,
 		},
@@ -125,14 +126,14 @@ func buildXunfeiAuthUrl(hostUrl string, apiKey, apiSecret string) string {
 	return callUrl
 }
 
-func StreamHandler(c *gin.Context, textRequest openai.GeneralOpenAIRequest, appId string, apiSecret string, apiKey string) (*openai.ErrorWithStatusCode, *openai.Usage) {
+func StreamHandler(c *gin.Context, textRequest model.GeneralOpenAIRequest, appId string, apiSecret string, apiKey string) (*model.ErrorWithStatusCode, *model.Usage) {
 	domain, authUrl := getXunfeiAuthUrl(c, apiKey, apiSecret)
 	dataChan, stopChan, err := xunfeiMakeRequest(textRequest, domain, authUrl, appId)
 	if err != nil {
 		return openai.ErrorWrapper(err, "make xunfei request err", http.StatusInternalServerError), nil
 	}
 	common.SetEventStreamHeaders(c)
-	var usage openai.Usage
+	var usage model.Usage
 	c.Stream(func(w io.Writer) bool {
 		select {
 		case xunfeiResponse := <-dataChan:
@@ -155,13 +156,13 @@ func StreamHandler(c *gin.Context, textRequest openai.GeneralOpenAIRequest, appI
 	return nil, &usage
 }
 
-func Handler(c *gin.Context, textRequest openai.GeneralOpenAIRequest, appId string, apiSecret string, apiKey string) (*openai.ErrorWithStatusCode, *openai.Usage) {
+func Handler(c *gin.Context, textRequest model.GeneralOpenAIRequest, appId string, apiSecret string, apiKey string) (*model.ErrorWithStatusCode, *model.Usage) {
 	domain, authUrl := getXunfeiAuthUrl(c, apiKey, apiSecret)
 	dataChan, stopChan, err := xunfeiMakeRequest(textRequest, domain, authUrl, appId)
 	if err != nil {
 		return openai.ErrorWrapper(err, "make xunfei request err", http.StatusInternalServerError), nil
 	}
-	var usage openai.Usage
+	var usage model.Usage
 	var content string
 	var xunfeiResponse ChatResponse
 	stop := false
@@ -197,7 +198,7 @@ func Handler(c *gin.Context, textRequest openai.GeneralOpenAIRequest, appId stri
 	return nil, &usage
 }
 
-func xunfeiMakeRequest(textRequest openai.GeneralOpenAIRequest, domain, authUrl, appId string) (chan ChatResponse, chan bool, error) {
+func xunfeiMakeRequest(textRequest model.GeneralOpenAIRequest, domain, authUrl, appId string) (chan ChatResponse, chan bool, error) {
 	d := websocket.Dialer{
 		HandshakeTimeout: 5 * time.Second,
 	}

@@ -10,6 +10,7 @@ import (
 	"github.com/songquanpeng/one-api/common/logger"
 	"github.com/songquanpeng/one-api/relay/channel/openai"
 	"github.com/songquanpeng/one-api/relay/constant"
+	"github.com/songquanpeng/one-api/relay/model"
 	"io"
 	"net/http"
 	"strings"
@@ -72,7 +73,7 @@ func GetToken(apikey string) string {
 	return tokenString
 }
 
-func ConvertRequest(request openai.GeneralOpenAIRequest) *Request {
+func ConvertRequest(request model.GeneralOpenAIRequest) *Request {
 	messages := make([]Message, 0, len(request.Messages))
 	for _, message := range request.Messages {
 		if message.Role == "system" {
@@ -110,7 +111,7 @@ func responseZhipu2OpenAI(response *Response) *openai.TextResponse {
 	for i, choice := range response.Data.Choices {
 		openaiChoice := openai.TextResponseChoice{
 			Index: i,
-			Message: openai.Message{
+			Message: model.Message{
 				Role:    choice.Role,
 				Content: strings.Trim(choice.Content, "\""),
 			},
@@ -136,7 +137,7 @@ func streamResponseZhipu2OpenAI(zhipuResponse string) *openai.ChatCompletionsStr
 	return &response
 }
 
-func streamMetaResponseZhipu2OpenAI(zhipuResponse *StreamMetaResponse) (*openai.ChatCompletionsStreamResponse, *openai.Usage) {
+func streamMetaResponseZhipu2OpenAI(zhipuResponse *StreamMetaResponse) (*openai.ChatCompletionsStreamResponse, *model.Usage) {
 	var choice openai.ChatCompletionsStreamResponseChoice
 	choice.Delta.Content = ""
 	choice.FinishReason = &constant.StopFinishReason
@@ -150,8 +151,8 @@ func streamMetaResponseZhipu2OpenAI(zhipuResponse *StreamMetaResponse) (*openai.
 	return &response, &zhipuResponse.Usage
 }
 
-func StreamHandler(c *gin.Context, resp *http.Response) (*openai.ErrorWithStatusCode, *openai.Usage) {
-	var usage *openai.Usage
+func StreamHandler(c *gin.Context, resp *http.Response) (*model.ErrorWithStatusCode, *model.Usage) {
+	var usage *model.Usage
 	scanner := bufio.NewScanner(resp.Body)
 	scanner.Split(func(data []byte, atEOF bool) (advance int, token []byte, err error) {
 		if atEOF && len(data) == 0 {
@@ -228,7 +229,7 @@ func StreamHandler(c *gin.Context, resp *http.Response) (*openai.ErrorWithStatus
 	return nil, usage
 }
 
-func Handler(c *gin.Context, resp *http.Response) (*openai.ErrorWithStatusCode, *openai.Usage) {
+func Handler(c *gin.Context, resp *http.Response) (*model.ErrorWithStatusCode, *model.Usage) {
 	var zhipuResponse Response
 	responseBody, err := io.ReadAll(resp.Body)
 	if err != nil {
@@ -243,8 +244,8 @@ func Handler(c *gin.Context, resp *http.Response) (*openai.ErrorWithStatusCode, 
 		return openai.ErrorWrapper(err, "unmarshal_response_body_failed", http.StatusInternalServerError), nil
 	}
 	if !zhipuResponse.Success {
-		return &openai.ErrorWithStatusCode{
-			Error: openai.Error{
+		return &model.ErrorWithStatusCode{
+			Error: model.Error{
 				Message: zhipuResponse.Msg,
 				Type:    "zhipu_error",
 				Param:   "",

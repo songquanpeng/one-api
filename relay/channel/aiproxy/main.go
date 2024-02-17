@@ -10,6 +10,7 @@ import (
 	"github.com/songquanpeng/one-api/common/logger"
 	"github.com/songquanpeng/one-api/relay/channel/openai"
 	"github.com/songquanpeng/one-api/relay/constant"
+	"github.com/songquanpeng/one-api/relay/model"
 	"io"
 	"net/http"
 	"strconv"
@@ -18,7 +19,7 @@ import (
 
 // https://docs.aiproxy.io/dev/library#使用已经定制好的知识库进行对话问答
 
-func ConvertRequest(request openai.GeneralOpenAIRequest) *LibraryRequest {
+func ConvertRequest(request model.GeneralOpenAIRequest) *LibraryRequest {
 	query := ""
 	if len(request.Messages) != 0 {
 		query = request.Messages[len(request.Messages)-1].StringContent()
@@ -45,7 +46,7 @@ func responseAIProxyLibrary2OpenAI(response *LibraryResponse) *openai.TextRespon
 	content := response.Answer + aiProxyDocuments2Markdown(response.Documents)
 	choice := openai.TextResponseChoice{
 		Index: 0,
-		Message: openai.Message{
+		Message: model.Message{
 			Role:    "assistant",
 			Content: content,
 		},
@@ -85,8 +86,8 @@ func streamResponseAIProxyLibrary2OpenAI(response *LibraryStreamResponse) *opena
 	}
 }
 
-func StreamHandler(c *gin.Context, resp *http.Response) (*openai.ErrorWithStatusCode, *openai.Usage) {
-	var usage openai.Usage
+func StreamHandler(c *gin.Context, resp *http.Response) (*model.ErrorWithStatusCode, *model.Usage) {
+	var usage model.Usage
 	scanner := bufio.NewScanner(resp.Body)
 	scanner.Split(func(data []byte, atEOF bool) (advance int, token []byte, err error) {
 		if atEOF && len(data) == 0 {
@@ -157,7 +158,7 @@ func StreamHandler(c *gin.Context, resp *http.Response) (*openai.ErrorWithStatus
 	return nil, &usage
 }
 
-func Handler(c *gin.Context, resp *http.Response) (*openai.ErrorWithStatusCode, *openai.Usage) {
+func Handler(c *gin.Context, resp *http.Response) (*model.ErrorWithStatusCode, *model.Usage) {
 	var AIProxyLibraryResponse LibraryResponse
 	responseBody, err := io.ReadAll(resp.Body)
 	if err != nil {
@@ -172,8 +173,8 @@ func Handler(c *gin.Context, resp *http.Response) (*openai.ErrorWithStatusCode, 
 		return openai.ErrorWrapper(err, "unmarshal_response_body_failed", http.StatusInternalServerError), nil
 	}
 	if AIProxyLibraryResponse.ErrCode != 0 {
-		return &openai.ErrorWithStatusCode{
-			Error: openai.Error{
+		return &model.ErrorWithStatusCode{
+			Error: model.Error{
 				Message: AIProxyLibraryResponse.Message,
 				Type:    strconv.Itoa(AIProxyLibraryResponse.ErrCode),
 				Code:    AIProxyLibraryResponse.ErrCode,

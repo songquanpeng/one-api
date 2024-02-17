@@ -1,4 +1,4 @@
-package google
+package gemini
 
 import (
 	"bufio"
@@ -11,6 +11,7 @@ import (
 	"github.com/songquanpeng/one-api/common/logger"
 	"github.com/songquanpeng/one-api/relay/channel/openai"
 	"github.com/songquanpeng/one-api/relay/constant"
+	"github.com/songquanpeng/one-api/relay/model"
 	"io"
 	"net/http"
 	"strings"
@@ -21,14 +22,14 @@ import (
 // https://ai.google.dev/docs/gemini_api_overview?hl=zh-cn
 
 const (
-	GeminiVisionMaxImageNum = 16
+	VisionMaxImageNum = 16
 )
 
 // Setting safety to the lowest possible values since Gemini is already powerless enough
-func ConvertGeminiRequest(textRequest openai.GeneralOpenAIRequest) *GeminiChatRequest {
-	geminiRequest := GeminiChatRequest{
-		Contents: make([]GeminiChatContent, 0, len(textRequest.Messages)),
-		SafetySettings: []GeminiChatSafetySettings{
+func ConvertRequest(textRequest model.GeneralOpenAIRequest) *ChatRequest {
+	geminiRequest := ChatRequest{
+		Contents: make([]ChatContent, 0, len(textRequest.Messages)),
+		SafetySettings: []ChatSafetySettings{
 			{
 				Category:  "HARM_CATEGORY_HARASSMENT",
 				Threshold: config.GeminiSafetySetting,
@@ -46,14 +47,14 @@ func ConvertGeminiRequest(textRequest openai.GeneralOpenAIRequest) *GeminiChatRe
 				Threshold: config.GeminiSafetySetting,
 			},
 		},
-		GenerationConfig: GeminiChatGenerationConfig{
+		GenerationConfig: ChatGenerationConfig{
 			Temperature:     textRequest.Temperature,
 			TopP:            textRequest.TopP,
 			MaxOutputTokens: textRequest.MaxTokens,
 		},
 	}
 	if textRequest.Functions != nil {
-		geminiRequest.Tools = []GeminiChatTools{
+		geminiRequest.Tools = []ChatTools{
 			{
 				FunctionDeclarations: textRequest.Functions,
 			},
@@ -61,30 +62,30 @@ func ConvertGeminiRequest(textRequest openai.GeneralOpenAIRequest) *GeminiChatRe
 	}
 	shouldAddDummyModelMessage := false
 	for _, message := range textRequest.Messages {
-		content := GeminiChatContent{
+		content := ChatContent{
 			Role: message.Role,
-			Parts: []GeminiPart{
+			Parts: []Part{
 				{
 					Text: message.StringContent(),
 				},
 			},
 		}
 		openaiContent := message.ParseContent()
-		var parts []GeminiPart
+		var parts []Part
 		imageNum := 0
 		for _, part := range openaiContent {
-			if part.Type == openai.ContentTypeText {
-				parts = append(parts, GeminiPart{
+			if part.Type == model.ContentTypeText {
+				parts = append(parts, Part{
 					Text: part.Text,
 				})
-			} else if part.Type == openai.ContentTypeImageURL {
+			} else if part.Type == model.ContentTypeImageURL {
 				imageNum += 1
-				if imageNum > GeminiVisionMaxImageNum {
+				if imageNum > VisionMaxImageNum {
 					continue
 				}
 				mimeType, data, _ := image.GetImageFromUrl(part.ImageURL.Url)
-				parts = append(parts, GeminiPart{
-					InlineData: &GeminiInlineData{
+				parts = append(parts, Part{
+					InlineData: &InlineData{
 						MimeType: mimeType,
 						Data:     data,
 					},
@@ -106,9 +107,9 @@ func ConvertGeminiRequest(textRequest openai.GeneralOpenAIRequest) *GeminiChatRe
 
 		// If a system message is the last message, we need to add a dummy model message to make gemini happy
 		if shouldAddDummyModelMessage {
-			geminiRequest.Contents = append(geminiRequest.Contents, GeminiChatContent{
+			geminiRequest.Contents = append(geminiRequest.Contents, ChatContent{
 				Role: "model",
-				Parts: []GeminiPart{
+				Parts: []Part{
 					{
 						Text: "Okay",
 					},
@@ -121,12 +122,12 @@ func ConvertGeminiRequest(textRequest openai.GeneralOpenAIRequest) *GeminiChatRe
 	return &geminiRequest
 }
 
-type GeminiChatResponse struct {
-	Candidates     []GeminiChatCandidate    `json:"candidates"`
-	PromptFeedback GeminiChatPromptFeedback `json:"promptFeedback"`
+type ChatResponse struct {
+	Candidates     []ChatCandidate    `json:"candidates"`
+	PromptFeedback ChatPromptFeedback `json:"promptFeedback"`
 }
 
-func (g *GeminiChatResponse) GetResponseText() string {
+func (g *ChatResponse) GetResponseText() string {
 	if g == nil {
 		return ""
 	}
@@ -136,23 +137,23 @@ func (g *GeminiChatResponse) GetResponseText() string {
 	return ""
 }
 
-type GeminiChatCandidate struct {
-	Content       GeminiChatContent        `json:"content"`
-	FinishReason  string                   `json:"finishReason"`
-	Index         int64                    `json:"index"`
-	SafetyRatings []GeminiChatSafetyRating `json:"safetyRatings"`
+type ChatCandidate struct {
+	Content       ChatContent        `json:"content"`
+	FinishReason  string             `json:"finishReason"`
+	Index         int64              `json:"index"`
+	SafetyRatings []ChatSafetyRating `json:"safetyRatings"`
 }
 
-type GeminiChatSafetyRating struct {
+type ChatSafetyRating struct {
 	Category    string `json:"category"`
 	Probability string `json:"probability"`
 }
 
-type GeminiChatPromptFeedback struct {
-	SafetyRatings []GeminiChatSafetyRating `json:"safetyRatings"`
+type ChatPromptFeedback struct {
+	SafetyRatings []ChatSafetyRating `json:"safetyRatings"`
 }
 
-func responseGeminiChat2OpenAI(response *GeminiChatResponse) *openai.TextResponse {
+func responseGeminiChat2OpenAI(response *ChatResponse) *openai.TextResponse {
 	fullTextResponse := openai.TextResponse{
 		Id:      fmt.Sprintf("chatcmpl-%s", helper.GetUUID()),
 		Object:  "chat.completion",
@@ -162,7 +163,7 @@ func responseGeminiChat2OpenAI(response *GeminiChatResponse) *openai.TextRespons
 	for i, candidate := range response.Candidates {
 		choice := openai.TextResponseChoice{
 			Index: i,
-			Message: openai.Message{
+			Message: model.Message{
 				Role:    "assistant",
 				Content: "",
 			},
@@ -176,7 +177,7 @@ func responseGeminiChat2OpenAI(response *GeminiChatResponse) *openai.TextRespons
 	return &fullTextResponse
 }
 
-func streamResponseGeminiChat2OpenAI(geminiResponse *GeminiChatResponse) *openai.ChatCompletionsStreamResponse {
+func streamResponseGeminiChat2OpenAI(geminiResponse *ChatResponse) *openai.ChatCompletionsStreamResponse {
 	var choice openai.ChatCompletionsStreamResponseChoice
 	choice.Delta.Content = geminiResponse.GetResponseText()
 	choice.FinishReason = &constant.StopFinishReason
@@ -187,7 +188,7 @@ func streamResponseGeminiChat2OpenAI(geminiResponse *GeminiChatResponse) *openai
 	return &response
 }
 
-func StreamHandler(c *gin.Context, resp *http.Response) (*openai.ErrorWithStatusCode, string) {
+func StreamHandler(c *gin.Context, resp *http.Response) (*model.ErrorWithStatusCode, string) {
 	responseText := ""
 	dataChan := make(chan string)
 	stopChan := make(chan bool)
@@ -257,7 +258,7 @@ func StreamHandler(c *gin.Context, resp *http.Response) (*openai.ErrorWithStatus
 	return nil, responseText
 }
 
-func GeminiHandler(c *gin.Context, resp *http.Response, promptTokens int, model string) (*openai.ErrorWithStatusCode, *openai.Usage) {
+func Handler(c *gin.Context, resp *http.Response, promptTokens int, modelName string) (*model.ErrorWithStatusCode, *model.Usage) {
 	responseBody, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return openai.ErrorWrapper(err, "read_response_body_failed", http.StatusInternalServerError), nil
@@ -266,14 +267,14 @@ func GeminiHandler(c *gin.Context, resp *http.Response, promptTokens int, model 
 	if err != nil {
 		return openai.ErrorWrapper(err, "close_response_body_failed", http.StatusInternalServerError), nil
 	}
-	var geminiResponse GeminiChatResponse
+	var geminiResponse ChatResponse
 	err = json.Unmarshal(responseBody, &geminiResponse)
 	if err != nil {
 		return openai.ErrorWrapper(err, "unmarshal_response_body_failed", http.StatusInternalServerError), nil
 	}
 	if len(geminiResponse.Candidates) == 0 {
-		return &openai.ErrorWithStatusCode{
-			Error: openai.Error{
+		return &model.ErrorWithStatusCode{
+			Error: model.Error{
 				Message: "No candidates returned",
 				Type:    "server_error",
 				Param:   "",
@@ -283,9 +284,9 @@ func GeminiHandler(c *gin.Context, resp *http.Response, promptTokens int, model 
 		}, nil
 	}
 	fullTextResponse := responseGeminiChat2OpenAI(&geminiResponse)
-	fullTextResponse.Model = model
-	completionTokens := openai.CountTokenText(geminiResponse.GetResponseText(), model)
-	usage := openai.Usage{
+	fullTextResponse.Model = modelName
+	completionTokens := openai.CountTokenText(geminiResponse.GetResponseText(), modelName)
+	usage := model.Usage{
 		PromptTokens:     promptTokens,
 		CompletionTokens: completionTokens,
 		TotalTokens:      promptTokens + completionTokens,
