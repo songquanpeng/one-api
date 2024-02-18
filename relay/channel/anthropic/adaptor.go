@@ -15,6 +15,10 @@ import (
 type Adaptor struct {
 }
 
+func (a *Adaptor) Init(meta *util.RelayMeta) {
+
+}
+
 func (a *Adaptor) GetRequestURL(meta *util.RelayMeta) (string, error) {
 	return fmt.Sprintf("%s/v1/complete", meta.BaseURL), nil
 }

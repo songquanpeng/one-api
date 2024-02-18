@@ -119,6 +119,10 @@ var ModelRatio = map[string]float64{
 	"hunyuan":                   7.143,  // ¥0.1 / 1k tokens  // https://cloud.tencent.com/document/product/1729/97731#e0e6be58-60c8-469f-bdeb-6c264ce3b4d0
 	"ChatStd":                   0.01 * RMB,
 	"ChatPro":                   0.1 * RMB,
+	// https://platform.moonshot.cn/pricing
+	"moonshot-v1-8k":   0.012 * RMB,
+	"moonshot-v1-32k":  0.024 * RMB,
+	"moonshot-v1-128k": 0.06 * RMB,
 }
 
 func ModelRatio2JSONString() string {

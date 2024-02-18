@@ -57,6 +57,7 @@ func testChannel(channel *model.Channel) (err error, openaiErr *relaymodel.Error
 	if adaptor == nil {
 		return fmt.Errorf("invalid api type: %d, adaptor is nil", apiType), nil
 	}
+	adaptor.Init(meta)
 	modelName := adaptor.GetModelList()[0]
 	request := buildTestRequest()
 	request.Model = modelName

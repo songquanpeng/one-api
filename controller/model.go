@@ -3,6 +3,8 @@ package controller
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/songquanpeng/one-api/relay/channel/ai360"
+	"github.com/songquanpeng/one-api/relay/channel/moonshot"
 	"github.com/songquanpeng/one-api/relay/constant"
 	"github.com/songquanpeng/one-api/relay/helper"
 	relaymodel "github.com/songquanpeng/one-api/relay/model"
@@ -71,45 +73,28 @@ func init() {
 			})
 		}
 	}
-	// extra
-	openAIModels = append(openAIModels, []OpenAIModels{
-		{
-			Id:         "360GPT_S2_V9",
+	for _, modelName := range ai360.ModelList {
+		openAIModels = append(openAIModels, OpenAIModels{
+			Id:         modelName,
 			Object:     "model",
-			Created:    1677649963,
+			Created:    1626777600,
 			OwnedBy:    "360",
 			Permission: permission,
-			Root:       "360GPT_S2_V9",
+			Root:       modelName,
 			Parent:     nil,
-		},
-		{
-			Id:         "embedding-bert-512-v1",
+		})
+	}
+	for _, modelName := range moonshot.ModelList {
+		openAIModels = append(openAIModels, OpenAIModels{
+			Id:         modelName,
 			Object:     "model",
-			Created:    1677649963,
-			OwnedBy:    "360",
+			Created:    1626777600,
+			OwnedBy:    "moonshot",
 			Permission: permission,
-			Root:       "embedding-bert-512-v1",
+			Root:       modelName,
 			Parent:     nil,
-		},
-		{
-			Id:         "embedding_s1_v1",
-			Object:     "model",
-			Created:    1677649963,
-			OwnedBy:    "360",
-			Permission: permission,
-			Root:       "embedding_s1_v1",
-			Parent:     nil,
-		},
-		{
-			Id:         "semantic_similarity_s1_v1",
-			Object:     "model",
-			Created:    1677649963,
-			OwnedBy:    "360",
-			Permission: permission,
-			Root:       "semantic_similarity_s1_v1",
-			Parent:     nil,
-		},
-	}...)
+		})
+	}
 	openAIModelsMap = make(map[string]OpenAIModels)
 	for _, model := range openAIModels {
 		openAIModelsMap[model.Id] = model

@@ -18,6 +18,10 @@ import (
 type Adaptor struct {
 }
 
+func (a *Adaptor) Init(meta *util.RelayMeta) {
+
+}
+
 func (a *Adaptor) GetRequestURL(meta *util.RelayMeta) (string, error) {
 	fullRequestURL := fmt.Sprintf("%s/api/v1/services/aigc/text-generation/generation", meta.BaseURL)
 	if meta.Mode == constant.RelayModeEmbeddings {

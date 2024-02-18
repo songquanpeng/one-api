@@ -16,6 +16,10 @@ import (
 type Adaptor struct {
 }
 
+func (a *Adaptor) Init(meta *util.RelayMeta) {
+
+}
+
 func (a *Adaptor) GetRequestURL(meta *util.RelayMeta) (string, error) {
 	version := helper.AssignOrDefault(meta.APIVersion, "v1")
 	action := "generateContent"

@@ -14,6 +14,10 @@ import (
 type Adaptor struct {
 }
 
+func (a *Adaptor) Init(meta *util.RelayMeta) {
+
+}
+
 func (a *Adaptor) GetRequestURL(meta *util.RelayMeta) (string, error) {
 	method := "invoke"
 	if meta.IsStream {

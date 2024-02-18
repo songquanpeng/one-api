@@ -9,6 +9,7 @@ import (
 )
 
 type Adaptor interface {
+	Init(meta *util.RelayMeta)
 	GetRequestURL(meta *util.RelayMeta) (string, error)
 	SetupRequestHeader(c *gin.Context, req *http.Request, meta *util.RelayMeta) error
 	ConvertRequest(c *gin.Context, relayMode int, request *model.GeneralOpenAIRequest) (any, error)

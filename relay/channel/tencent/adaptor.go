@@ -19,6 +19,10 @@ type Adaptor struct {
 	Sign string
 }
 
+func (a *Adaptor) Init(meta *util.RelayMeta) {
+
+}
+
 func (a *Adaptor) GetRequestURL(meta *util.RelayMeta) (string, error) {
 	return fmt.Sprintf("%s/hyllm/v1/chat/completions", meta.BaseURL), nil
 }

@@ -6,6 +6,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/songquanpeng/one-api/common"
 	"github.com/songquanpeng/one-api/relay/channel"
+	"github.com/songquanpeng/one-api/relay/channel/ai360"
+	"github.com/songquanpeng/one-api/relay/channel/moonshot"
 	"github.com/songquanpeng/one-api/relay/model"
 	"github.com/songquanpeng/one-api/relay/util"
 	"io"
@@ -14,6 +16,11 @@ import (
 )
 
 type Adaptor struct {
+	ChannelType int
+}
+
+func (a *Adaptor) Init(meta *util.RelayMeta) {
+	a.ChannelType = meta.ChannelType
 }
 
 func (a *Adaptor) GetRequestURL(meta *util.RelayMeta) (string, error) {
@@ -72,9 +79,25 @@ func (a *Adaptor) DoResponse(c *gin.Context, resp *http.Response, meta *util.Rel
 }
 
 func (a *Adaptor) GetModelList() []string {
-	return ModelList
+	switch a.ChannelType {
+	case common.ChannelType360:
+		return ai360.ModelList
+	case common.ChannelTypeMoonshot:
+		return moonshot.ModelList
+	default:
+		return ModelList
+	}
 }
 
 func (a *Adaptor) GetChannelName() string {
-	return "openai"
+	switch a.ChannelType {
+	case common.ChannelTypeAzure:
+		return "azure"
+	case common.ChannelType360:
+		return "360"
+	case common.ChannelTypeMoonshot:
+		return "moonshot"
+	default:
+		return "openai"
+	}
 }

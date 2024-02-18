@@ -16,6 +16,10 @@ type Adaptor struct {
 	request *model.GeneralOpenAIRequest
 }
 
+func (a *Adaptor) Init(meta *util.RelayMeta) {
+
+}
+
 func (a *Adaptor) GetRequestURL(meta *util.RelayMeta) (string, error) {
 	return "", nil
 }

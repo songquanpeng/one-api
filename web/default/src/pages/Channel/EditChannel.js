@@ -93,6 +93,9 @@ const EditChannel = () => {
         case 24:
           localModels = ['gemini-pro', 'gemini-pro-vision'];
           break;
+        case 25:
+          localModels = ['moonshot-v1-8k', 'moonshot-v1-32k', 'moonshot-v1-128k'];
+          break;
       }
       setInputs((inputs) => ({ ...inputs, models: localModels }));
     }
