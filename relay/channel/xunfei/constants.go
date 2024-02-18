@@ -2,8 +2,8 @@ package xunfei
 
 var ModelList = []string{
 	"SparkDesk",
-	"SparkDesk-v1.5",
-	"SparkDesk-v2.0",
-	"SparkDesk-v3.0",
+	"SparkDesk-v1.1",
+	"SparkDesk-v2.1",
+	"SparkDesk-v3.1",
 	"SparkDesk-v3.5",
 }
