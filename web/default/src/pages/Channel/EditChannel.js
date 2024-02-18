@@ -82,7 +82,13 @@ const EditChannel = () => {
           localModels = ['chatglm_turbo', 'chatglm_pro', 'chatglm_std', 'chatglm_lite'];
           break;
         case 18:
-          localModels = ['SparkDesk'];
+          localModels = [
+            'SparkDesk',
+            'SparkDesk-v1.5',
+            'SparkDesk-v2.0',
+            'SparkDesk-v3.0',
+            'SparkDesk-v3.5'
+          ];
           break;
         case 19:
           localModels = ['360GPT_S2_V9', 'embedding-bert-512-v1', 'embedding_s1_v1', 'semantic_similarity_s1_v1'];

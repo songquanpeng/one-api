@@ -127,7 +127,7 @@ func buildXunfeiAuthUrl(hostUrl string, apiKey, apiSecret string) string {
 }
 
 func StreamHandler(c *gin.Context, textRequest model.GeneralOpenAIRequest, appId string, apiSecret string, apiKey string) (*model.ErrorWithStatusCode, *model.Usage) {
-	domain, authUrl := getXunfeiAuthUrl(c, apiKey, apiSecret)
+	domain, authUrl := getXunfeiAuthUrl(c, apiKey, apiSecret, textRequest.Model)
 	dataChan, stopChan, err := xunfeiMakeRequest(textRequest, domain, authUrl, appId)
 	if err != nil {
 		return openai.ErrorWrapper(err, "make xunfei request err", http.StatusInternalServerError), nil
@@ -157,7 +157,7 @@ func StreamHandler(c *gin.Context, textRequest model.GeneralOpenAIRequest, appId
 }
 
 func Handler(c *gin.Context, textRequest model.GeneralOpenAIRequest, appId string, apiSecret string, apiKey string) (*model.ErrorWithStatusCode, *model.Usage) {
-	domain, authUrl := getXunfeiAuthUrl(c, apiKey, apiSecret)
+	domain, authUrl := getXunfeiAuthUrl(c, apiKey, apiSecret, textRequest.Model)
 	dataChan, stopChan, err := xunfeiMakeRequest(textRequest, domain, authUrl, appId)
 	if err != nil {
 		return openai.ErrorWrapper(err, "make xunfei request err", http.StatusInternalServerError), nil
@@ -242,20 +242,45 @@ func xunfeiMakeRequest(textRequest model.GeneralOpenAIRequest, domain, authUrl, 
 	return dataChan, stopChan, nil
 }
 
-func getXunfeiAuthUrl(c *gin.Context, apiKey string, apiSecret string) (string, string) {
+func getAPIVersion(c *gin.Context, modelName string) string {
 	query := c.Request.URL.Query()
 	apiVersion := query.Get("api-version")
-	if apiVersion == "" {
-		apiVersion = c.GetString(common.ConfigKeyAPIVersion)
+	if apiVersion != "" {
+		return apiVersion
 	}
-	if apiVersion == "" {
-		apiVersion = "v1.1"
-		logger.SysLog("api_version not found, use default: " + apiVersion)
+	parts := strings.Split(modelName, "-")
+	if len(parts) == 2 {
+		apiVersion = parts[1]
+		return apiVersion
+
 	}
-	domain := "general"
-	if apiVersion != "v1.1" {
-		domain += strings.Split(apiVersion, ".")[0]
+	apiVersion = c.GetString(common.ConfigKeyAPIVersion)
+	if apiVersion != "" {
+		return apiVersion
 	}
+	apiVersion = "v1.1"
+	logger.SysLog("api_version not found, using default: " + apiVersion)
+	return apiVersion
+}
+
+// https://www.xfyun.cn/doc/spark/Web.html#_1-%E6%8E%A5%E5%8F%A3%E8%AF%B4%E6%98%8E
+func apiVersion2domain(apiVersion string) string {
+	switch apiVersion {
+	case "v1.1":
+		return "general"
+	case "v2.1":
+		return "generalv2"
+	case "v3.1":
+		return "generalv3"
+	case "v3.5":
+		return "generalv3.5"
+	}
+	return "general" + apiVersion
+}
+
+func getXunfeiAuthUrl(c *gin.Context, apiKey string, apiSecret string, modelName string) (string, string) {
+	apiVersion := getAPIVersion(c, modelName)
+	domain := apiVersion2domain(apiVersion)
 	authUrl := buildXunfeiAuthUrl(fmt.Sprintf("wss://spark-api.xf-yun.com/%s/chat", apiVersion), apiKey, apiSecret)
 	return domain, authUrl
 }
