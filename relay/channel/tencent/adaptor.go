@@ -13,6 +13,8 @@ import (
 	"strings"
 )
 
+// https://cloud.tencent.com/document/api/1729/101837
+
 type Adaptor struct {
 	Sign string
 }
@@ -24,6 +26,7 @@ func (a *Adaptor) GetRequestURL(meta *util.RelayMeta) (string, error) {
 func (a *Adaptor) SetupRequestHeader(c *gin.Context, req *http.Request, meta *util.RelayMeta) error {
 	channel.SetupCommonRequestHeader(c, req, meta)
 	req.Header.Set("Authorization", a.Sign)
+	req.Header.Set("X-TC-Action", meta.ActualModelName)
 	return nil
 }
 
