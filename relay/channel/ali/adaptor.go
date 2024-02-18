@@ -13,6 +13,8 @@ import (
 	"net/http"
 )
 
+// https://help.aliyun.com/zh/dashscope/developer-reference/api-details
+
 type Adaptor struct {
 }
 
