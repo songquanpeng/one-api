@@ -227,9 +227,9 @@ export default function ChannelPage() {
                 <Button onClick={testAllChannels} startIcon={<IconBrandSpeedtest width={'18px'} />}>
                   测试启用渠道
                 </Button>
-                <Button onClick={updateAllChannelsBalance} startIcon={<IconCoinYuan width={'18px'} />}>
-                  更新启用余额
-                </Button>
+                {/*<Button onClick={updateAllChannelsBalance} startIcon={<IconCoinYuan width={'18px'} />}>*/}
+                {/*  更新启用余额*/}
+                {/*</Button>*/}
                 <Button onClick={deleteAllDisabledChannels} startIcon={<IconHttpDelete width={'18px'} />}>
                   删除禁用渠道
                 </Button>
