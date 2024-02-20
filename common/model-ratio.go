@@ -36,6 +36,7 @@ func init() {
 		"gpt-4-preview":        {[]float64{5, 15}, ChannelTypeOpenAI},
 		"gpt-4-1106-preview":   {[]float64{5, 15}, ChannelTypeOpenAI},
 		"gpt-4-0125-preview":   {[]float64{5, 15}, ChannelTypeOpenAI},
+		"gpt-4-turbo-preview":  {[]float64{5, 15}, ChannelTypeOpenAI},
 		"gpt-4-vision-preview": {[]float64{5, 15}, ChannelTypeOpenAI},
 		// 	$0.0005 / 1K tokens	$0.0015 / 1K tokens
 		"gpt-3.5-turbo":      {[]float64{0.25, 0.75}, ChannelTypeOpenAI},
