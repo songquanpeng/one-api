@@ -114,7 +114,7 @@ func convertFromChatOpenai(request *types.ChatCompletionRequest) *AliChatRequest
 	messages := make([]AliMessage, 0, len(request.Messages))
 	for i := 0; i < len(request.Messages); i++ {
 		message := request.Messages[i]
-		if request.Model != "qwen-vl-plus" {
+		if !strings.HasPrefix(request.Model, "qwen-vl") {
 			messages = append(messages, AliMessage{
 				Content: message.StringContent(),
 				Role:    strings.ToLower(message.Role),

@@ -130,8 +130,8 @@ func init() {
 		"qwen-plus":            {[]float64{1.4286, 1.4286}, ChannelTypeAli},
 		"qwen-max":             {[]float64{1.4286, 1.4286}, ChannelTypeAli},
 		"qwen-max-longcontext": {[]float64{1.4286, 1.4286}, ChannelTypeAli},
-		"qwen-vl":              {[]float64{0.5715, 0.5715}, ChannelTypeAli},
 		"qwen-vl-plus":         {[]float64{0.5715, 0.5715}, ChannelTypeAli},
+		"qwen-vl-max":          {[]float64{0.5715, 0.5715}, ChannelTypeAli},
 		// ￥0.0007 / 1k tokens
 		"text-embedding-v1": {[]float64{0.05, 0.05}, ChannelTypeAli},
 

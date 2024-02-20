@@ -184,7 +184,7 @@ const typeConfig = {
   },
   29: {
     input: {
-      models: ['moonshot-v1-8k', 'moonshot-v1-16k', 'moonshot-v1-128k'],
+      models: ['moonshot-v1-8k', 'moonshot-v1-32k', 'moonshot-v1-128k'],
       test_model: 'moonshot-v1-8k'
     }
   }
