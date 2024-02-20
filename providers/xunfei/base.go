@@ -68,7 +68,7 @@ func (p *XunfeiProvider) GetFullRequestURL(requestURL string, modelName string) 
 	if len(splits) != 3 {
 		return ""
 	}
-	domain, authUrl := p.getXunfeiAuthUrl(splits[2], splits[1])
+	domain, authUrl := p.getXunfeiAuthUrl(splits[2], splits[1], modelName)
 
 	p.domain = domain
 	p.apiId = splits[0]
@@ -76,20 +76,47 @@ func (p *XunfeiProvider) GetFullRequestURL(requestURL string, modelName string) 
 	return authUrl
 }
 
-func (p *XunfeiProvider) getXunfeiAuthUrl(apiKey string, apiSecret string) (string, string) {
+func (p *XunfeiProvider) getAPIVersion(modelName string) string {
 	query := p.Context.Request.URL.Query()
 	apiVersion := query.Get("api-version")
-	if apiVersion == "" {
-		apiVersion = p.Channel.Other
+	if apiVersion != "" {
+		return apiVersion
 	}
-	if apiVersion == "" {
-		apiVersion = "v1.1"
-		common.SysLog("api_version not found, use default: " + apiVersion)
+	parts := strings.Split(modelName, "-")
+	if len(parts) == 2 {
+		apiVersion = parts[1]
+		return apiVersion
 	}
-	domain := "general"
-	if apiVersion != "v1.1" {
-		domain += strings.Split(apiVersion, ".")[0]
+
+	apiVersion = p.Channel.Other
+	if apiVersion != "" {
+		return apiVersion
 	}
+	apiVersion = "v1.1"
+
+	common.SysLog("api_version not found, use default: " + apiVersion)
+	return apiVersion
+}
+
+// https://www.xfyun.cn/doc/spark/Web.html#_1-%E6%8E%A5%E5%8F%A3%E8%AF%B4%E6%98%8E
+func apiVersion2domain(apiVersion string) string {
+	switch apiVersion {
+	case "v1.1":
+		return "general"
+	case "v2.1":
+		return "generalv2"
+	case "v3.1":
+		return "generalv3"
+	case "v3.5":
+		return "generalv3.5"
+	}
+	return "general" + apiVersion
+}
+
+func (p *XunfeiProvider) getXunfeiAuthUrl(apiKey string, apiSecret string, modelName string) (string, string) {
+	apiVersion := p.getAPIVersion(modelName)
+	domain := apiVersion2domain(apiVersion)
+
 	authUrl := p.buildXunfeiAuthUrl(fmt.Sprintf("%s/%s/chat", p.Config.BaseURL, apiVersion), apiKey, apiSecret)
 	return domain, authUrl
 }

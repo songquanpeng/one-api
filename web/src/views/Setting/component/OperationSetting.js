@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import SubCard from 'ui-component/cards/SubCard';
-import { Stack, FormControl, InputLabel, OutlinedInput, Checkbox, Button, FormControlLabel, TextField } from '@mui/material';
+import { Stack, FormControl, InputLabel, OutlinedInput, Checkbox, Button, FormControlLabel, TextField, Alert, Switch } from '@mui/material';
 import { showSuccess, showError, verifyJSON } from 'utils/common';
 import { API } from 'utils/api';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
+import ModelRationDataGrid from './ModelRationDataGrid';
 import dayjs from 'dayjs';
 require('dayjs/locale/zh-cn');
 
@@ -32,6 +33,7 @@ const OperationSetting = () => {
     RetryTimes: 0
   });
   const [originInputs, setOriginInputs] = useState({});
+  const [newModelRatioView, setNewModelRatioView] = useState(false);
   let [loading, setLoading] = useState(false);
   let [historyTimestamp, setHistoryTimestamp] = useState(now.getTime() / 1000 - 30 * 24 * 3600); // a month ago new Date().getTime() / 1000 + 3600
 
@@ -435,21 +437,6 @@ const OperationSetting = () => {
             <TextField
               multiline
               maxRows={15}
-              id="channel-ModelRatio-label"
-              label="模型倍率"
-              value={inputs.ModelRatio}
-              name="ModelRatio"
-              onChange={handleInputChange}
-              aria-describedby="helper-text-channel-ModelRatio-label"
-              minRows={5}
-              placeholder="为一个 JSON 文本，键为模型名称，值为倍率"
-            />
-          </FormControl>
-
-          <FormControl fullWidth>
-            <TextField
-              multiline
-              maxRows={15}
               id="channel-GroupRatio-label"
               label="分组倍率"
               value={inputs.GroupRatio}
@@ -460,6 +447,45 @@ const OperationSetting = () => {
               placeholder="为一个 JSON 文本，键为分组名称，值为倍率"
             />
           </FormControl>
+
+          <FormControl fullWidth>
+            <Alert severity="info">
+              配置格式为 JSON 文本，键为模型名称；值第一位为输入倍率，第二位为完成倍率，如果只有单一倍率则两者值相同。
+              <br /> <b>美元</b>：1 === $0.002 / 1K tokens <b>人民币</b>： 1 === ￥0.014 / 1k tokens
+              <br /> <b>例如</b>：<br /> gpt-4 输入： $0.03 / 1K tokens 完成：$0.06 / 1K tokens <br />
+              0.03 / 0.002 = 15, 0.06 / 0.002 = 30，即输入倍率为 15，完成倍率为 30
+            </Alert>
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={newModelRatioView}
+                  onChange={() => {
+                    setNewModelRatioView(!newModelRatioView);
+                  }}
+                />
+              }
+              label="使用新编辑器"
+            />
+          </FormControl>
+
+          {newModelRatioView ? (
+            <ModelRationDataGrid ratio={inputs.ModelRatio} onChange={handleInputChange} />
+          ) : (
+            <FormControl fullWidth>
+              <TextField
+                multiline
+                maxRows={15}
+                id="channel-ModelRatio-label"
+                label="模型倍率"
+                value={inputs.ModelRatio}
+                name="ModelRatio"
+                onChange={handleInputChange}
+                aria-describedby="helper-text-channel-ModelRatio-label"
+                minRows={5}
+                placeholder="为一个 JSON 文本，键为模型名称，值为倍率"
+              />
+            </FormControl>
+          )}
           <Button
             variant="contained"
             onClick={() => {

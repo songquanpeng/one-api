@@ -30,6 +30,9 @@ const NameLabel = ({ name, models }) => {
                   onClick={() => {
                     copy(item, '模型名称');
                   }}
+                  onTouchEnd={() => {
+                    copy(item, '模型名称');
+                  }}
                 >
                   {item}
                 </Label>
@@ -39,6 +42,7 @@ const NameLabel = ({ name, models }) => {
         </TooltipContainer>
       }
       placement="top"
+      enterTouchDelay={0}
     >
       <span>{name}</span>
     </Tooltip>

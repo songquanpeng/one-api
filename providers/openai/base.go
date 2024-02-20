@@ -85,13 +85,6 @@ func (p *OpenAIProvider) GetFullRequestURL(requestURL string, modelName string) 
 
 	if p.IsAzure {
 		apiVersion := p.Channel.Other
-		// 以-分割，检测modelName 最后一个元素是否为4位数字,必须是数字，如果是则删除modelName最后一个元素
-		modelNameSlice := strings.Split(modelName, "-")
-		lastModelNameSlice := modelNameSlice[len(modelNameSlice)-1]
-		modelNum := common.String2Int(lastModelNameSlice)
-		if modelNum > 999 && modelNum < 10000 {
-			modelName = strings.TrimSuffix(modelName, "-"+lastModelNameSlice)
-		}
 		// 检测模型是是否包含 . 如果有则直接去掉
 		modelName = strings.Replace(modelName, ".", "", -1)
 
