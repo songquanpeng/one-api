@@ -20,6 +20,7 @@ services:
 #      - NODE_TYPE=slave  # 多机部署时从节点取消注释该行
 #      - SYNC_FREQUENCY=60  # 需要定期从数据库加载数据时取消注释该行
 #      - FRONTEND_BASE_URL=https://openai.justsong.cn  # 多机部署时从节点取消注释该行
+      - THEME=berry # 使用berry主题，注销该行使用默认主题
     depends_on:
       - redis
       - db
@@ -35,16 +36,15 @@ services:
     restart: always
 
   db:
-    image: postgres:16.1-alpine3.19 # mysql版本
+    image: postgres:16.1-alpine3.19 # 数据库版本
     restart: always
     container_name: postgres  # 容器名
     volumes:
       - ./data/postgres:/var/lib/postgresql/data  #挂载目录，持久化存储
-      #- ./init/init-user-db.sh:/docker-entrypoint-initdb.d/init-user-db.sh  # 初始化脚本，创建用户和数据库
     ports:
       - '5432:5432'
     environment:
       POSTGRES_USER: 'oneapi'
-      POSTGRES_PASSWORD: '123456'   # 设置postgres用户密码
+      POSTGRES_PASSWORD: '123456'   # 设置用户密码
       POSTGRES_DB: 'one-api'
       PGDATA: '/var/lib/postgresql/data/pgdata'  # 设置数据目录
