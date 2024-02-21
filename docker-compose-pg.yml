@@ -1,0 +1,50 @@
+version: '3.4'
+
+services:
+  one-api:
+    image: justsong/one-api:latest
+    container_name: one-api
+    restart: always
+    command: --log-dir /app/logs
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./data/oneapi:/data
+      - ./logs:/app/logs
+    environment:
+#      - SQL_DSN=oneapi:123456@tcp(db:3306)/one-api  # 修改此行，或注释掉以使用 SQLite 作为数据库
+      - SQL_DSN=postgres://oneapi:123456@db:5432/one-api
+      - REDIS_CONN_STRING=redis://redis
+      - SESSION_SECRET=random_string  # 修改为随机字符串
+      - TZ=Asia/Shanghai
+#      - NODE_TYPE=slave  # 多机部署时从节点取消注释该行
+#      - SYNC_FREQUENCY=60  # 需要定期从数据库加载数据时取消注释该行
+#      - FRONTEND_BASE_URL=https://openai.justsong.cn  # 多机部署时从节点取消注释该行
+    depends_on:
+      - redis
+      - db
+    healthcheck:
+      test: [ "CMD-SHELL", "wget -q -O - http://localhost:3000/api/status | grep -o '\"success\":\\s*true' | awk -F: '{print $2}'" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    restart: always
+
+  db:
+    image: postgres:16.1-alpine3.19 # mysql版本
+    restart: always
+    container_name: postgres  # 容器名
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data  #挂载目录，持久化存储
+      #- ./init/init-user-db.sh:/docker-entrypoint-initdb.d/init-user-db.sh  # 初始化脚本，创建用户和数据库
+    ports:
+      - '5432:5432'
+    environment:
+      POSTGRES_USER: 'oneapi'
+      POSTGRES_PASSWORD: '123456'   # 设置postgres用户密码
+      POSTGRES_DB: 'one-api'
+      PGDATA: '/var/lib/postgresql/data/pgdata'  # 设置数据目录
