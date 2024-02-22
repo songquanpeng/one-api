@@ -1,7 +1,7 @@
 package zhipu
 
 import (
-	"one-api/relay/channel/openai"
+	"github.com/songquanpeng/one-api/relay/model"
 	"time"
 )
 
@@ -19,11 +19,11 @@ type Request struct {
 }
 
 type ResponseData struct {
-	TaskId       string    `json:"task_id"`
-	RequestId    string    `json:"request_id"`
-	TaskStatus   string    `json:"task_status"`
-	Choices      []Message `json:"choices"`
-	openai.Usage `json:"usage"`
+	TaskId      string    `json:"task_id"`
+	RequestId   string    `json:"request_id"`
+	TaskStatus  string    `json:"task_status"`
+	Choices     []Message `json:"choices"`
+	model.Usage `json:"usage"`
 }
 
 type Response struct {
@@ -34,10 +34,10 @@ type Response struct {
 }
 
 type StreamMetaResponse struct {
-	RequestId    string `json:"request_id"`
-	TaskId       string `json:"task_id"`
-	TaskStatus   string `json:"task_status"`
-	openai.Usage `json:"usage"`
+	RequestId   string `json:"request_id"`
+	TaskId      string `json:"task_id"`
+	TaskStatus  string `json:"task_status"`
+	model.Usage `json:"usage"`
 }
 
 type tokenData struct {

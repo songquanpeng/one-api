@@ -2,9 +2,10 @@ package middleware
 
 import (
 	"fmt"
+	"github.com/songquanpeng/one-api/common"
+	"github.com/songquanpeng/one-api/common/logger"
+	"github.com/songquanpeng/one-api/model"
 	"net/http"
-	"one-api/common"
-	"one-api/model"
 	"strconv"
 	"strings"
 
@@ -73,7 +74,7 @@ func Distribute() func(c *gin.Context) {
 			if err != nil {
 				message := fmt.Sprintf("当前分组 %s 下对于模型 %s 无可用渠道", userGroup, modelRequest.Model)
 				if channel != nil {
-					common.SysError(fmt.Sprintf("渠道不存在：%d", channel.Id))
+					logger.SysError(fmt.Sprintf("渠道不存在：%d", channel.Id))
 					message = "数据库一致性已被破坏，请联系管理员"
 				}
 				abortWithMessage(c, http.StatusServiceUnavailable, message)
@@ -86,17 +87,22 @@ func Distribute() func(c *gin.Context) {
 		c.Set("model_mapping", channel.GetModelMapping())
 		c.Request.Header.Set("Authorization", fmt.Sprintf("Bearer %s", channel.Key))
 		c.Set("base_url", channel.GetBaseURL())
+		// this is for backward compatibility
 		switch channel.Type {
 		case common.ChannelTypeAzure:
-			c.Set("api_version", channel.Other)
+			c.Set(common.ConfigKeyAPIVersion, channel.Other)
 		case common.ChannelTypeXunfei:
-			c.Set("api_version", channel.Other)
+			c.Set(common.ConfigKeyAPIVersion, channel.Other)
 		case common.ChannelTypeGemini:
-			c.Set("api_version", channel.Other)
+			c.Set(common.ConfigKeyAPIVersion, channel.Other)
 		case common.ChannelTypeAIProxyLibrary:
-			c.Set("library_id", channel.Other)
+			c.Set(common.ConfigKeyLibraryID, channel.Other)
 		case common.ChannelTypeAli:
-			c.Set("plugin", channel.Other)
+			c.Set(common.ConfigKeyPlugin, channel.Other)
+		}
+		cfg, _ := channel.LoadConfig()
+		for k, v := range cfg {
+			c.Set(common.ConfigKeyPrefix+k, v)
 		}
 		c.Next()
 	}

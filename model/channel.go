@@ -1,8 +1,13 @@
 package model
 
 import (
+	"encoding/json"
+	"fmt"
+	"github.com/songquanpeng/one-api/common"
+	"github.com/songquanpeng/one-api/common/config"
+	"github.com/songquanpeng/one-api/common/helper"
+	"github.com/songquanpeng/one-api/common/logger"
 	"gorm.io/gorm"
-	"one-api/common"
 )
 
 type Channel struct {
@@ -16,7 +21,7 @@ type Channel struct {
 	TestTime           int64   `json:"test_time" gorm:"bigint"`
 	ResponseTime       int     `json:"response_time"` // in milliseconds
 	BaseURL            *string `json:"base_url" gorm:"column:base_url;default:''"`
-	Other              string  `json:"other"`
+	Other              string  `json:"other"`   // DEPRECATED: please save config to field Config
 	Balance            float64 `json:"balance"` // in USD
 	BalanceUpdatedTime int64   `json:"balance_updated_time" gorm:"bigint"`
 	Models             string  `json:"models"`
@@ -24,6 +29,7 @@ type Channel struct {
 	UsedQuota          int64   `json:"used_quota" gorm:"bigint;default:0"`
 	ModelMapping       *string `json:"model_mapping" gorm:"type:varchar(1024);default:''"`
 	Priority           *int64  `json:"priority" gorm:"bigint;default:0"`
+	Config             string  `json:"config"`
 }
 
 func GetAllChannels(startIdx int, num int, selectAll bool) ([]*Channel, error) {
@@ -42,7 +48,7 @@ func SearchChannels(keyword string) (channels []*Channel, err error) {
 	if common.UsingPostgreSQL {
 		keyCol = `"key"`
 	}
-	err = DB.Omit("key").Where("id = ? or name LIKE ? or "+keyCol+" = ?", common.String2Int(keyword), keyword+"%", keyword).Find(&channels).Error
+	err = DB.Omit("key").Where("id = ? or name LIKE ? or "+keyCol+" = ?", helper.String2Int(keyword), keyword+"%", keyword).Find(&channels).Error
 	return channels, err
 }
 
@@ -86,11 +92,17 @@ func (channel *Channel) GetBaseURL() string {
 	return *channel.BaseURL
 }
 
-func (channel *Channel) GetModelMapping() string {
-	if channel.ModelMapping == nil {
-		return ""
+func (channel *Channel) GetModelMapping() map[string]string {
+	if channel.ModelMapping == nil || *channel.ModelMapping == "" || *channel.ModelMapping == "{}" {
+		return nil
 	}
-	return *channel.ModelMapping
+	modelMapping := make(map[string]string)
+	err := json.Unmarshal([]byte(*channel.ModelMapping), &modelMapping)
+	if err != nil {
+		logger.SysError(fmt.Sprintf("failed to unmarshal model mapping for channel %d, error: %s", channel.Id, err.Error()))
+		return nil
+	}
+	return modelMapping
 }
 
 func (channel *Channel) Insert() error {
@@ -116,21 +128,21 @@ func (channel *Channel) Update() error {
 
 func (channel *Channel) UpdateResponseTime(responseTime int64) {
 	err := DB.Model(channel).Select("response_time", "test_time").Updates(Channel{
-		TestTime:     common.GetTimestamp(),
+		TestTime:     helper.GetTimestamp(),
 		ResponseTime: int(responseTime),
 	}).Error
 	if err != nil {
-		common.SysError("failed to update response time: " + err.Error())
+		logger.SysError("failed to update response time: " + err.Error())
 	}
 }
 
 func (channel *Channel) UpdateBalance(balance float64) {
 	err := DB.Model(channel).Select("balance_updated_time", "balance").Updates(Channel{
-		BalanceUpdatedTime: common.GetTimestamp(),
+		BalanceUpdatedTime: helper.GetTimestamp(),
 		Balance:            balance,
 	}).Error
 	if err != nil {
-		common.SysError("failed to update balance: " + err.Error())
+		logger.SysError("failed to update balance: " + err.Error())
 	}
 }
 
@@ -144,19 +156,31 @@ func (channel *Channel) Delete() error {
 	return err
 }
 
+func (channel *Channel) LoadConfig() (map[string]string, error) {
+	if channel.Config == "" {
+		return nil, nil
+	}
+	cfg := make(map[string]string)
+	err := json.Unmarshal([]byte(channel.Config), &cfg)
+	if err != nil {
+		return nil, err
+	}
+	return cfg, nil
+}
+
 func UpdateChannelStatusById(id int, status int) {
 	err := UpdateAbilityStatus(id, status == common.ChannelStatusEnabled)
 	if err != nil {
-		common.SysError("failed to update ability status: " + err.Error())
+		logger.SysError("failed to update ability status: " + err.Error())
 	}
 	err = DB.Model(&Channel{}).Where("id = ?", id).Update("status", status).Error
 	if err != nil {
-		common.SysError("failed to update channel status: " + err.Error())
+		logger.SysError("failed to update channel status: " + err.Error())
 	}
 }
 
 func UpdateChannelUsedQuota(id int, quota int) {
-	if common.BatchUpdateEnabled {
+	if config.BatchUpdateEnabled {
 		addNewRecord(BatchUpdateTypeChannelUsedQuota, id, quota)
 		return
 	}
@@ -166,7 +190,7 @@ func UpdateChannelUsedQuota(id int, quota int) {
 func updateChannelUsedQuota(id int, quota int) {
 	err := DB.Model(&Channel{}).Where("id = ?", id).Update("used_quota", gorm.Expr("used_quota + ?", quota)).Error
 	if err != nil {
-		common.SysError("failed to update channel used quota: " + err.Error())
+		logger.SysError("failed to update channel used quota: " + err.Error())
 	}
 }
 

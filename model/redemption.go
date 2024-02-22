@@ -3,8 +3,9 @@ package model
 import (
 	"errors"
 	"fmt"
+	"github.com/songquanpeng/one-api/common"
+	"github.com/songquanpeng/one-api/common/helper"
 	"gorm.io/gorm"
-	"one-api/common"
 )
 
 type Redemption struct {
@@ -67,7 +68,7 @@ func Redeem(key string, userId int) (quota int, err error) {
 		if err != nil {
 			return err
 		}
-		redemption.RedeemedTime = common.GetTimestamp()
+		redemption.RedeemedTime = helper.GetTimestamp()
 		redemption.Status = common.RedemptionCodeStatusUsed
 		err = tx.Save(redemption).Error
 		return err

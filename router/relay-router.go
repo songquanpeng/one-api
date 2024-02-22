@@ -1,8 +1,8 @@
 package router
 
 import (
-	"one-api/controller"
-	"one-api/middleware"
+	"github.com/songquanpeng/one-api/controller"
+	"github.com/songquanpeng/one-api/middleware"
 
 	"github.com/gin-gonic/gin"
 )

@@ -9,11 +9,14 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/songquanpeng/one-api/common"
+	"github.com/songquanpeng/one-api/common/helper"
+	"github.com/songquanpeng/one-api/common/logger"
+	"github.com/songquanpeng/one-api/relay/channel/openai"
+	"github.com/songquanpeng/one-api/relay/constant"
+	"github.com/songquanpeng/one-api/relay/model"
 	"io"
 	"net/http"
-	"one-api/common"
-	"one-api/relay/channel/openai"
-	"one-api/relay/constant"
 	"sort"
 	"strconv"
 	"strings"
@@ -21,7 +24,7 @@ import (
 
 // https://cloud.tencent.com/document/product/1729/97732
 
-func ConvertRequest(request openai.GeneralOpenAIRequest) *ChatRequest {
+func ConvertRequest(request model.GeneralOpenAIRequest) *ChatRequest {
 	messages := make([]Message, 0, len(request.Messages))
 	for i := 0; i < len(request.Messages); i++ {
 		message := request.Messages[i]
@@ -46,9 +49,9 @@ func ConvertRequest(request openai.GeneralOpenAIRequest) *ChatRequest {
 		stream = 1
 	}
 	return &ChatRequest{
-		Timestamp:   common.GetTimestamp(),
-		Expired:     common.GetTimestamp() + 24*60*60,
-		QueryID:     common.GetUUID(),
+		Timestamp:   helper.GetTimestamp(),
+		Expired:     helper.GetTimestamp() + 24*60*60,
+		QueryID:     helper.GetUUID(),
 		Temperature: request.Temperature,
 		TopP:        request.TopP,
 		Stream:      stream,
@@ -59,13 +62,13 @@ func ConvertRequest(request openai.GeneralOpenAIRequest) *ChatRequest {
 func responseTencent2OpenAI(response *ChatResponse) *openai.TextResponse {
 	fullTextResponse := openai.TextResponse{
 		Object:  "chat.completion",
-		Created: common.GetTimestamp(),
+		Created: helper.GetTimestamp(),
 		Usage:   response.Usage,
 	}
 	if len(response.Choices) > 0 {
 		choice := openai.TextResponseChoice{
 			Index: 0,
-			Message: openai.Message{
+			Message: model.Message{
 				Role:    "assistant",
 				Content: response.Choices[0].Messages.Content,
 			},
@@ -79,7 +82,7 @@ func responseTencent2OpenAI(response *ChatResponse) *openai.TextResponse {
 func streamResponseTencent2OpenAI(TencentResponse *ChatResponse) *openai.ChatCompletionsStreamResponse {
 	response := openai.ChatCompletionsStreamResponse{
 		Object:  "chat.completion.chunk",
-		Created: common.GetTimestamp(),
+		Created: helper.GetTimestamp(),
 		Model:   "tencent-hunyuan",
 	}
 	if len(TencentResponse.Choices) > 0 {
@@ -93,7 +96,7 @@ func streamResponseTencent2OpenAI(TencentResponse *ChatResponse) *openai.ChatCom
 	return &response
 }
 
-func StreamHandler(c *gin.Context, resp *http.Response) (*openai.ErrorWithStatusCode, string) {
+func StreamHandler(c *gin.Context, resp *http.Response) (*model.ErrorWithStatusCode, string) {
 	var responseText string
 	scanner := bufio.NewScanner(resp.Body)
 	scanner.Split(func(data []byte, atEOF bool) (advance int, token []byte, err error) {
@@ -131,7 +134,7 @@ func StreamHandler(c *gin.Context, resp *http.Response) (*openai.ErrorWithStatus
 			var TencentResponse ChatResponse
 			err := json.Unmarshal([]byte(data), &TencentResponse)
 			if err != nil {
-				common.SysError("error unmarshalling stream response: " + err.Error())
+				logger.SysError("error unmarshalling stream response: " + err.Error())
 				return true
 			}
 			response := streamResponseTencent2OpenAI(&TencentResponse)
@@ -140,7 +143,7 @@ func StreamHandler(c *gin.Context, resp *http.Response) (*openai.ErrorWithStatus
 			}
 			jsonResponse, err := json.Marshal(response)
 			if err != nil {
-				common.SysError("error marshalling stream response: " + err.Error())
+				logger.SysError("error marshalling stream response: " + err.Error())
 				return true
 			}
 			c.Render(-1, common.CustomEvent{Data: "data: " + string(jsonResponse)})
@@ -157,7 +160,7 @@ func StreamHandler(c *gin.Context, resp *http.Response) (*openai.ErrorWithStatus
 	return nil, responseText
 }
 
-func Handler(c *gin.Context, resp *http.Response) (*openai.ErrorWithStatusCode, *openai.Usage) {
+func Handler(c *gin.Context, resp *http.Response) (*model.ErrorWithStatusCode, *model.Usage) {
 	var TencentResponse ChatResponse
 	responseBody, err := io.ReadAll(resp.Body)
 	if err != nil {
@@ -172,8 +175,8 @@ func Handler(c *gin.Context, resp *http.Response) (*openai.ErrorWithStatusCode, 
 		return openai.ErrorWrapper(err, "unmarshal_response_body_failed", http.StatusInternalServerError), nil
 	}
 	if TencentResponse.Error.Code != 0 {
-		return &openai.ErrorWithStatusCode{
-			Error: openai.Error{
+		return &model.ErrorWithStatusCode{
+			Error: model.Error{
 				Message: TencentResponse.Error.Message,
 				Code:    TencentResponse.Error.Code,
 			},
@@ -189,6 +192,9 @@ func Handler(c *gin.Context, resp *http.Response) (*openai.ErrorWithStatusCode, 
 	c.Writer.Header().Set("Content-Type", "application/json")
 	c.Writer.WriteHeader(resp.StatusCode)
 	_, err = c.Writer.Write(jsonResponse)
+	if err != nil {
+		return openai.ErrorWrapper(err, "write_response_body_failed", http.StatusInternalServerError), nil
+	}
 	return nil, &fullTextResponse.Usage
 }
 
@@ -222,7 +228,7 @@ func GetSign(req ChatRequest, secretKey string) string {
 	messageStr = strings.TrimSuffix(messageStr, ",")
 	params = append(params, "messages=["+messageStr+"]")
 
-	sort.Sort(sort.StringSlice(params))
+	sort.Strings(params)
 	url := "hunyuan.cloud.tencent.com/hyllm/v1/chat/completions?" + strings.Join(params, "&")
 	mac := hmac.New(sha1.New, []byte(secretKey))
 	signURL := url

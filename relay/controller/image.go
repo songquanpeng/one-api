@@ -6,12 +6,14 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/songquanpeng/one-api/common"
+	"github.com/songquanpeng/one-api/common/logger"
+	"github.com/songquanpeng/one-api/model"
+	"github.com/songquanpeng/one-api/relay/channel/openai"
+	relaymodel "github.com/songquanpeng/one-api/relay/model"
+	"github.com/songquanpeng/one-api/relay/util"
 	"io"
 	"net/http"
-	"one-api/common"
-	"one-api/model"
-	"one-api/relay/channel/openai"
-	"one-api/relay/util"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -27,7 +29,7 @@ func isWithinRange(element string, value int) bool {
 	return value >= min && value <= max
 }
 
-func RelayImageHelper(c *gin.Context, relayMode int) *openai.ErrorWithStatusCode {
+func RelayImageHelper(c *gin.Context, relayMode int) *relaymodel.ErrorWithStatusCode {
 	imageModel := "dall-e-2"
 	imageSize := "1024x1024"
 
@@ -83,7 +85,7 @@ func RelayImageHelper(c *gin.Context, relayMode int) *openai.ErrorWithStatusCode
 	}
 
 	// Number of generated images validation
-	if isWithinRange(imageModel, imageRequest.N) == false {
+	if !isWithinRange(imageModel, imageRequest.N) {
 		// channel not azure
 		if channelType != common.ChannelTypeAzure {
 			return openai.ErrorWrapper(errors.New("invalid value of n"), "n_not_within_range", http.StatusBadRequest)
@@ -112,7 +114,7 @@ func RelayImageHelper(c *gin.Context, relayMode int) *openai.ErrorWithStatusCode
 	fullRequestURL := util.GetFullRequestURL(baseURL, requestURL, channelType)
 	if channelType == common.ChannelTypeAzure {
 		// https://learn.microsoft.com/en-us/azure/ai-services/openai/dall-e-quickstart?tabs=dalle3%2Ccommand-line&pivots=rest-api
-		apiVersion := util.GetAPIVersion(c)
+		apiVersion := util.GetAzureAPIVersion(c)
 		// https://{resource_name}.openai.azure.com/openai/deployments/dall-e-3/images/generations?api-version=2023-06-01-preview
 		fullRequestURL = fmt.Sprintf("%s/openai/deployments/%s/images/generations?api-version=%s", baseURL, imageModel, apiVersion)
 	}
@@ -175,11 +177,11 @@ func RelayImageHelper(c *gin.Context, relayMode int) *openai.ErrorWithStatusCode
 		}
 		err := model.PostConsumeTokenQuota(tokenId, quota)
 		if err != nil {
-			common.SysError("error consuming token remain quota: " + err.Error())
+			logger.SysError("error consuming token remain quota: " + err.Error())
 		}
 		err = model.CacheUpdateUserQuota(userId)
 		if err != nil {
-			common.SysError("error update user quota cache: " + err.Error())
+			logger.SysError("error update user quota cache: " + err.Error())
 		}
 		if quota != 0 {
 			tokenName := c.GetString("token_name")

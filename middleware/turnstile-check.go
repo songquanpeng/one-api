@@ -4,9 +4,10 @@ import (
 	"encoding/json"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
+	"github.com/songquanpeng/one-api/common/config"
+	"github.com/songquanpeng/one-api/common/logger"
 	"net/http"
 	"net/url"
-	"one-api/common"
 )
 
 type turnstileCheckResponse struct {
@@ -15,7 +16,7 @@ type turnstileCheckResponse struct {
 
 func TurnstileCheck() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		if common.TurnstileCheckEnabled {
+		if config.TurnstileCheckEnabled {
 			session := sessions.Default(c)
 			turnstileChecked := session.Get("turnstile")
 			if turnstileChecked != nil {
@@ -32,12 +33,12 @@ func TurnstileCheck() gin.HandlerFunc {
 				return
 			}
 			rawRes, err := http.PostForm("https://challenges.cloudflare.com/turnstile/v0/siteverify", url.Values{
-				"secret":   {common.TurnstileSecretKey},
+				"secret":   {config.TurnstileSecretKey},
 				"response": {response},
 				"remoteip": {c.ClientIP()},
 			})
 			if err != nil {
-				common.SysError(err.Error())
+				logger.SysError(err.Error())
 				c.JSON(http.StatusOK, gin.H{
 					"success": false,
 					"message": err.Error(),
@@ -49,7 +50,7 @@ func TurnstileCheck() gin.HandlerFunc {
 			var res turnstileCheckResponse
 			err = json.NewDecoder(rawRes.Body).Decode(&res)
 			if err != nil {
-				common.SysError(err.Error())
+				logger.SysError(err.Error())
 				c.JSON(http.StatusOK, gin.H{
 					"success": false,
 					"message": err.Error(),

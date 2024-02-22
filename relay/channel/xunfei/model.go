@@ -1,7 +1,7 @@
 package xunfei
 
 import (
-	"one-api/relay/channel/openai"
+	"github.com/songquanpeng/one-api/relay/model"
 )
 
 type Message struct {
@@ -55,7 +55,7 @@ type ChatResponse struct {
 			//	CompletionTokens string `json:"completion_tokens"`
 			//	TotalTokens      string `json:"total_tokens"`
 			//} `json:"text"`
-			Text openai.Usage `json:"text"`
+			Text model.Usage `json:"text"`
 		} `json:"usage"`
 	} `json:"payload"`
 }

@@ -4,19 +4,21 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/songquanpeng/one-api/common"
+	"github.com/songquanpeng/one-api/common/config"
+	"github.com/songquanpeng/one-api/common/logger"
+	"github.com/songquanpeng/one-api/model"
+	relaymodel "github.com/songquanpeng/one-api/relay/model"
 	"io"
 	"net/http"
-	"one-api/common"
-	"one-api/model"
-	"one-api/relay/channel/openai"
 	"strconv"
 	"strings"
 
 	"github.com/gin-gonic/gin"
 )
 
-func ShouldDisableChannel(err *openai.Error, statusCode int) bool {
-	if !common.AutomaticDisableChannelEnabled {
+func ShouldDisableChannel(err *relaymodel.Error, statusCode int) bool {
+	if !config.AutomaticDisableChannelEnabled {
 		return false
 	}
 	if err == nil {
@@ -31,8 +33,8 @@ func ShouldDisableChannel(err *openai.Error, statusCode int) bool {
 	return false
 }
 
-func ShouldEnableChannel(err error, openAIErr *openai.Error) bool {
-	if !common.AutomaticEnableChannelEnabled {
+func ShouldEnableChannel(err error, openAIErr *relaymodel.Error) bool {
+	if !config.AutomaticEnableChannelEnabled {
 		return false
 	}
 	if err != nil {
@@ -45,11 +47,11 @@ func ShouldEnableChannel(err error, openAIErr *openai.Error) bool {
 }
 
 type GeneralErrorResponse struct {
-	Error    openai.Error `json:"error"`
-	Message  string       `json:"message"`
-	Msg      string       `json:"msg"`
-	Err      string       `json:"err"`
-	ErrorMsg string       `json:"error_msg"`
+	Error    relaymodel.Error `json:"error"`
+	Message  string           `json:"message"`
+	Msg      string           `json:"msg"`
+	Err      string           `json:"err"`
+	ErrorMsg string           `json:"error_msg"`
 	Header   struct {
 		Message string `json:"message"`
 	} `json:"header"`
@@ -85,10 +87,10 @@ func (e GeneralErrorResponse) ToMessage() string {
 	return ""
 }
 
-func RelayErrorHandler(resp *http.Response) (ErrorWithStatusCode *openai.ErrorWithStatusCode) {
-	ErrorWithStatusCode = &openai.ErrorWithStatusCode{
+func RelayErrorHandler(resp *http.Response) (ErrorWithStatusCode *relaymodel.ErrorWithStatusCode) {
+	ErrorWithStatusCode = &relaymodel.ErrorWithStatusCode{
 		StatusCode: resp.StatusCode,
-		Error: openai.Error{
+		Error: relaymodel.Error{
 			Message: "",
 			Type:    "upstream_error",
 			Code:    "bad_response_status_code",
@@ -138,11 +140,11 @@ func PostConsumeQuota(ctx context.Context, tokenId int, quotaDelta int, totalQuo
 	// quotaDelta is remaining quota to be consumed
 	err := model.PostConsumeTokenQuota(tokenId, quotaDelta)
 	if err != nil {
-		common.SysError("error consuming token remain quota: " + err.Error())
+		logger.SysError("error consuming token remain quota: " + err.Error())
 	}
 	err = model.CacheUpdateUserQuota(userId)
 	if err != nil {
-		common.SysError("error update user quota cache: " + err.Error())
+		logger.SysError("error update user quota cache: " + err.Error())
 	}
 	// totalQuota is total quota consumed
 	if totalQuota != 0 {
@@ -152,15 +154,15 @@ func PostConsumeQuota(ctx context.Context, tokenId int, quotaDelta int, totalQuo
 		model.UpdateChannelUsedQuota(channelId, totalQuota)
 	}
 	if totalQuota <= 0 {
-		common.LogError(ctx, fmt.Sprintf("totalQuota consumed is %d, something is wrong", totalQuota))
+		logger.Error(ctx, fmt.Sprintf("totalQuota consumed is %d, something is wrong", totalQuota))
 	}
 }
 
-func GetAPIVersion(c *gin.Context) string {
+func GetAzureAPIVersion(c *gin.Context) string {
 	query := c.Request.URL.Query()
 	apiVersion := query.Get("api-version")
 	if apiVersion == "" {
-		apiVersion = c.GetString("api_version")
+		apiVersion = c.GetString(common.ConfigKeyAPIVersion)
 	}
 	return apiVersion
 }

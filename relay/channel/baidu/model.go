@@ -1,19 +1,19 @@
 package baidu
 
 import (
-	"one-api/relay/channel/openai"
+	"github.com/songquanpeng/one-api/relay/model"
 	"time"
 )
 
 type ChatResponse struct {
-	Id               string       `json:"id"`
-	Object           string       `json:"object"`
-	Created          int64        `json:"created"`
-	Result           string       `json:"result"`
-	IsTruncated      bool         `json:"is_truncated"`
-	NeedClearHistory bool         `json:"need_clear_history"`
-	Usage            openai.Usage `json:"usage"`
-	BaiduError
+	Id               string      `json:"id"`
+	Object           string      `json:"object"`
+	Created          int64       `json:"created"`
+	Result           string      `json:"result"`
+	IsTruncated      bool        `json:"is_truncated"`
+	NeedClearHistory bool        `json:"need_clear_history"`
+	Usage            model.Usage `json:"usage"`
+	Error
 }
 
 type ChatStreamResponse struct {
@@ -37,8 +37,8 @@ type EmbeddingResponse struct {
 	Object  string          `json:"object"`
 	Created int64           `json:"created"`
 	Data    []EmbeddingData `json:"data"`
-	Usage   openai.Usage    `json:"usage"`
-	BaiduError
+	Usage   model.Usage     `json:"usage"`
+	Error
 }
 
 type AccessToken struct {

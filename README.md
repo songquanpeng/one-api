@@ -73,6 +73,9 @@ _✨ 通过标准的 OpenAI API 格式访问所有的大模型，开箱即用 �
    + [x] [智谱 ChatGLM 系列模型](https://bigmodel.cn)
    + [x] [360 智脑](https://ai.360.cn)
    + [x] [腾讯混元大模型](https://cloud.tencent.com/document/product/1729)
+   + [x] [Moonshot AI](https://platform.moonshot.cn/)
+   + [ ] [字节云雀大模型](https://www.volcengine.com/product/ark) (WIP)
+   + [ ] [MINIMAX](https://api.minimax.chat/) (WIP)
 2. 支持配置镜像以及众多[第三方代理服务](https://iamazing.cn/page/openai-api-third-party-services)。
 3. 支持通过**负载均衡**的方式访问多个渠道。
 4. 支持 **stream 模式**，可以通过流式传输实现打字机效果。
@@ -174,12 +177,12 @@ docker-compose ps
    git clone https://github.com/songquanpeng/one-api.git
    
    # 构建前端
-   cd one-api/web
+   cd one-api/web/default
    npm install
    npm run build
    
    # 构建后端
-   cd ..
+   cd ../..
    go mod download
    go build -ldflags "-s -w" -o one-api
    ````

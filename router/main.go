@@ -4,8 +4,9 @@ import (
 	"embed"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/songquanpeng/one-api/common/config"
+	"github.com/songquanpeng/one-api/common/logger"
 	"net/http"
-	"one-api/common"
 	"os"
 	"strings"
 )
@@ -15,9 +16,9 @@ func SetRouter(router *gin.Engine, buildFS embed.FS) {
 	SetDashboardRouter(router)
 	SetRelayRouter(router)
 	frontendBaseUrl := os.Getenv("FRONTEND_BASE_URL")
-	if common.IsMasterNode && frontendBaseUrl != "" {
+	if config.IsMasterNode && frontendBaseUrl != "" {
 		frontendBaseUrl = ""
-		common.SysLog("FRONTEND_BASE_URL is ignored on master node")
+		logger.SysLog("FRONTEND_BASE_URL is ignored on master node")
 	}
 	if frontendBaseUrl == "" {
 		SetWebRouter(router, buildFS)

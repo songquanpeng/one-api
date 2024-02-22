@@ -7,3 +7,4 @@ build
 *.db-journal
 logs
 data
+/web/node_modules

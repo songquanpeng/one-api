@@ -2,44 +2,23 @@ package controller
 
 import (
 	"fmt"
-	"net/http"
-	"one-api/common"
-	"one-api/relay/channel/openai"
-	"one-api/relay/constant"
-	"one-api/relay/controller"
-	"one-api/relay/util"
-	"strconv"
-	"strings"
-
 	"github.com/gin-gonic/gin"
+	"github.com/songquanpeng/one-api/common/config"
+	"github.com/songquanpeng/one-api/common/helper"
+	"github.com/songquanpeng/one-api/common/logger"
+	"github.com/songquanpeng/one-api/relay/constant"
+	"github.com/songquanpeng/one-api/relay/controller"
+	"github.com/songquanpeng/one-api/relay/model"
+	"github.com/songquanpeng/one-api/relay/util"
+	"net/http"
+	"strconv"
 )
 
 // https://platform.openai.com/docs/api-reference/chat
 
 func Relay(c *gin.Context) {
-	relayMode := constant.RelayModeUnknown
-	if strings.HasPrefix(c.Request.URL.Path, "/v1/chat/completions") {
-		relayMode = constant.RelayModeChatCompletions
-	} else if strings.HasPrefix(c.Request.URL.Path, "/v1/completions") {
-		relayMode = constant.RelayModeCompletions
-	} else if strings.HasPrefix(c.Request.URL.Path, "/v1/embeddings") {
-		relayMode = constant.RelayModeEmbeddings
-	} else if strings.HasSuffix(c.Request.URL.Path, "embeddings") {
-		relayMode = constant.RelayModeEmbeddings
-	} else if strings.HasPrefix(c.Request.URL.Path, "/v1/moderations") {
-		relayMode = constant.RelayModeModerations
-	} else if strings.HasPrefix(c.Request.URL.Path, "/v1/images/generations") {
-		relayMode = constant.RelayModeImagesGenerations
-	} else if strings.HasPrefix(c.Request.URL.Path, "/v1/edits") {
-		relayMode = constant.RelayModeEdits
-	} else if strings.HasPrefix(c.Request.URL.Path, "/v1/audio/speech") {
-		relayMode = constant.RelayModeAudioSpeech
-	} else if strings.HasPrefix(c.Request.URL.Path, "/v1/audio/transcriptions") {
-		relayMode = constant.RelayModeAudioTranscription
-	} else if strings.HasPrefix(c.Request.URL.Path, "/v1/audio/translations") {
-		relayMode = constant.RelayModeAudioTranslation
-	}
-	var err *openai.ErrorWithStatusCode
+	relayMode := constant.Path2RelayMode(c.Request.URL.Path)
+	var err *model.ErrorWithStatusCode
 	switch relayMode {
 	case constant.RelayModeImagesGenerations:
 		err = controller.RelayImageHelper(c, relayMode)
@@ -50,14 +29,14 @@ func Relay(c *gin.Context) {
 	case constant.RelayModeAudioTranscription:
 		err = controller.RelayAudioHelper(c, relayMode)
 	default:
-		err = controller.RelayTextHelper(c, relayMode)
+		err = controller.RelayTextHelper(c)
 	}
 	if err != nil {
-		requestId := c.GetString(common.RequestIdKey)
+		requestId := c.GetString(logger.RequestIdKey)
 		retryTimesStr := c.Query("retry")
 		retryTimes, _ := strconv.Atoi(retryTimesStr)
 		if retryTimesStr == "" {
-			retryTimes = common.RetryTimes
+			retryTimes = config.RetryTimes
 		}
 		if retryTimes > 0 {
 			c.Redirect(http.StatusTemporaryRedirect, fmt.Sprintf("%s?retry=%d", c.Request.URL.Path, retryTimes-1))
@@ -66,14 +45,16 @@ func Relay(c *gin.Context) {
 				err.Error.Message = "当前分组上游负载已饱和，请稍后再试"
 			}
 
+
 			err.Error.Message = common.MessageWithRequestId("Request From https://api.adamchatbot.chat Error", requestId)
+
 
 			c.JSON(err.StatusCode, gin.H{
 				"error": err.Error,
 			})
 		}
 		channelId := c.GetInt("channel_id")
-		common.LogError(c.Request.Context(), fmt.Sprintf("relay error (channel #%d): %s", channelId, err.Message))
+		logger.Error(c.Request.Context(), fmt.Sprintf("relay error (channel #%d): %s", channelId, err.Message))
 		// https://platform.openai.com/docs/guides/error-codes/api-errors
 		if util.ShouldDisableChannel(&err.Error, err.StatusCode) {
 			channelId := c.GetInt("channel_id")
@@ -84,7 +65,7 @@ func Relay(c *gin.Context) {
 }
 
 func RelayNotImplemented(c *gin.Context) {
-	err := openai.Error{
+	err := model.Error{
 		Message: "API not implemented",
 		Type:    "one_api_error",
 		Param:   "",
@@ -96,7 +77,7 @@ func RelayNotImplemented(c *gin.Context) {
 }
 
 func RelayNotFound(c *gin.Context) {
-	err := openai.Error{
+	err := model.Error{
 		Message: fmt.Sprintf("Invalid URL (%s %s)", c.Request.Method, c.Request.URL.Path),
 		Type:    "invalid_request_error",
 		Param:   "",

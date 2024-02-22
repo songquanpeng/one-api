@@ -4,11 +4,13 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/songquanpeng/one-api/common"
+	"github.com/songquanpeng/one-api/common/config"
+	"github.com/songquanpeng/one-api/common/logger"
+	"github.com/songquanpeng/one-api/model"
+	"github.com/songquanpeng/one-api/relay/util"
 	"io"
 	"net/http"
-	"one-api/common"
-	"one-api/model"
-	"one-api/relay/util"
 	"strconv"
 	"time"
 
@@ -314,7 +316,7 @@ func updateAllChannelsBalance() error {
 				disableChannel(channel.Id, channel.Name, "余额不足")
 			}
 		}
-		time.Sleep(common.RequestInterval)
+		time.Sleep(config.RequestInterval)
 	}
 	return nil
 }
@@ -339,8 +341,8 @@ func UpdateAllChannelsBalance(c *gin.Context) {
 func AutomaticallyUpdateChannels(frequency int) {
 	for {
 		time.Sleep(time.Duration(frequency) * time.Minute)
-		common.SysLog("updating all channels")
+		logger.SysLog("updating all channels")
 		_ = updateAllChannelsBalance()
-		common.SysLog("channels update done")
+		logger.SysLog("channels update done")
 	}
 }

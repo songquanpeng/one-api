@@ -3,6 +3,8 @@ package common
 import (
 	"flag"
 	"fmt"
+	"github.com/songquanpeng/one-api/common/config"
+	"github.com/songquanpeng/one-api/common/logger"
 	"log"
 	"os"
 	"path/filepath"
@@ -37,9 +39,9 @@ func init() {
 
 	if os.Getenv("SESSION_SECRET") != "" {
 		if os.Getenv("SESSION_SECRET") == "random_string" {
-			SysError("SESSION_SECRET is set to an example value, please change it to a random string.")
+			logger.SysError("SESSION_SECRET is set to an example value, please change it to a random string.")
 		} else {
-			SessionSecret = os.Getenv("SESSION_SECRET")
+			config.SessionSecret = os.Getenv("SESSION_SECRET")
 		}
 	}
 	if os.Getenv("SQLITE_PATH") != "" {
@@ -57,5 +59,6 @@ func init() {
 				log.Fatal(err)
 			}
 		}
+		logger.LogDir = *LogDir
 	}
 }

@@ -1,7 +1,7 @@
 package tencent
 
 import (
-	"one-api/relay/channel/openai"
+	"github.com/songquanpeng/one-api/relay/model"
 )
 
 type Message struct {
@@ -56,7 +56,7 @@ type ChatResponse struct {
 	Choices []ResponseChoices `json:"choices,omitempty"` // 结果
 	Created string            `json:"created,omitempty"` // unix 时间戳的字符串
 	Id      string            `json:"id,omitempty"`      // 会话 id
-	Usage   openai.Usage      `json:"usage,omitempty"`   // token 数量
+	Usage   model.Usage       `json:"usage,omitempty"`   // token 数量
 	Error   Error             `json:"error,omitempty"`   // 错误信息 注意：此字段可能返回 null，表示取不到有效值
 	Note    string            `json:"note,omitempty"`    // 注释
 	ReqID   string            `json:"req_id,omitempty"`  // 唯一请求 Id，每次请求都会返回。用于反馈接口入参
