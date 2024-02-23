@@ -4,6 +4,7 @@ import (
 	"embed"
 	"fmt"
 	"one-api/common"
+	"one-api/common/telegram"
 	"one-api/controller"
 	"one-api/middleware"
 	"one-api/model"
@@ -84,6 +85,8 @@ func main() {
 		model.InitBatchUpdater()
 	}
 	common.InitTokenEncoders()
+	// Initialize Telegram bot
+	telegram.InitTelegramBot()
 
 	// Initialize HTTP server
 	server := gin.New()

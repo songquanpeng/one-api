@@ -11,6 +11,7 @@ import (
 func SetApiRouter(router *gin.Engine) {
 	apiRouter := router.Group("/api")
 	apiRouter.Use(gzip.Gzip(gzip.DefaultCompression))
+	apiRouter.POST("/telegram/:token", middleware.Telegram(), controller.TelegramBotWebHook)
 	apiRouter.Use(middleware.GlobalAPIRateLimit())
 	{
 		apiRouter.GET("/status", controller.GetStatus)
@@ -61,6 +62,12 @@ func SetApiRouter(router *gin.Engine) {
 		{
 			optionRoute.GET("/", controller.GetOptions)
 			optionRoute.PUT("/", controller.UpdateOption)
+			optionRoute.GET("/telegram", controller.GetTelegramMenuList)
+			optionRoute.POST("/telegram", controller.AddOrUpdateTelegramMenu)
+			optionRoute.GET("/telegram/status", controller.GetTelegramBotStatus)
+			optionRoute.PUT("/telegram/reload", controller.ReloadTelegramBot)
+			optionRoute.GET("/telegram/:id", controller.GetTelegramMenu)
+			optionRoute.DELETE("/telegram/:id", controller.DeleteTelegramMenu)
 		}
 		channelRoute := apiRouter.Group("/channel")
 		channelRoute.Use(middleware.AdminAuth())
@@ -120,4 +127,5 @@ func SetApiRouter(router *gin.Engine) {
 			analyticsRoute.GET("/redemption_period", controller.GetRedemptionStatisticsByPeriod)
 		}
 	}
+
 }

@@ -32,7 +32,7 @@ var allowedTokenOrderFields = map[string]bool{
 	"used_quota":   true,
 }
 
-func GetUserTokensList(userId int, params *GenericParams) (*DataResult, error) {
+func GetUserTokensList(userId int, params *GenericParams) (*DataResult[Token], error) {
 	var tokens []*Token
 	db := DB.Where("user_id = ?", userId)
 
@@ -40,7 +40,13 @@ func GetUserTokensList(userId int, params *GenericParams) (*DataResult, error) {
 		db = db.Where("name LIKE ?", params.Keyword+"%")
 	}
 
-	return PaginateAndOrder(db, &params.PaginationParams, &tokens, allowedTokenOrderFields)
+	return PaginateAndOrder[Token](db, &params.PaginationParams, &tokens, allowedTokenOrderFields)
+}
+
+// 获取状态为可用的令牌
+func GetUserEnabledTokens(userId int) (tokens []*Token, err error) {
+	err = DB.Where("user_id = ? and status = ?", userId, common.TokenStatusEnabled).Find(&tokens).Error
+	return tokens, err
 }
 
 func ValidateUserToken(key string) (token *Token, err error) {

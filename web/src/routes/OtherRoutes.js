@@ -13,6 +13,7 @@ const ResetPassword = Loadable(lazy(() => import('views/Authentication/Auth/Rese
 const Home = Loadable(lazy(() => import('views/Home')));
 const About = Loadable(lazy(() => import('views/About')));
 const NotFoundView = Loadable(lazy(() => import('views/Error')));
+const Jump = Loadable(lazy(() => import('views/Jump')));
 
 // ==============================|| AUTHENTICATION ROUTING ||============================== //
 
@@ -51,6 +52,10 @@ const OtherRoutes = {
     {
       path: '/404',
       element: <NotFoundView />
+    },
+    {
+      path: '/jump',
+      element: <Jump />
     }
   ]
 };

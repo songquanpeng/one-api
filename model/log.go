@@ -94,7 +94,7 @@ var allowedLogsOrderFields = map[string]bool{
 	"type":       true,
 }
 
-func GetLogsList(params *LogsListParams) (*DataResult, error) {
+func GetLogsList(params *LogsListParams) (*DataResult[Log], error) {
 	var tx *gorm.DB
 	var logs []*Log
 
@@ -122,10 +122,10 @@ func GetLogsList(params *LogsListParams) (*DataResult, error) {
 		tx = tx.Where("channel_id = ?", params.Channel)
 	}
 
-	return PaginateAndOrder(tx, &params.PaginationParams, &logs, allowedLogsOrderFields)
+	return PaginateAndOrder[Log](tx, &params.PaginationParams, &logs, allowedLogsOrderFields)
 }
 
-func GetUserLogsList(userId int, params *LogsListParams) (*DataResult, error) {
+func GetUserLogsList(userId int, params *LogsListParams) (*DataResult[Log], error) {
 	var logs []*Log
 
 	tx := DB.Where("user_id = ?", userId).Omit("id")
@@ -146,7 +146,7 @@ func GetUserLogsList(userId int, params *LogsListParams) (*DataResult, error) {
 		tx = tx.Where("created_at <= ?", params.EndTimestamp)
 	}
 
-	return PaginateAndOrder(tx, &params.PaginationParams, &logs, allowedLogsOrderFields)
+	return PaginateAndOrder[Log](tx, &params.PaginationParams, &logs, allowedLogsOrderFields)
 }
 
 func SearchAllLogs(keyword string) (logs []*Log, err error) {

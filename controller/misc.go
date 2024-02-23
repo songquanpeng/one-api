@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"one-api/common"
+	"one-api/common/telegram"
 	"one-api/model"
 	"strings"
 
@@ -12,6 +13,11 @@ import (
 )
 
 func GetStatus(c *gin.Context) {
+	telegram_bot := ""
+	if telegram.TGEnabled {
+		telegram_bot = telegram.TGBot.User.Username
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"message": "",
@@ -33,6 +39,7 @@ func GetStatus(c *gin.Context) {
 			"chat_link":           common.ChatLink,
 			"quota_per_unit":      common.QuotaPerUnit,
 			"display_in_currency": common.DisplayInCurrencyEnabled,
+			"telegram_bot":        telegram_bot,
 		},
 	})
 }

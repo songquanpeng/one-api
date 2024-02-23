@@ -9,7 +9,8 @@ import {
   IconGardenCart,
   IconUser,
   IconUserScan,
-  IconActivity
+  IconActivity,
+  IconBrandTelegram
 } from '@tabler/icons-react';
 
 // constant
@@ -23,7 +24,8 @@ const icons = {
   IconGardenCart,
   IconUser,
   IconUserScan,
-  IconActivity
+  IconActivity,
+  IconBrandTelegram
 };
 
 // ==============================|| DASHBOARD MENU ITEMS ||============================== //
@@ -116,6 +118,15 @@ const panel = {
       type: 'item',
       url: '/panel/setting',
       icon: icons.IconAdjustments,
+      breadcrumbs: false,
+      isAdmin: true
+    },
+    {
+      id: 'telegram',
+      title: 'Telegram Bot',
+      type: 'item',
+      url: '/panel/telegram',
+      icon: icons.IconBrandTelegram,
       breadcrumbs: false,
       isAdmin: true
     }

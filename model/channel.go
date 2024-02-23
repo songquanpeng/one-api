@@ -40,7 +40,7 @@ var allowedChannelOrderFields = map[string]bool{
 	"priority":      true,
 }
 
-func GetChannelsList(params *GenericParams) (*DataResult, error) {
+func GetChannelsList(params *GenericParams) (*DataResult[Channel], error) {
 	var channels []*Channel
 
 	db := DB.Omit("key")
@@ -52,7 +52,7 @@ func GetChannelsList(params *GenericParams) (*DataResult, error) {
 		db = db.Where("id = ? or name LIKE ? or "+keyCol+" = ?", common.String2Int(params.Keyword), params.Keyword+"%", params.Keyword)
 	}
 
-	return PaginateAndOrder(db, &params.PaginationParams, &channels, allowedChannelOrderFields)
+	return PaginateAndOrder[Channel](db, &params.PaginationParams, &channels, allowedChannelOrderFields)
 }
 
 func GetAllChannels() ([]*Channel, error) {

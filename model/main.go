@@ -2,14 +2,15 @@ package model
 
 import (
 	"fmt"
-	"gorm.io/driver/mysql"
-	"gorm.io/driver/postgres"
-	"gorm.io/driver/sqlite"
-	"gorm.io/gorm"
 	"one-api/common"
 	"os"
 	"strings"
 	"time"
+
+	"gorm.io/driver/mysql"
+	"gorm.io/driver/postgres"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
 )
 
 var DB *gorm.DB
@@ -110,6 +111,10 @@ func InitDB() (err error) {
 			return err
 		}
 		err = db.AutoMigrate(&Log{})
+		if err != nil {
+			return err
+		}
+		err = db.AutoMigrate(&TelegramMenu{})
 		if err != nil {
 			return err
 		}

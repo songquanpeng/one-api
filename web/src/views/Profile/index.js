@@ -12,11 +12,13 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  Divider
+  Divider,
+  Chip,
+  Typography
 } from '@mui/material';
 import Grid from '@mui/material/Unstable_Grid2';
 import SubCard from 'ui-component/cards/SubCard';
-import { IconBrandWechat, IconBrandGithub, IconMail } from '@tabler/icons-react';
+import { IconBrandWechat, IconBrandGithub, IconMail, IconBrandTelegram } from '@tabler/icons-react';
 import Label from 'ui-component/Label';
 import { API } from 'utils/api';
 import { showError, showSuccess, onGitHubOAuthClicked, copy } from 'utils/common';
@@ -141,6 +143,9 @@ export default function Profile() {
               <Label variant="ghost" color={inputs.email ? 'primary' : 'default'}>
                 <IconMail /> {inputs.email || '未绑定'}
               </Label>
+              <Label variant="ghost" color={inputs.telegram_id ? 'primary' : 'default'}>
+                <IconBrandTelegram /> {inputs.telegram_id || '未绑定'}
+              </Label>
             </Stack>
             <SubCard title="个人信息">
               <Grid container spacing={2}>
@@ -209,6 +214,7 @@ export default function Profile() {
                     </Button>
                   </Grid>
                 )}
+
                 <Grid xs={12} md={4}>
                   <Button
                     variant="contained"
@@ -229,6 +235,35 @@ export default function Profile() {
                     <></>
                   )}
                 </Grid>
+
+                {status.telegram_bot && ( //&& !inputs.telegram_id
+                  <Grid xs={12} md={12}>
+                    <Stack spacing={2}>
+                      <Divider />
+
+                      <Alert severity="info">
+                        <Typography variant="h3">Telegram 机器人</Typography>
+                        <br />
+                        <Typography variant="body1">
+                          1. 点击下方按钮，将会在 Telegram 中打开 机器人，点击 /start 开始。
+                          <br />
+                          <Chip
+                            icon={<IconBrandTelegram />}
+                            label={'@' + status.telegram_bot}
+                            color="primary"
+                            variant="outlined"
+                            size="small"
+                            onClick={() => window.open('https://t.me/' + status.telegram_bot, '_blank')}
+                          />
+                          <br />
+                          <br />
+                          2. 向机器人发送/bind命令后，输入下方的访问令牌即可绑定。(如果没有生成，请点击下方按钮生成)
+                        </Typography>
+                      </Alert>
+                      {/* <Typography variant="">  */}
+                    </Stack>
+                  </Grid>
+                )}
               </Grid>
             </SubCard>
             <SubCard title="其他">

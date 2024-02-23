@@ -21,6 +21,7 @@ type User struct {
 	Email            string `json:"email" gorm:"index" validate:"max=50"`
 	GitHubId         string `json:"github_id" gorm:"column:github_id;index"`
 	WeChatId         string `json:"wechat_id" gorm:"column:wechat_id;index"`
+	TelegramId       int64  `json:"telegram_id" gorm:"bigint,column:telegram_id;default:0;"`
 	VerificationCode string `json:"verification_code" gorm:"-:all"`                                    // this field is only for Email verification, don't save it to database!
 	AccessToken      string `json:"access_token" gorm:"type:char(32);column:access_token;uniqueIndex"` // this token is for system management
 	Quota            int    `json:"quota" gorm:"type:int;default:0"`
@@ -31,6 +32,8 @@ type User struct {
 	InviterId        int    `json:"inviter_id" gorm:"type:int;column:inviter_id;index"`
 	CreatedTime      int64  `json:"created_time" gorm:"bigint"`
 }
+
+type UserUpdates func(*User)
 
 func GetMaxUserId() int {
 	var user User
@@ -46,14 +49,14 @@ var allowedUserOrderFields = map[string]bool{
 	"created_time": true,
 }
 
-func GetUsersList(params *GenericParams) (*DataResult, error) {
+func GetUsersList(params *GenericParams) (*DataResult[User], error) {
 	var users []*User
 	db := DB.Omit("password")
 	if params.Keyword != "" {
 		db = db.Where("id = ? or username LIKE ? or email LIKE ? or display_name LIKE ?", common.String2Int(params.Keyword), params.Keyword+"%", params.Keyword+"%", params.Keyword+"%")
 	}
 
-	return PaginateAndOrder(db, &params.PaginationParams, &users, allowedUserOrderFields)
+	return PaginateAndOrder[User](db, &params.PaginationParams, &users, allowedUserOrderFields)
 }
 
 func GetUserById(id int, selectAll bool) (*User, error) {
@@ -67,6 +70,17 @@ func GetUserById(id int, selectAll bool) (*User, error) {
 	} else {
 		err = DB.Omit("password").First(&user, "id = ?", id).Error
 	}
+	return &user, err
+}
+
+func GetUserByTelegramId(telegramId int64) (*User, error) {
+	if telegramId == 0 {
+		return nil, errors.New("telegramId 为空！")
+	}
+
+	var user User
+	err := DB.First(&user, "telegram_id = ?", telegramId).Error
+
 	return &user, err
 }
 
@@ -129,6 +143,10 @@ func (user *User) Update(updatePassword bool) error {
 	}
 	err = DB.Model(user).Updates(user).Error
 	return err
+}
+
+func UpdateUser(id int, fields map[string]interface{}) error {
+	return DB.Model(&User{}).Where("id = ?", id).Updates(fields).Error
 }
 
 func (user *User) Delete() error {
@@ -214,6 +232,10 @@ func IsWeChatIdAlreadyTaken(wechatId string) bool {
 
 func IsGitHubIdAlreadyTaken(githubId string) bool {
 	return DB.Where("github_id = ?", githubId).Find(&User{}).RowsAffected == 1
+}
+
+func IsTelegramIdAlreadyTaken(telegramId int64) bool {
+	return DB.Where("telegram_id = ?", telegramId).Find(&User{}).RowsAffected == 1
 }
 
 func IsUsernameAlreadyTaken(username string) bool {

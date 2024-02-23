@@ -8,6 +8,10 @@ import (
 	"gorm.io/gorm"
 )
 
+type modelable interface {
+	any
+}
+
 type GenericParams struct {
 	PaginationParams
 	Keyword string `form:"keyword"`
@@ -19,22 +23,20 @@ type PaginationParams struct {
 	Order string `form:"order"`
 }
 
-type DataResult struct {
-	Data       interface{} `json:"data"`
-	Page       int         `json:"page"`
-	Size       int         `json:"size"`
-	TotalCount int64       `json:"total_count"`
+type DataResult[T modelable] struct {
+	Data       *[]*T `json:"data"`
+	Page       int   `json:"page"`
+	Size       int   `json:"size"`
+	TotalCount int64 `json:"total_count"`
 }
 
-func PaginateAndOrder(db *gorm.DB, params *PaginationParams, result interface{}, allowedOrderFields map[string]bool) (*DataResult, error) {
+func PaginateAndOrder[T modelable](db *gorm.DB, params *PaginationParams, result *[]*T, allowedOrderFields map[string]bool) (*DataResult[T], error) {
 	// 获取总数
 	var totalCount int64
 	err := db.Model(result).Count(&totalCount).Error
 	if err != nil {
 		return nil, err
 	}
-
-	fmt.Println("totalCount", totalCount)
 
 	// 分页
 	if params.Page < 1 {
@@ -80,7 +82,7 @@ func PaginateAndOrder(db *gorm.DB, params *PaginationParams, result interface{},
 	}
 
 	// 返回结果
-	return &DataResult{
+	return &DataResult[T]{
 		Data:       result,
 		Page:       params.Page,
 		Size:       params.Size,

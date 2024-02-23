@@ -29,14 +29,14 @@ var allowedRedemptionslOrderFields = map[string]bool{
 	"redeemed_time": true,
 }
 
-func GetRedemptionsList(params *GenericParams) (*DataResult, error) {
+func GetRedemptionsList(params *GenericParams) (*DataResult[Redemption], error) {
 	var redemptions []*Redemption
 	db := DB
 	if params.Keyword != "" {
 		db = db.Where("id = ? or name LIKE ?", common.String2Int(params.Keyword), params.Keyword+"%")
 	}
 
-	return PaginateAndOrder(db, &params.PaginationParams, &redemptions, allowedRedemptionslOrderFields)
+	return PaginateAndOrder[Redemption](db, &params.PaginationParams, &redemptions, allowedRedemptionslOrderFields)
 }
 
 func GetRedemptionById(id int) (*Redemption, error) {
