@@ -236,3 +236,10 @@ func GetSign(req ChatRequest, secretKey string) string {
 	sign := mac.Sum([]byte(nil))
 	return base64.StdEncoding.EncodeToString(sign)
 }
+
+func (a *Adaptor) GetLastTextResp() string {
+	if a.textResponse != nil && len(a.textResponse.Choices) > 0 && a.textResponse.Choices[0].Content != nil {
+		return a.textResponse.Choices[0].Content.(string)
+	}
+	return ""
+}

@@ -125,3 +125,4 @@ var (
 )
 
 var RateLimitKeyExpirationDuration = 20 * time.Minute
+var MemoryMaxNum = helper.GetOrDefaultEnvInt("MEMORY_MAX_NUM", 40)

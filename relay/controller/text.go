@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/songquanpeng/one-api/common"
+	"github.com/songquanpeng/one-api/common/config"
 	"github.com/songquanpeng/one-api/common/logger"
 	"github.com/songquanpeng/one-api/relay/channel/openai"
 	"github.com/songquanpeng/one-api/relay/constant"
@@ -26,6 +27,17 @@ func RelayTextHelper(c *gin.Context) *model.ErrorWithStatusCode {
 		logger.Errorf(ctx, "getAndValidateTextRequest failed: %s", err.Error())
 		return openai.ErrorWrapper(err, "invalid_text_request", http.StatusBadRequest)
 	}
+
+	memory := GetMemory(meta.UserId, meta.TokenName)
+	reqMsg := textRequest.Messages[0]
+
+	//fmt.Printf("----req msg %v \n", textRequest.Messages)
+	//fmt.Printf("----memory%v \n", memory)
+	//fmt.Println("-------------------------------------------------------------")
+
+	memory = append(memory, textRequest.Messages...)
+	textRequest.Messages = memory
+
 	meta.IsStream = textRequest.Stream
 
 	// map model name
@@ -95,7 +107,56 @@ func RelayTextHelper(c *gin.Context) *model.ErrorWithStatusCode {
 		util.ReturnPreConsumedQuota(ctx, preConsumedQuota, meta.TokenId)
 		return respErr
 	}
+
+	if !meta.IsStream {
+		//非流式，保存历史记录
+		respMsg := adaptor.GetLastTextResp()
+		SaveMemory(meta.UserId, meta.TokenName, respMsg, reqMsg)
+
+	}
 	// post-consume quota
 	go postConsumeQuota(ctx, usage, meta, textRequest, ratio, preConsumedQuota, modelRatio, groupRatio)
 	return nil
+}
+
+func SaveMemory(userId int, tokenName, resp string, req model.Message) {
+	if len(resp) < 1 {
+		return
+	}
+
+	msgs := []model.Message{}
+	msgs = append(msgs, req)
+	msgs = append(msgs, model.Message{Role: "assistant", Content: resp})
+
+	v, _ := json.Marshal(&msgs)
+
+	key := fmt.Sprintf("one_api_memory:%d:%s", userId, tokenName)
+
+	common.RedisLPush(key, string(v))
+}
+
+func GetMemory(userId int, tokenName string) []model.Message {
+
+	key := fmt.Sprintf("one_api_memory:%d:%s", userId, tokenName)
+
+	ss := common.RedisLRange(key, 0, int64(config.MemoryMaxNum))
+	var memory []model.Message
+
+	i := len(ss) - 1
+
+	for i >= 0 {
+		s := ss[i]
+		var msgItem []model.Message
+		if e := json.Unmarshal([]byte(s), &msgItem); e != nil {
+			continue
+		}
+
+		for _, v := range msgItem {
+			if v.Content != nil && len(v.Content.(string)) > 0 {
+				memory = append(memory, v)
+			}
+		}
+		i--
+	}
+	return memory
 }

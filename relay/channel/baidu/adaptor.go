@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/gin-gonic/gin"
 	"github.com/songquanpeng/one-api/relay/channel"
+	"github.com/songquanpeng/one-api/relay/channel/openai"
 	"github.com/songquanpeng/one-api/relay/constant"
 	"github.com/songquanpeng/one-api/relay/model"
 	"github.com/songquanpeng/one-api/relay/util"
@@ -12,6 +13,7 @@ import (
 )
 
 type Adaptor struct {
+	textResponse *openai.TextResponse
 }
 
 func (a *Adaptor) Init(meta *util.RelayMeta) {
@@ -90,4 +92,11 @@ func (a *Adaptor) GetModelList() []string {
 
 func (a *Adaptor) GetChannelName() string {
 	return "baidu"
+}
+
+func (a *Adaptor) GetLastTextResp() string {
+	if a.textResponse != nil && len(a.textResponse.Choices) > 0 && a.textResponse.Choices[0].Content != nil {
+		return a.textResponse.Choices[0].Content.(string)
+	}
+	return ""
 }

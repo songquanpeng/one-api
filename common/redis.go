@@ -67,3 +67,23 @@ func RedisDecrease(key string, value int64) error {
 	ctx := context.Background()
 	return RDB.DecrBy(ctx, key, value).Err()
 }
+
+func RedisLRange(key string, s, e int64) []string {
+	ctx := context.Background()
+	return RDB.LRange(ctx, key, s, e).Val()
+}
+
+func RedisLLen(key string) int64 {
+	ctx := context.Background()
+	return RDB.LLen(ctx, key).Val()
+}
+
+func RedisLPush(key, v string) error {
+	ctx := context.Background()
+	return RDB.LPush(ctx, key, v).Err()
+}
+
+func RedisRPop(key, v string) string {
+	ctx := context.Background()
+	return RDB.RPop(ctx, key).Val()
+}

@@ -16,7 +16,8 @@ import (
 // https://cloud.tencent.com/document/api/1729/101837
 
 type Adaptor struct {
-	Sign string
+	Sign         string
+	textResponse *openai.TextResponse
 }
 
 func (a *Adaptor) Init(meta *util.RelayMeta) {

@@ -55,7 +55,7 @@ func chooseDB() (*gorm.DB, error) {
 			})
 		}
 		// Use MySQL
-		logger.SysLog("using MySQL as database")
+		logger.SysLog("using MySQL as database" + dsn)
 		return gorm.Open(mysql.Open(dsn), &gorm.Config{
 			PrepareStmt: true, // precompile SQL
 		})

@@ -1,6 +1,8 @@
 package util
 
 import (
+	"encoding/json"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/songquanpeng/one-api/common"
 	"github.com/songquanpeng/one-api/relay/constant"
@@ -51,5 +53,7 @@ func GetRelayMeta(c *gin.Context) *RelayMeta {
 		meta.BaseURL = common.ChannelBaseURLs[meta.ChannelType]
 	}
 	meta.APIType = constant.ChannelType2APIType(meta.ChannelType)
+	ss, _ := json.Marshal(&meta)
+	fmt.Println("RelayMeta:>>" + string(ss))
 	return &meta
 }

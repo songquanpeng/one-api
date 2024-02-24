@@ -13,7 +13,8 @@ import (
 )
 
 type Adaptor struct {
-	request *model.GeneralOpenAIRequest
+	request      *model.GeneralOpenAIRequest
+	textResponse *openai.TextResponse
 }
 
 func (a *Adaptor) Init(meta *util.RelayMeta) {
@@ -67,4 +68,11 @@ func (a *Adaptor) GetModelList() []string {
 
 func (a *Adaptor) GetChannelName() string {
 	return "xunfei"
+}
+
+func (a *Adaptor) GetLastTextResp() string {
+	if a.textResponse != nil && len(a.textResponse.Choices) > 0 && a.textResponse.Choices[0].Content != nil {
+		return a.textResponse.Choices[0].Content.(string)
+	}
+	return ""
 }

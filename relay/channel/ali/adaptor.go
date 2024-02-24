@@ -6,9 +6,11 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/songquanpeng/one-api/common"
 	"github.com/songquanpeng/one-api/relay/channel"
+	"github.com/songquanpeng/one-api/relay/channel/openai"
 	"github.com/songquanpeng/one-api/relay/constant"
 	"github.com/songquanpeng/one-api/relay/model"
 	"github.com/songquanpeng/one-api/relay/util"
+
 	"io"
 	"net/http"
 )
@@ -16,6 +18,7 @@ import (
 // https://help.aliyun.com/zh/dashscope/developer-reference/api-details
 
 type Adaptor struct {
+	textResponse *openai.TextResponse
 }
 
 func (a *Adaptor) Init(meta *util.RelayMeta) {
@@ -68,7 +71,8 @@ func (a *Adaptor) DoResponse(c *gin.Context, resp *http.Response, meta *util.Rel
 		case constant.RelayModeEmbeddings:
 			err, usage = EmbeddingHandler(c, resp)
 		default:
-			err, usage = Handler(c, resp)
+			err, a.textResponse = Handler(c, resp)
+			usage = &(a.textResponse.Usage)
 		}
 	}
 	return
@@ -80,4 +84,11 @@ func (a *Adaptor) GetModelList() []string {
 
 func (a *Adaptor) GetChannelName() string {
 	return "ali"
+}
+
+func (a *Adaptor) GetLastTextResp() string {
+	if a.textResponse != nil && len(a.textResponse.Choices) > 0 && a.textResponse.Choices[0].Content != nil {
+		return a.textResponse.Choices[0].Content.(string)
+	}
+	return ""
 }

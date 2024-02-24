@@ -16,7 +16,8 @@ import (
 )
 
 type Adaptor struct {
-	ChannelType int
+	ChannelType  int
+	textResponse *TextResponse
 }
 
 func (a *Adaptor) Init(meta *util.RelayMeta) {
@@ -68,6 +69,7 @@ func (a *Adaptor) DoRequest(c *gin.Context, meta *util.RelayMeta, requestBody io
 }
 
 func (a *Adaptor) DoResponse(c *gin.Context, resp *http.Response, meta *util.RelayMeta) (usage *model.Usage, err *model.ErrorWithStatusCode) {
+
 	if meta.IsStream {
 		var responseText string
 		err, responseText = StreamHandler(c, resp, meta.Mode)
@@ -100,4 +102,11 @@ func (a *Adaptor) GetChannelName() string {
 	default:
 		return "openai"
 	}
+}
+
+func (a *Adaptor) GetLastTextResp() string {
+	if a.textResponse != nil && len(a.textResponse.Choices) > 0 && a.textResponse.Choices[0].Content != nil {
+		return a.textResponse.Choices[0].Content.(string)
+	}
+	return ""
 }

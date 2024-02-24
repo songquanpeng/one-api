@@ -17,4 +17,5 @@ type Adaptor interface {
 	DoResponse(c *gin.Context, resp *http.Response, meta *util.RelayMeta) (usage *model.Usage, err *model.ErrorWithStatusCode)
 	GetModelList() []string
 	GetChannelName() string
+	GetLastTextResp() string
 }
