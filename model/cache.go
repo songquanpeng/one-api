@@ -94,7 +94,7 @@ func CacheUpdateUserQuota(id int) error {
 	if !common.RedisEnabled {
 		return nil
 	}
-	quota, err := GetUserQuota(id)
+	quota, err := CacheGetUserQuota(id)
 	if err != nil {
 		return err
 	}
