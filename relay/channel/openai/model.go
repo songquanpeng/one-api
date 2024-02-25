@@ -121,6 +121,7 @@ type ChatCompletionsStreamResponseChoice struct {
 	Index int `json:"index"`
 	Delta struct {
 		Content string `json:"content"`
+		Role    string `json:"role,omitempty"`
 	} `json:"delta"`
 	FinishReason *string `json:"finish_reason,omitempty"`
 }
