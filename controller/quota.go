@@ -100,7 +100,7 @@ func (q *QuotaInfo) completedQuotaConsumption(usage *types.Usage, tokenName stri
 	completionRatio := q.modelRatio[1] * q.groupRatio
 	promptTokens := usage.PromptTokens
 	completionTokens := usage.CompletionTokens
-	quota = int(math.Ceil((float64(promptTokens) + float64(completionTokens)*completionRatio)))
+	quota = int(math.Ceil(((float64(promptTokens) * q.ratio) + (float64(completionTokens) * completionRatio))))
 	if q.ratio != 0 && quota <= 0 {
 		quota = 1
 	}
