@@ -127,6 +127,7 @@ var ModelRatio = map[string]float64{
 	"moonshot-v1-8k":   0.012 * RMB,
 	"moonshot-v1-32k":  0.024 * RMB,
 	"moonshot-v1-128k": 0.06 * RMB,
+	"embedding-001":    0.01 * RMB,
 }
 
 func ModelRatio2JSONString() string {

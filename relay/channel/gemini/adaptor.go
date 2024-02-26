@@ -7,6 +7,7 @@ import (
 	"github.com/songquanpeng/one-api/common/helper"
 	channelhelper "github.com/songquanpeng/one-api/relay/channel"
 	"github.com/songquanpeng/one-api/relay/channel/openai"
+	relaymode "github.com/songquanpeng/one-api/relay/constant"
 	"github.com/songquanpeng/one-api/relay/model"
 	"github.com/songquanpeng/one-api/relay/util"
 	"io"
@@ -17,15 +18,19 @@ type Adaptor struct {
 }
 
 func (a *Adaptor) Init(meta *util.RelayMeta) {
-
+	fmt.Println(meta.APIVersion)
 }
 
 func (a *Adaptor) GetRequestURL(meta *util.RelayMeta) (string, error) {
 	version := helper.AssignOrDefault(meta.APIVersion, "v1")
 	action := "generateContent"
-	if meta.IsStream {
+
+	if relaymode.RelayModeEmbeddings == meta.Mode {
+		action = "batchEmbedContents"
+	} else if meta.IsStream {
 		action = "streamGenerateContent"
 	}
+
 	return fmt.Sprintf("%s/%s/models/%s:%s", meta.BaseURL, version, meta.ActualModelName, action), nil
 }
 
@@ -39,7 +44,12 @@ func (a *Adaptor) ConvertRequest(c *gin.Context, relayMode int, request *model.G
 	if request == nil {
 		return nil, errors.New("request is nil")
 	}
-	return ConvertRequest(*request), nil
+
+	if relaymode.RelayModeEmbeddings == relayMode {
+		return ConvertEmbeddingRequest(*request), nil
+	} else {
+		return ConvertRequest(*request), nil
+	}
 }
 
 func (a *Adaptor) DoRequest(c *gin.Context, meta *util.RelayMeta, requestBody io.Reader) (*http.Response, error) {
@@ -47,7 +57,9 @@ func (a *Adaptor) DoRequest(c *gin.Context, meta *util.RelayMeta, requestBody io
 }
 
 func (a *Adaptor) DoResponse(c *gin.Context, resp *http.Response, meta *util.RelayMeta) (usage *model.Usage, err *model.ErrorWithStatusCode) {
-	if meta.IsStream {
+	if relaymode.RelayModeEmbeddings == meta.Mode {
+		err, usage = EmbeddingHandler(c, resp, meta.PromptTokens, meta.ActualModelName)
+	} else if meta.IsStream {
 		var responseText string
 		err, responseText = StreamHandler(c, resp)
 		usage = openai.ResponseText2Usage(responseText, meta.ActualModelName, meta.PromptTokens)
