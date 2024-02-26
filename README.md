@@ -21,6 +21,9 @@ _本项目是基于[one-api](https://github.com/songquanpeng/one-api)二次开�
   <a href="https://github.com/users/MartialBE/packages/container/package/one-api">
     <img src="https://img.shields.io/badge/docker-ghcr.io-blue" alt="docker">
   </a>
+  <a href="https://hub.docker.com/r/martialbe/one-api">
+    <img src="https://img.shields.io/badge/docker-dockerHub-blue" alt="docker">
+  </a>
   <a href="https://goreportcard.com/report/github.com/MartialBE/one-api">
     <img src="https://goreportcard.com/badge/github.com/MartialBE/one-api" alt="GoReportCard">
   </a>
