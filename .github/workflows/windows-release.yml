@@ -26,7 +26,7 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 16
-      - name: Build Frontend (theme default)
+      - name: Build Frontend
         env:
           CI: ""
         run: |

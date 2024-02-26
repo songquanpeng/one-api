@@ -108,7 +108,7 @@ func TokenAuth() func(c *gin.Context) {
 		c.Set("token_name", token.Name)
 		if len(parts) > 1 {
 			if model.IsAdmin(token.UserId) {
-				c.Set("channelId", parts[1])
+				c.Set("specific_channel_id", parts[1])
 			} else {
 				abortWithMessage(c, http.StatusForbidden, "普通用户不支持指定渠道")
 				return
