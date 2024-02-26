@@ -63,9 +63,10 @@ func getApikeyList(userId, page int) (message string, pageParams *paginationPara
 	message = "点击令牌可复制：\n"
 
 	for _, token := range *list.Data {
-		message += fmt.Sprintf("*%s* : `%s`\n", escapeText(token.Name, "MarkdownV2"), token.Key)
+		key := "sk-" + token.Key
+		message += fmt.Sprintf("*%s* : `%s`\n", escapeText(token.Name, "MarkdownV2"), key)
 		if chatUrlTmp != "" {
-			message += strings.ReplaceAll(chatUrlTmp, `setToken`, token.Key)
+			message += strings.ReplaceAll(chatUrlTmp, `setToken`, key)
 		}
 		message += "\n"
 	}
