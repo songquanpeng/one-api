@@ -81,6 +81,8 @@ func SetApiRouter(router *gin.Engine) {
 			channelRoute.GET("/update_balance/:id", controller.UpdateChannelBalance)
 			channelRoute.POST("/", controller.AddChannel)
 			channelRoute.PUT("/", controller.UpdateChannel)
+			channelRoute.PUT("/batch/azure_api", controller.BatchUpdateChannelsAzureApi)
+			channelRoute.PUT("/batch/del_model", controller.BatchDelModelChannels)
 			channelRoute.DELETE("/disabled", controller.DeleteDisabledChannel)
 			channelRoute.DELETE("/:id", controller.DeleteChannel)
 		}

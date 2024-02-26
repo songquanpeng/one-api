@@ -1,11 +1,9 @@
 import { styled } from '@mui/material/styles';
 import { Container } from '@mui/material';
 
-const AdminContainer = styled(Container)(({ theme }) => ({
-  [theme.breakpoints.down('md')]: {
-    paddingLeft: '0px',
-    paddingRight: '0px'
-  }
-}));
+const AdminContainer = styled(Container)({
+  paddingLeft: '0px !important',
+  paddingRight: '0px !important'
+});
 
 export default AdminContainer;

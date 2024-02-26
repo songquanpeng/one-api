@@ -66,13 +66,12 @@ const validationSchema = Yup.object().shape({
   })
 });
 
-const EditModal = ({ open, channelId, onCancel, onOk }) => {
+const EditModal = ({ open, channelId, onCancel, onOk, groupOptions }) => {
   const theme = useTheme();
   // const [loading, setLoading] = useState(false);
   const [initialInput, setInitialInput] = useState(defaultConfig.input);
   const [inputLabel, setInputLabel] = useState(defaultConfig.inputLabel); //
   const [inputPrompt, setInputPrompt] = useState(defaultConfig.prompt);
-  const [groupOptions, setGroupOptions] = useState([]);
   const [modelOptions, setModelOptions] = useState([]);
 
   const initChannel = (typeValue) => {
@@ -121,15 +120,6 @@ const EditModal = ({ open, channelId, onCancel, onOk }) => {
       }
     });
     return modelList;
-  };
-
-  const fetchGroups = async () => {
-    try {
-      let res = await API.get(`/api/group/`);
-      setGroupOptions(res.data.data);
-    } catch (error) {
-      showError(error.message);
-    }
   };
 
   const fetchModels = async () => {
@@ -252,7 +242,6 @@ const EditModal = ({ open, channelId, onCancel, onOk }) => {
   };
 
   useEffect(() => {
-    fetchGroups().then();
     fetchModels().then();
   }, []);
 
@@ -596,5 +585,6 @@ EditModal.propTypes = {
   open: PropTypes.bool,
   channelId: PropTypes.number,
   onCancel: PropTypes.func,
-  onOk: PropTypes.func
+  onOk: PropTypes.func,
+  groupOptions: PropTypes.array
 };

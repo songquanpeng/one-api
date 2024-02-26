@@ -269,15 +269,3 @@ func GetChannelExpensesByPeriod(startTimestamp, endTimestamp int64) (LogStatisti
 
 	return LogStatistics, err
 }
-
-func assembleSumSelectStr(selectStr string) string {
-	sumSelectStr := "%s(sum(%s),0)"
-	nullfunc := "ifnull"
-	if common.UsingPostgreSQL {
-		nullfunc = "coalesce"
-	}
-
-	sumSelectStr = fmt.Sprintf(sumSelectStr, nullfunc, selectStr)
-
-	return sumSelectStr
-}

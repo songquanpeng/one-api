@@ -120,3 +120,23 @@ func getTimestampGroupsSelect(fieldName, groupType, alias string) string {
 
 	return groupSelect
 }
+
+func quotePostgresField(field string) string {
+	if common.UsingPostgreSQL {
+		return fmt.Sprintf(`"%s"`, field)
+	}
+
+	return fmt.Sprintf("`%s`", field)
+}
+
+func assembleSumSelectStr(selectStr string) string {
+	sumSelectStr := "%s(sum(%s),0)"
+	nullfunc := "ifnull"
+	if common.UsingPostgreSQL {
+		nullfunc = "coalesce"
+	}
+
+	sumSelectStr = fmt.Sprintf(sumSelectStr, nullfunc, selectStr)
+
+	return sumSelectStr
+}

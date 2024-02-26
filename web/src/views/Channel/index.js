@@ -8,7 +8,6 @@ import TableContainer from '@mui/material/TableContainer';
 import PerfectScrollbar from 'react-perfect-scrollbar';
 import TablePagination from '@mui/material/TablePagination';
 import LinearProgress from '@mui/material/LinearProgress';
-import Alert from '@mui/material/Alert';
 import ButtonGroup from '@mui/material/ButtonGroup';
 import Toolbar from '@mui/material/Toolbar';
 import useMediaQuery from '@mui/material/useMediaQuery';
@@ -16,11 +15,49 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import { Button, IconButton, Card, Box, Stack, Container, Typography, Divider } from '@mui/material';
 import ChannelTableRow from './component/TableRow';
 import KeywordTableHead from 'ui-component/TableHead';
-import TableToolBar from 'ui-component/TableToolBar';
 import { API } from 'utils/api';
-import { IconRefresh, IconHttpDelete, IconPlus, IconBrandSpeedtest, IconCoinYuan } from '@tabler/icons-react';
+import { IconRefresh, IconHttpDelete, IconPlus, IconMenu2, IconBrandSpeedtest, IconCoinYuan, IconSearch } from '@tabler/icons-react';
 import EditeModal from './component/EditModal';
 import { ITEMS_PER_PAGE } from 'constants';
+import TableToolBar from './component/TableToolBar';
+import BatchModal from './component/BatchModal';
+
+const originalKeyword = {
+  type: 0,
+  status: 0,
+  name: '',
+  group: '',
+  models: '',
+  key: '',
+  test_model: '',
+  other: ''
+};
+
+export async function fetchChannelData(page, rowsPerPage, keyword, order, orderBy) {
+  try {
+    if (orderBy) {
+      orderBy = order === 'desc' ? '-' + orderBy : orderBy;
+    }
+    const res = await API.get(`/api/channel/`, {
+      params: {
+        page: page + 1,
+        size: rowsPerPage,
+        order: orderBy,
+        ...keyword
+      }
+    });
+    const { success, message, data } = res.data;
+    if (success) {
+      return data;
+    } else {
+      showError(message);
+    }
+  } catch (error) {
+    console.error(error);
+  }
+
+  return false;
+}
 
 // ----------------------------------------------------------------------
 // CHANNEL_OPTIONS,
@@ -30,15 +67,19 @@ export default function ChannelPage() {
   const [orderBy, setOrderBy] = useState('id');
   const [rowsPerPage, setRowsPerPage] = useState(ITEMS_PER_PAGE);
   const [listCount, setListCount] = useState(0);
-  const [searchKeyword, setSearchKeyword] = useState('');
   const [searching, setSearching] = useState(false);
   const [channels, setChannels] = useState([]);
   const [refreshFlag, setRefreshFlag] = useState(false);
+
+  const [groupOptions, setGroupOptions] = useState([]);
+  const [toolBarValue, setToolBarValue] = useState(originalKeyword);
+  const [searchKeyword, setSearchKeyword] = useState(originalKeyword);
 
   const theme = useTheme();
   const matchUpMd = useMediaQuery(theme.breakpoints.up('sm'));
   const [openModal, setOpenModal] = useState(false);
   const [editChannelId, setEditChannelId] = useState(0);
+  const [openBatchModal, setOpenBatchModal] = useState(false);
 
   const handleSort = (event, id) => {
     const isAsc = orderBy === id && order === 'asc';
@@ -57,11 +98,15 @@ export default function ChannelPage() {
     setRowsPerPage(parseInt(event.target.value, 10));
   };
 
-  const searchChannels = async (event) => {
-    event.preventDefault();
-    const formData = new FormData(event.target);
+  const searchChannels = async () => {
+    // event.preventDefault();
+    // const formData = new FormData(event.target);
     setPage(0);
-    setSearchKeyword(formData.get('keyword'));
+    setSearchKeyword(toolBarValue);
+  };
+
+  const handleToolBarValue = (event) => {
+    setToolBarValue({ ...toolBarValue, [event.target.name]: event.target.value });
   };
 
   const manageChannel = async (id, action, value) => {
@@ -113,6 +158,8 @@ export default function ChannelPage() {
   const handleRefresh = async () => {
     setOrderBy('id');
     setOrder('desc');
+    setToolBarValue(originalKeyword);
+    setSearchKeyword(originalKeyword);
     setRefreshFlag(!refreshFlag);
   };
 
@@ -184,55 +231,51 @@ export default function ChannelPage() {
 
   const fetchData = async (page, rowsPerPage, keyword, order, orderBy) => {
     setSearching(true);
-    try {
-      if (orderBy) {
-        orderBy = order === 'desc' ? '-' + orderBy : orderBy;
-      }
-      const res = await API.get(`/api/channel/`, {
-        params: {
-          page: page + 1,
-          size: rowsPerPage,
-          keyword: keyword,
-          order: orderBy
-        }
-      });
-      const { success, message, data } = res.data;
-      if (success) {
-        setListCount(data.total_count);
-        setChannels(data.data);
-      } else {
-        showError(message);
-      }
-    } catch (error) {
-      console.error(error);
+    const data = await fetchChannelData(page, rowsPerPage, keyword, order, orderBy);
+
+    if (data) {
+      setListCount(data.total_count);
+      setChannels(data.data);
     }
     setSearching(false);
+  };
+
+  const fetchGroups = async () => {
+    try {
+      let res = await API.get(`/api/group/`);
+      setGroupOptions(res.data.data);
+    } catch (error) {
+      showError(error.message);
+    }
   };
 
   useEffect(() => {
     fetchData(page, rowsPerPage, searchKeyword, order, orderBy);
   }, [page, rowsPerPage, searchKeyword, order, orderBy, refreshFlag]);
 
+  useEffect(() => {
+    fetchGroups().then();
+  }, []);
+
   return (
     <>
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
         <Typography variant="h4">渠道</Typography>
 
-        <Button variant="contained" color="primary" startIcon={<IconPlus />} onClick={() => handleOpenModal(0)}>
-          新建渠道
-        </Button>
-      </Stack>
-      <Stack mb={5}>
-        <Alert severity="info">
-          当前版本测试是通过按照 OpenAI API 格式使用 gpt-3.5-turbo
-          模型进行非流式请求实现的，因此测试报错并不一定代表通道不可用，该功能后续会修复。 另外，OpenAI 渠道已经不再支持通过 key
-          获取余额，因此余额显示为 0。对于支持的渠道类型，请点击余额进行刷新。
-        </Alert>
+        <ButtonGroup variant="contained" aria-label="outlined small primary button group">
+          <Button color="primary" startIcon={<IconPlus />} onClick={() => handleOpenModal(0)}>
+            新建渠道
+          </Button>
+          <Button color="primary" startIcon={<IconMenu2 />} onClick={() => setOpenBatchModal(true)}>
+            批量处理
+          </Button>
+        </ButtonGroup>
       </Stack>
       <Card>
-        <Box component="form" onSubmit={searchChannels} noValidate>
-          <TableToolBar placeholder={'搜索渠道的 ID，名称和密钥 ...'} />
+        <Box component="form" noValidate>
+          <TableToolBar filterName={toolBarValue} handleFilterName={handleToolBarValue} groupOptions={groupOptions} />
         </Box>
+
         <Toolbar
           sx={{
             textAlign: 'right',
@@ -246,7 +289,10 @@ export default function ChannelPage() {
             {matchUpMd ? (
               <ButtonGroup variant="outlined" aria-label="outlined small primary button group">
                 <Button onClick={handleRefresh} startIcon={<IconRefresh width={'18px'} />}>
-                  刷新
+                  刷新/清除搜索条件
+                </Button>
+                <Button onClick={searchChannels} startIcon={<IconSearch width={'18px'} />}>
+                  搜索
                 </Button>
                 <Button onClick={testAllChannels} startIcon={<IconBrandSpeedtest width={'18px'} />}>
                   测试启用渠道
@@ -268,6 +314,9 @@ export default function ChannelPage() {
               >
                 <IconButton onClick={handleRefresh} size="large">
                   <IconRefresh />
+                </IconButton>
+                <IconButton onClick={searchChannels} size="large">
+                  <IconSearch />
                 </IconButton>
                 <IconButton onClick={testAllChannels} size="large">
                   <IconBrandSpeedtest />
@@ -291,6 +340,7 @@ export default function ChannelPage() {
                 orderBy={orderBy}
                 onRequestSort={handleSort}
                 headLabel={[
+                  { id: 'collapse', label: '', disableSort: true },
                   { id: 'id', label: 'ID', disableSort: false },
                   { id: 'name', label: '名称', disableSort: false },
                   { id: 'group', label: '分组', disableSort: true },
@@ -328,7 +378,8 @@ export default function ChannelPage() {
           showLastButton
         />
       </Card>
-      <EditeModal open={openModal} onCancel={handleCloseModal} onOk={handleOkModal} channelId={editChannelId} />
+      <EditeModal open={openModal} onCancel={handleCloseModal} onOk={handleOkModal} channelId={editChannelId} groupOptions={groupOptions} />
+      <BatchModal open={openBatchModal} setOpen={setOpenBatchModal} />
     </>
   );
 }

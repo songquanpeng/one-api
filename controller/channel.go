@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"errors"
 	"net/http"
 	"one-api/common"
 	"one-api/model"
@@ -11,7 +12,7 @@ import (
 )
 
 func GetChannelsList(c *gin.Context) {
-	var params model.GenericParams
+	var params model.SearchChannelsParams
 	if err := c.ShouldBindQuery(&params); err != nil {
 		common.APIRespondWithError(c, http.StatusOK, err)
 		return
@@ -143,5 +144,56 @@ func UpdateChannel(c *gin.Context) {
 		"success": true,
 		"message": "",
 		"data":    channel,
+	})
+}
+
+func BatchUpdateChannelsAzureApi(c *gin.Context) {
+	var params model.BatchChannelsParams
+	err := c.ShouldBindJSON(&params)
+	if err != nil {
+		common.APIRespondWithError(c, http.StatusOK, err)
+		return
+	}
+
+	if params.Ids == nil || len(params.Ids) == 0 {
+		common.APIRespondWithError(c, http.StatusOK, errors.New("ids不能为空"))
+		return
+	}
+	var count int64
+	count, err = model.BatchUpdateChannelsAzureApi(&params)
+	if err != nil {
+		common.APIRespondWithError(c, http.StatusOK, err)
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"data":    count,
+		"success": true,
+		"message": "更新成功",
+	})
+}
+
+func BatchDelModelChannels(c *gin.Context) {
+	var params model.BatchChannelsParams
+	err := c.ShouldBindJSON(&params)
+	if err != nil {
+		common.APIRespondWithError(c, http.StatusOK, err)
+		return
+	}
+
+	if params.Ids == nil || len(params.Ids) == 0 {
+		common.APIRespondWithError(c, http.StatusOK, errors.New("ids不能为空"))
+		return
+	}
+
+	var count int64
+	count, err = model.BatchDelModelChannels(&params)
+	if err != nil {
+		common.APIRespondWithError(c, http.StatusOK, err)
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"data":    count,
+		"success": true,
+		"message": "更新成功",
 	})
 }
