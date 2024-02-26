@@ -6,6 +6,8 @@ on:
       - main
     tags:
       - "v*"
+    paths-ignore:
+      - "README.md"
 
 env:
   # github.repository as <account>/<repo>
