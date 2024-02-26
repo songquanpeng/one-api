@@ -12,23 +12,27 @@ import (
 	"github.com/songquanpeng/one-api/relay/util"
 	"io"
 	"net/http"
+	"net/url"
 )
 
 type Adaptor struct {
 }
 
-func (a *Adaptor) Init(meta *util.RelayMeta) {
-	fmt.Println(meta.APIVersion)
-}
+func (a *Adaptor) Init(meta *util.RelayMeta) {}
 
 func (a *Adaptor) GetRequestURL(meta *util.RelayMeta) (string, error) {
 	version := helper.AssignOrDefault(meta.APIVersion, "v1")
-	action := "generateContent"
+	var action string
 
-	if relaymode.RelayModeEmbeddings == meta.Mode {
+	switch meta.Mode {
+	case relaymode.RelayModeEmbeddings:
 		action = "batchEmbedContents"
-	} else if meta.IsStream {
-		action = "streamGenerateContent"
+	default:
+		if meta.IsStream {
+			action = "streamGenerateContent"
+		} else {
+			action = "generateContent"
+		}
 	}
 
 	return fmt.Sprintf("%s/%s/models/%s:%s", meta.BaseURL, version, meta.ActualModelName, action), nil
@@ -36,7 +40,11 @@ func (a *Adaptor) GetRequestURL(meta *util.RelayMeta) (string, error) {
 
 func (a *Adaptor) SetupRequestHeader(c *gin.Context, req *http.Request, meta *util.RelayMeta) error {
 	channelhelper.SetupCommonRequestHeader(c, req, meta)
-	req.Header.Set("x-goog-api-key", meta.APIKey)
+
+	req.URL.RawQuery = url.Values{
+		"key": {meta.APIKey},
+	}.Encode()
+
 	return nil
 }
 
