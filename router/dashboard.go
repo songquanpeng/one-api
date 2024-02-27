@@ -2,8 +2,6 @@ package router
 
 import (
 
-	"one-api/controller"
-	"one-api/middleware"
 
 	"github.com/gin-contrib/gzip"
 	"github.com/gin-gonic/gin"

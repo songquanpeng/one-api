@@ -2,6 +2,9 @@ package controller
 
 import (
 	"fmt"
+	"net/http"
+	"strconv"
+
 	"github.com/gin-gonic/gin"
 	"github.com/songquanpeng/one-api/common/config"
 	"github.com/songquanpeng/one-api/common/helper"
@@ -10,8 +13,6 @@ import (
 	"github.com/songquanpeng/one-api/relay/controller"
 	"github.com/songquanpeng/one-api/relay/model"
 	"github.com/songquanpeng/one-api/relay/util"
-	"net/http"
-	"strconv"
 )
 
 // https://platform.openai.com/docs/api-reference/chat
@@ -45,9 +46,7 @@ func Relay(c *gin.Context) {
 				err.Error.Message = "当前分组上游负载已饱和，请稍后再试"
 			}
 
-
-			err.Error.Message = common.MessageWithRequestId("Request From https://api.adamchatbot.chat Error", requestId)
-
+			err.Error.Message = helper.MessageWithRequestId("Request From https://api.adamchatbot.chat Error", requestId)
 
 			c.JSON(err.StatusCode, gin.H{
 				"error": err.Error,
