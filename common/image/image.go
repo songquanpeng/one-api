@@ -16,7 +16,7 @@ import (
 )
 
 // Regex to match data URL pattern
-var	dataURLPattern = regexp.MustCompile(`data:image/([^;]+);base64,(.*)`)
+var dataURLPattern = regexp.MustCompile(`data:image/([^;]+);base64,(.*)`)
 
 func IsImageUrl(url string) (bool, error) {
 	resp, err := http.Head(url)
@@ -30,10 +30,6 @@ func IsImageUrl(url string) (bool, error) {
 }
 
 func GetImageSizeFromUrl(url string) (width int, height int, err error) {
-	isImage, err := IsImageUrl(url)
-	if !isImage {
-		return
-	}
 	resp, err := http.Get(url)
 	if err != nil {
 		return
