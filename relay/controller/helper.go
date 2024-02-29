@@ -11,14 +11,14 @@ import (
 	"github.com/songquanpeng/one-api/model"
 	"github.com/songquanpeng/one-api/relay/channel/openai"
 	"github.com/songquanpeng/one-api/relay/constant"
+	relaymodel "github.com/songquanpeng/one-api/relay/model"
 	"github.com/songquanpeng/one-api/relay/util"
-	"io"
 	"math"
 	"net/http"
 )
 
-func getAndValidateTextRequest(c *gin.Context, relayMode int) (*openai.GeneralOpenAIRequest, error) {
-	textRequest := &openai.GeneralOpenAIRequest{}
+func getAndValidateTextRequest(c *gin.Context, relayMode int) (*relaymodel.GeneralOpenAIRequest, error) {
+	textRequest := &relaymodel.GeneralOpenAIRequest{}
 	err := common.UnmarshalBodyReusable(c, textRequest)
 	if err != nil {
 		return nil, err
@@ -36,7 +36,7 @@ func getAndValidateTextRequest(c *gin.Context, relayMode int) (*openai.GeneralOp
 	return textRequest, nil
 }
 
-func getPromptTokens(textRequest *openai.GeneralOpenAIRequest, relayMode int) int {
+func getPromptTokens(textRequest *relaymodel.GeneralOpenAIRequest, relayMode int) int {
 	switch relayMode {
 	case constant.RelayModeChatCompletions:
 		return openai.CountTokenMessages(textRequest.Messages, textRequest.Model)
@@ -48,7 +48,7 @@ func getPromptTokens(textRequest *openai.GeneralOpenAIRequest, relayMode int) in
 	return 0
 }
 
-func getPreConsumedQuota(textRequest *openai.GeneralOpenAIRequest, promptTokens int, ratio float64) int {
+func getPreConsumedQuota(textRequest *relaymodel.GeneralOpenAIRequest, promptTokens int, ratio float64) int {
 	preConsumedTokens := config.PreConsumedQuota
 	if textRequest.MaxTokens != 0 {
 		preConsumedTokens = promptTokens + textRequest.MaxTokens
@@ -56,7 +56,7 @@ func getPreConsumedQuota(textRequest *openai.GeneralOpenAIRequest, promptTokens 
 	return int(float64(preConsumedTokens) * ratio)
 }
 
-func preConsumeQuota(ctx context.Context, textRequest *openai.GeneralOpenAIRequest, promptTokens int, ratio float64, meta *util.RelayMeta) (int, *openai.ErrorWithStatusCode) {
+func preConsumeQuota(ctx context.Context, textRequest *relaymodel.GeneralOpenAIRequest, promptTokens int, ratio float64, meta *util.RelayMeta) (int, *relaymodel.ErrorWithStatusCode) {
 	preConsumedQuota := getPreConsumedQuota(textRequest, promptTokens, ratio)
 
 	userQuota, err := model.CacheGetUserQuota(meta.UserId)
@@ -85,7 +85,7 @@ func preConsumeQuota(ctx context.Context, textRequest *openai.GeneralOpenAIReque
 	return preConsumedQuota, nil
 }
 
-func postConsumeQuota(ctx context.Context, usage *openai.Usage, meta *util.RelayMeta, textRequest *openai.GeneralOpenAIRequest, ratio float64, preConsumedQuota int, modelRatio float64, groupRatio float64) {
+func postConsumeQuota(ctx context.Context, usage *relaymodel.Usage, meta *util.RelayMeta, textRequest *relaymodel.GeneralOpenAIRequest, ratio float64, preConsumedQuota int, modelRatio float64, groupRatio float64) {
 	if usage == nil {
 		logger.Error(ctx, "usage is nil, which is unexpected")
 		return
@@ -119,28 +119,4 @@ func postConsumeQuota(ctx context.Context, usage *openai.Usage, meta *util.Relay
 		model.UpdateUserUsedQuotaAndRequestCount(meta.UserId, quota)
 		model.UpdateChannelUsedQuota(meta.ChannelId, quota)
 	}
-}
-
-func doRequest(ctx context.Context, c *gin.Context, meta *util.RelayMeta, isStream bool, fullRequestURL string, requestBody io.Reader) (*http.Response, error) {
-	req, err := http.NewRequest(c.Request.Method, fullRequestURL, requestBody)
-	if err != nil {
-		return nil, err
-	}
-	SetupRequestHeaders(c, req, meta, isStream)
-	resp, err := util.HTTPClient.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	if resp == nil {
-		return nil, errors.New("resp is nil")
-	}
-	err = req.Body.Close()
-	if err != nil {
-		logger.Warnf(ctx, "close req.Body failed: %+v", err)
-	}
-	err = c.Request.Body.Close()
-	if err != nil {
-		logger.Warnf(ctx, "close c.Request.Body failed: %+v", err)
-	}
-	return resp, nil
 }

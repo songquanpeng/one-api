@@ -14,6 +14,7 @@ import (
 	"github.com/songquanpeng/one-api/common/logger"
 	"github.com/songquanpeng/one-api/relay/channel/openai"
 	"github.com/songquanpeng/one-api/relay/constant"
+	"github.com/songquanpeng/one-api/relay/model"
 	"io"
 	"net/http"
 	"sort"
@@ -23,7 +24,7 @@ import (
 
 // https://cloud.tencent.com/document/product/1729/97732
 
-func ConvertRequest(request openai.GeneralOpenAIRequest) *ChatRequest {
+func ConvertRequest(request model.GeneralOpenAIRequest) *ChatRequest {
 	messages := make([]Message, 0, len(request.Messages))
 	for i := 0; i < len(request.Messages); i++ {
 		message := request.Messages[i]
@@ -67,7 +68,7 @@ func responseTencent2OpenAI(response *ChatResponse) *openai.TextResponse {
 	if len(response.Choices) > 0 {
 		choice := openai.TextResponseChoice{
 			Index: 0,
-			Message: openai.Message{
+			Message: model.Message{
 				Role:    "assistant",
 				Content: response.Choices[0].Messages.Content,
 			},
@@ -95,7 +96,7 @@ func streamResponseTencent2OpenAI(TencentResponse *ChatResponse) *openai.ChatCom
 	return &response
 }
 
-func StreamHandler(c *gin.Context, resp *http.Response) (*openai.ErrorWithStatusCode, string) {
+func StreamHandler(c *gin.Context, resp *http.Response) (*model.ErrorWithStatusCode, string) {
 	var responseText string
 	scanner := bufio.NewScanner(resp.Body)
 	scanner.Split(func(data []byte, atEOF bool) (advance int, token []byte, err error) {
@@ -159,7 +160,7 @@ func StreamHandler(c *gin.Context, resp *http.Response) (*openai.ErrorWithStatus
 	return nil, responseText
 }
 
-func Handler(c *gin.Context, resp *http.Response) (*openai.ErrorWithStatusCode, *openai.Usage) {
+func Handler(c *gin.Context, resp *http.Response) (*model.ErrorWithStatusCode, *model.Usage) {
 	var TencentResponse ChatResponse
 	responseBody, err := io.ReadAll(resp.Body)
 	if err != nil {
@@ -174,8 +175,8 @@ func Handler(c *gin.Context, resp *http.Response) (*openai.ErrorWithStatusCode, 
 		return openai.ErrorWrapper(err, "unmarshal_response_body_failed", http.StatusInternalServerError), nil
 	}
 	if TencentResponse.Error.Code != 0 {
-		return &openai.ErrorWithStatusCode{
-			Error: openai.Error{
+		return &model.ErrorWithStatusCode{
+			Error: model.Error{
 				Message: TencentResponse.Error.Message,
 				Code:    TencentResponse.Error.Code,
 			},

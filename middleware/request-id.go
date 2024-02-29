@@ -9,7 +9,7 @@ import (
 
 func RequestId() func(c *gin.Context) {
 	return func(c *gin.Context) {
-		id := helper.GetTimeString() + helper.GetRandomString(8)
+		id := helper.GetTimeString() + helper.GetRandomNumberString(8)
 		c.Set(logger.RequestIdKey, id)
 		ctx := context.WithValue(c.Request.Context(), logger.RequestIdKey, id)
 		c.Request = c.Request.WithContext(ctx)

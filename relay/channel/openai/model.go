@@ -1,15 +1,6 @@
 package openai
 
-type Message struct {
-	Role    string  `json:"role"`
-	Content any     `json:"content"`
-	Name    *string `json:"name,omitempty"`
-}
-
-type ImageURL struct {
-	Url    string `json:"url,omitempty"`
-	Detail string `json:"detail,omitempty"`
-}
+import "github.com/songquanpeng/one-api/relay/model"
 
 type TextContent struct {
 	Type string `json:"type,omitempty"`
@@ -17,142 +8,21 @@ type TextContent struct {
 }
 
 type ImageContent struct {
-	Type     string    `json:"type,omitempty"`
-	ImageURL *ImageURL `json:"image_url,omitempty"`
-}
-
-type OpenAIMessageContent struct {
-	Type     string    `json:"type,omitempty"`
-	Text     string    `json:"text"`
-	ImageURL *ImageURL `json:"image_url,omitempty"`
-}
-
-func (m Message) IsStringContent() bool {
-	_, ok := m.Content.(string)
-	return ok
-}
-
-func (m Message) StringContent() string {
-	content, ok := m.Content.(string)
-	if ok {
-		return content
-	}
-	contentList, ok := m.Content.([]any)
-	if ok {
-		var contentStr string
-		for _, contentItem := range contentList {
-			contentMap, ok := contentItem.(map[string]any)
-			if !ok {
-				continue
-			}
-			if contentMap["type"] == ContentTypeText {
-				if subStr, ok := contentMap["text"].(string); ok {
-					contentStr += subStr
-				}
-			}
-		}
-		return contentStr
-	}
-	return ""
-}
-
-func (m Message) ParseContent() []OpenAIMessageContent {
-	var contentList []OpenAIMessageContent
-	content, ok := m.Content.(string)
-	if ok {
-		contentList = append(contentList, OpenAIMessageContent{
-			Type: ContentTypeText,
-			Text: content,
-		})
-		return contentList
-	}
-	anyList, ok := m.Content.([]any)
-	if ok {
-		for _, contentItem := range anyList {
-			contentMap, ok := contentItem.(map[string]any)
-			if !ok {
-				continue
-			}
-			switch contentMap["type"] {
-			case ContentTypeText:
-				if subStr, ok := contentMap["text"].(string); ok {
-					contentList = append(contentList, OpenAIMessageContent{
-						Type: ContentTypeText,
-						Text: subStr,
-					})
-				}
-			case ContentTypeImageURL:
-				if subObj, ok := contentMap["image_url"].(map[string]any); ok {
-					contentList = append(contentList, OpenAIMessageContent{
-						Type: ContentTypeImageURL,
-						ImageURL: &ImageURL{
-							Url: subObj["url"].(string),
-						},
-					})
-				}
-			}
-		}
-		return contentList
-	}
-	return nil
-}
-
-type ResponseFormat struct {
-	Type string `json:"type,omitempty"`
-}
-
-type GeneralOpenAIRequest struct {
-	Model            string          `json:"model,omitempty"`
-	Messages         []Message       `json:"messages,omitempty"`
-	Prompt           any             `json:"prompt,omitempty"`
-	Stream           bool            `json:"stream,omitempty"`
-	MaxTokens        int             `json:"max_tokens,omitempty"`
-	Temperature      float64         `json:"temperature,omitempty"`
-	TopP             float64         `json:"top_p,omitempty"`
-	N                int             `json:"n,omitempty"`
-	Input            any             `json:"input,omitempty"`
-	Instruction      string          `json:"instruction,omitempty"`
-	Size             string          `json:"size,omitempty"`
-	Functions        any             `json:"functions,omitempty"`
-	FrequencyPenalty float64         `json:"frequency_penalty,omitempty"`
-	PresencePenalty  float64         `json:"presence_penalty,omitempty"`
-	ResponseFormat   *ResponseFormat `json:"response_format,omitempty"`
-	Seed             float64         `json:"seed,omitempty"`
-	Tools            any             `json:"tools,omitempty"`
-	ToolChoice       any             `json:"tool_choice,omitempty"`
-	User             string          `json:"user,omitempty"`
-}
-
-func (r GeneralOpenAIRequest) ParseInput() []string {
-	if r.Input == nil {
-		return nil
-	}
-	var input []string
-	switch r.Input.(type) {
-	case string:
-		input = []string{r.Input.(string)}
-	case []any:
-		input = make([]string, 0, len(r.Input.([]any)))
-		for _, item := range r.Input.([]any) {
-			if str, ok := item.(string); ok {
-				input = append(input, str)
-			}
-		}
-	}
-	return input
+	Type     string          `json:"type,omitempty"`
+	ImageURL *model.ImageURL `json:"image_url,omitempty"`
 }
 
 type ChatRequest struct {
-	Model     string    `json:"model"`
-	Messages  []Message `json:"messages"`
-	MaxTokens int       `json:"max_tokens"`
+	Model     string          `json:"model"`
+	Messages  []model.Message `json:"messages"`
+	MaxTokens int             `json:"max_tokens"`
 }
 
 type TextRequest struct {
-	Model     string    `json:"model"`
-	Messages  []Message `json:"messages"`
-	Prompt    string    `json:"prompt"`
-	MaxTokens int       `json:"max_tokens"`
+	Model     string          `json:"model"`
+	Messages  []model.Message `json:"messages"`
+	Prompt    string          `json:"prompt"`
+	MaxTokens int             `json:"max_tokens"`
 	//Stream   bool      `json:"stream"`
 }
 
@@ -201,48 +71,30 @@ type TextToSpeechRequest struct {
 	ResponseFormat string  `json:"response_format"`
 }
 
-type Usage struct {
-	PromptTokens     int `json:"prompt_tokens"`
-	CompletionTokens int `json:"completion_tokens"`
-	TotalTokens      int `json:"total_tokens"`
-}
-
 type UsageOrResponseText struct {
-	*Usage
+	*model.Usage
 	ResponseText string
 }
 
-type Error struct {
-	Message string `json:"message"`
-	Type    string `json:"type"`
-	Param   string `json:"param"`
-	Code    any    `json:"code"`
-}
-
-type ErrorWithStatusCode struct {
-	Error
-	StatusCode int `json:"status_code"`
-}
-
 type SlimTextResponse struct {
-	Choices []TextResponseChoice `json:"choices"`
-	Usage   `json:"usage"`
-	Error   Error `json:"error"`
+	Choices     []TextResponseChoice `json:"choices"`
+	model.Usage `json:"usage"`
+	Error       model.Error `json:"error"`
 }
 
 type TextResponseChoice struct {
-	Index        int `json:"index"`
-	Message      `json:"message"`
-	FinishReason string `json:"finish_reason"`
+	Index         int `json:"index"`
+	model.Message `json:"message"`
+	FinishReason  string `json:"finish_reason"`
 }
 
 type TextResponse struct {
-	Id      string               `json:"id"`
-	Model   string               `json:"model,omitempty"`
-	Object  string               `json:"object"`
-	Created int64                `json:"created"`
-	Choices []TextResponseChoice `json:"choices"`
-	Usage   `json:"usage"`
+	Id          string               `json:"id"`
+	Model       string               `json:"model,omitempty"`
+	Object      string               `json:"object"`
+	Created     int64                `json:"created"`
+	Choices     []TextResponseChoice `json:"choices"`
+	model.Usage `json:"usage"`
 }
 
 type EmbeddingResponseItem struct {
@@ -252,10 +104,10 @@ type EmbeddingResponseItem struct {
 }
 
 type EmbeddingResponse struct {
-	Object string                  `json:"object"`
-	Data   []EmbeddingResponseItem `json:"data"`
-	Model  string                  `json:"model"`
-	Usage  `json:"usage"`
+	Object      string                  `json:"object"`
+	Data        []EmbeddingResponseItem `json:"data"`
+	Model       string                  `json:"model"`
+	model.Usage `json:"usage"`
 }
 
 type ImageResponse struct {
@@ -266,8 +118,10 @@ type ImageResponse struct {
 }
 
 type ChatCompletionsStreamResponseChoice struct {
+	Index int `json:"index"`
 	Delta struct {
 		Content string `json:"content"`
+		Role    string `json:"role,omitempty"`
 	} `json:"delta"`
 	FinishReason *string `json:"finish_reason,omitempty"`
 }

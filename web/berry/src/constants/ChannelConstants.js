@@ -59,6 +59,12 @@ export const CHANNEL_OPTIONS = {
     value: 19,
     color: 'default'
   },
+  25: {
+    key: 25,
+    text: 'Moonshot AI',
+    value: 19,
+    color: 'default'
+  },
   23: {
     key: 23,
     text: '腾讯混元',

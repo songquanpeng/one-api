@@ -6,7 +6,7 @@ import (
 
 const (
 	APITypeOpenAI = iota
-	APITypeClaude
+	APITypeAnthropic
 	APITypePaLM
 	APITypeBaidu
 	APITypeZhipu
@@ -15,13 +15,15 @@ const (
 	APITypeAIProxyLibrary
 	APITypeTencent
 	APITypeGemini
+
+	APITypeDummy // this one is only for count, do not add any channel after this
 )
 
 func ChannelType2APIType(channelType int) int {
 	apiType := APITypeOpenAI
 	switch channelType {
 	case common.ChannelTypeAnthropic:
-		apiType = APITypeClaude
+		apiType = APITypeAnthropic
 	case common.ChannelTypeBaidu:
 		apiType = APITypeBaidu
 	case common.ChannelTypePaLM:
@@ -41,29 +43,3 @@ func ChannelType2APIType(channelType int) int {
 	}
 	return apiType
 }
-
-//func GetAdaptor(apiType int) channel.Adaptor {
-//	switch apiType {
-//	case APITypeOpenAI:
-//		return &openai.Adaptor{}
-//	case APITypeClaude:
-//		return &anthropic.Adaptor{}
-//	case APITypePaLM:
-//		return &google.Adaptor{}
-//	case APITypeZhipu:
-//		return &baidu.Adaptor{}
-//	case APITypeBaidu:
-//		return &baidu.Adaptor{}
-//	case APITypeAli:
-//		return &ali.Adaptor{}
-//	case APITypeXunfei:
-//		return &xunfei.Adaptor{}
-//	case APITypeAIProxyLibrary:
-//		return &aiproxy.Adaptor{}
-//	case APITypeTencent:
-//		return &tencent.Adaptor{}
-//	case APITypeGemini:
-//		return &google.Adaptor{}
-//	}
-//	return nil
-//}

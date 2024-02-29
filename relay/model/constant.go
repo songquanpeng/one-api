@@ -1,4 +1,4 @@
-package openai
+package model
 
 const (
 	ContentTypeText     = "text"

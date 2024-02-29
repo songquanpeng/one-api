@@ -8,7 +8,7 @@ import (
 	"github.com/songquanpeng/one-api/common/config"
 	"github.com/songquanpeng/one-api/common/logger"
 	"github.com/songquanpeng/one-api/model"
-	"github.com/songquanpeng/one-api/relay/channel/openai"
+	relaymodel "github.com/songquanpeng/one-api/relay/model"
 	"io"
 	"net/http"
 	"strconv"
@@ -17,7 +17,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func ShouldDisableChannel(err *openai.Error, statusCode int) bool {
+func ShouldDisableChannel(err *relaymodel.Error, statusCode int) bool {
 	if !config.AutomaticDisableChannelEnabled {
 		return false
 	}
@@ -33,7 +33,7 @@ func ShouldDisableChannel(err *openai.Error, statusCode int) bool {
 	return false
 }
 
-func ShouldEnableChannel(err error, openAIErr *openai.Error) bool {
+func ShouldEnableChannel(err error, openAIErr *relaymodel.Error) bool {
 	if !config.AutomaticEnableChannelEnabled {
 		return false
 	}
@@ -47,11 +47,11 @@ func ShouldEnableChannel(err error, openAIErr *openai.Error) bool {
 }
 
 type GeneralErrorResponse struct {
-	Error    openai.Error `json:"error"`
-	Message  string       `json:"message"`
-	Msg      string       `json:"msg"`
-	Err      string       `json:"err"`
-	ErrorMsg string       `json:"error_msg"`
+	Error    relaymodel.Error `json:"error"`
+	Message  string           `json:"message"`
+	Msg      string           `json:"msg"`
+	Err      string           `json:"err"`
+	ErrorMsg string           `json:"error_msg"`
 	Header   struct {
 		Message string `json:"message"`
 	} `json:"header"`
@@ -87,10 +87,10 @@ func (e GeneralErrorResponse) ToMessage() string {
 	return ""
 }
 
-func RelayErrorHandler(resp *http.Response) (ErrorWithStatusCode *openai.ErrorWithStatusCode) {
-	ErrorWithStatusCode = &openai.ErrorWithStatusCode{
+func RelayErrorHandler(resp *http.Response) (ErrorWithStatusCode *relaymodel.ErrorWithStatusCode) {
+	ErrorWithStatusCode = &relaymodel.ErrorWithStatusCode{
 		StatusCode: resp.StatusCode,
-		Error: openai.Error{
+		Error: relaymodel.Error{
 			Message: "",
 			Type:    "upstream_error",
 			Code:    "bad_response_status_code",
@@ -162,7 +162,7 @@ func GetAzureAPIVersion(c *gin.Context) string {
 	query := c.Request.URL.Query()
 	apiVersion := query.Get("api-version")
 	if apiVersion == "" {
-		apiVersion = c.GetString("api_version")
+		apiVersion = c.GetString(common.ConfigKeyAPIVersion)
 	}
 	return apiVersion
 }

@@ -82,7 +82,13 @@ const EditChannel = () => {
           localModels = ['chatglm_turbo', 'chatglm_pro', 'chatglm_std', 'chatglm_lite'];
           break;
         case 18:
-          localModels = ['SparkDesk'];
+          localModels = [
+            'SparkDesk',
+            'SparkDesk-v1.1',
+            'SparkDesk-v2.1',
+            'SparkDesk-v3.1',
+            'SparkDesk-v3.5'
+          ];
           break;
         case 19:
           localModels = ['360GPT_S2_V9', 'embedding-bert-512-v1', 'embedding_s1_v1', 'semantic_similarity_s1_v1'];
@@ -92,6 +98,9 @@ const EditChannel = () => {
           break;
         case 24:
           localModels = ['gemini-pro', 'gemini-pro-vision'];
+          break;
+        case 25:
+          localModels = ['moonshot-v1-8k', 'moonshot-v1-32k', 'moonshot-v1-128k'];
           break;
       }
       setInputs((inputs) => ({ ...inputs, models: localModels }));

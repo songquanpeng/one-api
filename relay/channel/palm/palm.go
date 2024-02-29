@@ -1,4 +1,4 @@
-package google
+package palm
 
 import (
 	"encoding/json"
@@ -9,6 +9,7 @@ import (
 	"github.com/songquanpeng/one-api/common/logger"
 	"github.com/songquanpeng/one-api/relay/channel/openai"
 	"github.com/songquanpeng/one-api/relay/constant"
+	"github.com/songquanpeng/one-api/relay/model"
 	"io"
 	"net/http"
 )
@@ -16,10 +17,10 @@ import (
 // https://developers.generativeai.google/api/rest/generativelanguage/models/generateMessage#request-body
 // https://developers.generativeai.google/api/rest/generativelanguage/models/generateMessage#response-body
 
-func ConvertPaLMRequest(textRequest openai.GeneralOpenAIRequest) *PaLMChatRequest {
-	palmRequest := PaLMChatRequest{
-		Prompt: PaLMPrompt{
-			Messages: make([]PaLMChatMessage, 0, len(textRequest.Messages)),
+func ConvertRequest(textRequest model.GeneralOpenAIRequest) *ChatRequest {
+	palmRequest := ChatRequest{
+		Prompt: Prompt{
+			Messages: make([]ChatMessage, 0, len(textRequest.Messages)),
 		},
 		Temperature:    textRequest.Temperature,
 		CandidateCount: textRequest.N,
@@ -27,7 +28,7 @@ func ConvertPaLMRequest(textRequest openai.GeneralOpenAIRequest) *PaLMChatReques
 		TopK:           textRequest.MaxTokens,
 	}
 	for _, message := range textRequest.Messages {
-		palmMessage := PaLMChatMessage{
+		palmMessage := ChatMessage{
 			Content: message.StringContent(),
 		}
 		if message.Role == "user" {
@@ -40,14 +41,14 @@ func ConvertPaLMRequest(textRequest openai.GeneralOpenAIRequest) *PaLMChatReques
 	return &palmRequest
 }
 
-func responsePaLM2OpenAI(response *PaLMChatResponse) *openai.TextResponse {
+func responsePaLM2OpenAI(response *ChatResponse) *openai.TextResponse {
 	fullTextResponse := openai.TextResponse{
 		Choices: make([]openai.TextResponseChoice, 0, len(response.Candidates)),
 	}
 	for i, candidate := range response.Candidates {
 		choice := openai.TextResponseChoice{
 			Index: i,
-			Message: openai.Message{
+			Message: model.Message{
 				Role:    "assistant",
 				Content: candidate.Content,
 			},
@@ -58,7 +59,7 @@ func responsePaLM2OpenAI(response *PaLMChatResponse) *openai.TextResponse {
 	return &fullTextResponse
 }
 
-func streamResponsePaLM2OpenAI(palmResponse *PaLMChatResponse) *openai.ChatCompletionsStreamResponse {
+func streamResponsePaLM2OpenAI(palmResponse *ChatResponse) *openai.ChatCompletionsStreamResponse {
 	var choice openai.ChatCompletionsStreamResponseChoice
 	if len(palmResponse.Candidates) > 0 {
 		choice.Delta.Content = palmResponse.Candidates[0].Content
@@ -71,7 +72,7 @@ func streamResponsePaLM2OpenAI(palmResponse *PaLMChatResponse) *openai.ChatCompl
 	return &response
 }
 
-func PaLMStreamHandler(c *gin.Context, resp *http.Response) (*openai.ErrorWithStatusCode, string) {
+func StreamHandler(c *gin.Context, resp *http.Response) (*model.ErrorWithStatusCode, string) {
 	responseText := ""
 	responseId := fmt.Sprintf("chatcmpl-%s", helper.GetUUID())
 	createdTime := helper.GetTimestamp()
@@ -90,7 +91,7 @@ func PaLMStreamHandler(c *gin.Context, resp *http.Response) (*openai.ErrorWithSt
 			stopChan <- true
 			return
 		}
-		var palmResponse PaLMChatResponse
+		var palmResponse ChatResponse
 		err = json.Unmarshal(responseBody, &palmResponse)
 		if err != nil {
 			logger.SysError("error unmarshalling stream response: " + err.Error())
@@ -130,7 +131,7 @@ func PaLMStreamHandler(c *gin.Context, resp *http.Response) (*openai.ErrorWithSt
 	return nil, responseText
 }
 
-func PaLMHandler(c *gin.Context, resp *http.Response, promptTokens int, model string) (*openai.ErrorWithStatusCode, *openai.Usage) {
+func Handler(c *gin.Context, resp *http.Response, promptTokens int, modelName string) (*model.ErrorWithStatusCode, *model.Usage) {
 	responseBody, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return openai.ErrorWrapper(err, "read_response_body_failed", http.StatusInternalServerError), nil
@@ -139,14 +140,14 @@ func PaLMHandler(c *gin.Context, resp *http.Response, promptTokens int, model st
 	if err != nil {
 		return openai.ErrorWrapper(err, "close_response_body_failed", http.StatusInternalServerError), nil
 	}
-	var palmResponse PaLMChatResponse
+	var palmResponse ChatResponse
 	err = json.Unmarshal(responseBody, &palmResponse)
 	if err != nil {
 		return openai.ErrorWrapper(err, "unmarshal_response_body_failed", http.StatusInternalServerError), nil
 	}
 	if palmResponse.Error.Code != 0 || len(palmResponse.Candidates) == 0 {
-		return &openai.ErrorWithStatusCode{
-			Error: openai.Error{
+		return &model.ErrorWithStatusCode{
+			Error: model.Error{
 				Message: palmResponse.Error.Message,
 				Type:    palmResponse.Error.Status,
 				Param:   "",
@@ -156,9 +157,9 @@ func PaLMHandler(c *gin.Context, resp *http.Response, promptTokens int, model st
 		}, nil
 	}
 	fullTextResponse := responsePaLM2OpenAI(&palmResponse)
-	fullTextResponse.Model = model
-	completionTokens := openai.CountTokenText(palmResponse.Candidates[0].Content, model)
-	usage := openai.Usage{
+	fullTextResponse.Model = modelName
+	completionTokens := openai.CountTokenText(palmResponse.Candidates[0].Content, modelName)
+	usage := model.Usage{
 		PromptTokens:     promptTokens,
 		CompletionTokens: completionTokens,
 		TotalTokens:      promptTokens + completionTokens,
