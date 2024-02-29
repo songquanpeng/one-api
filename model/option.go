@@ -134,112 +134,83 @@ func UpdateOption(key string, value string) error {
 	return updateOptionMap(key, value)
 }
 
+var optionIntMap = map[string]*int{
+	"FileUploadPermission":    &common.FileUploadPermission,
+	"FileDownloadPermission":  &common.FileDownloadPermission,
+	"ImageUploadPermission":   &common.ImageUploadPermission,
+	"ImageDownloadPermission": &common.ImageDownloadPermission,
+	"SMTPPort":                &common.SMTPPort,
+	"QuotaForNewUser":         &common.QuotaForNewUser,
+	"QuotaForInviter":         &common.QuotaForInviter,
+	"QuotaForInvitee":         &common.QuotaForInvitee,
+	"QuotaRemindThreshold":    &common.QuotaRemindThreshold,
+	"PreConsumedQuota":        &common.PreConsumedQuota,
+	"RetryTimes":              &common.RetryTimes,
+}
+
+var optionBoolMap = map[string]*bool{
+	"PasswordRegisterEnabled":        &common.PasswordRegisterEnabled,
+	"PasswordLoginEnabled":           &common.PasswordLoginEnabled,
+	"EmailVerificationEnabled":       &common.EmailVerificationEnabled,
+	"GitHubOAuthEnabled":             &common.GitHubOAuthEnabled,
+	"WeChatAuthEnabled":              &common.WeChatAuthEnabled,
+	"TurnstileCheckEnabled":          &common.TurnstileCheckEnabled,
+	"RegisterEnabled":                &common.RegisterEnabled,
+	"EmailDomainRestrictionEnabled":  &common.EmailDomainRestrictionEnabled,
+	"AutomaticDisableChannelEnabled": &common.AutomaticDisableChannelEnabled,
+	"AutomaticEnableChannelEnabled":  &common.AutomaticEnableChannelEnabled,
+	"ApproximateTokenEnabled":        &common.ApproximateTokenEnabled,
+	"LogConsumeEnabled":              &common.LogConsumeEnabled,
+	"DisplayInCurrencyEnabled":       &common.DisplayInCurrencyEnabled,
+	"DisplayTokenStatEnabled":        &common.DisplayTokenStatEnabled,
+}
+
+var optionStringMap = map[string]*string{
+	"SMTPServer":                  &common.SMTPServer,
+	"SMTPAccount":                 &common.SMTPAccount,
+	"SMTPFrom":                    &common.SMTPFrom,
+	"SMTPToken":                   &common.SMTPToken,
+	"ServerAddress":               &common.ServerAddress,
+	"GitHubClientId":              &common.GitHubClientId,
+	"GitHubClientSecret":          &common.GitHubClientSecret,
+	"Footer":                      &common.Footer,
+	"SystemName":                  &common.SystemName,
+	"Logo":                        &common.Logo,
+	"WeChatServerAddress":         &common.WeChatServerAddress,
+	"WeChatServerToken":           &common.WeChatServerToken,
+	"WeChatAccountQRCodeImageURL": &common.WeChatAccountQRCodeImageURL,
+	"TurnstileSiteKey":            &common.TurnstileSiteKey,
+	"TurnstileSecretKey":          &common.TurnstileSecretKey,
+	"TopUpLink":                   &common.TopUpLink,
+	"ChatLink":                    &common.ChatLink,
+}
+
 func updateOptionMap(key string, value string) (err error) {
 	common.OptionMapRWMutex.Lock()
 	defer common.OptionMapRWMutex.Unlock()
 	common.OptionMap[key] = value
-	if strings.HasSuffix(key, "Permission") {
-		intValue, _ := strconv.Atoi(value)
-		switch key {
-		case "FileUploadPermission":
-			common.FileUploadPermission = intValue
-		case "FileDownloadPermission":
-			common.FileDownloadPermission = intValue
-		case "ImageUploadPermission":
-			common.ImageUploadPermission = intValue
-		case "ImageDownloadPermission":
-			common.ImageDownloadPermission = intValue
-		}
+	if ptr, ok := optionIntMap[key]; ok {
+		*ptr, _ = strconv.Atoi(value)
+		return
 	}
-	if strings.HasSuffix(key, "Enabled") {
-		boolValue := value == "true"
-		switch key {
-		case "PasswordRegisterEnabled":
-			common.PasswordRegisterEnabled = boolValue
-		case "PasswordLoginEnabled":
-			common.PasswordLoginEnabled = boolValue
-		case "EmailVerificationEnabled":
-			common.EmailVerificationEnabled = boolValue
-		case "GitHubOAuthEnabled":
-			common.GitHubOAuthEnabled = boolValue
-		case "WeChatAuthEnabled":
-			common.WeChatAuthEnabled = boolValue
-		case "TurnstileCheckEnabled":
-			common.TurnstileCheckEnabled = boolValue
-		case "RegisterEnabled":
-			common.RegisterEnabled = boolValue
-		case "EmailDomainRestrictionEnabled":
-			common.EmailDomainRestrictionEnabled = boolValue
-		case "AutomaticDisableChannelEnabled":
-			common.AutomaticDisableChannelEnabled = boolValue
-		case "AutomaticEnableChannelEnabled":
-			common.AutomaticEnableChannelEnabled = boolValue
-		case "ApproximateTokenEnabled":
-			common.ApproximateTokenEnabled = boolValue
-		case "LogConsumeEnabled":
-			common.LogConsumeEnabled = boolValue
-		case "DisplayInCurrencyEnabled":
-			common.DisplayInCurrencyEnabled = boolValue
-		case "DisplayTokenStatEnabled":
-			common.DisplayTokenStatEnabled = boolValue
-		}
+
+	if ptr, ok := optionBoolMap[key]; ok {
+		*ptr = value == "true"
+		return
 	}
+
+	if ptr, ok := optionStringMap[key]; ok {
+		*ptr = value
+		return
+	}
+
 	switch key {
 	case "EmailDomainWhitelist":
 		common.EmailDomainWhitelist = strings.Split(value, ",")
-	case "SMTPServer":
-		common.SMTPServer = value
-	case "SMTPPort":
-		intValue, _ := strconv.Atoi(value)
-		common.SMTPPort = intValue
-	case "SMTPAccount":
-		common.SMTPAccount = value
-	case "SMTPFrom":
-		common.SMTPFrom = value
-	case "SMTPToken":
-		common.SMTPToken = value
-	case "ServerAddress":
-		common.ServerAddress = value
-	case "GitHubClientId":
-		common.GitHubClientId = value
-	case "GitHubClientSecret":
-		common.GitHubClientSecret = value
-	case "Footer":
-		common.Footer = value
-	case "SystemName":
-		common.SystemName = value
-	case "Logo":
-		common.Logo = value
-	case "WeChatServerAddress":
-		common.WeChatServerAddress = value
-	case "WeChatServerToken":
-		common.WeChatServerToken = value
-	case "WeChatAccountQRCodeImageURL":
-		common.WeChatAccountQRCodeImageURL = value
-	case "TurnstileSiteKey":
-		common.TurnstileSiteKey = value
-	case "TurnstileSecretKey":
-		common.TurnstileSecretKey = value
-	case "QuotaForNewUser":
-		common.QuotaForNewUser, _ = strconv.Atoi(value)
-	case "QuotaForInviter":
-		common.QuotaForInviter, _ = strconv.Atoi(value)
-	case "QuotaForInvitee":
-		common.QuotaForInvitee, _ = strconv.Atoi(value)
-	case "QuotaRemindThreshold":
-		common.QuotaRemindThreshold, _ = strconv.Atoi(value)
-	case "PreConsumedQuota":
-		common.PreConsumedQuota, _ = strconv.Atoi(value)
-	case "RetryTimes":
-		common.RetryTimes, _ = strconv.Atoi(value)
 	case "ModelRatio":
 		err = common.UpdateModelRatioByJSONString(value)
 	case "GroupRatio":
 		err = common.UpdateGroupRatioByJSONString(value)
-	case "TopUpLink":
-		common.TopUpLink = value
-	case "ChatLink":
-		common.ChatLink = value
 	case "ChannelDisableThreshold":
 		common.ChannelDisableThreshold, _ = strconv.ParseFloat(value, 64)
 	case "QuotaPerUnit":

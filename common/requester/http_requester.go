@@ -187,11 +187,12 @@ func HandleErrorResp(resp *http.Response, toOpenAIError HttpErrorHandler) *types
 
 		if errorResponse != nil && errorResponse.Message != "" {
 			openAIErrorWithStatusCode.OpenAIError = *errorResponse
+			openAIErrorWithStatusCode.OpenAIError.Message = fmt.Sprintf("Provider API error: %s", openAIErrorWithStatusCode.OpenAIError.Message)
 		}
 	}
 
 	if openAIErrorWithStatusCode.OpenAIError.Message == "" {
-		openAIErrorWithStatusCode.OpenAIError.Message = fmt.Sprintf("bad response status code %d", resp.StatusCode)
+		openAIErrorWithStatusCode.OpenAIError.Message = fmt.Sprintf("Provider API error: bad response status code %d", resp.StatusCode)
 	}
 
 	return openAIErrorWithStatusCode

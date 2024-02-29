@@ -153,7 +153,7 @@ func convertFromChatOpenai(request *types.ChatCompletionRequest) *MiniMaxChatReq
 			}
 
 			messges[len(messges)-1].FunctionCall = &types.ChatCompletionToolCallsFunction{
-				Name:      "funciton",
+				Name:      "function",
 				Arguments: "arguments",
 			}
 		}
