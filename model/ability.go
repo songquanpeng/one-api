@@ -55,6 +55,21 @@ func (channel *Channel) AddAbilities() error {
 			abilities = append(abilities, ability)
 		}
 	}
+
+	// add keys of model mapping to abilities
+	for model := range channel.GetModelMapping() {
+		for _, group := range groups_ {
+			ability := Ability{
+				Group:     group,
+				Model:     model,
+				ChannelId: channel.Id,
+				Enabled:   channel.Status == common.ChannelStatusEnabled,
+				Priority:  channel.Priority,
+			}
+			abilities = append(abilities, ability)
+		}
+	}
+
 	return DB.Create(&abilities).Error
 }
 

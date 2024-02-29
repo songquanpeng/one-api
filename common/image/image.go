@@ -16,7 +16,7 @@ import (
 )
 
 // Regex to match data URL pattern
-var	dataURLPattern = regexp.MustCompile(`data:image/([^;]+);base64,(.*)`)
+var dataURLPattern = regexp.MustCompile(`data:image/([^;]+);base64,(.*)`)
 
 func IsImageUrl(url string) (bool, error) {
 	resp, err := http.Head(url)
