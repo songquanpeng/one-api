@@ -94,14 +94,18 @@ var ModelRatio = map[string]float64{
 	"claude-2.0":              5.51,  // $11.02 / 1M tokens
 	"claude-2.1":              5.51,  // $11.02 / 1M tokens
 	// https://cloud.baidu.com/doc/WENXINWORKSHOP/s/hlrk4akp7
-	"ERNIE-Bot":                 0.8572,     // ￥0.012 / 1k tokens
-	"ERNIE-Bot-turbo":           0.5715,     // ￥0.008 / 1k tokens
-	"ERNIE-Bot-4":               0.12 * RMB, // ￥0.12 / 1k tokens
-	"ERNIE-Bot-8k":              0.024 * RMB,
-	"Embedding-V1":              0.1429, // ￥0.002 / 1k tokens
-	"PaLM-2":                    1,
-	"gemini-pro":                1,      // $0.00025 / 1k characters -> $0.001 / 1k tokens
-	"gemini-pro-vision":         1,      // $0.00025 / 1k characters -> $0.001 / 1k tokens
+	"ERNIE-Bot":         0.8572,     // ￥0.012 / 1k tokens
+	"ERNIE-Bot-turbo":   0.5715,     // ￥0.008 / 1k tokens
+	"ERNIE-Bot-4":       0.12 * RMB, // ￥0.12 / 1k tokens
+	"ERNIE-Bot-8k":      0.024 * RMB,
+	"Embedding-V1":      0.1429, // ￥0.002 / 1k tokens
+	"PaLM-2":            1,
+	"gemini-pro":        1, // $0.00025 / 1k characters -> $0.001 / 1k tokens
+	"gemini-pro-vision": 1, // $0.00025 / 1k characters -> $0.001 / 1k tokens
+	// https://open.bigmodel.cn/pricing
+	"glm-4":                     0.1 * RMB,
+	"glm-4v":                    0.1 * RMB,
+	"glm-3-turbo":               0.005 * RMB,
 	"chatglm_turbo":             0.3572, // ￥0.005 / 1k tokens
 	"chatglm_pro":               0.7143, // ￥0.01 / 1k tokens
 	"chatglm_std":               0.3572, // ￥0.005 / 1k tokens

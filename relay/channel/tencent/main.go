@@ -81,6 +81,7 @@ func responseTencent2OpenAI(response *ChatResponse) *openai.TextResponse {
 
 func streamResponseTencent2OpenAI(TencentResponse *ChatResponse) *openai.ChatCompletionsStreamResponse {
 	response := openai.ChatCompletionsStreamResponse{
+		Id:      fmt.Sprintf("chatcmpl-%s", helper.GetUUID()),
 		Object:  "chat.completion.chunk",
 		Created: helper.GetTimestamp(),
 		Model:   "tencent-hunyuan",

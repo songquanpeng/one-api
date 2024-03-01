@@ -79,7 +79,7 @@ const EditChannel = () => {
           localModels = [...localModels, ...withInternetVersion];
           break;
         case 16:
-          localModels = ['chatglm_turbo', 'chatglm_pro', 'chatglm_std', 'chatglm_lite'];
+          localModels = ["glm-4", "glm-4v", "glm-3-turbo",'chatglm_turbo', 'chatglm_pro', 'chatglm_std', 'chatglm_lite'];
           break;
         case 18:
           localModels = [
