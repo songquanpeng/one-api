@@ -5,6 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/songquanpeng/one-api/relay/channel/ai360"
 	"github.com/songquanpeng/one-api/relay/channel/baichuan"
+	"github.com/songquanpeng/one-api/relay/channel/minimax"
 	"github.com/songquanpeng/one-api/relay/channel/moonshot"
 	"github.com/songquanpeng/one-api/relay/constant"
 	"github.com/songquanpeng/one-api/relay/helper"
@@ -105,6 +106,17 @@ func init() {
 			Object:     "model",
 			Created:    1626777600,
 			OwnedBy:    "baichuan",
+			Permission: permission,
+			Root:       modelName,
+			Parent:     nil,
+		})
+	}
+	for _, modelName := range minimax.ModelList {
+		openAIModels = append(openAIModels, OpenAIModels{
+			Id:         modelName,
+			Object:     "model",
+			Created:    1626777600,
+			OwnedBy:    "minimax",
 			Permission: permission,
 			Root:       modelName,
 			Parent:     nil,

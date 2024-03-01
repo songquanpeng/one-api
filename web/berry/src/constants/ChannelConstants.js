@@ -74,7 +74,13 @@ export const CHANNEL_OPTIONS = {
   26: {
     key: 26,
     text: '百川大模型',
-    value: 23,
+    value: 26,
+    color: 'default'
+  },
+  27: {
+    key: 27,
+    text: 'MiniMax',
+    value: 27,
     color: 'default'
   },
   8: {

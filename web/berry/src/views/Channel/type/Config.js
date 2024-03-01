@@ -157,6 +157,12 @@ const typeConfig = {
     },
     modelGroup: "baichuan",
   },
+  27: {
+    input: {
+      models: ['abab5.5s-chat', 'abab5.5-chat', 'abab6-chat'],
+    },
+    modelGroup: "minimax",
+  },
 };
 
 export { defaultConfig, typeConfig };

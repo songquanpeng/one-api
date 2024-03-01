@@ -105,6 +105,9 @@ const EditChannel = () => {
         case 26:
           localModels = ['Baichuan2-Turbo', 'Baichuan2-Turbo-192k', 'Baichuan-Text-Embedding'];
           break;
+        case 27:
+          localModels = ['abab5.5s-chat', 'abab5.5-chat', 'abab6-chat'];
+          break;
       }
       setInputs((inputs) => ({ ...inputs, models: localModels }));
     }

@@ -127,6 +127,14 @@ var ModelRatio = map[string]float64{
 	"moonshot-v1-8k":   0.012 * RMB,
 	"moonshot-v1-32k":  0.024 * RMB,
 	"moonshot-v1-128k": 0.06 * RMB,
+	// https://platform.baichuan-ai.com/price
+	"Baichuan2-Turbo":      0.008 * RMB,
+	"Baichuan2-Turbo-192k": 0.016 * RMB,
+	"Baichuan2-53B":        0.02 * RMB,
+	// https://api.minimax.chat/document/price
+	"abab6":    0.1 * RMB,
+	"abab5.5":  0.015 * RMB,
+	"abab5.5s": 0.005 * RMB,
 }
 
 func ModelRatio2JSONString() string {
