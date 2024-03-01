@@ -71,6 +71,12 @@ export const CHANNEL_OPTIONS = {
     value: 23,
     color: 'default'
   },
+  26: {
+    key: 26,
+    text: '百川大模型',
+    value: 23,
+    color: 'default'
+  },
   8: {
     key: 8,
     text: '自定义渠道',

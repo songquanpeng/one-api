@@ -102,6 +102,9 @@ const EditChannel = () => {
         case 25:
           localModels = ['moonshot-v1-8k', 'moonshot-v1-32k', 'moonshot-v1-128k'];
           break;
+        case 26:
+          localModels = ['Baichuan2-Turbo', 'Baichuan2-Turbo-192k', 'Baichuan-Text-Embedding'];
+          break;
       }
       setInputs((inputs) => ({ ...inputs, models: localModels }));
     }

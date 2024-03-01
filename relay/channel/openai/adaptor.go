@@ -7,6 +7,7 @@ import (
 	"github.com/songquanpeng/one-api/common"
 	"github.com/songquanpeng/one-api/relay/channel"
 	"github.com/songquanpeng/one-api/relay/channel/ai360"
+	"github.com/songquanpeng/one-api/relay/channel/baichuan"
 	"github.com/songquanpeng/one-api/relay/channel/moonshot"
 	"github.com/songquanpeng/one-api/relay/model"
 	"github.com/songquanpeng/one-api/relay/util"
@@ -84,6 +85,8 @@ func (a *Adaptor) GetModelList() []string {
 		return ai360.ModelList
 	case common.ChannelTypeMoonshot:
 		return moonshot.ModelList
+	case common.ChannelTypeBaichuan:
+		return baichuan.ModelList
 	default:
 		return ModelList
 	}
@@ -97,6 +100,8 @@ func (a *Adaptor) GetChannelName() string {
 		return "360"
 	case common.ChannelTypeMoonshot:
 		return "moonshot"
+	case common.ChannelTypeBaichuan:
+		return "baichuan"
 	default:
 		return "openai"
 	}

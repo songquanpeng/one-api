@@ -41,6 +41,10 @@ func relay(c *gin.Context, relayMode int) *model.ErrorWithStatusCode {
 func Relay(c *gin.Context) {
 	ctx := c.Request.Context()
 	relayMode := constant.Path2RelayMode(c.Request.URL.Path)
+	if config.DebugEnabled {
+		requestBody, _ := common.GetRequestBody(c)
+		logger.Debugf(ctx, "request body: %s", string(requestBody))
+	}
 	bizErr := relay(c, relayMode)
 	if bizErr == nil {
 		return

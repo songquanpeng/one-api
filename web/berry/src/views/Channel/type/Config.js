@@ -145,6 +145,18 @@ const typeConfig = {
     },
     modelGroup: "google gemini",
   },
+  25: {
+    input: {
+      models: ['moonshot-v1-8k', 'moonshot-v1-32k', 'moonshot-v1-128k'],
+    },
+    modelGroup: "moonshot",
+  },
+  26: {
+    input: {
+      models: ['Baichuan2-Turbo', 'Baichuan2-Turbo-192k', 'Baichuan-Text-Embedding'],
+    },
+    modelGroup: "baichuan",
+  },
 };
 
 export { defaultConfig, typeConfig };

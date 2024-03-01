@@ -74,6 +74,7 @@ _✨ 通过标准的 OpenAI API 格式访问所有的大模型，开箱即用 �
    + [x] [360 智脑](https://ai.360.cn)
    + [x] [腾讯混元大模型](https://cloud.tencent.com/document/product/1729)
    + [x] [Moonshot AI](https://platform.moonshot.cn/)
+   + [x] [百川大模型](https://platform.baichuan-ai.com)
    + [ ] [字节云雀大模型](https://www.volcengine.com/product/ark) (WIP)
    + [ ] [MINIMAX](https://api.minimax.chat/) (WIP)
 2. 支持配置镜像以及众多[第三方代理服务](https://iamazing.cn/page/openai-api-third-party-services)。
