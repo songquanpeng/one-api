@@ -3,6 +3,7 @@ package requester
 import (
 	"bufio"
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -18,7 +19,6 @@ import (
 type HttpErrorHandler func(*http.Response) *types.OpenAIError
 
 type HTTPRequester struct {
-	HTTPClient        HTTPClient
 	requestBuilder    RequestBuilder
 	CreateFormBuilder func(io.Writer) FormBuilder
 	ErrorHandler      HttpErrorHandler
@@ -31,7 +31,6 @@ type HTTPRequester struct {
 // 如果 errorHandler 为 nil，那么会使用一个默认的错误处理函数。
 func NewHTTPRequester(proxyAddr string, errorHandler HttpErrorHandler) *HTTPRequester {
 	return &HTTPRequester{
-		HTTPClient:     HTTPClient{},
 		requestBuilder: NewRequestBuilder(),
 		CreateFormBuilder: func(body io.Writer) FormBuilder {
 			return NewFormBuilder(body)
@@ -48,6 +47,21 @@ type requestOptions struct {
 
 type requestOption func(*requestOptions)
 
+func (r *HTTPRequester) getContext() context.Context {
+	if r.proxyAddr == "" {
+		return context.Background()
+	}
+
+	// 如果是以 socks5:// 开头的地址，那么使用 socks5 代理
+	if strings.HasPrefix(r.proxyAddr, "socks5://") {
+		return context.WithValue(context.Background(), ProxySock5AddrKey, r.proxyAddr)
+	}
+
+	// 否则使用 http 代理
+	return context.WithValue(context.Background(), ProxyHTTPAddrKey, r.proxyAddr)
+
+}
+
 // 创建请求
 func (r *HTTPRequester) NewRequest(method, url string, setters ...requestOption) (*http.Request, error) {
 	args := &requestOptions{
@@ -57,7 +71,7 @@ func (r *HTTPRequester) NewRequest(method, url string, setters ...requestOption)
 	for _, setter := range setters {
 		setter(args)
 	}
-	req, err := r.requestBuilder.Build(method, url, args.body, args.header)
+	req, err := r.requestBuilder.Build(r.getContext(), method, url, args.body, args.header)
 	if err != nil {
 		return nil, err
 	}
@@ -67,9 +81,7 @@ func (r *HTTPRequester) NewRequest(method, url string, setters ...requestOption)
 
 // 发送请求
 func (r *HTTPRequester) SendRequest(req *http.Request, response any, outputResp bool) (*http.Response, *types.OpenAIErrorWithStatusCode) {
-	client := r.HTTPClient.getClientFromPool(r.proxyAddr)
-	resp, err := client.Do(req)
-	r.HTTPClient.returnClientToPool(client)
+	resp, err := HTTPClient.Do(req)
 	if err != nil {
 		return nil, common.ErrorWrapper(err, "http_request_failed", http.StatusInternalServerError)
 	}
@@ -105,9 +117,7 @@ func (r *HTTPRequester) SendRequest(req *http.Request, response any, outputResp 
 // 发送请求 RAW
 func (r *HTTPRequester) SendRequestRaw(req *http.Request) (*http.Response, *types.OpenAIErrorWithStatusCode) {
 	// 发送请求
-	client := r.HTTPClient.getClientFromPool(r.proxyAddr)
-	resp, err := client.Do(req)
-	r.HTTPClient.returnClientToPool(client)
+	resp, err := HTTPClient.Do(req)
 	if err != nil {
 		return nil, common.ErrorWrapper(err, "http_request_failed", http.StatusInternalServerError)
 	}

@@ -120,6 +120,34 @@ func convertFromChatOpenai(request *types.ChatCompletionRequest) *ZhipuRequest {
 		ToolChoice:  request.ToolChoice,
 	}
 
+	// 如果有图片的话，并且是base64编码的图片，需要把前缀去掉
+	if zhipuRequest.Model == "glm-4v" {
+		for i := range zhipuRequest.Messages {
+			contentList, ok := zhipuRequest.Messages[i].Content.([]any)
+			if !ok {
+				continue
+			}
+			for j := range contentList {
+				contentMap, ok := contentList[j].(map[string]any)
+				if !ok || contentMap["type"] != "image_url" {
+					continue
+				}
+				imageUrl, ok := contentMap["image_url"].(map[string]any)
+				if !ok {
+					continue
+				}
+				url, ok := imageUrl["url"].(string)
+				if !ok || !strings.HasPrefix(url, "data:image/") {
+					continue
+				}
+				imageUrl["url"] = strings.Split(url, ",")[1]
+				contentMap["image_url"] = imageUrl
+				contentList[j] = contentMap
+			}
+			zhipuRequest.Messages[i].Content = contentList
+		}
+	}
+
 	if request.Functions != nil {
 		zhipuRequest.Tools = make([]ZhipuTool, 0, len(request.Functions))
 		for _, function := range request.Functions {

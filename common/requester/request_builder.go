@@ -2,13 +2,14 @@ package requester
 
 import (
 	"bytes"
+	"context"
 	"io"
 	"net/http"
 	"one-api/common"
 )
 
 type RequestBuilder interface {
-	Build(method, url string, body any, header http.Header) (*http.Request, error)
+	Build(ctx context.Context, method, url string, body any, header http.Header) (*http.Request, error)
 }
 
 type HTTPRequestBuilder struct {
@@ -22,6 +23,7 @@ func NewRequestBuilder() *HTTPRequestBuilder {
 }
 
 func (b *HTTPRequestBuilder) Build(
+	ctx context.Context,
 	method string,
 	url string,
 	body any,
@@ -40,7 +42,7 @@ func (b *HTTPRequestBuilder) Build(
 			bodyReader = bytes.NewBuffer(reqBytes)
 		}
 	}
-	req, err = http.NewRequest(method, url, bodyReader)
+	req, err = http.NewRequestWithContext(ctx, method, url, bodyReader)
 	if err != nil {
 		return
 	}

@@ -1,70 +1,80 @@
 package requester
 
 import (
+	"context"
 	"fmt"
+	"net"
 	"net/http"
 	"net/url"
 	"one-api/common"
-	"sync"
 	"time"
 
 	"golang.org/x/net/proxy"
 )
 
-type HTTPClient struct{}
+type ContextKey string
 
-var clientPool = &sync.Pool{
-	New: func() interface{} {
-		return &http.Client{}
-	},
-}
+const ProxyHTTPAddrKey ContextKey = "proxyHttpAddr"
+const ProxySock5AddrKey ContextKey = "proxySock5Addr"
 
-func (h *HTTPClient) getClientFromPool(proxyAddr string) *http.Client {
-	client := clientPool.Get().(*http.Client)
-
-	if common.RelayTimeout > 0 {
-		client.Timeout = time.Duration(common.RelayTimeout) * time.Second
+func proxyFunc(req *http.Request) (*url.URL, error) {
+	proxyAddr := req.Context().Value(ProxyHTTPAddrKey)
+	if proxyAddr == nil {
+		return nil, nil
 	}
 
-	if proxyAddr != "" {
-		err := h.setProxy(client, proxyAddr)
-		if err != nil {
-			common.SysError(err.Error())
-			return client
-		}
-	}
-
-	return client
-}
-
-func (h *HTTPClient) returnClientToPool(client *http.Client) {
-	// 清除代理设置
-	client.Transport = nil
-	clientPool.Put(client)
-}
-
-func (h *HTTPClient) setProxy(client *http.Client, proxyAddr string) error {
-	proxyURL, err := url.Parse(proxyAddr)
+	proxyURL, err := url.Parse(proxyAddr.(string))
 	if err != nil {
-		return fmt.Errorf("error parsing proxy address: %w", err)
+		return nil, fmt.Errorf("error parsing proxy address: %w", err)
 	}
 
 	switch proxyURL.Scheme {
 	case "http", "https":
-		client.Transport = &http.Transport{
-			Proxy: http.ProxyURL(proxyURL),
-		}
-	case "socks5":
-		dialer, err := proxy.SOCKS5("tcp", proxyURL.Host, nil, proxy.Direct)
-		if err != nil {
-			return fmt.Errorf("error creating socks5 dialer: %w", err)
-		}
-		client.Transport = &http.Transport{
-			Dial: dialer.Dial,
-		}
-	default:
-		return fmt.Errorf("unsupported proxy scheme: %s", proxyURL.Scheme)
+		return proxyURL, nil
 	}
 
-	return nil
+	return nil, fmt.Errorf("unsupported proxy scheme: %s", proxyURL.Scheme)
+}
+
+func socks5ProxyFunc(ctx context.Context, network, addr string) (net.Conn, error) {
+	// 设置TCP超时
+	dialer := &net.Dialer{
+		Timeout:   time.Duration(common.ConnectTimeout) * time.Second,
+		KeepAlive: 30 * time.Second,
+	}
+
+	// 从上下文中获取代理地址
+	proxyAddr, ok := ctx.Value(ProxySock5AddrKey).(string)
+	if !ok {
+		return dialer.DialContext(ctx, network, addr)
+	}
+
+	proxyURL, err := url.Parse(proxyAddr)
+	if err != nil {
+		return nil, fmt.Errorf("error parsing proxy address: %w", err)
+	}
+
+	proxyDialer, err := proxy.SOCKS5("tcp", proxyURL.Host, nil, proxy.Direct)
+	if err != nil {
+		return nil, fmt.Errorf("error creating socks5 dialer: %w", err)
+	}
+
+	return proxyDialer.Dial(network, addr)
+}
+
+var HTTPClient *http.Client
+
+func init() {
+	trans := &http.Transport{
+		DialContext: socks5ProxyFunc,
+		Proxy:       proxyFunc,
+	}
+
+	HTTPClient = &http.Client{
+		Transport: trans,
+	}
+
+	if common.RelayTimeout != 0 {
+		HTTPClient.Timeout = time.Duration(common.RelayTimeout) * time.Second
+	}
 }
