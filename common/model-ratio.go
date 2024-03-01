@@ -132,9 +132,18 @@ var ModelRatio = map[string]float64{
 	"Baichuan2-Turbo-192k": 0.016 * RMB,
 	"Baichuan2-53B":        0.02 * RMB,
 	// https://api.minimax.chat/document/price
-	"abab6":    0.1 * RMB,
-	"abab5.5":  0.015 * RMB,
-	"abab5.5s": 0.005 * RMB,
+	"abab6-chat":    0.1 * RMB,
+	"abab5.5-chat":  0.015 * RMB,
+	"abab5.5s-chat": 0.005 * RMB,
+}
+
+var DefaultModelRatio map[string]float64
+
+func init() {
+	DefaultModelRatio = make(map[string]float64)
+	for k, v := range ModelRatio {
+		DefaultModelRatio[k] = v
+	}
 }
 
 func ModelRatio2JSONString() string {
@@ -155,6 +164,9 @@ func GetModelRatio(name string) float64 {
 		name = strings.TrimSuffix(name, "-internet")
 	}
 	ratio, ok := ModelRatio[name]
+	if !ok {
+		ratio, ok = DefaultModelRatio[name]
+	}
 	if !ok {
 		logger.SysError("model ratio not found: " + name)
 		return 30
