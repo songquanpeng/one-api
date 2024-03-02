@@ -94,14 +94,18 @@ var ModelRatio = map[string]float64{
 	"claude-2.0":              5.51,  // $11.02 / 1M tokens
 	"claude-2.1":              5.51,  // $11.02 / 1M tokens
 	// https://cloud.baidu.com/doc/WENXINWORKSHOP/s/hlrk4akp7
-	"ERNIE-Bot":                 0.8572,     // ￥0.012 / 1k tokens
-	"ERNIE-Bot-turbo":           0.5715,     // ￥0.008 / 1k tokens
-	"ERNIE-Bot-4":               0.12 * RMB, // ￥0.12 / 1k tokens
-	"ERNIE-Bot-8k":              0.024 * RMB,
-	"Embedding-V1":              0.1429, // ￥0.002 / 1k tokens
-	"PaLM-2":                    1,
-	"gemini-pro":                1,      // $0.00025 / 1k characters -> $0.001 / 1k tokens
-	"gemini-pro-vision":         1,      // $0.00025 / 1k characters -> $0.001 / 1k tokens
+	"ERNIE-Bot":         0.8572,     // ￥0.012 / 1k tokens
+	"ERNIE-Bot-turbo":   0.5715,     // ￥0.008 / 1k tokens
+	"ERNIE-Bot-4":       0.12 * RMB, // ￥0.12 / 1k tokens
+	"ERNIE-Bot-8k":      0.024 * RMB,
+	"Embedding-V1":      0.1429, // ￥0.002 / 1k tokens
+	"PaLM-2":            1,
+	"gemini-pro":        1, // $0.00025 / 1k characters -> $0.001 / 1k tokens
+	"gemini-pro-vision": 1, // $0.00025 / 1k characters -> $0.001 / 1k tokens
+	// https://open.bigmodel.cn/pricing
+	"glm-4":                     0.1 * RMB,
+	"glm-4v":                    0.1 * RMB,
+	"glm-3-turbo":               0.005 * RMB,
 	"chatglm_turbo":             0.3572, // ￥0.005 / 1k tokens
 	"chatglm_pro":               0.7143, // ￥0.01 / 1k tokens
 	"chatglm_std":               0.3572, // ￥0.005 / 1k tokens
@@ -127,7 +131,25 @@ var ModelRatio = map[string]float64{
 	"moonshot-v1-8k":   0.012 * RMB,
 	"moonshot-v1-32k":  0.024 * RMB,
 	"moonshot-v1-128k": 0.06 * RMB,
+
 	"embedding-001":    0.01 * RMB,
+	// https://platform.baichuan-ai.com/price
+	"Baichuan2-Turbo":      0.008 * RMB,
+	"Baichuan2-Turbo-192k": 0.016 * RMB,
+	"Baichuan2-53B":        0.02 * RMB,
+	// https://api.minimax.chat/document/price
+	"abab6-chat":    0.1 * RMB,
+	"abab5.5-chat":  0.015 * RMB,
+	"abab5.5s-chat": 0.005 * RMB,
+}
+
+var DefaultModelRatio map[string]float64
+
+func init() {
+	DefaultModelRatio = make(map[string]float64)
+	for k, v := range ModelRatio {
+		DefaultModelRatio[k] = v
+	
 }
 
 func ModelRatio2JSONString() string {
@@ -148,6 +170,9 @@ func GetModelRatio(name string) float64 {
 		name = strings.TrimSuffix(name, "-internet")
 	}
 	ratio, ok := ModelRatio[name]
+	if !ok {
+		ratio, ok = DefaultModelRatio[name]
+	}
 	if !ok {
 		logger.SysError("model ratio not found: " + name)
 		return 30

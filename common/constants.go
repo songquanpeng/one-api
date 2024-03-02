@@ -64,6 +64,8 @@ const (
 	ChannelTypeTencent        = 23
 	ChannelTypeGemini         = 24
 	ChannelTypeMoonshot       = 25
+	ChannelTypeBaichuan       = 26
+	ChannelTypeMinimax        = 27
 )
 
 var ChannelBaseURLs = []string{
@@ -93,6 +95,8 @@ var ChannelBaseURLs = []string{
 	"https://hunyuan.cloud.tencent.com",         // 23
 	"https://generativelanguage.googleapis.com", // 24
 	"https://api.moonshot.cn",                   // 25
+	"https://api.baichuan-ai.com",               // 26
+	"https://api.minimax.chat",                  // 27
 }
 
 const (
