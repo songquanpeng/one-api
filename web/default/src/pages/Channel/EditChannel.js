@@ -79,7 +79,7 @@ const EditChannel = () => {
           localModels = [...localModels, ...withInternetVersion];
           break;
         case 16:
-          localModels = ['chatglm_turbo', 'chatglm_pro', 'chatglm_std', 'chatglm_lite'];
+          localModels = ["glm-4", "glm-4v", "glm-3-turbo",'chatglm_turbo', 'chatglm_pro', 'chatglm_std', 'chatglm_lite'];
           break;
         case 18:
           localModels = [
@@ -101,6 +101,12 @@ const EditChannel = () => {
           break;
         case 25:
           localModels = ['moonshot-v1-8k', 'moonshot-v1-32k', 'moonshot-v1-128k'];
+          break;
+        case 26:
+          localModels = ['Baichuan2-Turbo', 'Baichuan2-Turbo-192k', 'Baichuan-Text-Embedding'];
+          break;
+        case 27:
+          localModels = ['abab5.5s-chat', 'abab5.5-chat', 'abab6-chat'];
           break;
       }
       setInputs((inputs) => ({ ...inputs, models: localModels }));

@@ -7,6 +7,9 @@ import (
 	"github.com/songquanpeng/one-api/common"
 	"github.com/songquanpeng/one-api/relay/channel"
 	"github.com/songquanpeng/one-api/relay/channel/ai360"
+	"github.com/songquanpeng/one-api/relay/channel/baichuan"
+	"github.com/songquanpeng/one-api/relay/channel/minimax"
+	"github.com/songquanpeng/one-api/relay/channel/mistral"
 	"github.com/songquanpeng/one-api/relay/channel/moonshot"
 	"github.com/songquanpeng/one-api/relay/model"
 	"github.com/songquanpeng/one-api/relay/util"
@@ -24,7 +27,8 @@ func (a *Adaptor) Init(meta *util.RelayMeta) {
 }
 
 func (a *Adaptor) GetRequestURL(meta *util.RelayMeta) (string, error) {
-	if meta.ChannelType == common.ChannelTypeAzure {
+	switch meta.ChannelType {
+	case common.ChannelTypeAzure:
 		// https://learn.microsoft.com/en-us/azure/cognitive-services/openai/chatgpt-quickstart?pivots=rest-api&tabs=command-line#rest-api
 		requestURL := strings.Split(meta.RequestURLPath, "?")[0]
 		requestURL = fmt.Sprintf("%s?api-version=%s", requestURL, meta.APIVersion)
@@ -38,8 +42,11 @@ func (a *Adaptor) GetRequestURL(meta *util.RelayMeta) (string, error) {
 
 		requestURL = fmt.Sprintf("/openai/deployments/%s/%s", model_, task)
 		return util.GetFullRequestURL(meta.BaseURL, requestURL, meta.ChannelType), nil
+	case common.ChannelTypeMinimax:
+		return minimax.GetRequestURL(meta)
+	default:
+		return util.GetFullRequestURL(meta.BaseURL, meta.RequestURLPath, meta.ChannelType), nil
 	}
-	return util.GetFullRequestURL(meta.BaseURL, meta.RequestURLPath, meta.ChannelType), nil
 }
 
 func (a *Adaptor) SetupRequestHeader(c *gin.Context, req *http.Request, meta *util.RelayMeta) error {
@@ -70,7 +77,7 @@ func (a *Adaptor) DoRequest(c *gin.Context, meta *util.RelayMeta, requestBody io
 func (a *Adaptor) DoResponse(c *gin.Context, resp *http.Response, meta *util.RelayMeta) (usage *model.Usage, err *model.ErrorWithStatusCode) {
 	if meta.IsStream {
 		var responseText string
-		err, responseText = StreamHandler(c, resp, meta.Mode)
+		err, responseText, _ = StreamHandler(c, resp, meta.Mode)
 		usage = ResponseText2Usage(responseText, meta.ActualModelName, meta.PromptTokens)
 	} else {
 		err, usage = Handler(c, resp, meta.PromptTokens, meta.ActualModelName)
@@ -84,6 +91,12 @@ func (a *Adaptor) GetModelList() []string {
 		return ai360.ModelList
 	case common.ChannelTypeMoonshot:
 		return moonshot.ModelList
+	case common.ChannelTypeBaichuan:
+		return baichuan.ModelList
+	case common.ChannelTypeMinimax:
+		return minimax.ModelList
+	case common.ChannelTypeMistral:
+		return mistral.ModelList
 	default:
 		return ModelList
 	}
@@ -97,6 +110,12 @@ func (a *Adaptor) GetChannelName() string {
 		return "360"
 	case common.ChannelTypeMoonshot:
 		return "moonshot"
+	case common.ChannelTypeBaichuan:
+		return "baichuan"
+	case common.ChannelTypeMinimax:
+		return "minimax"
+	case common.ChannelTypeMistral:
+		return "mistralai"
 	default:
 		return "openai"
 	}

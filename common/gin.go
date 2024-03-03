@@ -8,12 +8,24 @@ import (
 	"strings"
 )
 
-func UnmarshalBodyReusable(c *gin.Context, v any) error {
+const KeyRequestBody = "key_request_body"
+
+func GetRequestBody(c *gin.Context) ([]byte, error) {
+	requestBody, _ := c.Get(KeyRequestBody)
+	if requestBody != nil {
+		return requestBody.([]byte), nil
+	}
 	requestBody, err := io.ReadAll(c.Request.Body)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	err = c.Request.Body.Close()
+	_ = c.Request.Body.Close()
+	c.Set(KeyRequestBody, requestBody)
+	return requestBody.([]byte), nil
+}
+
+func UnmarshalBodyReusable(c *gin.Context, v any) error {
+	requestBody, err := GetRequestBody(c)
 	if err != nil {
 		return err
 	}
