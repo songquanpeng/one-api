@@ -19,6 +19,7 @@ import (
 	"net/http/httptest"
 	"net/url"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 
@@ -61,6 +62,12 @@ func testChannel(channel *model.Channel) (err error, openaiErr *relaymodel.Error
 	}
 	adaptor.Init(meta)
 	modelName := adaptor.GetModelList()[0]
+	if !strings.Contains(channel.Models, modelName) {
+		modelNames := strings.Split(channel.Models, ",")
+		if len(modelNames) > 0 {
+			modelName = modelNames[0]
+		}
+	}
 	request := buildTestRequest()
 	request.Model = modelName
 	meta.OriginModelName, meta.ActualModelName = modelName, modelName
