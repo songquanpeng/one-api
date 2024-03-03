@@ -62,7 +62,7 @@ func Relay(c *gin.Context) {
 		retryTimes = 0
 	}
 	for i := retryTimes; i > 0; i-- {
-		channel, err := dbmodel.CacheGetRandomSatisfiedChannel(group, originalModel)
+		channel, err := dbmodel.CacheGetRandomSatisfiedChannel(group, originalModel, i != retryTimes)
 		if err != nil {
 			logger.Errorf(ctx, "CacheGetRandomSatisfiedChannel failed: %w", err)
 			break

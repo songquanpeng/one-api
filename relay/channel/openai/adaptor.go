@@ -9,6 +9,7 @@ import (
 	"github.com/songquanpeng/one-api/relay/channel/ai360"
 	"github.com/songquanpeng/one-api/relay/channel/baichuan"
 	"github.com/songquanpeng/one-api/relay/channel/minimax"
+	"github.com/songquanpeng/one-api/relay/channel/mistral"
 	"github.com/songquanpeng/one-api/relay/channel/moonshot"
 	"github.com/songquanpeng/one-api/relay/model"
 	"github.com/songquanpeng/one-api/relay/util"
@@ -94,6 +95,8 @@ func (a *Adaptor) GetModelList() []string {
 		return baichuan.ModelList
 	case common.ChannelTypeMinimax:
 		return minimax.ModelList
+	case common.ChannelTypeMistral:
+		return mistral.ModelList
 	default:
 		return ModelList
 	}
@@ -111,6 +114,8 @@ func (a *Adaptor) GetChannelName() string {
 		return "baichuan"
 	case common.ChannelTypeMinimax:
 		return "minimax"
+	case common.ChannelTypeMistral:
+		return "mistralai"
 	default:
 		return "openai"
 	}
