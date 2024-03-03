@@ -10,6 +10,7 @@ import (
 	"github.com/songquanpeng/one-api/common/logger"
 	"github.com/songquanpeng/one-api/model"
 	"github.com/songquanpeng/one-api/relay/channel/openai"
+	"github.com/songquanpeng/one-api/relay/constant"
 	relaymodel "github.com/songquanpeng/one-api/relay/model"
 	"github.com/songquanpeng/one-api/relay/util"
 	"io"
@@ -20,120 +21,65 @@ import (
 )
 
 func isWithinRange(element string, value int) bool {
-	if _, ok := common.DalleGenerationImageAmounts[element]; !ok {
+	if _, ok := constant.DalleGenerationImageAmounts[element]; !ok {
 		return false
 	}
-	min := common.DalleGenerationImageAmounts[element][0]
-	max := common.DalleGenerationImageAmounts[element][1]
+	min := constant.DalleGenerationImageAmounts[element][0]
+	max := constant.DalleGenerationImageAmounts[element][1]
 
 	return value >= min && value <= max
 }
 
 func RelayImageHelper(c *gin.Context, relayMode int) *relaymodel.ErrorWithStatusCode {
-	imageModel := "dall-e-2"
-	imageSize := "1024x1024"
-
-	tokenId := c.GetInt("token_id")
-	channelType := c.GetInt("channel")
-	channelId := c.GetInt("channel_id")
-	userId := c.GetInt("id")
-	group := c.GetString("group")
-
-	var imageRequest openai.ImageRequest
-	err := common.UnmarshalBodyReusable(c, &imageRequest)
+	ctx := c.Request.Context()
+	meta := util.GetRelayMeta(c)
+	imageRequest, err := getImageRequest(c, meta.Mode)
 	if err != nil {
-		return openai.ErrorWrapper(err, "bind_request_body_failed", http.StatusBadRequest)
-	}
-
-	if imageRequest.N == 0 {
-		imageRequest.N = 1
-	}
-
-	// Size validation
-	if imageRequest.Size != "" {
-		imageSize = imageRequest.Size
-	}
-
-	// Model validation
-	if imageRequest.Model != "" {
-		imageModel = imageRequest.Model
-	}
-
-	imageCostRatio, hasValidSize := common.DalleSizeRatios[imageModel][imageSize]
-
-	// Check if model is supported
-	if hasValidSize {
-		if imageRequest.Quality == "hd" && imageModel == "dall-e-3" {
-			if imageSize == "1024x1024" {
-				imageCostRatio *= 2
-			} else {
-				imageCostRatio *= 1.5
-			}
-		}
-	} else {
-		return openai.ErrorWrapper(errors.New("size not supported for this image model"), "size_not_supported", http.StatusBadRequest)
-	}
-
-	// Prompt validation
-	if imageRequest.Prompt == "" {
-		return openai.ErrorWrapper(errors.New("prompt is required"), "prompt_missing", http.StatusBadRequest)
-	}
-
-	// Check prompt length
-	if len(imageRequest.Prompt) > common.DalleImagePromptLengthLimitations[imageModel] {
-		return openai.ErrorWrapper(errors.New("prompt is too long"), "prompt_too_long", http.StatusBadRequest)
-	}
-
-	// Number of generated images validation
-	if !isWithinRange(imageModel, imageRequest.N) {
-		// channel not azure
-		if channelType != common.ChannelTypeAzure {
-			return openai.ErrorWrapper(errors.New("invalid value of n"), "n_not_within_range", http.StatusBadRequest)
-		}
+		logger.Errorf(ctx, "getImageRequest failed: %s", err.Error())
+		return openai.ErrorWrapper(err, "invalid_image_request", http.StatusBadRequest)
 	}
 
 	// map model name
-	modelMapping := c.GetString("model_mapping")
-	isModelMapped := false
-	if modelMapping != "" {
-		modelMap := make(map[string]string)
-		err := json.Unmarshal([]byte(modelMapping), &modelMap)
-		if err != nil {
-			return openai.ErrorWrapper(err, "unmarshal_model_mapping_failed", http.StatusInternalServerError)
-		}
-		if modelMap[imageModel] != "" {
-			imageModel = modelMap[imageModel]
-			isModelMapped = true
-		}
+	var isModelMapped bool
+	meta.OriginModelName = imageRequest.Model
+	imageRequest.Model, isModelMapped = util.GetMappedModelName(imageRequest.Model, meta.ModelMapping)
+	meta.ActualModelName = imageRequest.Model
+
+	// model validation
+	bizErr := validateImageRequest(imageRequest, meta)
+	if bizErr != nil {
+		return bizErr
 	}
-	baseURL := common.ChannelBaseURLs[channelType]
+
+	imageCostRatio, err := getImageCostRatio(imageRequest)
+	if err != nil {
+		return openai.ErrorWrapper(err, "get_image_cost_ratio_failed", http.StatusInternalServerError)
+	}
+
 	requestURL := c.Request.URL.String()
-	if c.GetString("base_url") != "" {
-		baseURL = c.GetString("base_url")
-	}
-	fullRequestURL := util.GetFullRequestURL(baseURL, requestURL, channelType)
-	if channelType == common.ChannelTypeAzure {
+	fullRequestURL := util.GetFullRequestURL(meta.BaseURL, requestURL, meta.ChannelType)
+	if meta.ChannelType == common.ChannelTypeAzure {
 		// https://learn.microsoft.com/en-us/azure/ai-services/openai/dall-e-quickstart?tabs=dalle3%2Ccommand-line&pivots=rest-api
 		apiVersion := util.GetAzureAPIVersion(c)
 		// https://{resource_name}.openai.azure.com/openai/deployments/dall-e-3/images/generations?api-version=2023-06-01-preview
-		fullRequestURL = fmt.Sprintf("%s/openai/deployments/%s/images/generations?api-version=%s", baseURL, imageModel, apiVersion)
+		fullRequestURL = fmt.Sprintf("%s/openai/deployments/%s/images/generations?api-version=%s", meta.BaseURL, imageRequest.Model, apiVersion)
 	}
 
 	var requestBody io.Reader
-	if isModelMapped || channelType == common.ChannelTypeAzure { // make Azure channel request body
+	if isModelMapped || meta.ChannelType == common.ChannelTypeAzure { // make Azure channel request body
 		jsonStr, err := json.Marshal(imageRequest)
 		if err != nil {
-			return openai.ErrorWrapper(err, "marshal_text_request_failed", http.StatusInternalServerError)
+			return openai.ErrorWrapper(err, "marshal_image_request_failed", http.StatusInternalServerError)
 		}
 		requestBody = bytes.NewBuffer(jsonStr)
 	} else {
 		requestBody = c.Request.Body
 	}
 
-	modelRatio := common.GetModelRatio(imageModel)
-	groupRatio := common.GetGroupRatio(group)
+	modelRatio := common.GetModelRatio(imageRequest.Model)
+	groupRatio := common.GetGroupRatio(meta.Group)
 	ratio := modelRatio * groupRatio
-	userQuota, err := model.CacheGetUserQuota(userId)
+	userQuota, err := model.CacheGetUserQuota(meta.UserId)
 
 	quota := int(ratio*imageCostRatio*1000) * imageRequest.N
 
@@ -146,7 +92,7 @@ func RelayImageHelper(c *gin.Context, relayMode int) *relaymodel.ErrorWithStatus
 		return openai.ErrorWrapper(err, "new_request_failed", http.StatusInternalServerError)
 	}
 	token := c.Request.Header.Get("Authorization")
-	if channelType == common.ChannelTypeAzure { // Azure authentication
+	if meta.ChannelType == common.ChannelTypeAzure { // Azure authentication
 		token = strings.TrimPrefix(token, "Bearer ")
 		req.Header.Set("api-key", token)
 	} else {
@@ -169,25 +115,25 @@ func RelayImageHelper(c *gin.Context, relayMode int) *relaymodel.ErrorWithStatus
 	if err != nil {
 		return openai.ErrorWrapper(err, "close_request_body_failed", http.StatusInternalServerError)
 	}
-	var textResponse openai.ImageResponse
+	var imageResponse openai.ImageResponse
 
 	defer func(ctx context.Context) {
 		if resp.StatusCode != http.StatusOK {
 			return
 		}
-		err := model.PostConsumeTokenQuota(tokenId, quota)
+		err := model.PostConsumeTokenQuota(meta.TokenId, quota)
 		if err != nil {
 			logger.SysError("error consuming token remain quota: " + err.Error())
 		}
-		err = model.CacheUpdateUserQuota(userId)
+		err = model.CacheUpdateUserQuota(meta.UserId)
 		if err != nil {
 			logger.SysError("error update user quota cache: " + err.Error())
 		}
 		if quota != 0 {
 			tokenName := c.GetString("token_name")
 			logContent := fmt.Sprintf("模型倍率 %.2f，分组倍率 %.2f", modelRatio, groupRatio)
-			model.RecordConsumeLog(ctx, userId, channelId, 0, 0, imageModel, tokenName, quota, logContent)
-			model.UpdateUserUsedQuotaAndRequestCount(userId, quota)
+			model.RecordConsumeLog(ctx, meta.UserId, meta.ChannelId, 0, 0, imageRequest.Model, tokenName, quota, logContent)
+			model.UpdateUserUsedQuotaAndRequestCount(meta.UserId, quota)
 			channelId := c.GetInt("channel_id")
 			model.UpdateChannelUsedQuota(channelId, quota)
 		}
@@ -202,7 +148,7 @@ func RelayImageHelper(c *gin.Context, relayMode int) *relaymodel.ErrorWithStatus
 	if err != nil {
 		return openai.ErrorWrapper(err, "close_response_body_failed", http.StatusInternalServerError)
 	}
-	err = json.Unmarshal(responseBody, &textResponse)
+	err = json.Unmarshal(responseBody, &imageResponse)
 	if err != nil {
 		return openai.ErrorWrapper(err, "unmarshal_response_body_failed", http.StatusInternalServerError)
 	}
