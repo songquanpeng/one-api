@@ -66,6 +66,7 @@ const (
 	ChannelTypeMoonshot       = 25
 	ChannelTypeBaichuan       = 26
 	ChannelTypeMinimax        = 27
+	ChannelTypeMistral        = 28
 )
 
 var ChannelBaseURLs = []string{
@@ -97,6 +98,7 @@ var ChannelBaseURLs = []string{
 	"https://api.moonshot.cn",                   // 25
 	"https://api.baichuan-ai.com",               // 26
 	"https://api.minimax.chat",                  // 27
+	"https://api.mistral.ai",                    // 28
 }
 
 const (

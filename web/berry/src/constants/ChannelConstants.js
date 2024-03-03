@@ -29,6 +29,12 @@ export const CHANNEL_OPTIONS = {
     value: 24,
     color: 'orange'
   },
+  28: {
+    key: 28,
+    text: 'Mistral AI',
+    value: 28,
+    color: 'orange'
+  },
   15: {
     key: 15,
     text: '百度文心千帆',

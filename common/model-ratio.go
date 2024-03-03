@@ -17,7 +17,6 @@ const (
 // https://platform.openai.com/docs/models/model-endpoint-compatibility
 // https://cloud.baidu.com/doc/WENXINWORKSHOP/s/Blfmc9dlf
 // https://openai.com/pricing
-// TODO: when a new api is enabled, check the pricing here
 // 1 === $0.002 / 1K tokens
 // 1 === ￥0.014 / 1k tokens
 var ModelRatio = map[string]float64{
@@ -116,14 +115,28 @@ var ModelRatio = map[string]float64{
 	"abab6-chat":    0.1 * RMB,
 	"abab5.5-chat":  0.015 * RMB,
 	"abab5.5s-chat": 0.005 * RMB,
+	// https://docs.mistral.ai/platform/pricing/
+	"open-mistral-7b":       0.25 / 1000 * USD,
+	"open-mixtral-8x7b":     0.7 / 1000 * USD,
+	"mistral-small-latest":  2.0 / 1000 * USD,
+	"mistral-medium-latest": 2.7 / 1000 * USD,
+	"mistral-large-latest":  8.0 / 1000 * USD,
+	"mistral-embed":         0.1 / 1000 * USD,
 }
 
+var CompletionRatio = map[string]float64{}
+
 var DefaultModelRatio map[string]float64
+var DefaultCompletionRatio map[string]float64
 
 func init() {
 	DefaultModelRatio = make(map[string]float64)
 	for k, v := range ModelRatio {
 		DefaultModelRatio[k] = v
+	}
+	DefaultCompletionRatio = make(map[string]float64)
+	for k, v := range CompletionRatio {
+		DefaultCompletionRatio[k] = v
 	}
 }
 
@@ -155,8 +168,6 @@ func GetModelRatio(name string) float64 {
 	return ratio
 }
 
-var CompletionRatio = map[string]float64{}
-
 func CompletionRatio2JSONString() string {
 	jsonBytes, err := json.Marshal(CompletionRatio)
 	if err != nil {
@@ -172,6 +183,9 @@ func UpdateCompletionRatioByJSONString(jsonStr string) error {
 
 func GetCompletionRatio(name string) float64 {
 	if ratio, ok := CompletionRatio[name]; ok {
+		return ratio
+	}
+	if ratio, ok := DefaultCompletionRatio[name]; ok {
 		return ratio
 	}
 	if strings.HasPrefix(name, "gpt-3.5") {
@@ -205,6 +219,9 @@ func GetCompletionRatio(name string) float64 {
 	}
 	if strings.HasPrefix(name, "claude-2") {
 		return 2.965517
+	}
+	if strings.HasPrefix(name, "mistral-") {
+		return 3
 	}
 	return 1
 }
