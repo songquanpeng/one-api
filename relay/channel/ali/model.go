@@ -16,6 +16,8 @@ type Parameters struct {
 	Seed              uint64  `json:"seed,omitempty"`
 	EnableSearch      bool    `json:"enable_search,omitempty"`
 	IncrementalOutput bool    `json:"incremental_output,omitempty"`
+	MaxTokens         int     `json:"max_tokens,omitempty"`
+	Temperature       float64 `json:"temperature,omitempty"`
 }
 
 type ChatRequest struct {
