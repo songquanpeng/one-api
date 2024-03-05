@@ -63,6 +63,7 @@ _✨ 通过标准的 OpenAI API 格式访问所有的大模型，开箱即用 �
 > 使用 root 用户初次登录系统后，务必修改默认密码 `123456`！
 
 ## 功能
+
 1. 支持多种大模型：
    + [x] [OpenAI ChatGPT 系列模型](https://platform.openai.com/docs/guides/gpt/chat-completions-api)（支持 [Azure OpenAI API](https://learn.microsoft.com/en-us/azure/ai-services/openai/reference)）
    + [x] [Anthropic Claude 系列模型](https://anthropic.com)
@@ -107,12 +108,20 @@ _✨ 通过标准的 OpenAI API 格式访问所有的大模型，开箱即用 �
 23. 支持主题切换，设置环境变量 `THEME` 即可，默认为 `default`，欢迎 PR 更多主题，具体参考[此处](./web/README.md)。
 
 ## 部署
+
 ### 基于 Docker 进行部署
-```shell
-# 使用 SQLite 的部署命令：
+
+- 使用 SQLite 的部署命令：
+
+```sh
 docker run --name one-api -d --restart always -p 3000:3000 -e TZ=Asia/Shanghai -v /home/ubuntu/data/one-api:/data justsong/one-api
-# 使用 MySQL 的部署命令，在上面的基础上添加 `-e SQL_DSN="root:123456@tcp(localhost:3306)/oneapi"`，请自行修改数据库连接参数，不清楚如何修改请参见下面环境变量一节。
-# 例如：
+```
+
+- 使用 MySQL 的部署命令：
+
+在上面的基础上添加 `-e SQL_DSN="root:123456@tcp(localhost:3306)/oneapi"`，请自行修改数据库连接参数，不清楚如何修改请参见下面环境变量一节。例如：
+
+```sh
 docker run --name one-api -d --restart always -p 3000:3000 -e SQL_DSN="root:123456@tcp(localhost:3306)/oneapi" -e TZ=Asia/Shanghai -v /home/ubuntu/data/one-api:/data justsong/one-api
 ```
 
@@ -129,6 +138,7 @@ docker run --name one-api -d --restart always -p 3000:3000 -e SQL_DSN="root:1234
 更新命令：`docker run --rm -v /var/run/docker.sock:/var/run/docker.sock containrrr/watchtower -cR`
 
 Nginx 的参考配置：
+
 ```
 server{
    server_name openai.justsong.cn;  # 请根据实际情况修改你的域名
@@ -147,57 +157,82 @@ server{
 ```
 
 之后使用 Let's Encrypt 的 certbot 配置 HTTPS：
-```bash
-# Ubuntu 安装 certbot：
+
+- Ubuntu 安装 certbot：
+
+```sh
 sudo snap install --classic certbot
 sudo ln -s /snap/bin/certbot /usr/bin/certbot
-# 生成证书 & 修改 Nginx 配置
+```
+
+- 生成证书 & 修改 Nginx 配置
+
+```sh
 sudo certbot --nginx
-# 根据指示进行操作
-# 重启 Nginx
+```
+
+- 根据指示进行操作
+- 重启 Nginx
+
+```sh
 sudo service nginx restart
 ```
 
 初始账号用户名为 `root`，密码为 `123456`。
 
-
 ### 基于 Docker Compose 进行部署
 
 > 仅启动方式不同，参数设置不变，请参考基于 Docker 部署部分
 
-```shell
-# 目前支持 MySQL 启动，数据存储在 ./data/mysql 文件夹内
-docker-compose up -d
+- 目前支持 MySQL 启动，数据存储在 ./data/mysql 文件夹内
 
-# 查看部署状态
+```sh
+docker-compose up -d
+```
+
+- 查看部署状态
+
+```sh
 docker-compose ps
 ```
 
 ### 手动部署
+
 1. 从 [GitHub Releases](https://github.com/songquanpeng/one-api/releases/latest) 下载可执行文件或者从源码编译：
-   ```shell
-   git clone https://github.com/songquanpeng/one-api.git
-   
-   # 构建前端
-   cd one-api/web/default
-   npm install
-   npm run build
-   
-   # 构建后端
-   cd ../..
-   go mod download
-   go build -ldflags "-s -w" -o one-api
-   ````
-2. 运行：
-   ```shell
-   chmod u+x one-api
-   ./one-api --port 3000 --log-dir ./logs
-   ```
-3. 访问 [http://localhost:3000/](http://localhost:3000/) 并登录。初始账号用户名为 `root`，密码为 `123456`。
+
+```sh
+git clone https://github.com/songquanpeng/one-api.git
+```
+
+2. 构建前端
+
+```sh
+cd one-api/web/default
+npm install
+npm run build
+```
+
+3. 构建后端
+
+```sh
+cd ../..
+go mod download
+go build -ldflags "-s -w" -o one-api
+```
+
+4. 运行：
+
+```sh
+chmod u+x one-api
+./one-api --port 3000 --log-dir ./logs
+```
+
+5. 访问 [http://localhost:3000/](http://localhost:3000/) 并登录。初始账号用户名为 `root`，密码为 `123456`。
 
 更加详细的部署教程[参见此处](https://iamazing.cn/page/how-to-deploy-a-website)。
 
 ### 多机部署
+
 1. 所有服务器 `SESSION_SECRET` 设置一样的值。
 2. 必须设置 `SQL_DSN`，使用 MySQL 数据库而非 SQLite，所有服务器连接同一个数据库。
 3. 所有从服务器必须设置 `NODE_TYPE` 为 `slave`，不设置则默认为主服务器。
@@ -215,27 +250,31 @@ docker-compose ps
 如果部署后访问出现空白页面，详见 [#97](https://github.com/songquanpeng/one-api/issues/97)。
 
 ### 部署第三方服务配合 One API 使用
+
 > 欢迎 PR 添加更多示例。
 
 #### ChatGPT Next Web
+
 项目主页：https://github.com/Yidadaa/ChatGPT-Next-Web
 
-```bash
+```sh
 docker run --name chat-next-web -d -p 3001:3000 yidadaa/chatgpt-next-web
 ```
 
 注意修改端口号，之后在页面上设置接口地址（例如：https://openai.justsong.cn/ ）和 API Key 即可。
 
 #### ChatGPT Web
+
 项目主页：https://github.com/Chanzhaoyu/chatgpt-web
 
-```bash
+```sh
 docker run --name chatgpt-web -d -p 3002:3002 -e OPENAI_API_BASE_URL=https://openai.justsong.cn -e OPENAI_API_KEY=sk-xxx chenzhaoyu94/chatgpt-web
 ```
 
 注意修改端口号、`OPENAI_API_BASE_URL` 和 `OPENAI_API_KEY`。
 
 #### QChatGPT - QQ机器人
+
 项目主页：https://github.com/RockChinQ/QChatGPT
 
 根据文档完成部署后，在`config.py`设置配置项`openai_config`的`reverse_proxy`为 One API 后端地址，设置`api_key`为 One API 生成的key，并在配置项`completion_api_params`的`model`参数设置为 One API 支持的模型名称。
@@ -243,6 +282,7 @@ docker run --name chatgpt-web -d -p 3002:3002 -e OPENAI_API_BASE_URL=https://ope
 可安装 [Switcher 插件](https://github.com/RockChinQ/Switcher)在运行时切换所使用的模型。
 
 ### 部署到第三方平台
+
 <details>
 <summary><strong>部署到 Sealos </strong></summary>
 <div>
@@ -289,6 +329,7 @@ Render 可以直接部署 docker 镜像，不需要 fork 仓库：https://dashbo
 </details>
 
 ## 配置
+
 系统本身开箱即用。
 
 你可以通过设置环境变量或者命令行参数进行配置。
@@ -298,6 +339,7 @@ Render 可以直接部署 docker 镜像，不需要 fork 仓库：https://dashbo
 **Note**：如果你不知道某个配置项的含义，可以临时删掉值以看到进一步的提示文字。
 
 ## 使用方法
+
 在`渠道`页面中添加你的 API Key，之后在`令牌`页面中新增访问令牌。
 
 之后就可以使用你的令牌访问 One API 了，使用方式与 [OpenAI API](https://platform.openai.com/docs/api-reference/introduction) 一致。
@@ -307,7 +349,8 @@ Render 可以直接部署 docker 镜像，不需要 fork 仓库：https://dashbo
 注意，具体的 API Base 的格式取决于你所使用的客户端。
 
 例如对于 OpenAI 的官方库：
-```bash
+
+```sh
 OPENAI_API_KEY="sk-xxxxxx"
 OPENAI_API_BASE="https://<HOST>:<PORT>/v1" 
 ```
@@ -328,6 +371,7 @@ graph LR
 不加的话将会使用负载均衡的方式使用多个渠道。
 
 ### 环境变量
+
 1. `REDIS_CONN_STRING`：设置之后将使用 Redis 作为缓存使用。
    + 例子：`REDIS_CONN_STRING=redis://default:redispw@localhost:49153`
    + 如果数据库访问延迟很低，没有必要启用 Redis，启用后反而会出现数据滞后的问题。
@@ -376,6 +420,7 @@ graph LR
 18. `THEME`：系统的主题设置，默认为 `default`，具体可选值参考[此处](./web/README.md)。
 
 ### 命令行参数
+
 1. `--port <port_number>`: 指定服务器监听的端口号，默认为 `3000`。
    + 例子：`--port 3000`
 2. `--log-dir <log_dir>`: 指定日志文件夹，如果没有设置，默认保存至工作目录的 `logs` 文件夹下。
@@ -384,15 +429,19 @@ graph LR
 4. `--help`: 查看命令的使用帮助和参数说明。
 
 ## 演示
+
 ### 在线演示
+
 注意，该演示站不提供对外服务：
 https://openai.justsong.cn
 
 ### 截图展示
+
 ![channel](https://user-images.githubusercontent.com/39998050/233837954-ae6683aa-5c4f-429f-a949-6645a83c9490.png)
 ![token](https://user-images.githubusercontent.com/39998050/233837971-dab488b7-6d96-43af-b640-a168e8d1c9bf.png)
 
 ## 常见问题
+
 1. 额度是什么？怎么计算的？One API 的额度计算有问题？
    + 额度 = 分组倍率 * 模型倍率 * （提示 token 数 + 补全 token 数 * 补全倍率）
    + 其中补全倍率对于 GPT3.5 固定为 1.33，GPT4 为 2，与官方保持一致。
@@ -424,6 +473,7 @@ https://openai.justsong.cn
    + 对于每一个通道，其所支持的模型都需要有一个专门的 ability 表的记录，表示该通道支持该模型。
 
 ## 相关项目
+
 * [FastGPT](https://github.com/labring/FastGPT): 基于 LLM 大语言模型的知识库问答系统
 * [ChatGPT Next Web](https://github.com/Yidadaa/ChatGPT-Next-Web):  一键拥有你自己的跨平台 ChatGPT 应用
 
