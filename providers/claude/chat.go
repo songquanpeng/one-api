@@ -83,36 +83,36 @@ func (p *ClaudeProvider) getChatRequest(request *types.ChatCompletionRequest) (*
 
 func convertFromChatOpenai(request *types.ChatCompletionRequest) *ClaudeRequest {
 	claudeRequest := ClaudeRequest{
-		Model:             request.Model,
-		Prompt:            "",
-		MaxTokensToSample: request.MaxTokens,
-		StopSequences:     nil,
-		Temperature:       request.Temperature,
-		TopP:              request.TopP,
-		Stream:            request.Stream,
+		Model:         request.Model,
+		Messages:      nil,
+		System:        "",
+		MaxTokens:     request.MaxTokens,
+		StopSequences: nil,
+		Temperature:   request.Temperature,
+		TopP:          request.TopP,
+		Stream:        request.Stream,
 	}
-	if claudeRequest.MaxTokensToSample == 0 {
-		claudeRequest.MaxTokensToSample = 1000000
+	if claudeRequest.MaxTokens == 0 {
+		claudeRequest.MaxTokens = 4096
 	}
-	prompt := ""
+	var messages []Message
 	for _, message := range request.Messages {
-		if message.Role == "user" {
-			prompt += fmt.Sprintf("\n\nHuman: %s", message.Content)
-		} else if message.Role == "assistant" {
-			prompt += fmt.Sprintf("\n\nAssistant: %s", message.Content)
-		} else if message.Role == "system" {
-			if prompt == "" {
-				prompt = message.StringContent()
-			}
+		if message.Role != "system" {
+			messages = append(messages, Message{
+				Role:    message.Role,
+				Content: message.Content.(string),
+			})
+			claudeRequest.Messages = messages
+		} else {
+			claudeRequest.System = message.Content.(string)
 		}
 	}
-	prompt += "\n\nAssistant:"
-	claudeRequest.Prompt = prompt
+
 	return &claudeRequest
 }
 
 func (p *ClaudeProvider) convertToChatOpenai(response *ClaudeResponse, request *types.ChatCompletionRequest) (openaiResponse *types.ChatCompletionResponse, errWithCode *types.OpenAIErrorWithStatusCode) {
-	error := errorHandle(&response.ClaudeResponseError)
+	error := errorHandle(&response.Error)
 	if error != nil {
 		errWithCode = &types.OpenAIErrorWithStatusCode{
 			OpenAIError: *error,
@@ -125,26 +125,33 @@ func (p *ClaudeProvider) convertToChatOpenai(response *ClaudeResponse, request *
 		Index: 0,
 		Message: types.ChatCompletionMessage{
 			Role:    "assistant",
-			Content: strings.TrimPrefix(response.Completion, " "),
+			Content: strings.TrimPrefix(response.Content[0].Text, " "),
 			Name:    nil,
 		},
 		FinishReason: stopReasonClaude2OpenAI(response.StopReason),
 	}
 	openaiResponse = &types.ChatCompletionResponse{
-		ID:      fmt.Sprintf("chatcmpl-%s", common.GetUUID()),
+		ID:      response.Id,
 		Object:  "chat.completion",
 		Created: common.GetTimestamp(),
 		Choices: []types.ChatCompletionChoice{choice},
 		Model:   response.Model,
+		Usage: &types.Usage{
+			CompletionTokens: 0,
+			PromptTokens:     0,
+			TotalTokens:      0,
+		},
 	}
 
-	completionTokens := common.CountTokenText(response.Completion, response.Model)
-	response.Usage.CompletionTokens = completionTokens
-	response.Usage.TotalTokens = response.Usage.PromptTokens + completionTokens
+	completionTokens := response.Usage.OutputTokens
 
-	openaiResponse.Usage = response.Usage
+	promptTokens := response.Usage.InputTokens
 
-	*p.Usage = *response.Usage
+	openaiResponse.Usage.PromptTokens = promptTokens
+	openaiResponse.Usage.CompletionTokens = completionTokens
+	openaiResponse.Usage.TotalTokens = promptTokens + completionTokens
+
+	*p.Usage = *openaiResponse.Usage
 
 	return openaiResponse, nil
 }
@@ -152,7 +159,7 @@ func (p *ClaudeProvider) convertToChatOpenai(response *ClaudeResponse, request *
 // 转换为OpenAI聊天流式请求体
 func (h *claudeStreamHandler) handlerStream(rawLine *[]byte, dataChan chan string, errChan chan error) {
 	// 如果rawLine 前缀不为data:，则直接返回
-	if !strings.HasPrefix(string(*rawLine), `data: {"type": "completion"`) {
+	if !strings.HasPrefix(string(*rawLine), `data: {"type"`) {
 		*rawLine = nil
 		return
 	}
@@ -160,43 +167,61 @@ func (h *claudeStreamHandler) handlerStream(rawLine *[]byte, dataChan chan strin
 	// 去除前缀
 	*rawLine = (*rawLine)[6:]
 
-	var claudeResponse *ClaudeResponse
-	err := json.Unmarshal(*rawLine, claudeResponse)
+	var claudeResponse ClaudeStreamResponse
+	err := json.Unmarshal(*rawLine, &claudeResponse)
 	if err != nil {
 		errChan <- common.ErrorToOpenAIError(err)
 		return
 	}
 
-	error := errorHandle(&claudeResponse.ClaudeResponseError)
+	error := errorHandle(&claudeResponse.Error)
 	if error != nil {
 		errChan <- error
 		return
 	}
 
-	if claudeResponse.StopReason == "stop_sequence" {
+	switch claudeResponse.Type {
+	case "message_start":
+		h.Usage.PromptTokens = claudeResponse.Message.InputTokens
+
+	case "message_delta":
+		h.convertToOpenaiStream(&claudeResponse, dataChan, errChan)
+		h.Usage.CompletionTokens = claudeResponse.Usage.OutputTokens
+		h.Usage.TotalTokens = h.Usage.PromptTokens + h.Usage.CompletionTokens
+
+	case "content_block_delta":
+		h.convertToOpenaiStream(&claudeResponse, dataChan, errChan)
+
+	case "message_stop":
 		errChan <- io.EOF
 		*rawLine = requester.StreamClosed
+
+	default:
 		return
 	}
-
-	h.convertToOpenaiStream(claudeResponse, dataChan, errChan)
 }
 
-func (h *claudeStreamHandler) convertToOpenaiStream(claudeResponse *ClaudeResponse, dataChan chan string, errChan chan error) {
-	var choice types.ChatCompletionStreamChoice
-	choice.Delta.Content = claudeResponse.Completion
-	finishReason := stopReasonClaude2OpenAI(claudeResponse.StopReason)
-	if finishReason != "null" {
+func (h *claudeStreamHandler) convertToOpenaiStream(claudeResponse *ClaudeStreamResponse, dataChan chan string, errChan chan error) {
+	choice := types.ChatCompletionStreamChoice{
+		Index: claudeResponse.Index,
+	}
+
+	if claudeResponse.Delta.Text != "" {
+		choice.Delta.Content = claudeResponse.Delta.Text
+	}
+
+	finishReason := stopReasonClaude2OpenAI(claudeResponse.Delta.StopReason)
+	if finishReason != "" {
 		choice.FinishReason = &finishReason
 	}
 	chatCompletion := types.ChatCompletionStreamResponse{
+		ID:      fmt.Sprintf("chatcmpl-%s", common.GetUUID()),
 		Object:  "chat.completion.chunk",
+		Created: common.GetTimestamp(),
 		Model:   h.Request.Model,
 		Choices: []types.ChatCompletionStreamChoice{choice},
 	}
 
 	responseBody, _ := json.Marshal(chatCompletion)
 	dataChan <- string(responseBody)
-
-	h.Usage.PromptTokens += common.CountTokenText(claudeResponse.Completion, h.Request.Model)
 }

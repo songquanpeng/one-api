@@ -29,13 +29,13 @@ type ClaudeProvider struct {
 func getConfig() base.ProviderConfig {
 	return base.ProviderConfig{
 		BaseURL:         "https://api.anthropic.com",
-		ChatCompletions: "/v1/complete",
+		ChatCompletions: "/v1/messages",
 	}
 }
 
 // 请求错误处理
 func requestErrorHandle(resp *http.Response) *types.OpenAIError {
-	claudeError := &ClaudeResponseError{}
+	claudeError := &ClaudeError{}
 	err := json.NewDecoder(resp.Body).Decode(claudeError)
 	if err != nil {
 		return nil
@@ -45,14 +45,14 @@ func requestErrorHandle(resp *http.Response) *types.OpenAIError {
 }
 
 // 错误处理
-func errorHandle(claudeError *ClaudeResponseError) *types.OpenAIError {
-	if claudeError.Error.Type == "" {
+func errorHandle(claudeError *ClaudeError) *types.OpenAIError {
+	if claudeError.Type == "" {
 		return nil
 	}
 	return &types.OpenAIError{
-		Message: claudeError.Error.Message,
-		Type:    claudeError.Error.Type,
-		Code:    claudeError.Error.Type,
+		Message: claudeError.Message,
+		Type:    claudeError.Type,
+		Code:    claudeError.Type,
 	}
 }
 
@@ -73,7 +73,7 @@ func (p *ClaudeProvider) GetRequestHeaders() (headers map[string]string) {
 
 func stopReasonClaude2OpenAI(reason string) string {
 	switch reason {
-	case "stop_sequence":
+	case "end_turn":
 		return types.FinishReasonStop
 	case "max_tokens":
 		return types.FinishReasonLength

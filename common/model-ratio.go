@@ -87,11 +87,12 @@ func init() {
 		"dall-e-3": {[]float64{20, 20}, ChannelTypeOpenAI},
 
 		// $0.80/million tokens $2.40/million tokens
-		"claude-instant-1": {[]float64{0.4, 1.2}, ChannelTypeAnthropic},
+		"claude-instant-1.2": {[]float64{0.4, 1.2}, ChannelTypeAnthropic},
 		// $8.00/million tokens $24.00/million tokens
-		"claude-2":   {[]float64{4, 12}, ChannelTypeAnthropic},
-		"claude-2.0": {[]float64{4, 12}, ChannelTypeAnthropic},
-		"claude-2.1": {[]float64{4, 12}, ChannelTypeAnthropic},
+		"claude-2.0":               {[]float64{4, 12}, ChannelTypeAnthropic},
+		"claude-2.1":               {[]float64{4, 12}, ChannelTypeAnthropic},
+		"claude-3-opus-20240229":   {[]float64{7.5, 22.5}, ChannelTypeAnthropic},
+		"claude-3-sonnet-20240229": {[]float64{1.3, 3.9}, ChannelTypeAnthropic},
 
 		// ￥0.012 / 1k tokens ￥0.012 / 1k tokens
 		"ERNIE-Bot": {[]float64{0.8572, 0.8572}, ChannelTypeBaidu},
@@ -291,7 +292,7 @@ func GetCompletionRatio(name string) float64 {
 		}
 		return 2
 	}
-	if strings.HasPrefix(name, "claude-instant-1") {
+	if strings.HasPrefix(name, "claude-instant-1.2") {
 		return 3.38
 	}
 	if strings.HasPrefix(name, "claude-2") {
