@@ -25,15 +25,14 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
-      - name: Save version info
+      - name: Save dev version info
         run: |
-          TAG=$(git describe --tags --exact-match 2> /dev/null)
-          if [ $? -eq 0 ]; then
-            echo $TAG > VERSION
-          else
-            HASH=$(git rev-parse --short=7 HEAD)
-            echo "dev-$HASH" > VERSION
-          fi
+          HASH=$(git rev-parse --short=7 HEAD)
+          echo "dev-$HASH" > VERSION
+      - name: Save Tag version info
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          git describe --tags > VERSION
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
 
