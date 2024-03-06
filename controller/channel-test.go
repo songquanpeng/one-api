@@ -140,14 +140,6 @@ func notifyRootUser(subject string, content string) {
 	}
 }
 
-// disable & notify
-func disableChannel(channelId int, channelName string, reason string) {
-	model.UpdateChannelStatusById(channelId, common.ChannelStatusAutoDisabled)
-	subject := fmt.Sprintf("通道「%s」（#%d）已被禁用", channelName, channelId)
-	content := fmt.Sprintf("通道「%s」（#%d）已被禁用，原因：%s", channelName, channelId, reason)
-	notifyRootUser(subject, content)
-}
-
 // enable & notify
 func enableChannel(channelId int, channelName string) {
 	model.UpdateChannelStatusById(channelId, common.ChannelStatusEnabled)
@@ -185,10 +177,10 @@ func testAllChannels(notify bool) error {
 			milliseconds := tok.Sub(tik).Milliseconds()
 			if milliseconds > disableThreshold {
 				err = fmt.Errorf("响应时间 %.2fs 超过阈值 %.2fs", float64(milliseconds)/1000.0, float64(disableThreshold)/1000.0)
-				disableChannel(channel.Id, channel.Name, err.Error())
+				DisableChannel(channel.Id, channel.Name, err.Error())
 			}
-			if isChannelEnabled && shouldDisableChannel(openaiErr, -1) {
-				disableChannel(channel.Id, channel.Name, err.Error())
+			if isChannelEnabled && ShouldDisableChannel(openaiErr, -1) {
+				DisableChannel(channel.Id, channel.Name, err.Error())
 			}
 			if !isChannelEnabled && shouldEnableChannel(err, openaiErr) {
 				enableChannel(channel.Id, channel.Name)

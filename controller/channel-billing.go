@@ -122,7 +122,7 @@ func updateAllChannelsBalance() error {
 		} else {
 			// err is nil & balance <= 0 means quota is used up
 			if balance <= 0 {
-				disableChannel(channel.Id, channel.Name, "余额不足")
+				DisableChannel(channel.Id, channel.Name, "余额不足")
 			}
 		}
 		time.Sleep(common.RequestInterval)

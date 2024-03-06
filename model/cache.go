@@ -2,14 +2,9 @@ package model
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
-	"math/rand"
 	"one-api/common"
-	"sort"
 	"strconv"
-	"strings"
-	"sync"
 	"time"
 )
 
@@ -130,105 +125,4 @@ func CacheIsUserEnabled(userId int) (bool, error) {
 		common.SysError("Redis set user enabled error: " + err.Error())
 	}
 	return userEnabled, err
-}
-
-var group2model2channels map[string]map[string][]*Channel
-var channelSyncLock sync.RWMutex
-
-func InitChannelCache() {
-	newChannelId2channel := make(map[int]*Channel)
-	var channels []*Channel
-	DB.Where("status = ?", common.ChannelStatusEnabled).Find(&channels)
-	for _, channel := range channels {
-		newChannelId2channel[channel.Id] = channel
-	}
-	var abilities []*Ability
-	DB.Find(&abilities)
-	groups := make(map[string]bool)
-	for _, ability := range abilities {
-		groups[ability.Group] = true
-	}
-	newGroup2model2channels := make(map[string]map[string][]*Channel)
-	for group := range groups {
-		newGroup2model2channels[group] = make(map[string][]*Channel)
-	}
-	for _, channel := range channels {
-		groups := strings.Split(channel.Group, ",")
-		for _, group := range groups {
-			models := strings.Split(channel.Models, ",")
-			for _, model := range models {
-				if _, ok := newGroup2model2channels[group][model]; !ok {
-					newGroup2model2channels[group][model] = make([]*Channel, 0)
-				}
-				newGroup2model2channels[group][model] = append(newGroup2model2channels[group][model], channel)
-			}
-		}
-	}
-
-	// sort by priority
-	for group, model2channels := range newGroup2model2channels {
-		for model, channels := range model2channels {
-			sort.Slice(channels, func(i, j int) bool {
-				return channels[i].GetPriority() > channels[j].GetPriority()
-			})
-			newGroup2model2channels[group][model] = channels
-		}
-	}
-
-	channelSyncLock.Lock()
-	group2model2channels = newGroup2model2channels
-	channelSyncLock.Unlock()
-	common.SysLog("channels synced from database")
-}
-
-func SyncChannelCache(frequency int) {
-	for {
-		time.Sleep(time.Duration(frequency) * time.Second)
-		common.SysLog("syncing channels from database")
-		InitChannelCache()
-	}
-}
-
-func CacheGetRandomSatisfiedChannel(group string, model string) (*Channel, error) {
-	if !common.MemoryCacheEnabled {
-		return GetRandomSatisfiedChannel(group, model)
-	}
-	channelSyncLock.RLock()
-	defer channelSyncLock.RUnlock()
-	channels := group2model2channels[group][model]
-	if len(channels) == 0 {
-		return nil, errors.New("channel not found")
-	}
-	endIdx := len(channels)
-	// choose by priority
-	firstChannel := channels[0]
-	if firstChannel.GetPriority() > 0 {
-		for i := range channels {
-			if channels[i].GetPriority() != firstChannel.GetPriority() {
-				endIdx = i
-				break
-			}
-		}
-	}
-	idx := rand.Intn(endIdx)
-	return channels[idx], nil
-}
-
-func CacheGetGroupModels(group string) ([]string, error) {
-	if !common.MemoryCacheEnabled {
-		return GetGroupModels(group)
-	}
-	channelSyncLock.RLock()
-	defer channelSyncLock.RUnlock()
-
-	groupModels := group2model2channels[group]
-	if groupModels == nil {
-		return nil, errors.New("group not found")
-	}
-
-	models := make([]string, 0)
-	for model := range groupModels {
-		models = append(models, model)
-	}
-	return models, nil
 }

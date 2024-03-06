@@ -1,6 +1,7 @@
-package controller
+package relay
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -8,127 +9,98 @@ import (
 	"net/http"
 	"one-api/common"
 	"one-api/common/requester"
+	"one-api/controller"
 	"one-api/model"
 	"one-api/providers"
 	providersBase "one-api/providers/base"
 	"one-api/types"
-	"reflect"
+	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-playground/validator/v10"
 )
 
-func getProvider(c *gin.Context, modeName string) (provider providersBase.ProviderInterface, newModelName string, fail bool) {
+func Path2Relay(c *gin.Context, path string) RelayBaseInterface {
+	if strings.HasPrefix(path, "/v1/chat/completions") {
+		return NewRelayChat(c)
+	} else if strings.HasPrefix(path, "/v1/completions") {
+		return NewRelayCompletions(c)
+	} else if strings.HasPrefix(path, "/v1/embeddings") {
+		return NewRelayEmbeddings(c)
+	} else if strings.HasPrefix(path, "/v1/moderations") {
+		return NewRelayModerations(c)
+	} else if strings.HasPrefix(path, "/v1/images/generations") {
+		return NewRelayImageGenerations(c)
+	} else if strings.HasPrefix(path, "/v1/images/edits") {
+		return NewRelayImageEdits(c)
+	} else if strings.HasPrefix(path, "/v1/images/variations") {
+		return NewRelayImageVariations(c)
+	} else if strings.HasPrefix(path, "/v1/audio/speech") {
+		return NewRelaySpeech(c)
+	} else if strings.HasPrefix(path, "/v1/audio/transcriptions") {
+		return NewRelayTranscriptions(c)
+	} else if strings.HasPrefix(path, "/v1/audio/translations") {
+		return NewRelayTranslations(c)
+	}
+
+	return nil
+}
+
+func getProvider(c *gin.Context, modeName string) (provider providersBase.ProviderInterface, newModelName string, fail error) {
 	channel, fail := fetchChannel(c, modeName)
-	if fail {
+	if fail != nil {
 		return
 	}
+	c.Set("channel_id", channel.Id)
 
 	provider = providers.GetProvider(channel, c)
 	if provider == nil {
-		common.AbortWithMessage(c, http.StatusNotImplemented, "channel not found")
-		fail = true
+		fail = errors.New("channel not found")
 		return
 	}
+	provider.SetOriginalModel(modeName)
 
-	newModelName, err := provider.ModelMappingHandler(modeName)
-	if err != nil {
-		common.AbortWithMessage(c, http.StatusInternalServerError, err.Error())
-		fail = true
+	newModelName, fail = provider.ModelMappingHandler(modeName)
+	if fail != nil {
 		return
 	}
 
 	return
 }
 
-func GetValidFieldName(err error, obj interface{}) string {
-	getObj := reflect.TypeOf(obj)
-	if errs, ok := err.(validator.ValidationErrors); ok {
-		for _, e := range errs {
-			if f, exist := getObj.Elem().FieldByName(e.Field()); exist {
-				return f.Name
-			}
-		}
-	}
-	return err.Error()
-}
-
-func fetchChannel(c *gin.Context, modelName string) (channel *model.Channel, fail bool) {
-	channelId := c.GetInt("channelId")
+func fetchChannel(c *gin.Context, modelName string) (channel *model.Channel, fail error) {
+	channelId := c.GetInt("specific_channel_id")
 	if channelId > 0 {
-		channel, fail = fetchChannelById(c, channelId)
-		if fail {
-			return
-		}
-
-	}
-	channel, fail = fetchChannelByModel(c, modelName)
-	if fail {
-		return
+		return fetchChannelById(channelId)
 	}
 
-	c.Set("channel_id", channel.Id)
-
-	return
+	return fetchChannelByModel(c, modelName)
 }
 
-func fetchChannelById(c *gin.Context, channelId int) (*model.Channel, bool) {
+func fetchChannelById(channelId int) (*model.Channel, error) {
 	channel, err := model.GetChannelById(channelId, true)
 	if err != nil {
-		common.AbortWithMessage(c, http.StatusBadRequest, "无效的渠道 Id")
-		return nil, true
+		return nil, errors.New("无效的渠道 Id")
 	}
 	if channel.Status != common.ChannelStatusEnabled {
-		common.AbortWithMessage(c, http.StatusForbidden, "该渠道已被禁用")
-		return nil, true
+		return nil, errors.New("该渠道已被禁用")
 	}
 
-	return channel, false
+	return channel, nil
 }
 
-func fetchChannelByModel(c *gin.Context, modelName string) (*model.Channel, bool) {
+func fetchChannelByModel(c *gin.Context, modelName string) (*model.Channel, error) {
 	group := c.GetString("group")
-	channel, err := model.CacheGetRandomSatisfiedChannel(group, modelName)
+	channel, err := model.ChannelGroup.Next(group, modelName)
 	if err != nil {
 		message := fmt.Sprintf("当前分组 %s 下对于模型 %s 无可用渠道", group, modelName)
 		if channel != nil {
 			common.SysError(fmt.Sprintf("渠道不存在：%d", channel.Id))
 			message = "数据库一致性已被破坏，请联系管理员"
 		}
-		common.AbortWithMessage(c, http.StatusServiceUnavailable, message)
-		return nil, true
+		return nil, errors.New(message)
 	}
 
-	return channel, false
-}
-
-func shouldDisableChannel(err *types.OpenAIError, statusCode int) bool {
-	if !common.AutomaticDisableChannelEnabled {
-		return false
-	}
-	if err == nil {
-		return false
-	}
-	if statusCode == http.StatusUnauthorized {
-		return true
-	}
-	if err.Type == "insufficient_quota" || err.Code == "invalid_api_key" || err.Code == "account_deactivated" {
-		return true
-	}
-	return false
-}
-
-func shouldEnableChannel(err error, openAIErr *types.OpenAIError) bool {
-	if !common.AutomaticEnableChannelEnabled {
-		return false
-	}
-	if err != nil {
-		return false
-	}
-	if openAIErr != nil {
-		return false
-	}
-	return true
+	return channel, nil
 }
 
 func responseJsonClient(c *gin.Context, data interface{}) *types.OpenAIErrorWithStatusCode {
@@ -200,4 +172,31 @@ func responseCustom(c *gin.Context, response *types.AudioResponseWrapper) *types
 	}
 
 	return nil
+}
+
+func shouldRetry(c *gin.Context, statusCode int) bool {
+	channelId := c.GetInt("specific_channel_id")
+	if channelId > 0 {
+		return false
+	}
+	if statusCode == http.StatusTooManyRequests {
+		return true
+	}
+	if statusCode/100 == 5 {
+		return true
+	}
+	if statusCode == http.StatusBadRequest {
+		return false
+	}
+	if statusCode/100 == 2 {
+		return false
+	}
+	return true
+}
+
+func processChannelRelayError(ctx context.Context, channelId int, channelName string, err *types.OpenAIErrorWithStatusCode) {
+	common.LogError(ctx, fmt.Sprintf("relay error (channel #%d(%s)): %s", channelId, channelName, err.Message))
+	if controller.ShouldDisableChannel(&err.OpenAIError, err.StatusCode) {
+		controller.DisableChannel(channelId, channelName, err.Message)
+	}
 }

@@ -11,6 +11,7 @@ type Ability struct {
 	ChannelId int    `json:"channel_id" gorm:"primaryKey;autoIncrement:false;index"`
 	Enabled   bool   `json:"enabled"`
 	Priority  *int64 `json:"priority" gorm:"bigint;default:0;index"`
+	Weight    *uint  `json:"weight" gorm:"default:1"`
 }
 
 func GetRandomSatisfiedChannel(group string, model string) (*Channel, error) {
@@ -67,6 +68,7 @@ func (channel *Channel) AddAbilities() error {
 				ChannelId: channel.Id,
 				Enabled:   channel.Status == common.ChannelStatusEnabled,
 				Priority:  channel.Priority,
+				Weight:    channel.Weight,
 			}
 			abilities = append(abilities, ability)
 		}
@@ -97,4 +99,50 @@ func (channel *Channel) UpdateAbilities() error {
 
 func UpdateAbilityStatus(channelId int, status bool) error {
 	return DB.Model(&Ability{}).Where("channel_id = ?", channelId).Select("enabled").Update("enabled", status).Error
+}
+
+func GetEnabledAbility() ([]*Ability, error) {
+	trueVal := "1"
+	if common.UsingPostgreSQL {
+		trueVal = "true"
+	}
+
+	var abilities []*Ability
+	err := DB.Where("enabled = ?", trueVal).Order("priority desc, weight desc").Find(&abilities).Error
+	return abilities, err
+}
+
+type AbilityChannelGroup struct {
+	Group      string `json:"group"`
+	Model      string `json:"model"`
+	Priority   int    `json:"priority"`
+	ChannelIds string `json:"channel_ids"`
+}
+
+func GetAbilityChannelGroup() ([]*AbilityChannelGroup, error) {
+	var abilities []*AbilityChannelGroup
+
+	var channelSql string
+	if common.UsingPostgreSQL {
+		channelSql = `string_agg("channel_id"::text, ',')`
+	} else if common.UsingSQLite {
+		channelSql = `group_concat("channel_id", ',')`
+	} else {
+		channelSql = "GROUP_CONCAT(`channel_id` SEPARATOR ',')"
+	}
+
+	trueVal := "1"
+	if common.UsingPostgreSQL {
+		trueVal = "true"
+	}
+
+	err := DB.Raw(`
+	SELECT `+quotePostgresField("group")+`, model, priority, `+channelSql+` as channel_ids
+	FROM abilities
+	WHERE enabled = ?
+	GROUP BY `+quotePostgresField("group")+`, model, priority
+	ORDER BY priority DESC
+	`, trueVal).Scan(&abilities).Error
+
+	return abilities, err
 }

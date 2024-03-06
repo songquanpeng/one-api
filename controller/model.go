@@ -70,7 +70,7 @@ func ListModels(c *gin.Context) {
 		groupName = user.Group
 	}
 
-	models, err := model.CacheGetGroupModels(groupName)
+	models, err := model.ChannelGroup.GetGroupModels(groupName)
 	if err != nil {
 		common.AbortWithMessage(c, http.StatusServiceUnavailable, err.Error())
 		return

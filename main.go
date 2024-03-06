@@ -59,11 +59,11 @@ func main() {
 	if common.MemoryCacheEnabled {
 		common.SysLog("memory cache enabled")
 		common.SysError(fmt.Sprintf("sync frequency: %d seconds", common.SyncFrequency))
-		model.InitChannelCache()
+		model.InitChannelGroup()
 	}
 	if common.MemoryCacheEnabled {
 		go model.SyncOptions(common.SyncFrequency)
-		go model.SyncChannelCache(common.SyncFrequency)
+		go model.SyncChannelGroup(common.SyncFrequency)
 	}
 	if os.Getenv("CHANNEL_UPDATE_FREQUENCY") != "" {
 		frequency, err := strconv.Atoi(os.Getenv("CHANNEL_UPDATE_FREQUENCY"))

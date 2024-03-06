@@ -2,6 +2,7 @@ package router
 
 import (
 	"one-api/controller"
+	"one-api/controller/relay"
 	"one-api/middleware"
 
 	"github.com/gin-gonic/gin"
@@ -19,18 +20,18 @@ func SetRelayRouter(router *gin.Engine) {
 	relayV1Router := router.Group("/v1")
 	relayV1Router.Use(middleware.RelayPanicRecover(), middleware.TokenAuth(), middleware.Distribute())
 	{
-		relayV1Router.POST("/completions", controller.RelayCompletions)
-		relayV1Router.POST("/chat/completions", controller.RelayChat)
+		relayV1Router.POST("/completions", relay.Relay)
+		relayV1Router.POST("/chat/completions", relay.Relay)
 		// relayV1Router.POST("/edits", controller.Relay)
-		relayV1Router.POST("/images/generations", controller.RelayImageGenerations)
-		relayV1Router.POST("/images/edits", controller.RelayImageEdits)
-		relayV1Router.POST("/images/variations", controller.RelayImageVariations)
-		relayV1Router.POST("/embeddings", controller.RelayEmbeddings)
+		relayV1Router.POST("/images/generations", relay.Relay)
+		relayV1Router.POST("/images/edits", relay.Relay)
+		relayV1Router.POST("/images/variations", relay.Relay)
+		relayV1Router.POST("/embeddings", relay.Relay)
 		// relayV1Router.POST("/engines/:model/embeddings", controller.RelayEmbeddings)
-		relayV1Router.POST("/audio/transcriptions", controller.RelayTranscriptions)
-		relayV1Router.POST("/audio/translations", controller.RelayTranslations)
-		relayV1Router.POST("/audio/speech", controller.RelaySpeech)
-		relayV1Router.POST("/moderations", controller.RelayModerations)
+		relayV1Router.POST("/audio/transcriptions", relay.Relay)
+		relayV1Router.POST("/audio/translations", relay.Relay)
+		relayV1Router.POST("/audio/speech", relay.Relay)
+		relayV1Router.POST("/moderations", relay.Relay)
 		relayV1Router.GET("/files", controller.RelayNotImplemented)
 		relayV1Router.POST("/files", controller.RelayNotImplemented)
 		relayV1Router.DELETE("/files/:id", controller.RelayNotImplemented)

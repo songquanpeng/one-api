@@ -30,7 +30,8 @@ const OperationSetting = () => {
     DisplayInCurrencyEnabled: '',
     DisplayTokenStatEnabled: '',
     ApproximateTokenEnabled: '',
-    RetryTimes: 0
+    RetryTimes: 0,
+    RetryCooldownSeconds: 0
   });
   const [originInputs, setOriginInputs] = useState({});
   const [newModelRatioView, setNewModelRatioView] = useState(false);
@@ -139,6 +140,11 @@ const OperationSetting = () => {
         }
         break;
       case 'general':
+        if (inputs.QuotaPerUnit < 0 || inputs.RetryTimes < 0 || inputs.RetryCooldownSeconds < 0) {
+          showError('单位额度、重试次数、冷却时间不能为负数');
+          return;
+        }
+
         if (originInputs['TopUpLink'] !== inputs.TopUpLink) {
           await updateOption('TopUpLink', inputs.TopUpLink);
         }
@@ -150,6 +156,9 @@ const OperationSetting = () => {
         }
         if (originInputs['RetryTimes'] !== inputs.RetryTimes) {
           await updateOption('RetryTimes', inputs.RetryTimes);
+        }
+        if (originInputs['RetryCooldownSeconds'] !== inputs.RetryCooldownSeconds) {
+          await updateOption('RetryCooldownSeconds', inputs.RetryCooldownSeconds);
         }
         break;
     }
@@ -221,6 +230,18 @@ const OperationSetting = () => {
                 onChange={handleInputChange}
                 label="重试次数"
                 placeholder="重试次数"
+                disabled={loading}
+              />
+            </FormControl>
+            <FormControl fullWidth>
+              <InputLabel htmlFor="RetryCooldownSeconds">重试间隔(秒)</InputLabel>
+              <OutlinedInput
+                id="RetryCooldownSeconds"
+                name="RetryCooldownSeconds"
+                value={inputs.RetryCooldownSeconds}
+                onChange={handleInputChange}
+                label="重试间隔(秒)"
+                placeholder="重试间隔(秒)"
                 disabled={loading}
               />
             </FormControl>

@@ -114,7 +114,7 @@ func TokenAuth() func(c *gin.Context) {
 					abortWithMessage(c, http.StatusForbidden, "无效的渠道 Id")
 					return
 				}
-				c.Set("channelId", channelId)
+				c.Set("specific_channel_id", channelId)
 			} else {
 				abortWithMessage(c, http.StatusForbidden, "普通用户不支持指定渠道")
 				return

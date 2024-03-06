@@ -77,6 +77,8 @@ func InitOptionMap() {
 	common.OptionMap["ChatLink"] = common.ChatLink
 	common.OptionMap["QuotaPerUnit"] = strconv.FormatFloat(common.QuotaPerUnit, 'f', -1, 64)
 	common.OptionMap["RetryTimes"] = strconv.Itoa(common.RetryTimes)
+	common.OptionMap["RetryCooldownSeconds"] = strconv.Itoa(common.RetryCooldownSeconds)
+
 	common.OptionMapRWMutex.Unlock()
 	initModelRatio()
 	loadOptionsFromDatabase()
@@ -146,6 +148,7 @@ var optionIntMap = map[string]*int{
 	"QuotaRemindThreshold":    &common.QuotaRemindThreshold,
 	"PreConsumedQuota":        &common.PreConsumedQuota,
 	"RetryTimes":              &common.RetryTimes,
+	"RetryCooldownSeconds":    &common.RetryCooldownSeconds,
 }
 
 var optionBoolMap = map[string]*bool{

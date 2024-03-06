@@ -34,7 +34,7 @@ import TableSwitch from 'ui-component/Switch';
 import ResponseTimeLabel from './ResponseTimeLabel';
 import GroupLabel from './GroupLabel';
 
-import { IconDotsVertical, IconEdit, IconTrash, IconPencil } from '@tabler/icons-react';
+import { IconDotsVertical, IconEdit, IconTrash, IconPencil, IconCopy } from '@tabler/icons-react';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import { copy } from 'utils/common';
@@ -44,6 +44,7 @@ export default function ChannelTableRow({ item, manageChannel, handleOpenModal, 
   const [openDelete, setOpenDelete] = useState(false);
   const [statusSwitch, setStatusSwitch] = useState(item.status);
   const [priorityValve, setPriority] = useState(item.priority);
+  const [weightValve, setWeight] = useState(item.weight);
   const [responseTimeData, setResponseTimeData] = useState({ test_time: item.test_time, response_time: item.response_time });
   const [itemBalance, setItemBalance] = useState(item.balance);
 
@@ -81,7 +82,26 @@ export default function ChannelTableRow({ item, manageChannel, handleOpenModal, 
     if (priorityValve === '' || priorityValve === item.priority) {
       return;
     }
+
+    if (priorityValve < 0) {
+      showError('优先级不能小于 0');
+      return;
+    }
+
     await manageChannel(item.id, 'priority', priorityValve);
+  };
+
+  const handleWeight = async () => {
+    if (weightValve === '' || weightValve === item.weight) {
+      return;
+    }
+
+    if (weightValve <= 0) {
+      showError('权重不能小于 0');
+      return;
+    }
+
+    await manageChannel(item.id, 'weight', weightValve);
   };
 
   const handleResponseTime = async () => {
@@ -176,6 +196,25 @@ export default function ChannelTableRow({ item, manageChannel, handleOpenModal, 
             />
           </FormControl>
         </TableCell>
+        <TableCell>
+          <FormControl sx={{ m: 1, width: '70px' }} variant="standard">
+            <InputLabel htmlFor={`priority-${item.id}`}>权重</InputLabel>
+            <Input
+              id={`weight-${item.id}`}
+              type="text"
+              value={weightValve}
+              onChange={(e) => setWeight(e.target.value)}
+              sx={{ textAlign: 'center' }}
+              endAdornment={
+                <InputAdornment position="end">
+                  <IconButton onClick={handleWeight} sx={{ color: 'rgb(99, 115, 129)' }} size="small">
+                    <IconPencil />
+                  </IconButton>
+                </InputAdornment>
+              }
+            />
+          </FormControl>
+        </TableCell>
 
         <TableCell>
           <IconButton onClick={handleOpenMenu} sx={{ color: 'rgb(99, 115, 129)' }}>
@@ -204,6 +243,16 @@ export default function ChannelTableRow({ item, manageChannel, handleOpenModal, 
           <IconEdit style={{ marginRight: '16px' }} />
           编辑
         </MenuItem>
+
+        <MenuItem
+          onClick={() => {
+            handleCloseMenu();
+            manageChannel(item.id, 'copy');
+          }}
+        >
+          <IconCopy style={{ marginRight: '16px' }} /> 复制{' '}
+        </MenuItem>
+
         <MenuItem onClick={handleDeleteOpen} sx={{ color: 'error.main' }}>
           <IconTrash style={{ marginRight: '16px' }} />
           删除

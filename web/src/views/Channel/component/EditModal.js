@@ -21,7 +21,8 @@ import {
   Container,
   Autocomplete,
   FormHelperText,
-  Checkbox
+  Checkbox,
+  Switch
 } from '@mui/material';
 
 import { Formik } from 'formik';
@@ -73,6 +74,7 @@ const EditModal = ({ open, channelId, onCancel, onOk, groupOptions }) => {
   const [inputLabel, setInputLabel] = useState(defaultConfig.inputLabel); //
   const [inputPrompt, setInputPrompt] = useState(defaultConfig.prompt);
   const [modelOptions, setModelOptions] = useState([]);
+  const [batchAdd, setBatchAdd] = useState(false);
 
   const initChannel = (typeValue) => {
     if (typeConfig[typeValue]?.inputLabel) {
@@ -246,6 +248,7 @@ const EditModal = ({ open, channelId, onCancel, onOk, groupOptions }) => {
   }, []);
 
   useEffect(() => {
+    setBatchAdd(false);
     if (channelId) {
       loadChannel().then();
     } else {
@@ -479,18 +482,36 @@ const EditModal = ({ open, channelId, onCancel, onOk, groupOptions }) => {
                 </ButtonGroup>
               </Container>
               <FormControl fullWidth error={Boolean(touched.key && errors.key)} sx={{ ...theme.typography.otherInput }}>
-                <InputLabel htmlFor="channel-key-label">{inputLabel.key}</InputLabel>
-                <OutlinedInput
-                  id="channel-key-label"
-                  label={inputLabel.key}
-                  type="text"
-                  value={values.key}
-                  name="key"
-                  onBlur={handleBlur}
-                  onChange={handleChange}
-                  inputProps={{}}
-                  aria-describedby="helper-text-channel-key-label"
-                />
+                {!batchAdd ? (
+                  <>
+                    <InputLabel htmlFor="channel-key-label">{inputLabel.key}</InputLabel>
+                    <OutlinedInput
+                      id="channel-key-label"
+                      label={inputLabel.key}
+                      type="text"
+                      value={values.key}
+                      name="key"
+                      onBlur={handleBlur}
+                      onChange={handleChange}
+                      inputProps={{}}
+                      aria-describedby="helper-text-channel-key-label"
+                    />
+                  </>
+                ) : (
+                  <TextField
+                    multiline
+                    id="channel-key-label"
+                    label={inputLabel.key}
+                    value={values.key}
+                    name="key"
+                    onBlur={handleBlur}
+                    onChange={handleChange}
+                    aria-describedby="helper-text-channel-key-label"
+                    minRows={5}
+                    placeholder={inputPrompt.key + '，一行一个密钥'}
+                  />
+                )}
+
                 {touched.key && errors.key ? (
                   <FormHelperText error id="helper-tex-channel-key-label">
                     {errors.key}
@@ -499,6 +520,17 @@ const EditModal = ({ open, channelId, onCancel, onOk, groupOptions }) => {
                   <FormHelperText id="helper-tex-channel-key-label"> {inputPrompt.key} </FormHelperText>
                 )}
               </FormControl>
+              {channelId === 0 && (
+                <Container
+                  sx={{
+                    textAlign: 'right'
+                  }}
+                >
+                  <Switch checked={batchAdd} onChange={(e) => setBatchAdd(e.target.checked)} />
+                  批量添加
+                </Container>
+              )}
+
               <FormControl fullWidth error={Boolean(touched.model_mapping && errors.model_mapping)} sx={{ ...theme.typography.otherInput }}>
                 {/* <InputLabel htmlFor="channel-model_mapping-label">{inputLabel.model_mapping}</InputLabel> */}
                 <TextField

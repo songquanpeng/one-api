@@ -13,7 +13,7 @@ type Channel struct {
 	Key                string  `json:"key" form:"key" gorm:"type:varchar(767);not null;index"`
 	Status             int     `json:"status" form:"status" gorm:"default:1"`
 	Name               string  `json:"name" form:"name" gorm:"index"`
-	Weight             *uint   `json:"weight" gorm:"default:0"`
+	Weight             *uint   `json:"weight" gorm:"default:1"`
 	CreatedTime        int64   `json:"created_time" gorm:"bigint"`
 	TestTime           int64   `json:"test_time" gorm:"bigint"`
 	ResponseTime       int     `json:"response_time"` // in milliseconds
@@ -95,11 +95,8 @@ func GetAllChannels() ([]*Channel, error) {
 func GetChannelById(id int, selectAll bool) (*Channel, error) {
 	channel := Channel{Id: id}
 	var err error = nil
-	if selectAll {
-		err = DB.First(&channel, "id = ?", id).Error
-	} else {
-		err = DB.Omit("key").First(&channel, "id = ?", id).Error
-	}
+	err = DB.First(&channel, "id = ?", id).Error
+
 	return &channel, err
 }
 
