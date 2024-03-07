@@ -81,3 +81,12 @@ func stopReasonClaude2OpenAI(reason string) string {
 		return reason
 	}
 }
+
+func convertRole(role string) string {
+	switch role {
+	case "user":
+		return types.ChatMessageRoleUser
+	default:
+		return types.ChatMessageRoleAssistant
+	}
+}
