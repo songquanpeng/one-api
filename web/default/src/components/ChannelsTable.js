@@ -1,7 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Form, Input, Label, Message, Pagination, Popup, Table } from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
-import { API, setPromptShown, shouldShowPrompt, showError, showInfo, showSuccess, timestamp2string } from '../helpers';
+import {
+  API,
+  loadChannelModels,
+  setPromptShown,
+  shouldShowPrompt,
+  showError,
+  showInfo,
+  showSuccess,
+  timestamp2string
+} from '../helpers';
 
 import { CHANNEL_OPTIONS, ITEMS_PER_PAGE } from '../constants';
 import { renderGroup, renderNumber } from '../helpers/render';
@@ -95,6 +104,7 @@ const ChannelsTable = () => {
       .catch((reason) => {
         showError(reason);
       });
+    loadChannelModels().then();
   }, []);
 
   const manageChannel = async (id, action, idx, value) => {
