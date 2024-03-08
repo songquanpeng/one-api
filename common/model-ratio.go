@@ -63,12 +63,15 @@ var ModelRatio = map[string]float64{
 	"text-search-ada-doc-001": 10,
 	"text-moderation-stable":  0.1,
 	"text-moderation-latest":  0.1,
-	"dall-e-2":                8,     // $0.016 - $0.020 / image
-	"dall-e-3":                20,    // $0.040 - $0.120 / image
-	"claude-instant-1":        0.815, // $1.63 / 1M tokens
-	"claude-2":                5.51,  // $11.02 / 1M tokens
-	"claude-2.0":              5.51,  // $11.02 / 1M tokens
-	"claude-2.1":              5.51,  // $11.02 / 1M tokens
+	"dall-e-2":                8,  // $0.016 - $0.020 / image
+	"dall-e-3":                20, // $0.040 - $0.120 / image
+	// https://www.anthropic.com/api#pricing
+	"claude-instant-1.2":       0.8 / 1000 * USD,
+	"claude-2.0":               8.0 / 1000 * USD,
+	"claude-2.1":               8.0 / 1000 * USD,
+	"claude-3-haiku-20240229":  0.25 / 1000 * USD,
+	"claude-3-sonnet-20240229": 3.0 / 1000 * USD,
+	"claude-3-opus-20240229":   15.0 / 1000 * USD,
 	// https://cloud.baidu.com/doc/WENXINWORKSHOP/s/hlrk4akp7
 	"ERNIE-Bot":         0.8572,     // ￥0.012 / 1k tokens
 	"ERNIE-Bot-turbo":   0.5715,     // ￥0.008 / 1k tokens
@@ -214,11 +217,11 @@ func GetCompletionRatio(name string) float64 {
 		}
 		return 2
 	}
-	if strings.HasPrefix(name, "claude-instant-1") {
-		return 3.38
+	if strings.HasPrefix(name, "claude-3") {
+		return 5
 	}
-	if strings.HasPrefix(name, "claude-2") {
-		return 2.965517
+	if strings.HasPrefix(name, "claude-") {
+		return 3
 	}
 	if strings.HasPrefix(name, "mistral-") {
 		return 3
