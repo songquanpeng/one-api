@@ -110,13 +110,7 @@ func init() {
 		"gemini-pro-vision": {[]float64{1, 1}, ChannelTypeGemini},
 
 		// ￥0.005 / 1k tokens
-		"chatglm_turbo": {[]float64{0.3572, 0.3572}, ChannelTypeZhipu},
-		"chatglm_std":   {[]float64{0.3572, 0.3572}, ChannelTypeZhipu},
-		"glm-3-turbo":   {[]float64{0.3572, 0.3572}, ChannelTypeZhipu},
-		// ￥0.01 / 1k tokens
-		"chatglm_pro": {[]float64{0.7143, 0.7143}, ChannelTypeZhipu},
-		// ￥0.002 / 1k tokens
-		"chatglm_lite": {[]float64{0.1429, 0.1429}, ChannelTypeZhipu},
+		"glm-3-turbo": {[]float64{0.3572, 0.3572}, ChannelTypeZhipu},
 		// ￥0.1 / 1k tokens
 		"glm-4":  {[]float64{7.143, 7.143}, ChannelTypeZhipu},
 		"glm-4v": {[]float64{7.143, 7.143}, ChannelTypeZhipu},

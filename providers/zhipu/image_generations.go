@@ -37,10 +37,10 @@ func (p *ZhipuProvider) CreateImageGenerations(request *types.ImageRequest) (*ty
 		return nil, errWithCode
 	}
 
-	return p.convertToImageOpenai(zhipuResponse, request)
+	return p.convertToImageOpenai(zhipuResponse)
 }
 
-func (p *ZhipuProvider) convertToImageOpenai(response *ZhipuImageGenerationResponse, request *types.ImageRequest) (openaiResponse *types.ImageResponse, errWithCode *types.OpenAIErrorWithStatusCode) {
+func (p *ZhipuProvider) convertToImageOpenai(response *ZhipuImageGenerationResponse) (openaiResponse *types.ImageResponse, errWithCode *types.OpenAIErrorWithStatusCode) {
 	error := errorHandle(&response.Error)
 	if error != nil {
 		errWithCode = &types.OpenAIErrorWithStatusCode{

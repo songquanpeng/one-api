@@ -69,7 +69,7 @@ func (p *ZhipuProvider) getChatRequest(request *types.ChatCompletionRequest) (*h
 	// 获取请求头
 	headers := p.GetRequestHeaders()
 
-	zhipuRequest := convertFromChatOpenai(request)
+	zhipuRequest := p.convertFromChatOpenai(request)
 
 	// 创建请求
 	req, err := p.Requester.NewRequest(http.MethodPost, fullRequestURL, p.Requester.WithBody(zhipuRequest), p.Requester.WithHeader(headers))
@@ -94,7 +94,7 @@ func (p *ZhipuProvider) convertToChatOpenai(response *ZhipuResponse, request *ty
 		ID:      response.ID,
 		Object:  "chat.completion",
 		Created: response.Created,
-		Model:   response.Model,
+		Model:   request.Model,
 		Choices: response.Choices,
 		Usage:   response.Usage,
 	}
@@ -104,7 +104,7 @@ func (p *ZhipuProvider) convertToChatOpenai(response *ZhipuResponse, request *ty
 	return
 }
 
-func convertFromChatOpenai(request *types.ChatCompletionRequest) *ZhipuRequest {
+func (p *ZhipuProvider) convertFromChatOpenai(request *types.ChatCompletionRequest) *ZhipuRequest {
 	for i := range request.Messages {
 		request.Messages[i].Role = convertRole(request.Messages[i].Role)
 	}
@@ -153,7 +153,7 @@ func convertFromChatOpenai(request *types.ChatCompletionRequest) *ZhipuRequest {
 		for _, function := range request.Functions {
 			zhipuRequest.Tools = append(zhipuRequest.Tools, ZhipuTool{
 				Type:     "function",
-				Function: *function,
+				Function: function,
 			})
 		}
 	} else if request.Tools != nil {
@@ -161,12 +161,55 @@ func convertFromChatOpenai(request *types.ChatCompletionRequest) *ZhipuRequest {
 		for _, tool := range request.Tools {
 			zhipuRequest.Tools = append(zhipuRequest.Tools, ZhipuTool{
 				Type:     "function",
-				Function: tool.Function,
+				Function: &tool.Function,
 			})
 		}
 	}
 
+	p.pluginHandle(zhipuRequest)
+
 	return zhipuRequest
+}
+
+func (p *ZhipuProvider) pluginHandle(request *ZhipuRequest) {
+	if p.Channel.Plugin == nil {
+		return
+	}
+
+	plugin := p.Channel.Plugin.Data()
+
+	// 检测是否开启了 retrieval 插件
+	if pRetrieval, ok := plugin["retrieval"]; ok {
+		if knowledge_id, ok := pRetrieval["knowledge_id"].(string); ok && knowledge_id != "" {
+			retrieval := ZhipuTool{
+				Type: "retrieval",
+				Retrieval: &ZhipuRetrieval{
+					KnowledgeId: knowledge_id,
+				},
+			}
+
+			if prompt_template, ok := pRetrieval["prompt_template"].(string); ok && prompt_template != "" {
+				retrieval.Retrieval.PromptTemplate = prompt_template
+			}
+
+			request.Tools = append(request.Tools, retrieval)
+
+			// 如果开启了 retrieval 插件，web_search 无效
+			return
+		}
+	}
+
+	// 检测是否开启了 web_search 插件
+	if pWeb, ok := plugin["web_search"]; ok {
+		if enable, ok := pWeb["enable"].(bool); ok && enable {
+			request.Tools = append(request.Tools, ZhipuTool{
+				Type: "web_search",
+				WebSearch: &ZhipuWebSearch{
+					Enable: true,
+				},
+			})
+		}
+	}
 }
 
 // 转换为OpenAI聊天流式请求体
@@ -198,10 +241,10 @@ func (h *zhipuStreamHandler) handlerStream(rawLine *[]byte, dataChan chan string
 		return
 	}
 
-	h.convertToOpenaiStream(zhipuResponse, dataChan, errChan)
+	h.convertToOpenaiStream(zhipuResponse, dataChan)
 }
 
-func (h *zhipuStreamHandler) convertToOpenaiStream(zhipuResponse *ZhipuStreamResponse, dataChan chan string, errChan chan error) {
+func (h *zhipuStreamHandler) convertToOpenaiStream(zhipuResponse *ZhipuStreamResponse, dataChan chan string) {
 	streamResponse := types.ChatCompletionStreamResponse{
 		ID:      zhipuResponse.ID,
 		Object:  "chat.completion.chunk",

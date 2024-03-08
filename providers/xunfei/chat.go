@@ -256,7 +256,7 @@ func (h *xunfeiHandler) handlerStream(rawLine *[]byte, dataChan chan string, err
 		return
 	}
 
-	h.convertToOpenaiStream(xunfeiChatResponse, dataChan, errChan)
+	h.convertToOpenaiStream(xunfeiChatResponse, dataChan)
 
 	if isFinished {
 		errChan <- io.EOF
@@ -264,7 +264,7 @@ func (h *xunfeiHandler) handlerStream(rawLine *[]byte, dataChan chan string, err
 	}
 }
 
-func (h *xunfeiHandler) convertToOpenaiStream(xunfeiChatResponse *XunfeiChatResponse, dataChan chan string, errChan chan error) {
+func (h *xunfeiHandler) convertToOpenaiStream(xunfeiChatResponse *XunfeiChatResponse, dataChan chan string) {
 	if len(xunfeiChatResponse.Payload.Choices.Text) == 0 {
 		xunfeiChatResponse.Payload.Choices.Text = []XunfeiChatResponseTextItem{{}}
 	}

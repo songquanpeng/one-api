@@ -1,0 +1,48 @@
+{
+  "16": {
+    "retrieval": {
+      "name": "知识库",
+      "description": "请前往开放平台的知识库上传文档，然后使用知识库功能进行检索。",
+      "params": {
+        "knowledge_id": {
+          "name": "知识库ID",
+          "description": "当涉及到知识库ID时，请前往开放平台的知识库模块进行创建或获取(是知识库ID不是文档ID！)",
+          "type": "string",
+          "required": true
+        },
+        "prompt_template": {
+          "name": "知识库模板",
+          "description": "请求模型时的知识库模板, 请查看文档填写，否则不用填写",
+          "type": "string",
+          "required": false
+        }
+      }
+    },
+    "web_search": {
+      "name": "网页搜索",
+      "description": "使用网页搜索功能，对用户输入的内容进行搜索",
+      "params": {
+        "enable": {
+          "name": "启用",
+          "description": "是否启用网页搜索",
+          "type": "bool",
+          "required": true
+        }
+      }
+    }
+  },
+  "17": {
+    "web_search": {
+      "name": "网页搜索",
+      "description": "使用网页搜索功能，对用户输入的内容进行搜索",
+      "params": {
+        "enable": {
+          "name": "启用",
+          "description": "是否启用网页搜索",
+          "type": "bool",
+          "required": true
+        }
+      }
+    }
+  }
+}

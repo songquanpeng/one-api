@@ -55,6 +55,9 @@ func init() {
 		common.ChannelType360:       "360",
 		common.ChannelTypeTencent:   "Tencent",
 		common.ChannelTypeBaichuan:  "Baichuan",
+		common.ChannelTypeMiniMax:   "MiniMax",
+		common.ChannelTypeDeepseek:  "Deepseek",
+		common.ChannelTypeMoonshot:  "Moonshot",
 	}
 }
 

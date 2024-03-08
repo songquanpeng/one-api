@@ -220,10 +220,10 @@ func (h *minimaxStreamHandler) handlerStream(rawLine *[]byte, dataChan chan stri
 		return
 	}
 
-	h.convertToOpenaiStream(miniResponse, dataChan, errChan)
+	h.convertToOpenaiStream(miniResponse, dataChan)
 }
 
-func (h *minimaxStreamHandler) convertToOpenaiStream(miniResponse *MiniMaxChatResponse, dataChan chan string, errChan chan error) {
+func (h *minimaxStreamHandler) convertToOpenaiStream(miniResponse *MiniMaxChatResponse, dataChan chan string) {
 	streamResponse := types.ChatCompletionStreamResponse{
 		ID:      miniResponse.RequestID,
 		Object:  "chat.completion.chunk",

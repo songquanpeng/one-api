@@ -180,11 +180,11 @@ func (h *tencentStreamHandler) handlerStream(rawLine *[]byte, dataChan chan stri
 		return
 	}
 
-	h.convertToOpenaiStream(&tencentChatResponse, dataChan, errChan)
+	h.convertToOpenaiStream(&tencentChatResponse, dataChan)
 
 }
 
-func (h *tencentStreamHandler) convertToOpenaiStream(tencentChatResponse *TencentChatResponse, dataChan chan string, errChan chan error) {
+func (h *tencentStreamHandler) convertToOpenaiStream(tencentChatResponse *TencentChatResponse, dataChan chan string) {
 	streamResponse := types.ChatCompletionStreamResponse{
 		Object:  "chat.completion.chunk",
 		Created: common.GetTimestamp(),

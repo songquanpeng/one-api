@@ -165,11 +165,11 @@ func (h *palmStreamHandler) handlerStream(rawLine *[]byte, dataChan chan string,
 		return
 	}
 
-	h.convertToOpenaiStream(&palmChatResponse, dataChan, errChan)
+	h.convertToOpenaiStream(&palmChatResponse, dataChan)
 
 }
 
-func (h *palmStreamHandler) convertToOpenaiStream(palmChatResponse *PaLMChatResponse, dataChan chan string, errChan chan error) {
+func (h *palmStreamHandler) convertToOpenaiStream(palmChatResponse *PaLMChatResponse, dataChan chan string) {
 	var choice types.ChatCompletionStreamChoice
 	if len(palmChatResponse.Candidates) > 0 {
 		choice.Delta.Content = palmChatResponse.Candidates[0].Content

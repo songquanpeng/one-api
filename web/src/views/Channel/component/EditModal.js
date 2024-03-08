@@ -22,7 +22,9 @@ import {
   Autocomplete,
   FormHelperText,
   Checkbox,
-  Switch
+  Switch,
+  FormControlLabel,
+  Typography
 } from '@mui/material';
 
 import { Formik } from 'formik';
@@ -32,6 +34,7 @@ import { createFilterOptions } from '@mui/material/Autocomplete';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
 
+const pluginList = require('../type/Plugin.json');
 const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
 const checkedIcon = <CheckBoxIcon fontSize="small" />;
 
@@ -91,7 +94,24 @@ const EditModal = ({ open, channelId, onCancel, onOk, groupOptions }) => {
 
     return typeConfig[typeValue]?.input;
   };
+
   const handleTypeChange = (setFieldValue, typeValue, values) => {
+    // 处理插件事务
+    if (pluginList[typeValue]) {
+      const newPluginValues = {};
+      const pluginConfig = pluginList[typeValue];
+      for (const pluginName in pluginConfig) {
+        const plugin = pluginConfig[pluginName];
+        const oldValve = values['plugin'] ? values['plugin'][pluginName] || {} : {};
+        newPluginValues[pluginName] = {};
+        for (const paramName in plugin.params) {
+          const param = plugin.params[paramName];
+          newPluginValues[pluginName][paramName] = oldValve[paramName] || (param.type === 'bool' ? false : '');
+        }
+      }
+      setFieldValue('plugin', newPluginValues);
+    }
+
     const newInput = initChannel(typeValue);
 
     if (newInput) {
@@ -233,6 +253,9 @@ const EditModal = ({ open, channelId, onCancel, onOk, groupOptions }) => {
 
         data.base_url = data.base_url ?? '';
         data.is_edit = true;
+        if (data.plugin === null) {
+          data.plugin = {};
+        }
         initChannel(data.type);
         setInitialInput(data);
       } else {
@@ -597,6 +620,53 @@ const EditModal = ({ open, channelId, onCancel, onOk, groupOptions }) => {
                   )}
                 </FormControl>
               )}
+              {pluginList[values.type] &&
+                Object.keys(pluginList[values.type]).map((pluginId) => {
+                  const plugin = pluginList[values.type][pluginId];
+                  return (
+                    <>
+                      <Divider sx={{ ...theme.typography.otherInput }} />
+                      <Typography variant="h3">{plugin.name}</Typography>
+                      {Object.keys(plugin.params).map((paramId) => {
+                        const param = plugin.params[paramId];
+                        const name = `plugin.${pluginId}.${paramId}`;
+                        return param.type === 'bool' ? (
+                          <FormControl key={name} fullWidth sx={{ ...theme.typography.otherInput }}>
+                            <FormControlLabel
+                              key={name}
+                              required
+                              control={
+                                <Switch
+                                  key={name}
+                                  name={name}
+                                  checked={values.plugin?.[pluginId]?.[paramId] || false}
+                                  onChange={(event) => {
+                                    setFieldValue(name, event.target.checked);
+                                  }}
+                                />
+                              }
+                              label="是否启用"
+                            />
+                            <FormHelperText id="helper-tex-channel-key-label"> {param.description} </FormHelperText>
+                          </FormControl>
+                        ) : (
+                          <FormControl key={name} fullWidth sx={{ ...theme.typography.otherInput }}>
+                            <TextField
+                              multiline
+                              key={name}
+                              name={name}
+                              value={values.plugin?.[pluginId]?.[paramId] || ''}
+                              label={param.name}
+                              placeholder={param.description}
+                              onChange={handleChange}
+                            />
+                            <FormHelperText id="helper-tex-channel-key-label"> {param.description} </FormHelperText>
+                          </FormControl>
+                        );
+                      })}
+                    </>
+                  );
+                })}
               <DialogActions>
                 <Button onClick={onCancel}>取消</Button>
                 <Button disableElevation disabled={isSubmitting} type="submit" variant="contained" color="primary">

@@ -10,10 +10,16 @@ type ZhipuWebSearch struct {
 	SearchQuery string `json:"search_query,omitempty"`
 }
 
+type ZhipuRetrieval struct {
+	KnowledgeId    string `json:"knowledge_id"`
+	PromptTemplate string `json:"prompt_template,omitempty"`
+}
+
 type ZhipuTool struct {
-	Type      string                       `json:"type"`
-	Function  types.ChatCompletionFunction `json:"function"`
-	WebSearch string                       `json:"web_search,omitempty"`
+	Type      string                        `json:"type"`
+	Function  *types.ChatCompletionFunction `json:"function,omitempty"`
+	WebSearch *ZhipuWebSearch               `json:"web_search,omitempty"`
+	Retrieval *ZhipuRetrieval               `json:"retrieval,omitempty"`
 }
 type ZhipuRequest struct {
 	Model       string                        `json:"model"`

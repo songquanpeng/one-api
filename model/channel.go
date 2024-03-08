@@ -4,6 +4,7 @@ import (
 	"one-api/common"
 	"strings"
 
+	"gorm.io/datatypes"
 	"gorm.io/gorm"
 )
 
@@ -28,7 +29,11 @@ type Channel struct {
 	Priority           *int64  `json:"priority" gorm:"bigint;default:0"`
 	Proxy              *string `json:"proxy" gorm:"type:varchar(255);default:''"`
 	TestModel          string  `json:"test_model" form:"test_model" gorm:"type:varchar(50);default:''"`
+
+	Plugin *datatypes.JSONType[PluginType] `json:"plugin" form:"plugin" gorm:"type:json"`
 }
+
+type PluginType map[string]map[string]interface{}
 
 var allowedChannelOrderFields = map[string]bool{
 	"id":            true,

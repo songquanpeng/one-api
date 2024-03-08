@@ -73,7 +73,6 @@ func (p *ZhipuProvider) GetRequestHeaders() (headers map[string]string) {
 	headers = make(map[string]string)
 	p.CommonRequestHeaders(headers)
 	headers["Authorization"] = p.getZhipuToken()
-
 	return headers
 }
 

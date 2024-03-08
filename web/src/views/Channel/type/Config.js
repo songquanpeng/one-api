@@ -9,7 +9,8 @@ const defaultConfig = {
     test_model: '',
     model_mapping: '',
     models: [],
-    groups: ['default']
+    groups: ['default'],
+    plugin: {}
   },
   inputLabel: {
     name: '渠道名称',
@@ -59,7 +60,7 @@ const typeConfig = {
   },
   14: {
     input: {
-      models: ['claude-instant-1.2', 'claude-2.0', 'claude-2.1','claude-3-opus-20240229','claude-3-sonnet-20240229'],
+      models: ['claude-instant-1.2', 'claude-2.0', 'claude-2.1', 'claude-3-opus-20240229', 'claude-3-sonnet-20240229'],
       test_model: 'claude-3-sonnet-20240229'
     },
     modelGroup: 'Anthropic'
@@ -76,8 +77,8 @@ const typeConfig = {
   },
   16: {
     input: {
-      models: ['chatglm_turbo', 'chatglm_pro', 'chatglm_std', 'chatglm_lite'],
-      test_model: 'chatglm_lite'
+      models: ['glm-3-turbo', 'glm-4', 'glm-4v', 'embedding-2', 'cogview-3'],
+      test_model: 'glm-3-turbo'
     },
     modelGroup: 'Zhipu'
   },
@@ -86,17 +87,7 @@ const typeConfig = {
       other: '插件参数'
     },
     input: {
-      models: [
-        'qwen-turbo',
-        'qwen-plus',
-        'qwen-max',
-        'qwen-max-longcontext',
-        'text-embedding-v1',
-        'qwen-turbo-internet',
-        'qwen-plus-internet',
-        'qwen-max-internet',
-        'qwen-max-longcontext-internet'
-      ],
+      models: ['qwen-turbo', 'qwen-plus', 'qwen-max', 'qwen-max-longcontext', 'text-embedding-v1'],
       test_model: 'qwen-turbo'
     },
     prompt: {
@@ -174,19 +165,22 @@ const typeConfig = {
     },
     prompt: {
       key: '按照如下格式输入：APISecret|groupID'
-    }
+    },
+    modelGroup: 'MiniMax'
   },
   28: {
     input: {
       models: ['deepseek-coder', 'deepseek-chat'],
       test_model: 'deepseek-chat'
-    }
+    },
+    modelGroup: 'Deepseek'
   },
   29: {
     input: {
       models: ['moonshot-v1-8k', 'moonshot-v1-32k', 'moonshot-v1-128k'],
       test_model: 'moonshot-v1-8k'
-    }
+    },
+    modelGroup: 'Moonshot'
   }
 };
 
