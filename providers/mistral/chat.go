@@ -131,6 +131,24 @@ func (h *mistralStreamHandler) handlerStream(rawLine *[]byte, dataChan chan stri
 		*h.Usage = *mistralResponse.Usage
 	}
 
+	stop := false
+	for _, choice := range mistralResponse.ChatCompletionStreamResponse.Choices {
+		if choice.Delta.ToolCalls != nil {
+			choices := choice.ConvertOpenaiStream()
+			for _, newChoice := range choices {
+				chatCompletionCopy := mistralResponse
+				chatCompletionCopy.Choices = []types.ChatCompletionStreamChoice{newChoice}
+				responseBody, _ := json.Marshal(chatCompletionCopy.ChatCompletionStreamResponse)
+				dataChan <- string(responseBody)
+			}
+			stop = true
+		}
+	}
+
+	if stop {
+		return
+	}
+
 	responseBody, _ := json.Marshal(mistralResponse.ChatCompletionStreamResponse)
 	dataChan <- string(responseBody)
 
