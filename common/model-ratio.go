@@ -163,6 +163,13 @@ func init() {
 		"moonshot-v1-8k":   {[]float64{0.8572, 0.8572}, ChannelTypeMoonshot}, // ¥0.012 / 1K tokens
 		"moonshot-v1-32k":  {[]float64{1.7143, 1.7143}, ChannelTypeMoonshot}, // ¥0.024 / 1K tokens
 		"moonshot-v1-128k": {[]float64{4.2857, 4.2857}, ChannelTypeMoonshot}, // ¥0.06 / 1K tokens
+
+		"open-mistral-7b":       {[]float64{0.125, 0.125}, ChannelTypeMistral}, // 0.25$ / 1M tokens	0.25$ / 1M tokens  0.00025$ / 1k tokens
+		"open-mixtral-8x7b":     {[]float64{0.35, 0.35}, ChannelTypeMistral},   // 0.7$ / 1M tokens	0.7$ / 1M tokens  0.0007$ / 1k tokens
+		"mistral-small-latest":  {[]float64{1, 3}, ChannelTypeMistral},         // 2$ / 1M tokens	6$ / 1M tokens  0.002$ / 1k tokens
+		"mistral-medium-latest": {[]float64{1.35, 4.05}, ChannelTypeMistral},   // 2.7$ / 1M tokens	8.1$ / 1M tokens  0.0027$ / 1k tokens
+		"mistral-large-latest":  {[]float64{4, 12}, ChannelTypeMistral},        // 8$ / 1M tokens	24$ / 1M tokens  0.008$ / 1k tokens
+		"mistral-embed":         {[]float64{0.05, 0.05}, ChannelTypeMistral},   // 0.1$ / 1M tokens 0.1$ / 1M tokens  0.0001$ / 1k tokens
 	}
 
 	ModelRatio = make(map[string][]float64)

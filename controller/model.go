@@ -58,6 +58,7 @@ func init() {
 		common.ChannelTypeMiniMax:   "MiniMax",
 		common.ChannelTypeDeepseek:  "Deepseek",
 		common.ChannelTypeMoonshot:  "Moonshot",
+		common.ChannelTypeMistral:   "Mistral",
 	}
 }
 

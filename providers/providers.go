@@ -18,6 +18,7 @@ import (
 	"one-api/providers/deepseek"
 	"one-api/providers/gemini"
 	"one-api/providers/minimax"
+	"one-api/providers/mistral"
 	"one-api/providers/openai"
 	"one-api/providers/openaisb"
 	"one-api/providers/palm"
@@ -58,6 +59,7 @@ func init() {
 	providerFactories[common.ChannelTypeBaichuan] = baichuan.BaichuanProviderFactory{}
 	providerFactories[common.ChannelTypeMiniMax] = minimax.MiniMaxProviderFactory{}
 	providerFactories[common.ChannelTypeDeepseek] = deepseek.DeepseekProviderFactory{}
+	providerFactories[common.ChannelTypeMistral] = mistral.MistralProviderFactory{}
 
 }
 

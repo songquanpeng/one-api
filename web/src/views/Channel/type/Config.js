@@ -181,6 +181,20 @@ const typeConfig = {
       test_model: 'moonshot-v1-8k'
     },
     modelGroup: 'Moonshot'
+  },
+  30: {
+    input: {
+      models: [
+        'open-mistral-7b',
+        'open-mixtral-8x7b',
+        'mistral-small-latest',
+        'mistral-medium-latest',
+        'mistral-large-latest',
+        'mistral-embed'
+      ],
+      test_model: 'open-mistral-7b'
+    },
+    modelGroup: 'Mistral'
   }
 };
 
