@@ -214,6 +214,7 @@ const EditChannel = () => {
               label='类型'
               name='type'
               required
+              search
               options={CHANNEL_OPTIONS}
               value={inputs.type}
               onChange={handleInputChange}
