@@ -375,6 +375,9 @@ graph LR
 16. `SQLITE_BUSY_TIMEOUT`：SQLite 锁等待超时设置，单位为毫秒，默认 `3000`。
 17. `GEMINI_SAFETY_SETTING`：Gemini 的安全设置，默认 `BLOCK_NONE`。
 18. `THEME`：系统的主题设置，默认为 `default`，具体可选值参考[此处](./web/README.md)。
+19.  `ENABLE_METRIC`：是否根据请求成功率禁用渠道，默认不开启，可选值为 `true` 和 `false`。
+20. `METRIC_QUEUE_SIZE`：请求成功率统计队列大小，默认为 `10`。
+21. `METRIC_SUCCESS_RATE_THRESHOLD`：请求成功率阈值，默认为 `0.8`。
 
 ### 命令行参数
 1. `--port <port_number>`: 指定服务器监听的端口号，默认为 `3000`。

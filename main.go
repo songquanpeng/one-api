@@ -83,6 +83,9 @@ func main() {
 		logger.SysLog("batch update enabled with interval " + strconv.Itoa(config.BatchUpdateInterval) + "s")
 		model.InitBatchUpdater()
 	}
+	if config.EnableMetric {
+		logger.SysLog("metric enabled, will disable channel if too much request failed")
+	}
 	openai.InitTokenEncoders()
 
 	// Initialize HTTP server

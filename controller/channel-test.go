@@ -10,6 +10,7 @@ import (
 	"github.com/songquanpeng/one-api/common/logger"
 	"github.com/songquanpeng/one-api/middleware"
 	"github.com/songquanpeng/one-api/model"
+	"github.com/songquanpeng/one-api/monitor"
 	"github.com/songquanpeng/one-api/relay/constant"
 	"github.com/songquanpeng/one-api/relay/helper"
 	relaymodel "github.com/songquanpeng/one-api/relay/model"
@@ -148,32 +149,6 @@ func TestChannel(c *gin.Context) {
 var testAllChannelsLock sync.Mutex
 var testAllChannelsRunning bool = false
 
-func notifyRootUser(subject string, content string) {
-	if config.RootUserEmail == "" {
-		config.RootUserEmail = model.GetRootUserEmail()
-	}
-	err := common.SendEmail(subject, config.RootUserEmail, content)
-	if err != nil {
-		logger.SysError(fmt.Sprintf("failed to send email: %s", err.Error()))
-	}
-}
-
-// disable & notify
-func disableChannel(channelId int, channelName string, reason string) {
-	model.UpdateChannelStatusById(channelId, common.ChannelStatusAutoDisabled)
-	subject := fmt.Sprintf("通道「%s」（#%d）已被禁用", channelName, channelId)
-	content := fmt.Sprintf("通道「%s」（#%d）已被禁用，原因：%s", channelName, channelId, reason)
-	notifyRootUser(subject, content)
-}
-
-// enable & notify
-func enableChannel(channelId int, channelName string) {
-	model.UpdateChannelStatusById(channelId, common.ChannelStatusEnabled)
-	subject := fmt.Sprintf("通道「%s」（#%d）已被启用", channelName, channelId)
-	content := fmt.Sprintf("通道「%s」（#%d）已被启用", channelName, channelId)
-	notifyRootUser(subject, content)
-}
-
 func testAllChannels(notify bool) error {
 	if config.RootUserEmail == "" {
 		config.RootUserEmail = model.GetRootUserEmail()
@@ -202,13 +177,13 @@ func testAllChannels(notify bool) error {
 			milliseconds := tok.Sub(tik).Milliseconds()
 			if isChannelEnabled && milliseconds > disableThreshold {
 				err = errors.New(fmt.Sprintf("响应时间 %.2fs 超过阈值 %.2fs", float64(milliseconds)/1000.0, float64(disableThreshold)/1000.0))
-				disableChannel(channel.Id, channel.Name, err.Error())
+				monitor.DisableChannel(channel.Id, channel.Name, err.Error())
 			}
 			if isChannelEnabled && util.ShouldDisableChannel(openaiErr, -1) {
-				disableChannel(channel.Id, channel.Name, err.Error())
+				monitor.DisableChannel(channel.Id, channel.Name, err.Error())
 			}
 			if !isChannelEnabled && util.ShouldEnableChannel(err, openaiErr) {
-				enableChannel(channel.Id, channel.Name)
+				monitor.EnableChannel(channel.Id, channel.Name)
 			}
 			channel.UpdateResponseTime(milliseconds)
 			time.Sleep(config.RequestInterval)
