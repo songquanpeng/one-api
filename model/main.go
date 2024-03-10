@@ -72,7 +72,7 @@ func chooseDB() (*gorm.DB, error) {
 func InitDB() (err error) {
 	db, err := chooseDB()
 	if err == nil {
-		if config.DebugEnabled {
+		if config.DebugSQLEnabled {
 			db = db.Debug()
 		}
 		DB = db

@@ -76,21 +76,10 @@ func GetToken(apikey string) string {
 func ConvertRequest(request model.GeneralOpenAIRequest) *Request {
 	messages := make([]Message, 0, len(request.Messages))
 	for _, message := range request.Messages {
-		if message.Role == "system" {
-			messages = append(messages, Message{
-				Role:    "system",
-				Content: message.StringContent(),
-			})
-			messages = append(messages, Message{
-				Role:    "user",
-				Content: "Okay",
-			})
-		} else {
-			messages = append(messages, Message{
-				Role:    message.Role,
-				Content: message.StringContent(),
-			})
-		}
+		messages = append(messages, Message{
+			Role:    message.Role,
+			Content: message.StringContent(),
+		})
 	}
 	return &Request{
 		Prompt:      messages,
