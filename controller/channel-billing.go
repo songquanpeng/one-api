@@ -323,15 +323,14 @@ func updateAllChannelsBalance() error {
 }
 
 func UpdateAllChannelsBalance(c *gin.Context) {
-	// TODO: make it async
-	err := updateAllChannelsBalance()
-	if err != nil {
-		c.JSON(http.StatusOK, gin.H{
-			"success": false,
-			"message": err.Error(),
-		})
-		return
-	}
+	//err := updateAllChannelsBalance()
+	//if err != nil {
+	//	c.JSON(http.StatusOK, gin.H{
+	//		"success": false,
+	//		"message": err.Error(),
+	//	})
+	//	return
+	//}
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"message": "",
