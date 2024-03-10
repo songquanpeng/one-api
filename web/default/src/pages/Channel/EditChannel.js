@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Form, Header, Input, Message, Segment } from 'semantic-ui-react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { API, getChannelModels, showError, showInfo, showSuccess, verifyJSON } from '../../helpers';
+import { API, copy, getChannelModels, showError, showInfo, showSuccess, verifyJSON } from '../../helpers';
 import { CHANNEL_OPTIONS } from '../../constants';
 
 const MODEL_MAPPING_EXAMPLE = {
@@ -342,6 +342,8 @@ const EditChannel = () => {
               required
               fluid
               multiple
+              search
+              onLabelClick={(e, { value }) => {copy(value).then()}}
               selection
               onChange={handleInputChange}
               value={inputs.models}

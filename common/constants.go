@@ -67,6 +67,7 @@ const (
 	ChannelTypeBaichuan
 	ChannelTypeMinimax
 	ChannelTypeMistral
+	ChannelTypeGroq
 
 	ChannelTypeDummy
 )
@@ -101,6 +102,7 @@ var ChannelBaseURLs = []string{
 	"https://api.baichuan-ai.com",               // 26
 	"https://api.minimax.chat",                  // 27
 	"https://api.mistral.ai",                    // 28
+	"https://api.groq.com/openai",               // 29
 }
 
 const (
