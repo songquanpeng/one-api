@@ -56,6 +56,7 @@ func chooseDB() (*gorm.DB, error) {
 		}
 		// Use MySQL
 		logger.SysLog("using MySQL as database")
+		common.UsingMySQL = true
 		return gorm.Open(mysql.Open(dsn), &gorm.Config{
 			PrepareStmt: true, // precompile SQL
 		})
@@ -86,6 +87,9 @@ func InitDB() (err error) {
 
 		if !config.IsMasterNode {
 			return nil
+		}
+		if common.UsingMySQL {
+			_, _ = sqlDB.Exec("DROP INDEX idx_channels_key ON channels;") // TODO: delete this line when most users have upgraded
 		}
 		logger.SysLog("database migration started")
 		err = db.AutoMigrate(&Channel{})
