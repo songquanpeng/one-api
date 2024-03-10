@@ -296,7 +296,7 @@ func UpdateChannelBalance(c *gin.Context) {
 }
 
 func updateAllChannelsBalance() error {
-	channels, err := model.GetAllChannels(0, 0, true)
+	channels, err := model.GetAllChannels(0, 0, "all")
 	if err != nil {
 		return err
 	}

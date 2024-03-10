@@ -149,7 +149,7 @@ func TestChannel(c *gin.Context) {
 var testAllChannelsLock sync.Mutex
 var testAllChannelsRunning bool = false
 
-func testAllChannels(notify bool) error {
+func testChannels(notify bool, scope string) error {
 	if config.RootUserEmail == "" {
 		config.RootUserEmail = model.GetRootUserEmail()
 	}
@@ -160,7 +160,7 @@ func testAllChannels(notify bool) error {
 	}
 	testAllChannelsRunning = true
 	testAllChannelsLock.Unlock()
-	channels, err := model.GetAllChannels(0, 0, true)
+	channels, err := model.GetAllChannels(0, 0, scope)
 	if err != nil {
 		return err
 	}
@@ -201,8 +201,12 @@ func testAllChannels(notify bool) error {
 	return nil
 }
 
-func TestAllChannels(c *gin.Context) {
-	err := testAllChannels(true)
+func TestChannels(c *gin.Context) {
+	scope := c.Query("scope")
+	if scope == "" {
+		scope = "all"
+	}
+	err := testChannels(true, scope)
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
@@ -221,7 +225,7 @@ func AutomaticallyTestChannels(frequency int) {
 	for {
 		time.Sleep(time.Duration(frequency) * time.Minute)
 		logger.SysLog("testing all channels")
-		_ = testAllChannels(false)
+		_ = testChannels(false, "all")
 		logger.SysLog("channel test finished")
 	}
 }
