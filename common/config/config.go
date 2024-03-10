@@ -70,6 +70,9 @@ var WeChatServerAddress = ""
 var WeChatServerToken = ""
 var WeChatAccountQRCodeImageURL = ""
 
+var MessagePusherAddress = ""
+var MessagePusherToken = ""
+
 var TurnstileSiteKey = ""
 var TurnstileSecretKey = ""
 

@@ -5,14 +5,23 @@ import (
 	"github.com/songquanpeng/one-api/common"
 	"github.com/songquanpeng/one-api/common/config"
 	"github.com/songquanpeng/one-api/common/logger"
+	"github.com/songquanpeng/one-api/common/message"
 	"github.com/songquanpeng/one-api/model"
 )
 
 func notifyRootUser(subject string, content string) {
+	if config.MessagePusherAddress != "" {
+		err := message.SendMessage(subject, content, content)
+		if err != nil {
+			logger.SysError(fmt.Sprintf("failed to send message: %s", err.Error()))
+		} else {
+			return
+		}
+	}
 	if config.RootUserEmail == "" {
 		config.RootUserEmail = model.GetRootUserEmail()
 	}
-	err := common.SendEmail(subject, config.RootUserEmail, content)
+	err := message.SendEmail(subject, config.RootUserEmail, content)
 	if err != nil {
 		logger.SysError(fmt.Sprintf("failed to send email: %s", err.Error()))
 	}
