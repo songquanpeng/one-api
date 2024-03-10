@@ -148,6 +148,26 @@ func init() {
 	}
 }
 
+func AddNewMissingRatio(oldRatio string) string {
+	newRatio := make(map[string]float64)
+	err := json.Unmarshal([]byte(oldRatio), &newRatio)
+	if err != nil {
+		logger.SysError("error unmarshalling old ratio: " + err.Error())
+		return oldRatio
+	}
+	for k, v := range DefaultModelRatio {
+		if _, ok := newRatio[k]; !ok {
+			newRatio[k] = v
+		}
+	}
+	jsonBytes, err := json.Marshal(newRatio)
+	if err != nil {
+		logger.SysError("error marshalling new ratio: " + err.Error())
+		return oldRatio
+	}
+	return string(jsonBytes)
+}
+
 func ModelRatio2JSONString() string {
 	jsonBytes, err := json.Marshal(ModelRatio)
 	if err != nil {
