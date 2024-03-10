@@ -17,6 +17,17 @@ const PasswordResetForm = () => {
   const [countdown, setCountdown] = useState(30);
 
   useEffect(() => {
+    let status = localStorage.getItem('status');
+    if (status) {
+      status = JSON.parse(status);
+      if (status.turnstile_check) {
+        setTurnstileEnabled(true);
+        setTurnstileSiteKey(status.turnstile_site_key);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
     let countdownInterval = null;
     if (disableButton && countdown > 0) {
       countdownInterval = setInterval(() => {
