@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/songquanpeng/one-api/common"
+	"github.com/songquanpeng/one-api/common/blacklist"
 	"github.com/songquanpeng/one-api/common/config"
 	"github.com/songquanpeng/one-api/common/helper"
 	"github.com/songquanpeng/one-api/common/logger"
@@ -40,7 +41,7 @@ func GetMaxUserId() int {
 }
 
 func GetAllUsers(startIdx int, num int) (users []*User, err error) {
-	err = DB.Order("id desc").Limit(num).Offset(startIdx).Omit("password").Find(&users).Error
+	err = DB.Order("id desc").Limit(num).Offset(startIdx).Omit("password").Where("status != ?", common.UserStatusDeleted).Find(&users).Error
 	return users, err
 }
 
@@ -123,6 +124,11 @@ func (user *User) Update(updatePassword bool) error {
 			return err
 		}
 	}
+	if user.Status == common.UserStatusDisabled {
+		blacklist.BanUser(user.Id)
+	} else if user.Status == common.UserStatusEnabled {
+		blacklist.UnbanUser(user.Id)
+	}
 	err = DB.Model(user).Updates(user).Error
 	return err
 }
@@ -131,7 +137,10 @@ func (user *User) Delete() error {
 	if user.Id == 0 {
 		return errors.New("id 为空！")
 	}
-	err := DB.Delete(user).Error
+	blacklist.BanUser(user.Id)
+	user.Username = fmt.Sprintf("deleted_%s", helper.GetUUID())
+	user.Status = common.UserStatusDeleted
+	err := DB.Model(user).Updates(user).Error
 	return err
 }
 
