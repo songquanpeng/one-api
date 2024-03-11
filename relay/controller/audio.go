@@ -7,6 +7,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
+	"net/http"
+	"strings"
+
 	"github.com/gin-gonic/gin"
 	"github.com/songquanpeng/one-api/common"
 	"github.com/songquanpeng/one-api/common/config"
@@ -16,9 +20,6 @@ import (
 	"github.com/songquanpeng/one-api/relay/constant"
 	relaymodel "github.com/songquanpeng/one-api/relay/model"
 	"github.com/songquanpeng/one-api/relay/util"
-	"io"
-	"net/http"
-	"strings"
 )
 
 func RelayAudioHelper(c *gin.Context, relayMode int) *relaymodel.ErrorWithStatusCode {
@@ -98,6 +99,9 @@ func RelayAudioHelper(c *gin.Context, relayMode int) *relaymodel.ErrorWithStatus
 
 	baseURL := common.ChannelBaseURLs[channelType]
 	requestURL := c.Request.URL.String()
+	clientIP := c.ClientIP()
+	fmt.Println(clientIP)
+
 	if c.GetString("base_url") != "" {
 		baseURL = c.GetString("base_url")
 	}
@@ -203,7 +207,7 @@ func RelayAudioHelper(c *gin.Context, relayMode int) *relaymodel.ErrorWithStatus
 	}
 	quotaDelta := quota - preConsumedQuota
 	defer func(ctx context.Context) {
-		go util.PostConsumeQuota(ctx, tokenId, quotaDelta, quota, userId, channelId, modelRatio, groupRatio, audioModel, tokenName)
+		go util.PostConsumeQuota(ctx, tokenId, quotaDelta, quota, userId, channelId, modelRatio, groupRatio, audioModel, tokenName, clientIP)
 	}(c.Request.Context())
 
 	for k, v := range resp.Header {
