@@ -122,8 +122,8 @@ const typeConfig = {
   },
   23: {
     input: {
-      models: ['hunyuan'],
-      test_model: 'hunyuan'
+      models: ['ChatStd', 'ChatPro'],
+      test_model: 'ChatStd'
     },
     prompt: {
       key: '按照如下格式输入：AppId|SecretId|SecretKey'

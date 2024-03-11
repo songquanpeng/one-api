@@ -75,6 +75,7 @@ func (p *TencentProvider) getChatRequest(request *types.ChatCompletionRequest) (
 	// 获取请求头
 	headers := p.GetRequestHeaders()
 	headers["Authorization"] = sign
+	headers["X-TC-Action"] = request.Model
 	if request.Stream {
 		headers["Accept"] = "text/event-stream"
 	}
@@ -125,17 +126,6 @@ func convertFromChatOpenai(request *types.ChatCompletionRequest) *TencentChatReq
 	messages := make([]TencentMessage, 0, len(request.Messages))
 	for i := 0; i < len(request.Messages); i++ {
 		message := request.Messages[i]
-		if message.Role == "system" {
-			messages = append(messages, TencentMessage{
-				Role:    "user",
-				Content: message.StringContent(),
-			})
-			messages = append(messages, TencentMessage{
-				Role:    "assistant",
-				Content: "Okay",
-			})
-			continue
-		}
 		messages = append(messages, TencentMessage{
 			Content: message.StringContent(),
 			Role:    message.Role,

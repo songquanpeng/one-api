@@ -131,38 +131,43 @@ func (p *BaiduProvider) convertToChatOpenai(response *BaiduChatResponse, request
 }
 
 func convertFromChatOpenai(request *types.ChatCompletionRequest) *BaiduChatRequest {
-	messages := make([]BaiduMessage, 0, len(request.Messages))
+	baiduChatRequest := &BaiduChatRequest{
+		Messages:        make([]BaiduMessage, 0, len(request.Messages)),
+		Temperature:     request.Temperature,
+		Stream:          request.Stream,
+		TopP:            request.TopP,
+		PenaltyScore:    request.FrequencyPenalty,
+		Stop:            request.Stop,
+		MaxOutputTokens: request.MaxTokens,
+	}
+
+	if request.ResponseFormat != nil {
+		baiduChatRequest.ResponseFormat = request.ResponseFormat.Type
+
+	}
+
 	for _, message := range request.Messages {
 		if message.Role == types.ChatMessageRoleSystem {
-			messages = append(messages, BaiduMessage{
-				Role:    types.ChatMessageRoleUser,
-				Content: message.StringContent(),
-			})
-			messages = append(messages, BaiduMessage{
-				Role:    types.ChatMessageRoleAssistant,
-				Content: "Okay",
-			})
+			baiduChatRequest.System = message.StringContent()
+			continue
 		} else if message.Role == types.ChatMessageRoleFunction {
-			messages = append(messages, BaiduMessage{
-				Role:    types.ChatMessageRoleAssistant,
-				Content: "Okay",
+			baiduChatRequest.Messages = append(baiduChatRequest.Messages, BaiduMessage{
+				Role: types.ChatMessageRoleAssistant,
+				FunctionCall: &types.ChatCompletionToolCallsFunction{
+					Name:      *message.Name,
+					Arguments: "{}",
+				},
 			})
-			messages = append(messages, BaiduMessage{
+			baiduChatRequest.Messages = append(baiduChatRequest.Messages, BaiduMessage{
 				Role:    types.ChatMessageRoleUser,
 				Content: "这是函数调用返回的内容，请回答之前的问题：\n" + message.StringContent(),
 			})
 		} else {
-			messages = append(messages, BaiduMessage{
+			baiduChatRequest.Messages = append(baiduChatRequest.Messages, BaiduMessage{
 				Role:    message.Role,
 				Content: message.StringContent(),
 			})
 		}
-	}
-
-	baiduChatRequest := &BaiduChatRequest{
-		Messages:    messages,
-		Temperature: request.Temperature,
-		Stream:      request.Stream,
 	}
 
 	if request.Tools != nil {

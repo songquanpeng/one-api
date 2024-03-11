@@ -14,16 +14,24 @@ type BaiduAccessToken struct {
 }
 
 type BaiduMessage struct {
-	Role    string `json:"role"`
-	Content string `json:"content"`
+	Role         string                                 `json:"role"`
+	Content      string                                 `json:"content,omitempty"`
+	FunctionCall *types.ChatCompletionToolCallsFunction `json:"function_call,omitempty"`
 }
 
 type BaiduChatRequest struct {
-	Messages    []BaiduMessage                  `json:"messages"`
-	Functions   []*types.ChatCompletionFunction `json:"functions,omitempty"`
-	Temperature float64                         `json:"temperature,omitempty"`
-	Stream      bool                            `json:"stream"`
-	UserId      string                          `json:"user_id,omitempty"`
+	Messages        []BaiduMessage                  `json:"messages"`
+	Functions       []*types.ChatCompletionFunction `json:"functions,omitempty"`
+	Temperature     float64                         `json:"temperature,omitempty"`
+	TopP            float64                         `json:"top_p,omitempty"`
+	PenaltyScore    float64                         `json:"penalty_score,omitempty"`
+	Stream          bool                            `json:"stream"`
+	System          string                          `json:"system,omitempty"`
+	Stop            []string                        `json:"stop,omitempty"`
+	DisableSearch   bool                            `json:"disable_search,omitempty"`
+	MaxOutputTokens int                             `json:"max_output_tokens,omitempty"`
+	ResponseFormat  string                          `json:"response_format,omitempty"`
+	UserId          string                          `json:"user_id,omitempty"`
 }
 
 type BaiduChatResponse struct {

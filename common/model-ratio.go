@@ -152,6 +152,11 @@ func init() {
 
 		// ¥0.1 / 1k tokens  // https://cloud.tencent.com/document/product/1729/97731#e0e6be58-60c8-469f-bdeb-6c264ce3b4d0
 		"hunyuan": {[]float64{7.143, 7.143}, ChannelTypeTencent},
+		// https://cloud.tencent.com/document/product/1729/97731#e0e6be58-60c8-469f-bdeb-6c264ce3b4d0
+		// ¥0.01 / 1k tokens
+		"ChatStd": {[]float64{0.7143, 0.7143}, ChannelTypeTencent},
+		//¥0.1 / 1k tokens
+		"ChatPro": {[]float64{7.143, 7.143}, ChannelTypeTencent},
 
 		"Baichuan2-Turbo":         {[]float64{0.5715, 0.5715}, ChannelTypeBaichuan}, // ¥0.008 / 1k tokens
 		"Baichuan2-Turbo-192k":    {[]float64{1.143, 1.143}, ChannelTypeBaichuan},   // ¥0.016 / 1k tokens
