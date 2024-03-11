@@ -2,6 +2,7 @@ package baidu
 
 import (
 	"errors"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/songquanpeng/one-api/relay/channel"
 	"github.com/songquanpeng/one-api/relay/constant"
@@ -9,6 +10,7 @@ import (
 	"github.com/songquanpeng/one-api/relay/util"
 	"io"
 	"net/http"
+	"strings"
 )
 
 type Adaptor struct {
@@ -20,25 +22,33 @@ func (a *Adaptor) Init(meta *util.RelayMeta) {
 
 func (a *Adaptor) GetRequestURL(meta *util.RelayMeta) (string, error) {
 	// https://cloud.baidu.com/doc/WENXINWORKSHOP/s/clntwmv7t
-	var fullRequestURL string
-	switch meta.ActualModelName {
-	case "ERNIE-Bot-4":
-		fullRequestURL = "https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/completions_pro"
-	case "ERNIE-Bot-8K":
-		fullRequestURL = "https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/ernie_bot_8k"
-	case "ERNIE-Bot":
-		fullRequestURL = "https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/completions"
-	case "ERNIE-Speed":
-		fullRequestURL = "https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/ernie_speed"
-	case "ERNIE-Bot-turbo":
-		fullRequestURL = "https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/eb-instant"
-	case "BLOOMZ-7B":
-		fullRequestURL = "https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/bloomz_7b1"
-	case "Embedding-V1":
-		fullRequestURL = "https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/embeddings/embedding-v1"
-	default:
-               fullRequestURL = "https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/" + meta.ActualModelName
+	suffix := "chat/"
+	if strings.HasPrefix("Embedding", meta.ActualModelName) {
+		suffix = "embeddings/"
 	}
+	switch meta.ActualModelName {
+	case "ERNIE-4.0":
+		suffix += "completions_pro"
+	case "ERNIE-Bot-4":
+		suffix += "completions_pro"
+	case "ERNIE-3.5-8K":
+		suffix += "completions"
+	case "ERNIE-Bot-8K":
+		suffix += "ernie_bot_8k"
+	case "ERNIE-Bot":
+		suffix += "completions"
+	case "ERNIE-Speed":
+		suffix += "ernie_speed"
+	case "ERNIE-Bot-turbo":
+		suffix += "eb-instant"
+	case "BLOOMZ-7B":
+		suffix += "bloomz_7b1"
+	case "Embedding-V1":
+		suffix += "embedding-v1"
+	default:
+		suffix += meta.ActualModelName
+	}
+	fullRequestURL := fmt.Sprintf("%s/rpc/2.0/ai_custom/v1/wenxinworkshop/%s", meta.BaseURL, suffix)
 	var accessToken string
 	var err error
 	if accessToken, err = GetAccessToken(meta.APIKey); err != nil {

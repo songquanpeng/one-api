@@ -15,6 +15,7 @@ const (
 const (
 	UserStatusEnabled  = 1 // don't use 0, 0 is the default value!
 	UserStatusDisabled = 2 // also don't use 0
+	UserStatusDeleted  = 3
 )
 
 const (
@@ -67,6 +68,7 @@ const (
 	ChannelTypeBaichuan
 	ChannelTypeMinimax
 	ChannelTypeMistral
+	ChannelTypeGroq
 
 	ChannelTypeDummy
 )
@@ -101,6 +103,7 @@ var ChannelBaseURLs = []string{
 	"https://api.baichuan-ai.com",               // 26
 	"https://api.minimax.chat",                  // 27
 	"https://api.mistral.ai",                    // 28
+	"https://api.groq.com/openai",               // 29
 }
 
 const (

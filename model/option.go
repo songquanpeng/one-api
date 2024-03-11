@@ -57,6 +57,8 @@ func InitOptionMap() {
 	config.OptionMap["WeChatServerAddress"] = ""
 	config.OptionMap["WeChatServerToken"] = ""
 	config.OptionMap["WeChatAccountQRCodeImageURL"] = ""
+	config.OptionMap["MessagePusherAddress"] = ""
+	config.OptionMap["MessagePusherToken"] = ""
 	config.OptionMap["TurnstileSiteKey"] = ""
 	config.OptionMap["TurnstileSecretKey"] = ""
 	config.OptionMap["QuotaForNewUser"] = strconv.Itoa(config.QuotaForNewUser)
@@ -79,6 +81,9 @@ func InitOptionMap() {
 func loadOptionsFromDatabase() {
 	options, _ := AllOption()
 	for _, option := range options {
+		if option.Key == "ModelRatio" {
+			option.Value = common.AddNewMissingRatio(option.Value)
+		}
 		err := updateOptionMap(option.Key, option.Value)
 		if err != nil {
 			logger.SysError("failed to update option map: " + err.Error())
@@ -179,6 +184,10 @@ func updateOptionMap(key string, value string) (err error) {
 		config.WeChatServerToken = value
 	case "WeChatAccountQRCodeImageURL":
 		config.WeChatAccountQRCodeImageURL = value
+	case "MessagePusherAddress":
+		config.MessagePusherAddress = value
+	case "MessagePusherToken":
+		config.MessagePusherToken = value
 	case "TurnstileSiteKey":
 		config.TurnstileSiteKey = value
 	case "TurnstileSecretKey":

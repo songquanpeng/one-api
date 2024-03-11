@@ -52,6 +52,7 @@ var EmailDomainWhitelist = []string{
 }
 
 var DebugEnabled = os.Getenv("DEBUG") == "true"
+var DebugSQLEnabled = os.Getenv("DEBUG_SQL") == "true"
 var MemoryCacheEnabled = os.Getenv("MEMORY_CACHE_ENABLED") == "true"
 
 var LogConsumeEnabled = true
@@ -68,6 +69,9 @@ var GitHubClientSecret = ""
 var WeChatServerAddress = ""
 var WeChatServerToken = ""
 var WeChatAccountQRCodeImageURL = ""
+
+var MessagePusherAddress = ""
+var MessagePusherToken = ""
 
 var TurnstileSiteKey = ""
 var TurnstileSecretKey = ""
@@ -125,3 +129,9 @@ var (
 )
 
 var RateLimitKeyExpirationDuration = 20 * time.Minute
+
+var EnableMetric = helper.GetOrDefaultEnvBool("ENABLE_METRIC", false)
+var MetricQueueSize = helper.GetOrDefaultEnvInt("METRIC_QUEUE_SIZE", 10)
+var MetricSuccessRateThreshold = helper.GetOrDefaultEnvFloat64("METRIC_SUCCESS_RATE_THRESHOLD", 0.8)
+var MetricSuccessChanSize = helper.GetOrDefaultEnvInt("METRIC_SUCCESS_CHAN_SIZE", 1024)
+var MetricFailChanSize = helper.GetOrDefaultEnvInt("METRIC_FAIL_CHAN_SIZE", 128)

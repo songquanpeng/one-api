@@ -27,7 +27,16 @@ func ShouldDisableChannel(err *relaymodel.Error, statusCode int) bool {
 	if statusCode == http.StatusUnauthorized {
 		return true
 	}
-	if err.Type == "insufficient_quota" || err.Code == "invalid_api_key" || err.Code == "account_deactivated" {
+	switch err.Type {
+	case "insufficient_quota":
+		return true
+	// https://docs.anthropic.com/claude/reference/errors
+	case "authentication_error":
+		return true
+	case "permission_error":
+		return true
+	}
+	if err.Code == "invalid_api_key" || err.Code == "account_deactivated" {
 		return true
 	}
 	return false
@@ -100,6 +109,9 @@ func RelayErrorHandler(resp *http.Response) (ErrorWithStatusCode *relaymodel.Err
 	responseBody, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return
+	}
+	if config.DebugEnabled {
+		logger.SysLog(fmt.Sprintf("error happened, status code: %d, response: \n%s", resp.StatusCode, string(responseBody)))
 	}
 	err = resp.Body.Close()
 	if err != nil {

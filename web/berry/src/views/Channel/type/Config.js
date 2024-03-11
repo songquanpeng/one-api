@@ -163,6 +163,9 @@ const typeConfig = {
     },
     modelGroup: "minimax",
   },
+  29: {
+    modelGroup: "groq",
+  },
 };
 
 export { defaultConfig, typeConfig };
