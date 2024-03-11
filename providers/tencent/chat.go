@@ -61,7 +61,7 @@ func (p *TencentProvider) getChatRequest(request *types.ChatCompletionRequest) (
 
 	tencentRequest := convertFromChatOpenai(request)
 
-	sign := p.getTencentSign(*tencentRequest)
+	sign := p.getTencentSign(tencentRequest)
 	if sign == "" {
 		return nil, common.ErrorWrapper(errors.New("get tencent sign failed"), "get_tencent_sign_failed", http.StatusInternalServerError)
 	}
