@@ -73,6 +73,14 @@ func (p *BaiduProvider) GetFullRequestURL(requestURL string, modelName string) s
 		"ERNIE-Bot-4":     "completions_pro",
 		"BLOOMZ-7B":       "bloomz_7b1",
 		"Embedding-V1":    "embedding-v1",
+		"ERNIE-4.0":       "completions_pro",
+		"ERNIE-3.5-8K":    "completions",
+		"ERNIE-Bot-8K":    "ernie_bot_8k",
+		"ERNIE-Speed":     "ernie_speed",
+	}
+
+	if modelNameConvert, ok := modelNameMap[modelName]; ok {
+		modelName = modelNameConvert
 	}
 
 	baseURL := strings.TrimSuffix(p.GetBaseURL(), "/")
@@ -81,7 +89,7 @@ func (p *BaiduProvider) GetFullRequestURL(requestURL string, modelName string) s
 		return ""
 	}
 
-	return fmt.Sprintf("%s%s/%s?access_token=%s", baseURL, requestURL, modelNameMap[modelName], apiKey)
+	return fmt.Sprintf("%s%s/%s?access_token=%s", baseURL, requestURL, modelName, apiKey)
 }
 
 // 获取请求头

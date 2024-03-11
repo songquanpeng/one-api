@@ -2,11 +2,13 @@ package claude
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"one-api/common/requester"
 	"one-api/model"
 	"one-api/providers/base"
 	"one-api/types"
+	"strings"
 )
 
 type ClaudeProviderFactory struct{}
@@ -69,6 +71,15 @@ func (p *ClaudeProvider) GetRequestHeaders() (headers map[string]string) {
 	headers["anthropic-version"] = anthropicVersion
 
 	return headers
+}
+
+func (p *ClaudeProvider) GetFullRequestURL(requestURL string, modelName string) string {
+	baseURL := strings.TrimSuffix(p.GetBaseURL(), "/")
+	if strings.HasPrefix(baseURL, "https://gateway.ai.cloudflare.com") {
+		requestURL = strings.TrimPrefix(requestURL, "/v1")
+	}
+
+	return fmt.Sprintf("%s%s", baseURL, requestURL)
 }
 
 func stopReasonClaude2OpenAI(reason string) string {

@@ -94,16 +94,22 @@ func init() {
 		"claude-3-opus-20240229":   {[]float64{7.5, 22.5}, ChannelTypeAnthropic},
 		"claude-3-sonnet-20240229": {[]float64{1.3, 3.9}, ChannelTypeAnthropic},
 
+		// ￥0.004 / 1k tokens ￥0.008 / 1k tokens
+		"ERNIE-Speed": {[]float64{0.2857, 0.5714}, ChannelTypeBaidu},
 		// ￥0.012 / 1k tokens ￥0.012 / 1k tokens
-		"ERNIE-Bot": {[]float64{0.8572, 0.8572}, ChannelTypeBaidu},
+		"ERNIE-Bot":    {[]float64{0.8572, 0.8572}, ChannelTypeBaidu},
+		"ERNIE-3.5-8K": {[]float64{0.8572, 0.8572}, ChannelTypeBaidu},
 		// 0.024元/千tokens 0.048元/千tokens
 		"ERNIE-Bot-8k": {[]float64{1.7143, 3.4286}, ChannelTypeBaidu},
 		// ￥0.008 / 1k tokens ￥0.008 / 1k tokens
 		"ERNIE-Bot-turbo": {[]float64{0.5715, 0.5715}, ChannelTypeBaidu},
 		// ￥0.12 / 1k tokens ￥0.12 / 1k tokens
 		"ERNIE-Bot-4": {[]float64{8.572, 8.572}, ChannelTypeBaidu},
+		"ERNIE-4.0":   {[]float64{8.572, 8.572}, ChannelTypeBaidu},
 		// ￥0.002 / 1k tokens
 		"Embedding-V1": {[]float64{0.1429, 0.1429}, ChannelTypeBaidu},
+		// ￥0.004 / 1k tokens
+		"BLOOMZ-7B": {[]float64{0.2857, 0.2857}, ChannelTypeBaidu},
 
 		"PaLM-2":            {[]float64{1, 1}, ChannelTypePaLM},
 		"gemini-pro":        {[]float64{1, 1}, ChannelTypeGemini},

@@ -67,8 +67,8 @@ const typeConfig = {
   },
   15: {
     input: {
-      models: ['ERNIE-Bot', 'ERNIE-Bot-turbo', 'ERNIE-Bot-4', 'Embedding-V1'],
-      test_model: 'ERNIE-Bot'
+      models: ['ERNIE-4.0', 'ERNIE-3.5-8K', 'ERNIE-Bot-8K', 'Embedding-V1'],
+      test_model: 'ERNIE-3.5-8K'
     },
     prompt: {
       key: '按照如下格式输入：APIKey|SecretKey'
