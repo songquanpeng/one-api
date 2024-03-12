@@ -44,5 +44,49 @@
         }
       }
     }
+  },
+  "24": {
+    "voice": {
+      "name": "声音映射",
+      "description": "将OpenAI的声音角色映射到azure的声音角色, 如果有role，请用|隔开，例如zh-CN-YunxiNeural|boy",
+      "params": {
+        "alloy": {
+          "name": "alloy 映射",
+          "description": "默认 zh-CN-YunxiNeural",
+          "type": "string",
+          "required": true
+        },
+        "echo": {
+          "name": "echo 映射",
+          "description": "默认 zh-CN-YunyangNeural",
+          "type": "string",
+          "required": true
+        },
+        "fable": {
+          "name": "fable 映射",
+          "description": "默认 zh-CN-YunxiNeural|boy",
+          "type": "string",
+          "required": true
+        },
+        "onyx": {
+          "name": "onyx 映射",
+          "description": "默认 zh-CN-YunyeNeural",
+          "type": "string",
+          "required": true
+        },
+        "nova": {
+          "name": "nova 映射",
+          "description": "默认 zh-CN-XiaochenNeural",
+          "type": "string",
+          "required": true
+        },
+        "shimmer": {
+          "name": "shimmer 映射",
+          "description": "默认 zh-CN-XiaohanNeural",
+          "type": "string",
+          "required": true
+        }
+      }
+    }
   }
 }

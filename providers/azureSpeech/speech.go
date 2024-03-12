@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"one-api/common"
 	"one-api/types"
+	"strings"
 )
 
 var outputFormatMap = map[string]string{
@@ -30,7 +31,7 @@ func CreateSSML(text string, name string, role string) string {
 	return fmt.Sprintf(ssmlTemplate, roleAttribute, name, text)
 }
 
-func (p *AzureSpeechProvider) getRequestBody(request *types.SpeechAudioRequest) *bytes.Buffer {
+func getAzureVoiceMap(modelName string) (voice, role string) {
 	voiceMap := map[string][]string{
 		"alloy":   {"zh-CN-YunxiNeural"},
 		"echo":    {"zh-CN-YunyangNeural"},
@@ -40,8 +41,53 @@ func (p *AzureSpeechProvider) getRequestBody(request *types.SpeechAudioRequest) 
 		"shimmer": {"zh-CN-XiaohanNeural"},
 	}
 
-	voice := ""
-	role := ""
+	if voiceMap[modelName] != nil {
+		voice = voiceMap[modelName][0]
+		if len(voiceMap[modelName]) > 1 {
+			role = voiceMap[modelName][1]
+		}
+	}
+
+	return
+}
+
+func (p *AzureSpeechProvider) GetVoiceMap() map[string][]string {
+	voiceMap := map[string][]string{
+		"alloy":   {"zh-CN-YunxiNeural"},
+		"echo":    {"zh-CN-YunyangNeural"},
+		"fable":   {"zh-CN-YunxiNeural", "Boy"},
+		"onyx":    {"zh-CN-YunyeNeural"},
+		"nova":    {"zh-CN-XiaochenNeural"},
+		"shimmer": {"zh-CN-XiaohanNeural"},
+	}
+
+	if p.Channel.Plugin == nil {
+		return voiceMap
+	}
+
+	customizeMap, ok := p.Channel.Plugin.Data()["voice"]
+	if !ok {
+		return voiceMap
+	}
+
+	for k, v := range customizeMap {
+		if _, ok := voiceMap[k]; !ok {
+			continue
+		}
+		customizeValue, ok := v.(string)
+		if !ok {
+			continue
+		}
+		customizeVoice := strings.Split(customizeValue, "|")
+		voiceMap[k] = customizeVoice
+	}
+
+	return voiceMap
+}
+
+func (p *AzureSpeechProvider) getRequestBody(request *types.SpeechAudioRequest) *bytes.Buffer {
+	var voice, role string
+	voiceMap := p.GetVoiceMap()
 	if voiceMap[request.Voice] != nil {
 		voice = voiceMap[request.Voice][0]
 		if len(voiceMap[request.Voice]) > 1 {
