@@ -31,26 +31,6 @@ func CreateSSML(text string, name string, role string) string {
 	return fmt.Sprintf(ssmlTemplate, roleAttribute, name, text)
 }
 
-func getAzureVoiceMap(modelName string) (voice, role string) {
-	voiceMap := map[string][]string{
-		"alloy":   {"zh-CN-YunxiNeural"},
-		"echo":    {"zh-CN-YunyangNeural"},
-		"fable":   {"zh-CN-YunxiNeural", "Boy"},
-		"onyx":    {"zh-CN-YunyeNeural"},
-		"nova":    {"zh-CN-XiaochenNeural"},
-		"shimmer": {"zh-CN-XiaohanNeural"},
-	}
-
-	if voiceMap[modelName] != nil {
-		voice = voiceMap[modelName][0]
-		if len(voiceMap[modelName]) > 1 {
-			role = voiceMap[modelName][1]
-		}
-	}
-
-	return
-}
-
 func (p *AzureSpeechProvider) GetVoiceMap() map[string][]string {
 	voiceMap := map[string][]string{
 		"alloy":   {"zh-CN-YunxiNeural"},
