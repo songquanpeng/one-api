@@ -152,7 +152,7 @@ func BatchDelModelChannels(params *BatchChannelsParams) (int64, error) {
 		}
 
 		channel.Models = strings.Join(modelsSlice, ",")
-		channel.Update()
+		channel.Update(false)
 		count++
 	}
 
@@ -190,9 +190,14 @@ func (channel *Channel) Insert() error {
 	return err
 }
 
-func (channel *Channel) Update() error {
+func (channel *Channel) Update(overwrite bool) error {
 	var err error
-	err = DB.Model(channel).Select("*").Omit("UsedQuota").Updates(channel).Error
+
+	if overwrite {
+		err = DB.Model(channel).Select("*").Omit("UsedQuota").Updates(channel).Error
+	} else {
+		err = DB.Model(channel).Omit("UsedQuota").Updates(channel).Error
+	}
 	if err != nil {
 		return err
 	}

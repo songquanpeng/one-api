@@ -132,7 +132,11 @@ func UpdateChannel(c *gin.Context) {
 		})
 		return
 	}
-	err = channel.Update()
+	if channel.Models == "" {
+		err = channel.Update(false)
+	} else {
+		err = channel.Update(true)
+	}
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
