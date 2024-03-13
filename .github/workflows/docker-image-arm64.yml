@@ -5,6 +5,7 @@ on:
     tags:
       - '*'
       - '!*-alpha*'
+      - '!*-pro*'
   workflow_dispatch:
     inputs:
       name:

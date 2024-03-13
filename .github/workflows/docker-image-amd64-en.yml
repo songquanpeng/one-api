@@ -4,6 +4,7 @@ on:
   push:
     tags:
       - '*'
+      - '!*-pro*'
   workflow_dispatch:
     inputs:
       name:
