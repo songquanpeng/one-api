@@ -22,6 +22,7 @@ import (
 )
 
 func RelayAudioHelper(c *gin.Context, relayMode int) *relaymodel.ErrorWithStatusCode {
+	ctx := c.Request.Context()
 	audioModel := "whisper-1"
 
 	tokenId := c.GetInt("token_id")
@@ -58,7 +59,7 @@ func RelayAudioHelper(c *gin.Context, relayMode int) *relaymodel.ErrorWithStatus
 	default:
 		preConsumedQuota = int(float64(config.PreConsumedQuota) * ratio)
 	}
-	userQuota, err := model.CacheGetUserQuota(userId)
+	userQuota, err := model.CacheGetUserQuota(ctx, userId)
 	if err != nil {
 		return openai.ErrorWrapper(err, "get_user_quota_failed", http.StatusInternalServerError)
 	}

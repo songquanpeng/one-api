@@ -118,7 +118,7 @@ func getPreConsumedQuota(textRequest *relaymodel.GeneralOpenAIRequest, promptTok
 func preConsumeQuota(ctx context.Context, textRequest *relaymodel.GeneralOpenAIRequest, promptTokens int, ratio float64, meta *util.RelayMeta) (int, *relaymodel.ErrorWithStatusCode) {
 	preConsumedQuota := getPreConsumedQuota(textRequest, promptTokens, ratio)
 
-	userQuota, err := model.CacheGetUserQuota(meta.UserId)
+	userQuota, err := model.CacheGetUserQuota(ctx, meta.UserId)
 	if err != nil {
 		return preConsumedQuota, openai.ErrorWrapper(err, "get_user_quota_failed", http.StatusInternalServerError)
 	}
@@ -168,7 +168,7 @@ func postConsumeQuota(ctx context.Context, usage *relaymodel.Usage, meta *util.R
 	if err != nil {
 		logger.Error(ctx, "error consuming token remain quota: "+err.Error())
 	}
-	err = model.CacheUpdateUserQuota(meta.UserId)
+	err = model.CacheUpdateUserQuota(ctx, meta.UserId)
 	if err != nil {
 		logger.Error(ctx, "error update user quota cache: "+err.Error())
 	}

@@ -161,7 +161,7 @@ func PostConsumeQuota(ctx context.Context, tokenId int, quotaDelta int, totalQuo
 	if err != nil {
 		logger.SysError("error consuming token remain quota: " + err.Error())
 	}
-	err = model.CacheUpdateUserQuota(userId)
+	err = model.CacheUpdateUserQuota(ctx, userId)
 	if err != nil {
 		logger.SysError("error update user quota cache: " + err.Error())
 	}
