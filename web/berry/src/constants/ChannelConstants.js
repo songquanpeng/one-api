@@ -95,6 +95,12 @@ export const CHANNEL_OPTIONS = {
     value: 29,
     color: 'default'
   },
+  30: {
+    key: 30,
+    text: 'Ollama',
+    value: 30,
+    color: 'default'
+  },
   8: {
     key: 8,
     text: '自定义渠道',

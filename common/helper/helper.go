@@ -185,6 +185,10 @@ func GetTimeString() string {
 	return fmt.Sprintf("%s%d", now.Format("20060102150405"), now.UnixNano()%1e9)
 }
 
+func GenRequestID() string {
+	return GetTimeString() + GetRandomNumberString(8)
+}
+
 func Max(a int, b int) int {
 	if a >= b {
 		return a

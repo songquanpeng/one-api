@@ -15,6 +15,7 @@ export const CHANNEL_OPTIONS = [
   { key: 26, text: '百川大模型', value: 26, color: 'orange' },
   { key: 27, text: 'MiniMax', value: 27, color: 'red' },
   { key: 29, text: 'Groq', value: 29, color: 'orange' },
+  { key: 30, text: 'Ollama', value: 30, color: 'black' },
   { key: 8, text: '自定义渠道', value: 8, color: 'pink' },
   { key: 22, text: '知识库：FastGPT', value: 22, color: 'blue' },
   { key: 21, text: '知识库：AI Proxy', value: 21, color: 'purple' },

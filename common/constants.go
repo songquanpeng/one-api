@@ -69,6 +69,7 @@ const (
 	ChannelTypeMinimax
 	ChannelTypeMistral
 	ChannelTypeGroq
+	ChannelTypeOllama
 
 	ChannelTypeDummy
 )
@@ -104,6 +105,7 @@ var ChannelBaseURLs = []string{
 	"https://api.minimax.chat",                  // 27
 	"https://api.mistral.ai",                    // 28
 	"https://api.groq.com/openai",               // 29
+	"http://localhost:11434",                    // 30
 }
 
 const (
