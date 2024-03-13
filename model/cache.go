@@ -70,23 +70,30 @@ func CacheGetUserGroup(id int) (group string, err error) {
 	return group, err
 }
 
+func fetchAndUpdateUserQuota(id int) (quota int, err error) {
+	quota, err = GetUserQuota(id)
+	if err != nil {
+		return 0, err
+	}
+	err = common.RedisSet(fmt.Sprintf("user_quota:%d", id), fmt.Sprintf("%d", quota), time.Duration(UserId2QuotaCacheSeconds)*time.Second)
+	if err != nil {
+		logger.SysError("Redis set user quota error: " + err.Error())
+	}
+	return
+}
+
 func CacheGetUserQuota(id int) (quota int, err error) {
 	if !common.RedisEnabled {
 		return GetUserQuota(id)
 	}
 	quotaString, err := common.RedisGet(fmt.Sprintf("user_quota:%d", id))
 	if err != nil {
-		quota, err = GetUserQuota(id)
-		if err != nil {
-			return 0, err
-		}
-		err = common.RedisSet(fmt.Sprintf("user_quota:%d", id), fmt.Sprintf("%d", quota), time.Duration(UserId2QuotaCacheSeconds)*time.Second)
-		if err != nil {
-			logger.SysError("Redis set user quota error: " + err.Error())
-		}
-		return quota, err
+		return fetchAndUpdateUserQuota(id)
 	}
 	quota, err = strconv.Atoi(quotaString)
+	if quota <= config.PreConsumedQuota { // when user's quota is less than pre-consumed quota, we need to fetch from db
+		return fetchAndUpdateUserQuota(id)
+	}
 	return quota, err
 }
 
