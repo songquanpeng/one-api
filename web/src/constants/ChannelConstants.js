@@ -95,6 +95,12 @@ export const CHANNEL_OPTIONS = {
     value: 30,
     color: 'orange'
   },
+  31: {
+    key: 31,
+    text: 'Groq',
+    value: 31,
+    color: 'primary'
+  },
   24: {
     key: 24,
     text: 'Azure Speech',

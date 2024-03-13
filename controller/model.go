@@ -59,6 +59,7 @@ func init() {
 		common.ChannelTypeDeepseek:  "Deepseek",
 		common.ChannelTypeMoonshot:  "Moonshot",
 		common.ChannelTypeMistral:   "Mistral",
+		common.ChannelTypeGroq:      "Groq",
 	}
 }
 

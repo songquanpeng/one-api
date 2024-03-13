@@ -195,6 +195,13 @@ const typeConfig = {
       test_model: 'open-mistral-7b'
     },
     modelGroup: 'Mistral'
+  },
+  31: {
+    input: {
+      models: ['llama2-7b-2048', 'llama2-70b-4096', 'mixtral-8x7b-32768', 'gemma-7b-it'],
+      test_model: 'llama2-7b-2048'
+    },
+    modelGroup: 'Groq'
   }
 };
 

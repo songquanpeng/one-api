@@ -140,7 +140,7 @@ type ChatCompletionRequest struct {
 	Seed             *int                          `json:"seed,omitempty"`
 	FrequencyPenalty float64                       `json:"frequency_penalty,omitempty"`
 	LogitBias        any                           `json:"logit_bias,omitempty"`
-	LogProbs         bool                          `json:"logprobs,omitempty"`
+	LogProbs         *bool                         `json:"logprobs,omitempty"`
 	TopLogProbs      int                           `json:"top_logprobs,omitempty"`
 	User             string                        `json:"user,omitempty"`
 	Functions        []*ChatCompletionFunction     `json:"functions,omitempty"`
@@ -172,6 +172,7 @@ type ChatCompletionTool struct {
 type ChatCompletionChoice struct {
 	Index                int                   `json:"index"`
 	Message              ChatCompletionMessage `json:"message"`
+	LogProbs             any                   `json:"logprobs,omitempty"`
 	FinishReason         any                   `json:"finish_reason,omitempty"`
 	ContentFilterResults any                   `json:"content_filter_results,omitempty"`
 	FinishDetails        any                   `json:"finish_details,omitempty"`

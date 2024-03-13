@@ -183,6 +183,14 @@ func init() {
 		"mistral-medium-latest": {[]float64{1.35, 4.05}, ChannelTypeMistral},   // 2.7$ / 1M tokens	8.1$ / 1M tokens  0.0027$ / 1k tokens
 		"mistral-large-latest":  {[]float64{4, 12}, ChannelTypeMistral},        // 8$ / 1M tokens	24$ / 1M tokens  0.008$ / 1k tokens
 		"mistral-embed":         {[]float64{0.05, 0.05}, ChannelTypeMistral},   // 0.1$ / 1M tokens 0.1$ / 1M tokens  0.0001$ / 1k tokens
+
+		// $0.70/$0.80 /1M Tokens 0.0007$ / 1k tokens
+		"llama2-70b-4096": {[]float64{0.35, 0.4}, ChannelTypeGroq},
+		// $0.10/$0.10 /1M Tokens 0.0001$ / 1k tokens
+		"llama2-7b-2048": {[]float64{0.05, 0.05}, ChannelTypeGroq},
+		"gemma-7b-it":    {[]float64{0.05, 0.05}, ChannelTypeGroq},
+		// $0.27/$0.27 /1M Tokens 0.00027$ / 1k tokens
+		"mixtral-8x7b-32768": {[]float64{0.135, 0.135}, ChannelTypeGroq},
 	}
 
 	ModelRatio = make(map[string][]float64)
