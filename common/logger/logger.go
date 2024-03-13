@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/songquanpeng/one-api/common/config"
 	"io"
 	"log"
 	"os"
@@ -54,7 +55,9 @@ func SysError(s string) {
 }
 
 func Debug(ctx context.Context, msg string) {
-	logHelper(ctx, loggerDEBUG, msg)
+	if config.DebugEnabled {
+		logHelper(ctx, loggerDEBUG, msg)
+	}
 }
 
 func Info(ctx context.Context, msg string) {
