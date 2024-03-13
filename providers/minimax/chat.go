@@ -239,6 +239,9 @@ func (h *minimaxStreamHandler) convertToOpenaiStream(miniResponse *MiniMaxChatRe
 		streamResponse.ID = miniResponse.ID
 		openaiChoice.FinishReason = convertFinishReason(miniChoice.FinishReason)
 		dataChan <- h.getResponseString(&streamResponse, &openaiChoice)
+		if miniResponse.Usage != nil {
+			h.handleUsage(miniResponse)
+		}
 		return
 	}
 
