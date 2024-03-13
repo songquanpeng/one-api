@@ -28,7 +28,8 @@ export default function Log() {
     start_timestamp: 0,
     end_timestamp: new Date().getTime() / 1000 + 3600,
     type: 0,
-    channel: ''
+    channel: '',
+    client_ip: ''
   };
   const [logs, setLogs] = useState([]);
   const [activePage, setActivePage] = useState(0);

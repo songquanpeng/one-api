@@ -425,7 +425,7 @@ const LogsTable = () => {
                 }}
                 width={1}
               >
-                请求IP
+                请求端IP
               </Table.HeaderCell>
               <Table.HeaderCell
                 style={{ cursor: 'pointer' }}
