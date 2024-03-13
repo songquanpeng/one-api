@@ -128,11 +128,13 @@ func init() {
 		// ￥0.008 / 1k tokens
 		"qwen-turbo": {[]float64{0.5715, 0.5715}, ChannelTypeAli},
 		// ￥0.02 / 1k tokens
-		"qwen-plus":            {[]float64{1.4286, 1.4286}, ChannelTypeAli},
-		"qwen-max":             {[]float64{1.4286, 1.4286}, ChannelTypeAli},
-		"qwen-max-longcontext": {[]float64{1.4286, 1.4286}, ChannelTypeAli},
-		"qwen-vl-plus":         {[]float64{0.5715, 0.5715}, ChannelTypeAli},
-		"qwen-vl-max":          {[]float64{0.5715, 0.5715}, ChannelTypeAli},
+		"qwen-plus":   {[]float64{1.4286, 1.4286}, ChannelTypeAli},
+		"qwen-vl-max": {[]float64{1.4286, 1.4286}, ChannelTypeAli},
+		// 0.12元/1,000tokens
+		"qwen-max":             {[]float64{8.5714, 8.5714}, ChannelTypeAli},
+		"qwen-max-longcontext": {[]float64{8.5714, 8.5714}, ChannelTypeAli},
+		// 0.008元/1,000tokens
+		"qwen-vl-plus": {[]float64{0.5715, 0.5715}, ChannelTypeAli},
 		// ￥0.0007 / 1k tokens
 		"text-embedding-v1": {[]float64{0.05, 0.05}, ChannelTypeAli},
 
