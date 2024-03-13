@@ -107,7 +107,7 @@ func GetChannelById(id int, selectAll bool) (*Channel, error) {
 
 func BatchInsertChannels(channels []Channel) error {
 	var err error
-	err = DB.Create(&channels).Error
+	err = DB.Omit("UsedQuota").Create(&channels).Error
 	if err != nil {
 		return err
 	}
@@ -182,7 +182,7 @@ func (channel *Channel) GetModelMapping() string {
 
 func (channel *Channel) Insert() error {
 	var err error
-	err = DB.Create(channel).Error
+	err = DB.Omit("UsedQuota").Create(channel).Error
 	if err != nil {
 		return err
 	}
@@ -192,7 +192,7 @@ func (channel *Channel) Insert() error {
 
 func (channel *Channel) Update() error {
 	var err error
-	err = DB.Model(channel).Updates(channel).Error
+	err = DB.Model(channel).Select("*").Omit("UsedQuota").Updates(channel).Error
 	if err != nil {
 		return err
 	}
