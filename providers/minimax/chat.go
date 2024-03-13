@@ -2,6 +2,7 @@ package minimax
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 	"one-api/common"
 	"one-api/common/requester"
@@ -62,7 +63,7 @@ func (p *MiniMaxProvider) getChatRequest(request *types.ChatCompletionRequest) (
 	// 获取请求地址
 	fullRequestURL := p.GetFullRequestURL(url, request.Model)
 	if fullRequestURL == "" {
-		return nil, common.ErrorWrapper(nil, "invalid_minimax_config", http.StatusInternalServerError)
+		return nil, common.ErrorWrapper(errors.New("API KEY is filled in incorrectly"), "invalid_minimax_config", http.StatusInternalServerError)
 	}
 
 	// 获取请求头
