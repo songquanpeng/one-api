@@ -32,7 +32,7 @@ func CreateSSML(text string, name string, role string) string {
 }
 
 func (p *AzureSpeechProvider) GetVoiceMap() map[string][]string {
-	voiceMap := map[string][]string{
+	defaultVoiceMapping := map[string][]string{
 		"alloy":   {"zh-CN-YunxiNeural"},
 		"echo":    {"zh-CN-YunyangNeural"},
 		"fable":   {"zh-CN-YunxiNeural", "Boy"},
@@ -42,27 +42,27 @@ func (p *AzureSpeechProvider) GetVoiceMap() map[string][]string {
 	}
 
 	if p.Channel.Plugin == nil {
-		return voiceMap
+		return defaultVoiceMapping
 	}
 
-	customizeMap, ok := p.Channel.Plugin.Data()["voice"]
+	customVoiceMapping, ok := p.Channel.Plugin.Data()["voice"]
 	if !ok {
-		return voiceMap
+		return defaultVoiceMapping
 	}
 
-	for k, v := range customizeMap {
-		if _, ok := voiceMap[k]; !ok {
+	for key, value := range customVoiceMapping {
+		if _, exists := defaultVoiceMapping[key]; !exists {
 			continue
 		}
-		customizeValue, ok := v.(string)
-		if !ok {
+		customVoiceValue, isString := value.(string)
+		if !isString || customVoiceValue == "" {
 			continue
 		}
-		customizeVoice := strings.Split(customizeValue, "|")
-		voiceMap[k] = customizeVoice
+		customizeVoice := strings.Split(customVoiceValue, "|")
+		defaultVoiceMapping[key] = customizeVoice
 	}
 
-	return voiceMap
+	return defaultVoiceMapping
 }
 
 func (p *AzureSpeechProvider) getRequestBody(request *types.SpeechAudioRequest) *bytes.Buffer {
