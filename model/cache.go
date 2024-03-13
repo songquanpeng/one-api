@@ -71,7 +71,7 @@ func CacheGetUserGroup(id int) (group string, err error) {
 	return group, err
 }
 
-func fetchAndUpdateUserQuota(ctx context.Context, id int) (quota int, err error) {
+func fetchAndUpdateUserQuota(ctx context.Context, id int) (quota int64, err error) {
 	quota, err = GetUserQuota(id)
 	if err != nil {
 		return 0, err
@@ -83,7 +83,7 @@ func fetchAndUpdateUserQuota(ctx context.Context, id int) (quota int, err error)
 	return
 }
 
-func CacheGetUserQuota(ctx context.Context, id int) (quota int, err error) {
+func CacheGetUserQuota(ctx context.Context, id int) (quota int64, err error) {
 	if !common.RedisEnabled {
 		return GetUserQuota(id)
 	}
@@ -91,7 +91,7 @@ func CacheGetUserQuota(ctx context.Context, id int) (quota int, err error) {
 	if err != nil {
 		return fetchAndUpdateUserQuota(ctx, id)
 	}
-	quota, err = strconv.Atoi(quotaString)
+	quota, err = strconv.ParseInt(quotaString, 10, 64)
 	if err != nil {
 		return 0, nil
 	}
@@ -114,7 +114,7 @@ func CacheUpdateUserQuota(ctx context.Context, id int) error {
 	return err
 }
 
-func CacheDecreaseUserQuota(id int, quota int) error {
+func CacheDecreaseUserQuota(id int, quota int64) error {
 	if !common.RedisEnabled {
 		return nil
 	}

@@ -50,14 +50,14 @@ func RelayAudioHelper(c *gin.Context, relayMode int) *relaymodel.ErrorWithStatus
 	modelRatio := common.GetModelRatio(audioModel)
 	groupRatio := common.GetGroupRatio(group)
 	ratio := modelRatio * groupRatio
-	var quota int
-	var preConsumedQuota int
+	var quota int64
+	var preConsumedQuota int64
 	switch relayMode {
 	case constant.RelayModeAudioSpeech:
-		preConsumedQuota = int(float64(len(ttsRequest.Input)) * ratio)
+		preConsumedQuota = int64(float64(len(ttsRequest.Input)) * ratio)
 		quota = preConsumedQuota
 	default:
-		preConsumedQuota = int(float64(config.PreConsumedQuota) * ratio)
+		preConsumedQuota = int64(float64(config.PreConsumedQuota) * ratio)
 	}
 	userQuota, err := model.CacheGetUserQuota(ctx, userId)
 	if err != nil {
@@ -184,7 +184,7 @@ func RelayAudioHelper(c *gin.Context, relayMode int) *relaymodel.ErrorWithStatus
 		if err != nil {
 			return openai.ErrorWrapper(err, "get_text_from_body_err", http.StatusInternalServerError)
 		}
-		quota = openai.CountTokenText(text, audioModel)
+		quota = int64(openai.CountTokenText(text, audioModel))
 		resp.Body = io.NopCloser(bytes.NewBuffer(responseBody))
 	}
 	if resp.StatusCode != http.StatusOK {
