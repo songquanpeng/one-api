@@ -35,8 +35,15 @@ func ShouldDisableChannel(err *relaymodel.Error, statusCode int) bool {
 		return true
 	case "permission_error":
 		return true
+	case "forbidden":
+		return true
 	}
 	if err.Code == "invalid_api_key" || err.Code == "account_deactivated" {
+		return true
+	}
+	if strings.HasPrefix(err.Message, "Your credit balance is too low") { // anthropic
+		return true
+	} else if strings.HasPrefix(err.Message, "This organization has been disabled.") {
 		return true
 	}
 	return false
