@@ -7,7 +7,6 @@ on:
     tags:
       - '*'
       - '!*-alpha*'
-      - '!*-pro*'
   workflow_dispatch:
     inputs:
       name:
@@ -21,6 +20,12 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
+      - name: Check repository URL
+        run: |
+          REPO_URL=$(git config --get remote.origin.url)
+          if [[ $REPO_URL == *"pro" ]]; then
+            exit 1
+          fi
       - uses: actions/setup-node@v3
         with:
           node-version: 16
