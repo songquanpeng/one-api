@@ -32,6 +32,9 @@ func (a *Adaptor) GetRequestURL(meta *util.RelayMeta) (string, error) {
 
 func (a *Adaptor) SetupRequestHeader(c *gin.Context, req *http.Request, meta *util.RelayMeta) error {
 	channel.SetupCommonRequestHeader(c, req, meta)
+	if meta.IsStream {
+		req.Header.Set("Accept", "text/event-stream")
+	}
 	req.Header.Set("Authorization", "Bearer "+meta.APIKey)
 	if meta.IsStream {
 		req.Header.Set("X-DashScope-SSE", "enable")
