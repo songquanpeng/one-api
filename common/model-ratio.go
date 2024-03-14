@@ -69,7 +69,7 @@ var ModelRatio = map[string]float64{
 	"claude-instant-1.2":       0.8 / 1000 * USD,
 	"claude-2.0":               8.0 / 1000 * USD,
 	"claude-2.1":               8.0 / 1000 * USD,
-	"claude-3-haiku-20240229":  0.25 / 1000 * USD,
+	"claude-3-haiku-20240307":  0.25 / 1000 * USD,
 	"claude-3-sonnet-20240229": 3.0 / 1000 * USD,
 	"claude-3-opus-20240229":   15.0 / 1000 * USD,
 	// https://cloud.baidu.com/doc/WENXINWORKSHOP/s/hlrk4akp7
