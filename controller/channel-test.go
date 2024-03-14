@@ -30,7 +30,7 @@ import (
 
 func buildTestRequest() *relaymodel.GeneralOpenAIRequest {
 	testRequest := &relaymodel.GeneralOpenAIRequest{
-		MaxTokens: 1,
+		MaxTokens: 2,
 		Stream:    false,
 		Model:     "gpt-3.5-turbo",
 	}
