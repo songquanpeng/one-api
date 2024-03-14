@@ -169,6 +169,9 @@ const typeConfig = {
   30: {
     modelGroup: "ollama",
   },
+  31: {
+    modelGroup: "lingyiwanwu",
+  },
 };
 
 export { defaultConfig, typeConfig };
