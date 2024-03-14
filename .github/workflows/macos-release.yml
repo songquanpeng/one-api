@@ -24,7 +24,7 @@ jobs:
         run: |
           REPO_URL=$(git config --get remote.origin.url)
           if [[ $REPO_URL == *"pro" ]]; then
-            exit 1
+            exit 0
           fi
       - uses: actions/setup-node@v3
         with:
