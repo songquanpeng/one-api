@@ -3,14 +3,15 @@ package baidu
 import (
 	"errors"
 	"fmt"
+	"io"
+	"net/http"
+	"strings"
+
 	"github.com/gin-gonic/gin"
 	"github.com/songquanpeng/one-api/relay/channel"
 	"github.com/songquanpeng/one-api/relay/constant"
 	"github.com/songquanpeng/one-api/relay/model"
 	"github.com/songquanpeng/one-api/relay/util"
-	"io"
-	"net/http"
-	"strings"
 )
 
 type Adaptor struct {
@@ -23,7 +24,13 @@ func (a *Adaptor) Init(meta *util.RelayMeta) {
 func (a *Adaptor) GetRequestURL(meta *util.RelayMeta) (string, error) {
 	// https://cloud.baidu.com/doc/WENXINWORKSHOP/s/clntwmv7t
 	suffix := "chat/"
-	if strings.HasPrefix("Embedding", meta.ActualModelName) {
+	if strings.HasPrefix(meta.ActualModelName, "Embedding") {
+		suffix = "embeddings/"
+	}
+	if strings.HasPrefix(meta.ActualModelName, "bge-large") {
+		suffix = "embeddings/"
+	}
+	if strings.HasPrefix(meta.ActualModelName, "tao-8k") {
 		suffix = "embeddings/"
 	}
 	switch meta.ActualModelName {
@@ -45,6 +52,12 @@ func (a *Adaptor) GetRequestURL(meta *util.RelayMeta) (string, error) {
 		suffix += "bloomz_7b1"
 	case "Embedding-V1":
 		suffix += "embedding-v1"
+	case "bge-large-zh":
+		suffix += "bge_large_zh"
+	case "bge-large-en":
+		suffix += "bge_large_en"
+	case "tao-8k":
+		suffix += "tao_8k"
 	default:
 		suffix += meta.ActualModelName
 	}
