@@ -92,6 +92,8 @@ func SetupContextForSelectedChannel(c *gin.Context, channel *model.Channel, mode
 	c.Set("original_model", modelName) // for retry
 	c.Request.Header.Set("Authorization", fmt.Sprintf("Bearer %s", channel.Key))
 	c.Set("base_url", channel.GetBaseURL())
+	c.Set("ak", channel.AK)
+	c.Set("sk", channel.SK)
 	// this is for backward compatibility
 	switch channel.Type {
 	case common.ChannelTypeAzure:

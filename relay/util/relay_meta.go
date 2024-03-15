@@ -26,6 +26,8 @@ type RelayMeta struct {
 	ActualModelName string
 	RequestURLPath  string
 	PromptTokens    int // only for DoResponse
+	AK              string
+	SK              string
 }
 
 func GetRelayMeta(c *gin.Context) *RelayMeta {
@@ -47,6 +49,12 @@ func GetRelayMeta(c *gin.Context) *RelayMeta {
 	if meta.ChannelType == common.ChannelTypeAzure {
 		meta.APIVersion = GetAzureAPIVersion(c)
 	}
+
+	if meta.ChannelType == common.ChannelTypeLark {
+		meta.AK = c.GetString("ak")
+		meta.SK = c.GetString("sk")
+	}
+
 	if meta.BaseURL == "" {
 		meta.BaseURL = common.ChannelBaseURLs[meta.ChannelType]
 	}

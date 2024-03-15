@@ -36,6 +36,8 @@ func GetCompatibleChannelMeta(channelType int) (string, []string) {
 		return "mistralai", mistral.ModelList
 	case common.ChannelTypeGroq:
 		return "groq", groq.ModelList
+	//case common.ChannelTypeLark:
+	//	return "lark", lark.ModelList
 	default:
 		return "openai", ModelList
 	}

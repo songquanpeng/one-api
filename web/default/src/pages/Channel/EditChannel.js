@@ -44,6 +44,8 @@ const EditChannel = () => {
     other: '',
     model_mapping: '',
     models: [],
+    ak:'',
+    sk:'',
     groups: ['default']
   };
   const [batch, setBatch] = useState(false);
@@ -143,7 +145,7 @@ const EditChannel = () => {
   }, []);
 
   const submit = async () => {
-    if (!isEdit && (inputs.name === '' || inputs.key === '')) {
+    if (!isEdit && (inputs.name === '')) {
       showInfo('请填写渠道名称和渠道密钥！');
       return;
     }
@@ -155,6 +157,7 @@ const EditChannel = () => {
       showInfo('模型映射必须是合法的 JSON 格式！');
       return;
     }
+    debugger;
     let localInputs = inputs;
     if (localInputs.base_url && localInputs.base_url.endsWith('/')) {
       localInputs.base_url = localInputs.base_url.slice(0, localInputs.base_url.length - 1);
@@ -168,6 +171,7 @@ const EditChannel = () => {
     let res;
     localInputs.models = localInputs.models.join(',');
     localInputs.group = localInputs.groups.join(',');
+    console.log(localInputs)
     if (isEdit) {
       res = await API.put(`/api/channel/`, { ...localInputs, id: parseInt(channelId) });
     } else {
@@ -390,29 +394,48 @@ const EditChannel = () => {
               autoComplete='new-password'
             />
           </Form.Field>
+          {inputs.type === 32 &&(
+              <Form.Field>
+                <Form.Input
+                    label='ak'
+                    name='ak'
+                    placeholder={type2secretPrompt(inputs.type)}
+                    onChange={handleInputChange}
+                    value={inputs.ak}
+                />
+                <Form.Input
+                    label='sk'
+                    name='sk'
+                    onChange={handleInputChange}
+                    placeholder={type2secretPrompt(inputs.type)}
+                    value={inputs.sk}
+                />
+              </Form.Field>
+          )
+          }
           {
-            batch ? <Form.Field>
-              <Form.TextArea
-                label='密钥'
-                name='key'
-                required
-                placeholder={'请输入密钥，一行一个'}
-                onChange={handleInputChange}
-                value={inputs.key}
-                style={{ minHeight: 150, fontFamily: 'JetBrains Mono, Consolas' }}
-                autoComplete='new-password'
-              />
-            </Form.Field> : <Form.Field>
-              <Form.Input
-                label='密钥'
-                name='key'
-                required
-                placeholder={type2secretPrompt(inputs.type)}
-                onChange={handleInputChange}
-                value={inputs.key}
-                autoComplete='new-password'
-              />
-            </Form.Field>
+          inputs.type !== 32 &&(
+              batch ? <Form.Field>
+                  <Form.TextArea
+                      label='密钥'
+                      name='key'
+                      placeholder={'请输入密钥，一行一个'}
+                      onChange={handleInputChange}
+                      value={inputs.key}
+                      style={{ minHeight: 150, fontFamily: 'JetBrains Mono, Consolas' }}
+                      autoComplete='new-password'
+                  />
+              </Form.Field> : <Form.Field>
+                  <Form.Input
+                      label='密钥'
+                      name='key'
+                      placeholder={type2secretPrompt(inputs.type)}
+                      onChange={handleInputChange}
+                      value={inputs.key}
+                      autoComplete='new-password'
+                  />
+              </Form.Field>
+            )
           }
           {
             !isEdit && (

@@ -85,16 +85,21 @@ func AddChannel(c *gin.Context) {
 		return
 	}
 	channel.CreatedTime = helper.GetTimestamp()
-	keys := strings.Split(channel.Key, "\n")
-	channels := make([]model.Channel, 0, len(keys))
-	for _, key := range keys {
-		if key == "" {
-			continue
+	var channels []model.Channel
+	if channel.AK != "" {
+		channels = append(channels, channel)
+	} else {
+		keys := strings.Split(channel.Key, "\n")
+		for _, key := range keys {
+			if key == "" {
+				continue
+			}
+			localChannel := channel
+			localChannel.Key = key
+			channels = append(channels, localChannel)
 		}
-		localChannel := channel
-		localChannel.Key = key
-		channels = append(channels, localChannel)
 	}
+
 	err = model.BatchInsertChannels(channels)
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{

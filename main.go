@@ -21,6 +21,7 @@ import (
 //go:embed web/build/*
 var buildFS embed.FS
 
+// SQL_DSN=root:8ql6,Yhy@tcp(127.0.0.1:3306)/oneapi
 func main() {
 	logger.SetupLogger()
 	logger.SysLog(fmt.Sprintf("One API %s started", common.Version))
