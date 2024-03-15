@@ -33,6 +33,32 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/')
         run: |
           git describe --tags > VERSION
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+      - name: Build Frontend
+        env:
+          CI: ""
+        run: |
+          export VERSION=$(cat VERSION)
+          cd web
+          npm install
+          REACT_APP_VERSION=$VERSION npm run build
+          cd ..
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: ">=1.18.0"
+      - name: Build Backend (amd64)
+        run: |
+          go mod download
+          go build -ldflags "-s -w -X 'one-api/common.Version=$(cat VERSION)' -extldflags '-static'" -o one-api-amd64
+
+      - name: Build Backend (arm64)
+        run: |
+          sudo apt-get update
+          sudo apt-get install gcc-aarch64-linux-gnu
+          CC=aarch64-linux-gnu-gcc CGO_ENABLED=1 GOOS=linux GOARCH=arm64 go build -ldflags "-s -w -X 'one-api/common.Version=$(cat VERSION)' -extldflags '-static'" -o one-api-arm64
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
 
@@ -71,7 +97,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: .
-          platforms: linux/amd64
+          platforms: linux/amd64,linux/arm64
           build-args: |
             COMMIT_SHA=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.revision'] }}
           push: true
@@ -79,3 +105,4 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          file: Dockerfile-action
