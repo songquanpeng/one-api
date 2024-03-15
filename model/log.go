@@ -45,7 +45,7 @@ func RecordLog(userId int, logType int, content string) {
 		Type:      logType,
 		Content:   content,
 	}
-	err := DB.Create(log).Error
+	err := LOG_DB.Create(log).Error
 	if err != nil {
 		logger.SysError("failed to record log: " + err.Error())
 	}
@@ -69,7 +69,7 @@ func RecordConsumeLog(ctx context.Context, userId int, channelId int, promptToke
 		Quota:            int(quota),
 		ChannelId:        channelId,
 	}
-	err := DB.Create(log).Error
+	err := LOG_DB.Create(log).Error
 	if err != nil {
 		logger.Error(ctx, "failed to record log: "+err.Error())
 	}
@@ -78,9 +78,9 @@ func RecordConsumeLog(ctx context.Context, userId int, channelId int, promptToke
 func GetAllLogs(logType int, startTimestamp int64, endTimestamp int64, modelName string, username string, tokenName string, startIdx int, num int, channel int) (logs []*Log, err error) {
 	var tx *gorm.DB
 	if logType == LogTypeUnknown {
-		tx = DB
+		tx = LOG_DB
 	} else {
-		tx = DB.Where("type = ?", logType)
+		tx = LOG_DB.Where("type = ?", logType)
 	}
 	if modelName != "" {
 		tx = tx.Where("model_name = ?", modelName)
@@ -107,9 +107,9 @@ func GetAllLogs(logType int, startTimestamp int64, endTimestamp int64, modelName
 func GetUserLogs(userId int, logType int, startTimestamp int64, endTimestamp int64, modelName string, tokenName string, startIdx int, num int) (logs []*Log, err error) {
 	var tx *gorm.DB
 	if logType == LogTypeUnknown {
-		tx = DB.Where("user_id = ?", userId)
+		tx = LOG_DB.Where("user_id = ?", userId)
 	} else {
-		tx = DB.Where("user_id = ? and type = ?", userId, logType)
+		tx = LOG_DB.Where("user_id = ? and type = ?", userId, logType)
 	}
 	if modelName != "" {
 		tx = tx.Where("model_name = ?", modelName)
@@ -128,17 +128,17 @@ func GetUserLogs(userId int, logType int, startTimestamp int64, endTimestamp int
 }
 
 func SearchAllLogs(keyword string) (logs []*Log, err error) {
-	err = DB.Where("type = ? or content LIKE ?", keyword, keyword+"%").Order("id desc").Limit(config.MaxRecentItems).Find(&logs).Error
+	err = LOG_DB.Where("type = ? or content LIKE ?", keyword, keyword+"%").Order("id desc").Limit(config.MaxRecentItems).Find(&logs).Error
 	return logs, err
 }
 
 func SearchUserLogs(userId int, keyword string) (logs []*Log, err error) {
-	err = DB.Where("user_id = ? and type = ?", userId, keyword).Order("id desc").Limit(config.MaxRecentItems).Omit("id").Find(&logs).Error
+	err = LOG_DB.Where("user_id = ? and type = ?", userId, keyword).Order("id desc").Limit(config.MaxRecentItems).Omit("id").Find(&logs).Error
 	return logs, err
 }
 
 func SumUsedQuota(logType int, startTimestamp int64, endTimestamp int64, modelName string, username string, tokenName string, channel int) (quota int64) {
-	tx := DB.Table("logs").Select("ifnull(sum(quota),0)")
+	tx := LOG_DB.Table("logs").Select("ifnull(sum(quota),0)")
 	if username != "" {
 		tx = tx.Where("username = ?", username)
 	}
@@ -162,7 +162,7 @@ func SumUsedQuota(logType int, startTimestamp int64, endTimestamp int64, modelNa
 }
 
 func SumUsedToken(logType int, startTimestamp int64, endTimestamp int64, modelName string, username string, tokenName string) (token int) {
-	tx := DB.Table("logs").Select("ifnull(sum(prompt_tokens),0) + ifnull(sum(completion_tokens),0)")
+	tx := LOG_DB.Table("logs").Select("ifnull(sum(prompt_tokens),0) + ifnull(sum(completion_tokens),0)")
 	if username != "" {
 		tx = tx.Where("username = ?", username)
 	}
@@ -183,7 +183,7 @@ func SumUsedToken(logType int, startTimestamp int64, endTimestamp int64, modelNa
 }
 
 func DeleteOldLog(targetTimestamp int64) (int64, error) {
-	result := DB.Where("created_at < ?", targetTimestamp).Delete(&Log{})
+	result := LOG_DB.Where("created_at < ?", targetTimestamp).Delete(&Log{})
 	return result.RowsAffected, result.Error
 }
 
@@ -207,7 +207,7 @@ func SearchLogsByDayAndModel(userId, start, end int) (LogStatistics []*LogStatis
 		groupSelect = "strftime('%Y-%m-%d', datetime(created_at, 'unixepoch')) as day"
 	}
 
-	err = DB.Raw(`
+	err = LOG_DB.Raw(`
 		SELECT `+groupSelect+`,
 		model_name, count(1) as request_count,
 		sum(quota) as quota,

@@ -30,10 +30,24 @@ func main() {
 	if config.DebugEnabled {
 		logger.SysLog("running in debug mode")
 	}
+	var err error
 	// Initialize SQL Database
-	err := model.InitDB()
+	model.DB, err = model.InitDB("SQL_DSN")
 	if err != nil {
 		logger.FatalLog("failed to initialize database: " + err.Error())
+	}
+	if os.Getenv("LOG_SQL_DSN") != "" {
+		logger.SysLog("using secondary database for table logs")
+		model.LOG_DB, err = model.InitDB("LOG_SQL_DSN")
+		if err != nil {
+			logger.FatalLog("failed to initialize secondary database: " + err.Error())
+		}
+	} else {
+		model.LOG_DB = model.DB
+	}
+	err = model.CreateRootAccountIfNeed()
+	if err != nil {
+		logger.FatalLog("database init error: " + err.Error())
 	}
 	defer func() {
 		err := model.CloseDB()

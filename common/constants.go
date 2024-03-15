@@ -70,6 +70,7 @@ const (
 	ChannelTypeMistral
 	ChannelTypeGroq
 	ChannelTypeOllama
+	ChannelTypeLingYiWanWu
 
 	ChannelTypeDummy
 )
@@ -106,6 +107,7 @@ var ChannelBaseURLs = []string{
 	"https://api.mistral.ai",                    // 28
 	"https://api.groq.com/openai",               // 29
 	"http://localhost:11434",                    // 30
+	"https://api.lingyiwanwu.com",               // 31
 }
 
 const (

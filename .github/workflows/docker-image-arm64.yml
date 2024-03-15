@@ -5,7 +5,6 @@ on:
     tags:
       - '*'
       - '!*-alpha*'
-      - '!*-pro*'
   workflow_dispatch:
     inputs:
       name:
@@ -21,6 +20,13 @@ jobs:
     steps:
       - name: Check out the repo
         uses: actions/checkout@v3
+
+      - name: Check repository URL
+        run: |
+          REPO_URL=$(git config --get remote.origin.url)
+          if [[ $REPO_URL == *"pro" ]]; then
+            exit 0
+          fi
 
       - name: Save version info
         run: |
