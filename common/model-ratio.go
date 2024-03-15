@@ -31,7 +31,7 @@ var ModelRatio = map[string]float64{
 	"gpt-4-0125-preview":      5,    // $0.01 / 1K tokens
 	"gpt-4-turbo-preview":     5,    // $0.01 / 1K tokens
 	"gpt-4-vision-preview":    5,    // $0.01 / 1K tokens
-	"gpt-3.5-turbo":           0.75, // $0.0015 / 1K tokens
+	"gpt-3.5-turbo":           0.25, // $0.0005 / 1K tokens
 	"gpt-3.5-turbo-0301":      0.75,
 	"gpt-3.5-turbo-0613":      0.75,
 	"gpt-3.5-turbo-16k":       1.5, // $0.003 / 1K tokens
@@ -224,22 +224,13 @@ func GetCompletionRatio(name string) float64 {
 		return ratio
 	}
 	if strings.HasPrefix(name, "gpt-3.5") {
-		if strings.HasSuffix(name, "0125") {
+		if name == "gpt-3.5-turbo" || strings.HasSuffix(name, "0125") {
 			// https://openai.com/blog/new-embedding-models-and-api-updates
 			// Updated GPT-3.5 Turbo model and lower pricing
 			return 3
 		}
 		if strings.HasSuffix(name, "1106") {
 			return 2
-		}
-		if name == "gpt-3.5-turbo" || name == "gpt-3.5-turbo-16k" {
-			// TODO: clear this after 2023-12-11
-			now := time.Now()
-			// https://platform.openai.com/docs/models/continuous-model-upgrades
-			// if after 2023-12-11, use 2
-			if now.After(time.Date(2023, 12, 11, 0, 0, 0, 0, time.UTC)) {
-				return 2
-			}
 		}
 		return 4.0 / 3.0
 	}
