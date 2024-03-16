@@ -25,10 +25,21 @@ type Token struct {
 	UsedQuota      int64  `json:"used_quota" gorm:"default:0"` // used quota
 }
 
-func GetAllUserTokens(userId int, startIdx int, num int) ([]*Token, error) {
+func GetAllUserTokens(userId int, startIdx int, num int, order string) ([]*Token, error) {
 	var tokens []*Token
 	var err error
-	err = DB.Where("user_id = ?", userId).Order("id desc").Limit(num).Offset(startIdx).Find(&tokens).Error
+	query := DB.Where("user_id = ?", userId)
+	
+	switch order {
+	case "remain_quota":
+		query = query.Order("unlimited_quota desc, remain_quota desc")
+	case "used_quota":
+		query = query.Order("used_quota desc")
+	default:
+		query = query.Order("id desc")
+	}
+	
+	err = query.Limit(num).Offset(startIdx).Find(&tokens).Error
 	return tokens, err
 }
 
