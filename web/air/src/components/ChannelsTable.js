@@ -631,7 +631,7 @@ const ChannelsTable = () => {
               title="确定？"
               okType={'warning'}
               onConfirm={() => { testChannels("all") }}
-              position={isMobile() ? 'top' : 'top'}
+              position={isMobile() ? 'top' : 'left'}
             >
               <Button theme="light" type="warning" style={{ marginRight: 8 }}>测试所有通道</Button>
             </Popconfirm>
@@ -639,7 +639,7 @@ const ChannelsTable = () => {
               title="确定？"
               okType={'warning'}
               onConfirm={() => { testChannels("disabled") }}
-              position={isMobile() ? 'top' : 'top'}
+              position={isMobile() ? 'top' : 'left'}
             >
               <Button theme="light" type="warning" style={{ marginRight: 8 }}>测试禁用渠道</Button>
             </Popconfirm>
@@ -655,6 +655,7 @@ const ChannelsTable = () => {
               content="此修改将不可逆"
               okType={'danger'}
               onConfirm={deleteAllDisabledChannels}
+              position={isMobile() ? 'top' : 'left'}
             >
               <Button theme="light" type="danger" style={{ marginRight: 8 }}>删除禁用通道</Button>
             </Popconfirm>
