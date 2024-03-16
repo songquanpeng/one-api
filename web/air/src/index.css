@@ -103,3 +103,14 @@ code {
         display: none !important;
     }
 }
+
+
+/* 隐藏浏览器默认的滚动条 */
+body {
+    overflow: hidden;
+}
+
+/* 自定义滚动条样式 */
+body::-webkit-scrollbar {
+    width: 0;  /* 隐藏滚动条的宽度 */
+}
