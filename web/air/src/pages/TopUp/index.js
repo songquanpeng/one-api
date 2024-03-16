@@ -244,7 +244,7 @@ const TopUp = () => {
                                     </Space>
                                 </Form>
                             </div>
-                            <div style={{marginTop: 20}}>
+                            {/* <div style={{marginTop: 20}}>
                                 <Divider>
                                     在线充值
                                 </Divider>
@@ -291,7 +291,7 @@ const TopUp = () => {
                                         </Button>
                                     </Space>
                                 </Form>
-                            </div>
+                            </div> */}
                             {/*<div style={{ display: 'flex', justifyContent: 'right' }}>*/}
                             {/*    <Text>*/}
                             {/*        <Link onClick={*/}
