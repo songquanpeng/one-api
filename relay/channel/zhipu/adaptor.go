@@ -9,6 +9,7 @@ import (
 	"github.com/songquanpeng/one-api/relay/model"
 	"github.com/songquanpeng/one-api/relay/util"
 	"io"
+	"math"
 	"net/http"
 	"strings"
 )
@@ -52,9 +53,13 @@ func (a *Adaptor) ConvertRequest(c *gin.Context, relayMode int, request *model.G
 	if request == nil {
 		return nil, errors.New("request is nil")
 	}
-	if request.TopP >= 1 {
-		request.TopP = 0.99
-	}
+	// TopP (0.0, 1.0)
+	request.TopP = math.Min(0.99, request.TopP)
+	request.TopP = math.Max(0.01, request.TopP)
+
+	// Temperature (0.0, 1.0)
+	request.Temperature = math.Min(0.99, request.Temperature)
+	request.Temperature = math.Max(0.01, request.Temperature)
 	a.SetVersionByModeName(request.Model)
 	if a.APIVersion == "v4" {
 		return request, nil
