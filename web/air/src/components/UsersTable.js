@@ -46,72 +46,72 @@ const UsersTable = () => {
         </Space>
       </div>);
     }
-  }, {
-    title: '邀请信息', dataIndex: 'invite', render: (text, record, index) => {
-      return (<div>
-        <Space spacing={1}>
-          <Tooltip content={'邀请人数'}>
-            <Tag color="white" size="large">{renderNumber(record.aff_count)}</Tag>
-          </Tooltip>
-          <Tooltip content={'邀请总收益'}>
-            <Tag color="white" size="large">{renderQuota(record.aff_history_quota)}</Tag>
-          </Tooltip>
-          <Tooltip content={'邀请人ID'}>
-            {record.inviter_id === 0 ? <Tag color="white" size="large">无</Tag> :
-              <Tag color="white" size="large">{record.inviter_id}</Tag>}
-          </Tooltip>
-        </Space>
-      </div>);
-    }
-  }, {
+  },
+  // {
+  //   title: '邀请信息', dataIndex: 'invite', render: (text, record, index) => {
+  //     return (<div>
+  //       <Space spacing={1}>
+  //         <Tooltip content={'邀请人数'}>
+  //           <Tag color="white" size="large">{renderNumber(record.aff_count)}</Tag>
+  //         </Tooltip>
+  //         <Tooltip content={'邀请总收益'}>
+  //           <Tag color="white" size="large">{renderQuota(record.aff_history_quota)}</Tag>
+  //         </Tooltip>
+  //         <Tooltip content={'邀请人ID'}>
+  //           {record.inviter_id === 0 ? <Tag color="white" size="large">无</Tag> :
+  //             <Tag color="white" size="large">{record.inviter_id}</Tag>}
+  //         </Tooltip>
+  //       </Space>
+  //     </div>);
+  //   }
+  // },
+  {
     title: '角色', dataIndex: 'role', render: (text, record, index) => {
       return (<div>
         {renderRole(text)}
       </div>);
     }
-  }, {
+  },
+  {
     title: '状态', dataIndex: 'status', render: (text, record, index) => {
       return (<div>
-        {record.DeletedAt !== null ? <Tag color="red">已注销</Tag> : renderStatus(text)}
+        {renderStatus(text)}
       </div>);
     }
-  }, {
+  },
+  {
     title: '', dataIndex: 'operate', render: (text, record, index) => (<div>
-      {
-        record.DeletedAt !== null ? <></> :
-          <>
-            <Popconfirm
-              title="确定？"
-              okType={'warning'}
-              onConfirm={() => {
-                manageUser(record.username, 'promote', record);
-              }}
-            >
-              <Button theme="light" type="warning" style={{ marginRight: 1 }}>提升</Button>
-            </Popconfirm>
-            <Popconfirm
-              title="确定？"
-              okType={'warning'}
-              onConfirm={() => {
-                manageUser(record.username, 'demote', record);
-              }}
-            >
-              <Button theme="light" type="secondary" style={{ marginRight: 1 }}>降级</Button>
-            </Popconfirm>
-            {record.status === 1 ?
-              <Button theme="light" type="warning" style={{ marginRight: 1 }} onClick={async () => {
-                manageUser(record.username, 'disable', record);
-              }}>禁用</Button> :
-              <Button theme="light" type="secondary" style={{ marginRight: 1 }} onClick={async () => {
-                manageUser(record.username, 'enable', record);
-              }} disabled={record.status === 3}>启用</Button>}
-            <Button theme="light" type="tertiary" style={{ marginRight: 1 }} onClick={() => {
-              setEditingUser(record);
-              setShowEditUser(true);
-            }}>编辑</Button>
-          </>
-
-      }
+      <>
+        <Popconfirm
+          title="确定？"
+          okType={'warning'}
+          onConfirm={() => {
+            manageUser(record.username, 'promote', record);
+          }}
+        >
+          <Button theme="light" type="warning" style={{ marginRight: 1 }}>提升</Button>
+        </Popconfirm>
+        <Popconfirm
+          title="确定？"
+          okType={'warning'}
+          onConfirm={() => {
+            manageUser(record.username, 'demote', record);
+          }}
+        >
+          <Button theme="light" type="secondary" style={{ marginRight: 1 }}>降级</Button>
+        </Popconfirm>
+        {record.status === 1 ?
+          <Button theme="light" type="warning" style={{ marginRight: 1 }} onClick={async () => {
+            manageUser(record.username, 'disable', record);
+          }}>禁用</Button> :
+          <Button theme="light" type="secondary" style={{ marginRight: 1 }} onClick={async () => {
+            manageUser(record.username, 'enable', record);
+          }} disabled={record.status === 3}>启用</Button>}
+        <Button theme="light" type="tertiary" style={{ marginRight: 1 }} onClick={() => {
+          setEditingUser(record);
+          setShowEditUser(true);
+        }}>编辑</Button>
+      </>
       <Popconfirm
         title="确定是否要删除此用户？"
         content="硬删除，此修改将不可逆"
@@ -305,7 +305,7 @@ const UsersTable = () => {
     <>
       <AddUser refresh={refresh} visible={showAddUser} handleClose={closeAddUser}></AddUser>
       <EditUser refresh={refresh} visible={showEditUser} handleClose={closeEditUser}
-                editingUser={editingUser}></EditUser>
+        editingUser={editingUser}></EditUser>
       <Form onSubmit={searchUsers}>
         <Form.Input
           label="搜索关键字"
