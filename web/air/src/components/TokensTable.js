@@ -532,14 +532,14 @@ const TokensTable = () => {
           loading={searching}
           onChange={handleKeywordChange}
         />
-        <Form.Input
+        {/* <Form.Input
           field="token"
           label="Key"
           placeholder="密钥"
           value={searchToken}
           loading={searching}
           onChange={handleSearchTokenChange}
-        />
+        /> */}
         <Button label="查询" type="primary" htmlType="submit" className="btn-margin-right"
                 onClick={searchTokens} style={{ marginRight: 8 }}>查询</Button>
       </Form>
