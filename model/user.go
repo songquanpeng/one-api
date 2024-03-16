@@ -40,9 +40,22 @@ func GetMaxUserId() int {
 	return user.Id
 }
 
-func GetAllUsers(startIdx int, num int) (users []*User, err error) {
-	err = DB.Order("id desc").Limit(num).Offset(startIdx).Omit("password").Where("status != ?", common.UserStatusDeleted).Find(&users).Error
-	return users, err
+func GetAllUsers(startIdx int, num int, order string) (users []*User, err error) {
+    query := DB.Limit(num).Offset(startIdx).Omit("password").Where("status != ?", common.UserStatusDeleted)
+    
+    switch order {
+    case "quota":
+        query = query.Order("quota desc")
+    case "used_quota":
+        query = query.Order("used_quota desc")
+    case "request_count":
+        query = query.Order("request_count desc")
+    default:
+        query = query.Order("id desc")
+    }
+    
+    err = query.Find(&users).Error
+    return users, err
 }
 
 func SearchUsers(keyword string) (users []*User, err error) {
