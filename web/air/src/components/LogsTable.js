@@ -71,7 +71,7 @@ const LogsTable = () => {
     render: (text, record, index) => {
       return (isAdminUser ? <div>
         <Avatar size="small" color={stringToColor(text)} style={{ marginRight: 4 }}
-                onClick={() => showUserInfo(record.user_id)}>
+          onClick={() => showUserInfo(record.user_id)}>
           {typeof text === 'string' && text.slice(0, 1)}
         </Avatar>
         {text}
@@ -99,16 +99,18 @@ const LogsTable = () => {
         }}> {text} </Tag>
       </div> : <></>);
     }
-  }, {
-    title: '用时', dataIndex: 'use_time', render: (text, record, index) => {
-      return (<div>
-        <Space>
-          {renderUseTime(text)}
-          {renderIsStream(record.is_stream)}
-        </Space>
-      </div>);
-    }
-  }, {
+  },
+  // {
+  //   title: '用时', dataIndex: 'use_time', render: (text, record, index) => {
+  //     return (<div>
+  //       <Space>
+  //         {renderUseTime(text)}
+  //         {renderIsStream(record.is_stream)}
+  //       </Space>
+  //     </div>);
+  //   }
+  // },
+  {
     title: '提示', dataIndex: 'prompt_tokens', render: (text, record, index) => {
       return (record.type === 0 || record.type === 2 ? <div>
         {<span> {text} </span>}
@@ -129,7 +131,7 @@ const LogsTable = () => {
   }, {
     title: '详情', dataIndex: 'content', render: (text, record, index) => {
       return <Paragraph ellipsis={{ rows: 2, showTooltip: { type: 'popover', opts: { style: { width: 240 } } } }}
-                        style={{ maxWidth: 240 }}>
+        style={{ maxWidth: 240 }}>
         {text}
       </Paragraph>;
     }
@@ -341,33 +343,33 @@ const LogsTable = () => {
       <Form layout="horizontal" style={{ marginTop: 10 }}>
         <>
           <Form.Input field="token_name" label="令牌名称" style={{ width: 176 }} value={token_name}
-                      placeholder={'可选值'} name="token_name"
-                      onChange={value => handleInputChange(value, 'token_name')} />
+            placeholder={'可选值'} name="token_name"
+            onChange={value => handleInputChange(value, 'token_name')} />
           <Form.Input field="model_name" label="模型名称" style={{ width: 176 }} value={model_name}
-                      placeholder="可选值"
-                      name="model_name"
-                      onChange={value => handleInputChange(value, 'model_name')} />
+            placeholder="可选值"
+            name="model_name"
+            onChange={value => handleInputChange(value, 'model_name')} />
           <Form.DatePicker field="start_timestamp" label="起始时间" style={{ width: 272 }}
-                           initValue={start_timestamp}
-                           value={start_timestamp} type="dateTime"
-                           name="start_timestamp"
-                           onChange={value => handleInputChange(value, 'start_timestamp')} />
+            initValue={start_timestamp}
+            value={start_timestamp} type="dateTime"
+            name="start_timestamp"
+            onChange={value => handleInputChange(value, 'start_timestamp')} />
           <Form.DatePicker field="end_timestamp" fluid label="结束时间" style={{ width: 272 }}
-                           initValue={end_timestamp}
-                           value={end_timestamp} type="dateTime"
-                           name="end_timestamp"
-                           onChange={value => handleInputChange(value, 'end_timestamp')} />
+            initValue={end_timestamp}
+            value={end_timestamp} type="dateTime"
+            name="end_timestamp"
+            onChange={value => handleInputChange(value, 'end_timestamp')} />
           {isAdminUser && <>
             <Form.Input field="channel" label="渠道 ID" style={{ width: 176 }} value={channel}
-                        placeholder="可选值" name="channel"
-                        onChange={value => handleInputChange(value, 'channel')} />
+              placeholder="可选值" name="channel"
+              onChange={value => handleInputChange(value, 'channel')} />
             <Form.Input field="username" label="用户名称" style={{ width: 176 }} value={username}
-                        placeholder={'可选值'} name="username"
-                        onChange={value => handleInputChange(value, 'username')} />
+              placeholder={'可选值'} name="username"
+              onChange={value => handleInputChange(value, 'username')} />
           </>}
           <Form.Section>
             <Button label="查询" type="primary" htmlType="submit" className="btn-margin-right"
-                    onClick={refresh} loading={loading}>查询</Button>
+              onClick={refresh} loading={loading}>查询</Button>
           </Form.Section>
         </>
       </Form>
