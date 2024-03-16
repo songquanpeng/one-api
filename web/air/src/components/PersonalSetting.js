@@ -47,7 +47,7 @@ const PersonalSetting = () => {
   const [countdown, setCountdown] = useState(30);
   const [affLink, setAffLink] = useState('');
   const [systemToken, setSystemToken] = useState('');
-  const [models, setModels] = useState([]);
+  // const [models, setModels] = useState([]);
   const [openTransfer, setOpenTransfer] = useState(false);
   const [transferAmount, setTransferAmount] = useState(0);
 
@@ -72,7 +72,7 @@ const PersonalSetting = () => {
         console.log(userState);
       }
     );
-    loadModels().then();
+    // loadModels().then();
     getAffLink().then();
     setTransferAmount(getQuotaPerUnit());
   }, []);
@@ -127,16 +127,16 @@ const PersonalSetting = () => {
     }
   };
 
-  const loadModels = async () => {
-    let res = await API.get(`/api/user/models`);
-    const { success, message, data } = res.data;
-    if (success) {
-      setModels(data);
-      console.log(data);
-    } else {
-      showError(message);
-    }
-  };
+  // const loadModels = async () => {
+  //   let res = await API.get(`/api/user/models`);
+  //   const { success, message, data } = res.data;
+  //   if (success) {
+  //     setModels(data);
+  //     console.log(data);
+  //   } else {
+  //     showError(message);
+  //   }
+  // };
 
   const handleAffLinkClick = async (e) => {
     e.target.select();
@@ -311,7 +311,7 @@ const PersonalSetting = () => {
               <Typography.Text>{`划转额度${renderQuotaWithPrompt(transferAmount)} 最低` + renderQuota(getQuotaPerUnit())}</Typography.Text>
               <div>
                 <InputNumber min={0} style={{ marginTop: 5 }} value={transferAmount}
-                             onChange={(value) => setTransferAmount(value)} disabled={false}></InputNumber>
+                  onChange={(value) => setTransferAmount(value)} disabled={false}></InputNumber>
               </div>
             </div>
           </Modal>
@@ -320,7 +320,7 @@ const PersonalSetting = () => {
               title={
                 <Card.Meta
                   avatar={<Avatar size="default" color={stringToColor(getUsername())}
-                                  style={{ marginRight: 4 }}>
+                    style={{ marginRight: 4 }}>
                     {typeof getUsername() === 'string' && getUsername().slice(0, 1)}
                   </Avatar>}
                   title={<Typography.Text>{getUsername()}</Typography.Text>}
@@ -343,7 +343,8 @@ const PersonalSetting = () => {
                 </Descriptions>
               }
             >
-              <Typography.Title heading={6}>可用模型</Typography.Title>
+              <Typography.Title heading={6}>调用信息</Typography.Title>
+              {/* <Typography.Title heading={6}>可用模型</Typography.Title>
               <div style={{ marginTop: 10 }}>
                 <Space wrap>
                   {models.map((model) => (
@@ -354,10 +355,9 @@ const PersonalSetting = () => {
                     </Tag>
                   ))}
                 </Space>
-              </div>
-
+              </div> */}
             </Card>
-            <Card
+            {/* <Card
               footer={
                 <div>
                   <Typography.Text>邀请链接</Typography.Text>
@@ -374,19 +374,28 @@ const PersonalSetting = () => {
               <div style={{ marginTop: 10 }}>
                 <Descriptions row>
                   <Descriptions.Item itemKey="待使用收益">
-                                        <span style={{ color: 'rgba(var(--semi-red-5), 1)' }}>
-                                            {
-                                              renderQuota(userState?.user?.aff_quota)
-                                            }
-                                        </span>
+                    <span style={{ color: 'rgba(var(--semi-red-5), 1)' }}>
+                      {
+                        renderQuota(userState?.user?.aff_quota)
+                      }
+                    </span>
                     <Button type={'secondary'} onClick={() => setOpenTransfer(true)} size={'small'}
-                            style={{ marginLeft: 10 }}>划转</Button>
+                      style={{ marginLeft: 10 }}>划转</Button>
                   </Descriptions.Item>
                   <Descriptions.Item
                     itemKey="总收益">{renderQuota(userState?.user?.aff_history_quota)}</Descriptions.Item>
                   <Descriptions.Item itemKey="邀请人数">{userState?.user?.aff_count}</Descriptions.Item>
                 </Descriptions>
               </div>
+            </Card> */}
+            <Card>
+              <Typography.Title heading={6}>邀请链接</Typography.Title>
+              <Input
+                style={{ marginTop: 10 }}
+                value={affLink}
+                onClick={handleAffLinkClick}
+                readOnly
+              />
             </Card>
             <Card>
               <Typography.Title heading={6}>个人信息</Typography.Title>
@@ -403,8 +412,8 @@ const PersonalSetting = () => {
                     <Button onClick={() => {
                       setShowEmailBindModal(true);
                     }}>{
-                      userState.user && userState.user.email !== '' ? '修改绑定' : '绑定邮箱'
-                    }</Button>
+                        userState.user && userState.user.email !== '' ? '修改绑定' : '绑定邮箱'
+                      }</Button>
                   </div>
                 </div>
               </div>
@@ -450,7 +459,7 @@ const PersonalSetting = () => {
                 </div>
               </div>
 
-              <div style={{ marginTop: 10 }}>
+              {/* <div style={{ marginTop: 10 }}>
                 <Typography.Text strong>Telegram</Typography.Text>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                   <div>
@@ -463,12 +472,12 @@ const PersonalSetting = () => {
                     {status.telegram_oauth ?
                       userState.user.telegram_id !== '' ? <Button disabled={true}>已绑定</Button>
                         : <TelegramLoginButton dataAuthUrl="/api/oauth/telegram/bind"
-                                               botName={status.telegram_bot_name} />
+                          botName={status.telegram_bot_name} />
                       : <Button disabled={true}>未启用</Button>
                     }
                   </div>
                 </div>
-              </div>
+              </div> */}
 
               <div style={{ marginTop: 10 }}>
                 <Space>
@@ -543,7 +552,7 @@ const PersonalSetting = () => {
                   type="email"
                 />
                 <Button onClick={sendVerificationCode}
-                        disabled={disableButton || loading}>
+                  disabled={disableButton || loading}>
                   {disableButton ? `重新发送(${countdown})` : '获取验证码'}
                 </Button>
               </div>
