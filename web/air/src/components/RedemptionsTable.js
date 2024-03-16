@@ -71,17 +71,17 @@ const RedemptionsTable = () => {
         );
       }
     },
-    {
-      title: '兑换人ID',
-      dataIndex: 'used_user_id',
-      render: (text, record, index) => {
-        return (
-          <div>
-            {text === 0 ? '无' : text}
-          </div>
-        );
-      }
-    },
+    // {
+    //   title: '兑换人ID',
+    //   dataIndex: 'used_user_id',
+    //   render: (text, record, index) => {
+    //     return (
+    //       <div>
+    //         {text === 0 ? '无' : text}
+    //       </div>
+    //     );
+    //   }
+    // },
     {
       title: '',
       dataIndex: 'operate',
