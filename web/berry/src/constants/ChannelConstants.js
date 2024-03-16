@@ -68,7 +68,7 @@ export const CHANNEL_OPTIONS = {
   25: {
     key: 25,
     text: 'Moonshot AI',
-    value: 19,
+    value: 25,
     color: 'default'
   },
   23: {
