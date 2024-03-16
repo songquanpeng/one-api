@@ -102,7 +102,8 @@ func CountTokenMessages(messages []model.Message, model string) int {
 						}
 						imageTokens, err := countImageTokens(url, detail)
 						if err != nil {
-							logger.SysError("error counting image tokens: " + err.Error())
+							//Due to the excessive length of the error information, only extract and record the most critical part.
+							logger.SysError(fmt.Sprintf("error counting image tokens. Error type: %T", err))
 						} else {
 							tokenNum += imageTokens
 						}
