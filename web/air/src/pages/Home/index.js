@@ -103,11 +103,11 @@ const Home = () => {
                       Turnstile 用户校验：
                       {statusState?.status?.turnstile_check === true ? '已启用' : '未启用'}
                     </p>
-                    <p>
-                      Telegram 身份验证：
-                      {statusState?.status?.telegram_oauth === true
-                        ? '已启用' : '未启用'}
-                    </p>
+                    {/*<p>*/}
+                    {/*  Telegram 身份验证：*/}
+                    {/*  {statusState?.status?.telegram_oauth === true*/}
+                    {/*    ? '已启用' : '未启用'}*/}
+                    {/*</p>*/}
                   </Card>
                 </Col>
               </Row>

@@ -62,20 +62,20 @@ const SiderBar = () => {
       icon: <IconKey />
     },
     {
-      text: '兑换码',
+      text: '兑换',
       itemKey: 'redemption',
       to: '/redemption',
       icon: <IconGift />,
       className: isAdmin() ? 'semi-navigation-item-normal' : 'tableHiddle'
     },
     {
-      text: '钱包',
+      text: '充值',
       itemKey: 'topup',
       to: '/topup',
       icon: <IconCreditCard />
     },
     {
-      text: '用户管理',
+      text: '用户',
       itemKey: 'user',
       to: '/user',
       icon: <IconUser />,
