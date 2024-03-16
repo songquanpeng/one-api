@@ -65,7 +65,7 @@ const StatisticalLineChartCard = ({ isLoading, title, chartData, todayValue }) =
       ) : (
         <CardWrapper border={false} content={false}>
           <Box sx={{ p: 2.25 }}>
-            <Grid container direction="column">
+            <Grid>
               <Grid item sx={{ mb: 0.75 }}>
                 <Grid container alignItems="center">
                   <Grid item xs={6}>
