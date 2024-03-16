@@ -59,19 +59,19 @@ const EditToken = (props) => {
     setInputs({ ...inputs, unlimited_quota: !unlimited_quota });
   };
 
-  const loadModels = async () => {
-    let res = await API.get(`/api/user/models`);
-    const { success, message, data } = res.data;
-    if (success) {
-      let localModelOptions = data.map((model) => ({
-        label: model,
-        value: model
-      }));
-      setModels(localModelOptions);
-    } else {
-      showError(message);
-    }
-  };
+  // const loadModels = async () => {
+  //   let res = await API.get(`/api/user/models`);
+  //   const { success, message, data } = res.data;
+  //   if (success) {
+  //     let localModelOptions = data.map((model) => ({
+  //       label: model,
+  //       value: model
+  //     }));
+  //     setModels(localModelOptions);
+  //   } else {
+  //     showError(message);
+  //   }
+  // };
 
   const loadToken = async () => {
     setLoading(true);
@@ -81,11 +81,11 @@ const EditToken = (props) => {
       if (data.expired_time !== -1) {
         data.expired_time = timestamp2string(data.expired_time);
       }
-      if (data.model_limits !== '') {
-        data.model_limits = data.model_limits.split(',');
-      } else {
-        data.model_limits = [];
-      }
+      // if (data.model_limits !== '') {
+      //   data.model_limits = data.model_limits.split(',');
+      // } else {
+      //   data.model_limits = [];
+      // }
       setInputs(data);
     } else {
       showError(message);
@@ -106,7 +106,7 @@ const EditToken = (props) => {
         }
       );
     }
-    loadModels();
+    // loadModels();
   }, [isEdit]);
 
   // 新增 state 变量 tokenCount 来记录用户想要创建的令牌数量，默认为 1
@@ -146,7 +146,7 @@ const EditToken = (props) => {
         }
         localInputs.expired_time = Math.ceil(time / 1000);
       }
-      localInputs.model_limits = localInputs.model_limits.join(',');
+      // localInputs.model_limits = localInputs.model_limits.join(',');
       let res = await API.put(`/api/token/`, { ...localInputs, id: parseInt(props.editingToken.id) });
       const { success, message } = res.data;
       if (success) {
@@ -176,7 +176,7 @@ const EditToken = (props) => {
           }
           localInputs.expired_time = Math.ceil(time / 1000);
         }
-        localInputs.model_limits = localInputs.model_limits.join(',');
+        // localInputs.model_limits = localInputs.model_limits.join(',');
         let res = await API.post(`/api/token/`, localInputs);
         const { success, message } = res.data;
 
@@ -314,7 +314,7 @@ const EditToken = (props) => {
               setUnlimitedQuota();
             }}>{unlimited_quota ? '取消无限额度' : '设为无限额度'}</Button>
           </div>
-          <Divider />
+          {/* <Divider />
           <div style={{ marginTop: 10, display: 'flex' }}>
             <Space>
               <Checkbox
@@ -341,7 +341,7 @@ const EditToken = (props) => {
             autoComplete="new-password"
             optionList={models}
             disabled={!model_limits_enabled}
-          />
+          /> */}
         </Spin>
       </SideSheet>
     </>
