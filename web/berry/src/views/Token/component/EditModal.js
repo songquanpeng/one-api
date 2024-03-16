@@ -87,6 +87,8 @@ const EditModal = ({ open, tokenId, onCancel, onOk }) => {
   useEffect(() => {
     if (tokenId) {
       loadToken().then();
+    } else {
+      setInputs({...originInputs});
     }
   }, [tokenId]);
 
