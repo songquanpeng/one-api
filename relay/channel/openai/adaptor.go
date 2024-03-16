@@ -6,11 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/songquanpeng/one-api/common"
 	"github.com/songquanpeng/one-api/relay/channel"
-	"github.com/songquanpeng/one-api/relay/channel/ai360"
-	"github.com/songquanpeng/one-api/relay/channel/baichuan"
 	"github.com/songquanpeng/one-api/relay/channel/minimax"
-	"github.com/songquanpeng/one-api/relay/channel/mistral"
-	"github.com/songquanpeng/one-api/relay/channel/moonshot"
 	"github.com/songquanpeng/one-api/relay/model"
 	"github.com/songquanpeng/one-api/relay/util"
 	"io"
@@ -86,37 +82,11 @@ func (a *Adaptor) DoResponse(c *gin.Context, resp *http.Response, meta *util.Rel
 }
 
 func (a *Adaptor) GetModelList() []string {
-	switch a.ChannelType {
-	case common.ChannelType360:
-		return ai360.ModelList
-	case common.ChannelTypeMoonshot:
-		return moonshot.ModelList
-	case common.ChannelTypeBaichuan:
-		return baichuan.ModelList
-	case common.ChannelTypeMinimax:
-		return minimax.ModelList
-	case common.ChannelTypeMistral:
-		return mistral.ModelList
-	default:
-		return ModelList
-	}
+	_, modelList := GetCompatibleChannelMeta(a.ChannelType)
+	return modelList
 }
 
 func (a *Adaptor) GetChannelName() string {
-	switch a.ChannelType {
-	case common.ChannelTypeAzure:
-		return "azure"
-	case common.ChannelType360:
-		return "360"
-	case common.ChannelTypeMoonshot:
-		return "moonshot"
-	case common.ChannelTypeBaichuan:
-		return "baichuan"
-	case common.ChannelTypeMinimax:
-		return "minimax"
-	case common.ChannelTypeMistral:
-		return "mistralai"
-	default:
-		return "openai"
-	}
+	channelName, _ := GetCompatibleChannelMeta(a.ChannelType)
+	return channelName
 }

@@ -21,6 +21,13 @@ jobs:
       - name: Check out the repo
         uses: actions/checkout@v3
 
+      - name: Check repository URL
+        run: |
+          REPO_URL=$(git config --get remote.origin.url)
+          if [[ $REPO_URL == *"pro" ]]; then
+            exit 1
+          fi
+
       - name: Save version info
         run: |
           git describe --tags > VERSION 

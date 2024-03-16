@@ -57,13 +57,15 @@ func InitOptionMap() {
 	config.OptionMap["WeChatServerAddress"] = ""
 	config.OptionMap["WeChatServerToken"] = ""
 	config.OptionMap["WeChatAccountQRCodeImageURL"] = ""
+	config.OptionMap["MessagePusherAddress"] = ""
+	config.OptionMap["MessagePusherToken"] = ""
 	config.OptionMap["TurnstileSiteKey"] = ""
 	config.OptionMap["TurnstileSecretKey"] = ""
-	config.OptionMap["QuotaForNewUser"] = strconv.Itoa(config.QuotaForNewUser)
-	config.OptionMap["QuotaForInviter"] = strconv.Itoa(config.QuotaForInviter)
-	config.OptionMap["QuotaForInvitee"] = strconv.Itoa(config.QuotaForInvitee)
-	config.OptionMap["QuotaRemindThreshold"] = strconv.Itoa(config.QuotaRemindThreshold)
-	config.OptionMap["PreConsumedQuota"] = strconv.Itoa(config.PreConsumedQuota)
+	config.OptionMap["QuotaForNewUser"] = strconv.FormatInt(config.QuotaForNewUser, 10)
+	config.OptionMap["QuotaForInviter"] = strconv.FormatInt(config.QuotaForInviter, 10)
+	config.OptionMap["QuotaForInvitee"] = strconv.FormatInt(config.QuotaForInvitee, 10)
+	config.OptionMap["QuotaRemindThreshold"] = strconv.FormatInt(config.QuotaRemindThreshold, 10)
+	config.OptionMap["PreConsumedQuota"] = strconv.FormatInt(config.PreConsumedQuota, 10)
 	config.OptionMap["ModelRatio"] = common.ModelRatio2JSONString()
 	config.OptionMap["GroupRatio"] = common.GroupRatio2JSONString()
 	config.OptionMap["CompletionRatio"] = common.CompletionRatio2JSONString()
@@ -79,6 +81,9 @@ func InitOptionMap() {
 func loadOptionsFromDatabase() {
 	options, _ := AllOption()
 	for _, option := range options {
+		if option.Key == "ModelRatio" {
+			option.Value = common.AddNewMissingRatio(option.Value)
+		}
 		err := updateOptionMap(option.Key, option.Value)
 		if err != nil {
 			logger.SysError("failed to update option map: " + err.Error())
@@ -179,20 +184,24 @@ func updateOptionMap(key string, value string) (err error) {
 		config.WeChatServerToken = value
 	case "WeChatAccountQRCodeImageURL":
 		config.WeChatAccountQRCodeImageURL = value
+	case "MessagePusherAddress":
+		config.MessagePusherAddress = value
+	case "MessagePusherToken":
+		config.MessagePusherToken = value
 	case "TurnstileSiteKey":
 		config.TurnstileSiteKey = value
 	case "TurnstileSecretKey":
 		config.TurnstileSecretKey = value
 	case "QuotaForNewUser":
-		config.QuotaForNewUser, _ = strconv.Atoi(value)
+		config.QuotaForNewUser, _ = strconv.ParseInt(value, 10, 64)
 	case "QuotaForInviter":
-		config.QuotaForInviter, _ = strconv.Atoi(value)
+		config.QuotaForInviter, _ = strconv.ParseInt(value, 10, 64)
 	case "QuotaForInvitee":
-		config.QuotaForInvitee, _ = strconv.Atoi(value)
+		config.QuotaForInvitee, _ = strconv.ParseInt(value, 10, 64)
 	case "QuotaRemindThreshold":
-		config.QuotaRemindThreshold, _ = strconv.Atoi(value)
+		config.QuotaRemindThreshold, _ = strconv.ParseInt(value, 10, 64)
 	case "PreConsumedQuota":
-		config.PreConsumedQuota, _ = strconv.Atoi(value)
+		config.PreConsumedQuota, _ = strconv.ParseInt(value, 10, 64)
 	case "RetryTimes":
 		config.RetryTimes, _ = strconv.Atoi(value)
 	case "ModelRatio":

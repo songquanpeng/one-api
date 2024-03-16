@@ -1,7 +1,7 @@
 package config
 
 import (
-	"github.com/songquanpeng/one-api/common/helper"
+	"github.com/songquanpeng/one-api/common/env"
 	"os"
 	"strconv"
 	"sync"
@@ -52,6 +52,7 @@ var EmailDomainWhitelist = []string{
 }
 
 var DebugEnabled = os.Getenv("DEBUG") == "true"
+var DebugSQLEnabled = os.Getenv("DEBUG_SQL") == "true"
 var MemoryCacheEnabled = os.Getenv("MEMORY_CACHE_ENABLED") == "true"
 
 var LogConsumeEnabled = true
@@ -69,17 +70,20 @@ var WeChatServerAddress = ""
 var WeChatServerToken = ""
 var WeChatAccountQRCodeImageURL = ""
 
+var MessagePusherAddress = ""
+var MessagePusherToken = ""
+
 var TurnstileSiteKey = ""
 var TurnstileSecretKey = ""
 
-var QuotaForNewUser = 0
-var QuotaForInviter = 0
-var QuotaForInvitee = 0
+var QuotaForNewUser int64 = 0
+var QuotaForInviter int64 = 0
+var QuotaForInvitee int64 = 0
 var ChannelDisableThreshold = 5.0
 var AutomaticDisableChannelEnabled = false
 var AutomaticEnableChannelEnabled = false
-var QuotaRemindThreshold = 1000
-var PreConsumedQuota = 500
+var QuotaRemindThreshold int64 = 1000
+var PreConsumedQuota int64 = 500
 var ApproximateTokenEnabled = false
 var RetryTimes = 0
 
@@ -90,28 +94,29 @@ var IsMasterNode = os.Getenv("NODE_TYPE") != "slave"
 var requestInterval, _ = strconv.Atoi(os.Getenv("POLLING_INTERVAL"))
 var RequestInterval = time.Duration(requestInterval) * time.Second
 
-var SyncFrequency = helper.GetOrDefaultEnvInt("SYNC_FREQUENCY", 10*60) // unit is second
+var SyncFrequency = env.Int("SYNC_FREQUENCY", 10*60) // unit is second
 
 var BatchUpdateEnabled = false
-var BatchUpdateInterval = helper.GetOrDefaultEnvInt("BATCH_UPDATE_INTERVAL", 5)
+var BatchUpdateInterval = env.Int("BATCH_UPDATE_INTERVAL", 5)
 
-var RelayTimeout = helper.GetOrDefaultEnvInt("RELAY_TIMEOUT", 0) // unit is second
+var RelayTimeout = env.Int("RELAY_TIMEOUT", 0) // unit is second
 
-var GeminiSafetySetting = helper.GetOrDefaultEnvString("GEMINI_SAFETY_SETTING", "BLOCK_NONE")
+var GeminiSafetySetting = env.String("GEMINI_SAFETY_SETTING", "BLOCK_NONE")
 
-var Theme = helper.GetOrDefaultEnvString("THEME", "default")
+var Theme = env.String("THEME", "default")
 var ValidThemes = map[string]bool{
 	"default": true,
 	"berry":   true,
+	"air":     true,
 }
 
 // All duration's unit is seconds
 // Shouldn't larger then RateLimitKeyExpirationDuration
 var (
-	GlobalApiRateLimitNum            = helper.GetOrDefaultEnvInt("GLOBAL_API_RATE_LIMIT", 180)
+	GlobalApiRateLimitNum            = env.Int("GLOBAL_API_RATE_LIMIT", 180)
 	GlobalApiRateLimitDuration int64 = 3 * 60
 
-	GlobalWebRateLimitNum            = helper.GetOrDefaultEnvInt("GLOBAL_WEB_RATE_LIMIT", 60)
+	GlobalWebRateLimitNum            = env.Int("GLOBAL_WEB_RATE_LIMIT", 60)
 	GlobalWebRateLimitDuration int64 = 3 * 60
 
 	UploadRateLimitNum            = 10
@@ -125,3 +130,9 @@ var (
 )
 
 var RateLimitKeyExpirationDuration = 20 * time.Minute
+
+var EnableMetric = env.Bool("ENABLE_METRIC", false)
+var MetricQueueSize = env.Int("METRIC_QUEUE_SIZE", 10)
+var MetricSuccessRateThreshold = env.Float64("METRIC_SUCCESS_RATE_THRESHOLD", 0.8)
+var MetricSuccessChanSize = env.Int("METRIC_SUCCESS_CHAN_SIZE", 1024)
+var MetricFailChanSize = env.Int("METRIC_FAIL_CHAN_SIZE", 128)

@@ -27,21 +27,10 @@ import (
 func requestOpenAI2Xunfei(request model.GeneralOpenAIRequest, xunfeiAppId string, domain string) *ChatRequest {
 	messages := make([]Message, 0, len(request.Messages))
 	for _, message := range request.Messages {
-		if message.Role == "system" {
-			messages = append(messages, Message{
-				Role:    "user",
-				Content: message.StringContent(),
-			})
-			messages = append(messages, Message{
-				Role:    "assistant",
-				Content: "Okay",
-			})
-		} else {
-			messages = append(messages, Message{
-				Role:    message.Role,
-				Content: message.StringContent(),
-			})
-		}
+		messages = append(messages, Message{
+			Role:    message.Role,
+			Content: message.StringContent(),
+		})
 	}
 	xunfeiRequest := ChatRequest{}
 	xunfeiRequest.Header.AppId = xunfeiAppId
