@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { API, showError, showSuccess } from '../helpers';
-import { Button, Form, Popconfirm, Space, Table, Tag, Tooltip } from '@douyinfe/semi-ui';
+import { Button, Form, Popconfirm, Space, Table, Tag, Tooltip, Dropdown } from '@douyinfe/semi-ui';
 import { ITEMS_PER_PAGE } from '../constants';
 import { renderGroup, renderNumber, renderQuota } from '../helpers/render';
 import AddUser from '../pages/User/AddUser';
@@ -139,6 +139,8 @@ const UsersTable = () => {
   const [editingUser, setEditingUser] = useState({
     id: undefined
   });
+  const [orderBy, setOrderBy] = useState('');
+  const [dropdownVisible, setDropdownVisible] = useState(false);
 
   const setCount = (data) => {
     if (data.length >= (activePage) * ITEMS_PER_PAGE) {
@@ -162,7 +164,7 @@ const UsersTable = () => {
   };
 
   const loadUsers = async (startIdx) => {
-    const res = await API.get(`/api/user/?p=${startIdx}`);
+    const res = await API.get(`/api/user/?p=${startIdx}&order=${orderBy}`);
     const { success, message, data } = res.data;
     if (success) {
       if (startIdx === 0) {
@@ -184,19 +186,19 @@ const UsersTable = () => {
     (async () => {
       if (activePage === Math.ceil(users.length / ITEMS_PER_PAGE) + 1) {
         // In this case we have to load more data and then append them.
-        await loadUsers(activePage - 1);
+        await loadUsers(activePage - 1, orderBy);
       }
       setActivePage(activePage);
     })();
   };
 
   useEffect(() => {
-    loadUsers(0)
+    loadUsers(0, orderBy)
       .then()
       .catch((reason) => {
         showError(reason);
       });
-  }, []);
+  }, [orderBy]);
 
   const manageUser = async (username, action, record) => {
     const res = await API.post('/api/user/manage', {
@@ -239,6 +241,7 @@ const UsersTable = () => {
       // if keyword is blank, load files instead.
       await loadUsers(0);
       setActivePage(1);
+      setOrderBy('');
       return;
     }
     setSearching(true);
@@ -301,6 +304,25 @@ const UsersTable = () => {
     }
   };
 
+  const handleOrderByChange = (e, { value }) => {
+    setOrderBy(value);
+    setActivePage(1);
+    setDropdownVisible(false);
+  };
+
+  const renderSelectedOption = (orderBy) => {
+    switch (orderBy) {
+      case 'quota':
+        return '按剩余额度排序';
+      case 'used_quota':
+        return '按已用额度排序';
+      case 'request_count':
+        return '按请求次数排序';
+      default:
+        return '默认排序';
+    }
+  };
+
   return (
     <>
       <AddUser refresh={refresh} visible={showAddUser} handleClose={closeAddUser}></AddUser>
@@ -331,6 +353,22 @@ const UsersTable = () => {
           setShowAddUser(true);
         }
       }>添加用户</Button>
+      <Dropdown
+        trigger="click"
+        position="bottomLeft"
+        visible={dropdownVisible}
+        onVisibleChange={(visible) => setDropdownVisible(visible)}
+        render={
+          <Dropdown.Menu>
+            <Dropdown.Item onClick={() => handleOrderByChange('', { value: '' })}>默认排序</Dropdown.Item>
+            <Dropdown.Item onClick={() => handleOrderByChange('', { value: 'quota' })}>按剩余额度排序</Dropdown.Item>
+            <Dropdown.Item onClick={() => handleOrderByChange('', { value: 'used_quota' })}>按已用额度排序</Dropdown.Item>
+            <Dropdown.Item onClick={() => handleOrderByChange('', { value: 'request_count' })}>按请求次数排序</Dropdown.Item>
+          </Dropdown.Menu>
+        }
+      >
+        <Button style={{ marginLeft: '10px' }}>{renderSelectedOption(orderBy)}</Button>
+      </Dropdown>
     </>
   );
 };
