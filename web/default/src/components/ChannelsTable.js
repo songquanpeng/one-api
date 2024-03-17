@@ -333,6 +333,8 @@ const ChannelsTable = () => {
             setPromptShown("channel-test");
           }}>
             OpenAI 渠道已经不再支持通过 key 获取余额，因此余额显示为 0。对于支持的渠道类型，请点击余额进行刷新。
+            <br/>
+            渠道测试仅支持 chat 模型，优先使用 gpt-3.5-turbo，如果该模型不可用则使用你所配置的模型列表中的第一个模型。
           </Message>
         )
       }
