@@ -231,3 +231,7 @@ export function shouldShowPrompt(id) {
 export function setPromptShown(id) {
   localStorage.setItem(`prompt-${id}`, 'true');
 }
+
+export function safeGetLocalTimestamp(timeString) {
+  return timeString ? Date.parse(timeString) / 1000 : ''
+}

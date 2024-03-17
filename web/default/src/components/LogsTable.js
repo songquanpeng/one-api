@@ -57,9 +57,10 @@ const LogsTable = () => {
     model_name: '',
     start_timestamp: timestamp2string(0),
     end_timestamp: timestamp2string(now.getTime() / 1000 + 3600),
-    channel: ''
+    channel: '',
+    client_ip: ''
   });
-  const { username, token_name, model_name, start_timestamp, end_timestamp, channel } = inputs;
+  const { username, token_name, model_name, start_timestamp, end_timestamp, channel, client_ip } = inputs;
 
   const [stat, setStat] = useState({
     quota: 0,
@@ -73,7 +74,9 @@ const LogsTable = () => {
   const getLogSelfStat = async () => {
     let localStartTimestamp = Date.parse(start_timestamp) / 1000;
     let localEndTimestamp = Date.parse(end_timestamp) / 1000;
-    let res = await API.get(`/api/log/self/stat?type=${logType}&token_name=${token_name}&model_name=${model_name}&start_timestamp=${localStartTimestamp}&end_timestamp=${localEndTimestamp}`);
+    let res = await API.get(
+      `/api/log/self/stat?type=${logType}&token_name=${token_name}&model_name=${model_name}&client_ip=${client_ip}&start_timestamp=${localStartTimestamp}&end_timestamp=${localEndTimestamp}`
+    );
     const { success, message, data } = res.data;
     if (success) {
       setStat(data);
@@ -85,7 +88,9 @@ const LogsTable = () => {
   const getLogStat = async () => {
     let localStartTimestamp = Date.parse(start_timestamp) / 1000;
     let localEndTimestamp = Date.parse(end_timestamp) / 1000;
-    let res = await API.get(`/api/log/stat?type=${logType}&username=${username}&token_name=${token_name}&model_name=${model_name}&start_timestamp=${localStartTimestamp}&end_timestamp=${localEndTimestamp}&channel=${channel}`);
+    let res = await API.get(
+      `/api/log/stat?type=${logType}&username=${username}&token_name=${token_name}&model_name=${model_name}&client_ip=${client_ip}&start_timestamp=${localStartTimestamp}&end_timestamp=${localEndTimestamp}&channel=${channel}`
+    );
     const { success, message, data } = res.data;
     if (success) {
       setStat(data);
@@ -110,9 +115,9 @@ const LogsTable = () => {
     let localStartTimestamp = Date.parse(start_timestamp) / 1000;
     let localEndTimestamp = Date.parse(end_timestamp) / 1000;
     if (isAdminUser) {
-      url = `/api/log/?p=${startIdx}&type=${logType}&username=${username}&token_name=${token_name}&model_name=${model_name}&start_timestamp=${localStartTimestamp}&end_timestamp=${localEndTimestamp}&channel=${channel}`;
+      url = `/api/log/?p=${startIdx}&type=${logType}&username=${username}&token_name=${token_name}&model_name=${model_name}&client_ip=${client_ip}&start_timestamp=${localStartTimestamp}&end_timestamp=${localEndTimestamp}&channel=${channel}`;
     } else {
-      url = `/api/log/self/?p=${startIdx}&type=${logType}&token_name=${token_name}&model_name=${model_name}&start_timestamp=${localStartTimestamp}&end_timestamp=${localEndTimestamp}`;
+      url = `/api/log/self/?p=${startIdx}&type=${logType}&token_name=${token_name}&model_name=${model_name}&client_ip=${client_ip}&start_timestamp=${localStartTimestamp}&end_timestamp=${localEndTimestamp}`;
     }
     const res = await API.get(url);
     const { success, message, data } = res.data;
@@ -210,6 +215,9 @@ const LogsTable = () => {
                         placeholder={'可选值'} name='token_name' onChange={handleInputChange} />
             <Form.Input fluid label='模型名称' width={3} value={model_name} placeholder='可选值'
                         name='model_name'
+                        onChange={handleInputChange} />
+            <Form.Input fluid label='请求端IP' width={3} value={client_ip} placeholder='可选值'
+                        name='client_ip'
                         onChange={handleInputChange} />
             <Form.Input fluid label='起始时间' width={4} value={start_timestamp} type='datetime-local'
                         name='start_timestamp'
@@ -320,6 +328,15 @@ const LogsTable = () => {
                 width={1}
               >
                 额度
+              </Table.HeaderCell>
+              <Table.HeaderCell
+                style={{ cursor: 'pointer' }}
+                onClick={() => {
+                  sortLog('client_ip');
+                }}
+                width={1}
+              >
+                请求端IP
               </Table.HeaderCell>
               <Table.HeaderCell
                 style={{ cursor: 'pointer' }}
