@@ -5,7 +5,6 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/songquanpeng/one-api/common"
@@ -21,8 +20,6 @@ import (
 	"github.com/songquanpeng/one-api/relay/util"
 
 	"io"
-	"net/http"
-
 )
 
 // https://platform.openai.com/docs/api-reference/chat
@@ -122,6 +119,7 @@ func shouldRetry(c *gin.Context, statusCode int) bool {
 }
 
 func processChannelRelayError(ctx context.Context, channelId int, channelName string, err *model.ErrorWithStatusCode) {
+
 	logger.Errorf(ctx, "relay error (channel #%d): %s", channelId, err.Message)
 	// https://platform.openai.com/docs/guides/error-codes/api-errors
 	if util.ShouldDisableChannel(&err.Error, err.StatusCode) {

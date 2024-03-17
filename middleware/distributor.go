@@ -69,9 +69,9 @@ func Distribute() func(c *gin.Context) {
 			}
 
 			if strings.HasPrefix(modelRequest.Model, "gpt-4-gizmo") {
-				channel, err = model.CacheGetRandomSatisfiedChannel(userGroup, "gpt-4-gizmo")
+				channel, err = model.CacheGetRandomSatisfiedChannel(userGroup, "gpt-4-gizmo",false)
 			} else {
-				channel, err = model.CacheGetRandomSatisfiedChannel(userGroup, modelRequest.Model)
+				channel, err = model.CacheGetRandomSatisfiedChannel(userGroup, modelRequest.Model,false)
 			}
 
 			if err != nil {
