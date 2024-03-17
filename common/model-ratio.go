@@ -134,9 +134,9 @@ var ModelRatio = map[string]float64{
 	"mixtral-8x7b-32768": 0.27 / 1000 * USD,
 	"gemma-7b-it":        0.1 / 1000 * USD,
 	// https://platform.lingyiwanwu.com/docs#-计费单元
-	"yi-34b-chat-0205": 2.5 / 1000000 * RMB,
-	"yi-34b-chat-200k": 12.0 / 1000000 * RMB,
-	"yi-vl-plus":       6.0 / 1000000 * RMB,
+	"yi-34b-chat-0205": 2.5 / 1000 * RMB,
+	"yi-34b-chat-200k": 12.0 / 1000 * RMB,
+	"yi-vl-plus":       6.0 / 1000 * RMB,
 }
 
 var CompletionRatio = map[string]float64{}
