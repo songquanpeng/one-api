@@ -23,10 +23,16 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
+      - name: Check repository URL
+        run: |
+          REPO_URL=$(git config --get remote.origin.url)
+          if [[ $REPO_URL == *"pro" ]]; then
+            exit 1
+          fi
       - uses: actions/setup-node@v3
         with:
           node-version: 16
-      - name: Build Frontend (theme default)
+      - name: Build Frontend
         env:
           CI: ""
         run: |
@@ -41,7 +47,7 @@ jobs:
       - name: Build Backend
         run: |
           go mod download
-          go build -ldflags "-s -w -X 'one-api/common.Version=$(git describe --tags)'" -o one-api.exe
+          go build -ldflags "-s -w -X 'github.com/songquanpeng/one-api/common.Version=$(git describe --tags)'" -o one-api.exe
       - name: Release
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')

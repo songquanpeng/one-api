@@ -1,7 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Form, Input, Label, Message, Pagination, Popup, Table } from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
-import { API, setPromptShown, shouldShowPrompt, showError, showInfo, showSuccess, timestamp2string } from '../helpers';
+import {
+  API,
+  loadChannelModels,
+  setPromptShown,
+  shouldShowPrompt,
+  showError,
+  showInfo,
+  showSuccess,
+  timestamp2string
+} from '../helpers';
 
 import { CHANNEL_OPTIONS, ITEMS_PER_PAGE } from '../constants';
 import { renderGroup, renderNumber } from '../helpers/render';
@@ -95,6 +104,7 @@ const ChannelsTable = () => {
       .catch((reason) => {
         showError(reason);
       });
+    loadChannelModels().then();
   }, []);
 
   const manageChannel = async (id, action, idx, value) => {
@@ -230,11 +240,11 @@ const ChannelsTable = () => {
     }
   };
 
-  const testAllChannels = async () => {
-    const res = await API.get(`/api/channel/test`);
+  const testChannels = async (scope) => {
+    const res = await API.get(`/api/channel/test?scope=${scope}`);
     const { success, message } = res.data;
     if (success) {
-      showInfo('已成功开始测试所有通道，请刷新页面查看结果。');
+      showInfo('已成功开始测试通道，请刷新页面查看结果。');
     } else {
       showError(message);
     }
@@ -519,8 +529,11 @@ const ChannelsTable = () => {
               <Button size='small' as={Link} to='/channel/add' loading={loading}>
                 添加新的渠道
               </Button>
-              <Button size='small' loading={loading} onClick={testAllChannels}>
+              <Button size='small' loading={loading} onClick={()=>{testChannels("all")}}>
                 测试所有渠道
+              </Button>
+              <Button size='small' loading={loading} onClick={()=>{testChannels("disabled")}}>
+                测试禁用渠道
               </Button>
               {/*<Button size='small' onClick={updateAllChannelsBalance}*/}
               {/*        loading={loading || updatingBalance}>更新已启用渠道余额</Button>*/}

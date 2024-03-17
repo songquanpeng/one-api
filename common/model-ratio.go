@@ -4,31 +4,7 @@ import (
 	"encoding/json"
 	"github.com/songquanpeng/one-api/common/logger"
 	"strings"
-	"time"
 )
-
-var DalleSizeRatios = map[string]map[string]float64{
-	"dall-e-2": {
-		"256x256":   1,
-		"512x512":   1.125,
-		"1024x1024": 1.25,
-	},
-	"dall-e-3": {
-		"1024x1024": 1,
-		"1024x1792": 2,
-		"1792x1024": 2,
-	},
-}
-
-var DalleGenerationImageAmounts = map[string][2]int{
-	"dall-e-2": {1, 10},
-	"dall-e-3": {1, 1}, // OpenAI allows n=1 currently.
-}
-
-var DalleImagePromptLengthLimitations = map[string]int{
-	"dall-e-2": 1000,
-	"dall-e-3": 4000,
-}
 
 const (
 	USD2RMB = 7
@@ -40,7 +16,6 @@ const (
 // https://platform.openai.com/docs/models/model-endpoint-compatibility
 // https://cloud.baidu.com/doc/WENXINWORKSHOP/s/Blfmc9dlf
 // https://openai.com/pricing
-// TODO: when a new api is enabled, check the pricing here
 // 1 === $0.002 / 1K tokens
 // 1 === ￥0.014 / 1k tokens
 var ModelRatio = map[string]float64{
@@ -57,7 +32,7 @@ var ModelRatio = map[string]float64{
 	"gpt-4-0125-preview":      5,    // $0.01 / 1K tokens
 	"gpt-4-turbo-preview":     5,    // $0.01 / 1K tokens
 	"gpt-4-vision-preview":    5,    // $0.01 / 1K tokens
-	"gpt-3.5-turbo":           0.75, // $0.0015 / 1K tokens
+	"gpt-3.5-turbo":           0.25, // $0.0005 / 1K tokens
 	"gpt-3.5-turbo-0301":      0.75,
 	"gpt-3.5-turbo-0613":      0.75,
 	"gpt-3.5-turbo-16k":       1.5, // $0.003 / 1K tokens
@@ -89,21 +64,32 @@ var ModelRatio = map[string]float64{
 	"text-search-ada-doc-001": 10,
 	"text-moderation-stable":  0.1,
 	"text-moderation-latest":  0.1,
-	"dall-e-2":                8,     // $0.016 - $0.020 / image
-	"dall-e-3":                20,    // $0.040 - $0.120 / image
-	"claude-instant-1":        0.815, // $1.63 / 1M tokens
-	"claude-2":                5.51,  // $11.02 / 1M tokens
-	"claude-2.0":              5.51,  // $11.02 / 1M tokens
-	"claude-2.1":              5.51,  // $11.02 / 1M tokens
+	"dall-e-2":                8,  // $0.016 - $0.020 / image
+	"dall-e-3":                20, // $0.040 - $0.120 / image
+	// https://www.anthropic.com/api#pricing
+	"claude-instant-1.2":       0.8 / 1000 * USD,
+	"claude-2.0":               8.0 / 1000 * USD,
+	"claude-2.1":               8.0 / 1000 * USD,
+	"claude-3-haiku-20240307":  0.25 / 1000 * USD,
+	"claude-3-sonnet-20240229": 3.0 / 1000 * USD,
+	"claude-3-opus-20240229":   15.0 / 1000 * USD,
 	// https://cloud.baidu.com/doc/WENXINWORKSHOP/s/hlrk4akp7
-	"ERNIE-Bot":                 0.8572,     // ￥0.012 / 1k tokens
-	"ERNIE-Bot-turbo":           0.5715,     // ￥0.008 / 1k tokens
-	"ERNIE-Bot-4":               0.12 * RMB, // ￥0.12 / 1k tokens
-	"ERNIE-Bot-8k":              0.024 * RMB,
-	"Embedding-V1":              0.1429, // ￥0.002 / 1k tokens
-	"PaLM-2":                    1,
-	"gemini-pro":                1,      // $0.00025 / 1k characters -> $0.001 / 1k tokens
-	"gemini-pro-vision":         1,      // $0.00025 / 1k characters -> $0.001 / 1k tokens
+	"ERNIE-Bot":       0.8572,     // ￥0.012 / 1k tokens
+	"ERNIE-Bot-turbo": 0.5715,     // ￥0.008 / 1k tokens
+	"ERNIE-Bot-4":     0.12 * RMB, // ￥0.12 / 1k tokens
+	"ERNIE-Bot-8k":    0.024 * RMB,
+	"Embedding-V1":    0.1429, // ￥0.002 / 1k tokens
+	"bge-large-zh":    0.002 * RMB,
+	"bge-large-en":    0.002 * RMB,
+	"bge-large-8k":    0.002 * RMB,
+	// https://ai.google.dev/pricing
+	"PaLM-2":            1,
+	"gemini-pro":        1, // $0.00025 / 1k characters -> $0.001 / 1k tokens
+	"gemini-pro-vision": 1, // $0.00025 / 1k characters -> $0.001 / 1k tokens
+	// https://open.bigmodel.cn/pricing
+	"glm-4":                     0.1 * RMB,
+	"glm-4v":                    0.1 * RMB,
+	"glm-3-turbo":               0.005 * RMB,
 	"chatglm_turbo":             0.3572, // ￥0.005 / 1k tokens
 	"chatglm_pro":               0.7143, // ￥0.01 / 1k tokens
 	"chatglm_std":               0.3572, // ￥0.005 / 1k tokens
@@ -129,6 +115,66 @@ var ModelRatio = map[string]float64{
 	"moonshot-v1-8k":   0.012 * RMB,
 	"moonshot-v1-32k":  0.024 * RMB,
 	"moonshot-v1-128k": 0.06 * RMB,
+	// https://platform.baichuan-ai.com/price
+	"Baichuan2-Turbo":      0.008 * RMB,
+	"Baichuan2-Turbo-192k": 0.016 * RMB,
+	"Baichuan2-53B":        0.02 * RMB,
+	// https://api.minimax.chat/document/price
+	"abab6-chat":    0.1 * RMB,
+	"abab5.5-chat":  0.015 * RMB,
+	"abab5.5s-chat": 0.005 * RMB,
+	// https://docs.mistral.ai/platform/pricing/
+	"open-mistral-7b":       0.25 / 1000 * USD,
+	"open-mixtral-8x7b":     0.7 / 1000 * USD,
+	"mistral-small-latest":  2.0 / 1000 * USD,
+	"mistral-medium-latest": 2.7 / 1000 * USD,
+	"mistral-large-latest":  8.0 / 1000 * USD,
+	"mistral-embed":         0.1 / 1000 * USD,
+	// https://wow.groq.com/
+	"llama2-70b-4096":    0.7 / 1000 * USD,
+	"llama2-7b-2048":     0.1 / 1000 * USD,
+	"mixtral-8x7b-32768": 0.27 / 1000 * USD,
+	"gemma-7b-it":        0.1 / 1000 * USD,
+	// https://platform.lingyiwanwu.com/docs#-计费单元
+	"yi-34b-chat-0205": 2.5 / 1000000 * RMB,
+	"yi-34b-chat-200k": 12.0 / 1000000 * RMB,
+	"yi-vl-plus":       6.0 / 1000000 * RMB,
+}
+
+var CompletionRatio = map[string]float64{}
+
+var DefaultModelRatio map[string]float64
+var DefaultCompletionRatio map[string]float64
+
+func init() {
+	DefaultModelRatio = make(map[string]float64)
+	for k, v := range ModelRatio {
+		DefaultModelRatio[k] = v
+	}
+	DefaultCompletionRatio = make(map[string]float64)
+	for k, v := range CompletionRatio {
+		DefaultCompletionRatio[k] = v
+	}
+}
+
+func AddNewMissingRatio(oldRatio string) string {
+	newRatio := make(map[string]float64)
+	err := json.Unmarshal([]byte(oldRatio), &newRatio)
+	if err != nil {
+		logger.SysError("error unmarshalling old ratio: " + err.Error())
+		return oldRatio
+	}
+	for k, v := range DefaultModelRatio {
+		if _, ok := newRatio[k]; !ok {
+			newRatio[k] = v
+		}
+	}
+	jsonBytes, err := json.Marshal(newRatio)
+	if err != nil {
+		logger.SysError("error marshalling new ratio: " + err.Error())
+		return oldRatio
+	}
+	return string(jsonBytes)
 }
 
 func ModelRatio2JSONString() string {
@@ -153,13 +199,14 @@ func GetModelRatio(name string) float64 {
 		return ModelRatio["gpt-4-gizmo"]
 	}
 	if !ok {
+		ratio, ok = DefaultModelRatio[name]
+	}
+	if !ok {
 		logger.SysError("model ratio not found: " + name)
 		return 30
 	}
 	return ratio
 }
-
-var CompletionRatio = map[string]float64{}
 
 func CompletionRatio2JSONString() string {
 	jsonBytes, err := json.Marshal(CompletionRatio)
@@ -178,8 +225,11 @@ func GetCompletionRatio(name string) float64 {
 	if ratio, ok := CompletionRatio[name]; ok {
 		return ratio
 	}
+	if ratio, ok := DefaultCompletionRatio[name]; ok {
+		return ratio
+	}
 	if strings.HasPrefix(name, "gpt-3.5") {
-		if strings.HasSuffix(name, "0125") {
+		if name == "gpt-3.5-turbo" || strings.HasSuffix(name, "0125") {
 			// https://openai.com/blog/new-embedding-models-and-api-updates
 			// Updated GPT-3.5 Turbo model and lower pricing
 			return 3
@@ -187,16 +237,7 @@ func GetCompletionRatio(name string) float64 {
 		if strings.HasSuffix(name, "1106") {
 			return 2
 		}
-		if name == "gpt-3.5-turbo" || name == "gpt-3.5-turbo-16k" {
-			// TODO: clear this after 2023-12-11
-			now := time.Now()
-			// https://platform.openai.com/docs/models/continuous-model-upgrades
-			// if after 2023-12-11, use 2
-			if now.After(time.Date(2023, 12, 11, 0, 0, 0, 0, time.UTC)) {
-				return 2
-			}
-		}
-		return 1.333333
+		return 4.0 / 3.0
 	}
 	if strings.HasPrefix(name, "gpt-4") {
 		if strings.HasSuffix(name, "preview") {
@@ -204,11 +245,18 @@ func GetCompletionRatio(name string) float64 {
 		}
 		return 2
 	}
-	if strings.HasPrefix(name, "claude-instant-1") {
-		return 3.38
+	if strings.HasPrefix(name, "claude-3") {
+		return 5
 	}
-	if strings.HasPrefix(name, "claude-2") {
-		return 2.965517
+	if strings.HasPrefix(name, "claude-") {
+		return 3
+	}
+	if strings.HasPrefix(name, "mistral-") {
+		return 3
+	}
+	switch name {
+	case "llama2-70b-4096":
+		return 0.8 / 0.7
 	}
 	return 1
 }

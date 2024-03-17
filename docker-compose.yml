@@ -2,7 +2,7 @@ version: '3.4'
 
 services:
   one-api:
-    image: justsong/one-api:latest
+    image: "${REGISTRY:-docker.io}/justsong/one-api:latest"
     container_name: one-api
     restart: always
     command: --log-dir /app/logs
@@ -29,12 +29,12 @@ services:
       retries: 3
 
   redis:
-    image: redis:latest
+    image: "${REGISTRY:-docker.io}/redis:latest"
     container_name: redis
     restart: always
 
   db:
-    image: mysql:8.2.0
+    image: "${REGISTRY:-docker.io}/mysql:8.2.0"
     restart: always
     container_name: mysql
     volumes:

@@ -27,21 +27,10 @@ import (
 func requestOpenAI2Xunfei(request model.GeneralOpenAIRequest, xunfeiAppId string, domain string) *ChatRequest {
 	messages := make([]Message, 0, len(request.Messages))
 	for _, message := range request.Messages {
-		if message.Role == "system" {
-			messages = append(messages, Message{
-				Role:    "user",
-				Content: message.StringContent(),
-			})
-			messages = append(messages, Message{
-				Role:    "assistant",
-				Content: "Okay",
-			})
-		} else {
-			messages = append(messages, Message{
-				Role:    message.Role,
-				Content: message.StringContent(),
-			})
-		}
+		messages = append(messages, Message{
+			Role:    message.Role,
+			Content: message.StringContent(),
+		})
 	}
 	xunfeiRequest := ChatRequest{}
 	xunfeiRequest.Header.AppId = xunfeiAppId
@@ -70,6 +59,7 @@ func responseXunfei2OpenAI(response *ChatResponse) *openai.TextResponse {
 		FinishReason: constant.StopFinishReason,
 	}
 	fullTextResponse := openai.TextResponse{
+		Id:      fmt.Sprintf("chatcmpl-%s", helper.GetUUID()),
 		Object:  "chat.completion",
 		Created: helper.GetTimestamp(),
 		Choices: []openai.TextResponseChoice{choice},
@@ -92,6 +82,7 @@ func streamResponseXunfei2OpenAI(xunfeiResponse *ChatResponse) *openai.ChatCompl
 		choice.FinishReason = &constant.StopFinishReason
 	}
 	response := openai.ChatCompletionsStreamResponse{
+		Id:      fmt.Sprintf("chatcmpl-%s", helper.GetUUID()),
 		Object:  "chat.completion.chunk",
 		Created: helper.GetTimestamp(),
 		Model:   "SparkDesk",

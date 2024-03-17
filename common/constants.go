@@ -15,6 +15,7 @@ const (
 const (
 	UserStatusEnabled  = 1 // don't use 0, 0 is the default value!
 	UserStatusDisabled = 2 // also don't use 0
+	UserStatusDeleted  = 3
 )
 
 const (
@@ -38,32 +39,40 @@ const (
 )
 
 const (
-	ChannelTypeUnknown        = 0
-	ChannelTypeOpenAI         = 1
-	ChannelTypeAPI2D          = 2
-	ChannelTypeAzure          = 3
-	ChannelTypeCloseAI        = 4
-	ChannelTypeOpenAISB       = 5
-	ChannelTypeOpenAIMax      = 6
-	ChannelTypeOhMyGPT        = 7
-	ChannelTypeCustom         = 8
-	ChannelTypeAILS           = 9
-	ChannelTypeAIProxy        = 10
-	ChannelTypePaLM           = 11
-	ChannelTypeAPI2GPT        = 12
-	ChannelTypeAIGC2D         = 13
-	ChannelTypeAnthropic      = 14
-	ChannelTypeBaidu          = 15
-	ChannelTypeZhipu          = 16
-	ChannelTypeAli            = 17
-	ChannelTypeXunfei         = 18
-	ChannelType360            = 19
-	ChannelTypeOpenRouter     = 20
-	ChannelTypeAIProxyLibrary = 21
-	ChannelTypeFastGPT        = 22
-	ChannelTypeTencent        = 23
-	ChannelTypeGemini         = 24
-	ChannelTypeMoonshot       = 25
+	ChannelTypeUnknown = iota
+	ChannelTypeOpenAI
+	ChannelTypeAPI2D
+	ChannelTypeAzure
+	ChannelTypeCloseAI
+	ChannelTypeOpenAISB
+	ChannelTypeOpenAIMax
+	ChannelTypeOhMyGPT
+	ChannelTypeCustom
+	ChannelTypeAILS
+	ChannelTypeAIProxy
+	ChannelTypePaLM
+	ChannelTypeAPI2GPT
+	ChannelTypeAIGC2D
+	ChannelTypeAnthropic
+	ChannelTypeBaidu
+	ChannelTypeZhipu
+	ChannelTypeAli
+	ChannelTypeXunfei
+	ChannelType360
+	ChannelTypeOpenRouter
+	ChannelTypeAIProxyLibrary
+	ChannelTypeFastGPT
+	ChannelTypeTencent
+	ChannelTypeGemini
+	ChannelTypeMoonshot
+	ChannelTypeBaichuan
+	ChannelTypeMinimax
+	ChannelTypeMistral
+	ChannelTypeGroq
+	ChannelTypeOllama
+	ChannelTypeLingYiWanWu
+
+	ChannelTypeDummy
 )
 
 var ChannelBaseURLs = []string{
@@ -93,6 +102,12 @@ var ChannelBaseURLs = []string{
 	"https://hunyuan.cloud.tencent.com",         // 23
 	"https://generativelanguage.googleapis.com", // 24
 	"https://api.moonshot.cn",                   // 25
+	"https://api.baichuan-ai.com",               // 26
+	"https://api.minimax.chat",                  // 27
+	"https://api.mistral.ai",                    // 28
+	"https://api.groq.com/openai",               // 29
+	"http://localhost:11434",                    // 30
+	"https://api.lingyiwanwu.com",               // 31
 }
 
 const (

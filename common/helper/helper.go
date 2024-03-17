@@ -3,12 +3,10 @@ package helper
 import (
 	"fmt"
 	"github.com/google/uuid"
-	"github.com/songquanpeng/one-api/common/logger"
 	"html/template"
 	"log"
 	"math/rand"
 	"net"
-	"os"
 	"os/exec"
 	"runtime"
 	"strconv"
@@ -137,6 +135,7 @@ func GetUUID() string {
 }
 
 const keyChars = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+const keyNumbers = "0123456789"
 
 func init() {
 	rand.Seed(time.Now().UnixNano())
@@ -168,6 +167,15 @@ func GetRandomString(length int) string {
 	return string(key)
 }
 
+func GetRandomNumberString(length int) string {
+	rand.Seed(time.Now().UnixNano())
+	key := make([]byte, length)
+	for i := 0; i < length; i++ {
+		key[i] = keyNumbers[rand.Intn(len(keyNumbers))]
+	}
+	return string(key)
+}
+
 func GetTimestamp() int64 {
 	return time.Now().Unix()
 }
@@ -177,31 +185,16 @@ func GetTimeString() string {
 	return fmt.Sprintf("%s%d", now.Format("20060102150405"), now.UnixNano()%1e9)
 }
 
+func GenRequestID() string {
+	return GetTimeString() + GetRandomNumberString(8)
+}
+
 func Max(a int, b int) int {
 	if a >= b {
 		return a
 	} else {
 		return b
 	}
-}
-
-func GetOrDefaultEnvInt(env string, defaultValue int) int {
-	if env == "" || os.Getenv(env) == "" {
-		return defaultValue
-	}
-	num, err := strconv.Atoi(os.Getenv(env))
-	if err != nil {
-		logger.SysError(fmt.Sprintf("failed to parse %s: %s, using default value: %d", env, err.Error(), defaultValue))
-		return defaultValue
-	}
-	return num
-}
-
-func GetOrDefaultEnvString(env string, defaultValue string) string {
-	if env == "" || os.Getenv(env) == "" {
-		return defaultValue
-	}
-	return os.Getenv(env)
 }
 
 func AssignOrDefault(value string, defaultValue string) string {
