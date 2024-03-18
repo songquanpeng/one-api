@@ -3,11 +3,7 @@ package providers
 import (
 	"one-api/common"
 	"one-api/model"
-	"one-api/providers/aigc2d"
-	"one-api/providers/aiproxy"
 	"one-api/providers/ali"
-	"one-api/providers/api2d"
-	"one-api/providers/api2gpt"
 	"one-api/providers/azure"
 	azurespeech "one-api/providers/azureSpeech"
 	"one-api/providers/baichuan"
@@ -15,14 +11,12 @@ import (
 	"one-api/providers/base"
 	"one-api/providers/bedrock"
 	"one-api/providers/claude"
-	"one-api/providers/closeai"
 	"one-api/providers/deepseek"
 	"one-api/providers/gemini"
 	"one-api/providers/groq"
 	"one-api/providers/minimax"
 	"one-api/providers/mistral"
 	"one-api/providers/openai"
-	"one-api/providers/openaisb"
 	"one-api/providers/palm"
 	"one-api/providers/tencent"
 	"one-api/providers/xunfei"
@@ -50,12 +44,6 @@ func init() {
 	providerFactories[common.ChannelTypePaLM] = palm.PalmProviderFactory{}
 	providerFactories[common.ChannelTypeZhipu] = zhipu.ZhipuProviderFactory{}
 	providerFactories[common.ChannelTypeXunfei] = xunfei.XunfeiProviderFactory{}
-	providerFactories[common.ChannelTypeAIProxy] = aiproxy.AIProxyProviderFactory{}
-	providerFactories[common.ChannelTypeAPI2D] = api2d.Api2dProviderFactory{}
-	providerFactories[common.ChannelTypeCloseAI] = closeai.CloseaiProviderFactory{}
-	providerFactories[common.ChannelTypeOpenAISB] = openaisb.OpenaiSBProviderFactory{}
-	providerFactories[common.ChannelTypeAIGC2D] = aigc2d.Aigc2dProviderFactory{}
-	providerFactories[common.ChannelTypeAPI2GPT] = api2gpt.Api2gptProviderFactory{}
 	providerFactories[common.ChannelTypeAzureSpeech] = azurespeech.AzureSpeechProviderFactory{}
 	providerFactories[common.ChannelTypeGemini] = gemini.GeminiProviderFactory{}
 	providerFactories[common.ChannelTypeBaichuan] = baichuan.BaichuanProviderFactory{}
