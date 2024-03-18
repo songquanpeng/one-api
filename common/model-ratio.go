@@ -195,6 +195,13 @@ func init() {
 		"gemma-7b-it":    {[]float64{0.05, 0.05}, ChannelTypeGroq},
 		// $0.27/$0.27 /1M Tokens 0.00027$ / 1k tokens
 		"mixtral-8x7b-32768": {[]float64{0.135, 0.135}, ChannelTypeGroq},
+
+		// 2.5 元 / 1M tokens 0.0025 / 1k tokens
+		"yi-34b-chat-0205": {[]float64{0.1786, 0.1786}, ChannelTypeLingyi},
+		// 12 元 / 1M tokens 0.012 / 1k tokens
+		"yi-34b-chat-200k": {[]float64{0.8571, 0.8571}, ChannelTypeLingyi},
+		// 	6 元 / 1M tokens 0.006 / 1k tokens
+		"yi-vl-plus": {[]float64{0.4286, 0.4286}, ChannelTypeLingyi},
 	}
 
 	ModelRatio = make(map[string][]float64)

@@ -199,6 +199,7 @@ const (
 	ChannelTypeMistral        = 30
 	ChannelTypeGroq           = 31
 	ChannelTypeBedrock        = 32
+	ChannelTypeLingyi         = 33
 )
 
 var ChannelBaseURLs = []string{
@@ -235,6 +236,7 @@ var ChannelBaseURLs = []string{
 	"https://api.mistral.ai",            //30
 	"https://api.groq.com/openai",       //31
 	"",                                  //32
+	"https://api.lingyiwanwu.com",       //33
 }
 
 const (

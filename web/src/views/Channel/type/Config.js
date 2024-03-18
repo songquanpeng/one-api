@@ -226,6 +226,13 @@ const typeConfig = {
       key: '按照如下格式输入：Region|AccessKeyID|SecretAccessKey|SessionToken 其中SessionToken可不填空'
     },
     modelGroup: 'Anthropic'
+  },
+  33: {
+    input: {
+      models: ['yi-34b-chat-0205', 'yi-34b-chat-200k', 'yi-vl-plus'],
+      test_model: 'yi-34b-chat-0205'
+    },
+    modelGroup: 'Lingyiwanwu'
   }
 };
 
