@@ -101,6 +101,12 @@ export const CHANNEL_OPTIONS = {
     value: 31,
     color: 'primary'
   },
+  32: {
+    key: 32,
+    text: 'Amazon Bedrock',
+    value: 32,
+    color: 'orange'
+  },
   24: {
     key: 24,
     text: 'Azure Speech',

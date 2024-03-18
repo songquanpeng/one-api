@@ -198,6 +198,7 @@ const (
 	ChannelTypeMoonshot       = 29
 	ChannelTypeMistral        = 30
 	ChannelTypeGroq           = 31
+	ChannelTypeBedrock        = 32
 )
 
 var ChannelBaseURLs = []string{
@@ -232,7 +233,8 @@ var ChannelBaseURLs = []string{
 	"https://api.deepseek.com",          //28
 	"https://api.moonshot.cn",           //29
 	"https://api.mistral.ai",            //30
-	"https://api.groq.com/openai",       //30
+	"https://api.groq.com/openai",       //31
+	"",                                  //32
 }
 
 const (

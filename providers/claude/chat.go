@@ -8,13 +8,17 @@ import (
 	"one-api/common"
 	"one-api/common/image"
 	"one-api/common/requester"
+	"one-api/providers/base"
 	"one-api/types"
 	"strings"
+
+	"github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream"
 )
 
-type claudeStreamHandler struct {
+type ClaudeStreamHandler struct {
 	Usage   *types.Usage
 	Request *types.ChatCompletionRequest
+	Prefix  string
 }
 
 func (p *ClaudeProvider) CreateChatCompletion(request *types.ChatCompletionRequest) (*types.ChatCompletionResponse, *types.OpenAIErrorWithStatusCode) {
@@ -31,7 +35,7 @@ func (p *ClaudeProvider) CreateChatCompletion(request *types.ChatCompletionReque
 		return nil, errWithCode
 	}
 
-	return p.convertToChatOpenai(claudeResponse, request)
+	return ConvertToChatOpenai(p, claudeResponse, request)
 }
 
 func (p *ClaudeProvider) CreateChatCompletionStream(request *types.ChatCompletionRequest) (requester.StreamReaderInterface[string], *types.OpenAIErrorWithStatusCode) {
@@ -47,12 +51,15 @@ func (p *ClaudeProvider) CreateChatCompletionStream(request *types.ChatCompletio
 		return nil, errWithCode
 	}
 
-	chatHandler := &claudeStreamHandler{
+	chatHandler := &ClaudeStreamHandler{
 		Usage:   p.Usage,
 		Request: request,
+		Prefix:  `data: {"type"`,
 	}
 
-	return requester.RequestStream[string](p.Requester, resp, chatHandler.handlerStream)
+	eventstream.NewDecoder()
+
+	return requester.RequestStream(p.Requester, resp, chatHandler.HandlerStream)
 }
 
 func (p *ClaudeProvider) getChatRequest(request *types.ChatCompletionRequest) (*http.Request, *types.OpenAIErrorWithStatusCode) {
@@ -72,7 +79,7 @@ func (p *ClaudeProvider) getChatRequest(request *types.ChatCompletionRequest) (*
 		headers["Accept"] = "text/event-stream"
 	}
 
-	claudeRequest, errWithCode := convertFromChatOpenai(request)
+	claudeRequest, errWithCode := ConvertFromChatOpenai(request)
 	if errWithCode != nil {
 		return nil, errWithCode
 	}
@@ -86,7 +93,7 @@ func (p *ClaudeProvider) getChatRequest(request *types.ChatCompletionRequest) (*
 	return req, nil
 }
 
-func convertFromChatOpenai(request *types.ChatCompletionRequest) (*ClaudeRequest, *types.OpenAIErrorWithStatusCode) {
+func ConvertFromChatOpenai(request *types.ChatCompletionRequest) (*ClaudeRequest, *types.OpenAIErrorWithStatusCode) {
 	claudeRequest := ClaudeRequest{
 		Model:         request.Model,
 		Messages:      []Message{},
@@ -142,7 +149,7 @@ func convertFromChatOpenai(request *types.ChatCompletionRequest) (*ClaudeRequest
 	return &claudeRequest, nil
 }
 
-func (p *ClaudeProvider) convertToChatOpenai(response *ClaudeResponse, request *types.ChatCompletionRequest) (openaiResponse *types.ChatCompletionResponse, errWithCode *types.OpenAIErrorWithStatusCode) {
+func ConvertToChatOpenai(provider base.ProviderInterface, response *ClaudeResponse, request *types.ChatCompletionRequest) (openaiResponse *types.ChatCompletionResponse, errWithCode *types.OpenAIErrorWithStatusCode) {
 	error := errorHandle(&response.Error)
 	if error != nil {
 		errWithCode = &types.OpenAIErrorWithStatusCode{
@@ -182,21 +189,24 @@ func (p *ClaudeProvider) convertToChatOpenai(response *ClaudeResponse, request *
 	openaiResponse.Usage.CompletionTokens = completionTokens
 	openaiResponse.Usage.TotalTokens = promptTokens + completionTokens
 
-	*p.Usage = *openaiResponse.Usage
+	usage := provider.GetUsage()
+	*usage = *openaiResponse.Usage
 
 	return openaiResponse, nil
 }
 
 // 转换为OpenAI聊天流式请求体
-func (h *claudeStreamHandler) handlerStream(rawLine *[]byte, dataChan chan string, errChan chan error) {
+func (h *ClaudeStreamHandler) HandlerStream(rawLine *[]byte, dataChan chan string, errChan chan error) {
 	// 如果rawLine 前缀不为data:，则直接返回
-	if !strings.HasPrefix(string(*rawLine), `data: {"type"`) {
+	if !strings.HasPrefix(string(*rawLine), h.Prefix) {
 		*rawLine = nil
 		return
 	}
 
-	// 去除前缀
-	*rawLine = (*rawLine)[6:]
+	if strings.HasPrefix(string(*rawLine), "data: ") {
+		// 去除前缀
+		*rawLine = (*rawLine)[6:]
+	}
 
 	var claudeResponse ClaudeStreamResponse
 	err := json.Unmarshal(*rawLine, &claudeResponse)
@@ -235,7 +245,7 @@ func (h *claudeStreamHandler) handlerStream(rawLine *[]byte, dataChan chan strin
 	}
 }
 
-func (h *claudeStreamHandler) convertToOpenaiStream(claudeResponse *ClaudeStreamResponse, dataChan chan string) {
+func (h *ClaudeStreamHandler) convertToOpenaiStream(claudeResponse *ClaudeStreamResponse, dataChan chan string) {
 	choice := types.ChatCompletionStreamChoice{
 		Index: claudeResponse.Index,
 	}

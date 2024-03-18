@@ -60,8 +60,15 @@ const typeConfig = {
   },
   14: {
     input: {
-      models: ['claude-instant-1.2', 'claude-2.0', 'claude-2.1', 'claude-3-opus-20240229', 'claude-3-sonnet-20240229'],
-      test_model: 'claude-3-sonnet-20240229'
+      models: [
+        'claude-instant-1.2',
+        'claude-2.0',
+        'claude-2.1',
+        'claude-3-opus-20240229',
+        'claude-3-sonnet-20240229',
+        'claude-3-haiku-20240307'
+      ],
+      test_model: 'claude-3-haiku-20240307'
     },
     modelGroup: 'Anthropic'
   },
@@ -202,6 +209,23 @@ const typeConfig = {
       test_model: 'llama2-7b-2048'
     },
     modelGroup: 'Groq'
+  },
+  32: {
+    input: {
+      models: [
+        'claude-instant-1.2',
+        'claude-2.0',
+        'claude-2.1',
+        'claude-3-opus-20240229',
+        'claude-3-sonnet-20240229',
+        'claude-3-haiku-20240307'
+      ],
+      test_model: 'claude-3-haiku-20240307'
+    },
+    prompt: {
+      key: '按照如下格式输入：Region|AccessKeyID|SecretAccessKey|SessionToken 其中SessionToken可不填空'
+    },
+    modelGroup: 'Anthropic'
   }
 };
 

@@ -32,7 +32,7 @@ type Message struct {
 }
 
 type ClaudeRequest struct {
-	Model         string    `json:"model"`
+	Model         string    `json:"model,omitempty"`
 	System        string    `json:"system,omitempty"`
 	Messages      []Message `json:"messages"`
 	MaxTokens     int       `json:"max_tokens"`
