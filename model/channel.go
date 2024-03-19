@@ -13,7 +13,7 @@ import (
 type Channel struct {
 	Id                 int     `json:"id"`
 	Type               int     `json:"type" gorm:"default:0"`
-	Key                string  `json:"key" gorm:"not null;index"`
+	Key                string  `json:"key" gorm:"type:text"`
 	Status             int     `json:"status" gorm:"default:1"`
 	Name               string  `json:"name" gorm:"index"`
 	Weight             *uint   `json:"weight" gorm:"default:0"`
@@ -32,23 +32,22 @@ type Channel struct {
 	Config             string  `json:"config"`
 }
 
-func GetAllChannels(startIdx int, num int, selectAll bool) ([]*Channel, error) {
+func GetAllChannels(startIdx int, num int, scope string) ([]*Channel, error) {
 	var channels []*Channel
 	var err error
-	if selectAll {
+	switch scope {
+	case "all":
 		err = DB.Order("id desc").Find(&channels).Error
-	} else {
+	case "disabled":
+		err = DB.Order("id desc").Where("status = ? or status = ?", common.ChannelStatusAutoDisabled, common.ChannelStatusManuallyDisabled).Find(&channels).Error
+	default:
 		err = DB.Order("id desc").Limit(num).Offset(startIdx).Omit("key").Find(&channels).Error
 	}
 	return channels, err
 }
 
 func SearchChannels(keyword string) (channels []*Channel, err error) {
-	keyCol := "`key`"
-	if common.UsingPostgreSQL {
-		keyCol = `"key"`
-	}
-	err = DB.Omit("key").Where("id = ? or name LIKE ? or "+keyCol+" = ?", helper.String2Int(keyword), keyword+"%", keyword).Find(&channels).Error
+	err = DB.Omit("key").Where("id = ? or name LIKE ?", helper.String2Int(keyword), keyword+"%").Find(&channels).Error
 	return channels, err
 }
 
@@ -179,7 +178,7 @@ func UpdateChannelStatusById(id int, status int) {
 	}
 }
 
-func UpdateChannelUsedQuota(id int, quota int) {
+func UpdateChannelUsedQuota(id int, quota int64) {
 	if config.BatchUpdateEnabled {
 		addNewRecord(BatchUpdateTypeChannelUsedQuota, id, quota)
 		return
@@ -187,7 +186,7 @@ func UpdateChannelUsedQuota(id int, quota int) {
 	updateChannelUsedQuota(id, quota)
 }
 
-func updateChannelUsedQuota(id int, quota int) {
+func updateChannelUsedQuota(id int, quota int64) {
 	err := DB.Model(&Channel{}).Where("id = ?", id).Update("used_quota", gorm.Expr("used_quota + ?", quota)).Error
 	if err != nil {
 		logger.SysError("failed to update channel used quota: " + err.Error())

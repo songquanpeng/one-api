@@ -180,7 +180,7 @@ const LoginForm = ({ ...others }) => {
         {({ errors, handleBlur, handleChange, handleSubmit, isSubmitting, touched, values }) => (
           <form noValidate onSubmit={handleSubmit} {...others}>
             <FormControl fullWidth error={Boolean(touched.username && errors.username)} sx={{ ...theme.typography.customInput }}>
-              <InputLabel htmlFor="outlined-adornment-username-login">用户名</InputLabel>
+              <InputLabel htmlFor="outlined-adornment-username-login">用户名 / 邮箱</InputLabel>
               <OutlinedInput
                 id="outlined-adornment-username-login"
                 type="text"

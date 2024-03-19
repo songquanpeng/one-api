@@ -171,6 +171,9 @@ export default function ChannelTableRow({
           />
         </TableCell>
         <TableCell>
+          {renderNumber(item.used_quota)}
+        </TableCell>
+        <TableCell>
           <Tooltip
             title={"点击更新余额"}
             placement="top"

@@ -1,4 +1,4 @@
-package common
+package message
 
 import (
 	"crypto/rand"
@@ -12,6 +12,9 @@ import (
 )
 
 func SendEmail(subject string, receiver string, content string) error {
+	if receiver == "" {
+		return fmt.Errorf("receiver is empty")
+	}
 	if config.SMTPFrom == "" { // for compatibility
 		config.SMTPFrom = config.SMTPAccount
 	}

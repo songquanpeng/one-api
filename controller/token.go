@@ -16,7 +16,10 @@ func GetAllTokens(c *gin.Context) {
 	if p < 0 {
 		p = 0
 	}
-	tokens, err := model.GetAllUserTokens(userId, p*config.ItemsPerPage, config.ItemsPerPage)
+
+	order := c.Query("order")
+	tokens, err := model.GetAllUserTokens(userId, p*config.ItemsPerPage, config.ItemsPerPage, order)
+
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,

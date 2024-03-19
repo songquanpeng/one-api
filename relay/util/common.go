@@ -27,7 +27,23 @@ func ShouldDisableChannel(err *relaymodel.Error, statusCode int) bool {
 	if statusCode == http.StatusUnauthorized {
 		return true
 	}
-	if err.Type == "insufficient_quota" || err.Code == "invalid_api_key" || err.Code == "account_deactivated" {
+	switch err.Type {
+	case "insufficient_quota":
+		return true
+	// https://docs.anthropic.com/claude/reference/errors
+	case "authentication_error":
+		return true
+	case "permission_error":
+		return true
+	case "forbidden":
+		return true
+	}
+	if err.Code == "invalid_api_key" || err.Code == "account_deactivated" {
+		return true
+	}
+	if strings.HasPrefix(err.Message, "Your credit balance is too low") { // anthropic
+		return true
+	} else if strings.HasPrefix(err.Message, "This organization has been disabled.") {
 		return true
 	}
 	return false
@@ -101,6 +117,9 @@ func RelayErrorHandler(resp *http.Response) (ErrorWithStatusCode *relaymodel.Err
 	if err != nil {
 		return
 	}
+	if config.DebugEnabled {
+		logger.SysLog(fmt.Sprintf("error happened, status code: %d, response: \n%s", resp.StatusCode, string(responseBody)))
+	}
 	err = resp.Body.Close()
 	if err != nil {
 		return
@@ -136,20 +155,20 @@ func GetFullRequestURL(baseURL string, requestURL string, channelType int) strin
 	return fullRequestURL
 }
 
-func PostConsumeQuota(ctx context.Context, tokenId int, quotaDelta int, totalQuota int, userId int, channelId int, modelRatio float64, groupRatio float64, modelName string, tokenName string) {
+func PostConsumeQuota(ctx context.Context, tokenId int, quotaDelta int64, totalQuota int64, userId int, channelId int, modelRatio float64, groupRatio float64, modelName string, tokenName string) {
 	// quotaDelta is remaining quota to be consumed
 	err := model.PostConsumeTokenQuota(tokenId, quotaDelta)
 	if err != nil {
 		logger.SysError("error consuming token remain quota: " + err.Error())
 	}
-	err = model.CacheUpdateUserQuota(userId)
+	err = model.CacheUpdateUserQuota(ctx, userId)
 	if err != nil {
 		logger.SysError("error update user quota cache: " + err.Error())
 	}
 	// totalQuota is total quota consumed
 	if totalQuota != 0 {
 		logContent := fmt.Sprintf("模型倍率 %.2f，分组倍率 %.2f", modelRatio, groupRatio)
-		model.RecordConsumeLog(ctx, userId, channelId, totalQuota, 0, modelName, tokenName, totalQuota, logContent)
+		model.RecordConsumeLog(ctx, userId, channelId, int(totalQuota), 0, modelName, tokenName, totalQuota, logContent)
 		model.UpdateUserUsedQuotaAndRequestCount(userId, totalQuota)
 		model.UpdateChannelUsedQuota(channelId, totalQuota)
 	}

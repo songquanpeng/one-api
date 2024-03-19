@@ -49,7 +49,7 @@ const typeConfig = {
       base_url: "请填写AZURE_OPENAI_ENDPOINT",
 
       // 注意：通过判断 `other` 是否有值来判断是否需要显示 `other` 输入框， 默认是没有值的
-      other: "请输入默认API版本，例如：2023-06-01-preview",
+      other: "请输入默认API版本，例如：2024-03-01-preview",
     },
     modelGroup: "openai", // 模型组名称,这个值是给 填入渠道支持模型 按钮使用的。 填入渠道支持模型 按钮会根据这个值来获取模型组，如果填写默认是 openai
   },

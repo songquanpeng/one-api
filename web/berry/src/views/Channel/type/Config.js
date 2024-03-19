@@ -41,7 +41,7 @@ const typeConfig = {
     },
     prompt: {
       base_url: "请填写AZURE_OPENAI_ENDPOINT",
-      other: "请输入默认API版本，例如：2023-06-01-preview",
+      other: "请输入默认API版本，例如：2024-03-01-preview",
     },
   },
   11: {
@@ -162,6 +162,15 @@ const typeConfig = {
       models: ['abab5.5s-chat', 'abab5.5-chat', 'abab6-chat'],
     },
     modelGroup: "minimax",
+  },
+  29: {
+    modelGroup: "groq",
+  },
+  30: {
+    modelGroup: "ollama",
+  },
+  31: {
+    modelGroup: "lingyiwanwu",
   },
 };
 

@@ -141,7 +141,7 @@ export default function Redemption() {
 
   return (
     <>
-      <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
+      <Stack direction="row" alignItems="center" justifyContent="space-between" mb={2.5}>
         <Typography variant="h4">兑换</Typography>
 
         <Button variant="contained" color="primary" startIcon={<IconPlus />} onClick={() => handleOpenModal(0)}>
@@ -149,7 +149,7 @@ export default function Redemption() {
         </Button>
       </Stack>
       <Card>
-        <Box component="form" onSubmit={searchRedemptions} noValidate>
+        <Box component="form" onSubmit={searchRedemptions} noValidate sx={{marginTop: 2}}>
           <TableToolBar filterName={searchKeyword} handleFilterName={handleSearchKeyword} placeholder={'搜索兑换码的ID和名称...'} />
         </Box>
         <Toolbar
@@ -162,7 +162,7 @@ export default function Redemption() {
           }}
         >
           <Container>
-            <ButtonGroup variant="outlined" aria-label="outlined small primary button group">
+            <ButtonGroup variant="outlined" aria-label="outlined small primary button group" sx={{marginBottom: 2}}>
               <Button onClick={handleRefresh} startIcon={<IconRefresh width={'18px'} />}>
                 刷新
               </Button>

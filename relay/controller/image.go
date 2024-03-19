@@ -61,7 +61,7 @@ func RelayImageHelper(c *gin.Context, relayMode int) *relaymodel.ErrorWithStatus
 	if meta.ChannelType == common.ChannelTypeAzure {
 		// https://learn.microsoft.com/en-us/azure/ai-services/openai/dall-e-quickstart?tabs=dalle3%2Ccommand-line&pivots=rest-api
 		apiVersion := util.GetAzureAPIVersion(c)
-		// https://{resource_name}.openai.azure.com/openai/deployments/dall-e-3/images/generations?api-version=2023-06-01-preview
+		// https://{resource_name}.openai.azure.com/openai/deployments/dall-e-3/images/generations?api-version=2024-03-01-preview
 		fullRequestURL = fmt.Sprintf("%s/openai/deployments/%s/images/generations?api-version=%s", meta.BaseURL, imageRequest.Model, apiVersion)
 	}
 
@@ -79,9 +79,9 @@ func RelayImageHelper(c *gin.Context, relayMode int) *relaymodel.ErrorWithStatus
 	modelRatio := common.GetModelRatio(imageRequest.Model)
 	groupRatio := common.GetGroupRatio(meta.Group)
 	ratio := modelRatio * groupRatio
-	userQuota, err := model.CacheGetUserQuota(meta.UserId)
+	userQuota, err := model.CacheGetUserQuota(ctx, meta.UserId)
 
-	quota := int(ratio*imageCostRatio*1000) * imageRequest.N
+	quota := int64(ratio*imageCostRatio*1000) * int64(imageRequest.N)
 
 	if userQuota-quota < 0 {
 		return openai.ErrorWrapper(errors.New("user quota is not enough"), "insufficient_user_quota", http.StatusForbidden)
@@ -125,7 +125,7 @@ func RelayImageHelper(c *gin.Context, relayMode int) *relaymodel.ErrorWithStatus
 		if err != nil {
 			logger.SysError("error consuming token remain quota: " + err.Error())
 		}
-		err = model.CacheUpdateUserQuota(meta.UserId)
+		err = model.CacheUpdateUserQuota(ctx, meta.UserId)
 		if err != nil {
 			logger.SysError("error update user quota cache: " + err.Error())
 		}

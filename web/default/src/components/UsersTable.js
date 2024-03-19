@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Form, Label, Pagination, Popup, Table } from 'semantic-ui-react';
+import { Button, Form, Label, Pagination, Popup, Table, Dropdown } from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
 import { API, showError, showSuccess } from '../helpers';
 
@@ -25,9 +25,10 @@ const UsersTable = () => {
   const [activePage, setActivePage] = useState(1);
   const [searchKeyword, setSearchKeyword] = useState('');
   const [searching, setSearching] = useState(false);
+  const [orderBy, setOrderBy] = useState('');
 
   const loadUsers = async (startIdx) => {
-    const res = await API.get(`/api/user/?p=${startIdx}`);
+    const res = await API.get(`/api/user/?p=${startIdx}&order=${orderBy}`);
     const { success, message, data } = res.data;
     if (success) {
       if (startIdx === 0) {
@@ -47,19 +48,19 @@ const UsersTable = () => {
     (async () => {
       if (activePage === Math.ceil(users.length / ITEMS_PER_PAGE) + 1) {
         // In this case we have to load more data and then append them.
-        await loadUsers(activePage - 1);
+        await loadUsers(activePage - 1, orderBy);
       }
       setActivePage(activePage);
     })();
   };
 
   useEffect(() => {
-    loadUsers(0)
+    loadUsers(0, orderBy)
       .then()
       .catch((reason) => {
         showError(reason);
       });
-  }, []);
+  }, [orderBy]);
 
   const manageUser = (username, action, idx) => {
     (async () => {
@@ -110,6 +111,7 @@ const UsersTable = () => {
       // if keyword is blank, load files instead.
       await loadUsers(0);
       setActivePage(1);
+      setOrderBy('');
       return;
     }
     setSearching(true);
@@ -146,6 +148,11 @@ const UsersTable = () => {
     }
     setUsers(sortedUsers);
     setLoading(false);
+  };
+
+  const handleOrderByChange = (e, { value }) => {
+    setOrderBy(value);
+    setActivePage(1);
   };
 
   return (
@@ -322,6 +329,19 @@ const UsersTable = () => {
               <Button size='small' as={Link} to='/user/add' loading={loading}>
                 添加新的用户
               </Button>
+              <Dropdown
+                placeholder='排序方式'
+                selection
+                options={[
+                  { key: '', text: '默认排序', value: '' },
+                  { key: 'quota', text: '按剩余额度排序', value: 'quota' },
+                  { key: 'used_quota', text: '按已用额度排序', value: 'used_quota' },
+                  { key: 'request_count', text: '按请求次数排序', value: 'request_count' },
+                ]}
+                value={orderBy}
+                onChange={handleOrderByChange}
+                style={{ marginLeft: '10px' }}
+              />
               <Pagination
                 floated='right'
                 activePage={activePage}

@@ -10,6 +10,7 @@ const ChannelTableHead = () => {
         <TableCell>类型</TableCell>
         <TableCell>状态</TableCell>
         <TableCell>响应时间</TableCell>
+        <TableCell>已消耗</TableCell>
         <TableCell>余额</TableCell>
         <TableCell>优先级</TableCell>
         <TableCell>操作</TableCell>

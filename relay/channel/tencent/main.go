@@ -28,17 +28,6 @@ func ConvertRequest(request model.GeneralOpenAIRequest) *ChatRequest {
 	messages := make([]Message, 0, len(request.Messages))
 	for i := 0; i < len(request.Messages); i++ {
 		message := request.Messages[i]
-		if message.Role == "system" {
-			messages = append(messages, Message{
-				Role:    "user",
-				Content: message.StringContent(),
-			})
-			messages = append(messages, Message{
-				Role:    "assistant",
-				Content: "Okay",
-			})
-			continue
-		}
 		messages = append(messages, Message{
 			Content: message.StringContent(),
 			Role:    message.Role,

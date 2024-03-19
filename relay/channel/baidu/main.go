@@ -32,9 +32,16 @@ type Message struct {
 }
 
 type ChatRequest struct {
-	Messages []Message `json:"messages"`
-	Stream   bool      `json:"stream"`
-	UserId   string    `json:"user_id,omitempty"`
+	Messages        []Message `json:"messages"`
+	Temperature     float64   `json:"temperature,omitempty"`
+	TopP            float64   `json:"top_p,omitempty"`
+	PenaltyScore    float64   `json:"penalty_score,omitempty"`
+	Stream          bool      `json:"stream,omitempty"`
+	System          string    `json:"system,omitempty"`
+	DisableSearch   bool      `json:"disable_search,omitempty"`
+	EnableCitation  bool      `json:"enable_citation,omitempty"`
+	MaxOutputTokens int       `json:"max_output_tokens,omitempty"`
+	UserId          string    `json:"user_id,omitempty"`
 }
 
 type Error struct {
@@ -45,28 +52,28 @@ type Error struct {
 var baiduTokenStore sync.Map
 
 func ConvertRequest(request model.GeneralOpenAIRequest) *ChatRequest {
-	messages := make([]Message, 0, len(request.Messages))
+	baiduRequest := ChatRequest{
+		Messages:        make([]Message, 0, len(request.Messages)),
+		Temperature:     request.Temperature,
+		TopP:            request.TopP,
+		PenaltyScore:    request.FrequencyPenalty,
+		Stream:          request.Stream,
+		DisableSearch:   false,
+		EnableCitation:  false,
+		MaxOutputTokens: request.MaxTokens,
+		UserId:          request.User,
+	}
 	for _, message := range request.Messages {
 		if message.Role == "system" {
-			messages = append(messages, Message{
-				Role:    "user",
-				Content: message.StringContent(),
-			})
-			messages = append(messages, Message{
-				Role:    "assistant",
-				Content: "Okay",
-			})
+			baiduRequest.System = message.StringContent()
 		} else {
-			messages = append(messages, Message{
+			baiduRequest.Messages = append(baiduRequest.Messages, Message{
 				Role:    message.Role,
 				Content: message.StringContent(),
 			})
 		}
 	}
-	return &ChatRequest{
-		Messages: messages,
-		Stream:   request.Stream,
-	}
+	return &baiduRequest
 }
 
 func responseBaidu2OpenAI(response *ChatResponse) *openai.TextResponse {
