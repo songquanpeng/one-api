@@ -108,7 +108,6 @@ func CountTokenMessages(messages []types.ChatCompletionMessage, model string) in
 				}
 			}
 		}
-		tokenNum += getTokenNum(tokenEncoder, message.StringContent())
 		tokenNum += getTokenNum(tokenEncoder, message.Role)
 		if message.Name != nil {
 			tokenNum += tokensPerName
