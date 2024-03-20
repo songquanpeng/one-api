@@ -33,7 +33,7 @@ jobs:
       - name: Build Backend
         run: |
           go mod download
-          go build -ldflags "-X 'one-api/common.Version=$(git describe --tags)'" -o one-api-macos
+          go build -ldflags "-s -w -X 'one-api/common.Version=$(git describe --tags)'" -o one-api-macos
       - name: Release
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
