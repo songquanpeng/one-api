@@ -3,15 +3,35 @@ package middleware
 import (
 	"context"
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"net/http"
 	"one-api/common"
 	"time"
+
+	"github.com/gin-gonic/gin"
 )
 
 var timeFormat = "2006-01-02T15:04:05.000Z"
 
 var inMemoryRateLimiter common.InMemoryRateLimiter
+
+// All duration's unit is seconds
+// Shouldn't larger then RateLimitKeyExpirationDuration
+var (
+	GlobalApiRateLimitNum            = 180
+	GlobalApiRateLimitDuration int64 = 3 * 60
+
+	GlobalWebRateLimitNum            = 100
+	GlobalWebRateLimitDuration int64 = 3 * 60
+
+	UploadRateLimitNum            = 10
+	UploadRateLimitDuration int64 = 60
+
+	DownloadRateLimitNum            = 10
+	DownloadRateLimitDuration int64 = 60
+
+	CriticalRateLimitNum            = 20
+	CriticalRateLimitDuration int64 = 20 * 60
+)
 
 func redisRateLimiter(c *gin.Context, maxRequestNum int, duration int64, mark string) {
 	ctx := context.Background()
@@ -83,21 +103,21 @@ func rateLimitFactory(maxRequestNum int, duration int64, mark string) func(c *gi
 }
 
 func GlobalWebRateLimit() func(c *gin.Context) {
-	return rateLimitFactory(common.GlobalWebRateLimitNum, common.GlobalWebRateLimitDuration, "GW")
+	return rateLimitFactory(common.GetOrDefault("GLOBAL_WEB_RATE_LIMIT", GlobalWebRateLimitNum), GlobalWebRateLimitDuration, "GW")
 }
 
 func GlobalAPIRateLimit() func(c *gin.Context) {
-	return rateLimitFactory(common.GlobalApiRateLimitNum, common.GlobalApiRateLimitDuration, "GA")
+	return rateLimitFactory(common.GetOrDefault("GLOBAL_API_RATE_LIMIT", GlobalApiRateLimitNum), GlobalApiRateLimitDuration, "GA")
 }
 
 func CriticalRateLimit() func(c *gin.Context) {
-	return rateLimitFactory(common.CriticalRateLimitNum, common.CriticalRateLimitDuration, "CT")
+	return rateLimitFactory(CriticalRateLimitNum, CriticalRateLimitDuration, "CT")
 }
 
 func DownloadRateLimit() func(c *gin.Context) {
-	return rateLimitFactory(common.DownloadRateLimitNum, common.DownloadRateLimitDuration, "DW")
+	return rateLimitFactory(DownloadRateLimitNum, DownloadRateLimitDuration, "DW")
 }
 
 func UploadRateLimit() func(c *gin.Context) {
-	return rateLimitFactory(common.UploadRateLimitNum, common.UploadRateLimitDuration, "UP")
+	return rateLimitFactory(UploadRateLimitNum, UploadRateLimitDuration, "UP")
 }

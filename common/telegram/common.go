@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"one-api/common"
 	"one-api/model"
-	"os"
 	"strings"
 	"time"
 
@@ -14,6 +13,7 @@ import (
 	"github.com/PaulSonOfLars/gotgbot/v2/ext/handlers"
 	"github.com/PaulSonOfLars/gotgbot/v2/ext/handlers/filters/callbackquery"
 	"github.com/PaulSonOfLars/gotgbot/v2/ext/handlers/filters/message"
+	"github.com/spf13/viper"
 )
 
 var TGupdater *ext.Updater
@@ -28,13 +28,14 @@ func InitTelegramBot() {
 		return
 	}
 
-	if os.Getenv("TG_BOT_API_KEY") == "" {
+	botKey := viper.GetString("TG_BOT_API_KEY")
+	if botKey == "" {
 		common.SysLog("Telegram bot is not enabled")
 		return
 	}
 
 	var err error
-	TGBot, err = gotgbot.NewBot(os.Getenv("TG_BOT_API_KEY"), nil)
+	TGBot, err = gotgbot.NewBot(botKey, nil)
 	if err != nil {
 		common.SysLog("failed to create new telegram bot: " + err.Error())
 		return
@@ -47,15 +48,16 @@ func InitTelegramBot() {
 }
 
 func StartTelegramBot() {
-	if os.Getenv("TG_WEBHOOK_SECRET") != "" {
+	botWebhook := viper.GetString("TG_WEBHOOK_SECRET")
+	if botWebhook != "" {
 		if common.ServerAddress == "" {
 			common.SysLog("Telegram bot is not enabled: Server address is not set")
 			StopTelegramBot()
 			return
 		}
-		TGWebHookSecret = os.Getenv("TG_WEBHOOK_SECRET")
+		TGWebHookSecret = botWebhook
 		serverAddress := strings.TrimSuffix(common.ServerAddress, "/")
-		urlPath := fmt.Sprintf("/api/telegram/%s", os.Getenv("TG_BOT_API_KEY"))
+		urlPath := fmt.Sprintf("/api/telegram/%s", viper.GetString("TG_BOT_API_KEY"))
 
 		webHookOpts := &ext.AddWebhookOpts{
 			SecretToken: TGWebHookSecret,

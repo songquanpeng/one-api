@@ -9,10 +9,7 @@ import (
 )
 
 var (
-	TokenCacheSeconds         = common.SyncFrequency
-	UserId2GroupCacheSeconds  = common.SyncFrequency
-	UserId2QuotaCacheSeconds  = common.SyncFrequency
-	UserId2StatusCacheSeconds = common.SyncFrequency
+	TokenCacheSeconds = 0
 )
 
 func CacheGetTokenByKey(key string) (*Token, error) {
@@ -55,7 +52,7 @@ func CacheGetUserGroup(id int) (group string, err error) {
 		if err != nil {
 			return "", err
 		}
-		err = common.RedisSet(fmt.Sprintf("user_group:%d", id), group, time.Duration(UserId2GroupCacheSeconds)*time.Second)
+		err = common.RedisSet(fmt.Sprintf("user_group:%d", id), group, time.Duration(TokenCacheSeconds)*time.Second)
 		if err != nil {
 			common.SysError("Redis set user group error: " + err.Error())
 		}
@@ -73,7 +70,7 @@ func CacheGetUserQuota(id int) (quota int, err error) {
 		if err != nil {
 			return 0, err
 		}
-		err = common.RedisSet(fmt.Sprintf("user_quota:%d", id), fmt.Sprintf("%d", quota), time.Duration(UserId2QuotaCacheSeconds)*time.Second)
+		err = common.RedisSet(fmt.Sprintf("user_quota:%d", id), fmt.Sprintf("%d", quota), time.Duration(TokenCacheSeconds)*time.Second)
 		if err != nil {
 			common.SysError("Redis set user quota error: " + err.Error())
 		}
@@ -91,7 +88,7 @@ func CacheUpdateUserQuota(id int) error {
 	if err != nil {
 		return err
 	}
-	err = common.RedisSet(fmt.Sprintf("user_quota:%d", id), fmt.Sprintf("%d", quota), time.Duration(UserId2QuotaCacheSeconds)*time.Second)
+	err = common.RedisSet(fmt.Sprintf("user_quota:%d", id), fmt.Sprintf("%d", quota), time.Duration(TokenCacheSeconds)*time.Second)
 	return err
 }
 
@@ -120,7 +117,7 @@ func CacheIsUserEnabled(userId int) (bool, error) {
 	if userEnabled {
 		enabled = "1"
 	}
-	err = common.RedisSet(fmt.Sprintf("user_enabled:%d", userId), enabled, time.Duration(UserId2StatusCacheSeconds)*time.Second)
+	err = common.RedisSet(fmt.Sprintf("user_enabled:%d", userId), enabled, time.Duration(TokenCacheSeconds)*time.Second)
 	if err != nil {
 		common.SysError("Redis set user enabled error: " + err.Error())
 	}

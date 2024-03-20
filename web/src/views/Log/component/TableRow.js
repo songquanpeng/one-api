@@ -76,9 +76,9 @@ export default function LogTableRow({ item, userIsAdmin }) {
           {' '}
           <Label color={requestTimeLabelOptions(item.request_time)}> {item.request_time == 0 ? '无' : request_time} </Label>
         </TableCell>
-        <TableCell>{item.prompt_tokens || ''}</TableCell>
-        <TableCell>{item.completion_tokens || ''}</TableCell>
-        <TableCell>{item.quota ? renderQuota(item.quota, 6) : ''}</TableCell>
+        <TableCell>{item.prompt_tokens || '0'}</TableCell>
+        <TableCell>{item.completion_tokens || '0'}</TableCell>
+        <TableCell>{item.quota ? renderQuota(item.quota, 6) : '0'}</TableCell>
         <TableCell>{item.content}</TableCell>
       </TableRow>
     </>

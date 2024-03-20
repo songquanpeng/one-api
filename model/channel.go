@@ -117,6 +117,8 @@ func BatchInsertChannels(channels []Channel) error {
 			return err
 		}
 	}
+
+	go ChannelGroup.Load()
 	return nil
 }
 
@@ -129,6 +131,10 @@ func BatchUpdateChannelsAzureApi(params *BatchChannelsParams) (int64, error) {
 	db := DB.Model(&Channel{}).Where("id IN ?", params.Ids).Update("other", params.Value)
 	if db.Error != nil {
 		return 0, db.Error
+	}
+
+	if db.RowsAffected > 0 {
+		go ChannelGroup.Load()
 	}
 	return db.RowsAffected, nil
 }
@@ -152,8 +158,12 @@ func BatchDelModelChannels(params *BatchChannelsParams) (int64, error) {
 		}
 
 		channel.Models = strings.Join(modelsSlice, ",")
-		channel.Update(false)
+		channel.UpdateRaw(false)
 		count++
+	}
+
+	if count > 0 {
+		go ChannelGroup.Load()
 	}
 
 	return count, nil
@@ -187,10 +197,26 @@ func (channel *Channel) Insert() error {
 		return err
 	}
 	err = channel.AddAbilities()
+
+	if err == nil {
+		go ChannelGroup.Load()
+	}
+
 	return err
 }
 
 func (channel *Channel) Update(overwrite bool) error {
+
+	err := channel.UpdateRaw(overwrite)
+
+	if err == nil {
+		go ChannelGroup.Load()
+	}
+
+	return err
+}
+
+func (channel *Channel) UpdateRaw(overwrite bool) error {
 	var err error
 
 	if overwrite {
@@ -233,6 +259,9 @@ func (channel *Channel) Delete() error {
 		return err
 	}
 	err = channel.DeleteAbilities()
+	if err == nil {
+		go ChannelGroup.Load()
+	}
 	return err
 }
 
@@ -244,6 +273,11 @@ func UpdateChannelStatusById(id int, status int) {
 	err = DB.Model(&Channel{}).Where("id = ?", id).Update("status", status).Error
 	if err != nil {
 		common.SysError("failed to update channel status: " + err.Error())
+	}
+
+	if err == nil {
+
+		go ChannelGroup.Load()
 	}
 }
 

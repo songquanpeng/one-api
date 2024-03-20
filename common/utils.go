@@ -2,7 +2,6 @@ package common
 
 import (
 	"fmt"
-	"github.com/google/uuid"
 	"html/template"
 	"log"
 	"math/rand"
@@ -13,6 +12,9 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/google/uuid"
+	"github.com/spf13/viper"
 )
 
 func OpenBrowser(url string) {
@@ -184,16 +186,14 @@ func Max(a int, b int) int {
 	}
 }
 
-func GetOrDefault(env string, defaultValue int) int {
-	if env == "" || os.Getenv(env) == "" {
-		return defaultValue
+func GetOrDefault[T any](env string, defaultValue T) T {
+	if viper.IsSet(env) {
+		value := viper.Get(env)
+		if v, ok := value.(T); ok {
+			return v
+		}
 	}
-	num, err := strconv.Atoi(os.Getenv(env))
-	if err != nil {
-		SysError(fmt.Sprintf("failed to parse %s: %s, using default value: %d", env, err.Error(), defaultValue))
-		return defaultValue
-	}
-	return num
+	return defaultValue
 }
 
 func MessageWithRequestId(message string, id string) string {
@@ -206,4 +206,9 @@ func String2Int(str string) int {
 		return 0
 	}
 	return num
+}
+
+func IsFileExist(path string) bool {
+	_, err := os.Stat(path)
+	return err == nil || os.IsExist(err)
 }

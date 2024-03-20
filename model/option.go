@@ -27,10 +27,6 @@ func GetOption(key string) (option Option, err error) {
 func InitOptionMap() {
 	common.OptionMapRWMutex.Lock()
 	common.OptionMap = make(map[string]string)
-	common.OptionMap["FileUploadPermission"] = strconv.Itoa(common.FileUploadPermission)
-	common.OptionMap["FileDownloadPermission"] = strconv.Itoa(common.FileDownloadPermission)
-	common.OptionMap["ImageUploadPermission"] = strconv.Itoa(common.ImageUploadPermission)
-	common.OptionMap["ImageDownloadPermission"] = strconv.Itoa(common.ImageDownloadPermission)
 	common.OptionMap["PasswordLoginEnabled"] = strconv.FormatBool(common.PasswordLoginEnabled)
 	common.OptionMap["PasswordRegisterEnabled"] = strconv.FormatBool(common.PasswordRegisterEnabled)
 	common.OptionMap["EmailVerificationEnabled"] = strconv.FormatBool(common.EmailVerificationEnabled)
@@ -137,18 +133,14 @@ func UpdateOption(key string, value string) error {
 }
 
 var optionIntMap = map[string]*int{
-	"FileUploadPermission":    &common.FileUploadPermission,
-	"FileDownloadPermission":  &common.FileDownloadPermission,
-	"ImageUploadPermission":   &common.ImageUploadPermission,
-	"ImageDownloadPermission": &common.ImageDownloadPermission,
-	"SMTPPort":                &common.SMTPPort,
-	"QuotaForNewUser":         &common.QuotaForNewUser,
-	"QuotaForInviter":         &common.QuotaForInviter,
-	"QuotaForInvitee":         &common.QuotaForInvitee,
-	"QuotaRemindThreshold":    &common.QuotaRemindThreshold,
-	"PreConsumedQuota":        &common.PreConsumedQuota,
-	"RetryTimes":              &common.RetryTimes,
-	"RetryCooldownSeconds":    &common.RetryCooldownSeconds,
+	"SMTPPort":             &common.SMTPPort,
+	"QuotaForNewUser":      &common.QuotaForNewUser,
+	"QuotaForInviter":      &common.QuotaForInviter,
+	"QuotaForInvitee":      &common.QuotaForInvitee,
+	"QuotaRemindThreshold": &common.QuotaRemindThreshold,
+	"PreConsumedQuota":     &common.PreConsumedQuota,
+	"RetryTimes":           &common.RetryTimes,
+	"RetryCooldownSeconds": &common.RetryCooldownSeconds,
 }
 
 var optionBoolMap = map[string]*bool{

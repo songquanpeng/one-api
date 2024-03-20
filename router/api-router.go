@@ -3,6 +3,7 @@ package router
 import (
 	"one-api/controller"
 	"one-api/middleware"
+	"one-api/relay"
 
 	"github.com/gin-contrib/gzip"
 	"github.com/gin-gonic/gin"
@@ -43,7 +44,7 @@ func SetApiRouter(router *gin.Engine) {
 				selfRoute.GET("/token", controller.GenerateAccessToken)
 				selfRoute.GET("/aff", controller.GetAffCode)
 				selfRoute.POST("/topup", controller.TopUp)
-				selfRoute.GET("/models", controller.ListModels)
+				selfRoute.GET("/models", relay.ListModels)
 			}
 
 			adminRoute := userRoute.Group("/")
@@ -73,7 +74,7 @@ func SetApiRouter(router *gin.Engine) {
 		channelRoute.Use(middleware.AdminAuth())
 		{
 			channelRoute.GET("/", controller.GetChannelsList)
-			channelRoute.GET("/models", controller.ListModelsForAdmin)
+			channelRoute.GET("/models", relay.ListModelsForAdmin)
 			channelRoute.GET("/:id", controller.GetChannel)
 			channelRoute.GET("/test", controller.TestAllChannels)
 			channelRoute.GET("/test/:id", controller.TestChannel)

@@ -147,6 +147,10 @@ func UpdateAllChannelsBalance(c *gin.Context) {
 }
 
 func AutomaticallyUpdateChannels(frequency int) {
+	if frequency <= 0 {
+		return
+	}
+
 	for {
 		time.Sleep(time.Duration(frequency) * time.Minute)
 		common.SysLog("updating all channels")

@@ -34,7 +34,7 @@ import TableSwitch from 'ui-component/Switch';
 import ResponseTimeLabel from './ResponseTimeLabel';
 import GroupLabel from './GroupLabel';
 
-import { IconDotsVertical, IconEdit, IconTrash, IconPencil, IconCopy } from '@tabler/icons-react';
+import { IconDotsVertical, IconEdit, IconTrash, IconPencil, IconCopy, IconWorldWww } from '@tabler/icons-react';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import { copy } from 'utils/common';
@@ -252,6 +252,18 @@ export default function ChannelTableRow({ item, manageChannel, handleOpenModal, 
         >
           <IconCopy style={{ marginRight: '16px' }} /> 复制{' '}
         </MenuItem>
+        {CHANNEL_OPTIONS[item.type]?.url && (
+          <MenuItem
+            onClick={() => {
+              handleCloseMenu();
+              // 新页面打开
+              window.open(CHANNEL_OPTIONS[item.type].url);
+            }}
+          >
+            <IconWorldWww style={{ marginRight: '16px' }} />
+            官网
+          </MenuItem>
+        )}
 
         <MenuItem onClick={handleDeleteOpen} sx={{ color: 'error.main' }}>
           <IconTrash style={{ marginRight: '16px' }} />

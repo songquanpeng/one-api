@@ -3,10 +3,11 @@ package model
 import (
 	"fmt"
 	"one-api/common"
-	"os"
+	"strconv"
 	"strings"
 	"time"
 
+	"github.com/spf13/viper"
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"
@@ -14,6 +15,21 @@ import (
 )
 
 var DB *gorm.DB
+
+func SetupDB() {
+	err := InitDB()
+	if err != nil {
+		common.FatalLog("failed to initialize database: " + err.Error())
+	}
+	ChannelGroup.Load()
+
+	if viper.GetBool("BATCH_UPDATE_ENABLED") {
+		common.BatchUpdateEnabled = true
+		common.BatchUpdateInterval = common.GetOrDefault("BATCH_UPDATE_INTERVAL", 5)
+		common.SysLog("batch update enabled with interval " + strconv.Itoa(common.BatchUpdateInterval) + "s")
+		InitBatchUpdater()
+	}
+}
 
 func createRootAccountIfNeed() error {
 	var user User
@@ -39,8 +55,8 @@ func createRootAccountIfNeed() error {
 }
 
 func chooseDB() (*gorm.DB, error) {
-	if os.Getenv("SQL_DSN") != "" {
-		dsn := os.Getenv("SQL_DSN")
+	if viper.IsSet("SQL_DSN") {
+		dsn := viper.GetString("SQL_DSN")
 		if strings.HasPrefix(dsn, "postgres://") {
 			// Use PostgreSQL
 			common.SysLog("using PostgreSQL as database")
@@ -61,8 +77,8 @@ func chooseDB() (*gorm.DB, error) {
 	// Use SQLite
 	common.SysLog("SQL_DSN not set, using SQLite as database")
 	common.UsingSQLite = true
-	config := fmt.Sprintf("?_busy_timeout=%d", common.SQLiteBusyTimeout)
-	return gorm.Open(sqlite.Open(common.SQLitePath+config), &gorm.Config{
+	config := fmt.Sprintf("?_busy_timeout=%d", common.GetOrDefault("SQLITE_BUSY_TIMEOUT", 3000))
+	return gorm.Open(sqlite.Open(viper.GetString("sqlite_path")+config), &gorm.Config{
 		PrepareStmt: true, // precompile SQL
 	})
 }
@@ -70,7 +86,7 @@ func chooseDB() (*gorm.DB, error) {
 func InitDB() (err error) {
 	db, err := chooseDB()
 	if err == nil {
-		if common.DebugEnabled {
+		if viper.GetBool("debug") {
 			db = db.Debug()
 		}
 		DB = db
@@ -78,6 +94,7 @@ func InitDB() (err error) {
 		if err != nil {
 			return err
 		}
+
 		sqlDB.SetMaxIdleConns(common.GetOrDefault("SQL_MAX_IDLE_CONNS", 100))
 		sqlDB.SetMaxOpenConns(common.GetOrDefault("SQL_MAX_OPEN_CONNS", 1000))
 		sqlDB.SetConnMaxLifetime(time.Second * time.Duration(common.GetOrDefault("SQL_MAX_LIFETIME", 60)))

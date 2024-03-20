@@ -2,30 +2,32 @@ package common
 
 import (
 	"context"
-	"github.com/go-redis/redis/v8"
-	"os"
 	"time"
+
+	"github.com/go-redis/redis/v8"
+	"github.com/spf13/viper"
 )
 
 var RDB *redis.Client
-var RedisEnabled = true
+var RedisEnabled = false
 
 // InitRedisClient This function is called after init()
 func InitRedisClient() (err error) {
-	if os.Getenv("REDIS_CONN_STRING") == "" {
-		RedisEnabled = false
+	redisConn := viper.GetString("REDIS_CONN_STRING")
+
+	if redisConn == "" {
 		SysLog("REDIS_CONN_STRING not set, Redis is not enabled")
 		return nil
 	}
-	if os.Getenv("SYNC_FREQUENCY") == "" {
-		RedisEnabled = false
+	if viper.GetInt("SYNC_FREQUENCY") == 0 {
 		SysLog("SYNC_FREQUENCY not set, Redis is disabled")
 		return nil
 	}
 	SysLog("Redis is enabled")
-	opt, err := redis.ParseURL(os.Getenv("REDIS_CONN_STRING"))
+	opt, err := redis.ParseURL(redisConn)
 	if err != nil {
 		FatalLog("failed to parse Redis connection string: " + err.Error())
+		return
 	}
 	RDB = redis.NewClient(opt)
 
@@ -35,12 +37,17 @@ func InitRedisClient() (err error) {
 	_, err = RDB.Ping(ctx).Result()
 	if err != nil {
 		FatalLog("Redis ping test failed: " + err.Error())
+	} else {
+		RedisEnabled = true
+		// for compatibility with old versions
+		MemoryCacheEnabled = true
 	}
+
 	return err
 }
 
 func ParseRedisOption() *redis.Options {
-	opt, err := redis.ParseURL(os.Getenv("REDIS_CONN_STRING"))
+	opt, err := redis.ParseURL(viper.GetString("REDIS_CONN_STRING"))
 	if err != nil {
 		FatalLog("failed to parse Redis connection string: " + err.Error())
 	}

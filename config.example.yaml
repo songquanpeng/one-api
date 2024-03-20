@@ -1,0 +1,44 @@
+# 服务器设置
+port: 3000 # 服务端口
+gin_mode: "release" # gin 模式，可选值为 "release" 或 "debug"，默认为 "release"。
+debug: false # 是否启用调试模式，启用后将输出更多日志信息。
+log_dir: "./logs" # 日志目录
+session_secret: "" # 会话密钥，未设置则使用随机值。
+
+# 数据库设置
+sql_dsn: "" # 设置之后将使用指定数据库而非 SQLite，请使用 MySQL 或 PostgreSQL
+sqlite_path: "one-api.db" # sqlite 数据库文件路径
+sqlite_busy_timeout: 3000 # sqlite 数据库繁忙超时时间，单位为毫秒，默认为 3000。
+redis_conn_string: "" # 设置之后将使用指定 Redis 作为缓存，格式为 "redis://default:redispw@localhost:49153"，未设置则不使用 Redis。
+
+memory_cache_enabled: false # 是否启用内存缓存，启用后将缓存部分数据，减少数据库查询次数。
+sync_frequency: 600 # 在启用缓存的情况下与数据库同步配置的频率，单位为秒，默认为 600 秒
+node_type: "master" # 节点类型，可选值为 "master" 或 "slave"，默认为 "master"。
+frontend_base_url: "" # 设置之后将重定向页面请求到指定的地址，仅限从服务器设置。
+polling_interval: 0 # 批量更新渠道余额以及测试可用性时的请求间隔，单位为秒，默认无间隔。
+batch_update_interval: 5 # 批量更新聚合的时间间隔，单位为秒，默认为 5。
+batch_update_enabled: false # 启用数据库批量更新聚合，会导致用户额度的更新存在一定的延迟可选值为 true 和 false，未设置则默认为 false
+
+# 全局设置
+global:
+  api_rate_limit: 180 # 全局 API 速率限制（除中继请求外），单 ip 三分钟内的最大请求数，默认为 180。
+  web_rate_limit: 100 # 全局 Web 速率限制，单 ip 三分钟内的最大请求数，默认为 100。
+
+# 频道更新设置
+channel:
+  update_frequency: 0 # 设置之后将定期更新渠道余额，单位为分钟，未设置则不进行更新。
+  test_frequency: 0 # 设置之后将定期检查渠道，单位为分钟，未设置则不进行检查
+
+# 连接设置
+relay_timeout: 0 # 中继请求超时时间，单位为秒，默认为 0。
+connect_timeout: 5 # 连接超时时间，单位为秒，默认为 5。
+
+# 默认程序启动时会联网下载一些通用的词元的编码，如：gpt-3.5-turbo，在一些网络环境不稳定，或者离线情况，可能会导致启动有问题，可以配置此目录缓存数据，可迁移到离线环境。
+tiktoken_cache_dir: ""
+# 目前该配置作用与 TIKTOKEN_CACHE_DIR 一致，但是优先级没有它高。
+data_gym_cache_dir: ""
+
+# Telegram设置
+tg:
+  bot_api_key: "" # 你的 Telegram bot 的 API 密钥
+  webhook_secret: "" # 你的 webhook 密钥。你可以自定义这个密钥。如果设置了这个密钥，将使用webhook的方式接收消息，否则使用轮询（Polling）的方式。

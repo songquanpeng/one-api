@@ -34,7 +34,7 @@ func (cc *ChannelsChooser) Cooldowns(channelId int) bool {
 	return true
 }
 
-func (cc *ChannelsChooser) Balancer(channelIds []int) *Channel {
+func (cc *ChannelsChooser) balancer(channelIds []int) *Channel {
 	nowTime := time.Now().Unix()
 	totalWeight := 0
 
@@ -67,9 +67,9 @@ func (cc *ChannelsChooser) Balancer(channelIds []int) *Channel {
 	return nil
 }
 
-func (cc *ChannelsChooser) Next(group, model string) (*Channel, error) {
+func (cc *ChannelsChooser) Next(group, modelName string) (*Channel, error) {
 	if !common.MemoryCacheEnabled {
-		return GetRandomSatisfiedChannel(group, model)
+		return GetRandomSatisfiedChannel(group, modelName)
 	}
 	cc.RLock()
 	defer cc.RUnlock()
@@ -77,17 +77,17 @@ func (cc *ChannelsChooser) Next(group, model string) (*Channel, error) {
 		return nil, errors.New("group not found")
 	}
 
-	if _, ok := cc.Rule[group][model]; !ok {
+	if _, ok := cc.Rule[group][modelName]; !ok {
 		return nil, errors.New("model not found")
 	}
 
-	channelsPriority := cc.Rule[group][model]
+	channelsPriority := cc.Rule[group][modelName]
 	if len(channelsPriority) == 0 {
 		return nil, errors.New("channel not found")
 	}
 
 	for _, priority := range channelsPriority {
-		channel := cc.Balancer(priority)
+		channel := cc.balancer(priority)
 		if channel != nil {
 			return channel, nil
 		}
@@ -118,7 +118,7 @@ func (cc *ChannelsChooser) GetGroupModels(group string) ([]string, error) {
 
 var ChannelGroup = ChannelsChooser{}
 
-func InitChannelGroup() {
+func (cc *ChannelsChooser) Load() {
 	var channels []*Channel
 	DB.Where("status = ?", common.ChannelStatusEnabled).Find(&channels)
 
@@ -160,17 +160,9 @@ func InitChannelGroup() {
 		newGroup[ability.Group][ability.Model] = append(newGroup[ability.Group][ability.Model], priorityIds)
 	}
 
-	ChannelGroup.Lock()
-	ChannelGroup.Rule = newGroup
-	ChannelGroup.Channels = newChannels
-	ChannelGroup.Unlock()
-	common.SysLog("channels synced from database")
-}
-
-func SyncChannelGroup(frequency int) {
-	for {
-		time.Sleep(time.Duration(frequency) * time.Second)
-		common.SysLog("syncing channels from database")
-		InitChannelGroup()
-	}
+	cc.Lock()
+	cc.Rule = newGroup
+	cc.Channels = newChannels
+	cc.Unlock()
+	common.SysLog("channels Load success")
 }

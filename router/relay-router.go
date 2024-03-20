@@ -2,8 +2,8 @@ package router
 
 import (
 	"one-api/controller"
-	"one-api/controller/relay"
 	"one-api/middleware"
+	"one-api/relay"
 
 	"github.com/gin-gonic/gin"
 )
@@ -14,8 +14,8 @@ func SetRelayRouter(router *gin.Engine) {
 	modelsRouter := router.Group("/v1/models")
 	modelsRouter.Use(middleware.TokenAuth(), middleware.Distribute())
 	{
-		modelsRouter.GET("", controller.ListModels)
-		modelsRouter.GET("/:model", controller.RetrieveModel)
+		modelsRouter.GET("", relay.ListModels)
+		modelsRouter.GET("/:model", relay.RetrieveModel)
 	}
 	relayV1Router := router.Group("/v1")
 	relayV1Router.Use(middleware.RelayPanicRecover(), middleware.TokenAuth(), middleware.Distribute())
