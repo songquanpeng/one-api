@@ -14,7 +14,7 @@ import (
 
 func GetWSClient(proxyAddr string) *websocket.Dialer {
 	dialer := &websocket.Dialer{
-		HandshakeTimeout: 5 * time.Second,
+		HandshakeTimeout: time.Duration(common.GetOrDefault("CONNECT_TIMEOUT", 5)) * time.Second,
 	}
 
 	if proxyAddr != "" {
