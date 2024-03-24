@@ -135,7 +135,7 @@ export default function ChannelPage() {
     const res = await API.get(`/api/channel/test`);
     const { success, message } = res.data;
     if (success) {
-      showInfo('已成功开始测试所有通道，请刷新页面查看结果。');
+      showInfo('已成功开始测试所有渠道，请刷新页面查看结果。');
     } else {
       showError(message);
     }
@@ -159,7 +159,7 @@ export default function ChannelPage() {
     const res = await API.get(`/api/channel/update_balance`);
     const { success, message } = res.data;
     if (success) {
-      showInfo('已更新完毕所有已启用通道余额！');
+      showInfo('已更新完毕所有已启用渠道余额！');
     } else {
       showError(message);
     }

@@ -261,7 +261,7 @@ const OperationSetting = () => {
               value={inputs.ChannelDisableThreshold}
               type='number'
               min='0'
-              placeholder='单位秒，当运行通道全部测试时，超过此时间将自动禁用通道'
+              placeholder='单位秒，当运行渠道全部测试时，超过此时间将自动禁用渠道'
             />
             <Form.Input
               label='额度提醒阈值'
@@ -277,13 +277,13 @@ const OperationSetting = () => {
           <Form.Group inline>
             <Form.Checkbox
               checked={inputs.AutomaticDisableChannelEnabled === 'true'}
-              label='失败时自动禁用通道'
+              label='失败时自动禁用渠道'
               name='AutomaticDisableChannelEnabled'
               onChange={handleInputChange}
             />
             <Form.Checkbox
               checked={inputs.AutomaticEnableChannelEnabled === 'true'}
-              label='成功时自动启用通道'
+              label='成功时自动启用渠道'
               name='AutomaticEnableChannelEnabled'
               onChange={handleInputChange}
             />
