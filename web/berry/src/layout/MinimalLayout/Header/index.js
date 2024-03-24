@@ -12,6 +12,7 @@ const Header = () => {
   const theme = useTheme();
   const { pathname } = useLocation();
   const account = useSelector((state) => state.account);
+  const siteInfo = useSelector((state) => state.siteInfo);
 
   return (
     <>
@@ -39,6 +40,13 @@ const Header = () => {
           color={pathname === "/" ? "primary" : "inherit"}
         >
           首页
+        </Button>
+        <Button
+          href={siteInfo.chat_link}
+          target="_blank"
+          color="inherit"
+        >
+          聊天
         </Button>
         <Button
           component={Link}
