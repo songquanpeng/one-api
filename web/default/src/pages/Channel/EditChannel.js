@@ -83,6 +83,7 @@ const EditChannel = () => {
         data.model_mapping = JSON.stringify(JSON.parse(data.model_mapping), null, 2);
       }
       setInputs(data);
+      setBasicModels(getChannelModels(data.type));
     } else {
       showError(message);
     }
@@ -99,9 +100,6 @@ const EditChannel = () => {
       }));
       setOriginModelOptions(localModelOptions);
       setFullModels(res.data.data.map((model) => model.id));
-      setBasicModels(res.data.data.filter((model) => {
-        return model.id.startsWith('gpt-3') || model.id.startsWith('text-');
-      }).map((model) => model.id));
     } catch (error) {
       showError(error.message);
     }
@@ -137,6 +135,9 @@ const EditChannel = () => {
   useEffect(() => {
     if (isEdit) {
       loadChannel().then();
+    } else {
+      let localModels = getChannelModels(inputs.type);
+      setBasicModels(localModels);
     }
     fetchModels().then();
     fetchGroups().then();
@@ -355,7 +356,7 @@ const EditChannel = () => {
           <div style={{ lineHeight: '40px', marginBottom: '12px' }}>
             <Button type={'button'} onClick={() => {
               handleInputChange(null, { name: 'models', value: basicModels });
-            }}>填入基础模型</Button>
+            }}>填入相关模型</Button>
             <Button type={'button'} onClick={() => {
               handleInputChange(null, { name: 'models', value: fullModels });
             }}>填入所有模型</Button>
