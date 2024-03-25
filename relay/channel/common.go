@@ -12,6 +12,7 @@ import (
 func SetupCommonRequestHeader(c *gin.Context, req *http.Request, meta *util.RelayMeta) {
 	req.Header.Set("Content-Type", c.Request.Header.Get("Content-Type"))
 	req.Header.Set("Accept", c.Request.Header.Get("Accept"))
+	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3")
 	if meta.IsStream && c.Request.Header.Get("Accept") == "" {
 		req.Header.Set("Accept", "text/event-stream")
 	}
