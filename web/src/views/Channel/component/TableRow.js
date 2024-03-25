@@ -22,6 +22,8 @@ import {
   Collapse,
   Typography,
   TextField,
+  Stack,
+  Menu,
   Box
 } from '@mui/material';
 
@@ -32,12 +34,51 @@ import ResponseTimeLabel from './ResponseTimeLabel';
 import GroupLabel from './GroupLabel';
 
 import { IconDotsVertical, IconEdit, IconTrash, IconCopy, IconWorldWww } from '@tabler/icons-react';
+import { styled, alpha } from '@mui/material/styles';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import { copy } from 'utils/common';
 
+const StyledMenu = styled((props) => (
+  <Menu
+    elevation={0}
+    anchorOrigin={{
+      vertical: 'bottom',
+      horizontal: 'right'
+    }}
+    transformOrigin={{
+      vertical: 'top',
+      horizontal: 'right'
+    }}
+    {...props}
+  />
+))(({ theme }) => ({
+  '& .MuiPaper-root': {
+    borderRadius: 6,
+    marginTop: theme.spacing(1),
+    minWidth: 180,
+    color: theme.palette.mode === 'light' ? 'rgb(55, 65, 81)' : theme.palette.grey[300],
+    boxShadow:
+      'rgb(255, 255, 255) 0px 0px 0px 0px, rgba(0, 0, 0, 0.05) 0px 0px 0px 1px, rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.05) 0px 4px 6px -2px',
+    '& .MuiMenu-list': {
+      padding: '4px 0'
+    },
+    '& .MuiMenuItem-root': {
+      '& .MuiSvgIcon-root': {
+        fontSize: 18,
+        color: theme.palette.text.secondary,
+        marginRight: theme.spacing(1.5)
+      },
+      '&:active': {
+        backgroundColor: alpha(theme.palette.primary.main, theme.palette.action.selectedOpacity)
+      }
+    }
+  }
+}));
+
 export default function ChannelTableRow({ item, manageChannel, handleOpenModal, setModalChannelId }) {
   const [open, setOpen] = useState(null);
+  const [openTest, setOpenTest] = useState(false);
   const [openDelete, setOpenDelete] = useState(false);
   const [statusSwitch, setStatusSwitch] = useState(item.status);
   const [priorityValve, setPriority] = useState(item.priority);
@@ -61,6 +102,10 @@ export default function ChannelTableRow({ item, manageChannel, handleOpenModal, 
 
   const handleOpenMenu = (event) => {
     setOpen(event.currentTarget);
+  };
+
+  const handleTestModel = (event) => {
+    setOpenTest(event.currentTarget);
   };
 
   const handleCloseMenu = () => {
@@ -105,11 +150,21 @@ export default function ChannelTableRow({ item, manageChannel, handleOpenModal, 
     setWeight(currentValue);
   };
 
-  const handleResponseTime = async () => {
-    const { success, time } = await manageChannel(item.id, 'test', '');
+  const handleResponseTime = async (modelName) => {
+    setOpenTest(null);
+
+    if (typeof modelName !== 'string') {
+      modelName = item.test_model;
+    }
+
+    if (modelName == '') {
+      showError('请先设置测试模型');
+      return;
+    }
+    const { success, time } = await manageChannel(item.id, 'test', modelName);
     if (success) {
       setResponseTimeData({ test_time: Date.now() / 1000, response_time: time * 1000 });
-      showInfo(`通道 ${item.name} 测试成功，耗时 ${time.toFixed(2)} 秒。`);
+      showInfo(`通道 ${item.name}: ${modelName} 测试成功，耗时 ${time.toFixed(2)} 秒。`);
     }
   };
 
@@ -202,9 +257,24 @@ export default function ChannelTableRow({ item, manageChannel, handleOpenModal, 
         </TableCell>
 
         <TableCell>
-          <IconButton onClick={handleOpenMenu} sx={{ color: 'rgb(99, 115, 129)' }}>
-            <IconDotsVertical />
-          </IconButton>
+          <Stack direction="row" spacing={1}>
+            <Button
+              id="test-model-button"
+              aria-controls={openTest ? 'test-model-menu' : undefined}
+              aria-haspopup="true"
+              aria-expanded={openTest ? 'true' : undefined}
+              variant="outlined"
+              disableElevation
+              onClick={handleTestModel}
+              endIcon={<KeyboardArrowDownIcon />}
+            >
+              测试
+            </Button>
+
+            <IconButton onClick={handleOpenMenu} sx={{ color: 'rgb(99, 115, 129)' }}>
+              <IconDotsVertical />
+            </IconButton>
+          </Stack>
         </TableCell>
       </TableRow>
 
@@ -256,6 +326,28 @@ export default function ChannelTableRow({ item, manageChannel, handleOpenModal, 
         </MenuItem>
       </Popover>
 
+      <StyledMenu
+        id="test-model-menu"
+        MenuListProps={{
+          'aria-labelledby': 'test-model-button'
+        }}
+        anchorEl={openTest}
+        open={!!openTest}
+        onClose={() => {
+          setOpenTest(null);
+        }}
+      >
+        {modelMap.map((model) => (
+          <MenuItem
+            key={'test_model-' + model}
+            onClick={() => {
+              handleResponseTime(model);
+            }}
+          >
+            {model}
+          </MenuItem>
+        ))}
+      </StyledMenu>
       <TableRow>
         <TableCell style={{ paddingBottom: 0, paddingTop: 0, textAlign: 'left' }} colSpan={10}>
           <Collapse in={openRow} timeout="auto" unmountOnExit>

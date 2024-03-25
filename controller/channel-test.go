@@ -18,7 +18,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func testChannel(channel *model.Channel, request types.ChatCompletionRequest) (err error, openaiErr *types.OpenAIError) {
+func testChannel(channel *model.Channel, testModel string) (err error, openaiErr *types.OpenAIError) {
 	if channel.TestModel == "" {
 		return errors.New("请填写测速模型后再试"), nil
 	}
@@ -33,7 +33,13 @@ func testChannel(channel *model.Channel, request types.ChatCompletionRequest) (e
 	w := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(w)
 	c.Request = req
-	request.Model = channel.TestModel
+	request := buildTestRequest()
+
+	if testModel != "" {
+		request.Model = testModel
+	} else {
+		request.Model = channel.TestModel
+	}
 
 	provider := providers.GetProvider(channel, c)
 	if provider == nil {
@@ -54,21 +60,15 @@ func testChannel(channel *model.Channel, request types.ChatCompletionRequest) (e
 
 	chatProvider.SetUsage(&types.Usage{})
 
-	response, openAIErrorWithStatusCode := chatProvider.CreateChatCompletion(&request)
+	response, openAIErrorWithStatusCode := chatProvider.CreateChatCompletion(request)
 
 	if openAIErrorWithStatusCode != nil {
 		return errors.New(openAIErrorWithStatusCode.Message), &openAIErrorWithStatusCode.OpenAIError
 	}
 
-	usage := chatProvider.GetUsage()
-
-	if usage.CompletionTokens == 0 {
-		return fmt.Errorf("channel %s, message 补全 tokens 非预期返回 0", channel.Name), nil
-	}
-
 	// 转换为JSON字符串
 	jsonBytes, _ := json.Marshal(response)
-	common.SysLog(fmt.Sprintf("测试模型 %s 返回内容为：%s", channel.Name, string(jsonBytes)))
+	common.SysLog(fmt.Sprintf("测试渠道 %s : %s 返回内容为：%s", channel.Name, request.Model, string(jsonBytes)))
 
 	return nil, nil
 }
@@ -81,9 +81,9 @@ func buildTestRequest() *types.ChatCompletionRequest {
 				Content: "You just need to output 'hi' next.",
 			},
 		},
-		Model: "",
-		// MaxTokens: 1,
-		Stream: false,
+		Model:     "",
+		MaxTokens: 2,
+		Stream:    false,
 	}
 	return testRequest
 }
@@ -105,9 +105,9 @@ func TestChannel(c *gin.Context) {
 		})
 		return
 	}
-	testRequest := buildTestRequest()
+	testModel := c.Query("model")
 	tik := time.Now()
-	err, _ = testChannel(channel, *testRequest)
+	err, _ = testChannel(channel, testModel)
 	tok := time.Now()
 	milliseconds := tok.Sub(tik).Milliseconds()
 	go channel.UpdateResponseTime(milliseconds)
@@ -163,7 +163,6 @@ func testAllChannels(notify bool) error {
 	if err != nil {
 		return err
 	}
-	testRequest := buildTestRequest()
 	var disableThreshold = int64(common.ChannelDisableThreshold * 1000)
 	if disableThreshold == 0 {
 		disableThreshold = 10000000 // a impossible value
@@ -172,7 +171,7 @@ func testAllChannels(notify bool) error {
 		for _, channel := range channels {
 			isChannelEnabled := channel.Status == common.ChannelStatusEnabled
 			tik := time.Now()
-			err, openaiErr := testChannel(channel, *testRequest)
+			err, openaiErr := testChannel(channel, "")
 			tok := time.Now()
 			milliseconds := tok.Sub(tik).Milliseconds()
 			if milliseconds > disableThreshold {
