@@ -11,10 +11,6 @@ import {
   MenuItem,
   TableCell,
   IconButton,
-  FormControl,
-  InputLabel,
-  InputAdornment,
-  Input,
   Dialog,
   DialogActions,
   DialogContent,
@@ -25,6 +21,7 @@ import {
   Grid,
   Collapse,
   Typography,
+  TextField,
   Box
 } from '@mui/material';
 
@@ -34,7 +31,7 @@ import TableSwitch from 'ui-component/Switch';
 import ResponseTimeLabel from './ResponseTimeLabel';
 import GroupLabel from './GroupLabel';
 
-import { IconDotsVertical, IconEdit, IconTrash, IconPencil, IconCopy, IconWorldWww } from '@tabler/icons-react';
+import { IconDotsVertical, IconEdit, IconTrash, IconCopy, IconWorldWww } from '@tabler/icons-react';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import { copy } from 'utils/common';
@@ -78,30 +75,34 @@ export default function ChannelTableRow({ item, manageChannel, handleOpenModal, 
     }
   };
 
-  const handlePriority = async () => {
-    if (priorityValve === '' || priorityValve === item.priority) {
+  const handlePriority = async (event) => {
+    const currentValue = parseInt(event.target.value);
+    if (isNaN(currentValue) || currentValue === priorityValve) {
       return;
     }
 
-    if (priorityValve < 0) {
+    if (currentValue < 0) {
       showError('优先级不能小于 0');
       return;
     }
 
-    await manageChannel(item.id, 'priority', priorityValve);
+    await manageChannel(item.id, 'priority', currentValue);
+    setPriority(currentValue);
   };
 
-  const handleWeight = async () => {
-    if (weightValve === '' || weightValve === item.weight) {
+  const handleWeight = async (event) => {
+    const currentValue = parseInt(event.target.value);
+    if (isNaN(currentValue) || currentValue === weightValve) {
       return;
     }
 
-    if (weightValve <= 0) {
-      showError('权重不能小于 0');
+    if (currentValue < 1) {
+      showError('权重不能小于 1');
       return;
     }
 
-    await manageChannel(item.id, 'weight', weightValve);
+    await manageChannel(item.id, 'weight', currentValue);
+    setWeight(currentValue);
   };
 
   const handleResponseTime = async () => {
@@ -178,42 +179,26 @@ export default function ChannelTableRow({ item, manageChannel, handleOpenModal, 
           </Tooltip>
         </TableCell>
         <TableCell>
-          <FormControl sx={{ m: 1, width: '70px' }} variant="standard">
-            <InputLabel htmlFor={`priority-${item.id}`}>优先级</InputLabel>
-            <Input
-              id={`priority-${item.id}`}
-              type="text"
-              value={priorityValve}
-              onChange={(e) => setPriority(e.target.value)}
-              sx={{ textAlign: 'center' }}
-              endAdornment={
-                <InputAdornment position="end">
-                  <IconButton onClick={handlePriority} sx={{ color: 'rgb(99, 115, 129)' }} size="small">
-                    <IconPencil />
-                  </IconButton>
-                </InputAdornment>
-              }
-            />
-          </FormControl>
+          <TextField
+            id={`priority-${item.id}`}
+            onBlur={handlePriority}
+            type="number"
+            label="优先级"
+            variant="standard"
+            defaultValue={item.priority}
+            inputProps={{ min: '0' }}
+          />
         </TableCell>
         <TableCell>
-          <FormControl sx={{ m: 1, width: '70px' }} variant="standard">
-            <InputLabel htmlFor={`priority-${item.id}`}>权重</InputLabel>
-            <Input
-              id={`weight-${item.id}`}
-              type="text"
-              value={weightValve}
-              onChange={(e) => setWeight(e.target.value)}
-              sx={{ textAlign: 'center' }}
-              endAdornment={
-                <InputAdornment position="end">
-                  <IconButton onClick={handleWeight} sx={{ color: 'rgb(99, 115, 129)' }} size="small">
-                    <IconPencil />
-                  </IconButton>
-                </InputAdornment>
-              }
-            />
-          </FormControl>
+          <TextField
+            id={`weight-${item.id}`}
+            onBlur={handleWeight}
+            type="number"
+            label="权重"
+            variant="standard"
+            defaultValue={item.weight}
+            inputProps={{ min: '1' }}
+          />
         </TableCell>
 
         <TableCell>
