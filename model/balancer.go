@@ -68,9 +68,6 @@ func (cc *ChannelsChooser) balancer(channelIds []int) *Channel {
 }
 
 func (cc *ChannelsChooser) Next(group, modelName string) (*Channel, error) {
-	if !common.MemoryCacheEnabled {
-		return GetRandomSatisfiedChannel(group, modelName)
-	}
 	cc.RLock()
 	defer cc.RUnlock()
 	if _, ok := cc.Rule[group]; !ok {
@@ -97,10 +94,6 @@ func (cc *ChannelsChooser) Next(group, modelName string) (*Channel, error) {
 }
 
 func (cc *ChannelsChooser) GetGroupModels(group string) ([]string, error) {
-	if !common.MemoryCacheEnabled {
-		return GetGroupModels(group)
-	}
-
 	cc.RLock()
 	defer cc.RUnlock()
 
