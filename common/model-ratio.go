@@ -118,6 +118,8 @@ func init() {
 		"PaLM-2":            {[]float64{1, 1}, ChannelTypePaLM},
 		"gemini-pro":        {[]float64{1, 1}, ChannelTypeGemini},
 		"gemini-pro-vision": {[]float64{1, 1}, ChannelTypeGemini},
+		"gemini-1.0-pro":    {[]float64{1, 1}, ChannelTypeGemini},
+		"gemini-1.5-pro":    {[]float64{1, 1}, ChannelTypeGemini},
 
 		// ￥0.005 / 1k tokens
 		"glm-3-turbo": {[]float64{0.3572, 0.3572}, ChannelTypeZhipu},

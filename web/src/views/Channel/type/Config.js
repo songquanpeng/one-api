@@ -142,7 +142,7 @@ const typeConfig = {
       other: '版本号'
     },
     input: {
-      models: ['gemini-pro', 'gemini-pro-vision'],
+      models: ['gemini-pro', 'gemini-pro-vision', 'gemini-1.0-pro', 'gemini-1.5-pro'],
       test_model: 'gemini-pro'
     },
     prompt: {

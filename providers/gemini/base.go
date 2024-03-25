@@ -61,7 +61,7 @@ func errorHandle(geminiError *GeminiErrorResponse) *types.OpenAIError {
 
 func (p *GeminiProvider) GetFullRequestURL(requestURL string, modelName string) string {
 	baseURL := strings.TrimSuffix(p.GetBaseURL(), "/")
-	version := "v1"
+	version := "v1beta"
 	if p.Channel.Other != "" {
 		version = p.Channel.Other
 	}
