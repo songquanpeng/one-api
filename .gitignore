@@ -10,6 +10,6 @@ data
 tmp/
 /test/
 .env
-common/plugin/
 common/balancer/
 config.yaml
+dist
