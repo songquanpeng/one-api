@@ -2,6 +2,7 @@ package model
 
 import (
 	"github.com/songquanpeng/one-api/common"
+	"gorm.io/gorm"
 	"strings"
 )
 
@@ -13,7 +14,7 @@ type Ability struct {
 	Priority  *int64 `json:"priority" gorm:"bigint;default:0;index"`
 }
 
-func GetRandomSatisfiedChannel(group string, model string) (*Channel, error) {
+func GetRandomSatisfiedChannel(group string, model string, ignoreFirstPriority bool) (*Channel, error) {
 	ability := Ability{}
 	groupCol := "`group`"
 	trueVal := "1"
@@ -23,8 +24,13 @@ func GetRandomSatisfiedChannel(group string, model string) (*Channel, error) {
 	}
 
 	var err error = nil
-	maxPrioritySubQuery := DB.Model(&Ability{}).Select("MAX(priority)").Where(groupCol+" = ? and model = ? and enabled = "+trueVal, group, model)
-	channelQuery := DB.Where(groupCol+" = ? and model = ? and enabled = "+trueVal+" and priority = (?)", group, model, maxPrioritySubQuery)
+	var channelQuery *gorm.DB
+	if ignoreFirstPriority {
+		channelQuery = DB.Where(groupCol+" = ? and model = ? and enabled = "+trueVal, group, model)
+	} else {
+		maxPrioritySubQuery := DB.Model(&Ability{}).Select("MAX(priority)").Where(groupCol+" = ? and model = ? and enabled = "+trueVal, group, model)
+		channelQuery = DB.Where(groupCol+" = ? and model = ? and enabled = "+trueVal+" and priority = (?)", group, model, maxPrioritySubQuery)
+	}
 	if common.UsingSQLite || common.UsingPostgreSQL {
 		err = channelQuery.Order("RANDOM()").First(&ability).Error
 	} else {
