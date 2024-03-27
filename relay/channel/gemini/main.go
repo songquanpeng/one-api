@@ -25,7 +25,7 @@ const (
 	VisionMaxImageNum = 16
 )
 
-// Setting safety to the lowest possible values since Gemini is already powerless enough
+// ConvertRequest Setting safety to the lowest possible values since Gemini is already powerless enough
 func ConvertRequest(textRequest model.GeneralOpenAIRequest) *ChatRequest {
 	geminiRequest := ChatRequest{
 		Contents: make([]ChatContent, 0, len(textRequest.Messages)),
@@ -120,6 +120,27 @@ func ConvertRequest(textRequest model.GeneralOpenAIRequest) *ChatRequest {
 	}
 
 	return &geminiRequest
+}
+
+// ConvertEmbeddingRequest converts a GeneralOpenAIRequest to an EmbeddingMultiRequest
+func ConvertEmbeddingRequest(textRequest model.GeneralOpenAIRequest) *EmbeddingMultiRequest {
+	inputs := textRequest.ParseInput()
+	requests := make([]EmbeddingRequest, 0, len(inputs))
+	for _, input := range inputs {
+		requests = append(requests, EmbeddingRequest{
+			Model: "models/embedding-001",
+			Content: ChatContent{
+				Parts: []Part{
+					{
+						Text: input,
+					},
+				},
+			},
+		})
+	}
+	return &EmbeddingMultiRequest{
+		Requests: requests,
+	}
 }
 
 type ChatResponse struct {
@@ -258,6 +279,45 @@ func StreamHandler(c *gin.Context, resp *http.Response) (*model.ErrorWithStatusC
 	return nil, responseText
 }
 
+// EmbeddingHandler is a function that handles embedding requests
+func EmbeddingHandler(c *gin.Context, resp *http.Response, promptTokens int, modelName string) (*model.ErrorWithStatusCode, *model.Usage) {
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return openai.ErrorWrapper(err, "unmarshal_response_body_failed", http.StatusInternalServerError), nil
+	}
+	var geminiError Error
+	err = json.Unmarshal(body, &geminiError)
+	if geminiError.Code != 0 || err != nil {
+		return &model.ErrorWithStatusCode{
+			Error: model.Error{
+				Message: geminiError.Message,
+				Type:    geminiError.Details[0].Type,
+				Param:   geminiError.Status,
+				Code:    geminiError.Code,
+			},
+			StatusCode: resp.StatusCode,
+		}, nil
+	}
+	var geminiResponse EmbeddingResponse
+	err = json.Unmarshal(body, &geminiResponse)
+	if err != nil {
+		return openai.ErrorWrapper(err, "unmarshal_response_body_failed", http.StatusInternalServerError), nil
+	}
+	err = resp.Body.Close()
+	if err != nil {
+		return openai.ErrorWrapper(err, "close_response_body_failed", http.StatusInternalServerError), nil
+	}
+	fullTextResponse := embeddingResponseGemini2OpenAI(&geminiResponse, promptTokens, modelName)
+	jsonResponse, err := json.Marshal(fullTextResponse)
+	if err != nil {
+		return openai.ErrorWrapper(err, "marshal_response_body_failed", http.StatusInternalServerError), nil
+	}
+	c.Writer.Header().Set("Content-Type", "application/json")
+	c.Writer.WriteHeader(resp.StatusCode)
+	_, err = c.Writer.Write(jsonResponse)
+	return nil, &fullTextResponse.Usage
+}
+
 func Handler(c *gin.Context, resp *http.Response, promptTokens int, modelName string) (*model.ErrorWithStatusCode, *model.Usage) {
 	responseBody, err := io.ReadAll(resp.Body)
 	if err != nil {
@@ -300,4 +360,22 @@ func Handler(c *gin.Context, resp *http.Response, promptTokens int, modelName st
 	c.Writer.WriteHeader(resp.StatusCode)
 	_, err = c.Writer.Write(jsonResponse)
 	return nil, &usage
+}
+
+func embeddingResponseGemini2OpenAI(geminiResponse *EmbeddingResponse, promptTokens int, modelName string) *openai.EmbeddingResponse {
+	data := make([]openai.EmbeddingResponseItem, 0, len(geminiResponse.Embeddings))
+
+	for index, embedding := range geminiResponse.Embeddings {
+		data = append(data, openai.EmbeddingResponseItem{
+			Object:    "embedding",
+			Embedding: embedding.Values,
+			Index:     index,
+		})
+	}
+	return &openai.EmbeddingResponse{
+		Object: "list",
+		Data:   data,
+		Model:  modelName,
+		Usage:  model.Usage{TotalTokens: promptTokens},
+	}
 }

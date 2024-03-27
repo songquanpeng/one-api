@@ -39,3 +39,32 @@ type ChatGenerationConfig struct {
 	CandidateCount  int      `json:"candidateCount,omitempty"`
 	StopSequences   []string `json:"stopSequences,omitempty"`
 }
+
+type Error struct {
+	Code    int    `json:"code"`
+	Message string `json:"message"`
+	Status  string `json:"status"`
+	Details []struct {
+		Type     string            `json:"@type"`
+		Reason   string            `json:"reason"`
+		Domain   string            `json:"domain"`
+		Metadata map[string]string `json:"metadata"`
+	} `json:"details"`
+}
+
+type EmbeddingRequest struct {
+	Model   string      `json:"model"`
+	Content ChatContent `json:"content"`
+}
+
+type EmbeddingMultiRequest struct {
+	Requests []EmbeddingRequest `json:"requests"`
+}
+
+type EmbeddingResponse struct {
+	Embeddings []EmbeddingData `json:"embeddings"`
+}
+
+type EmbeddingData struct {
+	Values []float64 `json:"values"`
+}
