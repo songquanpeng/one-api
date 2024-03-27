@@ -83,6 +83,24 @@ func RelayAudioHelper(c *gin.Context, relayMode int) *relaymodel.ErrorWithStatus
 			return openai.ErrorWrapper(err, "pre_consume_token_quota_failed", http.StatusForbidden)
 		}
 	}
+	succeed := false
+	defer func() {
+		if succeed {
+			return
+		}
+		if preConsumedQuota > 0 {
+			// we need to roll back the pre-consumed quota
+			defer func(ctx context.Context) {
+				go func() {
+					// negative means add quota back for token & user
+					err := model.PostConsumeTokenQuota(tokenId, -preConsumedQuota)
+					if err != nil {
+						logger.Error(ctx, fmt.Sprintf("error rollback pre-consumed quota: %s", err.Error()))
+					}
+				}()
+			}(c.Request.Context())
+		}
+	}()
 
 	// map model name
 	modelMapping := c.GetString("model_mapping")
@@ -193,20 +211,9 @@ func RelayAudioHelper(c *gin.Context, relayMode int) *relaymodel.ErrorWithStatus
 		resp.Body = io.NopCloser(bytes.NewBuffer(responseBody))
 	}
 	if resp.StatusCode != http.StatusOK {
-		if preConsumedQuota > 0 {
-			// we need to roll back the pre-consumed quota
-			defer func(ctx context.Context) {
-				go func() {
-					// negative means add quota back for token & user
-					err := model.PostConsumeTokenQuota(tokenId, -preConsumedQuota)
-					if err != nil {
-						logger.Error(ctx, fmt.Sprintf("error rollback pre-consumed quota: %s", err.Error()))
-					}
-				}()
-			}(c.Request.Context())
-		}
 		return util.RelayErrorHandler(resp)
 	}
+	succeed = true
 	quotaDelta := quota - preConsumedQuota
 	defer func(ctx context.Context) {
 		go util.PostConsumeQuota(ctx, tokenId, quotaDelta, quota, userId, channelId, modelRatio, groupRatio, audioModel, tokenName)

@@ -234,7 +234,7 @@ const ChannelsTable = () => {
       newChannels[realIdx].response_time = time * 1000;
       newChannels[realIdx].test_time = Date.now() / 1000;
       setChannels(newChannels);
-      showInfo(`通道 ${name} 测试成功，耗时 ${time.toFixed(2)} 秒。`);
+      showInfo(`渠道 ${name} 测试成功，耗时 ${time.toFixed(2)} 秒。`);
     } else {
       showError(message);
     }
@@ -244,7 +244,7 @@ const ChannelsTable = () => {
     const res = await API.get(`/api/channel/test?scope=${scope}`);
     const { success, message } = res.data;
     if (success) {
-      showInfo('已成功开始测试通道，请刷新页面查看结果。');
+      showInfo('已成功开始测试渠道，请刷新页面查看结果。');
     } else {
       showError(message);
     }
@@ -270,7 +270,7 @@ const ChannelsTable = () => {
       newChannels[realIdx].balance = balance;
       newChannels[realIdx].balance_updated_time = Date.now() / 1000;
       setChannels(newChannels);
-      showInfo(`通道 ${name} 余额更新成功！`);
+      showInfo(`渠道 ${name} 余额更新成功！`);
     } else {
       showError(message);
     }
@@ -281,7 +281,7 @@ const ChannelsTable = () => {
     const res = await API.get(`/api/channel/update_balance`);
     const { success, message } = res.data;
     if (success) {
-      showInfo('已更新完毕所有已启用通道余额！');
+      showInfo('已更新完毕所有已启用渠道余额！');
     } else {
       showError(message);
     }

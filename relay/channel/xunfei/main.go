@@ -121,7 +121,7 @@ func StreamHandler(c *gin.Context, textRequest model.GeneralOpenAIRequest, appId
 	domain, authUrl := getXunfeiAuthUrl(c, apiKey, apiSecret, textRequest.Model)
 	dataChan, stopChan, err := xunfeiMakeRequest(textRequest, domain, authUrl, appId)
 	if err != nil {
-		return openai.ErrorWrapper(err, "make xunfei request err", http.StatusInternalServerError), nil
+		return openai.ErrorWrapper(err, "xunfei_request_failed", http.StatusInternalServerError), nil
 	}
 	common.SetEventStreamHeaders(c)
 	var usage model.Usage
@@ -151,7 +151,7 @@ func Handler(c *gin.Context, textRequest model.GeneralOpenAIRequest, appId strin
 	domain, authUrl := getXunfeiAuthUrl(c, apiKey, apiSecret, textRequest.Model)
 	dataChan, stopChan, err := xunfeiMakeRequest(textRequest, domain, authUrl, appId)
 	if err != nil {
-		return openai.ErrorWrapper(err, "make xunfei request err", http.StatusInternalServerError), nil
+		return openai.ErrorWrapper(err, "xunfei_request_failed", http.StatusInternalServerError), nil
 	}
 	var usage model.Usage
 	var content string
@@ -171,11 +171,7 @@ func Handler(c *gin.Context, textRequest model.GeneralOpenAIRequest, appId strin
 		}
 	}
 	if len(xunfeiResponse.Payload.Choices.Text) == 0 {
-		xunfeiResponse.Payload.Choices.Text = []ChatResponseTextItem{
-			{
-				Content: "",
-			},
-		}
+		return openai.ErrorWrapper(err, "xunfei_empty_response_detected", http.StatusInternalServerError), nil
 	}
 	xunfeiResponse.Payload.Choices.Text[0].Content = content
 
@@ -202,15 +198,21 @@ func xunfeiMakeRequest(textRequest model.GeneralOpenAIRequest, domain, authUrl, 
 	if err != nil {
 		return nil, nil, err
 	}
+	_, msg, err := conn.ReadMessage()
+	if err != nil {
+		return nil, nil, err
+	}
 
 	dataChan := make(chan ChatResponse)
 	stopChan := make(chan bool)
 	go func() {
 		for {
-			_, msg, err := conn.ReadMessage()
-			if err != nil {
-				logger.SysError("error reading stream response: " + err.Error())
-				break
+			if msg == nil {
+				_, msg, err = conn.ReadMessage()
+				if err != nil {
+					logger.SysError("error reading stream response: " + err.Error())
+					break
+				}
 			}
 			var response ChatResponse
 			err = json.Unmarshal(msg, &response)
@@ -218,6 +220,7 @@ func xunfeiMakeRequest(textRequest model.GeneralOpenAIRequest, domain, authUrl, 
 				logger.SysError("error unmarshalling stream response: " + err.Error())
 				break
 			}
+			msg = nil
 			dataChan <- response
 			if response.Payload.Choices.Status == 2 {
 				err := conn.Close()
