@@ -67,8 +67,13 @@ func Distribute() func(c *gin.Context) {
 					modelRequest.Model = "whisper-1"
 				}
 			}
-			requestModel = modelRequest.Model
-			channel, err = model.CacheGetRandomSatisfiedChannel(userGroup, modelRequest.Model, false)
+
+			if strings.HasPrefix(modelRequest.Model, "gpt-4-gizmo") {
+				channel, err = model.CacheGetRandomSatisfiedChannel(userGroup, "gpt-4-gizmo",false)
+			} else {
+				channel, err = model.CacheGetRandomSatisfiedChannel(userGroup, modelRequest.Model,false)
+			}
+
 			if err != nil {
 				message := fmt.Sprintf("当前分组 %s 下对于模型 %s 无可用渠道", userGroup, modelRequest.Model)
 				if channel != nil {
