@@ -50,6 +50,9 @@ _本项目是基于[one-api](https://github.com/songquanpeng/one-api)二次开�
 - 支持完成倍率自定义
 - 支持完整的分页和排序
 - 支持`Telegram bot`
+- 支持模型按次收费
+- 支持模型通配符
+- 支持使用配置文件启动程序
 
 ## 文档
 
