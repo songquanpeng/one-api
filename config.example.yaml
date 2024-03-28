@@ -18,6 +18,7 @@ frontend_base_url: "" # 设置之后将重定向页面请求到指定的地址�
 polling_interval: 0 # 批量更新渠道余额以及测试可用性时的请求间隔，单位为秒，默认无间隔。
 batch_update_interval: 5 # 批量更新聚合的时间间隔，单位为秒，默认为 5。
 batch_update_enabled: false # 启用数据库批量更新聚合，会导致用户额度的更新存在一定的延迟可选值为 true 和 false，未设置则默认为 false
+auto_price_updates: true # 启用自动更新价格，可选值为 true 和 false，默认为 true
 
 # 全局设置
 global:

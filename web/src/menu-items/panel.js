@@ -10,7 +10,8 @@ import {
   IconUser,
   IconUserScan,
   IconActivity,
-  IconBrandTelegram
+  IconBrandTelegram,
+  IconReceipt2
 } from '@tabler/icons-react';
 
 // constant
@@ -25,7 +26,8 @@ const icons = {
   IconUser,
   IconUserScan,
   IconActivity,
-  IconBrandTelegram
+  IconBrandTelegram,
+  IconReceipt2
 };
 
 // ==============================|| DASHBOARD MENU ITEMS ||============================== //
@@ -109,6 +111,15 @@ const panel = {
       type: 'item',
       url: '/panel/profile',
       icon: icons.IconUserScan,
+      breadcrumbs: false,
+      isAdmin: true
+    },
+    {
+      id: 'pricing',
+      title: '模型价格',
+      type: 'item',
+      url: '/panel/pricing',
+      icon: icons.IconReceipt2,
       breadcrumbs: false,
       isAdmin: true
     },

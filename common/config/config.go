@@ -4,13 +4,14 @@ import (
 	"strings"
 	"time"
 
+	"one-api/cli"
 	"one-api/common"
 
 	"github.com/spf13/viper"
 )
 
 func InitConf() {
-	flagConfig()
+	cli.FlagConfig()
 	defaultConfig()
 	setConfigFile()
 	setEnv()
@@ -25,11 +26,11 @@ func InitConf() {
 }
 
 func setConfigFile() {
-	if !common.IsFileExist(*config) {
+	if !common.IsFileExist(*cli.Config) {
 		return
 	}
 
-	viper.SetConfigFile(*config)
+	viper.SetConfigFile(*cli.Config)
 	if err := viper.ReadInConfig(); err != nil {
 		panic(err)
 	}
@@ -51,4 +52,5 @@ func defaultConfig() {
 	viper.SetDefault("global.api_rate_limit", 180)
 	viper.SetDefault("global.web_rate_limit", 100)
 	viper.SetDefault("connect_timeout", 5)
+	viper.SetDefault("auto_price_updates", true)
 }

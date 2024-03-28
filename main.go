@@ -10,6 +10,7 @@ import (
 	"one-api/controller"
 	"one-api/middleware"
 	"one-api/model"
+	"one-api/relay/util"
 	"one-api/router"
 
 	"github.com/gin-contrib/sessions"
@@ -35,6 +36,7 @@ func main() {
 	common.InitRedisClient()
 	// Initialize options
 	model.InitOptionMap()
+	util.NewPricing()
 	initMemoryCache()
 	initSync()
 

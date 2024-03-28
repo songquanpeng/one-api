@@ -18,6 +18,7 @@ type ChannelsChooser struct {
 	sync.RWMutex
 	Channels map[int]*ChannelChoice
 	Rule     map[string]map[string][][]int // group -> model -> priority -> channelIds
+	Match    []string
 }
 
 func (cc *ChannelsChooser) Cooldowns(channelId int) bool {
@@ -74,11 +75,15 @@ func (cc *ChannelsChooser) Next(group, modelName string) (*Channel, error) {
 		return nil, errors.New("group not found")
 	}
 
-	if _, ok := cc.Rule[group][modelName]; !ok {
-		return nil, errors.New("model not found")
+	channelsPriority, ok := cc.Rule[group][modelName]
+	if !ok {
+		matchModel := common.GetModelsWithMatch(&cc.Match, modelName)
+		channelsPriority, ok = cc.Rule[group][matchModel]
+		if !ok {
+			return nil, errors.New("model not found")
+		}
 	}
 
-	channelsPriority := cc.Rule[group][modelName]
 	if len(channelsPriority) == 0 {
 		return nil, errors.New("channel not found")
 	}
@@ -123,6 +128,7 @@ func (cc *ChannelsChooser) Load() {
 
 	newGroup := make(map[string]map[string][][]int)
 	newChannels := make(map[int]*ChannelChoice)
+	newMatch := make(map[string]bool)
 
 	for _, channel := range channels {
 		if *channel.Weight == 0 {
@@ -143,6 +149,13 @@ func (cc *ChannelsChooser) Load() {
 			newGroup[ability.Group][ability.Model] = make([][]int, 0)
 		}
 
+		// 如果是以 *结尾的 model名称
+		if strings.HasSuffix(ability.Model, "*") {
+			if _, ok := newMatch[ability.Model]; !ok {
+				newMatch[ability.Model] = true
+			}
+		}
+
 		var priorityIds []int
 		// 逗号分割 ability.ChannelId
 		channelIds := strings.Split(ability.ChannelIds, ",")
@@ -153,9 +166,15 @@ func (cc *ChannelsChooser) Load() {
 		newGroup[ability.Group][ability.Model] = append(newGroup[ability.Group][ability.Model], priorityIds)
 	}
 
+	newMatchList := make([]string, 0, len(newMatch))
+	for match := range newMatch {
+		newMatchList = append(newMatchList, match)
+	}
+
 	cc.Lock()
 	cc.Rule = newGroup
 	cc.Channels = newChannels
+	cc.Match = newMatchList
 	cc.Unlock()
 	common.SysLog("channels Load success")
 }

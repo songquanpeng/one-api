@@ -198,12 +198,12 @@ export default function Log() {
                   },
                   {
                     id: 'message',
-                    label: '提示',
+                    label: '输入',
                     disableSort: true
                   },
                   {
                     id: 'completion',
-                    label: '补全',
+                    label: '输出',
                     disableSort: true
                   },
                   {

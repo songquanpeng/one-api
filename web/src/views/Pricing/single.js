@@ -1,17 +1,28 @@
 import PropTypes from 'prop-types';
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { GridRowModes, DataGrid, GridToolbarContainer, GridActionsCellItem } from '@mui/x-data-grid';
-import { Box, Button } from '@mui/material';
+import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/DeleteOutlined';
 import SaveIcon from '@mui/icons-material/Save';
 import CancelIcon from '@mui/icons-material/Close';
-import { showError } from 'utils/common';
+import { showError, showSuccess } from 'utils/common';
+import { API } from 'utils/api';
+import { ValueFormatter, priceType } from './component/util';
 
 function validation(row, rows) {
   if (row.model === '') {
     return '模型名称不能为空';
+  }
+
+  // 判断 type 是否是 等于 tokens || times
+  if (row.type !== 'tokens' && row.type !== 'times') {
+    return '类型只能是tokens或times';
+  }
+
+  if (row.channel_type <= 0) {
+    return '所属渠道类型错误';
   }
 
   // 判断 model是否是唯一值
@@ -22,8 +33,8 @@ function validation(row, rows) {
   if (row.input === '' || row.input < 0) {
     return '输入倍率必须大于等于0';
   }
-  if (row.complete === '' || row.complete < 0) {
-    return '完成倍率必须大于等于0';
+  if (row.output === '' || row.output < 0) {
+    return '输出倍率必须大于等于0';
   }
   return false;
 }
@@ -35,7 +46,7 @@ function randomId() {
 function EditToolbar({ setRows, setRowModesModel }) {
   const handleClick = () => {
     const id = randomId();
-    setRows((oldRows) => [{ id, model: '', input: 0, complete: 0, isNew: true }, ...oldRows]);
+    setRows((oldRows) => [{ id, model: '', type: 'tokens', channel_type: 1, input: 0, output: 0, isNew: true }, ...oldRows]);
     setRowModesModel((oldModel) => ({
       [id]: { mode: GridRowModes.Edit, fieldToFocus: 'name' },
       ...oldModel
@@ -56,19 +67,33 @@ EditToolbar.propTypes = {
   setRowModesModel: PropTypes.func.isRequired
 };
 
-const ModelRationDataGrid = ({ ratio, onChange }) => {
+const Single = ({ ownedby, prices, reloadData }) => {
   const [rows, setRows] = useState([]);
   const [rowModesModel, setRowModesModel] = useState({});
+  const [selectedRow, setSelectedRow] = useState(null);
 
-  const setRatio = useCallback(
-    (ratioRow) => {
-      let ratioJson = {};
-      ratioRow.forEach((row) => {
-        ratioJson[row.model] = [row.input, row.complete];
-      });
-      onChange({ target: { name: 'ModelRatio', value: JSON.stringify(ratioJson, null, 2) } });
+  const addOrUpdatePirces = useCallback(
+    async (newRow, oldRow, reject, resolve) => {
+      try {
+        let res;
+        if (oldRow.model == '') {
+          res = await API.post('/api/prices/single', newRow);
+        } else {
+          res = await API.put('/api/prices/single/' + oldRow.model, newRow);
+        }
+        const { success, message } = res.data;
+        if (success) {
+          showSuccess('保存成功');
+          resolve(newRow);
+          reloadData();
+        } else {
+          reject(new Error(message));
+        }
+      } catch (error) {
+        reject(new Error(error));
+      }
     },
-    [onChange]
+    [reloadData]
   );
 
   const handleEditClick = useCallback(
@@ -87,10 +112,20 @@ const ModelRationDataGrid = ({ ratio, onChange }) => {
 
   const handleDeleteClick = useCallback(
     (id) => () => {
-      setRatio(rows.filter((row) => row.id !== id));
+      setSelectedRow(rows.find((row) => row.id === id));
     },
-    [rows, setRatio]
+    [rows]
   );
+
+  const handleClose = () => {
+    setSelectedRow(null);
+  };
+
+  const handleConfirmDelete = async () => {
+    // 执行删除操作
+    await deletePirces(selectedRow.model);
+    setSelectedRow(null);
+  };
 
   const handleCancelClick = useCallback(
     (id) => () => {
@@ -107,18 +142,30 @@ const ModelRationDataGrid = ({ ratio, onChange }) => {
     [rowModesModel, rows]
   );
 
-  const processRowUpdate = (newRow, oldRows) => {
-    if (!newRow.isNew && newRow.model === oldRows.model && newRow.input === oldRows.input && newRow.complete === oldRows.complete) {
-      return oldRows;
-    }
-    const updatedRow = { ...newRow, isNew: false };
-    const error = validation(updatedRow, rows);
-    if (error) {
-      return Promise.reject(new Error(error));
-    }
-    setRatio(rows.map((row) => (row.id === newRow.id ? updatedRow : row)));
-    return updatedRow;
-  };
+  const processRowUpdate = useCallback(
+    (newRow, oldRows) =>
+      new Promise((resolve, reject) => {
+        if (
+          !newRow.isNew &&
+          newRow.model === oldRows.model &&
+          newRow.input === oldRows.input &&
+          newRow.output === oldRows.output &&
+          newRow.type === oldRows.type &&
+          newRow.channel_type === oldRows.channel_type
+        ) {
+          return resolve(oldRows);
+        }
+        const updatedRow = { ...newRow, isNew: false };
+        const error = validation(updatedRow, rows);
+        if (error) {
+          return reject(new Error(error));
+        }
+
+        const response = addOrUpdatePirces(updatedRow, oldRows, reject, resolve);
+        return response;
+      }),
+    [rows, addOrUpdatePirces]
+  );
 
   const handleProcessRowUpdateError = useCallback((error) => {
     showError(error.message);
@@ -139,33 +186,43 @@ const ModelRationDataGrid = ({ ratio, onChange }) => {
         hideable: false
       },
       {
+        field: 'type',
+        sortable: true,
+        headerName: '类型',
+        width: 220,
+        type: 'singleSelect',
+        valueOptions: priceType,
+        editable: true,
+        hideable: false
+      },
+      {
+        field: 'channel_type',
+        sortable: true,
+        headerName: '供应商',
+        width: 220,
+        type: 'singleSelect',
+        valueOptions: ownedby,
+        editable: true,
+        hideable: false
+      },
+      {
         field: 'input',
         sortable: false,
         headerName: '输入倍率',
         width: 150,
         type: 'number',
         editable: true,
-        valueFormatter: (params) => {
-          if (params.value == null) {
-            return '';
-          }
-          return `$${parseFloat(params.value * 0.002).toFixed(4)} / ￥${parseFloat(params.value * 0.014).toFixed(4)}`;
-        },
+        valueFormatter: (params) => ValueFormatter(params.value),
         hideable: false
       },
       {
-        field: 'complete',
+        field: 'output',
         sortable: false,
-        headerName: '完成倍率',
+        headerName: '输出倍率',
         width: 150,
         type: 'number',
         editable: true,
-        valueFormatter: (params) => {
-          if (params.value == null) {
-            return '';
-          }
-          return `$${parseFloat(params.value * 0.002).toFixed(4)} / ￥${parseFloat(params.value * 0.014).toFixed(4)}`;
-        },
+        valueFormatter: (params) => ValueFormatter(params.value),
         hideable: false
       },
       {
@@ -220,18 +277,32 @@ const ModelRationDataGrid = ({ ratio, onChange }) => {
         }
       }
     ],
-    [handleEditClick, handleSaveClick, handleDeleteClick, handleCancelClick, rowModesModel]
+    [handleCancelClick, handleDeleteClick, handleEditClick, handleSaveClick, rowModesModel, ownedby]
   );
+
+  const deletePirces = async (modelName) => {
+    try {
+      const res = await API.delete('/api/prices/single/' + modelName);
+      const { success, message } = res.data;
+      if (success) {
+        showSuccess('保存成功');
+        await reloadData();
+      } else {
+        showError(message);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   useEffect(() => {
     let modelRatioList = [];
-    let itemJson = JSON.parse(ratio);
     let id = 0;
-    for (let key in itemJson) {
-      modelRatioList.push({ id: id++, model: key, input: itemJson[key][0], complete: itemJson[key][1] });
+    for (let key in prices) {
+      modelRatioList.push({ id: id++, ...prices[key] });
     }
     setRows(modelRatioList);
-  }, [ratio]);
+  }, [prices]);
 
   return (
     <Box
@@ -256,6 +327,14 @@ const ModelRationDataGrid = ({ ratio, onChange }) => {
         onRowModesModelChange={handleRowModesModelChange}
         processRowUpdate={processRowUpdate}
         onProcessRowUpdateError={handleProcessRowUpdateError}
+        // onCellDoubleClick={(params, event) => {
+        //   event.defaultMuiPrevented = true;
+        // }}
+        onRowEditStop={(params, event) => {
+          if (params.reason === 'rowFocusOut') {
+            event.defaultMuiPrevented = true;
+          }
+        }}
         slots={{
           toolbar: EditToolbar
         }}
@@ -263,13 +342,27 @@ const ModelRationDataGrid = ({ ratio, onChange }) => {
           toolbar: { setRows, setRowModesModel }
         }}
       />
+
+      <Dialog
+        maxWidth="xs"
+        // TransitionProps={{ onEntered: handleEntered }}
+        open={!!selectedRow}
+      >
+        <DialogTitle>确定删除?</DialogTitle>
+        <DialogContent dividers>{`确定删除 ${selectedRow?.model} 吗？`}</DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose}>取消</Button>
+          <Button onClick={handleConfirmDelete}>删除</Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };
 
-ModelRationDataGrid.propTypes = {
-  ratio: PropTypes.string.isRequired,
-  onChange: PropTypes.func.isRequired
-};
+export default Single;
 
-export default ModelRationDataGrid;
+Single.propTypes = {
+  prices: PropTypes.array,
+  ownedby: PropTypes.array,
+  reloadData: PropTypes.func
+};

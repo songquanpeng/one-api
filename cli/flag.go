@@ -1,4 +1,4 @@
-package config
+package cli
 
 import (
 	"flag"
@@ -14,10 +14,11 @@ var (
 	printVersion = flag.Bool("version", false, "print version and exit")
 	printHelp    = flag.Bool("help", false, "print help and exit")
 	logDir       = flag.String("log-dir", "", "specify the log directory")
-	config       = flag.String("config", "config.yaml", "specify the config.yaml path")
+	Config       = flag.String("config", "config.yaml", "specify the config.yaml path")
+	export       = flag.Bool("export", false, "Exports prices to a JSON file.")
 )
 
-func flagConfig() {
+func FlagConfig() {
 	flag.Parse()
 
 	if *printVersion {
@@ -36,6 +37,11 @@ func flagConfig() {
 
 	if *logDir != "" {
 		viper.Set("log_dir", *logDir)
+	}
+
+	if *export {
+		ExportPrices()
+		os.Exit(0)
 	}
 
 }

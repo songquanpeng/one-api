@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"one-api/common"
 	"one-api/model"
+	"one-api/relay/util"
 	"one-api/types"
 	"sort"
 
@@ -12,8 +13,6 @@ import (
 )
 
 // https://platform.openai.com/docs/api-reference/models/list
-
-var unknownOwnedBy = "未知"
 
 type OpenAIModelPermission struct {
 	Id                 string  `json:"id"`
@@ -30,6 +29,11 @@ type OpenAIModelPermission struct {
 	IsBlocking         bool    `json:"is_blocking"`
 }
 
+type ModelPrice struct {
+	Type   string `json:"type"`
+	Input  string `json:"input"`
+	Output string `json:"output"`
+}
 type OpenAIModels struct {
 	Id         string                   `json:"id"`
 	Object     string                   `json:"object"`
@@ -38,30 +42,7 @@ type OpenAIModels struct {
 	Permission *[]OpenAIModelPermission `json:"permission"`
 	Root       *string                  `json:"root"`
 	Parent     *string                  `json:"parent"`
-}
-
-var modelOwnedBy map[int]string
-
-func init() {
-	modelOwnedBy = map[int]string{
-		common.ChannelTypeOpenAI:    "OpenAI",
-		common.ChannelTypeAnthropic: "Anthropic",
-		common.ChannelTypeBaidu:     "Baidu",
-		common.ChannelTypePaLM:      "Google PaLM",
-		common.ChannelTypeGemini:    "Google Gemini",
-		common.ChannelTypeZhipu:     "Zhipu",
-		common.ChannelTypeAli:       "Ali",
-		common.ChannelTypeXunfei:    "Xunfei",
-		common.ChannelType360:       "360",
-		common.ChannelTypeTencent:   "Tencent",
-		common.ChannelTypeBaichuan:  "Baichuan",
-		common.ChannelTypeMiniMax:   "MiniMax",
-		common.ChannelTypeDeepseek:  "Deepseek",
-		common.ChannelTypeMoonshot:  "Moonshot",
-		common.ChannelTypeMistral:   "Mistral",
-		common.ChannelTypeGroq:      "Groq",
-		common.ChannelTypeLingyi:    "Lingyiwanwu",
-	}
+	Price      *ModelPrice              `json:"price"`
 }
 
 func ListModels(c *gin.Context) {
@@ -83,17 +64,9 @@ func ListModels(c *gin.Context) {
 	}
 	sort.Strings(models)
 
-	groupOpenAIModels := make([]OpenAIModels, 0, len(models))
-	for _, modelId := range models {
-		groupOpenAIModels = append(groupOpenAIModels, OpenAIModels{
-			Id:         modelId,
-			Object:     "model",
-			Created:    1677649963,
-			OwnedBy:    getModelOwnedBy(modelId),
-			Permission: nil,
-			Root:       nil,
-			Parent:     nil,
-		})
+	var groupOpenAIModels []*OpenAIModels
+	for _, modelName := range models {
+		groupOpenAIModels = append(groupOpenAIModels, getOpenAIModelWithName(modelName))
 	}
 
 	// 根据 OwnedBy 排序
@@ -114,13 +87,14 @@ func ListModels(c *gin.Context) {
 }
 
 func ListModelsForAdmin(c *gin.Context) {
-	openAIModels := make([]OpenAIModels, 0, len(common.ModelRatio))
-	for modelId := range common.ModelRatio {
+	prices := util.PricingInstance.GetAllPrices()
+	var openAIModels []OpenAIModels
+	for modelId, price := range prices {
 		openAIModels = append(openAIModels, OpenAIModels{
 			Id:         modelId,
 			Object:     "model",
 			Created:    1677649963,
-			OwnedBy:    getModelOwnedBy(modelId),
+			OwnedBy:    getModelOwnedBy(price.ChannelType),
 			Permission: nil,
 			Root:       nil,
 			Parent:     nil,
@@ -144,21 +118,13 @@ func ListModelsForAdmin(c *gin.Context) {
 }
 
 func RetrieveModel(c *gin.Context) {
-	modelId := c.Param("model")
-	ownedByName := getModelOwnedBy(modelId)
-	if *ownedByName != unknownOwnedBy {
-		c.JSON(200, OpenAIModels{
-			Id:         modelId,
-			Object:     "model",
-			Created:    1677649963,
-			OwnedBy:    ownedByName,
-			Permission: nil,
-			Root:       nil,
-			Parent:     nil,
-		})
+	modelName := c.Param("model")
+	openaiModel := getOpenAIModelWithName(modelName)
+	if *openaiModel.OwnedBy != util.UnknownOwnedBy {
+		c.JSON(200, openaiModel)
 	} else {
 		openAIError := types.OpenAIError{
-			Message: fmt.Sprintf("The model '%s' does not exist", modelId),
+			Message: fmt.Sprintf("The model '%s' does not exist", modelName),
 			Type:    "invalid_request_error",
 			Param:   "model",
 			Code:    "model_not_found",
@@ -169,12 +135,32 @@ func RetrieveModel(c *gin.Context) {
 	}
 }
 
-func getModelOwnedBy(modelId string) (ownedBy *string) {
-	if modelType, ok := common.ModelTypes[modelId]; ok {
-		if ownedByName, ok := modelOwnedBy[modelType.Type]; ok {
-			return &ownedByName
-		}
+func getModelOwnedBy(channelType int) (ownedBy *string) {
+	if ownedByName, ok := util.ModelOwnedBy[channelType]; ok {
+		return &ownedByName
 	}
 
-	return &unknownOwnedBy
+	return &util.UnknownOwnedBy
+}
+
+func getOpenAIModelWithName(modelName string) *OpenAIModels {
+	price := util.PricingInstance.GetPrice(modelName)
+
+	return &OpenAIModels{
+		Id:         modelName,
+		Object:     "model",
+		Created:    1677649963,
+		OwnedBy:    getModelOwnedBy(price.ChannelType),
+		Permission: nil,
+		Root:       nil,
+		Parent:     nil,
+	}
+}
+
+func GetModelOwnedBy(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "",
+		"data":    util.ModelOwnedBy,
+	})
 }

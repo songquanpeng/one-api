@@ -15,17 +15,16 @@ import (
 )
 
 type Quota struct {
-	modelName         string
-	promptTokens      int
-	preConsumedTokens int
-	modelRatio        []float64
-	groupRatio        float64
-	ratio             float64
-	preConsumedQuota  int
-	userId            int
-	channelId         int
-	tokenId           int
-	HandelStatus      bool
+	modelName        string
+	promptTokens     int
+	price            model.Price
+	groupRatio       float64
+	inputRatio       float64
+	preConsumedQuota int
+	userId           int
+	channelId        int
+	tokenId          int
+	HandelStatus     bool
 }
 
 func NewQuota(c *gin.Context, modelName string, promptTokens int) (*Quota, *types.OpenAIErrorWithStatusCode) {
@@ -37,7 +36,16 @@ func NewQuota(c *gin.Context, modelName string, promptTokens int) (*Quota, *type
 		tokenId:      c.GetInt("token_id"),
 		HandelStatus: false,
 	}
-	quota.init(c.GetString("group"))
+
+	quota.price = *PricingInstance.GetPrice(quota.modelName)
+	quota.groupRatio = common.GetGroupRatio(c.GetString("group"))
+	quota.inputRatio = quota.price.GetInput() * quota.groupRatio
+
+	if quota.price.Type == model.TimesPriceType {
+		quota.preConsumedQuota = int(1000 * quota.inputRatio)
+	} else {
+		quota.preConsumedQuota = int(float64(quota.promptTokens+common.PreConsumedQuota) * quota.inputRatio)
+	}
 
 	errWithCode := quota.preQuotaConsumption()
 	if errWithCode != nil {
@@ -45,21 +53,6 @@ func NewQuota(c *gin.Context, modelName string, promptTokens int) (*Quota, *type
 	}
 
 	return quota, nil
-}
-
-func (q *Quota) init(groupName string) {
-	modelRatio := common.GetModelRatio(q.modelName)
-	groupRatio := common.GetGroupRatio(groupName)
-	preConsumedTokens := common.PreConsumedQuota
-	ratio := modelRatio[0] * groupRatio
-	preConsumedQuota := int(float64(q.promptTokens+preConsumedTokens) * ratio)
-
-	q.preConsumedTokens = preConsumedTokens
-	q.modelRatio = modelRatio
-	q.groupRatio = groupRatio
-	q.ratio = ratio
-	q.preConsumedQuota = preConsumedQuota
-
 }
 
 func (q *Quota) preQuotaConsumption() *types.OpenAIErrorWithStatusCode {
@@ -97,11 +90,17 @@ func (q *Quota) preQuotaConsumption() *types.OpenAIErrorWithStatusCode {
 
 func (q *Quota) completedQuotaConsumption(usage *types.Usage, tokenName string, ctx context.Context) error {
 	quota := 0
-	completionRatio := q.modelRatio[1] * q.groupRatio
 	promptTokens := usage.PromptTokens
 	completionTokens := usage.CompletionTokens
-	quota = int(math.Ceil(((float64(promptTokens) * q.ratio) + (float64(completionTokens) * completionRatio))))
-	if q.ratio != 0 && quota <= 0 {
+
+	if q.price.Type == model.TimesPriceType {
+		quota = int(1000 * q.inputRatio)
+	} else {
+		completionRatio := q.price.GetOutput() * q.groupRatio
+		quota = int(math.Ceil(((float64(promptTokens) * q.inputRatio) + (float64(completionTokens) * completionRatio))))
+	}
+
+	if q.inputRatio != 0 && quota <= 0 {
 		quota = 1
 	}
 	totalTokens := promptTokens + completionTokens
@@ -129,13 +128,18 @@ func (q *Quota) completedQuotaConsumption(usage *types.Usage, tokenName string, 
 		}
 	}
 	var modelRatioStr string
-	if q.modelRatio[0] == q.modelRatio[1] {
-		modelRatioStr = fmt.Sprintf("%.2f", q.modelRatio[0])
+	if q.price.Type == model.TimesPriceType {
+		modelRatioStr = fmt.Sprintf("$%g/次", q.price.FetchInputCurrencyPrice(model.DollarRate))
 	} else {
-		modelRatioStr = fmt.Sprintf("%.2f (输入)/%.2f (输出)", q.modelRatio[0], q.modelRatio[1])
+		// 如果输入费率和输出费率一样，则只显示一个费率
+		if q.price.GetInput() == q.price.GetOutput() {
+			modelRatioStr = fmt.Sprintf("$%g/1k", q.price.FetchInputCurrencyPrice(model.DollarRate))
+		} else {
+			modelRatioStr = fmt.Sprintf("$%g/1k (输入) | $%g/1k (输出)", q.price.FetchInputCurrencyPrice(model.DollarRate), q.price.FetchOutputCurrencyPrice(model.DollarRate))
+		}
 	}
 
-	logContent := fmt.Sprintf("模型倍率 %s，分组倍率 %.2f", modelRatioStr, q.groupRatio)
+	logContent := fmt.Sprintf("模型费率 %s，分组倍率 %.2f", modelRatioStr, q.groupRatio)
 	model.RecordConsumeLog(ctx, q.userId, q.channelId, promptTokens, completionTokens, q.modelName, tokenName, quota, logContent, requestTime)
 	model.UpdateUserUsedQuotaAndRequestCount(q.userId, quota)
 	model.UpdateChannelUsedQuota(q.channelId, quota)

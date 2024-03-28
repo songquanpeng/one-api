@@ -67,7 +67,6 @@ func InitOptionMap() {
 	common.OptionMap["QuotaForInvitee"] = strconv.Itoa(common.QuotaForInvitee)
 	common.OptionMap["QuotaRemindThreshold"] = strconv.Itoa(common.QuotaRemindThreshold)
 	common.OptionMap["PreConsumedQuota"] = strconv.Itoa(common.PreConsumedQuota)
-	common.OptionMap["ModelRatio"] = common.ModelRatio2JSONString()
 	common.OptionMap["GroupRatio"] = common.GroupRatio2JSONString()
 	common.OptionMap["TopUpLink"] = common.TopUpLink
 	common.OptionMap["ChatLink"] = common.ChatLink
@@ -76,26 +75,7 @@ func InitOptionMap() {
 	common.OptionMap["RetryCooldownSeconds"] = strconv.Itoa(common.RetryCooldownSeconds)
 
 	common.OptionMapRWMutex.Unlock()
-	initModelRatio()
 	loadOptionsFromDatabase()
-}
-
-func initModelRatio() {
-	// 查询数据库中的ModelRatio
-	option, err := GetOption("ModelRatio")
-	if err != nil || option.Value == "" {
-		return
-	}
-
-	newModelRatio, err := common.MergeModelRatioByJSONString(option.Value)
-	if err != nil || newModelRatio == "" {
-		return
-	}
-
-	// 更新数据库中的ModelRatio
-	common.SysLog("update ModelRatio")
-	UpdateOption("ModelRatio", newModelRatio)
-
 }
 
 func loadOptionsFromDatabase() {
@@ -202,8 +182,6 @@ func updateOptionMap(key string, value string) (err error) {
 	switch key {
 	case "EmailDomainWhitelist":
 		common.EmailDomainWhitelist = strings.Split(value, ",")
-	case "ModelRatio":
-		err = common.UpdateModelRatioByJSONString(value)
 	case "GroupRatio":
 		err = common.UpdateGroupRatioByJSONString(value)
 	case "ChannelDisableThreshold":

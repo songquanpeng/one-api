@@ -212,3 +212,31 @@ func IsFileExist(path string) bool {
 	_, err := os.Stat(path)
 	return err == nil || os.IsExist(err)
 }
+
+func Contains[T comparable](value T, slice []T) bool {
+	for _, item := range slice {
+		if item == value {
+			return true
+		}
+	}
+	return false
+}
+
+func Filter[T any](arr []T, f func(T) bool) []T {
+	var res []T
+	for _, v := range arr {
+		if f(v) {
+			res = append(res, v)
+		}
+	}
+	return res
+}
+
+func GetModelsWithMatch(modelList *[]string, modelName string) string {
+	for _, model := range *modelList {
+		if strings.HasPrefix(modelName, strings.TrimRight(model, "*")) {
+			return model
+		}
+	}
+	return ""
+}

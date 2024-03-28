@@ -18,6 +18,8 @@ func SetApiRouter(router *gin.Engine) {
 		apiRouter.GET("/status", controller.GetStatus)
 		apiRouter.GET("/notice", controller.GetNotice)
 		apiRouter.GET("/about", controller.GetAbout)
+		apiRouter.GET("/prices", middleware.CORS(), controller.GetPricesList)
+		apiRouter.GET("/ownedby", relay.GetModelOwnedBy)
 		apiRouter.GET("/home_page_content", controller.GetHomePageContent)
 		apiRouter.GET("/verification", middleware.CriticalRateLimit(), middleware.TurnstileCheck(), controller.SendEmailVerification)
 		apiRouter.GET("/reset_password", middleware.CriticalRateLimit(), middleware.TurnstileCheck(), controller.SendPasswordResetEmail)
@@ -129,6 +131,20 @@ func SetApiRouter(router *gin.Engine) {
 			analyticsRoute.GET("/channel_period", controller.GetChannelExpensesByPeriod)
 			analyticsRoute.GET("/redemption_period", controller.GetRedemptionStatisticsByPeriod)
 		}
+
+		pricesRoute := apiRouter.Group("/prices")
+		pricesRoute.Use(middleware.AdminAuth())
+		{
+			pricesRoute.GET("/model_list", controller.GetAllModelList)
+			pricesRoute.POST("/single", controller.AddPrice)
+			pricesRoute.PUT("/single/:model", controller.UpdatePrice)
+			pricesRoute.DELETE("/single/:model", controller.DeletePrice)
+			pricesRoute.POST("/multiple", controller.BatchSetPrices)
+			pricesRoute.PUT("/multiple/delete", controller.BatchDeletePrices)
+			pricesRoute.POST("/sync", controller.SyncPricing)
+
+		}
+
 	}
 
 }

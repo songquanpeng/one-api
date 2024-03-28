@@ -13,46 +13,46 @@ import (
 )
 
 var tokenEncoderMap = map[string]*tiktoken.Tiktoken{}
-var defaultTokenEncoder *tiktoken.Tiktoken
+var gpt35TokenEncoder *tiktoken.Tiktoken
+var gpt4TokenEncoder *tiktoken.Tiktoken
 
 func InitTokenEncoders() {
 	SysLog("initializing token encoders")
-	gpt35TokenEncoder, err := tiktoken.EncodingForModel("gpt-3.5-turbo")
+	var err error
+	gpt35TokenEncoder, err = tiktoken.EncodingForModel("gpt-3.5-turbo")
 	if err != nil {
 		FatalLog(fmt.Sprintf("failed to get gpt-3.5-turbo token encoder: %s", err.Error()))
 	}
-	defaultTokenEncoder = gpt35TokenEncoder
-	gpt4TokenEncoder, err := tiktoken.EncodingForModel("gpt-4")
+
+	gpt4TokenEncoder, err = tiktoken.EncodingForModel("gpt-4")
 	if err != nil {
 		FatalLog(fmt.Sprintf("failed to get gpt-4 token encoder: %s", err.Error()))
 	}
-	for model := range ModelRatio {
-		if strings.HasPrefix(model, "gpt-3.5") {
-			tokenEncoderMap[model] = gpt35TokenEncoder
-		} else if strings.HasPrefix(model, "gpt-4") {
-			tokenEncoderMap[model] = gpt4TokenEncoder
-		} else {
-			tokenEncoderMap[model] = nil
-		}
-	}
+
 	SysLog("token encoders initialized")
 }
 
 func getTokenEncoder(model string) *tiktoken.Tiktoken {
 	tokenEncoder, ok := tokenEncoderMap[model]
-	if ok && tokenEncoder != nil {
+	if ok {
 		return tokenEncoder
 	}
-	if ok {
-		tokenEncoder, err := tiktoken.EncodingForModel(model)
+
+	if strings.HasPrefix(model, "gpt-3.5") {
+		tokenEncoder = gpt35TokenEncoder
+	} else if strings.HasPrefix(model, "gpt-4") {
+		tokenEncoder = gpt4TokenEncoder
+	} else {
+		var err error
+		tokenEncoder, err = tiktoken.EncodingForModel(model)
 		if err != nil {
 			SysError(fmt.Sprintf("failed to get token encoder for model %s: %s, using encoder for gpt-3.5-turbo", model, err.Error()))
-			tokenEncoder = defaultTokenEncoder
+			tokenEncoder = gpt35TokenEncoder
 		}
-		tokenEncoderMap[model] = tokenEncoder
-		return tokenEncoder
 	}
-	return defaultTokenEncoder
+
+	tokenEncoderMap[model] = tokenEncoder
+	return tokenEncoder
 }
 
 func getTokenNum(tokenEncoder *tiktoken.Tiktoken, text string) int {
