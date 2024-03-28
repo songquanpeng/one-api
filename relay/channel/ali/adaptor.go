@@ -51,11 +51,11 @@ func (a *Adaptor) ConvertRequest(c *gin.Context, relayMode int, request *model.G
 	}
 	switch relayMode {
 	case constant.RelayModeEmbeddings:
-		baiduEmbeddingRequest := ConvertEmbeddingRequest(*request)
-		return baiduEmbeddingRequest, nil
+		aliEmbeddingRequest := ConvertEmbeddingRequest(*request)
+		return aliEmbeddingRequest, nil
 	default:
-		baiduRequest := ConvertRequest(*request)
-		return baiduRequest, nil
+		aliRequest := ConvertRequest(*request)
+		return aliRequest, nil
 	}
 }
 
