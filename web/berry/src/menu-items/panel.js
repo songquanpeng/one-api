@@ -8,11 +8,12 @@ import {
   IconKey,
   IconGardenCart,
   IconUser,
-  IconUserScan
+  IconUserScan,
+  IconFileTextAi
 } from '@tabler/icons-react';
 
 // constant
-const icons = { IconDashboard, IconSitemap, IconArticle, IconCoin, IconAdjustments, IconKey, IconGardenCart, IconUser, IconUserScan };
+const icons = { IconDashboard, IconSitemap, IconArticle, IconCoin, IconAdjustments, IconKey, IconGardenCart, IconUser, IconUserScan, IconFileTextAi };
 
 // ==============================|| DASHBOARD MENU ITEMS ||============================== //
 
@@ -30,6 +31,14 @@ const panel = {
       isAdmin: false
     },
     {
+      id: 'chat',
+      title: '聊天',
+      type: 'item',
+      url: '/panel/chat',
+      icon: icons.IconFileTextAi,
+      breadcrumbs: false
+    },
+    {
       id: 'channel',
       title: '渠道',
       type: 'item',
@@ -37,22 +46,6 @@ const panel = {
       icon: icons.IconSitemap,
       breadcrumbs: false,
       isAdmin: true
-    },
-    {
-      id: 'token',
-      title: '令牌',
-      type: 'item',
-      url: '/panel/token',
-      icon: icons.IconKey,
-      breadcrumbs: false
-    },
-    {
-      id: 'log',
-      title: '日志',
-      type: 'item',
-      url: '/panel/log',
-      icon: icons.IconArticle,
-      breadcrumbs: false
     },
     {
       id: 'redemption',
@@ -79,6 +72,22 @@ const panel = {
       icon: icons.IconUser,
       breadcrumbs: false,
       isAdmin: true
+    },
+    {
+      id: 'log',
+      title: '日志',
+      type: 'item',
+      url: '/panel/log',
+      icon: icons.IconArticle,
+      breadcrumbs: false
+    },
+    {
+      id: 'token',
+      title: '令牌',
+      type: 'item',
+      url: '/panel/token',
+      icon: icons.IconKey,
+      breadcrumbs: false
     },
     {
       id: 'profile',
