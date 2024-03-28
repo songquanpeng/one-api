@@ -75,7 +75,7 @@ var ModelRatio = map[string]float64{
 	"ERNIE-Bot":       0.8572,     // ￥0.012 / 1k tokens
 	"ERNIE-Bot-turbo": 0.5715,     // ￥0.008 / 1k tokens
 	"ERNIE-Bot-4":     0.12 * RMB, // ￥0.12 / 1k tokens
-	"ERNIE-Bot-8k":    0.024 * RMB,
+	"ERNIE-Bot-8K":    0.024 * RMB,
 	"Embedding-V1":    0.1429, // ￥0.002 / 1k tokens
 	"bge-large-zh":    0.002 * RMB,
 	"bge-large-en":    0.002 * RMB,
