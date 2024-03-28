@@ -5,6 +5,7 @@ import {
   IconKey,
   IconBrandGithubCopilot,
   IconSitemap,
+  IconMapPin
 } from "@tabler/icons-react";
 import {
   InputAdornment,
@@ -72,6 +73,30 @@ export default function TableToolBar({
             startAdornment={
               <InputAdornment position="start">
                 <IconBrandGithubCopilot
+                  stroke={1.5}
+                  size="20px"
+                  color={grey500}
+                />
+              </InputAdornment>
+            }
+          />
+        </FormControl>
+
+        <FormControl>
+          <InputLabel htmlFor="channel-client_ip-label">请求端IP</InputLabel>
+          <OutlinedInput
+            id="client_ip"
+            name="client_ip"
+            sx={{
+              minWidth: "100%",
+            }}
+            label="请求端IP"
+            value={filterName.client_ip}
+            onChange={handleFilterName}
+            placeholder="请求端IP"
+            startAdornment={
+              <InputAdornment position="start">
+                <IconMapPin
                   stroke={1.5}
                   size="20px"
                   color={grey500}

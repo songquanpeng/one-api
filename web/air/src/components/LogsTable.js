@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { API, copy, isAdmin, showError, showSuccess, timestamp2string } from '../helpers';
+import { API, copy, isAdmin, showError, showSuccess, timestamp2string, safeGetLocalTimestamp } from '../helpers';
 
 import { Avatar, Button, Form, Layout, Modal, Select, Space, Spin, Table, Tag } from '@douyinfe/semi-ui';
 import { ITEMS_PER_PAGE } from '../constants';
@@ -129,6 +129,10 @@ const LogsTable = () => {
       </div> : <></>);
     }
   }, {
+    title: '请求端IP', dataIndex: 'client_ip', render: (text, record, index) => {
+      return text;
+    }
+  }, {
     title: '详情', dataIndex: 'content', render: (text, record, index) => {
       return <Paragraph ellipsis={{ rows: 2, showTooltip: { type: 'popover', opts: { style: { width: 240 } } } }}
         style={{ maxWidth: 240 }}>
@@ -156,9 +160,10 @@ const LogsTable = () => {
     model_name: '',
     start_timestamp: timestamp2string(now.getTime() / 1000 - 86400),
     end_timestamp: timestamp2string(now.getTime() / 1000 + 3600),
-    channel: ''
+    channel: '',
+    client_ip: ''
   });
-  const { username, token_name, model_name, start_timestamp, end_timestamp, channel } = inputs;
+  const { username, token_name, model_name, start_timestamp, end_timestamp, channel, client_ip } = inputs;
 
   const [stat, setStat] = useState({
     quota: 0, token: 0
@@ -169,9 +174,9 @@ const LogsTable = () => {
   };
 
   const getLogSelfStat = async () => {
-    let localStartTimestamp = Date.parse(start_timestamp) / 1000;
-    let localEndTimestamp = Date.parse(end_timestamp) / 1000;
-    let res = await API.get(`/api/log/self/stat?type=${logType}&token_name=${token_name}&model_name=${model_name}&start_timestamp=${localStartTimestamp}&end_timestamp=${localEndTimestamp}`);
+    let localStartTimestamp = safeGetLocalTimestamp(start_timestamp);
+    let localEndTimestamp = safeGetLocalTimestamp(end_timestamp);
+    let res = await API.get(`/api/log/self/stat?type=${logType}&token_name=${token_name}&model_name=${model_name}&start_timestamp=${localStartTimestamp}&end_timestamp=${localEndTimestamp}&client_ip=${client_ip}`);
     const { success, message, data } = res.data;
     if (success) {
       setStat(data);
@@ -181,9 +186,9 @@ const LogsTable = () => {
   };
 
   const getLogStat = async () => {
-    let localStartTimestamp = Date.parse(start_timestamp) / 1000;
-    let localEndTimestamp = Date.parse(end_timestamp) / 1000;
-    let res = await API.get(`/api/log/stat?type=${logType}&username=${username}&token_name=${token_name}&model_name=${model_name}&start_timestamp=${localStartTimestamp}&end_timestamp=${localEndTimestamp}&channel=${channel}`);
+    let localStartTimestamp = safeGetLocalTimestamp(start_timestamp);
+    let localEndTimestamp = safeGetLocalTimestamp(end_timestamp);
+    let res = await API.get(`/api/log/stat?type=${logType}&username=${username}&token_name=${token_name}&model_name=${model_name}&start_timestamp=${localStartTimestamp}&end_timestamp=${localEndTimestamp}&channel=${channel}&client_ip=${client_ip}`);
     const { success, message, data } = res.data;
     if (success) {
       setStat(data);
@@ -238,12 +243,12 @@ const LogsTable = () => {
     setLoading(true);
 
     let url = '';
-    let localStartTimestamp = Date.parse(start_timestamp) / 1000;
-    let localEndTimestamp = Date.parse(end_timestamp) / 1000;
+    let localStartTimestamp = safeGetLocalTimestamp(start_timestamp);
+    let localEndTimestamp = safeGetLocalTimestamp(end_timestamp);
     if (isAdminUser) {
-      url = `/api/log/?p=${startIdx}&page_size=${pageSize}&type=${logType}&username=${username}&token_name=${token_name}&model_name=${model_name}&start_timestamp=${localStartTimestamp}&end_timestamp=${localEndTimestamp}&channel=${channel}`;
+      url = `/api/log/?p=${startIdx}&page_size=${pageSize}&type=${logType}&username=${username}&token_name=${token_name}&model_name=${model_name}&start_timestamp=${localStartTimestamp}&end_timestamp=${localEndTimestamp}&channel=${channel}&client_ip=${client_ip}`;
     } else {
-      url = `/api/log/self/?p=${startIdx}&page_size=${pageSize}&type=${logType}&token_name=${token_name}&model_name=${model_name}&start_timestamp=${localStartTimestamp}&end_timestamp=${localEndTimestamp}`;
+      url = `/api/log/self/?p=${startIdx}&page_size=${pageSize}&type=${logType}&token_name=${token_name}&model_name=${model_name}&start_timestamp=${localStartTimestamp}&end_timestamp=${localEndTimestamp}&client_ip=${client_ip}`;
     }
     const res = await API.get(url);
     const { success, message, data } = res.data;
@@ -349,6 +354,10 @@ const LogsTable = () => {
             placeholder="可选值"
             name="model_name"
             onChange={value => handleInputChange(value, 'model_name')} />
+          <Form.Input field="model_name" label="请求端IP" style={{ width: 176 }} value={client_ip}
+            placeholder="可选值"
+            name="client_ip"
+            onChange={value => handleInputChange(value, 'client_ip')} />
           <Form.DatePicker field="start_timestamp" label="起始时间" style={{ width: 272 }}
             initValue={start_timestamp}
             value={start_timestamp} type="dateTime"
@@ -369,7 +378,7 @@ const LogsTable = () => {
           </>}
           <Form.Section>
             <Button label="查询" type="primary" htmlType="submit" className="btn-margin-right"
-              onClick={refresh} loading={loading}>查询</Button>
+              onClick={()=>refresh(logType)} loading={loading}>查询</Button>
           </Form.Section>
         </>
       </Form>
