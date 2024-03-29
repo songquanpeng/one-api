@@ -3,7 +3,7 @@ const config = {
   // like '/berry-material-react/react/default'
   basename: '/',
   defaultPath: '/panel/dashboard',
-  fontFamily: `'Roboto', sans-serif, Helvetica, Arial, sans-serif`,
+  fontFamily: `'Roboto', Helvetica, sans-serif`,
   borderRadius: 12,
   siteInfo: {
     chat_link: '',
