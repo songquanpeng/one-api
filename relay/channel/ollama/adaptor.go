@@ -48,6 +48,13 @@ func (a *Adaptor) ConvertRequest(c *gin.Context, relayMode int, request *model.G
 	}
 }
 
+func (a *Adaptor) ConvertImageRequest(request *model.ImageRequest) (any, error) {
+	if request == nil {
+		return nil, errors.New("request is nil")
+	}
+	return request, nil
+}
+
 func (a *Adaptor) DoRequest(c *gin.Context, meta *util.RelayMeta, requestBody io.Reader) (*http.Response, error) {
 	return channel.DoRequestHelper(a, c, meta, requestBody)
 }

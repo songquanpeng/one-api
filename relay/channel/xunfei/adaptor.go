@@ -38,6 +38,13 @@ func (a *Adaptor) ConvertRequest(c *gin.Context, relayMode int, request *model.G
 	return nil, nil
 }
 
+func (a *Adaptor) ConvertImageRequest(request *model.ImageRequest) (any, error) {
+	if request == nil {
+		return nil, errors.New("request is nil")
+	}
+	return request, nil
+}
+
 func (a *Adaptor) DoRequest(c *gin.Context, meta *util.RelayMeta, requestBody io.Reader) (*http.Response, error) {
 	// xunfei's request is not http request, so we don't need to do anything here
 	dummyResp := &http.Response{}

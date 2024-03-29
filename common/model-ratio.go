@@ -100,6 +100,8 @@ var ModelRatio = map[string]float64{
 	"qwen-max":                  1.4286, // ￥0.02 / 1k tokens
 	"qwen-max-longcontext":      1.4286, // ￥0.02 / 1k tokens
 	"text-embedding-v1":         0.05,   // ￥0.0007 / 1k tokens
+	"stable-diffusion-xl":       0,      // todo
+	"wanx-v1":                   0,      // todo
 	"SparkDesk":                 1.2858, // ￥0.018 / 1k tokens
 	"SparkDesk-v1.1":            1.2858, // ￥0.018 / 1k tokens
 	"SparkDesk-v2.1":            1.2858, // ￥0.018 / 1k tokens
