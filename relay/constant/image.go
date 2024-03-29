@@ -26,15 +26,13 @@ var DalleSizeRatios = map[string]map[string]float64{
 }
 
 var DalleGenerationImageAmounts = map[string][2]int{
-	"dall-e-2": {1, 10},
-	"dall-e-3": {1, 1}, // OpenAI allows n=1 currently.
+	"dall-e-2":            {1, 10},
+	"dall-e-3":            {1, 1}, // OpenAI allows n=1 currently.
 	"stable-diffusion-xl": {1, 4}, // Ali
 	"wanx-v1":             {1, 4}, // Ali
 }
 
 var DalleImagePromptLengthLimitations = map[string]int{
-	"dall-e-2": 1000,
-	"dall-e-3": 4000,
 	"dall-e-2":            1000,
 	"dall-e-3":            4000,
 	"stable-diffusion-xl": 4000,
