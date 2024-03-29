@@ -349,7 +349,7 @@ export default function ChannelTableRow({ item, manageChannel, handleOpenModal, 
         ))}
       </StyledMenu>
       <TableRow>
-        <TableCell style={{ paddingBottom: 0, paddingTop: 0, textAlign: 'left' }} colSpan={10}>
+        <TableCell style={{ paddingBottom: 0, paddingTop: 0, textAlign: 'left' }} colSpan={11}>
           <Collapse in={openRow} timeout="auto" unmountOnExit>
             <Grid container spacing={1}>
               <Grid item xs={12}>
