@@ -96,6 +96,8 @@ const EditModal = ({ open, tokenId, onCancel, onOk }) => {
   useEffect(() => {
     if (tokenId) {
       loadToken().then();
+    } else {
+      setInputs(originInputs);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tokenId]);
