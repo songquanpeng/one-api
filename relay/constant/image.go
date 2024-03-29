@@ -38,4 +38,6 @@ var DalleImagePromptLengthLimitations = map[string]int{
 	"dall-e-2":            1000,
 	"dall-e-3":            4000,
 	"stable-diffusion-xl": 4000,
+	"wanx-v1":             4000,
+	"cogview-3":           833,
 }
