@@ -38,6 +38,7 @@ func ConvertRequest(textRequest model.GeneralOpenAIRequest) *Request {
 		MaxTokens:   textRequest.MaxTokens,
 		Temperature: textRequest.Temperature,
 		TopP:        textRequest.TopP,
+		TopK:        textRequest.TopK,
 		Stream:      textRequest.Stream,
 	}
 	if claudeRequest.MaxTokens == 0 {
