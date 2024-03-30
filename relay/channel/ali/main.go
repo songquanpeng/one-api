@@ -48,7 +48,10 @@ func ConvertRequest(request model.GeneralOpenAIRequest) *ChatRequest {
 			MaxTokens:         request.MaxTokens,
 			Temperature:       request.Temperature,
 			TopP:              request.TopP,
+			TopK:              request.TopK,
+			ResultFormat:      "message",
 		},
+		Tools: request.Tools,
 	}
 }
 
@@ -117,19 +120,11 @@ func embeddingResponseAli2OpenAI(response *EmbeddingResponse) *openai.EmbeddingR
 }
 
 func responseAli2OpenAI(response *ChatResponse) *openai.TextResponse {
-	choice := openai.TextResponseChoice{
-		Index: 0,
-		Message: model.Message{
-			Role:    "assistant",
-			Content: response.Output.Text,
-		},
-		FinishReason: response.Output.FinishReason,
-	}
 	fullTextResponse := openai.TextResponse{
 		Id:      response.RequestId,
 		Object:  "chat.completion",
 		Created: helper.GetTimestamp(),
-		Choices: []openai.TextResponseChoice{choice},
+		Choices: response.Output.Choices,
 		Usage: model.Usage{
 			PromptTokens:     response.Usage.InputTokens,
 			CompletionTokens: response.Usage.OutputTokens,
@@ -140,10 +135,14 @@ func responseAli2OpenAI(response *ChatResponse) *openai.TextResponse {
 }
 
 func streamResponseAli2OpenAI(aliResponse *ChatResponse) *openai.ChatCompletionsStreamResponse {
+	if len(aliResponse.Output.Choices) == 0 {
+		return nil
+	}
+	aliChoice := aliResponse.Output.Choices[0]
 	var choice openai.ChatCompletionsStreamResponseChoice
-	choice.Delta.Content = aliResponse.Output.Text
-	if aliResponse.Output.FinishReason != "null" {
-		finishReason := aliResponse.Output.FinishReason
+	choice.Delta = aliChoice.Message
+	if aliChoice.FinishReason != "null" {
+		finishReason := aliChoice.FinishReason
 		choice.FinishReason = &finishReason
 	}
 	response := openai.ChatCompletionsStreamResponse{
@@ -204,6 +203,9 @@ func StreamHandler(c *gin.Context, resp *http.Response) (*model.ErrorWithStatusC
 				usage.TotalTokens = aliResponse.Usage.InputTokens + aliResponse.Usage.OutputTokens
 			}
 			response := streamResponseAli2OpenAI(&aliResponse)
+			if response == nil {
+				return true
+			}
 			//response.Choices[0].Delta.Content = strings.TrimPrefix(response.Choices[0].Delta.Content, lastResponseText)
 			//lastResponseText = aliResponse.Output.Text
 			jsonResponse, err := json.Marshal(response)
@@ -226,6 +228,7 @@ func StreamHandler(c *gin.Context, resp *http.Response) (*model.ErrorWithStatusC
 }
 
 func Handler(c *gin.Context, resp *http.Response) (*model.ErrorWithStatusCode, *model.Usage) {
+	ctx := c.Request.Context()
 	var aliResponse ChatResponse
 	responseBody, err := io.ReadAll(resp.Body)
 	if err != nil {
@@ -235,6 +238,7 @@ func Handler(c *gin.Context, resp *http.Response) (*model.ErrorWithStatusCode, *
 	if err != nil {
 		return openai.ErrorWrapper(err, "close_response_body_failed", http.StatusInternalServerError), nil
 	}
+	logger.Debugf(ctx, "response body: %s\n", responseBody)
 	err = json.Unmarshal(responseBody, &aliResponse)
 	if err != nil {
 		return openai.ErrorWrapper(err, "unmarshal_response_body_failed", http.StatusInternalServerError), nil
