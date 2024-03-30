@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 
-import { TableRow, TableCell } from '@mui/material';
+import { TableRow, TableCell, Stack } from '@mui/material';
 
 import { timestamp2string, renderQuota } from 'utils/common';
 import Label from 'ui-component/Label';
@@ -40,9 +40,30 @@ function requestTimeLabelOptions(request_time) {
   return color;
 }
 
+function requestTSLabelOptions(request_ts) {
+  let color = 'success';
+  if (request_ts === 0) {
+    color = 'default';
+  } else if (request_ts <= 10) {
+    color = 'error';
+  } else if (request_ts <= 15) {
+    color = 'secondary';
+  } else if (request_ts <= 20) {
+    color = 'primary';
+  }
+
+  return color;
+}
+
 export default function LogTableRow({ item, userIsAdmin }) {
   let request_time = item.request_time / 1000;
-  request_time = request_time.toFixed(2) + ' 秒';
+  let request_time_str = request_time.toFixed(2) + ' 秒';
+  let request_ts = 0;
+  let request_ts_str = '';
+  if (request_time > 0 && item.completion_tokens > 0) {
+    request_ts = (item.completion_tokens ? item.completion_tokens : 1) / request_time;
+    request_ts_str = request_ts.toFixed(2) + ' t/s';
+  }
 
   return (
     <>
@@ -73,8 +94,10 @@ export default function LogTableRow({ item, userIsAdmin }) {
           )}
         </TableCell>
         <TableCell>
-          {' '}
-          <Label color={requestTimeLabelOptions(item.request_time)}> {item.request_time == 0 ? '无' : request_time} </Label>
+          <Stack direction="row" spacing={1}>
+            <Label color={requestTimeLabelOptions(item.request_time)}> {item.request_time == 0 ? '无' : request_time_str} </Label>
+            {request_ts_str && <Label color={requestTSLabelOptions(request_ts)}> {request_ts_str} </Label>}
+          </Stack>
         </TableCell>
         <TableCell>{item.prompt_tokens || '0'}</TableCell>
         <TableCell>{item.completion_tokens || '0'}</TableCell>

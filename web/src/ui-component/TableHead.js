@@ -1,9 +1,27 @@
 import PropTypes from 'prop-types';
-import { TableCell, TableHead, TableRow, TableSortLabel } from '@mui/material';
+import { TableCell, TableHead, TableRow, TableSortLabel, Tooltip, IconButton, Typography, Box } from '@mui/material';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 
 const KeywordTableHead = ({ order, orderBy, headLabel, onRequestSort }) => {
   const onSort = (property) => (event) => {
     onRequestSort(event, property);
+  };
+
+  const label = (cell) => {
+    if (cell.tooltip) {
+      return (
+        <Box display="flex" alignItems="center">
+          <Typography variant="body1">{cell.label}</Typography>
+          <Tooltip title={cell.tooltip} placement="bottom-start" enterDelay={300}>
+            <IconButton size="small">
+              <HelpOutlineIcon fontSize="inherit" />
+            </IconButton>
+          </Tooltip>
+        </Box>
+      );
+    } else {
+      return cell.label;
+    }
   };
 
   return (
@@ -18,7 +36,7 @@ const KeywordTableHead = ({ order, orderBy, headLabel, onRequestSort }) => {
               sx={{ width: headCell.width, minWidth: headCell.minWidth }}
             >
               {headCell.disableSort ? (
-                headCell.label
+                label(headCell)
               ) : (
                 <TableSortLabel
                   hideSortIcon
@@ -26,7 +44,7 @@ const KeywordTableHead = ({ order, orderBy, headLabel, onRequestSort }) => {
                   direction={orderBy === headCell.id ? order : 'asc'}
                   onClick={onSort(headCell.id)}
                 >
-                  {headCell.label}
+                  {label(headCell)}
                 </TableSortLabel>
               )}
             </TableCell>

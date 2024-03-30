@@ -194,6 +194,7 @@ export default function Log() {
                   {
                     id: 'duration',
                     label: '耗时',
+                    tooltip: 't/s：输出令牌的数量除以总生成时间，表示生成速度',
                     disableSort: true
                   },
                   {
