@@ -47,11 +47,13 @@ export const CheckUpdates = ({ open, onCancel, onOk, row }) => {
     setUpdateLoading(true);
     if (!newPricing.length) {
       showError('请先获取数据');
+      setUpdateLoading(false);
       return;
     }
 
     if (!overwrite && !addModel.length) {
       showError('没有新增模型');
+      setUpdateLoading(false);
       return;
     }
     try {
