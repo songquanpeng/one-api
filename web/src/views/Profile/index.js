@@ -1,21 +1,6 @@
 import { useState, useEffect } from 'react';
 import UserCard from 'ui-component/cards/UserCard';
-import {
-  Card,
-  Button,
-  InputLabel,
-  FormControl,
-  OutlinedInput,
-  Stack,
-  Alert,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Divider,
-  Chip,
-  Typography
-} from '@mui/material';
+import { Card, Button, InputLabel, FormControl, OutlinedInput, Stack, Alert, Divider, Chip, Typography } from '@mui/material';
 import Grid from '@mui/material/Unstable_Grid2';
 import SubCard from 'ui-component/cards/SubCard';
 import { IconBrandWechat, IconBrandGithub, IconMail, IconBrandTelegram } from '@tabler/icons-react';
@@ -38,7 +23,6 @@ const validationSchema = Yup.object().shape({
 
 export default function Profile() {
   const [inputs, setInputs] = useState([]);
-  const [showAccountDeleteModal, setShowAccountDeleteModal] = useState(false);
   const [turnstileEnabled, setTurnstileEnabled] = useState(false);
   const [turnstileSiteKey, setTurnstileSiteKey] = useState('');
   const [turnstileToken, setTurnstileToken] = useState('');
@@ -284,41 +268,11 @@ export default function Profile() {
                     {inputs.access_token ? '重置访问令牌' : '生成访问令牌'}
                   </Button>
                 </Grid>
-
-                <Grid xs={12}>
-                  <Button
-                    variant="contained"
-                    color="error"
-                    onClick={() => {
-                      setShowAccountDeleteModal(true);
-                    }}
-                  >
-                    删除帐号
-                  </Button>
-                </Grid>
               </Grid>
             </SubCard>
           </Stack>
         </Card>
       </UserCard>
-      <Dialog open={showAccountDeleteModal} onClose={() => setShowAccountDeleteModal(false)} maxWidth={'md'}>
-        <DialogTitle sx={{ margin: '0px', fontWeight: 500, lineHeight: '1.55556', padding: '24px', fontSize: '1.125rem' }}>
-          危险操作
-        </DialogTitle>
-        <Divider />
-        <DialogContent>您正在删除自己的帐户，将清空所有数据且不可恢复</DialogContent>
-        <DialogActions>
-          <Button onClick={() => setShowAccountDeleteModal(false)}>取消</Button>
-          <Button
-            sx={{ color: 'error.main' }}
-            onClick={async () => {
-              setShowAccountDeleteModal(false);
-            }}
-          >
-            确定
-          </Button>
-        </DialogActions>
-      </Dialog>
       <WechatModal open={openWechat} handleClose={handleWechatClose} wechatLogin={bindWeChat} qrCode={status.wechat_qrcode} />
       <EmailModal
         open={openEmail}

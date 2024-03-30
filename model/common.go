@@ -140,3 +140,13 @@ func assembleSumSelectStr(selectStr string) string {
 
 	return sumSelectStr
 }
+
+func RecordExists(table interface{}, fieldName string, fieldValue interface{}, excludeID interface{}) bool {
+	var count int64
+	query := DB.Model(table).Where(fmt.Sprintf("%s = ?", fieldName), fieldValue)
+	if excludeID != nil {
+		query = query.Not("id", excludeID)
+	}
+	query.Count(&count)
+	return count > 0
+}
