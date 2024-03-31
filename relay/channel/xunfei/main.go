@@ -26,7 +26,11 @@ import (
 
 func requestOpenAI2Xunfei(request model.GeneralOpenAIRequest, xunfeiAppId string, domain string) *ChatRequest {
 	messages := make([]Message, 0, len(request.Messages))
+	var lastToolCalls []model.Tool
 	for _, message := range request.Messages {
+		if message.ToolCalls != nil {
+			lastToolCalls = message.ToolCalls
+		}
 		messages = append(messages, Message{
 			Role:    message.Role,
 			Content: message.StringContent(),
@@ -39,7 +43,31 @@ func requestOpenAI2Xunfei(request model.GeneralOpenAIRequest, xunfeiAppId string
 	xunfeiRequest.Parameter.Chat.TopK = request.N
 	xunfeiRequest.Parameter.Chat.MaxTokens = request.MaxTokens
 	xunfeiRequest.Payload.Message.Text = messages
+	if len(lastToolCalls) != 0 {
+		for _, toolCall := range lastToolCalls {
+			xunfeiRequest.Payload.Functions.Text = append(xunfeiRequest.Payload.Functions.Text, toolCall.Function)
+		}
+	}
+
 	return &xunfeiRequest
+}
+
+func getToolCalls(response *ChatResponse) []model.Tool {
+	var toolCalls []model.Tool
+	if len(response.Payload.Choices.Text) == 0 {
+		return toolCalls
+	}
+	item := response.Payload.Choices.Text[0]
+	if item.FunctionCall == nil {
+		return toolCalls
+	}
+	toolCall := model.Tool{
+		Id:       fmt.Sprintf("call_%s", helper.GetUUID()),
+		Type:     "function",
+		Function: *item.FunctionCall,
+	}
+	toolCalls = append(toolCalls, toolCall)
+	return toolCalls
 }
 
 func responseXunfei2OpenAI(response *ChatResponse) *openai.TextResponse {
@@ -53,8 +81,9 @@ func responseXunfei2OpenAI(response *ChatResponse) *openai.TextResponse {
 	choice := openai.TextResponseChoice{
 		Index: 0,
 		Message: model.Message{
-			Role:    "assistant",
-			Content: response.Payload.Choices.Text[0].Content,
+			Role:      "assistant",
+			Content:   response.Payload.Choices.Text[0].Content,
+			ToolCalls: getToolCalls(response),
 		},
 		FinishReason: constant.StopFinishReason,
 	}
@@ -78,6 +107,7 @@ func streamResponseXunfei2OpenAI(xunfeiResponse *ChatResponse) *openai.ChatCompl
 	}
 	var choice openai.ChatCompletionsStreamResponseChoice
 	choice.Delta.Content = xunfeiResponse.Payload.Choices.Text[0].Content
+	choice.Delta.ToolCalls = getToolCalls(xunfeiResponse)
 	if xunfeiResponse.Payload.Choices.Status == 2 {
 		choice.FinishReason = &constant.StopFinishReason
 	}
