@@ -24,6 +24,8 @@ type GeneralOpenAIRequest struct {
 	User             string          `json:"user,omitempty"`
 	Prompt           any             `json:"prompt,omitempty"`
 	Input            any             `json:"input,omitempty"`
+	EncodingFormat   string          `json:"encoding_format,omitempty"`
+	Dimensions       int             `json:"dimensions,omitempty"`
 	Instruction      string          `json:"instruction,omitempty"`
 	Size             string          `json:"size,omitempty"`
 }
