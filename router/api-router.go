@@ -137,8 +137,8 @@ func SetApiRouter(router *gin.Engine) {
 		{
 			pricesRoute.GET("/model_list", controller.GetAllModelList)
 			pricesRoute.POST("/single", controller.AddPrice)
-			pricesRoute.PUT("/single/:model", controller.UpdatePrice)
-			pricesRoute.DELETE("/single/:model", controller.DeletePrice)
+			pricesRoute.PUT("/single/*model", controller.UpdatePrice)
+			pricesRoute.DELETE("/single/*model", controller.DeletePrice)
 			pricesRoute.POST("/multiple", controller.BatchSetPrices)
 			pricesRoute.PUT("/multiple/delete", controller.BatchDeletePrices)
 			pricesRoute.POST("/sync", controller.SyncPricing)

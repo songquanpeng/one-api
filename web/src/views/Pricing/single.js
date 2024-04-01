@@ -79,7 +79,8 @@ const Single = ({ ownedby, prices, reloadData }) => {
         if (oldRow.model == '') {
           res = await API.post('/api/prices/single', newRow);
         } else {
-          res = await API.put('/api/prices/single/' + oldRow.model, newRow);
+          let modelEncode = encodeURIComponent(oldRow.model);
+          res = await API.put('/api/prices/single/' + modelEncode, newRow);
         }
         const { success, message } = res.data;
         if (success) {
@@ -282,7 +283,8 @@ const Single = ({ ownedby, prices, reloadData }) => {
 
   const deletePirces = async (modelName) => {
     try {
-      const res = await API.delete('/api/prices/single/' + modelName);
+      let modelEncode = encodeURIComponent(modelName);
+      const res = await API.delete('/api/prices/single/' + modelEncode);
       const { success, message } = res.data;
       if (success) {
         showSuccess('保存成功');

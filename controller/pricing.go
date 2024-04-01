@@ -3,6 +3,7 @@ package controller
 import (
 	"errors"
 	"net/http"
+	"net/url"
 	"one-api/common"
 	"one-api/model"
 	"one-api/relay/util"
@@ -80,10 +81,12 @@ func AddPrice(c *gin.Context) {
 
 func UpdatePrice(c *gin.Context) {
 	modelName := c.Param("model")
-	if modelName == "" {
+	if modelName == "" || len(modelName) < 2 {
 		common.APIRespondWithError(c, http.StatusOK, errors.New("model name is required"))
 		return
 	}
+	modelName = modelName[1:]
+	modelName, _ = url.PathUnescape(modelName)
 
 	var price model.Price
 	if err := c.ShouldBindJSON(&price); err != nil {
@@ -104,10 +107,12 @@ func UpdatePrice(c *gin.Context) {
 
 func DeletePrice(c *gin.Context) {
 	modelName := c.Param("model")
-	if modelName == "" {
+	if modelName == "" || len(modelName) < 2 {
 		common.APIRespondWithError(c, http.StatusOK, errors.New("model name is required"))
 		return
 	}
+	modelName = modelName[1:]
+	modelName, _ = url.PathUnescape(modelName)
 
 	if err := util.PricingInstance.DeletePrice(modelName); err != nil {
 		common.APIRespondWithError(c, http.StatusOK, err)
