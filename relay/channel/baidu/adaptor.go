@@ -34,20 +34,18 @@ func (a *Adaptor) GetRequestURL(meta *util.RelayMeta) (string, error) {
 		suffix = "embeddings/"
 	}
 	switch meta.ActualModelName {
-	case "ERNIE-4.0":
-		suffix += "completions_pro"
-	case "ERNIE-Bot-4":
+	case "ERNIE-4.0-8K":
 		suffix += "completions_pro"
 	case "ERNIE-3.5-8K":
 		suffix += "completions"
-	case "ERNIE-Bot-8K":
-		suffix += "ernie_bot_8k"
-	case "ERNIE-Bot":
-		suffix += "completions"
-	case "ERNIE-Speed":
+	case "ERNIE-Speed-8K":
 		suffix += "ernie_speed"
-	case "ERNIE-Bot-turbo":
-		suffix += "eb-instant"
+	case "ERNIE-Speed-128K":
+		suffix += "ernie-speed-128k"
+	case "ERNIE-Lite-8K":
+		suffix += "ernie-lite-8k"
+	case "ERNIE-Tiny-8K":
+		suffix += "ernie-tiny-8k"
 	case "BLOOMZ-7B":
 		suffix += "bloomz_7b1"
 	case "Embedding-V1":
