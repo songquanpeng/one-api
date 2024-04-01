@@ -40,7 +40,8 @@ export function generateLineChartOptions(data, unit) {
       chart: {
         sparkline: {
           enabled: true
-        }
+        },
+        background: 'transparent'
       },
       dataLabels: {
         enabled: false
@@ -139,7 +140,8 @@ export function generateBarChartOptions(xaxis, data, unit = '', decimal = 0) {
         },
         zoom: {
           enabled: true
-        }
+        },
+        background: 'transparent'
       },
       responsive: [
         {

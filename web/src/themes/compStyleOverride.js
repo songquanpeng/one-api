@@ -1,5 +1,5 @@
 export default function componentStyleOverrides(theme) {
-  const bgColor = theme.colors?.grey50;
+  const bgColor = theme.mode === 'dark' ? theme.backgroundDefault : theme.colors?.grey50;
   return {
     MuiButton: {
       styleOverrides: {
@@ -226,12 +226,12 @@ export default function componentStyleOverrides(theme) {
     MuiTableCell: {
       styleOverrides: {
         root: {
-          borderBottom: '1px solid rgb(241, 243, 244)',
+          borderBottom: '1px solid ' + theme.tableBorderBottom,
           textAlign: 'center'
         },
         head: {
           color: theme.darkTextSecondary,
-          backgroundColor: 'rgb(244, 246, 248)'
+          backgroundColor: theme.headBackgroundColor
         }
       }
     },
@@ -239,7 +239,7 @@ export default function componentStyleOverrides(theme) {
       styleOverrides: {
         root: {
           '&:hover': {
-            backgroundColor: 'rgb(244, 246, 248)'
+            backgroundColor: theme.headBackgroundColor
           }
         }
       }
@@ -251,6 +251,22 @@ export default function componentStyleOverrides(theme) {
           background: theme.colors?.grey700
         }
       }
+    },
+    MuiCssBaseline: {
+      styleOverrides: `
+      .apexcharts-title-text {
+          fill: ${theme.textDark} !important
+        }
+      .apexcharts-text {
+        fill: ${theme.textDark} !important
+      }
+      .apexcharts-legend-text {
+        color: ${theme.textDark} !important
+      }
+      .apexcharts-menu {
+        background: ${theme.backgroundDefault} !important
+      }
+      `
     }
   };
 }

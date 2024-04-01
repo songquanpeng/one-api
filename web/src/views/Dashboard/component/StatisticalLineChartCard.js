@@ -12,7 +12,7 @@ import MainCard from 'ui-component/cards/MainCard';
 import SkeletonTotalOrderCard from 'ui-component/cards/Skeleton/EarningCard';
 
 const CardWrapper = styled(MainCard)(({ theme }) => ({
-  backgroundColor: theme.palette.primary.dark,
+  ...theme.typography.CardWrapper,
   color: '#fff',
   overflow: 'hidden',
   position: 'relative',

@@ -36,7 +36,7 @@ import { useNavigate } from 'react-router-dom';
 // }));
 
 const CardStyle = styled(Card)(({ theme }) => ({
-  background: theme.palette.primary.light,
+  background: theme.typography.menuChip.background,
   marginBottom: '22px',
   overflow: 'hidden',
   position: 'relative',

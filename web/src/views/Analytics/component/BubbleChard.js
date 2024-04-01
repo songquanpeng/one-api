@@ -100,7 +100,8 @@ const chartData = {
       },
       zoom: {
         enabled: true
-      }
+      },
+      background: 'transparent'
     },
     responsive: [
       {

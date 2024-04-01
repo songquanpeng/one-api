@@ -229,7 +229,8 @@ function getBarChartOptions(data, dateRange) {
     type: 'line',
     zoom: {
       enabled: false
-    }
+    },
+    background: 'transparent'
   };
   channelData.latency.options.stroke = {
     curve: 'smooth',
@@ -266,7 +267,8 @@ function getRedemptionData(data, dateRange) {
     height: 480,
     options: {
       chart: {
-        type: 'line'
+        type: 'line',
+        background: 'transparent'
       },
       stroke: {
         width: [0, 4]
