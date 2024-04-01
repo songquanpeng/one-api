@@ -83,6 +83,7 @@ const EditChannel = () => {
         data.model_mapping = JSON.stringify(JSON.parse(data.model_mapping), null, 2);
       }
       setInputs(data);
+      setBasicModels(getChannelModels(data.type));
     } else {
       showError(message);
     }
@@ -99,9 +100,6 @@ const EditChannel = () => {
       }));
       setOriginModelOptions(localModelOptions);
       setFullModels(res.data.data.map((model) => model.id));
-      setBasicModels(res.data.data.filter((model) => {
-        return model.id.startsWith('gpt-3') || model.id.startsWith('text-');
-      }).map((model) => model.id));
     } catch (error) {
       showError(error.message);
     }
@@ -137,6 +135,9 @@ const EditChannel = () => {
   useEffect(() => {
     if (isEdit) {
       loadChannel().then();
+    } else {
+      let localModels = getChannelModels(inputs.type);
+      setBasicModels(localModels);
     }
     fetchModels().then();
     fetchGroups().then();
@@ -160,7 +161,7 @@ const EditChannel = () => {
       localInputs.base_url = localInputs.base_url.slice(0, localInputs.base_url.length - 1);
     }
     if (localInputs.type === 3 && localInputs.other === '') {
-      localInputs.other = '2023-06-01-preview';
+      localInputs.other = '2024-03-01-preview';
     }
     if (localInputs.type === 18 && localInputs.other === '') {
       localInputs.other = 'v2.1';
@@ -242,7 +243,7 @@ const EditChannel = () => {
                   <Form.Input
                     label='默认 API 版本'
                     name='other'
-                    placeholder={'请输入默认 API 版本，例如：2023-06-01-preview，该配置可以被实际的请求查询参数所覆盖'}
+                    placeholder={'请输入默认 API 版本，例如：2024-03-01-preview，该配置可以被实际的请求查询参数所覆盖'}
                     onChange={handleInputChange}
                     value={inputs.other}
                     autoComplete='new-password'
@@ -355,7 +356,7 @@ const EditChannel = () => {
           <div style={{ lineHeight: '40px', marginBottom: '12px' }}>
             <Button type={'button'} onClick={() => {
               handleInputChange(null, { name: 'models', value: basicModels });
-            }}>填入基础模型</Button>
+            }}>填入相关模型</Button>
             <Button type={'button'} onClick={() => {
               handleInputChange(null, { name: 'models', value: fullModels });
             }}>填入所有模型</Button>

@@ -35,3 +35,13 @@ type ChatResponse struct {
 	EvalDuration    int     `json:"eval_duration,omitempty"`
 	Error           string  `json:"error,omitempty"`
 }
+
+type EmbeddingRequest struct {
+	Model  string `json:"model"`
+	Prompt string `json:"prompt"`
+}
+
+type EmbeddingResponse struct {
+	Error     string    `json:"error,omitempty"`
+	Embedding []float64 `json:"embedding,omitempty"`
+}

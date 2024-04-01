@@ -141,9 +141,8 @@ export default function Token() {
 
   return (
     <>
-      <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
+      <Stack direction="row" alignItems="center" justifyContent="space-between" mb={2.5}>
         <Typography variant="h4">令牌</Typography>
-
         <Button
           variant="contained"
           color="primary"
@@ -155,13 +154,13 @@ export default function Token() {
           新建令牌
         </Button>
       </Stack>
-      <Stack mb={5}>
+      <Stack mb={2}>
         <Alert severity="info">
           将 OpenAI API 基础地址 https://api.openai.com 替换为 <b>{siteInfo.server_address}</b>，复制下面的密钥即可使用
         </Alert>
       </Stack>
       <Card>
-        <Box component="form" onSubmit={searchTokens} noValidate>
+        <Box component="form" onSubmit={searchTokens} noValidate sx={{marginTop: 2}}>
           <TableToolBar filterName={searchKeyword} handleFilterName={handleSearchKeyword} placeholder={'搜索令牌的名称...'} />
         </Box>
         <Toolbar
@@ -174,7 +173,7 @@ export default function Token() {
           }}
         >
           <Container>
-            <ButtonGroup variant="outlined" aria-label="outlined small primary button group">
+            <ButtonGroup variant="outlined" aria-label="outlined small primary button group" sx={{marginBottom: 2}}>
               <Button onClick={handleRefresh} startIcon={<IconRefresh width={'18px'} />}>
                 刷新
               </Button>

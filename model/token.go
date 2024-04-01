@@ -20,15 +20,26 @@ type Token struct {
 	CreatedTime    int64  `json:"created_time" gorm:"bigint"`
 	AccessedTime   int64  `json:"accessed_time" gorm:"bigint"`
 	ExpiredTime    int64  `json:"expired_time" gorm:"bigint;default:-1"` // -1 means never expired
-	RemainQuota    int64  `json:"remain_quota" gorm:"default:0"`
+	RemainQuota    int64  `json:"remain_quota" gorm:"bigint;default:0"`
 	UnlimitedQuota bool   `json:"unlimited_quota" gorm:"default:false"`
-	UsedQuota      int64  `json:"used_quota" gorm:"default:0"` // used quota
+	UsedQuota      int64  `json:"used_quota" gorm:"bigint;default:0"` // used quota
 }
 
-func GetAllUserTokens(userId int, startIdx int, num int) ([]*Token, error) {
+func GetAllUserTokens(userId int, startIdx int, num int, order string) ([]*Token, error) {
 	var tokens []*Token
 	var err error
-	err = DB.Where("user_id = ?", userId).Order("id desc").Limit(num).Offset(startIdx).Find(&tokens).Error
+	query := DB.Where("user_id = ?", userId)
+	
+	switch order {
+	case "remain_quota":
+		query = query.Order("unlimited_quota desc, remain_quota desc")
+	case "used_quota":
+		query = query.Order("used_quota desc")
+	default:
+		query = query.Order("id desc")
+	}
+	
+	err = query.Limit(num).Offset(startIdx).Find(&tokens).Error
 	return tokens, err
 }
 

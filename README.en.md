@@ -241,17 +241,19 @@ If the channel ID is not provided, load balancing will be used to distribute the
     + Example: `SESSION_SECRET=random_string`
 3. `SQL_DSN`: When set, the specified database will be used instead of SQLite. Please use MySQL version 8.0.
     + Example: `SQL_DSN=root:123456@tcp(localhost:3306)/oneapi`
-4. `FRONTEND_BASE_URL`: When set, the specified frontend address will be used instead of the backend address.
+4. `LOG_SQL_DSN`: When set, a separate database will be used for the `logs` table; please use MySQL or PostgreSQL.
+    + Example: `LOG_SQL_DSN=root:123456@tcp(localhost:3306)/oneapi-logs`
+5. `FRONTEND_BASE_URL`: When set, the specified frontend address will be used instead of the backend address.
     + Example: `FRONTEND_BASE_URL=https://openai.justsong.cn`
-5. `SYNC_FREQUENCY`: When set, the system will periodically sync configurations from the database, with the unit in seconds. If not set, no sync will happen.
+6. `SYNC_FREQUENCY`: When set, the system will periodically sync configurations from the database, with the unit in seconds. If not set, no sync will happen.
     + Example: `SYNC_FREQUENCY=60`
-6. `NODE_TYPE`: When set, specifies the node type. Valid values are `master` and `slave`. If not set, it defaults to `master`.
+7. `NODE_TYPE`: When set, specifies the node type. Valid values are `master` and `slave`. If not set, it defaults to `master`.
     + Example: `NODE_TYPE=slave`
-7. `CHANNEL_UPDATE_FREQUENCY`: When set, it periodically updates the channel balances, with the unit in minutes. If not set, no update will happen.
+8. `CHANNEL_UPDATE_FREQUENCY`: When set, it periodically updates the channel balances, with the unit in minutes. If not set, no update will happen.
     + Example: `CHANNEL_UPDATE_FREQUENCY=1440`
-8. `CHANNEL_TEST_FREQUENCY`: When set, it periodically tests the channels, with the unit in minutes. If not set, no test will happen.
+9. `CHANNEL_TEST_FREQUENCY`: When set, it periodically tests the channels, with the unit in minutes. If not set, no test will happen.
     + Example: `CHANNEL_TEST_FREQUENCY=1440`
-9. `POLLING_INTERVAL`: The time interval (in seconds) between requests when updating channel balances and testing channel availability. Default is no interval.
+10. `POLLING_INTERVAL`: The time interval (in seconds) between requests when updating channel balances and testing channel availability. Default is no interval.
     + Example: `POLLING_INTERVAL=5`
 
 ### Command Line Parameters

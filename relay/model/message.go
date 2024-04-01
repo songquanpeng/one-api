@@ -1,9 +1,10 @@
 package model
 
 type Message struct {
-	Role    string  `json:"role"`
-	Content any     `json:"content"`
-	Name    *string `json:"name,omitempty"`
+	Role      string  `json:"role,omitempty"`
+	Content   any     `json:"content,omitempty"`
+	Name      *string `json:"name,omitempty"`
+	ToolCalls []Tool  `json:"tool_calls,omitempty"`
 }
 
 func (m Message) IsStringContent() bool {
