@@ -189,6 +189,14 @@ type ChatCompletionResponse struct {
 	PromptFilterResults any                    `json:"prompt_filter_results,omitempty"`
 }
 
+func (cc *ChatCompletionResponse) GetContent() string {
+	var content string
+	for _, choice := range cc.Choices {
+		content += choice.Message.StringContent()
+	}
+	return content
+}
+
 func (c ChatCompletionStreamChoice) ConvertOpenaiStream() []ChatCompletionStreamChoice {
 	var function *ChatCompletionToolCallsFunction
 	var functions []*ChatCompletionToolCallsFunction

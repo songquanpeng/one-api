@@ -41,6 +41,17 @@ func (p *OpenAIProvider) CreateChatCompletion(request *types.ChatCompletionReque
 		return nil, errWithCode
 	}
 
+	if response.Usage == nil {
+		response.Usage = &types.Usage{
+			PromptTokens:     p.Usage.PromptTokens,
+			CompletionTokens: 0,
+			TotalTokens:      0,
+		}
+		// 那么需要计算
+		response.Usage.CompletionTokens = common.CountTokenText(response.GetContent(), request.Model)
+		response.Usage.TotalTokens = response.Usage.PromptTokens + response.Usage.CompletionTokens
+	}
+
 	*p.Usage = *response.Usage
 
 	return &response.ChatCompletionResponse, nil
