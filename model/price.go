@@ -193,11 +193,16 @@ func GetDefaultPrice() []*Price {
 		// ￥0.004 / 1k tokens
 		"BLOOMZ-7B": {[]float64{0.2857, 0.2857}, common.ChannelTypeBaidu},
 
-		"PaLM-2":            {[]float64{1, 1}, common.ChannelTypePaLM},
-		"gemini-pro":        {[]float64{1, 1}, common.ChannelTypeGemini},
-		"gemini-pro-vision": {[]float64{1, 1}, common.ChannelTypeGemini},
-		"gemini-1.0-pro":    {[]float64{1, 1}, common.ChannelTypeGemini},
-		"gemini-1.5-pro":    {[]float64{1, 1}, common.ChannelTypeGemini},
+		"PaLM-2": {[]float64{1, 1}, common.ChannelTypePaLM},
+		// $0.50 / 1 million tokens  $1.50 / 1 million tokens
+		// 0.0005$ / 1k tokens 0.0015$ / 1k tokens
+		"gemini-pro":        {[]float64{0.25, 0.75}, common.ChannelTypeGemini},
+		"gemini-pro-vision": {[]float64{0.25, 0.75}, common.ChannelTypeGemini},
+		"gemini-1.0-pro":    {[]float64{0.25, 0.75}, common.ChannelTypeGemini},
+		// $7 / 1 million tokens  $21 / 1 million tokens
+		// 0.007$ / 1k tokens 0.021$ / 1k tokens
+		"gemini-1.5-pro": {[]float64{3.5, 10.5}, common.ChannelTypeGemini},
+		"gemini-ultra":   {[]float64{1, 1}, common.ChannelTypeGemini},
 
 		// ￥0.005 / 1k tokens
 		"glm-3-turbo": {[]float64{0.3572, 0.3572}, common.ChannelTypeZhipu},
