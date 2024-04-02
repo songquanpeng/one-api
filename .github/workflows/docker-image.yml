@@ -42,8 +42,8 @@ jobs:
         run: |
           export VERSION=$(cat VERSION)
           cd web
-          npm install
-          REACT_APP_VERSION=$VERSION npm run build
+          yarn install
+          REACT_APP_VERSION=$VERSION yarn run build
           cd ..
       - name: Set up Go
         uses: actions/setup-go@v3

@@ -9,7 +9,7 @@ all: one-api
 web: $(WEBDIR)/build
 
 $(WEBDIR)/build: 
-	cd $(WEBDIR) && npm install && REACT_APP_VERSION=$(VERSION) npm run build
+	cd $(WEBDIR) && yarn install && REACT_APP_VERSION=$(VERSION) yarn run build
 
 one-api: web
 	$(GOBUILD) -o $(DISTDIR)/$(NAME)

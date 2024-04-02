@@ -23,8 +23,8 @@ jobs:
           CI: ""
         run: |
           cd web
-          npm install
-          REACT_APP_VERSION=$(git describe --tags) npm run build
+          yarn install
+          REACT_APP_VERSION=$(git describe --tags) yarn run build
           cd ..
       - name: Set up Go
         uses: actions/setup-go@v3
