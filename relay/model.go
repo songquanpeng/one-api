@@ -59,7 +59,10 @@ func ListModels(c *gin.Context) {
 
 	models, err := model.ChannelGroup.GetGroupModels(groupName)
 	if err != nil {
-		common.AbortWithMessage(c, http.StatusServiceUnavailable, err.Error())
+		c.JSON(200, gin.H{
+			"object": "list",
+			"data":   []string{},
+		})
 		return
 	}
 	sort.Strings(models)
