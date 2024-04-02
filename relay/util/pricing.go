@@ -44,7 +44,7 @@ func NewPricing() {
 	}
 
 	// 初始化时，需要检测是否有更新
-	if viper.GetBool("auto_price_updates") {
+	if viper.GetBool("auto_price_updates") || len(PricingInstance.Prices) == 0 {
 		common.SysLog("Checking for pricing updates")
 		prices := model.GetDefaultPrice()
 		PricingInstance.SyncPricing(prices, false)
