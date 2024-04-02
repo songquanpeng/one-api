@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"one-api/common"
 	"strings"
-	"time"
 
 	"gorm.io/gorm"
 )
@@ -13,26 +12,26 @@ import (
 // User if you add sensitive fields, don't forget to clean them in setupLogin function.
 // Otherwise, the sensitive information will be saved on local storage in plain text!
 type User struct {
-	Id               int        `json:"id"`
-	Username         string     `json:"username" gorm:"unique;index" validate:"max=12"`
-	Password         string     `json:"password" gorm:"not null;" validate:"min=8,max=20"`
-	DisplayName      string     `json:"display_name" gorm:"index" validate:"max=20"`
-	Role             int        `json:"role" gorm:"type:int;default:1"`   // admin, common
-	Status           int        `json:"status" gorm:"type:int;default:1"` // enabled, disabled
-	Email            string     `json:"email" gorm:"index" validate:"max=50"`
-	GitHubId         string     `json:"github_id" gorm:"column:github_id;index"`
-	WeChatId         string     `json:"wechat_id" gorm:"column:wechat_id;index"`
-	TelegramId       int64      `json:"telegram_id" gorm:"bigint,column:telegram_id;default:0;"`
-	VerificationCode string     `json:"verification_code" gorm:"-:all"`                                    // this field is only for Email verification, don't save it to database!
-	AccessToken      string     `json:"access_token" gorm:"type:char(32);column:access_token;uniqueIndex"` // this token is for system management
-	Quota            int        `json:"quota" gorm:"type:int;default:0"`
-	UsedQuota        int        `json:"used_quota" gorm:"type:int;default:0;column:used_quota"` // used quota
-	RequestCount     int        `json:"request_count" gorm:"type:int;default:0;"`               // request number
-	Group            string     `json:"group" gorm:"type:varchar(32);default:'default'"`
-	AffCode          string     `json:"aff_code" gorm:"type:varchar(32);column:aff_code;uniqueIndex"`
-	InviterId        int        `json:"inviter_id" gorm:"type:int;column:inviter_id;index"`
-	CreatedTime      int64      `json:"created_time" gorm:"bigint"`
-	DeletedAt        *time.Time `gorm:"index"`
+	Id               int            `json:"id"`
+	Username         string         `json:"username" gorm:"unique;index" validate:"max=12"`
+	Password         string         `json:"password" gorm:"not null;" validate:"min=8,max=20"`
+	DisplayName      string         `json:"display_name" gorm:"index" validate:"max=20"`
+	Role             int            `json:"role" gorm:"type:int;default:1"`   // admin, common
+	Status           int            `json:"status" gorm:"type:int;default:1"` // enabled, disabled
+	Email            string         `json:"email" gorm:"index" validate:"max=50"`
+	GitHubId         string         `json:"github_id" gorm:"column:github_id;index"`
+	WeChatId         string         `json:"wechat_id" gorm:"column:wechat_id;index"`
+	TelegramId       int64          `json:"telegram_id" gorm:"bigint,column:telegram_id;default:0;"`
+	VerificationCode string         `json:"verification_code" gorm:"-:all"`                                    // this field is only for Email verification, don't save it to database!
+	AccessToken      string         `json:"access_token" gorm:"type:char(32);column:access_token;uniqueIndex"` // this token is for system management
+	Quota            int            `json:"quota" gorm:"type:int;default:0"`
+	UsedQuota        int            `json:"used_quota" gorm:"type:int;default:0;column:used_quota"` // used quota
+	RequestCount     int            `json:"request_count" gorm:"type:int;default:0;"`               // request number
+	Group            string         `json:"group" gorm:"type:varchar(32);default:'default'"`
+	AffCode          string         `json:"aff_code" gorm:"type:varchar(32);column:aff_code;uniqueIndex"`
+	InviterId        int            `json:"inviter_id" gorm:"type:int;column:inviter_id;index"`
+	CreatedTime      int64          `json:"created_time" gorm:"bigint"`
+	DeletedAt        gorm.DeletedAt `gorm:"index"`
 }
 
 type UserUpdates func(*User)
@@ -161,7 +160,15 @@ func (user *User) Delete() error {
 	if user.Id == 0 {
 		return errors.New("id 为空！")
 	}
-	err := DB.Delete(user).Error
+
+	// 不改变当前数据库索引，通过更改用户名来删除用户
+	user.Username = user.Username + "_del_" + common.GetRandomString(6)
+	err := user.Update(false)
+	if err != nil {
+		return err
+	}
+
+	err = DB.Delete(user).Error
 	return err
 }
 
