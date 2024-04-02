@@ -32,13 +32,13 @@ export default function Overview() {
         data.total_used_quota = renderQuota(data.total_used_quota);
         data.total_direct_user = data.total_user - data.total_inviter_user;
         setUserStatistics(data);
-        setUserLoading(false);
       } else {
         showError(message);
       }
     } catch (error) {
-      return;
+      console.log(error);
     }
+    setUserLoading(false);
   }, []);
 
   const channelStatisticsData = useCallback(async () => {
@@ -59,13 +59,13 @@ export default function Overview() {
           channelData.total += item.total_channels;
         });
         setChannelStatistics(channelData);
-        setChannelLoading(false);
       } else {
         showError(message);
       }
     } catch (error) {
-      return;
+      console.log(error);
     }
+    setChannelLoading(false);
   }, [channelStatistics]);
 
   const redemptionStatisticsData = useCallback(async () => {
@@ -85,13 +85,13 @@ export default function Overview() {
         });
         redemptionData.total = renderQuota(redemptionData.total);
         setRedemptionStatistics(redemptionData);
-        setRedemptionLoading(false);
       } else {
         showError(message);
       }
     } catch (error) {
-      return;
+      console.log(error);
     }
+    setRedemptionLoading(false);
   }, [redemptionStatistics]);
 
   useEffect(() => {
