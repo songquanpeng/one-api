@@ -17,7 +17,7 @@
     "@mui/x-date-pickers": "^6.18.5",
     "@tabler/icons-react": "^2.46.0",
     "apexcharts": "^3.45.2",
-    "axios": "^0.27.2",
+    "axios": "^0.28.0",
     "dayjs": "^1.11.10",
     "formik": "^2.4.5",
     "framer-motion": "^11.0.3",
