@@ -115,7 +115,8 @@ func TokenAuth() func(c *gin.Context) {
 		}
 		c.Set("request_model", requestModel)
 		if token.Models != nil && *token.Models != "" {
-			if !isModelInList(requestModel, *token.Models) {
+			c.Set("available_models", *token.Models)
+			if requestModel != "" && !isModelInList(requestModel, *token.Models) {
 				abortWithMessage(c, http.StatusForbidden, fmt.Sprintf("该令牌无权使用模型：%s", requestModel))
 				return
 			}
