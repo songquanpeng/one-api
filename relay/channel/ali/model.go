@@ -16,21 +16,21 @@ type Input struct {
 }
 
 type Parameters struct {
-	TopP              float64 `json:"top_p,omitempty"`
-	TopK              int     `json:"top_k,omitempty"`
-	Seed              uint64  `json:"seed,omitempty"`
-	EnableSearch      bool    `json:"enable_search,omitempty"`
-	IncrementalOutput bool    `json:"incremental_output,omitempty"`
-	MaxTokens         int     `json:"max_tokens,omitempty"`
-	Temperature       float64 `json:"temperature,omitempty"`
-	ResultFormat      string  `json:"result_format,omitempty"`
+	TopP              float64      `json:"top_p,omitempty"`
+	TopK              int          `json:"top_k,omitempty"`
+	Seed              uint64       `json:"seed,omitempty"`
+	EnableSearch      bool         `json:"enable_search,omitempty"`
+	IncrementalOutput bool         `json:"incremental_output,omitempty"`
+	MaxTokens         int          `json:"max_tokens,omitempty"`
+	Temperature       float64      `json:"temperature,omitempty"`
+	ResultFormat      string       `json:"result_format,omitempty"`
+	Tools             []model.Tool `json:"tools,omitempty"`
 }
 
 type ChatRequest struct {
-	Model      string       `json:"model"`
-	Input      Input        `json:"input"`
-	Parameters Parameters   `json:"parameters,omitempty"`
-	Tools      []model.Tool `json:"tools,omitempty"`
+	Model      string     `json:"model"`
+	Input      Input      `json:"input"`
+	Parameters Parameters `json:"parameters,omitempty"`
 }
 
 type EmbeddingRequest struct {
