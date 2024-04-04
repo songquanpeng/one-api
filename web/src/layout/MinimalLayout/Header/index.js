@@ -79,7 +79,12 @@ const Header = () => {
             </Button>
             <ThemeButton />
             {account.user ? (
-              <ProfileSection />
+              <>
+                <Button component={Link} variant="contained" to="/panel" color="primary">
+                  控制台
+                </Button>
+                <ProfileSection />
+              </>
             ) : (
               <Button component={Link} variant="contained" to="/login" color="primary">
                 登录
