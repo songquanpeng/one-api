@@ -35,17 +35,17 @@ func (a *Adaptor) GetRequestURL(meta *util.RelayMeta) (string, error) {
 	}
 	switch meta.ActualModelName {
 	case "ERNIE-4.0":
-		suffix += "completions_pro" //旧版兼容
+		suffix += "completions_pro"
 	case "ERNIE-Bot-4":
-		suffix += "completions_pro" //旧版兼容
+		suffix += "completions_pro"
 	case "ERNIE-Bot":
-		suffix += "completions"     //旧版兼容
+		suffix += "completions"
 	case "ERNIE-Bot-turbo":
-		suffix += "eb-instant"      //旧版兼容
+		suffix += "eb-instant"
 	case "ERNIE-Speed":
-		suffix += "ernie_speed"     //旧版兼容
+		suffix += "ernie_speed"
 	case "ERNIE-Bot-8K":
-		suffix += "ernie_bot_8k"	//即将弃用	
+		suffix += "ernie_bot_8k"
 	case "ERNIE-4.0-8K":
 		suffix += "completions_pro"
 	case "ERNIE-3.5-8K":
@@ -69,7 +69,7 @@ func (a *Adaptor) GetRequestURL(meta *util.RelayMeta) (string, error) {
 	case "tao-8k":
 		suffix += "tao_8k"
 	default:
-		suffix += meta.ActualModelName
+		suffix += strings.ToLower(meta.ActualModelName)
 	}
 	fullRequestURL := fmt.Sprintf("%s/rpc/2.0/ai_custom/v1/wenxinworkshop/%s", meta.BaseURL, suffix)
 	var accessToken string

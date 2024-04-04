@@ -72,23 +72,22 @@ var ModelRatio = map[string]float64{
 	"claude-3-sonnet-20240229": 3.0 / 1000 * USD,
 	"claude-3-opus-20240229":   15.0 / 1000 * USD,
 	// https://cloud.baidu.com/doc/WENXINWORKSHOP/s/hlrk4akp7
-	"ERNIE-4.0":        0.120 * RMB, //旧版兼容 使用completions_pro 等同于ERNIE-4.0-8K
-	"ERNIE-Bot-4":      0.120 * RMB, //旧版兼容 使用completions_pro 等同于ERNIE-4.0-8K
-	"ERNIE-Bot":        0.012 * RMB, //旧版兼容 使用completions     等同于ERNIE-3.5-8K
-	"ERNIE-Bot-turbo":  0.003 * RMB, //旧版兼容 使用eb-instant      等同于ERNIE-Lite-8K
-	"ERNIE-Bot-8K":     0.024 * RMB, //即将弃用 使用ernie_bot_8k
-
-	"ERNIE-4.0-8K":     0.120 * RMB,
-	"ERNIE-3.5-8K":     0.012 * RMB,
-	"ERNIE-Speed-8K":   0.004 * RMB,
-	"ERNIE-Speed-128K": 0.004 * RMB,
-	"ERNIE-Lite-8K":    0.003 * RMB,
-	"ERNIE-Tiny-8K":    0.001 * RMB,
-	"BLOOMZ-7B":        0.004 * RMB,
-	"Embedding-V1":     0.002 * RMB,
-	"bge-large-zh":     0.002 * RMB,
-	"bge-large-en":     0.002 * RMB,
-	"tao-8k":           0.002 * RMB,
+	"ERNIE-4.0-8K":       0.120 * RMB,
+	"ERNIE-Bot-8K-0922":  0.024 * RMB,
+	"ERNIE-3.5-8K":       0.012 * RMB,
+	"ERNIE-Lite-8K-0922": 0.008 * RMB,
+	"ERNIE-Speed-8K":     0.004 * RMB,
+	"ERNIE-3.5-4K-0205":  0.012 * RMB,
+	"ERNIE-3.5-8K-0205":  0.024 * RMB,
+	"ERNIE-3.5-8K-1222":  0.012 * RMB,
+	"ERNIE-Lite-8K":      0.003 * RMB,
+	"ERNIE-Speed-128K":   0.004 * RMB,
+	"ERNIE-Tiny-8K":      0.001 * RMB,
+	"BLOOMZ-7B":          0.004 * RMB,
+	"Embedding-V1":       0.002 * RMB,
+	"bge-large-zh":       0.002 * RMB,
+	"bge-large-en":       0.002 * RMB,
+	"tao-8k":             0.002 * RMB,
 	// https://ai.google.dev/pricing
 	"PaLM-2":                    1,
 	"gemini-pro":                1, // $0.00025 / 1k characters -> $0.001 / 1k tokens
