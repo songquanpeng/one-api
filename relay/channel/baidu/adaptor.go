@@ -38,16 +38,26 @@ func (a *Adaptor) GetRequestURL(meta *util.RelayMeta) (string, error) {
 		suffix += "completions_pro"
 	case "ERNIE-Bot-4":
 		suffix += "completions_pro"
-	case "ERNIE-3.5-8K":
-		suffix += "completions"
-	case "ERNIE-Bot-8K":
-		suffix += "ernie_bot_8k"
 	case "ERNIE-Bot":
 		suffix += "completions"
-	case "ERNIE-Speed":
-		suffix += "ernie_speed"
 	case "ERNIE-Bot-turbo":
 		suffix += "eb-instant"
+	case "ERNIE-Speed":
+		suffix += "ernie_speed"
+	case "ERNIE-Bot-8K":
+		suffix += "ernie_bot_8k"
+	case "ERNIE-4.0-8K":
+		suffix += "completions_pro"
+	case "ERNIE-3.5-8K":
+		suffix += "completions"
+	case "ERNIE-Speed-8K":
+		suffix += "ernie_speed"
+	case "ERNIE-Speed-128K":
+		suffix += "ernie-speed-128k"
+	case "ERNIE-Lite-8K":
+		suffix += "ernie-lite-8k"
+	case "ERNIE-Tiny-8K":
+		suffix += "ernie-tiny-8k"
 	case "BLOOMZ-7B":
 		suffix += "bloomz_7b1"
 	case "Embedding-V1":
@@ -59,7 +69,7 @@ func (a *Adaptor) GetRequestURL(meta *util.RelayMeta) (string, error) {
 	case "tao-8k":
 		suffix += "tao_8k"
 	default:
-		suffix += meta.ActualModelName
+		suffix += strings.ToLower(meta.ActualModelName)
 	}
 	fullRequestURL := fmt.Sprintf("%s/rpc/2.0/ai_custom/v1/wenxinworkshop/%s", meta.BaseURL, suffix)
 	var accessToken string
