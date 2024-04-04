@@ -49,6 +49,12 @@ func ShouldDisableChannel(err *relaymodel.Error, statusCode int) bool {
 	if strings.Contains(err.Message, "quota") {
 		return true
 	}
+	if strings.Contains(err.Message, "credit") {
+		return true
+	}
+	if strings.Contains(err.Message, "balance") {
+		return true
+	}
 	return false
 }
 
