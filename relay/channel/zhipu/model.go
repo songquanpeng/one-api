@@ -44,3 +44,21 @@ type tokenData struct {
 	Token      string
 	ExpiryTime time.Time
 }
+
+type EmbeddingRequest struct {
+	Model string `json:"model"`
+	Input string `json:"input"`
+}
+
+type EmbeddingRespone struct {
+	Model       string          `json:"model"`
+	Object      string          `json:"object"`
+	Embeddings  []EmbeddingData `json:"data"`
+	model.Usage `json:"usage"`
+}
+
+type EmbeddingData struct {
+	Index     int       `json:"index"`
+	Object    string    `json:"object"`
+	Embedding []float64 `json:"embedding"`
+}
