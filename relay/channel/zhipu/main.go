@@ -285,7 +285,11 @@ func embeddingResponseZhipu2OpenAI(response *EmbeddingRespone) *openai.Embedding
 		Object: "list",
 		Data:   make([]openai.EmbeddingResponseItem, 0, len(response.Embeddings)),
 		Model:  response.Model,
-		Usage:  model.Usage{TotalTokens: response.Usage.TotalTokens},
+		Usage: model.Usage{
+			PromptTokens:     response.PromptTokens,
+			CompletionTokens: response.CompletionTokens,
+			TotalTokens:      response.Usage.TotalTokens,
+		},
 	}
 
 	for _, item := range response.Embeddings {

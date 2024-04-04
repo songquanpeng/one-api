@@ -91,6 +91,7 @@ var ModelRatio = map[string]float64{
 	"glm-4":                     0.1 * RMB,
 	"glm-4v":                    0.1 * RMB,
 	"glm-3-turbo":               0.005 * RMB,
+	"embedding-2":               0.0005 * RMB,
 	"chatglm_turbo":             0.3572, // ￥0.005 / 1k tokens
 	"chatglm_pro":               0.7143, // ￥0.01 / 1k tokens
 	"chatglm_std":               0.3572, // ￥0.005 / 1k tokens
