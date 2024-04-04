@@ -28,7 +28,7 @@ type ChatRequest struct {
 		} `json:"message"`
 		Functions struct {
 			Text []model.Function `json:"text,omitempty"`
-		} `json:"functions"`
+		} `json:"functions,omitempty"`
 	} `json:"payload"`
 }
 
