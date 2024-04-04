@@ -145,6 +145,9 @@ func SetApiRouter(router *gin.Engine) {
 
 		}
 
+		mjRoute := apiRouter.Group("/mj")
+		mjRoute.GET("/self", middleware.UserAuth(), controller.GetUserMidjourney)
+		mjRoute.GET("/", middleware.AdminAuth(), controller.GetAllMidjourney)
 	}
 
 }

@@ -14,6 +14,7 @@ import (
 	"one-api/providers/deepseek"
 	"one-api/providers/gemini"
 	"one-api/providers/groq"
+	"one-api/providers/midjourney"
 	"one-api/providers/minimax"
 	"one-api/providers/mistral"
 	"one-api/providers/openai"
@@ -52,6 +53,7 @@ func init() {
 	providerFactories[common.ChannelTypeMistral] = mistral.MistralProviderFactory{}
 	providerFactories[common.ChannelTypeGroq] = groq.GroqProviderFactory{}
 	providerFactories[common.ChannelTypeBedrock] = bedrock.BedrockProviderFactory{}
+	providerFactories[common.ChannelTypeMidjourney] = midjourney.MidjourneyProviderFactory{}
 
 }
 

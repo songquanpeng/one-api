@@ -170,3 +170,7 @@ func (q *Quota) Consume(c *gin.Context, usage *types.Usage) {
 		}
 	}(c.Request.Context())
 }
+
+func (q *Quota) GetInputRatio() float64 {
+	return q.inputRatio
+}

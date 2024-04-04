@@ -11,7 +11,8 @@ import {
   IconUserScan,
   IconActivity,
   IconBrandTelegram,
-  IconReceipt2
+  IconReceipt2,
+  IconBrush
 } from '@tabler/icons-react';
 
 // constant
@@ -27,7 +28,8 @@ const icons = {
   IconUserScan,
   IconActivity,
   IconBrandTelegram,
-  IconReceipt2
+  IconReceipt2,
+  IconBrush
 };
 
 // ==============================|| DASHBOARD MENU ITEMS ||============================== //
@@ -94,6 +96,14 @@ const panel = {
       type: 'item',
       url: '/panel/topup',
       icon: icons.IconGardenCart,
+      breadcrumbs: false
+    },
+    {
+      id: 'midjourney',
+      title: 'Midjourney',
+      type: 'item',
+      url: '/panel/midjourney',
+      icon: icons.IconBrush,
       breadcrumbs: false
     },
     {

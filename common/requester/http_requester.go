@@ -23,6 +23,7 @@ type HTTPRequester struct {
 	CreateFormBuilder func(io.Writer) FormBuilder
 	ErrorHandler      HttpErrorHandler
 	proxyAddr         string
+	Context           context.Context
 }
 
 // NewHTTPRequester 创建一个新的 HTTPRequester 实例。
@@ -37,6 +38,7 @@ func NewHTTPRequester(proxyAddr string, errorHandler HttpErrorHandler) *HTTPRequ
 		},
 		ErrorHandler: errorHandler,
 		proxyAddr:    proxyAddr,
+		Context:      context.Background(),
 	}
 }
 
@@ -47,18 +49,18 @@ type requestOptions struct {
 
 type requestOption func(*requestOptions)
 
-func (r *HTTPRequester) getContext() context.Context {
+func (r *HTTPRequester) setProxy() context.Context {
 	if r.proxyAddr == "" {
-		return context.Background()
+		return r.Context
 	}
 
 	// 如果是以 socks5:// 开头的地址，那么使用 socks5 代理
 	if strings.HasPrefix(r.proxyAddr, "socks5://") {
-		return context.WithValue(context.Background(), ProxySock5AddrKey, r.proxyAddr)
+		return context.WithValue(r.Context, ProxySock5AddrKey, r.proxyAddr)
 	}
 
 	// 否则使用 http 代理
-	return context.WithValue(context.Background(), ProxyHTTPAddrKey, r.proxyAddr)
+	return context.WithValue(r.Context, ProxyHTTPAddrKey, r.proxyAddr)
 
 }
 
@@ -71,7 +73,7 @@ func (r *HTTPRequester) NewRequest(method, url string, setters ...requestOption)
 	for _, setter := range setters {
 		setter(args)
 	}
-	req, err := r.requestBuilder.Build(r.getContext(), method, url, args.body, args.header)
+	req, err := r.requestBuilder.Build(r.setProxy(), method, url, args.body, args.header)
 	if err != nil {
 		return nil, err
 	}

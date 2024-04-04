@@ -74,6 +74,8 @@ func InitOptionMap() {
 	common.OptionMap["RetryTimes"] = strconv.Itoa(common.RetryTimes)
 	common.OptionMap["RetryCooldownSeconds"] = strconv.Itoa(common.RetryCooldownSeconds)
 
+	common.OptionMap["MjNotifyEnabled"] = strconv.FormatBool(common.MjNotifyEnabled)
+
 	common.OptionMapRWMutex.Unlock()
 	loadOptionsFromDatabase()
 }
@@ -138,6 +140,7 @@ var optionBoolMap = map[string]*bool{
 	"LogConsumeEnabled":              &common.LogConsumeEnabled,
 	"DisplayInCurrencyEnabled":       &common.DisplayInCurrencyEnabled,
 	"DisplayTokenStatEnabled":        &common.DisplayTokenStatEnabled,
+	"MjNotifyEnabled":                &common.MjNotifyEnabled,
 }
 
 var optionStringMap = map[string]*string{

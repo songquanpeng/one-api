@@ -40,6 +40,7 @@ func GetStatus(c *gin.Context) {
 			"quota_per_unit":      common.QuotaPerUnit,
 			"display_in_currency": common.DisplayInCurrencyEnabled,
 			"telegram_bot":        telegram_bot,
+			"mj_notify_enabled":   common.MjNotifyEnabled,
 		},
 	})
 }

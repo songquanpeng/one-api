@@ -83,43 +83,54 @@ func RootAuth() func(c *gin.Context) {
 	}
 }
 
-func TokenAuth() func(c *gin.Context) {
-	return func(c *gin.Context) {
-		key := c.Request.Header.Get("Authorization")
-		key = strings.TrimPrefix(key, "Bearer ")
-		key = strings.TrimPrefix(key, "sk-")
-		parts := strings.Split(key, "-")
-		key = parts[0]
-		token, err := model.ValidateUserToken(key)
-		if err != nil {
-			abortWithMessage(c, http.StatusUnauthorized, err.Error())
-			return
-		}
-		userEnabled, err := model.CacheIsUserEnabled(token.UserId)
-		if err != nil {
-			abortWithMessage(c, http.StatusInternalServerError, err.Error())
-			return
-		}
-		if !userEnabled {
-			abortWithMessage(c, http.StatusForbidden, "用户已被封禁")
-			return
-		}
-		c.Set("id", token.UserId)
-		c.Set("token_id", token.Id)
-		c.Set("token_name", token.Name)
-		if len(parts) > 1 {
-			if model.IsAdmin(token.UserId) {
-				channelId := common.String2Int(parts[1])
-				if channelId == 0 {
-					abortWithMessage(c, http.StatusForbidden, "无效的渠道 Id")
-					return
-				}
-				c.Set("specific_channel_id", channelId)
-			} else {
-				abortWithMessage(c, http.StatusForbidden, "普通用户不支持指定渠道")
+func tokenAuth(c *gin.Context, key string) {
+	key = strings.TrimPrefix(key, "Bearer ")
+	key = strings.TrimPrefix(key, "sk-")
+	parts := strings.Split(key, "-")
+	key = parts[0]
+	token, err := model.ValidateUserToken(key)
+	if err != nil {
+		abortWithMessage(c, http.StatusUnauthorized, err.Error())
+		return
+	}
+	userEnabled, err := model.CacheIsUserEnabled(token.UserId)
+	if err != nil {
+		abortWithMessage(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+	if !userEnabled {
+		abortWithMessage(c, http.StatusForbidden, "用户已被封禁")
+		return
+	}
+	c.Set("id", token.UserId)
+	c.Set("token_id", token.Id)
+	c.Set("token_name", token.Name)
+	if len(parts) > 1 {
+		if model.IsAdmin(token.UserId) {
+			channelId := common.String2Int(parts[1])
+			if channelId == 0 {
+				abortWithMessage(c, http.StatusForbidden, "无效的渠道 Id")
 				return
 			}
+			c.Set("specific_channel_id", channelId)
+		} else {
+			abortWithMessage(c, http.StatusForbidden, "普通用户不支持指定渠道")
+			return
 		}
-		c.Next()
+	}
+	c.Next()
+}
+
+func OpenaiAuth() func(c *gin.Context) {
+	return func(c *gin.Context) {
+		key := c.Request.Header.Get("Authorization")
+		tokenAuth(c, key)
+	}
+}
+
+func MjAuth() func(c *gin.Context) {
+	return func(c *gin.Context) {
+		key := c.Request.Header.Get("mj-api-secret")
+		tokenAuth(c, key)
 	}
 }

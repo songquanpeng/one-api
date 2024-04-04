@@ -58,6 +58,16 @@ _本项目是基于[one-api](https://github.com/songquanpeng/one-api)二次开�
 
 请查看[文档](https://github.com/MartialBE/one-api/wiki)
 
+## 感谢
+
+- 本程序使用了以下开源项目
+  - [one-api](https://github.com/songquanpeng/one-api)为本项目的基础
+  - [Berry Free React Admin Template](https://github.com/codedthemes/berry-free-react-admin-template)为本项目的前端界面
+  - [minimal-ui-kit](https://github.com/minimal-ui-kit/material-kit-react),使用了其中的部分样式
+  - [new api](https://github.com/Calcium-Ion/new-api)，Midjourney 模块的代码来源于此
+
+感谢以上项目的作者和贡献者
+
 ## 其他
 
 <a href="https://next.ossinsight.io/widgets/official/analyze-repo-stars-history?repo_id=689214770" target="_blank" style="display: block" align="center">

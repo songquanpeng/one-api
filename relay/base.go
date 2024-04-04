@@ -27,7 +27,7 @@ type RelayBaseInterface interface {
 }
 
 func (r *relayBase) setProvider(modelName string) error {
-	provider, modelName, fail := getProvider(r.c, modelName)
+	provider, modelName, fail := GetProvider(r.c, modelName)
 	if fail != nil {
 		return fail
 	}

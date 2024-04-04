@@ -29,7 +29,8 @@ const OperationSetting = () => {
     DisplayTokenStatEnabled: '',
     ApproximateTokenEnabled: '',
     RetryTimes: 0,
-    RetryCooldownSeconds: 0
+    RetryCooldownSeconds: 0,
+    MjNotifyEnabled: ''
   });
   const [originInputs, setOriginInputs] = useState({});
   let [loading, setLoading] = useState(false);
@@ -276,6 +277,22 @@ const OperationSetting = () => {
           >
             保存通用设置
           </Button>
+        </Stack>
+      </SubCard>
+      <SubCard title="其他设置">
+        <Stack justifyContent="flex-start" alignItems="flex-start" spacing={2}>
+          <Stack
+            direction={{ sm: 'column', md: 'row' }}
+            spacing={{ xs: 3, sm: 2, md: 4 }}
+            justifyContent="flex-start"
+            alignItems="flex-start"
+          >
+            <FormControlLabel
+              sx={{ marginLeft: '0px' }}
+              label="Midjourney 允许回调（会泄露服务器ip地址）"
+              control={<Checkbox checked={inputs.MjNotifyEnabled === 'true'} onChange={handleInputChange} name="MjNotifyEnabled" />}
+            />
+          </Stack>
         </Stack>
       </SubCard>
       <SubCard title="日志设置">

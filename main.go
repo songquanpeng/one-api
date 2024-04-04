@@ -45,6 +45,8 @@ func main() {
 	// Initialize Telegram bot
 	telegram.InitTelegramBot()
 
+	controller.InitMidjourneyTask()
+
 	initHttpServer()
 }
 

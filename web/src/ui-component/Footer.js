@@ -19,14 +19,14 @@ const Footer = () => {
               {siteInfo.system_name} {process.env.REACT_APP_VERSION}{' '}
             </Link>
             由{' '}
-            <Link href="https://github.com/songquanpeng" target="_blank">
-              JustSong
-            </Link>{' '}
-            构建，
             <Link href="https://github.com/MartialBE" target="_blank">
               MartialBE
             </Link>
-            修改，源代码遵循
+            开发，基于
+            <Link href="https://github.com/songquanpeng" target="_blank">
+              JustSong
+            </Link>{' '}
+            One API，源代码遵循
             <Link href="https://opensource.org/licenses/mit-license.php"> MIT 协议</Link>
           </>
         )}

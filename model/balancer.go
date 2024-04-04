@@ -114,6 +114,17 @@ func (cc *ChannelsChooser) GetGroupModels(group string) ([]string, error) {
 	return models, nil
 }
 
+func (cc *ChannelsChooser) GetChannel(channelId int) *Channel {
+	cc.RLock()
+	defer cc.RUnlock()
+
+	if choice, ok := cc.Channels[channelId]; ok {
+		return choice.Channel
+	}
+
+	return nil
+}
+
 var ChannelGroup = ChannelsChooser{}
 
 func (cc *ChannelsChooser) Load() {

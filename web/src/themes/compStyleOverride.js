@@ -12,15 +12,7 @@ export default function componentStyleOverrides(theme) {
         }
       }
     },
-    MuiMenuItem: {
-      styleOverrides: {
-        root: {
-          '&:hover': {
-            backgroundColor: theme.colors?.grey100
-          }
-        }
-      }
-    }, //MuiAutocomplete-popper MuiPopover-root
+    //MuiAutocomplete-popper MuiPopover-root
     MuiAutocomplete: {
       styleOverrides: {
         popper: {
@@ -247,7 +239,7 @@ export default function componentStyleOverrides(theme) {
     MuiTooltip: {
       styleOverrides: {
         tooltip: {
-          color: theme.paper,
+          color: theme.colors.paper,
           background: theme.colors?.grey700
         }
       }
@@ -265,6 +257,9 @@ export default function componentStyleOverrides(theme) {
       }
       .apexcharts-menu {
         background: ${theme.backgroundDefault} !important
+      }
+      .apexcharts-gridline, .apexcharts-xaxistooltip-background, .apexcharts-yaxistooltip-background {
+        stroke: ${theme.divider} !important;
       }
       `
     }

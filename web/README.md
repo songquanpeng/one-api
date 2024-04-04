@@ -7,7 +7,7 @@
 使用了以下开源项目作为我们项目的一部分：
 
 - [Berry Free React Admin Template](https://github.com/codedthemes/berry-free-react-admin-template)
-- [minimal-ui-kit](minimal-ui-kit)
+- [minimal-ui-kit](https://github.com/minimal-ui-kit/material-kit-react)
 
 ## 许可证
 
