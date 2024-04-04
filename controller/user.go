@@ -180,27 +180,27 @@ func Register(c *gin.Context) {
 }
 
 func GetAllUsers(c *gin.Context) {
-    p, _ := strconv.Atoi(c.Query("p"))
-    if p < 0 {
-        p = 0
-    }
-    
-    order := c.DefaultQuery("order", "")
-    users, err := model.GetAllUsers(p*config.ItemsPerPage, config.ItemsPerPage, order)
-	
-    if err != nil {
-        c.JSON(http.StatusOK, gin.H{
-            "success": false,
-            "message": err.Error(),
-        })
-        return
-    }
-    
-    c.JSON(http.StatusOK, gin.H{
-        "success": true,
-        "message": "",
-        "data":    users,
-    })
+	p, _ := strconv.Atoi(c.Query("p"))
+	if p < 0 {
+		p = 0
+	}
+
+	order := c.DefaultQuery("order", "")
+	users, err := model.GetAllUsers(p*config.ItemsPerPage, config.ItemsPerPage, order)
+
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "",
+		"data":    users,
+	})
 }
 
 func SearchUsers(c *gin.Context) {
@@ -767,6 +767,41 @@ func TopUp(c *gin.Context) {
 		"success": true,
 		"message": "",
 		"data":    quota,
+	})
+	return
+}
+
+type adminTopUpRequest struct {
+	UserId int    `json:"user_id"`
+	Quota  int    `json:"quota"`
+	Remark string `json:"remark"`
+}
+
+func AdminTopUp(c *gin.Context) {
+	req := adminTopUpRequest{}
+	err := c.ShouldBindJSON(&req)
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+	err = model.IncreaseUserQuota(req.UserId, int64(req.Quota))
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+	if req.Remark == "" {
+		req.Remark = fmt.Sprintf("通过 API 充值 %s", common.LogQuota(int64(req.Quota)))
+	}
+	model.RecordTopupLog(req.UserId, req.Remark, req.Quota)
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "",
 	})
 	return
 }
