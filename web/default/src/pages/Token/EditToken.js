@@ -1,19 +1,21 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Form, Header, Message, Segment } from 'semantic-ui-react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { API, showError, showSuccess, timestamp2string } from '../../helpers';
-import { renderQuota, renderQuotaWithPrompt } from '../../helpers/render';
+import { useNavigate, useParams } from 'react-router-dom';
+import { API, copy, showError, showSuccess, timestamp2string } from '../../helpers';
+import { renderQuotaWithPrompt } from '../../helpers/render';
 
 const EditToken = () => {
   const params = useParams();
   const tokenId = params.id;
   const isEdit = tokenId !== undefined;
   const [loading, setLoading] = useState(isEdit);
+  const [modelOptions, setModelOptions] = useState([]);
   const originInputs = {
     name: '',
     remain_quota: isEdit ? 0 : 500000,
     expired_time: -1,
-    unlimited_quota: false
+    unlimited_quota: false,
+    models: []
   };
   const [inputs, setInputs] = useState(originInputs);
   const { name, remain_quota, expired_time, unlimited_quota } = inputs;
@@ -22,8 +24,8 @@ const EditToken = () => {
     setInputs((inputs) => ({ ...inputs, [name]: value }));
   };
   const handleCancel = () => {
-    navigate("/token");
-  }
+    navigate('/token');
+  };
   const setExpiredTime = (month, day, hour, minute) => {
     let now = new Date();
     let timestamp = now.getTime() / 1000;
@@ -50,6 +52,11 @@ const EditToken = () => {
       if (data.expired_time !== -1) {
         data.expired_time = timestamp2string(data.expired_time);
       }
+      if (data.models === '') {
+        data.models = [];
+      } else {
+        data.models = data.models.split(',');
+      }
       setInputs(data);
     } else {
       showError(message);
@@ -60,7 +67,25 @@ const EditToken = () => {
     if (isEdit) {
       loadToken().then();
     }
+    loadAvailableModels().then();
   }, []);
+
+  const loadAvailableModels = async () => {
+    let res = await API.get(`/api/user/available_models`);
+    const { success, message, data } = res.data;
+    if (success) {
+      let options = data.map((model) => {
+        return {
+          key: model,
+          text: model,
+          value: model
+        };
+      });
+      setModelOptions(options);
+    } else {
+      showError(message);
+    }
+  };
 
   const submit = async () => {
     if (!isEdit && inputs.name === '') return;
@@ -74,6 +99,7 @@ const EditToken = () => {
       }
       localInputs.expired_time = Math.ceil(time / 1000);
     }
+    localInputs.models = localInputs.models.join(',');
     let res;
     if (isEdit) {
       res = await API.put(`/api/token/`, { ...localInputs, id: parseInt(tokenId) });
@@ -107,6 +133,24 @@ const EditToken = () => {
               value={name}
               autoComplete='new-password'
               required={!isEdit}
+            />
+          </Form.Field>
+          <Form.Field>
+            <Form.Dropdown
+              label='模型范围'
+              placeholder={'请选择允许使用的模型，留空则不进行限制'}
+              name='models'
+              fluid
+              multiple
+              search
+              onLabelClick={(e, { value }) => {
+                copy(value).then();
+              }}
+              selection
+              onChange={handleInputChange}
+              value={inputs.models}
+              autoComplete='new-password'
+              options={modelOptions}
             />
           </Form.Field>
           <Form.Field>
