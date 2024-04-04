@@ -135,7 +135,7 @@ func ListModels(c *gin.Context) {
 	for _, availableModel := range availableModels {
 		modelSet[availableModel] = true
 	}
-	var availableOpenAIModels []OpenAIModels
+	availableOpenAIModels := make([]OpenAIModels, 0)
 	for _, model := range openAIModels {
 		if _, ok := modelSet[model.Id]; ok {
 			modelSet[model.Id] = false
