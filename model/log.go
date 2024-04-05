@@ -51,6 +51,21 @@ func RecordLog(userId int, logType int, content string) {
 	}
 }
 
+func RecordTopupLog(userId int, content string, quota int) {
+	log := &Log{
+		UserId:    userId,
+		Username:  GetUsernameById(userId),
+		CreatedAt: helper.GetTimestamp(),
+		Type:      LogTypeTopup,
+		Content:   content,
+		Quota:     quota,
+	}
+	err := LOG_DB.Create(log).Error
+	if err != nil {
+		logger.SysError("failed to record log: " + err.Error())
+	}
+}
+
 func RecordConsumeLog(ctx context.Context, userId int, channelId int, promptTokens int, completionTokens int, modelName string, tokenName string, quota int64, content string) {
 	logger.Info(ctx, fmt.Sprintf("record consume log: userId=%d, channelId=%d, promptTokens=%d, completionTokens=%d, modelName=%s, tokenName=%s, quota=%d, content=%s", userId, channelId, promptTokens, completionTokens, modelName, tokenName, quota, content))
 	if !config.LogConsumeEnabled {

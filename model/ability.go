@@ -1,8 +1,10 @@
 package model
 
 import (
+	"context"
 	"github.com/songquanpeng/one-api/common"
 	"gorm.io/gorm"
+	"sort"
 	"strings"
 )
 
@@ -87,4 +89,20 @@ func (channel *Channel) UpdateAbilities() error {
 
 func UpdateAbilityStatus(channelId int, status bool) error {
 	return DB.Model(&Ability{}).Where("channel_id = ?", channelId).Select("enabled").Update("enabled", status).Error
+}
+
+func GetGroupModels(ctx context.Context, group string) ([]string, error) {
+	groupCol := "`group`"
+	trueVal := "1"
+	if common.UsingPostgreSQL {
+		groupCol = `"group"`
+		trueVal = "true"
+	}
+	var models []string
+	err := DB.Model(&Ability{}).Distinct("model").Where(groupCol+" = ? and enabled = "+trueVal, group).Pluck("model", &models).Error
+	if err != nil {
+		return nil, err
+	}
+	sort.Strings(models)
+	return models, err
 }

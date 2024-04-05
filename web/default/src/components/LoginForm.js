@@ -3,7 +3,8 @@ import { Button, Divider, Form, Grid, Header, Image, Message, Modal, Segment } f
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { UserContext } from '../context/User';
 import { API, getLogo, showError, showSuccess, showWarning } from '../helpers';
-import { onGitHubOAuthClicked } from './utils';
+import { onGitHubOAuthClicked, onLarkOAuthClicked } from './utils';
+import larkIcon from '../images/lark.svg';
 
 const LoginForm = () => {
   const [inputs, setInputs] = useState({
@@ -124,7 +125,7 @@ const LoginForm = () => {
             点击注册
           </Link>
         </Message>
-        {status.github_oauth || status.wechat_login ? (
+        {status.github_oauth || status.wechat_login || status.lark_client_id ? (
           <>
             <Divider horizontal>Or</Divider>
             {status.github_oauth ? (
@@ -134,6 +135,18 @@ const LoginForm = () => {
                 icon='github'
                 onClick={() => onGitHubOAuthClicked(status.github_client_id)}
               />
+            ) : (
+              <></>
+            )}
+            {status.lark_client_id ? (
+              <Button
+                // circular
+                color=''
+                onClick={() => onLarkOAuthClicked(status.lark_client_id)}
+                style={{ padding: 0, width: 36, height: 36 }}
+              >
+                <img src={larkIcon} width={36} height={36} />
+              </Button>
             ) : (
               <></>
             )}

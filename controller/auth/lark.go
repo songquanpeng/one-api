@@ -1,4 +1,4 @@
-package controller
+package auth
 
 import (
 	"bytes"
@@ -9,36 +9,39 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/songquanpeng/one-api/common"
 	"github.com/songquanpeng/one-api/common/config"
-	"github.com/songquanpeng/one-api/common/helper"
 	"github.com/songquanpeng/one-api/common/logger"
+	"github.com/songquanpeng/one-api/controller"
 	"github.com/songquanpeng/one-api/model"
 	"net/http"
 	"strconv"
 	"time"
 )
 
-type GitHubOAuthResponse struct {
+type LarkOAuthResponse struct {
 	AccessToken string `json:"access_token"`
-	Scope       string `json:"scope"`
-	TokenType   string `json:"token_type"`
 }
 
-type GitHubUser struct {
-	Login string `json:"login"`
-	Name  string `json:"name"`
-	Email string `json:"email"`
+type LarkUser struct {
+	Name   string `json:"name"`
+	OpenID string `json:"open_id"`
 }
 
-func getGitHubUserInfoByCode(code string) (*GitHubUser, error) {
+func getLarkUserInfoByCode(code string) (*LarkUser, error) {
 	if code == "" {
 		return nil, errors.New("无效的参数")
 	}
-	values := map[string]string{"client_id": config.GitHubClientId, "client_secret": config.GitHubClientSecret, "code": code}
+	values := map[string]string{
+		"client_id":     config.LarkClientId,
+		"client_secret": config.LarkClientSecret,
+		"code":          code,
+		"grant_type":    "authorization_code",
+		"redirect_uri":  fmt.Sprintf("%s/oauth/lark", config.ServerAddress),
+	}
 	jsonData, err := json.Marshal(values)
 	if err != nil {
 		return nil, err
 	}
-	req, err := http.NewRequest("POST", "https://github.com/login/oauth/access_token", bytes.NewBuffer(jsonData))
+	req, err := http.NewRequest("POST", "https://passport.feishu.cn/suite/passport/oauth/token", bytes.NewBuffer(jsonData))
 	if err != nil {
 		return nil, err
 	}
@@ -50,15 +53,15 @@ func getGitHubUserInfoByCode(code string) (*GitHubUser, error) {
 	res, err := client.Do(req)
 	if err != nil {
 		logger.SysLog(err.Error())
-		return nil, errors.New("无法连接至 GitHub 服务器，请稍后重试！")
+		return nil, errors.New("无法连接至飞书服务器，请稍后重试！")
 	}
 	defer res.Body.Close()
-	var oAuthResponse GitHubOAuthResponse
+	var oAuthResponse LarkOAuthResponse
 	err = json.NewDecoder(res.Body).Decode(&oAuthResponse)
 	if err != nil {
 		return nil, err
 	}
-	req, err = http.NewRequest("GET", "https://api.github.com/user", nil)
+	req, err = http.NewRequest("GET", "https://passport.feishu.cn/suite/passport/oauth/userinfo", nil)
 	if err != nil {
 		return nil, err
 	}
@@ -66,21 +69,17 @@ func getGitHubUserInfoByCode(code string) (*GitHubUser, error) {
 	res2, err := client.Do(req)
 	if err != nil {
 		logger.SysLog(err.Error())
-		return nil, errors.New("无法连接至 GitHub 服务器，请稍后重试！")
+		return nil, errors.New("无法连接至飞书服务器，请稍后重试！")
 	}
-	defer res2.Body.Close()
-	var githubUser GitHubUser
-	err = json.NewDecoder(res2.Body).Decode(&githubUser)
+	var larkUser LarkUser
+	err = json.NewDecoder(res2.Body).Decode(&larkUser)
 	if err != nil {
 		return nil, err
 	}
-	if githubUser.Login == "" {
-		return nil, errors.New("返回值非法，用户字段为空，请稍后重试！")
-	}
-	return &githubUser, nil
+	return &larkUser, nil
 }
 
-func GitHubOAuth(c *gin.Context) {
+func LarkOAuth(c *gin.Context) {
 	session := sessions.Default(c)
 	state := c.Query("state")
 	if state == "" || session.Get("oauth_state") == nil || state != session.Get("oauth_state").(string) {
@@ -92,19 +91,11 @@ func GitHubOAuth(c *gin.Context) {
 	}
 	username := session.Get("username")
 	if username != nil {
-		GitHubBind(c)
-		return
-	}
-
-	if !config.GitHubOAuthEnabled {
-		c.JSON(http.StatusOK, gin.H{
-			"success": false,
-			"message": "管理员未开启通过 GitHub 登录以及注册",
-		})
+		LarkBind(c)
 		return
 	}
 	code := c.Query("code")
-	githubUser, err := getGitHubUserInfoByCode(code)
+	larkUser, err := getLarkUserInfoByCode(code)
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
@@ -113,10 +104,10 @@ func GitHubOAuth(c *gin.Context) {
 		return
 	}
 	user := model.User{
-		GitHubId: githubUser.Login,
+		LarkId: larkUser.OpenID,
 	}
-	if model.IsGitHubIdAlreadyTaken(user.GitHubId) {
-		err := user.FillUserByGitHubId()
+	if model.IsLarkIdAlreadyTaken(user.LarkId) {
+		err := user.FillUserByLarkId()
 		if err != nil {
 			c.JSON(http.StatusOK, gin.H{
 				"success": false,
@@ -126,13 +117,12 @@ func GitHubOAuth(c *gin.Context) {
 		}
 	} else {
 		if config.RegisterEnabled {
-			user.Username = "github_" + strconv.Itoa(model.GetMaxUserId()+1)
-			if githubUser.Name != "" {
-				user.DisplayName = githubUser.Name
+			user.Username = "lark_" + strconv.Itoa(model.GetMaxUserId()+1)
+			if larkUser.Name != "" {
+				user.DisplayName = larkUser.Name
 			} else {
-				user.DisplayName = "GitHub User"
+				user.DisplayName = "Lark User"
 			}
-			user.Email = githubUser.Email
 			user.Role = common.RoleCommonUser
 			user.Status = common.UserStatusEnabled
 
@@ -159,19 +149,12 @@ func GitHubOAuth(c *gin.Context) {
 		})
 		return
 	}
-	setupLogin(&user, c)
+	controller.SetupLogin(&user, c)
 }
 
-func GitHubBind(c *gin.Context) {
-	if !config.GitHubOAuthEnabled {
-		c.JSON(http.StatusOK, gin.H{
-			"success": false,
-			"message": "管理员未开启通过 GitHub 登录以及注册",
-		})
-		return
-	}
+func LarkBind(c *gin.Context) {
 	code := c.Query("code")
-	githubUser, err := getGitHubUserInfoByCode(code)
+	larkUser, err := getLarkUserInfoByCode(code)
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
@@ -180,12 +163,12 @@ func GitHubBind(c *gin.Context) {
 		return
 	}
 	user := model.User{
-		GitHubId: githubUser.Login,
+		LarkId: larkUser.OpenID,
 	}
-	if model.IsGitHubIdAlreadyTaken(user.GitHubId) {
+	if model.IsLarkIdAlreadyTaken(user.LarkId) {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
-			"message": "该 GitHub 账户已被绑定",
+			"message": "该飞书账户已被绑定",
 		})
 		return
 	}
@@ -201,7 +184,7 @@ func GitHubBind(c *gin.Context) {
 		})
 		return
 	}
-	user.GitHubId = githubUser.Login
+	user.LarkId = larkUser.OpenID
 	err = user.Update(false)
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
@@ -215,23 +198,4 @@ func GitHubBind(c *gin.Context) {
 		"message": "bind",
 	})
 	return
-}
-
-func GenerateOAuthCode(c *gin.Context) {
-	session := sessions.Default(c)
-	state := helper.GetRandomString(12)
-	session.Set("oauth_state", state)
-	err := session.Save()
-	if err != nil {
-		c.JSON(http.StatusOK, gin.H{
-			"success": false,
-			"message": err.Error(),
-		})
-		return
-	}
-	c.JSON(http.StatusOK, gin.H{
-		"success": true,
-		"message": "",
-		"data":    state,
-	})
 }

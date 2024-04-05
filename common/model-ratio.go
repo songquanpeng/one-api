@@ -72,14 +72,22 @@ var ModelRatio = map[string]float64{
 	"claude-3-sonnet-20240229": 3.0 / 1000 * USD,
 	"claude-3-opus-20240229":   15.0 / 1000 * USD,
 	// https://cloud.baidu.com/doc/WENXINWORKSHOP/s/hlrk4akp7
-	"ERNIE-Bot":       0.8572,     // ￥0.012 / 1k tokens
-	"ERNIE-Bot-turbo": 0.5715,     // ￥0.008 / 1k tokens
-	"ERNIE-Bot-4":     0.12 * RMB, // ￥0.12 / 1k tokens
-	"ERNIE-Bot-8k":    0.024 * RMB,
-	"Embedding-V1":    0.1429, // ￥0.002 / 1k tokens
-	"bge-large-zh":    0.002 * RMB,
-	"bge-large-en":    0.002 * RMB,
-	"bge-large-8k":    0.002 * RMB,
+	"ERNIE-4.0-8K":       0.120 * RMB,
+	"ERNIE-3.5-8K":       0.012 * RMB,
+	"ERNIE-3.5-8K-0205":  0.024 * RMB,
+	"ERNIE-3.5-8K-1222":  0.012 * RMB,
+	"ERNIE-Bot-8K":       0.024 * RMB,
+	"ERNIE-3.5-4K-0205":  0.012 * RMB,
+	"ERNIE-Speed-8K":     0.004 * RMB,
+	"ERNIE-Speed-128K":   0.004 * RMB,
+	"ERNIE-Lite-8K-0922": 0.008 * RMB,
+	"ERNIE-Lite-8K-0308": 0.003 * RMB,
+	"ERNIE-Tiny-8K":      0.001 * RMB,
+	"BLOOMZ-7B":          0.004 * RMB,
+	"Embedding-V1":       0.002 * RMB,
+	"bge-large-zh":       0.002 * RMB,
+	"bge-large-en":       0.002 * RMB,
+	"tao-8k":             0.002 * RMB,
 	// https://ai.google.dev/pricing
 	"PaLM-2":                    1,
 	"gemini-pro":                1, // $0.00025 / 1k characters -> $0.001 / 1k tokens
@@ -88,13 +96,14 @@ var ModelRatio = map[string]float64{
 	"gemini-1.0-pro-001":        1,
 	"gemini-1.5-pro":            1,
 	// https://open.bigmodel.cn/pricing
-	"glm-4":         0.1 * RMB,
-	"glm-4v":        0.1 * RMB,
-	"glm-3-turbo":   0.005 * RMB,
-	"chatglm_turbo": 0.3572, // ￥0.005 / 1k tokens
-	"chatglm_pro":   0.7143, // ￥0.01 / 1k tokens
-	"chatglm_std":   0.3572, // ￥0.005 / 1k tokens
-	"chatglm_lite":  0.1429, // ￥0.002 / 1k tokens
+	"glm-4":                     0.1 * RMB,
+	"glm-4v":                    0.1 * RMB,
+	"glm-3-turbo":               0.005 * RMB,
+	"embedding-2":               0.0005 * RMB,
+	"chatglm_turbo":             0.3572, // ￥0.005 / 1k tokens
+	"chatglm_pro":               0.7143, // ￥0.01 / 1k tokens
+	"chatglm_std":               0.3572, // ￥0.005 / 1k tokens
+	"chatglm_lite":              0.1429, // ￥0.002 / 1k tokens
 	// https://help.aliyun.com/zh/dashscope/developer-reference/tongyi-thousand-questions-metering-and-billing
 	"qwen-turbo":                0.5715, // ￥0.008 / 1k tokens
 	"qwen-plus":                 1.4286, // ￥0.02 / 1k tokens

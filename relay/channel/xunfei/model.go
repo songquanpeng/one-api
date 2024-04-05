@@ -26,13 +26,18 @@ type ChatRequest struct {
 		Message struct {
 			Text []Message `json:"text"`
 		} `json:"message"`
+		Functions struct {
+			Text []model.Function `json:"text,omitempty"`
+		} `json:"functions,omitempty"`
 	} `json:"payload"`
 }
 
 type ChatResponseTextItem struct {
-	Content string `json:"content"`
-	Role    string `json:"role"`
-	Index   int    `json:"index"`
+	Content      string          `json:"content"`
+	Role         string          `json:"role"`
+	Index        int             `json:"index"`
+	ContentType  string          `json:"content_type"`
+	FunctionCall *model.Function `json:"function_call"`
 }
 
 type ChatResponse struct {

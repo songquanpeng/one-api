@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/songquanpeng/one-api/relay/channel"
 	"github.com/songquanpeng/one-api/relay/channel/openai"
+	"github.com/songquanpeng/one-api/relay/constant"
 	"github.com/songquanpeng/one-api/relay/model"
 	"github.com/songquanpeng/one-api/relay/util"
 	"io"
@@ -35,6 +36,9 @@ func (a *Adaptor) GetRequestURL(meta *util.RelayMeta) (string, error) {
 	if a.APIVersion == "v4" {
 		return fmt.Sprintf("%s/api/paas/v4/chat/completions", meta.BaseURL), nil
 	}
+	if meta.Mode == constant.RelayModeEmbeddings {
+		return fmt.Sprintf("%s/api/paas/v4/embeddings", meta.BaseURL), nil
+	}
 	method := "invoke"
 	if meta.IsStream {
 		method = "sse-invoke"
@@ -53,18 +57,24 @@ func (a *Adaptor) ConvertRequest(c *gin.Context, relayMode int, request *model.G
 	if request == nil {
 		return nil, errors.New("request is nil")
 	}
-	// TopP (0.0, 1.0)
-	request.TopP = math.Min(0.99, request.TopP)
-	request.TopP = math.Max(0.01, request.TopP)
+	switch relayMode {
+	case constant.RelayModeEmbeddings:
+		baiduEmbeddingRequest := ConvertEmbeddingRequest(*request)
+		return baiduEmbeddingRequest, nil
+	default:
+		// TopP (0.0, 1.0)
+		request.TopP = math.Min(0.99, request.TopP)
+		request.TopP = math.Max(0.01, request.TopP)
 
-	// Temperature (0.0, 1.0)
-	request.Temperature = math.Min(0.99, request.Temperature)
-	request.Temperature = math.Max(0.01, request.Temperature)
-	a.SetVersionByModeName(request.Model)
-	if a.APIVersion == "v4" {
-		return request, nil
+		// Temperature (0.0, 1.0)
+		request.Temperature = math.Min(0.99, request.Temperature)
+		request.Temperature = math.Max(0.01, request.Temperature)
+		a.SetVersionByModeName(request.Model)
+		if a.APIVersion == "v4" {
+			return request, nil
+		}
+		return ConvertRequest(*request), nil
 	}
-	return ConvertRequest(*request), nil
 }
 
 func (a *Adaptor) ConvertImageRequest(request *model.ImageRequest) (any, error) {
@@ -91,12 +101,24 @@ func (a *Adaptor) DoResponse(c *gin.Context, resp *http.Response, meta *util.Rel
 	if a.APIVersion == "v4" {
 		return a.DoResponseV4(c, resp, meta)
 	}
+
 	if meta.IsStream {
 		err, usage = StreamHandler(c, resp)
 	} else {
-		err, usage = Handler(c, resp)
+		if meta.Mode == constant.RelayModeEmbeddings {
+			err, usage = EmbeddingsHandler(c, resp)
+		} else {
+			err, usage = Handler(c, resp)
+		}
 	}
 	return
+}
+
+func ConvertEmbeddingRequest(request model.GeneralOpenAIRequest) *EmbeddingRequest {
+	return &EmbeddingRequest{
+		Model: "embedding-2",
+		Input: request.Input.(string),
+	}
 }
 
 func (a *Adaptor) GetModelList() []string {

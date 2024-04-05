@@ -85,8 +85,10 @@ func (a *Adaptor) DoRequest(c *gin.Context, meta *util.RelayMeta, requestBody io
 func (a *Adaptor) DoResponse(c *gin.Context, resp *http.Response, meta *util.RelayMeta) (usage *model.Usage, err *model.ErrorWithStatusCode) {
 	if meta.IsStream {
 		var responseText string
-		err, responseText, _ = StreamHandler(c, resp, meta.Mode)
-		usage = ResponseText2Usage(responseText, meta.ActualModelName, meta.PromptTokens)
+		err, responseText, usage = StreamHandler(c, resp, meta.Mode)
+		if usage == nil {
+			usage = ResponseText2Usage(responseText, meta.ActualModelName, meta.PromptTokens)
+		}
 	} else {
 		switch meta.Mode {
 		case constant.RelayModeImagesGenerations:

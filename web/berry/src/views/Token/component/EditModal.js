@@ -103,7 +103,7 @@ const EditModal = ({ open, tokenId, onCancel, onOk }) => {
           fontSize: "1.125rem",
         }}
       >
-        {tokenId ? "编辑Token" : "新建Token"}
+        {tokenId ? "编辑令牌" : "新建令牌"}
       </DialogTitle>
       <Divider />
       <DialogContent>

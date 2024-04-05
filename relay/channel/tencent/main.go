@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/songquanpeng/one-api/common"
+	"github.com/songquanpeng/one-api/common/conv"
 	"github.com/songquanpeng/one-api/common/helper"
 	"github.com/songquanpeng/one-api/common/logger"
 	"github.com/songquanpeng/one-api/relay/channel/openai"
@@ -129,7 +130,7 @@ func StreamHandler(c *gin.Context, resp *http.Response) (*model.ErrorWithStatusC
 			}
 			response := streamResponseTencent2OpenAI(&TencentResponse)
 			if len(response.Choices) != 0 {
-				responseText += response.Choices[0].Delta.Content
+				responseText += conv.AsString(response.Choices[0].Delta.Content)
 			}
 			jsonResponse, err := json.Marshal(response)
 			if err != nil {

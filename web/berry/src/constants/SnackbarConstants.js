@@ -18,7 +18,7 @@ export const snackbarConstants = {
     },
     NOTICE: {
       variant: 'info',
-      autoHideDuration: 20000
+      autoHideDuration: 7000
     }
   },
   Mobile: {

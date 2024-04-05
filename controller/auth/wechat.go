@@ -1,4 +1,4 @@
-package controller
+package auth
 
 import (
 	"encoding/json"
@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/songquanpeng/one-api/common"
 	"github.com/songquanpeng/one-api/common/config"
+	"github.com/songquanpeng/one-api/controller"
 	"github.com/songquanpeng/one-api/model"
 	"net/http"
 	"strconv"
@@ -109,7 +110,7 @@ func WeChatAuth(c *gin.Context) {
 		})
 		return
 	}
-	setupLogin(&user, c)
+	controller.SetupLogin(&user, c)
 }
 
 func WeChatBind(c *gin.Context) {

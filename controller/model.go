@@ -4,12 +4,14 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/songquanpeng/one-api/common"
+	"github.com/songquanpeng/one-api/model"
 	"github.com/songquanpeng/one-api/relay/channel/openai"
 	"github.com/songquanpeng/one-api/relay/constant"
 	"github.com/songquanpeng/one-api/relay/helper"
 	relaymodel "github.com/songquanpeng/one-api/relay/model"
 	"github.com/songquanpeng/one-api/relay/util"
 	"net/http"
+	"strings"
 )
 
 // https://platform.openai.com/docs/api-reference/models/list
@@ -120,9 +122,41 @@ func DashboardListModels(c *gin.Context) {
 }
 
 func ListModels(c *gin.Context) {
+	ctx := c.Request.Context()
+	var availableModels []string
+	if c.GetString("available_models") != "" {
+		availableModels = strings.Split(c.GetString("available_models"), ",")
+	} else {
+		userId := c.GetInt("id")
+		userGroup, _ := model.CacheGetUserGroup(userId)
+		availableModels, _ = model.CacheGetGroupModels(ctx, userGroup)
+	}
+	modelSet := make(map[string]bool)
+	for _, availableModel := range availableModels {
+		modelSet[availableModel] = true
+	}
+	availableOpenAIModels := make([]OpenAIModels, 0)
+	for _, model := range openAIModels {
+		if _, ok := modelSet[model.Id]; ok {
+			modelSet[model.Id] = false
+			availableOpenAIModels = append(availableOpenAIModels, model)
+		}
+	}
+	for modelName, ok := range modelSet {
+		if ok {
+			availableOpenAIModels = append(availableOpenAIModels, OpenAIModels{
+				Id:      modelName,
+				Object:  "model",
+				Created: 1626777600,
+				OwnedBy: "custom",
+				Root:    modelName,
+				Parent:  nil,
+			})
+		}
+	}
 	c.JSON(200, gin.H{
 		"object": "list",
-		"data":   openAIModels,
+		"data":   availableOpenAIModels,
 	})
 }
 
@@ -141,4 +175,31 @@ func RetrieveModel(c *gin.Context) {
 			"error": Error,
 		})
 	}
+}
+
+func GetUserAvailableModels(c *gin.Context) {
+	ctx := c.Request.Context()
+	id := c.GetInt("id")
+	userGroup, err := model.CacheGetUserGroup(id)
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+	models, err := model.CacheGetGroupModels(ctx, userGroup)
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "",
+		"data":    models,
+	})
+	return
 }
