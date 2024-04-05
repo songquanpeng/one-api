@@ -258,7 +258,8 @@ const typeConfig = {
     prompt: {
       key: '密钥填写midjourney-proxy的密钥，如果没有设置密钥，可以随便填',
       base_url: '地址填写midjourney-proxy部署的地址',
-      test_model: ''
+      test_model: '',
+      model_mapping: ''
     },
     modelGroup: 'Midjourney'
   }

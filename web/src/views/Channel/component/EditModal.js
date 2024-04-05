@@ -554,28 +554,34 @@ const EditModal = ({ open, channelId, onCancel, onOk, groupOptions }) => {
                 </Container>
               )}
 
-              <FormControl fullWidth error={Boolean(touched.model_mapping && errors.model_mapping)} sx={{ ...theme.typography.otherInput }}>
-                {/* <InputLabel htmlFor="channel-model_mapping-label">{inputLabel.model_mapping}</InputLabel> */}
-                <TextField
-                  multiline
-                  id="channel-model_mapping-label"
-                  label={inputLabel.model_mapping}
-                  value={values.model_mapping}
-                  name="model_mapping"
-                  onBlur={handleBlur}
-                  onChange={handleChange}
-                  aria-describedby="helper-text-channel-model_mapping-label"
-                  minRows={5}
-                  placeholder={inputPrompt.model_mapping}
-                />
-                {touched.model_mapping && errors.model_mapping ? (
-                  <FormHelperText error id="helper-tex-channel-model_mapping-label">
-                    {errors.model_mapping}
-                  </FormHelperText>
-                ) : (
-                  <FormHelperText id="helper-tex-channel-model_mapping-label"> {inputPrompt.model_mapping} </FormHelperText>
-                )}
-              </FormControl>
+              {inputPrompt.model_mapping && (
+                <FormControl
+                  fullWidth
+                  error={Boolean(touched.model_mapping && errors.model_mapping)}
+                  sx={{ ...theme.typography.otherInput }}
+                >
+                  {/* <InputLabel htmlFor="channel-model_mapping-label">{inputLabel.model_mapping}</InputLabel> */}
+                  <TextField
+                    multiline
+                    id="channel-model_mapping-label"
+                    label={inputLabel.model_mapping}
+                    value={values.model_mapping}
+                    name="model_mapping"
+                    onBlur={handleBlur}
+                    onChange={handleChange}
+                    aria-describedby="helper-text-channel-model_mapping-label"
+                    minRows={5}
+                    placeholder={inputPrompt.model_mapping}
+                  />
+                  {touched.model_mapping && errors.model_mapping ? (
+                    <FormHelperText error id="helper-tex-channel-model_mapping-label">
+                      {errors.model_mapping}
+                    </FormHelperText>
+                  ) : (
+                    <FormHelperText id="helper-tex-channel-model_mapping-label"> {inputPrompt.model_mapping} </FormHelperText>
+                  )}
+                </FormControl>
+              )}
               <FormControl fullWidth error={Boolean(touched.proxy && errors.proxy)} sx={{ ...theme.typography.otherInput }}>
                 <InputLabel htmlFor="channel-proxy-label">{inputLabel.proxy}</InputLabel>
                 <OutlinedInput
