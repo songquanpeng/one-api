@@ -6,8 +6,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/songquanpeng/one-api/relay/channel"
 	"github.com/songquanpeng/one-api/relay/channel/openai"
-	"github.com/songquanpeng/one-api/relay/constant"
 	"github.com/songquanpeng/one-api/relay/model"
+	"github.com/songquanpeng/one-api/relay/relaymode"
 	"github.com/songquanpeng/one-api/relay/util"
 	"io"
 	"math"
@@ -33,9 +33,9 @@ func (a *Adaptor) SetVersionByModeName(modelName string) {
 
 func (a *Adaptor) GetRequestURL(meta *util.RelayMeta) (string, error) {
 	switch meta.Mode {
-	case constant.RelayModeImagesGenerations:
+	case relaymode.ImagesGenerations:
 		return fmt.Sprintf("%s/api/paas/v4/images/generations", meta.BaseURL), nil
-	case constant.RelayModeEmbeddings:
+	case relaymode.Embeddings:
 		return fmt.Sprintf("%s/api/paas/v4/embeddings", meta.BaseURL), nil
 	}
 	a.SetVersionByModeName(meta.ActualModelName)
@@ -61,7 +61,7 @@ func (a *Adaptor) ConvertRequest(c *gin.Context, relayMode int, request *model.G
 		return nil, errors.New("request is nil")
 	}
 	switch relayMode {
-	case constant.RelayModeEmbeddings:
+	case relaymode.Embeddings:
 		baiduEmbeddingRequest := ConvertEmbeddingRequest(*request)
 		return baiduEmbeddingRequest, nil
 	default:
@@ -107,10 +107,10 @@ func (a *Adaptor) DoResponseV4(c *gin.Context, resp *http.Response, meta *util.R
 
 func (a *Adaptor) DoResponse(c *gin.Context, resp *http.Response, meta *util.RelayMeta) (usage *model.Usage, err *model.ErrorWithStatusCode) {
 	switch meta.Mode {
-	case constant.RelayModeEmbeddings:
+	case relaymode.Embeddings:
 		err, usage = EmbeddingsHandler(c, resp)
 		return
-	case constant.RelayModeImagesGenerations:
+	case relaymode.ImagesGenerations:
 		err, usage = openai.ImageHandler(c, resp)
 		return
 	}
@@ -120,7 +120,7 @@ func (a *Adaptor) DoResponse(c *gin.Context, resp *http.Response, meta *util.Rel
 	if meta.IsStream {
 		err, usage = StreamHandler(c, resp)
 	} else {
-		if meta.Mode == constant.RelayModeEmbeddings {
+		if meta.Mode == relaymode.Embeddings {
 			err, usage = EmbeddingsHandler(c, resp)
 		} else {
 			err, usage = Handler(c, resp)

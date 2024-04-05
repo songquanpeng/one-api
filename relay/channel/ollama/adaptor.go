@@ -3,12 +3,12 @@ package ollama
 import (
 	"errors"
 	"fmt"
+	"github.com/songquanpeng/one-api/relay/relaymode"
 	"io"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/songquanpeng/one-api/relay/channel"
-	"github.com/songquanpeng/one-api/relay/constant"
 	"github.com/songquanpeng/one-api/relay/model"
 	"github.com/songquanpeng/one-api/relay/util"
 )
@@ -23,7 +23,7 @@ func (a *Adaptor) Init(meta *util.RelayMeta) {
 func (a *Adaptor) GetRequestURL(meta *util.RelayMeta) (string, error) {
 	// https://github.com/ollama/ollama/blob/main/docs/api.md
 	fullRequestURL := fmt.Sprintf("%s/api/chat", meta.BaseURL)
-	if meta.Mode == constant.RelayModeEmbeddings {
+	if meta.Mode == relaymode.Embeddings {
 		fullRequestURL = fmt.Sprintf("%s/api/embeddings", meta.BaseURL)
 	}
 	return fullRequestURL, nil
@@ -40,7 +40,7 @@ func (a *Adaptor) ConvertRequest(c *gin.Context, relayMode int, request *model.G
 		return nil, errors.New("request is nil")
 	}
 	switch relayMode {
-	case constant.RelayModeEmbeddings:
+	case relaymode.Embeddings:
 		ollamaEmbeddingRequest := ConvertEmbeddingRequest(*request)
 		return ollamaEmbeddingRequest, nil
 	default:
@@ -64,7 +64,7 @@ func (a *Adaptor) DoResponse(c *gin.Context, resp *http.Response, meta *util.Rel
 		err, usage = StreamHandler(c, resp)
 	} else {
 		switch meta.Mode {
-		case constant.RelayModeEmbeddings:
+		case relaymode.Embeddings:
 			err, usage = EmbeddingHandler(c, resp)
 		default:
 			err, usage = Handler(c, resp)

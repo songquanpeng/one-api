@@ -12,9 +12,9 @@ import (
 	"github.com/songquanpeng/one-api/middleware"
 	dbmodel "github.com/songquanpeng/one-api/model"
 	"github.com/songquanpeng/one-api/monitor"
-	"github.com/songquanpeng/one-api/relay/constant"
 	"github.com/songquanpeng/one-api/relay/controller"
 	"github.com/songquanpeng/one-api/relay/model"
+	"github.com/songquanpeng/one-api/relay/relaymode"
 	"github.com/songquanpeng/one-api/relay/util"
 	"io"
 	"net/http"
@@ -25,13 +25,13 @@ import (
 func relay(c *gin.Context, relayMode int) *model.ErrorWithStatusCode {
 	var err *model.ErrorWithStatusCode
 	switch relayMode {
-	case constant.RelayModeImagesGenerations:
+	case relaymode.ImagesGenerations:
 		err = controller.RelayImageHelper(c, relayMode)
-	case constant.RelayModeAudioSpeech:
+	case relaymode.AudioSpeech:
 		fallthrough
-	case constant.RelayModeAudioTranslation:
+	case relaymode.AudioTranslation:
 		fallthrough
-	case constant.RelayModeAudioTranscription:
+	case relaymode.AudioTranscription:
 		err = controller.RelayAudioHelper(c, relayMode)
 	default:
 		err = controller.RelayTextHelper(c)
@@ -41,7 +41,7 @@ func relay(c *gin.Context, relayMode int) *model.ErrorWithStatusCode {
 
 func Relay(c *gin.Context) {
 	ctx := c.Request.Context()
-	relayMode := constant.Path2RelayMode(c.Request.URL.Path)
+	relayMode := relaymode.GetByPath(c.Request.URL.Path)
 	if config.DebugEnabled {
 		requestBody, _ := common.GetRequestBody(c)
 		logger.Debugf(ctx, "request body: %s", string(requestBody))

@@ -3,7 +3,8 @@ package util
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/songquanpeng/one-api/common"
-	"github.com/songquanpeng/one-api/relay/constant"
+	"github.com/songquanpeng/one-api/relay/channeltype"
+	"github.com/songquanpeng/one-api/relay/relaymode"
 	"strings"
 )
 
@@ -30,7 +31,7 @@ type RelayMeta struct {
 
 func GetRelayMeta(c *gin.Context) *RelayMeta {
 	meta := RelayMeta{
-		Mode:           constant.Path2RelayMode(c.Request.URL.Path),
+		Mode:           relaymode.GetByPath(c.Request.URL.Path),
 		ChannelType:    c.GetInt("channel"),
 		ChannelId:      c.GetInt("channel_id"),
 		TokenId:        c.GetInt("token_id"),
@@ -44,12 +45,12 @@ func GetRelayMeta(c *gin.Context) *RelayMeta {
 		Config:         nil,
 		RequestURLPath: c.Request.URL.String(),
 	}
-	if meta.ChannelType == common.ChannelTypeAzure {
+	if meta.ChannelType == channeltype.Azure {
 		meta.APIVersion = GetAzureAPIVersion(c)
 	}
 	if meta.BaseURL == "" {
 		meta.BaseURL = common.ChannelBaseURLs[meta.ChannelType]
 	}
-	meta.APIType = constant.ChannelType2APIType(meta.ChannelType)
+	meta.APIType = channeltype.ToAPIType(meta.ChannelType)
 	return &meta
 }

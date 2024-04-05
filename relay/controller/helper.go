@@ -10,8 +10,10 @@ import (
 	"github.com/songquanpeng/one-api/common/logger"
 	"github.com/songquanpeng/one-api/model"
 	"github.com/songquanpeng/one-api/relay/channel/openai"
+	"github.com/songquanpeng/one-api/relay/channeltype"
 	"github.com/songquanpeng/one-api/relay/constant"
 	relaymodel "github.com/songquanpeng/one-api/relay/model"
+	"github.com/songquanpeng/one-api/relay/relaymode"
 	"github.com/songquanpeng/one-api/relay/util"
 	"math"
 	"net/http"
@@ -23,10 +25,10 @@ func getAndValidateTextRequest(c *gin.Context, relayMode int) (*relaymodel.Gener
 	if err != nil {
 		return nil, err
 	}
-	if relayMode == constant.RelayModeModerations && textRequest.Model == "" {
+	if relayMode == relaymode.Moderations && textRequest.Model == "" {
 		textRequest.Model = "text-moderation-latest"
 	}
-	if relayMode == constant.RelayModeEmbeddings && textRequest.Model == "" {
+	if relayMode == relaymode.Embeddings && textRequest.Model == "" {
 		textRequest.Model = c.Param("model")
 	}
 	err = util.ValidateTextRequest(textRequest, relayMode)
@@ -86,7 +88,7 @@ func validateImageRequest(imageRequest *relaymodel.ImageRequest, meta *util.Rela
 	// Number of generated images validation
 	if !isWithinRange(imageRequest.Model, imageRequest.N) {
 		// channel not azure
-		if meta.ChannelType != common.ChannelTypeAzure {
+		if meta.ChannelType != channeltype.Azure {
 			return openai.ErrorWrapper(errors.New("invalid value of n"), "n_not_within_range", http.StatusBadRequest)
 		}
 	}
@@ -110,11 +112,11 @@ func getImageCostRatio(imageRequest *relaymodel.ImageRequest) (float64, error) {
 
 func getPromptTokens(textRequest *relaymodel.GeneralOpenAIRequest, relayMode int) int {
 	switch relayMode {
-	case constant.RelayModeChatCompletions:
+	case relaymode.ChatCompletions:
 		return openai.CountTokenMessages(textRequest.Messages, textRequest.Model)
-	case constant.RelayModeCompletions:
+	case relaymode.Completions:
 		return openai.CountTokenInput(textRequest.Prompt, textRequest.Model)
-	case constant.RelayModeModerations:
+	case relaymode.Moderations:
 		return openai.CountTokenInput(textRequest.Input, textRequest.Model)
 	}
 	return 0

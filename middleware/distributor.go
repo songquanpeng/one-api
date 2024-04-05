@@ -6,6 +6,7 @@ import (
 	"github.com/songquanpeng/one-api/common"
 	"github.com/songquanpeng/one-api/common/logger"
 	"github.com/songquanpeng/one-api/model"
+	"github.com/songquanpeng/one-api/relay/channeltype"
 	"net/http"
 	"strconv"
 )
@@ -66,15 +67,15 @@ func SetupContextForSelectedChannel(c *gin.Context, channel *model.Channel, mode
 	c.Set("base_url", channel.GetBaseURL())
 	// this is for backward compatibility
 	switch channel.Type {
-	case common.ChannelTypeAzure:
+	case channeltype.Azure:
 		c.Set(common.ConfigKeyAPIVersion, channel.Other)
-	case common.ChannelTypeXunfei:
+	case channeltype.Xunfei:
 		c.Set(common.ConfigKeyAPIVersion, channel.Other)
-	case common.ChannelTypeGemini:
+	case channeltype.Gemini:
 		c.Set(common.ConfigKeyAPIVersion, channel.Other)
-	case common.ChannelTypeAIProxyLibrary:
+	case channeltype.AIProxyLibrary:
 		c.Set(common.ConfigKeyLibraryID, channel.Other)
-	case common.ChannelTypeAli:
+	case channeltype.Ali:
 		c.Set(common.ConfigKeyPlugin, channel.Other)
 	}
 	cfg, _ := channel.LoadConfig()

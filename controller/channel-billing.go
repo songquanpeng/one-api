@@ -9,6 +9,7 @@ import (
 	"github.com/songquanpeng/one-api/common/logger"
 	"github.com/songquanpeng/one-api/model"
 	"github.com/songquanpeng/one-api/monitor"
+	"github.com/songquanpeng/one-api/relay/channeltype"
 	"github.com/songquanpeng/one-api/relay/util"
 	"io"
 	"net/http"
@@ -209,23 +210,23 @@ func updateChannelBalance(channel *model.Channel) (float64, error) {
 		channel.BaseURL = &baseURL
 	}
 	switch channel.Type {
-	case common.ChannelTypeOpenAI:
+	case channeltype.OpenAI:
 		if channel.GetBaseURL() != "" {
 			baseURL = channel.GetBaseURL()
 		}
-	case common.ChannelTypeAzure:
+	case channeltype.Azure:
 		return 0, errors.New("尚未实现")
-	case common.ChannelTypeCustom:
+	case channeltype.Custom:
 		baseURL = channel.GetBaseURL()
-	case common.ChannelTypeCloseAI:
+	case channeltype.CloseAI:
 		return updateChannelCloseAIBalance(channel)
-	case common.ChannelTypeOpenAISB:
+	case channeltype.OpenAISB:
 		return updateChannelOpenAISBBalance(channel)
-	case common.ChannelTypeAIProxy:
+	case channeltype.AIProxy:
 		return updateChannelAIProxyBalance(channel)
-	case common.ChannelTypeAPI2GPT:
+	case channeltype.API2GPT:
 		return updateChannelAPI2GPTBalance(channel)
-	case common.ChannelTypeAIGC2D:
+	case channeltype.AIGC2D:
 		return updateChannelAIGC2DBalance(channel)
 	default:
 		return 0, errors.New("尚未实现")
@@ -305,7 +306,7 @@ func updateAllChannelsBalance() error {
 			continue
 		}
 		// TODO: support Azure
-		if channel.Type != common.ChannelTypeOpenAI && channel.Type != common.ChannelTypeCustom {
+		if channel.Type != channeltype.OpenAI && channel.Type != channeltype.Custom {
 			continue
 		}
 		balance, err := updateChannelBalance(channel)

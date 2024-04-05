@@ -12,9 +12,10 @@ import (
 	"github.com/songquanpeng/one-api/middleware"
 	"github.com/songquanpeng/one-api/model"
 	"github.com/songquanpeng/one-api/monitor"
-	"github.com/songquanpeng/one-api/relay/constant"
+	"github.com/songquanpeng/one-api/relay/channeltype"
 	"github.com/songquanpeng/one-api/relay/helper"
 	relaymodel "github.com/songquanpeng/one-api/relay/model"
+	"github.com/songquanpeng/one-api/relay/relaymode"
 	"github.com/songquanpeng/one-api/relay/util"
 	"io"
 	"net/http"
@@ -57,7 +58,7 @@ func testChannel(channel *model.Channel) (err error, openaiErr *relaymodel.Error
 	c.Set("base_url", channel.GetBaseURL())
 	middleware.SetupContextForSelectedChannel(c, channel, "")
 	meta := util.GetRelayMeta(c)
-	apiType := constant.ChannelType2APIType(channel.Type)
+	apiType := channeltype.ToAPIType(channel.Type)
 	adaptor := helper.GetAdaptor(apiType)
 	if adaptor == nil {
 		return fmt.Errorf("invalid api type: %d, adaptor is nil", apiType), nil
@@ -73,7 +74,7 @@ func testChannel(channel *model.Channel) (err error, openaiErr *relaymodel.Error
 	request := buildTestRequest()
 	request.Model = modelName
 	meta.OriginModelName, meta.ActualModelName = modelName, modelName
-	convertedRequest, err := adaptor.ConvertRequest(c, constant.RelayModeChatCompletions, request)
+	convertedRequest, err := adaptor.ConvertRequest(c, relaymode.ChatCompletions, request)
 	if err != nil {
 		return err, nil
 	}

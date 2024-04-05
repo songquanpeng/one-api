@@ -3,10 +3,10 @@ package controller
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/songquanpeng/one-api/common"
 	"github.com/songquanpeng/one-api/model"
+	"github.com/songquanpeng/one-api/relay/apitype"
 	"github.com/songquanpeng/one-api/relay/channel/openai"
-	"github.com/songquanpeng/one-api/relay/constant"
+	"github.com/songquanpeng/one-api/relay/channeltype"
 	"github.com/songquanpeng/one-api/relay/helper"
 	relaymodel "github.com/songquanpeng/one-api/relay/model"
 	"github.com/songquanpeng/one-api/relay/util"
@@ -62,8 +62,8 @@ func init() {
 		IsBlocking:         false,
 	})
 	// https://platform.openai.com/docs/models/model-endpoint-compatibility
-	for i := 0; i < constant.APITypeDummy; i++ {
-		if i == constant.APITypeAIProxyLibrary {
+	for i := 0; i < apitype.Dummy; i++ {
+		if i == apitype.AIProxyLibrary {
 			continue
 		}
 		adaptor := helper.GetAdaptor(i)
@@ -82,7 +82,7 @@ func init() {
 		}
 	}
 	for _, channelType := range openai.CompatibleChannels {
-		if channelType == common.ChannelTypeAzure {
+		if channelType == channeltype.Azure {
 			continue
 		}
 		channelName, channelModelList := openai.GetCompatibleChannelMeta(channelType)
@@ -103,8 +103,8 @@ func init() {
 		modelsMap[model.Id] = model
 	}
 	channelId2Models = make(map[int][]string)
-	for i := 1; i < common.ChannelTypeDummy; i++ {
-		adaptor := helper.GetAdaptor(constant.ChannelType2APIType(i))
+	for i := 1; i < channeltype.Dummy; i++ {
+		adaptor := helper.GetAdaptor(channeltype.ToAPIType(i))
 		meta := &util.RelayMeta{
 			ChannelType: i,
 		}

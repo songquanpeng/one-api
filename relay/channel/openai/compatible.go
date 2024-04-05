@@ -1,7 +1,6 @@
 package openai
 
 import (
-	"github.com/songquanpeng/one-api/common"
 	"github.com/songquanpeng/one-api/relay/channel/ai360"
 	"github.com/songquanpeng/one-api/relay/channel/baichuan"
 	"github.com/songquanpeng/one-api/relay/channel/groq"
@@ -10,39 +9,40 @@ import (
 	"github.com/songquanpeng/one-api/relay/channel/mistral"
 	"github.com/songquanpeng/one-api/relay/channel/moonshot"
 	"github.com/songquanpeng/one-api/relay/channel/stepfun"
+	"github.com/songquanpeng/one-api/relay/channeltype"
 )
 
 var CompatibleChannels = []int{
-	common.ChannelTypeAzure,
-	common.ChannelType360,
-	common.ChannelTypeMoonshot,
-	common.ChannelTypeBaichuan,
-	common.ChannelTypeMinimax,
-	common.ChannelTypeMistral,
-	common.ChannelTypeGroq,
-	common.ChannelTypeLingYiWanWu,
-	common.ChannelTypeStepFun,
+	channeltype.Azure,
+	channeltype.AI360,
+	channeltype.Moonshot,
+	channeltype.Baichuan,
+	channeltype.Minimax,
+	channeltype.Mistral,
+	channeltype.Groq,
+	channeltype.LingYiWanWu,
+	channeltype.StepFun,
 }
 
 func GetCompatibleChannelMeta(channelType int) (string, []string) {
 	switch channelType {
-	case common.ChannelTypeAzure:
+	case channeltype.Azure:
 		return "azure", ModelList
-	case common.ChannelType360:
+	case channeltype.AI360:
 		return "360", ai360.ModelList
-	case common.ChannelTypeMoonshot:
+	case channeltype.Moonshot:
 		return "moonshot", moonshot.ModelList
-	case common.ChannelTypeBaichuan:
+	case channeltype.Baichuan:
 		return "baichuan", baichuan.ModelList
-	case common.ChannelTypeMinimax:
+	case channeltype.Minimax:
 		return "minimax", minimax.ModelList
-	case common.ChannelTypeMistral:
+	case channeltype.Mistral:
 		return "mistralai", mistral.ModelList
-	case common.ChannelTypeGroq:
+	case channeltype.Groq:
 		return "groq", groq.ModelList
-	case common.ChannelTypeLingYiWanWu:
+	case channeltype.LingYiWanWu:
 		return "lingyiwanwu", lingyiwanwu.ModelList
-	case common.ChannelTypeStepFun:
+	case channeltype.StepFun:
 		return "stepfun", stepfun.ModelList
 	default:
 		return "openai", ModelList

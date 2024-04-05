@@ -38,44 +38,6 @@ const (
 	ChannelStatusAutoDisabled     = 3
 )
 
-const (
-	ChannelTypeUnknown = iota
-	ChannelTypeOpenAI
-	ChannelTypeAPI2D
-	ChannelTypeAzure
-	ChannelTypeCloseAI
-	ChannelTypeOpenAISB
-	ChannelTypeOpenAIMax
-	ChannelTypeOhMyGPT
-	ChannelTypeCustom
-	ChannelTypeAILS
-	ChannelTypeAIProxy
-	ChannelTypePaLM
-	ChannelTypeAPI2GPT
-	ChannelTypeAIGC2D
-	ChannelTypeAnthropic
-	ChannelTypeBaidu
-	ChannelTypeZhipu
-	ChannelTypeAli
-	ChannelTypeXunfei
-	ChannelType360
-	ChannelTypeOpenRouter
-	ChannelTypeAIProxyLibrary
-	ChannelTypeFastGPT
-	ChannelTypeTencent
-	ChannelTypeGemini
-	ChannelTypeMoonshot
-	ChannelTypeBaichuan
-	ChannelTypeMinimax
-	ChannelTypeMistral
-	ChannelTypeGroq
-	ChannelTypeOllama
-	ChannelTypeLingYiWanWu
-	ChannelTypeStepFun
-
-	ChannelTypeDummy
-)
-
 var ChannelBaseURLs = []string{
 	"",                              // 0
 	"https://api.openai.com",        // 1

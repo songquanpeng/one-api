@@ -3,13 +3,13 @@ package baidu
 import (
 	"errors"
 	"fmt"
+	"github.com/songquanpeng/one-api/relay/relaymode"
 	"io"
 	"net/http"
 	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/songquanpeng/one-api/relay/channel"
-	"github.com/songquanpeng/one-api/relay/constant"
 	"github.com/songquanpeng/one-api/relay/model"
 	"github.com/songquanpeng/one-api/relay/util"
 )
@@ -100,7 +100,7 @@ func (a *Adaptor) ConvertRequest(c *gin.Context, relayMode int, request *model.G
 		return nil, errors.New("request is nil")
 	}
 	switch relayMode {
-	case constant.RelayModeEmbeddings:
+	case relaymode.Embeddings:
 		baiduEmbeddingRequest := ConvertEmbeddingRequest(*request)
 		return baiduEmbeddingRequest, nil
 	default:
@@ -125,7 +125,7 @@ func (a *Adaptor) DoResponse(c *gin.Context, resp *http.Response, meta *util.Rel
 		err, usage = StreamHandler(c, resp)
 	} else {
 		switch meta.Mode {
-		case constant.RelayModeEmbeddings:
+		case relaymode.Embeddings:
 			err, usage = EmbeddingHandler(c, resp)
 		default:
 			err, usage = Handler(c, resp)

@@ -4,11 +4,11 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/songquanpeng/one-api/common"
 	"github.com/songquanpeng/one-api/relay/channel"
 	"github.com/songquanpeng/one-api/relay/channel/minimax"
-	"github.com/songquanpeng/one-api/relay/constant"
+	"github.com/songquanpeng/one-api/relay/channeltype"
 	"github.com/songquanpeng/one-api/relay/model"
+	"github.com/songquanpeng/one-api/relay/relaymode"
 	"github.com/songquanpeng/one-api/relay/util"
 	"io"
 	"net/http"
@@ -25,8 +25,8 @@ func (a *Adaptor) Init(meta *util.RelayMeta) {
 
 func (a *Adaptor) GetRequestURL(meta *util.RelayMeta) (string, error) {
 	switch meta.ChannelType {
-	case common.ChannelTypeAzure:
-		if meta.Mode == constant.RelayModeImagesGenerations {
+	case channeltype.Azure:
+		if meta.Mode == relaymode.ImagesGenerations {
 			// https://learn.microsoft.com/en-us/azure/ai-services/openai/dall-e-quickstart?tabs=dalle3%2Ccommand-line&pivots=rest-api
 			// https://{resource_name}.openai.azure.com/openai/deployments/dall-e-3/images/generations?api-version=2024-03-01-preview
 			fullRequestURL := fmt.Sprintf("%s/openai/deployments/%s/images/generations?api-version=%s", meta.BaseURL, meta.ActualModelName, meta.APIVersion)
@@ -43,7 +43,7 @@ func (a *Adaptor) GetRequestURL(meta *util.RelayMeta) (string, error) {
 		// {your endpoint}/openai/deployments/{your azure_model}/chat/completions?api-version={api_version}
 		requestURL = fmt.Sprintf("/openai/deployments/%s/%s", model_, task)
 		return util.GetFullRequestURL(meta.BaseURL, requestURL, meta.ChannelType), nil
-	case common.ChannelTypeMinimax:
+	case channeltype.Minimax:
 		return minimax.GetRequestURL(meta)
 	default:
 		return util.GetFullRequestURL(meta.BaseURL, meta.RequestURLPath, meta.ChannelType), nil
@@ -52,12 +52,12 @@ func (a *Adaptor) GetRequestURL(meta *util.RelayMeta) (string, error) {
 
 func (a *Adaptor) SetupRequestHeader(c *gin.Context, req *http.Request, meta *util.RelayMeta) error {
 	channel.SetupCommonRequestHeader(c, req, meta)
-	if meta.ChannelType == common.ChannelTypeAzure {
+	if meta.ChannelType == channeltype.Azure {
 		req.Header.Set("api-key", meta.APIKey)
 		return nil
 	}
 	req.Header.Set("Authorization", "Bearer "+meta.APIKey)
-	if meta.ChannelType == common.ChannelTypeOpenRouter {
+	if meta.ChannelType == channeltype.OpenRouter {
 		req.Header.Set("HTTP-Referer", "https://github.com/songquanpeng/one-api")
 		req.Header.Set("X-Title", "One API")
 	}
@@ -91,7 +91,7 @@ func (a *Adaptor) DoResponse(c *gin.Context, resp *http.Response, meta *util.Rel
 		}
 	} else {
 		switch meta.Mode {
-		case constant.RelayModeImagesGenerations:
+		case relaymode.ImagesGenerations:
 			err, _ = ImageHandler(c, resp)
 		default:
 			err, usage = Handler(c, resp, meta.PromptTokens, meta.ActualModelName)

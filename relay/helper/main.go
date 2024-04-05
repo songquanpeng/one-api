@@ -1,6 +1,7 @@
 package helper
 
 import (
+	"github.com/songquanpeng/one-api/relay/apitype"
 	"github.com/songquanpeng/one-api/relay/channel"
 	"github.com/songquanpeng/one-api/relay/channel/aiproxy"
 	"github.com/songquanpeng/one-api/relay/channel/ali"
@@ -13,32 +14,31 @@ import (
 	"github.com/songquanpeng/one-api/relay/channel/tencent"
 	"github.com/songquanpeng/one-api/relay/channel/xunfei"
 	"github.com/songquanpeng/one-api/relay/channel/zhipu"
-	"github.com/songquanpeng/one-api/relay/constant"
 )
 
 func GetAdaptor(apiType int) channel.Adaptor {
 	switch apiType {
-	case constant.APITypeAIProxyLibrary:
+	case apitype.AIProxyLibrary:
 		return &aiproxy.Adaptor{}
-	case constant.APITypeAli:
+	case apitype.Ali:
 		return &ali.Adaptor{}
-	case constant.APITypeAnthropic:
+	case apitype.Anthropic:
 		return &anthropic.Adaptor{}
-	case constant.APITypeBaidu:
+	case apitype.Baidu:
 		return &baidu.Adaptor{}
-	case constant.APITypeGemini:
+	case apitype.Gemini:
 		return &gemini.Adaptor{}
-	case constant.APITypeOpenAI:
+	case apitype.OpenAI:
 		return &openai.Adaptor{}
-	case constant.APITypePaLM:
+	case apitype.PaLM:
 		return &palm.Adaptor{}
-	case constant.APITypeTencent:
+	case apitype.Tencent:
 		return &tencent.Adaptor{}
-	case constant.APITypeXunfei:
+	case apitype.Xunfei:
 		return &xunfei.Adaptor{}
-	case constant.APITypeZhipu:
+	case apitype.Zhipu:
 		return &zhipu.Adaptor{}
-	case constant.APITypeOllama:
+	case apitype.Ollama:
 		return &ollama.Adaptor{}
 	}
 	return nil
