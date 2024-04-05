@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/songquanpeng/one-api/common"
 	"github.com/songquanpeng/one-api/common/blacklist"
+	"github.com/songquanpeng/one-api/common/network"
 	"github.com/songquanpeng/one-api/model"
 	"net/http"
 	"strings"
@@ -89,6 +90,7 @@ func RootAuth() func(c *gin.Context) {
 
 func TokenAuth() func(c *gin.Context) {
 	return func(c *gin.Context) {
+		ctx := c.Request.Context()
 		key := c.Request.Header.Get("Authorization")
 		key = strings.TrimPrefix(key, "Bearer ")
 		key = strings.TrimPrefix(key, "sk-")
@@ -98,6 +100,12 @@ func TokenAuth() func(c *gin.Context) {
 		if err != nil {
 			abortWithMessage(c, http.StatusUnauthorized, err.Error())
 			return
+		}
+		if token.Subnet != nil && *token.Subnet != "" {
+			if !network.IsIpInSubnet(ctx, c.ClientIP(), *token.Subnet) {
+				abortWithMessage(c, http.StatusForbidden, fmt.Sprintf("该令牌只能在指定网段使用：%s，当前 ip：%s", *token.Subnet, c.ClientIP()))
+				return
+			}
 		}
 		userEnabled, err := model.CacheIsUserEnabled(token.UserId)
 		if err != nil {
