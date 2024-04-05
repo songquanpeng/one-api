@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/songquanpeng/one-api/common"
 	"github.com/songquanpeng/one-api/common/config"
 	"github.com/songquanpeng/one-api/common/logger"
 	"github.com/songquanpeng/one-api/common/message"
@@ -173,7 +172,7 @@ func testChannels(notify bool, scope string) error {
 	}
 	go func() {
 		for _, channel := range channels {
-			isChannelEnabled := channel.Status == common.ChannelStatusEnabled
+			isChannelEnabled := channel.Status == model.ChannelStatusEnabled
 			tik := time.Now()
 			err, openaiErr := testChannel(channel)
 			tok := time.Now()

@@ -239,7 +239,7 @@ func GetUser(c *gin.Context) {
 		return
 	}
 	myRole := c.GetInt("role")
-	if myRole <= user.Role && myRole != common.RoleRootUser {
+	if myRole <= user.Role && myRole != model.RoleRootUser {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
 			"message": "无权获取同级或更高等级用户的信息",
@@ -388,14 +388,14 @@ func UpdateUser(c *gin.Context) {
 		return
 	}
 	myRole := c.GetInt("role")
-	if myRole <= originUser.Role && myRole != common.RoleRootUser {
+	if myRole <= originUser.Role && myRole != model.RoleRootUser {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
 			"message": "无权更新同权限等级或更高权限等级的用户信息",
 		})
 		return
 	}
-	if myRole <= updatedUser.Role && myRole != common.RoleRootUser {
+	if myRole <= updatedUser.Role && myRole != model.RoleRootUser {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
 			"message": "无权将其他用户权限等级提升到大于等于自己的权限等级",
@@ -509,7 +509,7 @@ func DeleteSelf(c *gin.Context) {
 	id := c.GetInt("id")
 	user, _ := model.GetUserById(id, false)
 
-	if user.Role == common.RoleRootUser {
+	if user.Role == model.RoleRootUser {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
 			"message": "不能删除超级管理员账户",
@@ -611,7 +611,7 @@ func ManageUser(c *gin.Context) {
 		return
 	}
 	myRole := c.GetInt("role")
-	if myRole <= user.Role && myRole != common.RoleRootUser {
+	if myRole <= user.Role && myRole != model.RoleRootUser {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
 			"message": "无权更新同权限等级或更高权限等级的用户信息",
@@ -620,8 +620,8 @@ func ManageUser(c *gin.Context) {
 	}
 	switch req.Action {
 	case "disable":
-		user.Status = common.UserStatusDisabled
-		if user.Role == common.RoleRootUser {
+		user.Status = model.UserStatusDisabled
+		if user.Role == model.RoleRootUser {
 			c.JSON(http.StatusOK, gin.H{
 				"success": false,
 				"message": "无法禁用超级管理员用户",
@@ -629,9 +629,9 @@ func ManageUser(c *gin.Context) {
 			return
 		}
 	case "enable":
-		user.Status = common.UserStatusEnabled
+		user.Status = model.UserStatusEnabled
 	case "delete":
-		if user.Role == common.RoleRootUser {
+		if user.Role == model.RoleRootUser {
 			c.JSON(http.StatusOK, gin.H{
 				"success": false,
 				"message": "无法删除超级管理员用户",
@@ -646,37 +646,37 @@ func ManageUser(c *gin.Context) {
 			return
 		}
 	case "promote":
-		if myRole != common.RoleRootUser {
+		if myRole != model.RoleRootUser {
 			c.JSON(http.StatusOK, gin.H{
 				"success": false,
 				"message": "普通管理员用户无法提升其他用户为管理员",
 			})
 			return
 		}
-		if user.Role >= common.RoleAdminUser {
+		if user.Role >= model.RoleAdminUser {
 			c.JSON(http.StatusOK, gin.H{
 				"success": false,
 				"message": "该用户已经是管理员",
 			})
 			return
 		}
-		user.Role = common.RoleAdminUser
+		user.Role = model.RoleAdminUser
 	case "demote":
-		if user.Role == common.RoleRootUser {
+		if user.Role == model.RoleRootUser {
 			c.JSON(http.StatusOK, gin.H{
 				"success": false,
 				"message": "无法降级超级管理员用户",
 			})
 			return
 		}
-		if user.Role == common.RoleCommonUser {
+		if user.Role == model.RoleCommonUser {
 			c.JSON(http.StatusOK, gin.H{
 				"success": false,
 				"message": "该用户已经是普通用户",
 			})
 			return
 		}
-		user.Role = common.RoleCommonUser
+		user.Role = model.RoleCommonUser
 	}
 
 	if err := user.Update(false); err != nil {
@@ -730,7 +730,7 @@ func EmailBind(c *gin.Context) {
 		})
 		return
 	}
-	if user.Role == common.RoleRootUser {
+	if user.Role == model.RoleRootUser {
 		config.RootUserEmail = email
 	}
 	c.JSON(http.StatusOK, gin.H{

@@ -57,7 +57,7 @@ func (channel *Channel) AddAbilities() error {
 				Group:     group,
 				Model:     model,
 				ChannelId: channel.Id,
-				Enabled:   channel.Status == common.ChannelStatusEnabled,
+				Enabled:   channel.Status == ChannelStatusEnabled,
 				Priority:  channel.Priority,
 			}
 			abilities = append(abilities, ability)

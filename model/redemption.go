@@ -8,6 +8,12 @@ import (
 	"gorm.io/gorm"
 )
 
+const (
+	RedemptionCodeStatusEnabled  = 1 // don't use 0, 0 is the default value!
+	RedemptionCodeStatusDisabled = 2 // also don't use 0
+	RedemptionCodeStatusUsed     = 3 // also don't use 0
+)
+
 type Redemption struct {
 	Id           int    `json:"id"`
 	UserId       int    `json:"user_id"`
@@ -61,7 +67,7 @@ func Redeem(key string, userId int) (quota int64, err error) {
 		if err != nil {
 			return errors.New("无效的兑换码")
 		}
-		if redemption.Status != common.RedemptionCodeStatusEnabled {
+		if redemption.Status != RedemptionCodeStatusEnabled {
 			return errors.New("该兑换码已被使用")
 		}
 		err = tx.Model(&User{}).Where("id = ?", userId).Update("quota", gorm.Expr("quota + ?", redemption.Quota)).Error
@@ -69,7 +75,7 @@ func Redeem(key string, userId int) (quota int64, err error) {
 			return err
 		}
 		redemption.RedeemedTime = helper.GetTimestamp()
-		redemption.Status = common.RedemptionCodeStatusUsed
+		redemption.Status = RedemptionCodeStatusUsed
 		err = tx.Save(redemption).Error
 		return err
 	})

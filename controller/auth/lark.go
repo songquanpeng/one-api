@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
-	"github.com/songquanpeng/one-api/common"
 	"github.com/songquanpeng/one-api/common/config"
 	"github.com/songquanpeng/one-api/common/logger"
 	"github.com/songquanpeng/one-api/controller"
@@ -123,8 +122,8 @@ func LarkOAuth(c *gin.Context) {
 			} else {
 				user.DisplayName = "Lark User"
 			}
-			user.Role = common.RoleCommonUser
-			user.Status = common.UserStatusEnabled
+			user.Role = model.RoleCommonUser
+			user.Status = model.UserStatusEnabled
 
 			if err := user.Insert(0); err != nil {
 				c.JSON(http.StatusOK, gin.H{
@@ -142,7 +141,7 @@ func LarkOAuth(c *gin.Context) {
 		}
 	}
 
-	if user.Status != common.UserStatusEnabled {
+	if user.Status != model.UserStatusEnabled {
 		c.JSON(http.StatusOK, gin.H{
 			"message": "用户已被封禁",
 			"success": false,

@@ -9,6 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 	"github.com/songquanpeng/one-api/common"
+	"github.com/songquanpeng/one-api/common/config"
 	"github.com/songquanpeng/one-api/common/helper"
 	"github.com/songquanpeng/one-api/common/logger"
 	"github.com/songquanpeng/one-api/common/random"
@@ -279,7 +280,7 @@ func getAPIVersion(c *gin.Context, modelName string) string {
 		return apiVersion
 
 	}
-	apiVersion = c.GetString(common.ConfigKeyAPIVersion)
+	apiVersion = c.GetString(config.KeyAPIVersion)
 	if apiVersion != "" {
 		return apiVersion
 	}

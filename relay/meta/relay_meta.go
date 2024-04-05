@@ -2,7 +2,7 @@ package meta
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/songquanpeng/one-api/common"
+	"github.com/songquanpeng/one-api/common/config"
 	"github.com/songquanpeng/one-api/relay/adaptor/azure"
 	"github.com/songquanpeng/one-api/relay/channeltype"
 	"github.com/songquanpeng/one-api/relay/relaymode"
@@ -41,7 +41,7 @@ func GetByContext(c *gin.Context) *Meta {
 		Group:          c.GetString("group"),
 		ModelMapping:   c.GetStringMapString("model_mapping"),
 		BaseURL:        c.GetString("base_url"),
-		APIVersion:     c.GetString(common.ConfigKeyAPIVersion),
+		APIVersion:     c.GetString(config.KeyAPIVersion),
 		APIKey:         strings.TrimPrefix(c.Request.Header.Get("Authorization"), "Bearer "),
 		Config:         nil,
 		RequestURLPath: c.Request.URL.String(),
@@ -50,7 +50,7 @@ func GetByContext(c *gin.Context) *Meta {
 		meta.APIVersion = azure.GetAPIVersion(c)
 	}
 	if meta.BaseURL == "" {
-		meta.BaseURL = common.ChannelBaseURLs[meta.ChannelType]
+		meta.BaseURL = channeltype.ChannelBaseURLs[meta.ChannelType]
 	}
 	meta.APIType = channeltype.ToAPIType(meta.ChannelType)
 	return &meta
