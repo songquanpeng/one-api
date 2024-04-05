@@ -7,6 +7,7 @@ import (
 	"github.com/songquanpeng/one-api/common/config"
 	"github.com/songquanpeng/one-api/common/helper"
 	"github.com/songquanpeng/one-api/common/network"
+	"github.com/songquanpeng/one-api/common/random"
 	"github.com/songquanpeng/one-api/model"
 	"net/http"
 	"strconv"
@@ -141,7 +142,7 @@ func AddToken(c *gin.Context) {
 	cleanToken := model.Token{
 		UserId:         c.GetInt("id"),
 		Name:           token.Name,
-		Key:            helper.GenerateKey(),
+		Key:            random.GenerateKey(),
 		CreatedTime:    helper.GetTimestamp(),
 		AccessedTime:   helper.GetTimestamp(),
 		ExpiredTime:    token.ExpiredTime,

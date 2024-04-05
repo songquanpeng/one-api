@@ -9,8 +9,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/songquanpeng/one-api/common"
 	"github.com/songquanpeng/one-api/common/config"
-	"github.com/songquanpeng/one-api/common/helper"
 	"github.com/songquanpeng/one-api/common/logger"
+	"github.com/songquanpeng/one-api/common/random"
 	"github.com/songquanpeng/one-api/controller"
 	"github.com/songquanpeng/one-api/model"
 	"net/http"
@@ -220,7 +220,7 @@ func GitHubBind(c *gin.Context) {
 
 func GenerateOAuthCode(c *gin.Context) {
 	session := sessions.Default(c)
-	state := helper.GetRandomString(12)
+	state := random.GetRandomString(12)
 	session.Set("oauth_state", state)
 	err := session.Save()
 	if err != nil {

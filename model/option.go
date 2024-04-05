@@ -1,9 +1,9 @@
 package model
 
 import (
-	"github.com/songquanpeng/one-api/common"
 	"github.com/songquanpeng/one-api/common/config"
 	"github.com/songquanpeng/one-api/common/logger"
+	"github.com/songquanpeng/one-api/relay/billing"
 	"strconv"
 	"strings"
 	"time"
@@ -66,9 +66,9 @@ func InitOptionMap() {
 	config.OptionMap["QuotaForInvitee"] = strconv.FormatInt(config.QuotaForInvitee, 10)
 	config.OptionMap["QuotaRemindThreshold"] = strconv.FormatInt(config.QuotaRemindThreshold, 10)
 	config.OptionMap["PreConsumedQuota"] = strconv.FormatInt(config.PreConsumedQuota, 10)
-	config.OptionMap["ModelRatio"] = common.ModelRatio2JSONString()
-	config.OptionMap["GroupRatio"] = common.GroupRatio2JSONString()
-	config.OptionMap["CompletionRatio"] = common.CompletionRatio2JSONString()
+	config.OptionMap["ModelRatio"] = billing.ModelRatio2JSONString()
+	config.OptionMap["GroupRatio"] = billing.GroupRatio2JSONString()
+	config.OptionMap["CompletionRatio"] = billing.CompletionRatio2JSONString()
 	config.OptionMap["TopUpLink"] = config.TopUpLink
 	config.OptionMap["ChatLink"] = config.ChatLink
 	config.OptionMap["QuotaPerUnit"] = strconv.FormatFloat(config.QuotaPerUnit, 'f', -1, 64)
@@ -82,7 +82,7 @@ func loadOptionsFromDatabase() {
 	options, _ := AllOption()
 	for _, option := range options {
 		if option.Key == "ModelRatio" {
-			option.Value = common.AddNewMissingRatio(option.Value)
+			option.Value = billing.AddNewMissingRatio(option.Value)
 		}
 		err := updateOptionMap(option.Key, option.Value)
 		if err != nil {
@@ -209,11 +209,11 @@ func updateOptionMap(key string, value string) (err error) {
 	case "RetryTimes":
 		config.RetryTimes, _ = strconv.Atoi(value)
 	case "ModelRatio":
-		err = common.UpdateModelRatioByJSONString(value)
+		err = billing.UpdateModelRatioByJSONString(value)
 	case "GroupRatio":
-		err = common.UpdateGroupRatioByJSONString(value)
+		err = billing.UpdateGroupRatioByJSONString(value)
 	case "CompletionRatio":
-		err = common.UpdateCompletionRatioByJSONString(value)
+		err = billing.UpdateCompletionRatioByJSONString(value)
 	case "TopUpLink":
 		config.TopUpLink = value
 	case "ChatLink":

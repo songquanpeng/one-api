@@ -7,6 +7,7 @@ import (
 	"github.com/songquanpeng/one-api/common/env"
 	"github.com/songquanpeng/one-api/common/helper"
 	"github.com/songquanpeng/one-api/common/logger"
+	"github.com/songquanpeng/one-api/common/random"
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"
@@ -34,7 +35,7 @@ func CreateRootAccountIfNeed() error {
 			Role:        common.RoleRootUser,
 			Status:      common.UserStatusEnabled,
 			DisplayName: "Root User",
-			AccessToken: helper.GetUUID(),
+			AccessToken: random.GetUUID(),
 			Quota:       500000000000000,
 		}
 		DB.Create(&rootUser)

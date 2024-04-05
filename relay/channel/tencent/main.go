@@ -13,6 +13,7 @@ import (
 	"github.com/songquanpeng/one-api/common/conv"
 	"github.com/songquanpeng/one-api/common/helper"
 	"github.com/songquanpeng/one-api/common/logger"
+	"github.com/songquanpeng/one-api/common/random"
 	"github.com/songquanpeng/one-api/relay/channel/openai"
 	"github.com/songquanpeng/one-api/relay/constant"
 	"github.com/songquanpeng/one-api/relay/model"
@@ -41,7 +42,7 @@ func ConvertRequest(request model.GeneralOpenAIRequest) *ChatRequest {
 	return &ChatRequest{
 		Timestamp:   helper.GetTimestamp(),
 		Expired:     helper.GetTimestamp() + 24*60*60,
-		QueryID:     helper.GetUUID(),
+		QueryID:     random.GetUUID(),
 		Temperature: request.Temperature,
 		TopP:        request.TopP,
 		Stream:      stream,
@@ -71,7 +72,7 @@ func responseTencent2OpenAI(response *ChatResponse) *openai.TextResponse {
 
 func streamResponseTencent2OpenAI(TencentResponse *ChatResponse) *openai.ChatCompletionsStreamResponse {
 	response := openai.ChatCompletionsStreamResponse{
-		Id:      fmt.Sprintf("chatcmpl-%s", helper.GetUUID()),
+		Id:      fmt.Sprintf("chatcmpl-%s", random.GetUUID()),
 		Object:  "chat.completion.chunk",
 		Created: helper.GetTimestamp(),
 		Model:   "tencent-hunyuan",

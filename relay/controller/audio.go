@@ -12,6 +12,7 @@ import (
 	"github.com/songquanpeng/one-api/common/config"
 	"github.com/songquanpeng/one-api/common/logger"
 	"github.com/songquanpeng/one-api/model"
+	"github.com/songquanpeng/one-api/relay/billing"
 	"github.com/songquanpeng/one-api/relay/channel/openai"
 	"github.com/songquanpeng/one-api/relay/channeltype"
 	relaymodel "github.com/songquanpeng/one-api/relay/model"
@@ -48,8 +49,8 @@ func RelayAudioHelper(c *gin.Context, relayMode int) *relaymodel.ErrorWithStatus
 		}
 	}
 
-	modelRatio := common.GetModelRatio(audioModel)
-	groupRatio := common.GetGroupRatio(group)
+	modelRatio := billing.GetModelRatio(audioModel)
+	groupRatio := billing.GetGroupRatio(group)
 	ratio := modelRatio * groupRatio
 	var quota int64
 	var preConsumedQuota int64

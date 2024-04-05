@@ -6,8 +6,8 @@ import (
 	"github.com/songquanpeng/one-api/common"
 	"github.com/songquanpeng/one-api/common/blacklist"
 	"github.com/songquanpeng/one-api/common/config"
-	"github.com/songquanpeng/one-api/common/helper"
 	"github.com/songquanpeng/one-api/common/logger"
+	"github.com/songquanpeng/one-api/common/random"
 	"gorm.io/gorm"
 	"strings"
 )
@@ -108,8 +108,8 @@ func (user *User) Insert(inviterId int) error {
 		}
 	}
 	user.Quota = config.QuotaForNewUser
-	user.AccessToken = helper.GetUUID()
-	user.AffCode = helper.GetRandomString(4)
+	user.AccessToken = random.GetUUID()
+	user.AffCode = random.GetRandomString(4)
 	result := DB.Create(user)
 	if result.Error != nil {
 		return result.Error
@@ -152,7 +152,7 @@ func (user *User) Delete() error {
 		return errors.New("id 为空！")
 	}
 	blacklist.BanUser(user.Id)
-	user.Username = fmt.Sprintf("deleted_%s", helper.GetUUID())
+	user.Username = fmt.Sprintf("deleted_%s", random.GetUUID())
 	user.Status = common.UserStatusDeleted
 	err := DB.Model(user).Updates(user).Error
 	return err

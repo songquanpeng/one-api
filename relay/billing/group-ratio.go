@@ -1,4 +1,4 @@
-package common
+package billing
 
 import (
 	"encoding/json"

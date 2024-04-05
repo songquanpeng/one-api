@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/songquanpeng/one-api/common"
 	"github.com/songquanpeng/one-api/common/config"
-	"github.com/songquanpeng/one-api/common/helper"
+	"github.com/songquanpeng/one-api/common/random"
 	"github.com/songquanpeng/one-api/model"
 	"net/http"
 	"strconv"
@@ -287,7 +287,7 @@ func GenerateAccessToken(c *gin.Context) {
 		})
 		return
 	}
-	user.AccessToken = helper.GetUUID()
+	user.AccessToken = random.GetUUID()
 
 	if model.DB.Where("access_token = ?", user.AccessToken).First(user).RowsAffected != 0 {
 		c.JSON(http.StatusOK, gin.H{
@@ -324,7 +324,7 @@ func GetAffCode(c *gin.Context) {
 		return
 	}
 	if user.AffCode == "" {
-		user.AffCode = helper.GetRandomString(4)
+		user.AffCode = random.GetRandomString(4)
 		if err := user.Update(false); err != nil {
 			c.JSON(http.StatusOK, gin.H{
 				"success": false,

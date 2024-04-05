@@ -8,6 +8,7 @@ import (
 	"github.com/songquanpeng/one-api/common"
 	"github.com/songquanpeng/one-api/common/config"
 	"github.com/songquanpeng/one-api/common/logger"
+	"github.com/songquanpeng/one-api/common/random"
 	"math/rand"
 	"sort"
 	"strconv"
@@ -247,7 +248,7 @@ func CacheGetRandomSatisfiedChannel(group string, model string, ignoreFirstPrior
 	idx := rand.Intn(endIdx)
 	if ignoreFirstPriority {
 		if endIdx < len(channels) { // which means there are more than one priority
-			idx = common.RandRange(endIdx, len(channels))
+			idx = random.RandRange(endIdx, len(channels))
 		}
 	}
 	return channels[idx], nil

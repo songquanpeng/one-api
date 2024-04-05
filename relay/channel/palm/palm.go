@@ -7,6 +7,7 @@ import (
 	"github.com/songquanpeng/one-api/common"
 	"github.com/songquanpeng/one-api/common/helper"
 	"github.com/songquanpeng/one-api/common/logger"
+	"github.com/songquanpeng/one-api/common/random"
 	"github.com/songquanpeng/one-api/relay/channel/openai"
 	"github.com/songquanpeng/one-api/relay/constant"
 	"github.com/songquanpeng/one-api/relay/model"
@@ -74,7 +75,7 @@ func streamResponsePaLM2OpenAI(palmResponse *ChatResponse) *openai.ChatCompletio
 
 func StreamHandler(c *gin.Context, resp *http.Response) (*model.ErrorWithStatusCode, string) {
 	responseText := ""
-	responseId := fmt.Sprintf("chatcmpl-%s", helper.GetUUID())
+	responseId := fmt.Sprintf("chatcmpl-%s", random.GetUUID())
 	createdTime := helper.GetTimestamp()
 	dataChan := make(chan string)
 	stopChan := make(chan bool)

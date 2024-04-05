@@ -9,6 +9,7 @@ import (
 	"github.com/songquanpeng/one-api/common/config"
 	"github.com/songquanpeng/one-api/common/logger"
 	"github.com/songquanpeng/one-api/model"
+	"github.com/songquanpeng/one-api/relay/billing"
 	"github.com/songquanpeng/one-api/relay/channel/openai"
 	"github.com/songquanpeng/one-api/relay/channeltype"
 	"github.com/songquanpeng/one-api/relay/constant"
@@ -165,7 +166,7 @@ func postConsumeQuota(ctx context.Context, usage *relaymodel.Usage, meta *util.R
 		return
 	}
 	var quota int64
-	completionRatio := common.GetCompletionRatio(textRequest.Model)
+	completionRatio := billing.GetCompletionRatio(textRequest.Model)
 	promptTokens := usage.PromptTokens
 	completionTokens := usage.CompletionTokens
 	quota = int64(math.Ceil((float64(promptTokens) + float64(completionTokens)*completionRatio) * ratio))

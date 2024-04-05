@@ -5,9 +5,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/songquanpeng/one-api/common"
 	"github.com/songquanpeng/one-api/common/logger"
 	"github.com/songquanpeng/one-api/relay/apitype"
+	"github.com/songquanpeng/one-api/relay/billing"
 	"github.com/songquanpeng/one-api/relay/channel/openai"
 	"github.com/songquanpeng/one-api/relay/channeltype"
 	"github.com/songquanpeng/one-api/relay/helper"
@@ -35,8 +35,8 @@ func RelayTextHelper(c *gin.Context) *model.ErrorWithStatusCode {
 	textRequest.Model, isModelMapped = util.GetMappedModelName(textRequest.Model, meta.ModelMapping)
 	meta.ActualModelName = textRequest.Model
 	// get model ratio & group ratio
-	modelRatio := common.GetModelRatio(textRequest.Model)
-	groupRatio := common.GetGroupRatio(meta.Group)
+	modelRatio := billing.GetModelRatio(textRequest.Model)
+	groupRatio := billing.GetGroupRatio(meta.Group)
 	ratio := modelRatio * groupRatio
 	// pre-consume quota
 	promptTokens := getPromptTokens(textRequest, meta.Mode)

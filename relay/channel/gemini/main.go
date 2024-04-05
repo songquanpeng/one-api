@@ -9,6 +9,7 @@ import (
 	"github.com/songquanpeng/one-api/common/helper"
 	"github.com/songquanpeng/one-api/common/image"
 	"github.com/songquanpeng/one-api/common/logger"
+	"github.com/songquanpeng/one-api/common/random"
 	"github.com/songquanpeng/one-api/relay/channel/openai"
 	"github.com/songquanpeng/one-api/relay/constant"
 	"github.com/songquanpeng/one-api/relay/model"
@@ -155,7 +156,7 @@ type ChatPromptFeedback struct {
 
 func responseGeminiChat2OpenAI(response *ChatResponse) *openai.TextResponse {
 	fullTextResponse := openai.TextResponse{
-		Id:      fmt.Sprintf("chatcmpl-%s", helper.GetUUID()),
+		Id:      fmt.Sprintf("chatcmpl-%s", random.GetUUID()),
 		Object:  "chat.completion",
 		Created: helper.GetTimestamp(),
 		Choices: make([]openai.TextResponseChoice, 0, len(response.Candidates)),
@@ -233,7 +234,7 @@ func StreamHandler(c *gin.Context, resp *http.Response) (*model.ErrorWithStatusC
 			var choice openai.ChatCompletionsStreamResponseChoice
 			choice.Delta.Content = dummy.Content
 			response := openai.ChatCompletionsStreamResponse{
-				Id:      fmt.Sprintf("chatcmpl-%s", helper.GetUUID()),
+				Id:      fmt.Sprintf("chatcmpl-%s", random.GetUUID()),
 				Object:  "chat.completion.chunk",
 				Created: helper.GetTimestamp(),
 				Model:   "gemini-pro",

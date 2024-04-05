@@ -4,10 +4,10 @@ import (
 	"errors"
 	"fmt"
 	"github.com/pkoukk/tiktoken-go"
-	"github.com/songquanpeng/one-api/common"
 	"github.com/songquanpeng/one-api/common/config"
 	"github.com/songquanpeng/one-api/common/image"
 	"github.com/songquanpeng/one-api/common/logger"
+	"github.com/songquanpeng/one-api/relay/billing"
 	"github.com/songquanpeng/one-api/relay/model"
 	"math"
 	"strings"
@@ -28,7 +28,7 @@ func InitTokenEncoders() {
 	if err != nil {
 		logger.FatalLog(fmt.Sprintf("failed to get gpt-4 token encoder: %s", err.Error()))
 	}
-	for model := range common.ModelRatio {
+	for model := range billing.ModelRatio {
 		if strings.HasPrefix(model, "gpt-3.5") {
 			tokenEncoderMap[model] = gpt35TokenEncoder
 		} else if strings.HasPrefix(model, "gpt-4") {
