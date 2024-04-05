@@ -9,7 +9,10 @@ import (
 
 func IsValidSubnet(subnet string) error {
 	_, _, err := net.ParseCIDR(subnet)
-	return fmt.Errorf("failed to parse subnet: %w", err)
+	if err != nil {
+		return fmt.Errorf("failed to parse subnet: %w", err)
+	}
+	return nil
 }
 
 func IsIpInSubnet(ctx context.Context, ip string, subnet string) bool {
