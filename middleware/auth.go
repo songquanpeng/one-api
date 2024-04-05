@@ -102,7 +102,7 @@ func TokenAuth() func(c *gin.Context) {
 			return
 		}
 		if token.Subnet != nil && *token.Subnet != "" {
-			if !network.IsIpInSubnet(ctx, c.ClientIP(), *token.Subnet) {
+			if !network.IsIpInSubnets(ctx, c.ClientIP(), *token.Subnet) {
 				abortWithMessage(c, http.StatusForbidden, fmt.Sprintf("该令牌只能在指定网段使用：%s，当前 ip：%s", *token.Subnet, c.ClientIP()))
 				return
 			}

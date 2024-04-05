@@ -13,7 +13,7 @@ func TestIsIpInSubnet(t *testing.T) {
 	ip2 := "125.216.250.89"
 	subnet := "192.168.0.0/24"
 	Convey("TestIsIpInSubnet", t, func() {
-		So(IsIpInSubnet(ctx, ip1, subnet), ShouldBeTrue)
-		So(IsIpInSubnet(ctx, ip2, subnet), ShouldBeFalse)
+		So(isIpInSubnet(ctx, ip1, subnet), ShouldBeTrue)
+		So(isIpInSubnet(ctx, ip2, subnet), ShouldBeFalse)
 	})
 }

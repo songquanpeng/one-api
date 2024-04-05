@@ -158,7 +158,7 @@ const EditToken = () => {
             <Form.Input
               label='IP 限制'
               name='subnet'
-              placeholder={'请输入允许访问的网段，例如：192.168.0.0/24'}
+              placeholder={'请输入允许访问的网段，例如：192.168.0.0/24，请使用英文逗号分隔多个网段'}
               onChange={handleInputChange}
               value={inputs.subnet}
               autoComplete='new-password'

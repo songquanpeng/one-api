@@ -111,7 +111,7 @@ func validateToken(c *gin.Context, token model.Token) error {
 		return fmt.Errorf("令牌名称过长")
 	}
 	if token.Subnet != nil && *token.Subnet != "" {
-		err := network.IsValidSubnet(*token.Subnet)
+		err := network.IsValidSubnets(*token.Subnet)
 		if err != nil {
 			return fmt.Errorf("无效的网段：%s", err.Error())
 		}
