@@ -7,6 +7,7 @@ import (
 	"github.com/songquanpeng/one-api/common"
 	"github.com/songquanpeng/one-api/relay/channel"
 	"github.com/songquanpeng/one-api/relay/channel/minimax"
+	"github.com/songquanpeng/one-api/relay/constant"
 	"github.com/songquanpeng/one-api/relay/model"
 	"github.com/songquanpeng/one-api/relay/util"
 	"io"
@@ -25,6 +26,13 @@ func (a *Adaptor) Init(meta *util.RelayMeta) {
 func (a *Adaptor) GetRequestURL(meta *util.RelayMeta) (string, error) {
 	switch meta.ChannelType {
 	case common.ChannelTypeAzure:
+		if meta.Mode == constant.RelayModeImagesGenerations {
+			// https://learn.microsoft.com/en-us/azure/ai-services/openai/dall-e-quickstart?tabs=dalle3%2Ccommand-line&pivots=rest-api
+			// https://{resource_name}.openai.azure.com/openai/deployments/dall-e-3/images/generations?api-version=2024-03-01-preview
+			fullRequestURL := fmt.Sprintf("%s/openai/deployments/%s/images/generations?api-version=%s", meta.BaseURL, meta.ActualModelName, meta.APIVersion)
+			return fullRequestURL, nil
+		}
+
 		// https://learn.microsoft.com/en-us/azure/cognitive-services/openai/chatgpt-quickstart?pivots=rest-api&tabs=command-line#rest-api
 		requestURL := strings.Split(meta.RequestURLPath, "?")[0]
 		requestURL = fmt.Sprintf("%s?api-version=%s", requestURL, meta.APIVersion)
@@ -63,6 +71,13 @@ func (a *Adaptor) ConvertRequest(c *gin.Context, relayMode int, request *model.G
 	return request, nil
 }
 
+func (a *Adaptor) ConvertImageRequest(request *model.ImageRequest) (any, error) {
+	if request == nil {
+		return nil, errors.New("request is nil")
+	}
+	return request, nil
+}
+
 func (a *Adaptor) DoRequest(c *gin.Context, meta *util.RelayMeta, requestBody io.Reader) (*http.Response, error) {
 	return channel.DoRequestHelper(a, c, meta, requestBody)
 }
@@ -75,7 +90,12 @@ func (a *Adaptor) DoResponse(c *gin.Context, resp *http.Response, meta *util.Rel
 			usage = ResponseText2Usage(responseText, meta.ActualModelName, meta.PromptTokens)
 		}
 	} else {
-		err, usage = Handler(c, resp, meta.PromptTokens, meta.ActualModelName)
+		switch meta.Mode {
+		case constant.RelayModeImagesGenerations:
+			err, usage = ImageHandler(c, resp)
+		default:
+			err, usage = Handler(c, resp, meta.PromptTokens, meta.ActualModelName)
+		}
 	}
 	return
 }

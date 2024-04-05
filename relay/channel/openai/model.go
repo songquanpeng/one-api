@@ -110,11 +110,16 @@ type EmbeddingResponse struct {
 	model.Usage `json:"usage"`
 }
 
+type ImageData struct {
+	Url           string `json:"url,omitempty"`
+	B64Json       string `json:"b64_json,omitempty"`
+	RevisedPrompt string `json:"revised_prompt,omitempty"`
+}
+
 type ImageResponse struct {
-	Created int `json:"created"`
-	Data    []struct {
-		Url string `json:"url"`
-	}
+	Created     int         `json:"created"`
+	Data        []ImageData `json:"data"`
+	model.Usage `json:"usage"`
 }
 
 type ChatCompletionsStreamResponseChoice struct {

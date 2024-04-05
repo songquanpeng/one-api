@@ -6,18 +6,17 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/gin-gonic/gin"
 	"github.com/songquanpeng/one-api/common"
 	"github.com/songquanpeng/one-api/common/logger"
 	"github.com/songquanpeng/one-api/model"
 	"github.com/songquanpeng/one-api/relay/channel/openai"
 	"github.com/songquanpeng/one-api/relay/constant"
+	"github.com/songquanpeng/one-api/relay/helper"
 	relaymodel "github.com/songquanpeng/one-api/relay/model"
 	"github.com/songquanpeng/one-api/relay/util"
 	"io"
 	"net/http"
-	"strings"
-
-	"github.com/gin-gonic/gin"
 )
 
 func isWithinRange(element string, value int) bool {
@@ -56,15 +55,6 @@ func RelayImageHelper(c *gin.Context, relayMode int) *relaymodel.ErrorWithStatus
 		return openai.ErrorWrapper(err, "get_image_cost_ratio_failed", http.StatusInternalServerError)
 	}
 
-	requestURL := c.Request.URL.String()
-	fullRequestURL := util.GetFullRequestURL(meta.BaseURL, requestURL, meta.ChannelType)
-	if meta.ChannelType == common.ChannelTypeAzure {
-		// https://learn.microsoft.com/en-us/azure/ai-services/openai/dall-e-quickstart?tabs=dalle3%2Ccommand-line&pivots=rest-api
-		apiVersion := util.GetAzureAPIVersion(c)
-		// https://{resource_name}.openai.azure.com/openai/deployments/dall-e-3/images/generations?api-version=2024-03-01-preview
-		fullRequestURL = fmt.Sprintf("%s/openai/deployments/%s/images/generations?api-version=%s", meta.BaseURL, imageRequest.Model, apiVersion)
-	}
-
 	var requestBody io.Reader
 	if isModelMapped || meta.ChannelType == common.ChannelTypeAzure { // make Azure channel request body
 		jsonStr, err := json.Marshal(imageRequest)
@@ -74,6 +64,29 @@ func RelayImageHelper(c *gin.Context, relayMode int) *relaymodel.ErrorWithStatus
 		requestBody = bytes.NewBuffer(jsonStr)
 	} else {
 		requestBody = c.Request.Body
+	}
+
+	adaptor := helper.GetAdaptor(meta.APIType)
+	if adaptor == nil {
+		return openai.ErrorWrapper(fmt.Errorf("invalid api type: %d", meta.APIType), "invalid_api_type", http.StatusBadRequest)
+	}
+
+	switch meta.ChannelType {
+	case common.ChannelTypeAli:
+		fallthrough
+	case common.ChannelTypeBaidu:
+		fallthrough
+	case common.ChannelTypeZhipu:
+		finalRequest, err := adaptor.ConvertImageRequest(imageRequest)
+		if err != nil {
+			return openai.ErrorWrapper(err, "convert_image_request_failed", http.StatusInternalServerError)
+		}
+
+		jsonStr, err := json.Marshal(finalRequest)
+		if err != nil {
+			return openai.ErrorWrapper(err, "marshal_image_request_failed", http.StatusInternalServerError)
+		}
+		requestBody = bytes.NewBuffer(jsonStr)
 	}
 
 	modelRatio := common.GetModelRatio(imageRequest.Model)
@@ -87,35 +100,12 @@ func RelayImageHelper(c *gin.Context, relayMode int) *relaymodel.ErrorWithStatus
 		return openai.ErrorWrapper(errors.New("user quota is not enough"), "insufficient_user_quota", http.StatusForbidden)
 	}
 
-	req, err := http.NewRequest(c.Request.Method, fullRequestURL, requestBody)
+	// do request
+	resp, err := adaptor.DoRequest(c, meta, requestBody)
 	if err != nil {
-		return openai.ErrorWrapper(err, "new_request_failed", http.StatusInternalServerError)
-	}
-	token := c.Request.Header.Get("Authorization")
-	if meta.ChannelType == common.ChannelTypeAzure { // Azure authentication
-		token = strings.TrimPrefix(token, "Bearer ")
-		req.Header.Set("api-key", token)
-	} else {
-		req.Header.Set("Authorization", token)
-	}
-
-	req.Header.Set("Content-Type", c.Request.Header.Get("Content-Type"))
-	req.Header.Set("Accept", c.Request.Header.Get("Accept"))
-
-	resp, err := util.HTTPClient.Do(req)
-	if err != nil {
+		logger.Errorf(ctx, "DoRequest failed: %s", err.Error())
 		return openai.ErrorWrapper(err, "do_request_failed", http.StatusInternalServerError)
 	}
-
-	err = req.Body.Close()
-	if err != nil {
-		return openai.ErrorWrapper(err, "close_request_body_failed", http.StatusInternalServerError)
-	}
-	err = c.Request.Body.Close()
-	if err != nil {
-		return openai.ErrorWrapper(err, "close_request_body_failed", http.StatusInternalServerError)
-	}
-	var imageResponse openai.ImageResponse
 
 	defer func(ctx context.Context) {
 		if resp.StatusCode != http.StatusOK {
@@ -139,34 +129,12 @@ func RelayImageHelper(c *gin.Context, relayMode int) *relaymodel.ErrorWithStatus
 		}
 	}(c.Request.Context())
 
-	responseBody, err := io.ReadAll(resp.Body)
-
-	if err != nil {
-		return openai.ErrorWrapper(err, "read_response_body_failed", http.StatusInternalServerError)
-	}
-	err = resp.Body.Close()
-	if err != nil {
-		return openai.ErrorWrapper(err, "close_response_body_failed", http.StatusInternalServerError)
-	}
-	err = json.Unmarshal(responseBody, &imageResponse)
-	if err != nil {
-		return openai.ErrorWrapper(err, "unmarshal_response_body_failed", http.StatusInternalServerError)
+	// do response
+	_, respErr := adaptor.DoResponse(c, resp, meta)
+	if respErr != nil {
+		logger.Errorf(ctx, "respErr is not nil: %+v", respErr)
+		return respErr
 	}
 
-	resp.Body = io.NopCloser(bytes.NewBuffer(responseBody))
-
-	for k, v := range resp.Header {
-		c.Writer.Header().Set(k, v[0])
-	}
-	c.Writer.WriteHeader(resp.StatusCode)
-
-	_, err = io.Copy(c.Writer, resp.Body)
-	if err != nil {
-		return openai.ErrorWrapper(err, "copy_response_body_failed", http.StatusInternalServerError)
-	}
-	err = resp.Body.Close()
-	if err != nil {
-		return openai.ErrorWrapper(err, "close_response_body_failed", http.StatusInternalServerError)
-	}
 	return nil
 }
