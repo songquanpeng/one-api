@@ -1,4 +1,4 @@
-package constant
+package billing
 
 var ImageSizeRatios = map[string]map[string]float64{
 	"dall-e-2": {

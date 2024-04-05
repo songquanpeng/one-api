@@ -12,7 +12,6 @@ import (
 	"github.com/songquanpeng/one-api/relay/billing"
 	"github.com/songquanpeng/one-api/relay/channel/openai"
 	"github.com/songquanpeng/one-api/relay/channeltype"
-	"github.com/songquanpeng/one-api/relay/constant"
 	relaymodel "github.com/songquanpeng/one-api/relay/model"
 	"github.com/songquanpeng/one-api/relay/relaymode"
 	"github.com/songquanpeng/one-api/relay/util"
@@ -61,12 +60,12 @@ func isValidImageSize(model string, size string) bool {
 	if model == "cogview-3" {
 		return true
 	}
-	_, ok := constant.ImageSizeRatios[model][size]
+	_, ok := billing.ImageSizeRatios[model][size]
 	return ok
 }
 
 func getImageSizeRatio(model string, size string) float64 {
-	ratio, ok := constant.ImageSizeRatios[model][size]
+	ratio, ok := billing.ImageSizeRatios[model][size]
 	if !ok {
 		return 1
 	}
@@ -83,7 +82,7 @@ func validateImageRequest(imageRequest *relaymodel.ImageRequest, meta *util.Rela
 	if imageRequest.Prompt == "" {
 		return openai.ErrorWrapper(errors.New("prompt is required"), "prompt_missing", http.StatusBadRequest)
 	}
-	if len(imageRequest.Prompt) > constant.ImagePromptLengthLimitations[imageRequest.Model] {
+	if len(imageRequest.Prompt) > billing.ImagePromptLengthLimitations[imageRequest.Model] {
 		return openai.ErrorWrapper(errors.New("prompt is too long"), "prompt_too_long", http.StatusBadRequest)
 	}
 	// Number of generated images validation

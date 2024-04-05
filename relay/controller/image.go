@@ -12,7 +12,6 @@ import (
 	"github.com/songquanpeng/one-api/relay/billing"
 	"github.com/songquanpeng/one-api/relay/channel/openai"
 	"github.com/songquanpeng/one-api/relay/channeltype"
-	"github.com/songquanpeng/one-api/relay/constant"
 	"github.com/songquanpeng/one-api/relay/helper"
 	relaymodel "github.com/songquanpeng/one-api/relay/model"
 	"github.com/songquanpeng/one-api/relay/util"
@@ -21,11 +20,11 @@ import (
 )
 
 func isWithinRange(element string, value int) bool {
-	if _, ok := constant.ImageGenerationAmounts[element]; !ok {
+	if _, ok := billing.ImageGenerationAmounts[element]; !ok {
 		return false
 	}
-	min := constant.ImageGenerationAmounts[element][0]
-	max := constant.ImageGenerationAmounts[element][1]
+	min := billing.ImageGenerationAmounts[element][0]
+	max := billing.ImageGenerationAmounts[element][1]
 	return value >= min && value <= max
 }
 
