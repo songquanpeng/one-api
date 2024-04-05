@@ -9,6 +9,7 @@ import (
 	"github.com/songquanpeng/one-api/relay/channel/minimax"
 	"github.com/songquanpeng/one-api/relay/channel/mistral"
 	"github.com/songquanpeng/one-api/relay/channel/moonshot"
+	"github.com/songquanpeng/one-api/relay/channel/stepfun"
 )
 
 var CompatibleChannels = []int{
@@ -20,6 +21,7 @@ var CompatibleChannels = []int{
 	common.ChannelTypeMistral,
 	common.ChannelTypeGroq,
 	common.ChannelTypeLingYiWanWu,
+	common.ChannelTypeStepFun,
 }
 
 func GetCompatibleChannelMeta(channelType int) (string, []string) {
@@ -40,6 +42,8 @@ func GetCompatibleChannelMeta(channelType int) (string, []string) {
 		return "groq", groq.ModelList
 	case common.ChannelTypeLingYiWanWu:
 		return "lingyiwanwu", lingyiwanwu.ModelList
+	case common.ChannelTypeStepFun:
+		return "stepfun", stepfun.ModelList
 	default:
 		return "openai", ModelList
 	}

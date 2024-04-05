@@ -71,6 +71,7 @@ const (
 	ChannelTypeGroq
 	ChannelTypeOllama
 	ChannelTypeLingYiWanWu
+	ChannelTypeStepFun
 
 	ChannelTypeDummy
 )
@@ -108,6 +109,7 @@ var ChannelBaseURLs = []string{
 	"https://api.groq.com/openai",               // 29
 	"http://localhost:11434",                    // 30
 	"https://api.lingyiwanwu.com",               // 31
+	"https://api.stepfun.com",                   // 32
 }
 
 const (
