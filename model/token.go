@@ -63,7 +63,7 @@ func ValidateUserToken(key string) (token *Token, err error) {
 		return nil, errors.New("令牌验证失败")
 	}
 	if token.Status == common.TokenStatusExhausted {
-		return nil, errors.New("该令牌额度已用尽")
+		return nil, fmt.Errorf("令牌 %s（#%d）额度已用尽", token.Name, token.Id)
 	} else if token.Status == common.TokenStatusExpired {
 		return nil, errors.New("该令牌已过期")
 	}
