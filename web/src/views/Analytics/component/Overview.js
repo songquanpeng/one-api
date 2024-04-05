@@ -109,22 +109,22 @@ export default function Overview() {
       <Grid item xs={12}>
         <Divider />
       </Grid>
-      <Grid item xs={12}>
+      <Grid item xs={12} md={6}>
         <ApexCharts id="cost" isLoading={channelLoading} chartDatas={channelData?.costs || {}} title="消费统计" decimal={3} />
       </Grid>
-      <Grid item xs={12}>
+      <Grid item xs={12} md={6}>
         <ApexCharts id="token" isLoading={channelLoading} chartDatas={channelData?.tokens || {}} title="Tokens统计" unit="" />
       </Grid>
-      <Grid item xs={12}>
+      <Grid item xs={12} md={6}>
         <ApexCharts id="latency" isLoading={channelLoading} chartDatas={channelData?.latency || {}} title="平均延迟" unit="" />
       </Grid>
-      <Grid item xs={12}>
+      <Grid item xs={12} md={6}>
         <ApexCharts id="requests" isLoading={channelLoading} chartDatas={channelData?.requests || {}} title="请求数" unit="" />
       </Grid>
-      <Grid item xs={12}>
+      <Grid item xs={12} md={6}>
         <ApexCharts isLoading={redemptionLoading} chartDatas={redemptionData} title="兑换统计" />
       </Grid>
-      <Grid item xs={12}>
+      <Grid item xs={12} md={6}>
         <ApexCharts isLoading={usersLoading} chartDatas={usersData} title="注册统计" />
       </Grid>
     </Grid>
