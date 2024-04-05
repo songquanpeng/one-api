@@ -172,6 +172,10 @@ func updateOptionMap(key string, value string) (err error) {
 		config.GitHubClientId = value
 	case "GitHubClientSecret":
 		config.GitHubClientSecret = value
+	case "LarkClientId":
+		config.LarkClientId = value
+	case "LarkClientSecret":
+		config.LarkClientSecret = value
 	case "Footer":
 		config.Footer = value
 	case "SystemName":

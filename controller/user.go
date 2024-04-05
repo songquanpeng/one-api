@@ -58,11 +58,11 @@ func Login(c *gin.Context) {
 		})
 		return
 	}
-	setupLogin(&user, c)
+	SetupLogin(&user, c)
 }
 
 // setup session & cookies and then return user info
-func setupLogin(user *model.User, c *gin.Context) {
+func SetupLogin(user *model.User, c *gin.Context) {
 	session := sessions.Default(c)
 	session.Set("id", user.Id)
 	session.Set("username", user.Username)

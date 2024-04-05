@@ -24,6 +24,7 @@ import EditRedemption from './pages/Redemption/EditRedemption';
 import TopUp from './pages/TopUp';
 import Log from './pages/Log';
 import Chat from './pages/Chat';
+import LarkOAuth from './components/LarkOAuth';
 
 const Home = lazy(() => import('./pages/Home'));
 const About = lazy(() => import('./pages/About'));
@@ -236,6 +237,14 @@ function App() {
         element={
           <Suspense fallback={<Loading></Loading>}>
             <GitHubOAuth />
+          </Suspense>
+        }
+      />
+      <Route
+        path='/oauth/lark'
+        element={
+          <Suspense fallback={<Loading></Loading>}>
+            <LarkOAuth />
           </Suspense>
         }
       />
