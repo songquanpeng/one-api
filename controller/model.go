@@ -41,8 +41,8 @@ type OpenAIModels struct {
 	Parent     *string                 `json:"parent"`
 }
 
-var openAIModels []OpenAIModels
-var openAIModelsMap map[string]OpenAIModels
+var models []OpenAIModels
+var modelsMap map[string]OpenAIModels
 var channelId2Models map[int][]string
 
 func init() {
@@ -70,7 +70,7 @@ func init() {
 		channelName := adaptor.GetChannelName()
 		modelNames := adaptor.GetModelList()
 		for _, modelName := range modelNames {
-			openAIModels = append(openAIModels, OpenAIModels{
+			models = append(models, OpenAIModels{
 				Id:         modelName,
 				Object:     "model",
 				Created:    1626777600,
@@ -87,7 +87,7 @@ func init() {
 		}
 		channelName, channelModelList := openai.GetCompatibleChannelMeta(channelType)
 		for _, modelName := range channelModelList {
-			openAIModels = append(openAIModels, OpenAIModels{
+			models = append(models, OpenAIModels{
 				Id:         modelName,
 				Object:     "model",
 				Created:    1626777600,
@@ -98,9 +98,9 @@ func init() {
 			})
 		}
 	}
-	openAIModelsMap = make(map[string]OpenAIModels)
-	for _, model := range openAIModels {
-		openAIModelsMap[model.Id] = model
+	modelsMap = make(map[string]OpenAIModels)
+	for _, model := range models {
+		modelsMap[model.Id] = model
 	}
 	channelId2Models = make(map[int][]string)
 	for i := 1; i < common.ChannelTypeDummy; i++ {
@@ -121,6 +121,13 @@ func DashboardListModels(c *gin.Context) {
 	})
 }
 
+func ListAllModels(c *gin.Context) {
+	c.JSON(200, gin.H{
+		"object": "list",
+		"data":   models,
+	})
+}
+
 func ListModels(c *gin.Context) {
 	ctx := c.Request.Context()
 	var availableModels []string
@@ -136,7 +143,7 @@ func ListModels(c *gin.Context) {
 		modelSet[availableModel] = true
 	}
 	availableOpenAIModels := make([]OpenAIModels, 0)
-	for _, model := range openAIModels {
+	for _, model := range models {
 		if _, ok := modelSet[model.Id]; ok {
 			modelSet[model.Id] = false
 			availableOpenAIModels = append(availableOpenAIModels, model)
@@ -162,7 +169,7 @@ func ListModels(c *gin.Context) {
 
 func RetrieveModel(c *gin.Context) {
 	modelId := c.Param("model")
-	if model, ok := openAIModelsMap[modelId]; ok {
+	if model, ok := modelsMap[modelId]; ok {
 		c.JSON(200, model)
 	} else {
 		Error := relaymodel.Error{
