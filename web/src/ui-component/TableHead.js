@@ -31,7 +31,7 @@ const KeywordTableHead = ({ order, orderBy, headLabel, onRequestSort }) => {
           headCell.hide && headCell.hide === true ? null : (
             <TableCell
               key={headCell.id}
-              align={headCell.align || 'left'}
+              align={headCell.align || 'right'}
               // sortDirection={orderBy === headCell.id ? order : false}
               sx={{ width: headCell.width, minWidth: headCell.minWidth }}
             >

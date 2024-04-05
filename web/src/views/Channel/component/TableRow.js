@@ -257,7 +257,7 @@ export default function ChannelTableRow({ item, manageChannel, handleOpenModal, 
         </TableCell>
 
         <TableCell>
-          <Stack direction="row" spacing={1}>
+          <Stack direction="row" justifyContent="center" alignItems="center" spacing={1}>
             <Button
               id="test-model-button"
               aria-controls={openTest ? 'test-model-menu' : undefined}
@@ -267,6 +267,7 @@ export default function ChannelTableRow({ item, manageChannel, handleOpenModal, 
               disableElevation
               onClick={handleTestModel}
               endIcon={<KeyboardArrowDownIcon />}
+              size="small"
             >
               测试
             </Button>

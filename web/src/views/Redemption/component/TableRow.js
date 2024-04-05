@@ -78,10 +78,11 @@ export default function RedemptionTableRow({ item, manageRedemption, handleOpenM
         <TableCell>{timestamp2string(item.created_time)}</TableCell>
         <TableCell>{item.redeemed_time ? timestamp2string(item.redeemed_time) : '尚未兑换'}</TableCell>
         <TableCell>
-          <Stack direction="row" spacing={1}>
+          <Stack direction="row" justifyContent="center" alignItems="center" spacing={1}>
             <Button
               variant="contained"
               color="primary"
+              size="small"
               onClick={() => {
                 copy(item.key, '兑换码');
               }}

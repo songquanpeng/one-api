@@ -182,7 +182,8 @@ const Single = ({ ownedby, prices, reloadData }) => {
         field: 'model',
         sortable: true,
         headerName: '模型名称',
-        width: 220,
+        minWidth: 220,
+        flex: 1,
         editable: true,
         hideable: false
       },
@@ -190,7 +191,8 @@ const Single = ({ ownedby, prices, reloadData }) => {
         field: 'type',
         sortable: true,
         headerName: '类型',
-        width: 220,
+        flex: 1,
+        minWidth: 220,
         type: 'singleSelect',
         valueOptions: priceType,
         editable: true,
@@ -200,7 +202,8 @@ const Single = ({ ownedby, prices, reloadData }) => {
         field: 'channel_type',
         sortable: true,
         headerName: '供应商',
-        width: 220,
+        flex: 1,
+        minWidth: 220,
         type: 'singleSelect',
         valueOptions: ownedby,
         editable: true,
@@ -210,7 +213,8 @@ const Single = ({ ownedby, prices, reloadData }) => {
         field: 'input',
         sortable: false,
         headerName: '输入倍率',
-        width: 150,
+        flex: 0.8,
+        minWidth: 150,
         type: 'number',
         editable: true,
         valueFormatter: (params) => ValueFormatter(params.value),
@@ -220,7 +224,8 @@ const Single = ({ ownedby, prices, reloadData }) => {
         field: 'output',
         sortable: false,
         headerName: '输出倍率',
-        width: 150,
+        flex: 0.8,
+        minWidth: 150,
         type: 'number',
         editable: true,
         valueFormatter: (params) => ValueFormatter(params.value),
@@ -230,7 +235,9 @@ const Single = ({ ownedby, prices, reloadData }) => {
         field: 'actions',
         type: 'actions',
         headerName: '操作',
-        width: 100,
+        flex: 0.5,
+        minWidth: 100,
+        // width: 100,
         cellClassName: 'actions',
         hideable: false,
         getActions: ({ id }) => {
@@ -320,6 +327,7 @@ const Single = ({ ownedby, prices, reloadData }) => {
     >
       <DataGrid
         autoHeight
+        autosizeOnMount
         rows={rows}
         columns={modelRatioColumns}
         editMode="row"

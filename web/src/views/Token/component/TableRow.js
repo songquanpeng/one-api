@@ -205,7 +205,7 @@ export default function TokensTableRow({ item, manageToken, handleOpenModal, set
         <TableCell>{item.expired_time === -1 ? '永不过期' : timestamp2string(item.expired_time)}</TableCell>
 
         <TableCell>
-          <Stack direction="row" spacing={1}>
+          <Stack direction="row" justifyContent="center" alignItems="center" spacing={1}>
             <ButtonGroup size="small" aria-label="split button">
               <Button
                 color="primary"
