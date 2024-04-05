@@ -62,3 +62,9 @@ type EmbeddingData struct {
 	Object    string    `json:"object"`
 	Embedding []float64 `json:"embedding"`
 }
+
+type ImageRequest struct {
+	Model  string `json:"model"`
+	Prompt string `json:"prompt"`
+	UserId string `json:"user_id,omitempty"`
+}

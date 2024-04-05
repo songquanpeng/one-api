@@ -20,12 +20,11 @@ import (
 )
 
 func isWithinRange(element string, value int) bool {
-	if _, ok := constant.DalleGenerationImageAmounts[element]; !ok {
+	if _, ok := constant.ImageGenerationAmounts[element]; !ok {
 		return false
 	}
-	min := constant.DalleGenerationImageAmounts[element][0]
-	max := constant.DalleGenerationImageAmounts[element][1]
-
+	min := constant.ImageGenerationAmounts[element][0]
+	max := constant.ImageGenerationAmounts[element][1]
 	return value >= min && value <= max
 }
 
@@ -81,7 +80,6 @@ func RelayImageHelper(c *gin.Context, relayMode int) *relaymodel.ErrorWithStatus
 		if err != nil {
 			return openai.ErrorWrapper(err, "convert_image_request_failed", http.StatusInternalServerError)
 		}
-
 		jsonStr, err := json.Marshal(finalRequest)
 		if err != nil {
 			return openai.ErrorWrapper(err, "marshal_image_request_failed", http.StatusInternalServerError)
