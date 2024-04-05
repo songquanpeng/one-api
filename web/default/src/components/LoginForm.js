@@ -128,38 +128,47 @@ const LoginForm = () => {
         {status.github_oauth || status.wechat_login || status.lark_client_id ? (
           <>
             <Divider horizontal>Or</Divider>
-            {status.github_oauth ? (
-              <Button
-                circular
-                color='black'
-                icon='github'
-                onClick={() => onGitHubOAuthClicked(status.github_client_id)}
-              />
-            ) : (
-              <></>
-            )}
-            {status.lark_client_id ? (
-              <Button
-                // circular
-                color=''
-                onClick={() => onLarkOAuthClicked(status.lark_client_id)}
-                style={{ padding: 0, width: 36, height: 36 }}
-              >
-                <img src={larkIcon} width={36} height={36} />
-              </Button>
-            ) : (
-              <></>
-            )}
-            {status.wechat_login ? (
-              <Button
-                circular
-                color='green'
-                icon='wechat'
-                onClick={onWeChatLoginClicked}
-              />
-            ) : (
-              <></>
-            )}
+            <div style={{ display: "flex", justifyContent: "center" }}>
+              {status.github_oauth ? (
+                <Button
+                  circular
+                  color='black'
+                  icon='github'
+                  onClick={() => onGitHubOAuthClicked(status.github_client_id)}
+                />
+              ) : (
+                <></>
+              )}
+              {status.wechat_login ? (
+                <Button
+                  circular
+                  color='green'
+                  icon='wechat'
+                  onClick={onWeChatLoginClicked}
+                />
+              ) : (
+                <></>
+              )}
+              {status.lark_client_id ? (
+                <div style={{
+                  background: "radial-gradient(circle, #FFFFFF, #FFFFFF, #00D6B9, #2F73FF, #0a3A9C)",
+                  width: "36px",
+                  height: "36px",
+                  borderRadius: "10em",
+                  display: "flex",
+                  cursor: "pointer"
+                }}>
+                  <Image
+                    src={larkIcon}
+                    avatar
+                    style={{ width: "16px", height: "16px", cursor: "pointer", margin: "auto" }}
+                    onClick={() => onLarkOAuthClicked(status.lark_client_id)}
+                  />
+                </div>
+              ) : (
+                <></>
+              )}
+            </div>
           </>
         ) : (
           <></>
