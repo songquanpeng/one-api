@@ -154,15 +154,15 @@ func ImageHandler(c *gin.Context, resp *http.Response) (*model.ErrorWithStatusCo
 	responseBody, err := io.ReadAll(resp.Body)
 
 	if err != nil {
-		return ErrorWrapper(err, "read_response_body_failed", http.StatusInternalServerError), &imageResponse.Usage
+		return ErrorWrapper(err, "read_response_body_failed", http.StatusInternalServerError), nil
 	}
 	err = resp.Body.Close()
 	if err != nil {
-		return ErrorWrapper(err, "close_response_body_failed", http.StatusInternalServerError), &imageResponse.Usage
+		return ErrorWrapper(err, "close_response_body_failed", http.StatusInternalServerError), nil
 	}
 	err = json.Unmarshal(responseBody, &imageResponse)
 	if err != nil {
-		return ErrorWrapper(err, "unmarshal_response_body_failed", http.StatusInternalServerError), &imageResponse.Usage
+		return ErrorWrapper(err, "unmarshal_response_body_failed", http.StatusInternalServerError), nil
 	}
 
 	resp.Body = io.NopCloser(bytes.NewBuffer(responseBody))
@@ -174,11 +174,11 @@ func ImageHandler(c *gin.Context, resp *http.Response) (*model.ErrorWithStatusCo
 
 	_, err = io.Copy(c.Writer, resp.Body)
 	if err != nil {
-		return ErrorWrapper(err, "copy_response_body_failed", http.StatusInternalServerError), &imageResponse.Usage
+		return ErrorWrapper(err, "copy_response_body_failed", http.StatusInternalServerError), nil
 	}
 	err = resp.Body.Close()
 	if err != nil {
-		return ErrorWrapper(err, "close_response_body_failed", http.StatusInternalServerError), &imageResponse.Usage
+		return ErrorWrapper(err, "close_response_body_failed", http.StatusInternalServerError), nil
 	}
-	return nil, nil
+	return nil, &imageResponse.Usage
 }

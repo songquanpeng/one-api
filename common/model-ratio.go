@@ -88,20 +88,22 @@ var ModelRatio = map[string]float64{
 	"gemini-1.0-pro-001":        1,
 	"gemini-1.5-pro":            1,
 	// https://open.bigmodel.cn/pricing
-	"glm-4":                     0.1 * RMB,
-	"glm-4v":                    0.1 * RMB,
-	"glm-3-turbo":               0.005 * RMB,
-	"chatglm_turbo":             0.3572, // ￥0.005 / 1k tokens
-	"chatglm_pro":               0.7143, // ￥0.01 / 1k tokens
-	"chatglm_std":               0.3572, // ￥0.005 / 1k tokens
-	"chatglm_lite":              0.1429, // ￥0.002 / 1k tokens
-	"qwen-turbo":                0.5715, // ￥0.008 / 1k tokens  // https://help.aliyun.com/zh/dashscope/developer-reference/tongyi-thousand-questions-metering-and-billing
+	"glm-4":         0.1 * RMB,
+	"glm-4v":        0.1 * RMB,
+	"glm-3-turbo":   0.005 * RMB,
+	"chatglm_turbo": 0.3572, // ￥0.005 / 1k tokens
+	"chatglm_pro":   0.7143, // ￥0.01 / 1k tokens
+	"chatglm_std":   0.3572, // ￥0.005 / 1k tokens
+	"chatglm_lite":  0.1429, // ￥0.002 / 1k tokens
+	// https://help.aliyun.com/zh/dashscope/developer-reference/tongyi-thousand-questions-metering-and-billing
+	"qwen-turbo":                0.5715, // ￥0.008 / 1k tokens
 	"qwen-plus":                 1.4286, // ￥0.02 / 1k tokens
 	"qwen-max":                  1.4286, // ￥0.02 / 1k tokens
 	"qwen-max-longcontext":      1.4286, // ￥0.02 / 1k tokens
 	"text-embedding-v1":         0.05,   // ￥0.0007 / 1k tokens
-	"stable-diffusion-xl":       0,      // todo
-	"wanx-v1":                   0,      // todo
+	"ali-stable-diffusion-xl":   8,
+	"ali-stable-diffusion-v1.5": 8,
+	"wanx-v1":                   8,
 	"SparkDesk":                 1.2858, // ￥0.018 / 1k tokens
 	"SparkDesk-v1.1":            1.2858, // ￥0.018 / 1k tokens
 	"SparkDesk-v2.1":            1.2858, // ￥0.018 / 1k tokens

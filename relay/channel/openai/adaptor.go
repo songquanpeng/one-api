@@ -94,7 +94,6 @@ func (a *Adaptor) DoResponse(c *gin.Context, resp *http.Response, meta *util.Rel
 		default:
 			err, usage = Handler(c, resp, meta.PromptTokens, meta.ActualModelName)
 		}
-
 	}
 	return
 }
