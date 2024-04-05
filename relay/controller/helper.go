@@ -9,7 +9,7 @@ import (
 	"github.com/songquanpeng/one-api/common/config"
 	"github.com/songquanpeng/one-api/common/logger"
 	"github.com/songquanpeng/one-api/model"
-	"github.com/songquanpeng/one-api/relay/billing"
+	billingratio "github.com/songquanpeng/one-api/relay/billing/ratio"
 	"github.com/songquanpeng/one-api/relay/channel/openai"
 	"github.com/songquanpeng/one-api/relay/channeltype"
 	relaymodel "github.com/songquanpeng/one-api/relay/model"
@@ -60,12 +60,12 @@ func isValidImageSize(model string, size string) bool {
 	if model == "cogview-3" {
 		return true
 	}
-	_, ok := billing.ImageSizeRatios[model][size]
+	_, ok := billingratio.ImageSizeRatios[model][size]
 	return ok
 }
 
 func getImageSizeRatio(model string, size string) float64 {
-	ratio, ok := billing.ImageSizeRatios[model][size]
+	ratio, ok := billingratio.ImageSizeRatios[model][size]
 	if !ok {
 		return 1
 	}
@@ -82,7 +82,7 @@ func validateImageRequest(imageRequest *relaymodel.ImageRequest, meta *util.Rela
 	if imageRequest.Prompt == "" {
 		return openai.ErrorWrapper(errors.New("prompt is required"), "prompt_missing", http.StatusBadRequest)
 	}
-	if len(imageRequest.Prompt) > billing.ImagePromptLengthLimitations[imageRequest.Model] {
+	if len(imageRequest.Prompt) > billingratio.ImagePromptLengthLimitations[imageRequest.Model] {
 		return openai.ErrorWrapper(errors.New("prompt is too long"), "prompt_too_long", http.StatusBadRequest)
 	}
 	// Number of generated images validation
@@ -165,7 +165,7 @@ func postConsumeQuota(ctx context.Context, usage *relaymodel.Usage, meta *util.R
 		return
 	}
 	var quota int64
-	completionRatio := billing.GetCompletionRatio(textRequest.Model)
+	completionRatio := billingratio.GetCompletionRatio(textRequest.Model)
 	promptTokens := usage.PromptTokens
 	completionTokens := usage.CompletionTokens
 	quota = int64(math.Ceil((float64(promptTokens) + float64(completionTokens)*completionRatio) * ratio))

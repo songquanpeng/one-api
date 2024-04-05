@@ -9,7 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/songquanpeng/one-api/common/logger"
 	"github.com/songquanpeng/one-api/model"
-	"github.com/songquanpeng/one-api/relay/billing"
+	billingratio "github.com/songquanpeng/one-api/relay/billing/ratio"
 	"github.com/songquanpeng/one-api/relay/channel/openai"
 	"github.com/songquanpeng/one-api/relay/channeltype"
 	"github.com/songquanpeng/one-api/relay/helper"
@@ -20,11 +20,11 @@ import (
 )
 
 func isWithinRange(element string, value int) bool {
-	if _, ok := billing.ImageGenerationAmounts[element]; !ok {
+	if _, ok := billingratio.ImageGenerationAmounts[element]; !ok {
 		return false
 	}
-	min := billing.ImageGenerationAmounts[element][0]
-	max := billing.ImageGenerationAmounts[element][1]
+	min := billingratio.ImageGenerationAmounts[element][0]
+	max := billingratio.ImageGenerationAmounts[element][1]
 	return value >= min && value <= max
 }
 
@@ -87,8 +87,8 @@ func RelayImageHelper(c *gin.Context, relayMode int) *relaymodel.ErrorWithStatus
 		requestBody = bytes.NewBuffer(jsonStr)
 	}
 
-	modelRatio := billing.GetModelRatio(imageRequest.Model)
-	groupRatio := billing.GetGroupRatio(meta.Group)
+	modelRatio := billingratio.GetModelRatio(imageRequest.Model)
+	groupRatio := billingratio.GetGroupRatio(meta.Group)
 	ratio := modelRatio * groupRatio
 	userQuota, err := model.CacheGetUserQuota(ctx, meta.UserId)
 
