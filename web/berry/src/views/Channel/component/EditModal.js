@@ -340,7 +340,9 @@ const EditModal = ({ open, channelId, onCancel, onOk }) => {
                     },
                   }}
                 >
-                  {Object.values(CHANNEL_OPTIONS).map((option) => {
+                  {Object.values(CHANNEL_OPTIONS).sort((a, b) => {
+                    return a.text.localeCompare(b.text)
+                  }).map((option) => {
                     return (
                       <MenuItem key={option.value} value={option.value}>
                         {option.text}
