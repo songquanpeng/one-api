@@ -44,17 +44,25 @@ func (a *Adaptor) GetRequestURL(meta *util.RelayMeta) (string, error) {
 		suffix += "eb-instant"
 	case "ERNIE-Speed":
 		suffix += "ernie_speed"
-	case "ERNIE-Bot-8K":
-		suffix += "ernie_bot_8k"
 	case "ERNIE-4.0-8K":
 		suffix += "completions_pro"
 	case "ERNIE-3.5-8K":
 		suffix += "completions"
+	case "ERNIE-3.5-8K-0205":
+		suffix += "ernie-3.5-8k-0205"
+	case "ERNIE-3.5-8K-1222":
+		suffix += "ernie-3.5-8k-1222"
+	case "ERNIE-Bot-8K":
+		suffix += "ernie_bot_8k"
+	case "ERNIE-3.5-4K-0205":
+		suffix += "ernie-3.5-4k-0205"
 	case "ERNIE-Speed-8K":
 		suffix += "ernie_speed"
 	case "ERNIE-Speed-128K":
 		suffix += "ernie-speed-128k"
-	case "ERNIE-Lite-8K":
+	case "ERNIE-Lite-8K-0922":
+		suffix += "eb-instant"
+	case "ERNIE-Lite-8K-0308":
 		suffix += "ernie-lite-8k"
 	case "ERNIE-Tiny-8K":
 		suffix += "ernie-tiny-8k"
