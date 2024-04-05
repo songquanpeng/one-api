@@ -1,22 +1,22 @@
 package helper
 
 import (
+	"github.com/songquanpeng/one-api/relay/adaptor"
+	"github.com/songquanpeng/one-api/relay/adaptor/aiproxy"
+	"github.com/songquanpeng/one-api/relay/adaptor/ali"
+	"github.com/songquanpeng/one-api/relay/adaptor/anthropic"
+	"github.com/songquanpeng/one-api/relay/adaptor/baidu"
+	"github.com/songquanpeng/one-api/relay/adaptor/gemini"
+	"github.com/songquanpeng/one-api/relay/adaptor/ollama"
+	"github.com/songquanpeng/one-api/relay/adaptor/openai"
+	"github.com/songquanpeng/one-api/relay/adaptor/palm"
+	"github.com/songquanpeng/one-api/relay/adaptor/tencent"
+	"github.com/songquanpeng/one-api/relay/adaptor/xunfei"
+	"github.com/songquanpeng/one-api/relay/adaptor/zhipu"
 	"github.com/songquanpeng/one-api/relay/apitype"
-	"github.com/songquanpeng/one-api/relay/channel"
-	"github.com/songquanpeng/one-api/relay/channel/aiproxy"
-	"github.com/songquanpeng/one-api/relay/channel/ali"
-	"github.com/songquanpeng/one-api/relay/channel/anthropic"
-	"github.com/songquanpeng/one-api/relay/channel/baidu"
-	"github.com/songquanpeng/one-api/relay/channel/gemini"
-	"github.com/songquanpeng/one-api/relay/channel/ollama"
-	"github.com/songquanpeng/one-api/relay/channel/openai"
-	"github.com/songquanpeng/one-api/relay/channel/palm"
-	"github.com/songquanpeng/one-api/relay/channel/tencent"
-	"github.com/songquanpeng/one-api/relay/channel/xunfei"
-	"github.com/songquanpeng/one-api/relay/channel/zhipu"
 )
 
-func GetAdaptor(apiType int) channel.Adaptor {
+func GetAdaptor(apiType int) adaptor.Adaptor {
 	switch apiType {
 	case apitype.AIProxyLibrary:
 		return &aiproxy.Adaptor{}
