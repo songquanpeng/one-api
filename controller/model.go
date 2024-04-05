@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/songquanpeng/one-api/model"
+	relay "github.com/songquanpeng/one-api/relay"
 	"github.com/songquanpeng/one-api/relay/adaptor/openai"
 	"github.com/songquanpeng/one-api/relay/apitype"
 	"github.com/songquanpeng/one-api/relay/channeltype"
-	"github.com/songquanpeng/one-api/relay/helper"
 	"github.com/songquanpeng/one-api/relay/meta"
 	relaymodel "github.com/songquanpeng/one-api/relay/model"
 	"net/http"
@@ -66,7 +66,7 @@ func init() {
 		if i == apitype.AIProxyLibrary {
 			continue
 		}
-		adaptor := helper.GetAdaptor(i)
+		adaptor := relay.GetAdaptor(i)
 		channelName := adaptor.GetChannelName()
 		modelNames := adaptor.GetModelList()
 		for _, modelName := range modelNames {
@@ -104,7 +104,7 @@ func init() {
 	}
 	channelId2Models = make(map[int][]string)
 	for i := 1; i < channeltype.Dummy; i++ {
-		adaptor := helper.GetAdaptor(channeltype.ToAPIType(i))
+		adaptor := relay.GetAdaptor(channeltype.ToAPIType(i))
 		meta := &meta.Meta{
 			ChannelType: i,
 		}

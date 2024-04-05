@@ -17,9 +17,9 @@ import (
 	"github.com/songquanpeng/one-api/relay/billing"
 	billingratio "github.com/songquanpeng/one-api/relay/billing/ratio"
 	"github.com/songquanpeng/one-api/relay/channeltype"
+	"github.com/songquanpeng/one-api/relay/client"
 	relaymodel "github.com/songquanpeng/one-api/relay/model"
 	"github.com/songquanpeng/one-api/relay/relaymode"
-	"github.com/songquanpeng/one-api/relay/util"
 	"io"
 	"net/http"
 	"strings"
@@ -125,7 +125,7 @@ func RelayAudioHelper(c *gin.Context, relayMode int) *relaymodel.ErrorWithStatus
 		baseURL = c.GetString("base_url")
 	}
 
-	fullRequestURL := util.GetFullRequestURL(baseURL, requestURL, channelType)
+	fullRequestURL := openai.GetFullRequestURL(baseURL, requestURL, channelType)
 	if channelType == channeltype.Azure {
 		apiVersion := azure.GetAPIVersion(c)
 		if relayMode == relaymode.AudioTranscription {
@@ -162,7 +162,7 @@ func RelayAudioHelper(c *gin.Context, relayMode int) *relaymodel.ErrorWithStatus
 	req.Header.Set("Content-Type", c.Request.Header.Get("Content-Type"))
 	req.Header.Set("Accept", c.Request.Header.Get("Accept"))
 
-	resp, err := util.HTTPClient.Do(req)
+	resp, err := client.HTTPClient.Do(req)
 	if err != nil {
 		return openai.ErrorWrapper(err, "do_request_failed", http.StatusInternalServerError)
 	}
@@ -215,7 +215,7 @@ func RelayAudioHelper(c *gin.Context, relayMode int) *relaymodel.ErrorWithStatus
 		resp.Body = io.NopCloser(bytes.NewBuffer(responseBody))
 	}
 	if resp.StatusCode != http.StatusOK {
-		return util.RelayErrorHandler(resp)
+		return RelayErrorHandler(resp)
 	}
 	succeed = true
 	quotaDelta := quota - preConsumedQuota

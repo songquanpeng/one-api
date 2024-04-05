@@ -1,4 +1,4 @@
-package helper
+package relay
 
 import (
 	"github.com/songquanpeng/one-api/relay/adaptor"

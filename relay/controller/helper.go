@@ -12,10 +12,10 @@ import (
 	"github.com/songquanpeng/one-api/relay/adaptor/openai"
 	billingratio "github.com/songquanpeng/one-api/relay/billing/ratio"
 	"github.com/songquanpeng/one-api/relay/channeltype"
+	"github.com/songquanpeng/one-api/relay/controller/validator"
 	"github.com/songquanpeng/one-api/relay/meta"
 	relaymodel "github.com/songquanpeng/one-api/relay/model"
 	"github.com/songquanpeng/one-api/relay/relaymode"
-	"github.com/songquanpeng/one-api/relay/util"
 	"math"
 	"net/http"
 )
@@ -32,7 +32,7 @@ func getAndValidateTextRequest(c *gin.Context, relayMode int) (*relaymodel.Gener
 	if relayMode == relaymode.Embeddings && textRequest.Model == "" {
 		textRequest.Model = c.Param("model")
 	}
-	err = util.ValidateTextRequest(textRequest, relayMode)
+	err = validator.ValidateTextRequest(textRequest, relayMode)
 	if err != nil {
 		return nil, err
 	}
@@ -192,4 +192,15 @@ func postConsumeQuota(ctx context.Context, usage *relaymodel.Usage, meta *meta.M
 	model.RecordConsumeLog(ctx, meta.UserId, meta.ChannelId, promptTokens, completionTokens, textRequest.Model, meta.TokenName, quota, logContent)
 	model.UpdateUserUsedQuotaAndRequestCount(meta.UserId, quota)
 	model.UpdateChannelUsedQuota(meta.ChannelId, quota)
+}
+
+func getMappedModelName(modelName string, mapping map[string]string) (string, bool) {
+	if mapping == nil {
+		return modelName, false
+	}
+	mappedModelName := mapping[modelName]
+	if mappedModelName != "" {
+		return mappedModelName, true
+	}
+	return modelName, false
 }

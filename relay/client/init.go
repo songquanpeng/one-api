@@ -1,4 +1,4 @@
-package util
+package client
 
 import (
 	"github.com/songquanpeng/one-api/common/config"

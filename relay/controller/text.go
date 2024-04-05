@@ -6,15 +6,14 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/songquanpeng/one-api/common/logger"
+	"github.com/songquanpeng/one-api/relay"
 	"github.com/songquanpeng/one-api/relay/adaptor/openai"
 	"github.com/songquanpeng/one-api/relay/apitype"
 	"github.com/songquanpeng/one-api/relay/billing"
 	billingratio "github.com/songquanpeng/one-api/relay/billing/ratio"
 	"github.com/songquanpeng/one-api/relay/channeltype"
-	"github.com/songquanpeng/one-api/relay/helper"
 	"github.com/songquanpeng/one-api/relay/meta"
 	"github.com/songquanpeng/one-api/relay/model"
-	"github.com/songquanpeng/one-api/relay/util"
 	"io"
 	"net/http"
 	"strings"
@@ -34,7 +33,7 @@ func RelayTextHelper(c *gin.Context) *model.ErrorWithStatusCode {
 	// map model name
 	var isModelMapped bool
 	meta.OriginModelName = textRequest.Model
-	textRequest.Model, isModelMapped = util.GetMappedModelName(textRequest.Model, meta.ModelMapping)
+	textRequest.Model, isModelMapped = getMappedModelName(textRequest.Model, meta.ModelMapping)
 	meta.ActualModelName = textRequest.Model
 	// get model ratio & group ratio
 	modelRatio := billingratio.GetModelRatio(textRequest.Model)
@@ -49,7 +48,7 @@ func RelayTextHelper(c *gin.Context) *model.ErrorWithStatusCode {
 		return bizErr
 	}
 
-	adaptor := helper.GetAdaptor(meta.APIType)
+	adaptor := relay.GetAdaptor(meta.APIType)
 	if adaptor == nil {
 		return openai.ErrorWrapper(fmt.Errorf("invalid api type: %d", meta.APIType), "invalid_api_type", http.StatusBadRequest)
 	}
@@ -90,7 +89,7 @@ func RelayTextHelper(c *gin.Context) *model.ErrorWithStatusCode {
 	errorHappened := (resp.StatusCode != http.StatusOK) || (meta.IsStream && resp.Header.Get("Content-Type") == "application/json")
 	if errorHappened {
 		billing.ReturnPreConsumedQuota(ctx, preConsumedQuota, meta.TokenId)
-		return util.RelayErrorHandler(resp)
+		return RelayErrorHandler(resp)
 	}
 	meta.IsStream = meta.IsStream || strings.HasPrefix(resp.Header.Get("Content-Type"), "text/event-stream")
 
