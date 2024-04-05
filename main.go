@@ -28,7 +28,7 @@ func main() {
 		gin.SetMode(gin.ReleaseMode)
 	}
 	if config.DebugEnabled {
-		logger.SysLog("running in debug relaymode")
+		logger.SysLog("running in debug mode")
 	}
 	var err error
 	// Initialize SQL Database
