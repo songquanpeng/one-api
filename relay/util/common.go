@@ -46,9 +46,9 @@ func ShouldDisableChannel(err *relaymodel.Error, statusCode int) bool {
 	} else if strings.HasPrefix(err.Message, "This organization has been disabled.") {
 		return true
 	}
-	if strings.Contains(err.Message, "quota") {
-		return true
-	}
+	//if strings.Contains(err.Message, "quota") {
+	//	return true
+	//}
 	if strings.Contains(err.Message, "credit") {
 		return true
 	}
