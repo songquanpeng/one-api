@@ -50,7 +50,7 @@ type EmbeddingRequest struct {
 	Input string `json:"input"`
 }
 
-type EmbeddingRespone struct {
+type EmbeddingResponse struct {
 	Model       string          `json:"model"`
 	Object      string          `json:"object"`
 	Embeddings  []EmbeddingData `json:"data"`
