@@ -117,7 +117,7 @@ func TokenAuth() func(c *gin.Context) {
 			return
 		}
 		requestModel, err := getRequestModel(c)
-		if err != nil {
+		if err != nil && !strings.HasPrefix(c.Request.URL.Path, "/v1/models") {
 			abortWithMessage(c, http.StatusBadRequest, err.Error())
 			return
 		}
