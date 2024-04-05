@@ -92,7 +92,7 @@ func (a *Adaptor) DoResponse(c *gin.Context, resp *http.Response, meta *util.Rel
 	} else {
 		switch meta.Mode {
 		case constant.RelayModeImagesGenerations:
-			err, usage = ImageHandler(c, resp)
+			err, _ = ImageHandler(c, resp)
 		default:
 			err, usage = Handler(c, resp, meta.PromptTokens, meta.ActualModelName)
 		}

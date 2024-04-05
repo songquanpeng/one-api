@@ -181,5 +181,5 @@ func ImageHandler(c *gin.Context, resp *http.Response) (*model.ErrorWithStatusCo
 	if err != nil {
 		return ErrorWrapper(err, "close_response_body_failed", http.StatusInternalServerError), nil
 	}
-	return nil, &imageResponse.Usage
+	return nil, nil
 }

@@ -117,9 +117,9 @@ type ImageData struct {
 }
 
 type ImageResponse struct {
-	Created     int         `json:"created"`
-	Data        []ImageData `json:"data"`
-	model.Usage `json:"usage"`
+	Created int64       `json:"created"`
+	Data    []ImageData `json:"data"`
+	//model.Usage `json:"usage"`
 }
 
 type ChatCompletionsStreamResponseChoice struct {
