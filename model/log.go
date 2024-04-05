@@ -263,8 +263,8 @@ func GetChannelExpensesByPeriod(startTimestamp, endTimestamp int64) (LogStatisti
 		JOIN channels ON logs.channel_id = channels.id
 		WHERE logs.type=2
 		AND logs.created_at BETWEEN ? AND ?
-		GROUP BY date, channels.name
-		ORDER BY date, channels.name
+		GROUP BY date, channels.id
+		ORDER BY date, channels.id
 	`, startTimestamp, endTimestamp).Scan(&LogStatistics).Error
 
 	return LogStatistics, err

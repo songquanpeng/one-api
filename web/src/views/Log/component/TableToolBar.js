@@ -100,53 +100,6 @@ export default function TableToolBar({ filterName, handleFilterName, userIsAdmin
             />
           </LocalizationProvider>
         </FormControl>
-      </Stack>
-
-      <Stack direction={{ xs: 'column', sm: 'row' }} spacing={{ xs: 3, sm: 2, md: 4 }} padding={'24px'}>
-        {userIsAdmin && (
-          <FormControl>
-            <InputLabel htmlFor="channel-channel-label">渠道ID</InputLabel>
-            <OutlinedInput
-              id="channel"
-              name="channel"
-              sx={{
-                minWidth: '100%'
-              }}
-              label="渠道ID"
-              value={filterName.channel}
-              onChange={handleFilterName}
-              placeholder="渠道ID"
-              startAdornment={
-                <InputAdornment position="start">
-                  <IconSitemap stroke={1.5} size="20px" color={grey500} />
-                </InputAdornment>
-              }
-            />
-          </FormControl>
-        )}
-
-        {userIsAdmin && (
-          <FormControl>
-            <InputLabel htmlFor="channel-username-label">用户名称</InputLabel>
-            <OutlinedInput
-              id="username"
-              name="username"
-              sx={{
-                minWidth: '100%'
-              }}
-              label="用户名称"
-              value={filterName.username}
-              onChange={handleFilterName}
-              placeholder="用户名称"
-              startAdornment={
-                <InputAdornment position="start">
-                  <IconUser stroke={1.5} size="20px" color={grey500} />
-                </InputAdornment>
-              }
-            />
-          </FormControl>
-        )}
-
         <FormControl sx={{ minWidth: '22%' }}>
           <InputLabel htmlFor="channel-type-label">类型</InputLabel>
           <Select
@@ -176,6 +129,50 @@ export default function TableToolBar({ filterName, handleFilterName, userIsAdmin
           </Select>
         </FormControl>
       </Stack>
+
+      {userIsAdmin && (
+        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={{ xs: 3, sm: 2, md: 4 }} padding={'24px'}>
+          <FormControl>
+            <InputLabel htmlFor="channel-channel-label">渠道ID</InputLabel>
+            <OutlinedInput
+              id="channel"
+              name="channel"
+              sx={{
+                minWidth: '100%'
+              }}
+              label="渠道ID"
+              value={filterName.channel}
+              onChange={handleFilterName}
+              placeholder="渠道ID"
+              startAdornment={
+                <InputAdornment position="start">
+                  <IconSitemap stroke={1.5} size="20px" color={grey500} />
+                </InputAdornment>
+              }
+            />
+          </FormControl>
+
+          <FormControl>
+            <InputLabel htmlFor="channel-username-label">用户名称</InputLabel>
+            <OutlinedInput
+              id="username"
+              name="username"
+              sx={{
+                minWidth: '100%'
+              }}
+              label="用户名称"
+              value={filterName.username}
+              onChange={handleFilterName}
+              placeholder="用户名称"
+              startAdornment={
+                <InputAdornment position="start">
+                  <IconUser stroke={1.5} size="20px" color={grey500} />
+                </InputAdornment>
+              }
+            />
+          </FormControl>
+        </Stack>
+      )}
     </>
   );
 }
