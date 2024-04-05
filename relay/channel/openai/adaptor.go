@@ -7,6 +7,7 @@ import (
 	"github.com/songquanpeng/one-api/relay/channel"
 	"github.com/songquanpeng/one-api/relay/channel/minimax"
 	"github.com/songquanpeng/one-api/relay/channeltype"
+	"github.com/songquanpeng/one-api/relay/meta"
 	"github.com/songquanpeng/one-api/relay/model"
 	"github.com/songquanpeng/one-api/relay/relaymode"
 	"github.com/songquanpeng/one-api/relay/util"
@@ -19,11 +20,11 @@ type Adaptor struct {
 	ChannelType int
 }
 
-func (a *Adaptor) Init(meta *util.RelayMeta) {
+func (a *Adaptor) Init(meta *meta.Meta) {
 	a.ChannelType = meta.ChannelType
 }
 
-func (a *Adaptor) GetRequestURL(meta *util.RelayMeta) (string, error) {
+func (a *Adaptor) GetRequestURL(meta *meta.Meta) (string, error) {
 	switch meta.ChannelType {
 	case channeltype.Azure:
 		if meta.Mode == relaymode.ImagesGenerations {
@@ -50,7 +51,7 @@ func (a *Adaptor) GetRequestURL(meta *util.RelayMeta) (string, error) {
 	}
 }
 
-func (a *Adaptor) SetupRequestHeader(c *gin.Context, req *http.Request, meta *util.RelayMeta) error {
+func (a *Adaptor) SetupRequestHeader(c *gin.Context, req *http.Request, meta *meta.Meta) error {
 	channel.SetupCommonRequestHeader(c, req, meta)
 	if meta.ChannelType == channeltype.Azure {
 		req.Header.Set("api-key", meta.APIKey)
@@ -78,11 +79,11 @@ func (a *Adaptor) ConvertImageRequest(request *model.ImageRequest) (any, error) 
 	return request, nil
 }
 
-func (a *Adaptor) DoRequest(c *gin.Context, meta *util.RelayMeta, requestBody io.Reader) (*http.Response, error) {
+func (a *Adaptor) DoRequest(c *gin.Context, meta *meta.Meta, requestBody io.Reader) (*http.Response, error) {
 	return channel.DoRequestHelper(a, c, meta, requestBody)
 }
 
-func (a *Adaptor) DoResponse(c *gin.Context, resp *http.Response, meta *util.RelayMeta) (usage *model.Usage, err *model.ErrorWithStatusCode) {
+func (a *Adaptor) DoResponse(c *gin.Context, resp *http.Response, meta *meta.Meta) (usage *model.Usage, err *model.ErrorWithStatusCode) {
 	if meta.IsStream {
 		var responseText string
 		err, responseText, usage = StreamHandler(c, resp, meta.Mode)

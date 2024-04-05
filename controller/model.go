@@ -8,8 +8,8 @@ import (
 	"github.com/songquanpeng/one-api/relay/channel/openai"
 	"github.com/songquanpeng/one-api/relay/channeltype"
 	"github.com/songquanpeng/one-api/relay/helper"
+	"github.com/songquanpeng/one-api/relay/meta"
 	relaymodel "github.com/songquanpeng/one-api/relay/model"
-	"github.com/songquanpeng/one-api/relay/util"
 	"net/http"
 	"strings"
 )
@@ -105,7 +105,7 @@ func init() {
 	channelId2Models = make(map[int][]string)
 	for i := 1; i < channeltype.Dummy; i++ {
 		adaptor := helper.GetAdaptor(channeltype.ToAPIType(i))
-		meta := &util.RelayMeta{
+		meta := &meta.Meta{
 			ChannelType: i,
 		}
 		adaptor.Init(meta)

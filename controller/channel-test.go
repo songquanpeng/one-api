@@ -14,6 +14,7 @@ import (
 	"github.com/songquanpeng/one-api/monitor"
 	"github.com/songquanpeng/one-api/relay/channeltype"
 	"github.com/songquanpeng/one-api/relay/helper"
+	"github.com/songquanpeng/one-api/relay/meta"
 	relaymodel "github.com/songquanpeng/one-api/relay/model"
 	"github.com/songquanpeng/one-api/relay/relaymode"
 	"github.com/songquanpeng/one-api/relay/util"
@@ -57,7 +58,7 @@ func testChannel(channel *model.Channel) (err error, openaiErr *relaymodel.Error
 	c.Set("channel", channel.Type)
 	c.Set("base_url", channel.GetBaseURL())
 	middleware.SetupContextForSelectedChannel(c, channel, "")
-	meta := util.GetRelayMeta(c)
+	meta := meta.GetByContext(c)
 	apiType := channeltype.ToAPIType(channel.Type)
 	adaptor := helper.GetAdaptor(apiType)
 	if adaptor == nil {

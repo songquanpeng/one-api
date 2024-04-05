@@ -1,14 +1,15 @@
-package util
+package meta
 
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/songquanpeng/one-api/common"
+	"github.com/songquanpeng/one-api/relay/channel/azure"
 	"github.com/songquanpeng/one-api/relay/channeltype"
 	"github.com/songquanpeng/one-api/relay/relaymode"
 	"strings"
 )
 
-type RelayMeta struct {
+type Meta struct {
 	Mode            int
 	ChannelType     int
 	ChannelId       int
@@ -29,8 +30,8 @@ type RelayMeta struct {
 	PromptTokens    int // only for DoResponse
 }
 
-func GetRelayMeta(c *gin.Context) *RelayMeta {
-	meta := RelayMeta{
+func GetByContext(c *gin.Context) *Meta {
+	meta := Meta{
 		Mode:           relaymode.GetByPath(c.Request.URL.Path),
 		ChannelType:    c.GetInt("channel"),
 		ChannelId:      c.GetInt("channel_id"),
@@ -46,7 +47,7 @@ func GetRelayMeta(c *gin.Context) *RelayMeta {
 		RequestURLPath: c.Request.URL.String(),
 	}
 	if meta.ChannelType == channeltype.Azure {
-		meta.APIVersion = GetAzureAPIVersion(c)
+		meta.APIVersion = azure.GetAPIVersion(c)
 	}
 	if meta.BaseURL == "" {
 		meta.BaseURL = common.ChannelBaseURLs[meta.ChannelType]

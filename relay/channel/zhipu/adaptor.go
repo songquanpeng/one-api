@@ -6,9 +6,9 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/songquanpeng/one-api/relay/channel"
 	"github.com/songquanpeng/one-api/relay/channel/openai"
+	"github.com/songquanpeng/one-api/relay/meta"
 	"github.com/songquanpeng/one-api/relay/model"
 	"github.com/songquanpeng/one-api/relay/relaymode"
-	"github.com/songquanpeng/one-api/relay/util"
 	"io"
 	"math"
 	"net/http"
@@ -19,7 +19,7 @@ type Adaptor struct {
 	APIVersion string
 }
 
-func (a *Adaptor) Init(meta *util.RelayMeta) {
+func (a *Adaptor) Init(meta *meta.Meta) {
 
 }
 
@@ -31,7 +31,7 @@ func (a *Adaptor) SetVersionByModeName(modelName string) {
 	}
 }
 
-func (a *Adaptor) GetRequestURL(meta *util.RelayMeta) (string, error) {
+func (a *Adaptor) GetRequestURL(meta *meta.Meta) (string, error) {
 	switch meta.Mode {
 	case relaymode.ImagesGenerations:
 		return fmt.Sprintf("%s/api/paas/v4/images/generations", meta.BaseURL), nil
@@ -49,7 +49,7 @@ func (a *Adaptor) GetRequestURL(meta *util.RelayMeta) (string, error) {
 	return fmt.Sprintf("%s/api/paas/v3/model-api/%s/%s", meta.BaseURL, meta.ActualModelName, method), nil
 }
 
-func (a *Adaptor) SetupRequestHeader(c *gin.Context, req *http.Request, meta *util.RelayMeta) error {
+func (a *Adaptor) SetupRequestHeader(c *gin.Context, req *http.Request, meta *meta.Meta) error {
 	channel.SetupCommonRequestHeader(c, req, meta)
 	token := GetToken(meta.APIKey)
 	req.Header.Set("Authorization", token)
@@ -92,11 +92,11 @@ func (a *Adaptor) ConvertImageRequest(request *model.ImageRequest) (any, error) 
 	return newRequest, nil
 }
 
-func (a *Adaptor) DoRequest(c *gin.Context, meta *util.RelayMeta, requestBody io.Reader) (*http.Response, error) {
+func (a *Adaptor) DoRequest(c *gin.Context, meta *meta.Meta, requestBody io.Reader) (*http.Response, error) {
 	return channel.DoRequestHelper(a, c, meta, requestBody)
 }
 
-func (a *Adaptor) DoResponseV4(c *gin.Context, resp *http.Response, meta *util.RelayMeta) (usage *model.Usage, err *model.ErrorWithStatusCode) {
+func (a *Adaptor) DoResponseV4(c *gin.Context, resp *http.Response, meta *meta.Meta) (usage *model.Usage, err *model.ErrorWithStatusCode) {
 	if meta.IsStream {
 		err, _, usage = openai.StreamHandler(c, resp, meta.Mode)
 	} else {
@@ -105,7 +105,7 @@ func (a *Adaptor) DoResponseV4(c *gin.Context, resp *http.Response, meta *util.R
 	return
 }
 
-func (a *Adaptor) DoResponse(c *gin.Context, resp *http.Response, meta *util.RelayMeta) (usage *model.Usage, err *model.ErrorWithStatusCode) {
+func (a *Adaptor) DoResponse(c *gin.Context, resp *http.Response, meta *meta.Meta) (usage *model.Usage, err *model.ErrorWithStatusCode) {
 	switch meta.Mode {
 	case relaymode.Embeddings:
 		err, usage = EmbeddingsHandler(c, resp)

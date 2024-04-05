@@ -2,11 +2,11 @@ package minimax
 
 import (
 	"fmt"
+	"github.com/songquanpeng/one-api/relay/meta"
 	"github.com/songquanpeng/one-api/relay/relaymode"
-	"github.com/songquanpeng/one-api/relay/util"
 )
 
-func GetRequestURL(meta *util.RelayMeta) (string, error) {
+func GetRequestURL(meta *meta.Meta) (string, error) {
 	if meta.Mode == relaymode.ChatCompletions {
 		return fmt.Sprintf("%s/v1/text/chatcompletion_v2", meta.BaseURL), nil
 	}

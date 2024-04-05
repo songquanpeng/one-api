@@ -3,7 +3,6 @@ package util
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/songquanpeng/one-api/common"
 	"github.com/songquanpeng/one-api/common/config"
 	"github.com/songquanpeng/one-api/common/logger"
 	"github.com/songquanpeng/one-api/relay/channeltype"
@@ -12,8 +11,6 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
-
-	"github.com/gin-gonic/gin"
 )
 
 func ShouldDisableChannel(err *relaymodel.Error, statusCode int) bool {
@@ -161,13 +158,4 @@ func GetFullRequestURL(baseURL string, requestURL string, channelType int) strin
 		}
 	}
 	return fullRequestURL
-}
-
-func GetAzureAPIVersion(c *gin.Context) string {
-	query := c.Request.URL.Query()
-	apiVersion := query.Get("api-version")
-	if apiVersion == "" {
-		apiVersion = c.GetString(common.ConfigKeyAPIVersion)
-	}
-	return apiVersion
 }

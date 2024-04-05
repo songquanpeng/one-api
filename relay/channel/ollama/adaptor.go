@@ -3,6 +3,7 @@ package ollama
 import (
 	"errors"
 	"fmt"
+	"github.com/songquanpeng/one-api/relay/meta"
 	"github.com/songquanpeng/one-api/relay/relaymode"
 	"io"
 	"net/http"
@@ -10,17 +11,16 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/songquanpeng/one-api/relay/channel"
 	"github.com/songquanpeng/one-api/relay/model"
-	"github.com/songquanpeng/one-api/relay/util"
 )
 
 type Adaptor struct {
 }
 
-func (a *Adaptor) Init(meta *util.RelayMeta) {
+func (a *Adaptor) Init(meta *meta.Meta) {
 
 }
 
-func (a *Adaptor) GetRequestURL(meta *util.RelayMeta) (string, error) {
+func (a *Adaptor) GetRequestURL(meta *meta.Meta) (string, error) {
 	// https://github.com/ollama/ollama/blob/main/docs/api.md
 	fullRequestURL := fmt.Sprintf("%s/api/chat", meta.BaseURL)
 	if meta.Mode == relaymode.Embeddings {
@@ -29,7 +29,7 @@ func (a *Adaptor) GetRequestURL(meta *util.RelayMeta) (string, error) {
 	return fullRequestURL, nil
 }
 
-func (a *Adaptor) SetupRequestHeader(c *gin.Context, req *http.Request, meta *util.RelayMeta) error {
+func (a *Adaptor) SetupRequestHeader(c *gin.Context, req *http.Request, meta *meta.Meta) error {
 	channel.SetupCommonRequestHeader(c, req, meta)
 	req.Header.Set("Authorization", "Bearer "+meta.APIKey)
 	return nil
@@ -55,11 +55,11 @@ func (a *Adaptor) ConvertImageRequest(request *model.ImageRequest) (any, error) 
 	return request, nil
 }
 
-func (a *Adaptor) DoRequest(c *gin.Context, meta *util.RelayMeta, requestBody io.Reader) (*http.Response, error) {
+func (a *Adaptor) DoRequest(c *gin.Context, meta *meta.Meta, requestBody io.Reader) (*http.Response, error) {
 	return channel.DoRequestHelper(a, c, meta, requestBody)
 }
 
-func (a *Adaptor) DoResponse(c *gin.Context, resp *http.Response, meta *util.RelayMeta) (usage *model.Usage, err *model.ErrorWithStatusCode) {
+func (a *Adaptor) DoResponse(c *gin.Context, resp *http.Response, meta *meta.Meta) (usage *model.Usage, err *model.ErrorWithStatusCode) {
 	if meta.IsStream {
 		err, usage = StreamHandler(c, resp)
 	} else {

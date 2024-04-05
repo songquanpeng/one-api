@@ -14,6 +14,7 @@ import (
 	"github.com/songquanpeng/one-api/model"
 	"github.com/songquanpeng/one-api/relay/billing"
 	billingratio "github.com/songquanpeng/one-api/relay/billing/ratio"
+	"github.com/songquanpeng/one-api/relay/channel/azure"
 	"github.com/songquanpeng/one-api/relay/channel/openai"
 	"github.com/songquanpeng/one-api/relay/channeltype"
 	relaymodel "github.com/songquanpeng/one-api/relay/model"
@@ -126,7 +127,7 @@ func RelayAudioHelper(c *gin.Context, relayMode int) *relaymodel.ErrorWithStatus
 
 	fullRequestURL := util.GetFullRequestURL(baseURL, requestURL, channelType)
 	if channelType == channeltype.Azure {
-		apiVersion := util.GetAzureAPIVersion(c)
+		apiVersion := azure.GetAPIVersion(c)
 		if relayMode == relaymode.AudioTranscription {
 			// https://learn.microsoft.com/en-us/azure/ai-services/openai/whisper-quickstart?tabs=command-line#rest-api
 			fullRequestURL = fmt.Sprintf("%s/openai/deployments/%s/audio/transcriptions?api-version=%s", baseURL, audioModel, apiVersion)

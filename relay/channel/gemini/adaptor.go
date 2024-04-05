@@ -7,8 +7,8 @@ import (
 	"github.com/songquanpeng/one-api/common/helper"
 	channelhelper "github.com/songquanpeng/one-api/relay/channel"
 	"github.com/songquanpeng/one-api/relay/channel/openai"
+	"github.com/songquanpeng/one-api/relay/meta"
 	"github.com/songquanpeng/one-api/relay/model"
-	"github.com/songquanpeng/one-api/relay/util"
 	"io"
 	"net/http"
 )
@@ -16,11 +16,11 @@ import (
 type Adaptor struct {
 }
 
-func (a *Adaptor) Init(meta *util.RelayMeta) {
+func (a *Adaptor) Init(meta *meta.Meta) {
 
 }
 
-func (a *Adaptor) GetRequestURL(meta *util.RelayMeta) (string, error) {
+func (a *Adaptor) GetRequestURL(meta *meta.Meta) (string, error) {
 	version := helper.AssignOrDefault(meta.APIVersion, "v1")
 	action := "generateContent"
 	if meta.IsStream {
@@ -29,7 +29,7 @@ func (a *Adaptor) GetRequestURL(meta *util.RelayMeta) (string, error) {
 	return fmt.Sprintf("%s/%s/models/%s:%s", meta.BaseURL, version, meta.ActualModelName, action), nil
 }
 
-func (a *Adaptor) SetupRequestHeader(c *gin.Context, req *http.Request, meta *util.RelayMeta) error {
+func (a *Adaptor) SetupRequestHeader(c *gin.Context, req *http.Request, meta *meta.Meta) error {
 	channelhelper.SetupCommonRequestHeader(c, req, meta)
 	req.Header.Set("x-goog-api-key", meta.APIKey)
 	return nil
@@ -49,11 +49,11 @@ func (a *Adaptor) ConvertImageRequest(request *model.ImageRequest) (any, error) 
 	return request, nil
 }
 
-func (a *Adaptor) DoRequest(c *gin.Context, meta *util.RelayMeta, requestBody io.Reader) (*http.Response, error) {
+func (a *Adaptor) DoRequest(c *gin.Context, meta *meta.Meta, requestBody io.Reader) (*http.Response, error) {
 	return channelhelper.DoRequestHelper(a, c, meta, requestBody)
 }
 
-func (a *Adaptor) DoResponse(c *gin.Context, resp *http.Response, meta *util.RelayMeta) (usage *model.Usage, err *model.ErrorWithStatusCode) {
+func (a *Adaptor) DoResponse(c *gin.Context, resp *http.Response, meta *meta.Meta) (usage *model.Usage, err *model.ErrorWithStatusCode) {
 	if meta.IsStream {
 		var responseText string
 		err, responseText = StreamHandler(c, resp)
