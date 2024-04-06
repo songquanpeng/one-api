@@ -157,7 +157,9 @@ const LoginForm = () => {
                   borderRadius: "10em",
                   display: "flex",
                   cursor: "pointer"
-                }}>
+                }}
+                  onClick={() => onLarkOAuthClicked(status.lark_client_id)}
+                >
                   <Image
                     src={larkIcon}
                     avatar
