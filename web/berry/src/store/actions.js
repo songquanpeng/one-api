@@ -7,3 +7,4 @@ export const SET_BORDER_RADIUS = '@customization/SET_BORDER_RADIUS';
 export const SET_SITE_INFO = '@siteInfo/SET_SITE_INFO';
 export const LOGIN = '@account/LOGIN';
 export const LOGOUT = '@account/LOGOUT';
+export const SET_THEME = '@customization/SET_THEME';
