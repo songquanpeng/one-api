@@ -154,6 +154,10 @@ var ModelRatio = map[string]float64{
 	"yi-34b-chat-0205": 2.5 / 1000 * RMB,
 	"yi-34b-chat-200k": 12.0 / 1000 * RMB,
 	"yi-vl-plus":       6.0 / 1000 * RMB,
+	// stepfun todo
+	"step-1v-32k": 0.024 * RMB,
+	"step-1-32k":  0.024 * RMB,
+	"step-1-200k": 0.15 * RMB,
 }
 
 var CompletionRatio = map[string]float64{}
