@@ -116,7 +116,7 @@ func TokenAuth() func(c *gin.Context) {
 			return
 		}
 		requestModel, err := getRequestModel(c)
-		if err != nil && !strings.HasPrefix(c.Request.URL.Path, "/v1/models") {
+		if err != nil && shouldCheckModel(c) {
 			abortWithMessage(c, http.StatusBadRequest, err.Error())
 			return
 		}
@@ -141,4 +141,20 @@ func TokenAuth() func(c *gin.Context) {
 		}
 		c.Next()
 	}
+}
+
+func shouldCheckModel(c *gin.Context) bool {
+	if strings.HasPrefix(c.Request.URL.Path, "/v1/completions") {
+		return true
+	}
+	if strings.HasPrefix(c.Request.URL.Path, "/v1/chat/completions") {
+		return true
+	}
+	if strings.HasPrefix(c.Request.URL.Path, "/v1/images") {
+		return true
+	}
+	if strings.HasPrefix(c.Request.URL.Path, "/v1/audio") {
+		return true
+	}
+	return false
 }
