@@ -1,5 +1,5 @@
 export default function componentStyleOverrides(theme) {
-  const bgColor = theme.colors?.grey50;
+  const bgColor = theme.mode === 'dark' ? theme.backgroundDefault : theme.colors?.grey50;
   return {
     MuiButton: {
       styleOverrides: {
@@ -12,15 +12,7 @@ export default function componentStyleOverrides(theme) {
         }
       }
     },
-    MuiMenuItem: {
-      styleOverrides: {
-        root: {
-          '&:hover': {
-            backgroundColor: theme.colors?.grey100
-          }
-        }
-      }
-    }, //MuiAutocomplete-popper MuiPopover-root
+    //MuiAutocomplete-popper MuiPopover-root
     MuiAutocomplete: {
       styleOverrides: {
         popper: {
@@ -226,12 +218,12 @@ export default function componentStyleOverrides(theme) {
     MuiTableCell: {
       styleOverrides: {
         root: {
-          borderBottom: '1px solid rgb(241, 243, 244)',
+          borderBottom: '1px solid ' + theme.tableBorderBottom,
           textAlign: 'center'
         },
         head: {
           color: theme.darkTextSecondary,
-          backgroundColor: 'rgb(244, 246, 248)'
+          backgroundColor: theme.headBackgroundColor
         }
       }
     },
@@ -239,7 +231,7 @@ export default function componentStyleOverrides(theme) {
       styleOverrides: {
         root: {
           '&:hover': {
-            backgroundColor: 'rgb(244, 246, 248)'
+            backgroundColor: theme.headBackgroundColor
           }
         }
       }
@@ -247,10 +239,29 @@ export default function componentStyleOverrides(theme) {
     MuiTooltip: {
       styleOverrides: {
         tooltip: {
-          color: theme.paper,
+          color: theme.colors.paper,
           background: theme.colors?.grey700
         }
       }
+    },
+    MuiCssBaseline: {
+      styleOverrides: `
+      .apexcharts-title-text {
+          fill: ${theme.textDark} !important
+        }
+      .apexcharts-text {
+        fill: ${theme.textDark} !important
+      }
+      .apexcharts-legend-text {
+        color: ${theme.textDark} !important
+      }
+      .apexcharts-menu {
+        background: ${theme.backgroundDefault} !important
+      }
+      .apexcharts-gridline, .apexcharts-xaxistooltip-background, .apexcharts-yaxistooltip-background {
+        stroke: ${theme.divider} !important;
+      }
+      `
     }
   };
 }
