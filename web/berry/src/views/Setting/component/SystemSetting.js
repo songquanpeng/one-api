@@ -48,7 +48,9 @@ const SystemSetting = () => {
     TurnstileSecretKey: '',
     RegisterEnabled: '',
     EmailDomainRestrictionEnabled: '',
-    EmailDomainWhitelist: []
+    EmailDomainWhitelist: [],
+    MessagePusherAddress: '',
+    MessagePusherToken: ''
   });
   const [originInputs, setOriginInputs] = useState({});
   let [loading, setLoading] = useState(false);
@@ -134,7 +136,9 @@ const SystemSetting = () => {
       name === 'WeChatAccountQRCodeImageURL' ||
       name === 'TurnstileSiteKey' ||
       name === 'TurnstileSecretKey' ||
-      name === 'EmailDomainWhitelist'
+      name === 'EmailDomainWhitelist' ||
+      name === 'MessagePusherAddress' ||
+      name === 'MessagePusherToken'
     ) {
       setInputs((inputs) => ({ ...inputs, [name]: value }));
     } else {
@@ -196,6 +200,15 @@ const SystemSetting = () => {
     }
     if (originInputs['TurnstileSecretKey'] !== inputs.TurnstileSecretKey && inputs.TurnstileSecretKey !== '') {
       await updateOption('TurnstileSecretKey', inputs.TurnstileSecretKey);
+    }
+  };
+
+  const submitMessagePusher = async () => {
+    if (originInputs['MessagePusherAddress'] !== inputs.MessagePusherAddress) {
+      await updateOption('MessagePusherAddress', removeTrailingSlash(inputs.MessagePusherAddress));
+    }
+    if (originInputs['MessagePusherToken'] !== inputs.MessagePusherToken && inputs.MessagePusherToken !== '') {
+      await updateOption('MessagePusherToken', inputs.MessagePusherToken);
     }
   };
 
@@ -531,6 +544,55 @@ const SystemSetting = () => {
             <Grid xs={12}>
               <Button variant="contained" onClick={submitWeChat}>
                 保存 WeChat Server 设置
+              </Button>
+            </Grid>
+          </Grid>
+        </SubCard>
+        <SubCard
+          title="配置 Message Pusher"
+          subTitle={
+            <span>
+              用以推送报警信息，
+              <a href="https://github.com/songquanpeng/message-pusher" target="_blank" rel="noreferrer">
+                点击此处
+              </a>
+              了解 Message Pusher
+            </span>
+          }
+        >
+          <Grid container spacing={{ xs: 3, sm: 2, md: 4 }}>
+            <Grid xs={12} md={6}>
+              <FormControl fullWidth>
+                <InputLabel htmlFor="MessagePusherAddress">Message Pusher 推送地址</InputLabel>
+                <OutlinedInput
+                  id="MessagePusherAddress"
+                  name="MessagePusherAddress"
+                  value={inputs.MessagePusherAddress || ''}
+                  onChange={handleInputChange}
+                  label="Message Pusher 推送地址"
+                  placeholder="例如：https://msgpusher.com/push/your_username"
+                  disabled={loading}
+                />
+              </FormControl>
+            </Grid>
+            <Grid xs={12} md={6}>
+              <FormControl fullWidth>
+                <InputLabel htmlFor="MessagePusherToken">Message Pusher 访问凭证</InputLabel>
+                <OutlinedInput
+                  id="MessagePusherToken"
+                  name="MessagePusherToken"
+                  type="password"
+                  value={inputs.MessagePusherToken || ''}
+                  onChange={handleInputChange}
+                  label="Message Pusher 访问凭证"
+                  placeholder="敏感信息不会发送到前端显示"
+                  disabled={loading}
+                />
+              </FormControl>
+            </Grid>
+            <Grid xs={12}>
+              <Button variant="contained" onClick={submitMessagePusher}>
+                保存 Message Pusher 设置
               </Button>
             </Grid>
           </Grid>
