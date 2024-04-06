@@ -8,6 +8,7 @@ import (
 	"github.com/songquanpeng/one-api/common"
 	"github.com/songquanpeng/one-api/common/config"
 	"github.com/songquanpeng/one-api/common/logger"
+	"github.com/songquanpeng/one-api/common/random"
 	"math/rand"
 	"sort"
 	"strconv"
@@ -172,7 +173,7 @@ var channelSyncLock sync.RWMutex
 func InitChannelCache() {
 	newChannelId2channel := make(map[int]*Channel)
 	var channels []*Channel
-	DB.Where("status = ?", common.ChannelStatusEnabled).Find(&channels)
+	DB.Where("status = ?", ChannelStatusEnabled).Find(&channels)
 	for _, channel := range channels {
 		newChannelId2channel[channel.Id] = channel
 	}
@@ -247,7 +248,7 @@ func CacheGetRandomSatisfiedChannel(group string, model string, ignoreFirstPrior
 	idx := rand.Intn(endIdx)
 	if ignoreFirstPriority {
 		if endIdx < len(channels) { // which means there are more than one priority
-			idx = common.RandRange(endIdx, len(channels))
+			idx = random.RandRange(endIdx, len(channels))
 		}
 	}
 	return channels[idx], nil

@@ -15,7 +15,8 @@ const EditToken = () => {
     remain_quota: isEdit ? 0 : 500000,
     expired_time: -1,
     unlimited_quota: false,
-    models: []
+    models: [],
+    subnet: "",
   };
   const [inputs, setInputs] = useState(originInputs);
   const { name, remain_quota, expired_time, unlimited_quota } = inputs;
@@ -151,6 +152,16 @@ const EditToken = () => {
               value={inputs.models}
               autoComplete='new-password'
               options={modelOptions}
+            />
+          </Form.Field>
+          <Form.Field>
+            <Form.Input
+              label='IP 限制'
+              name='subnet'
+              placeholder={'请输入允许访问的网段，例如：192.168.0.0/24，请使用英文逗号分隔多个网段'}
+              onChange={handleInputChange}
+              value={inputs.subnet}
+              autoComplete='new-password'
             />
           </Form.Field>
           <Form.Field>

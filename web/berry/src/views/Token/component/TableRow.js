@@ -28,7 +28,7 @@ const COPY_OPTIONS = [
   {
     key: 'next',
     text: 'ChatGPT Next',
-    url: 'https://chat.oneapi.pro/#/?settings={"key":"sk-{key}","url":"{serverAddress}"}',
+    url: 'https://app.nextchat.dev/#/?settings={"key":"sk-{key}","url":"{serverAddress}"}',
     encode: false
   },
   { key: 'ama', text: 'BotGem', url: 'ama://set-api-key?server={serverAddress}&key=sk-{key}', encode: true },

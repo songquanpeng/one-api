@@ -51,9 +51,9 @@ export function showError(error) {
 
 export function showNotice(message, isHTML = false) {
   if (isHTML) {
-    enqueueSnackbar(<SnackbarHTMLContent htmlContent={message} />, getSnackbarOptions('INFO'));
+    enqueueSnackbar(<SnackbarHTMLContent htmlContent={message} />, getSnackbarOptions('NOTICE'));
   } else {
-    enqueueSnackbar(message, getSnackbarOptions('INFO'));
+    enqueueSnackbar(message, getSnackbarOptions('NOTICE'));
   }
 }
 

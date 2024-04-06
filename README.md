@@ -81,11 +81,12 @@ _✨ 通过标准的 OpenAI API 格式访问所有的大模型，开箱即用 �
    + [x] [Groq](https://wow.groq.com/)
    + [x] [Ollama](https://github.com/ollama/ollama)
    + [x] [零一万物](https://platform.lingyiwanwu.com/)
+   + [x] [阶跃星辰](https://platform.stepfun.com/)
 2. 支持配置镜像以及众多[第三方代理服务](https://iamazing.cn/page/openai-api-third-party-services)。
 3. 支持通过**负载均衡**的方式访问多个渠道。
 4. 支持 **stream 模式**，可以通过流式传输实现打字机效果。
 5. 支持**多机部署**，[详见此处](#多机部署)。
-6. 支持**令牌管理**，设置令牌的过期时间和额度。
+6. 支持**令牌管理**，设置令牌的过期时间、额度、允许的 IP 范围以及允许的模型访问。
 7. 支持**兑换码管理**，支持批量生成和导出兑换码，可使用兑换码为账户进行充值。
 8. 支持**渠道管理**，批量创建渠道。
 9. 支持**用户分组**以及**渠道分组**，支持为不同分组设置不同的倍率。
@@ -101,10 +102,11 @@ _✨ 通过标准的 OpenAI API 格式访问所有的大模型，开箱即用 �
 19. 支持丰富的**自定义**设置，
     1. 支持自定义系统名称，logo 以及页脚。
     2. 支持自定义首页和关于页面，可以选择使用 HTML & Markdown 代码进行自定义，或者使用一个单独的网页通过 iframe 嵌入。
-20. 支持通过系统访问令牌访问管理 API（bearer token，用以替代 cookie，你可以自行抓包来查看 API 的用法）。
+20. 支持通过系统访问令牌调用管理 API，进而**在无需二开的情况下扩展和自定义** One API 的功能，详情请参考此处 [API 文档](./docs/API.md)。。
 21. 支持 Cloudflare Turnstile 用户校验。
 22. 支持用户管理，支持**多种用户登录注册方式**：
     + 邮箱登录注册（支持注册邮箱白名单）以及通过邮箱进行密码重置。
+    + 支持使用飞书进行授权登录。
     + [GitHub 开放授权](https://github.com/settings/applications/new)。
     + 微信公众号授权（需要额外部署 [WeChat Server](https://github.com/songquanpeng/wechat-server)）。
 23. 支持主题切换，设置环境变量 `THEME` 即可，默认为 `default`，欢迎 PR 更多主题，具体参考[此处](./web/README.md)。

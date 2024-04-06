@@ -8,6 +8,7 @@ const TopUp = () => {
   const [topUpLink, setTopUpLink] = useState('');
   const [userQuota, setUserQuota] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [user, setUser] = useState({});
 
   const topUp = async () => {
     if (redemptionCode === '') {
@@ -41,7 +42,14 @@ const TopUp = () => {
       showError('超级管理员未设置充值链接！');
       return;
     }
-    window.open(topUpLink, '_blank');
+    let url = new URL(topUpLink);
+    let username = user.username;
+    let user_id = user.id;
+    // add  username and user_id to the topup link
+    url.searchParams.append('username', username);
+    url.searchParams.append('user_id', user_id);
+    url.searchParams.append('transaction_id', crypto.randomUUID());
+    window.open(url.toString(), '_blank');
   };
 
   const getUserQuota = async ()=>{
@@ -49,6 +57,7 @@ const TopUp = () => {
     const {success, message, data} = res.data;
     if (success) {
       setUserQuota(data.quota);
+      setUser(data);
     } else {
       showError(message);
     }
@@ -80,7 +89,7 @@ const TopUp = () => {
               }}
             />
             <Button color='green' onClick={openTopUpLink}>
-              获取兑换码
+              充值
             </Button>
             <Button color='yellow' onClick={topUp} disabled={isSubmitting}>
                 {isSubmitting ? '兑换中...' : '兑换'}

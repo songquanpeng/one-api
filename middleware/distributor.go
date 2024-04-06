@@ -3,9 +3,10 @@ package middleware
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/songquanpeng/one-api/common"
+	"github.com/songquanpeng/one-api/common/config"
 	"github.com/songquanpeng/one-api/common/logger"
 	"github.com/songquanpeng/one-api/model"
+	"github.com/songquanpeng/one-api/relay/channeltype"
 	"net/http"
 	"strconv"
 )
@@ -33,7 +34,7 @@ func Distribute() func(c *gin.Context) {
 				abortWithMessage(c, http.StatusBadRequest, "无效的渠道 Id")
 				return
 			}
-			if channel.Status != common.ChannelStatusEnabled {
+			if channel.Status != model.ChannelStatusEnabled {
 				abortWithMessage(c, http.StatusForbidden, "该渠道已被禁用")
 				return
 			}
@@ -66,19 +67,19 @@ func SetupContextForSelectedChannel(c *gin.Context, channel *model.Channel, mode
 	c.Set("base_url", channel.GetBaseURL())
 	// this is for backward compatibility
 	switch channel.Type {
-	case common.ChannelTypeAzure:
-		c.Set(common.ConfigKeyAPIVersion, channel.Other)
-	case common.ChannelTypeXunfei:
-		c.Set(common.ConfigKeyAPIVersion, channel.Other)
-	case common.ChannelTypeGemini:
-		c.Set(common.ConfigKeyAPIVersion, channel.Other)
-	case common.ChannelTypeAIProxyLibrary:
-		c.Set(common.ConfigKeyLibraryID, channel.Other)
-	case common.ChannelTypeAli:
-		c.Set(common.ConfigKeyPlugin, channel.Other)
+	case channeltype.Azure:
+		c.Set(config.KeyAPIVersion, channel.Other)
+	case channeltype.Xunfei:
+		c.Set(config.KeyAPIVersion, channel.Other)
+	case channeltype.Gemini:
+		c.Set(config.KeyAPIVersion, channel.Other)
+	case channeltype.AIProxyLibrary:
+		c.Set(config.KeyLibraryID, channel.Other)
+	case channeltype.Ali:
+		c.Set(config.KeyPlugin, channel.Other)
 	}
 	cfg, _ := channel.LoadConfig()
 	for k, v := range cfg {
-		c.Set(common.ConfigKeyPrefix+k, v)
+		c.Set(config.KeyPrefix+k, v)
 	}
 }

@@ -5,17 +5,18 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/songquanpeng/one-api/common"
 	"github.com/songquanpeng/one-api/common/config"
 	"github.com/songquanpeng/one-api/common/logger"
 	"github.com/songquanpeng/one-api/common/message"
 	"github.com/songquanpeng/one-api/middleware"
 	"github.com/songquanpeng/one-api/model"
 	"github.com/songquanpeng/one-api/monitor"
-	"github.com/songquanpeng/one-api/relay/constant"
-	"github.com/songquanpeng/one-api/relay/helper"
+	relay "github.com/songquanpeng/one-api/relay"
+	"github.com/songquanpeng/one-api/relay/channeltype"
+	"github.com/songquanpeng/one-api/relay/controller"
+	"github.com/songquanpeng/one-api/relay/meta"
 	relaymodel "github.com/songquanpeng/one-api/relay/model"
-	"github.com/songquanpeng/one-api/relay/util"
+	"github.com/songquanpeng/one-api/relay/relaymode"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -56,9 +57,9 @@ func testChannel(channel *model.Channel) (err error, openaiErr *relaymodel.Error
 	c.Set("channel", channel.Type)
 	c.Set("base_url", channel.GetBaseURL())
 	middleware.SetupContextForSelectedChannel(c, channel, "")
-	meta := util.GetRelayMeta(c)
-	apiType := constant.ChannelType2APIType(channel.Type)
-	adaptor := helper.GetAdaptor(apiType)
+	meta := meta.GetByContext(c)
+	apiType := channeltype.ToAPIType(channel.Type)
+	adaptor := relay.GetAdaptor(apiType)
 	if adaptor == nil {
 		return fmt.Errorf("invalid api type: %d, adaptor is nil", apiType), nil
 	}
@@ -73,7 +74,7 @@ func testChannel(channel *model.Channel) (err error, openaiErr *relaymodel.Error
 	request := buildTestRequest()
 	request.Model = modelName
 	meta.OriginModelName, meta.ActualModelName = modelName, modelName
-	convertedRequest, err := adaptor.ConvertRequest(c, constant.RelayModeChatCompletions, request)
+	convertedRequest, err := adaptor.ConvertRequest(c, relaymode.ChatCompletions, request)
 	if err != nil {
 		return err, nil
 	}
@@ -88,7 +89,7 @@ func testChannel(channel *model.Channel) (err error, openaiErr *relaymodel.Error
 		return err, nil
 	}
 	if resp.StatusCode != http.StatusOK {
-		err := util.RelayErrorHandler(resp)
+		err := controller.RelayErrorHandler(resp)
 		return fmt.Errorf("status code %d: %s", resp.StatusCode, err.Error.Message), &err.Error
 	}
 	usage, respErr := adaptor.DoResponse(c, resp, meta)
@@ -171,7 +172,7 @@ func testChannels(notify bool, scope string) error {
 	}
 	go func() {
 		for _, channel := range channels {
-			isChannelEnabled := channel.Status == common.ChannelStatusEnabled
+			isChannelEnabled := channel.Status == model.ChannelStatusEnabled
 			tik := time.Now()
 			err, openaiErr := testChannel(channel)
 			tok := time.Now()
@@ -184,10 +185,10 @@ func testChannels(notify bool, scope string) error {
 					_ = message.Notify(message.ByAll, fmt.Sprintf("渠道 %s （%d）测试超时", channel.Name, channel.Id), "", err.Error())
 				}
 			}
-			if isChannelEnabled && util.ShouldDisableChannel(openaiErr, -1) {
+			if isChannelEnabled && monitor.ShouldDisableChannel(openaiErr, -1) {
 				monitor.DisableChannel(channel.Id, channel.Name, err.Error())
 			}
-			if !isChannelEnabled && util.ShouldEnableChannel(err, openaiErr) {
+			if !isChannelEnabled && monitor.ShouldEnableChannel(err, openaiErr) {
 				monitor.EnableChannel(channel.Id, channel.Name)
 			}
 			channel.UpdateResponseTime(milliseconds)

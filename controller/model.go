@@ -3,13 +3,13 @@ package controller
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/songquanpeng/one-api/common"
 	"github.com/songquanpeng/one-api/model"
-	"github.com/songquanpeng/one-api/relay/channel/openai"
-	"github.com/songquanpeng/one-api/relay/constant"
-	"github.com/songquanpeng/one-api/relay/helper"
+	relay "github.com/songquanpeng/one-api/relay"
+	"github.com/songquanpeng/one-api/relay/adaptor/openai"
+	"github.com/songquanpeng/one-api/relay/apitype"
+	"github.com/songquanpeng/one-api/relay/channeltype"
+	"github.com/songquanpeng/one-api/relay/meta"
 	relaymodel "github.com/songquanpeng/one-api/relay/model"
-	"github.com/songquanpeng/one-api/relay/util"
 	"net/http"
 	"strings"
 )
@@ -41,8 +41,8 @@ type OpenAIModels struct {
 	Parent     *string                 `json:"parent"`
 }
 
-var openAIModels []OpenAIModels
-var openAIModelsMap map[string]OpenAIModels
+var models []OpenAIModels
+var modelsMap map[string]OpenAIModels
 var channelId2Models map[int][]string
 
 func init() {
@@ -62,15 +62,15 @@ func init() {
 		IsBlocking:         false,
 	})
 	// https://platform.openai.com/docs/models/model-endpoint-compatibility
-	for i := 0; i < constant.APITypeDummy; i++ {
-		if i == constant.APITypeAIProxyLibrary {
+	for i := 0; i < apitype.Dummy; i++ {
+		if i == apitype.AIProxyLibrary {
 			continue
 		}
-		adaptor := helper.GetAdaptor(i)
+		adaptor := relay.GetAdaptor(i)
 		channelName := adaptor.GetChannelName()
 		modelNames := adaptor.GetModelList()
 		for _, modelName := range modelNames {
-			openAIModels = append(openAIModels, OpenAIModels{
+			models = append(models, OpenAIModels{
 				Id:         modelName,
 				Object:     "model",
 				Created:    1626777600,
@@ -82,12 +82,12 @@ func init() {
 		}
 	}
 	for _, channelType := range openai.CompatibleChannels {
-		if channelType == common.ChannelTypeAzure {
+		if channelType == channeltype.Azure {
 			continue
 		}
 		channelName, channelModelList := openai.GetCompatibleChannelMeta(channelType)
 		for _, modelName := range channelModelList {
-			openAIModels = append(openAIModels, OpenAIModels{
+			models = append(models, OpenAIModels{
 				Id:         modelName,
 				Object:     "model",
 				Created:    1626777600,
@@ -98,14 +98,14 @@ func init() {
 			})
 		}
 	}
-	openAIModelsMap = make(map[string]OpenAIModels)
-	for _, model := range openAIModels {
-		openAIModelsMap[model.Id] = model
+	modelsMap = make(map[string]OpenAIModels)
+	for _, model := range models {
+		modelsMap[model.Id] = model
 	}
 	channelId2Models = make(map[int][]string)
-	for i := 1; i < common.ChannelTypeDummy; i++ {
-		adaptor := helper.GetAdaptor(constant.ChannelType2APIType(i))
-		meta := &util.RelayMeta{
+	for i := 1; i < channeltype.Dummy; i++ {
+		adaptor := relay.GetAdaptor(channeltype.ToAPIType(i))
+		meta := &meta.Meta{
 			ChannelType: i,
 		}
 		adaptor.Init(meta)
@@ -118,6 +118,13 @@ func DashboardListModels(c *gin.Context) {
 		"success": true,
 		"message": "",
 		"data":    channelId2Models,
+	})
+}
+
+func ListAllModels(c *gin.Context) {
+	c.JSON(200, gin.H{
+		"object": "list",
+		"data":   models,
 	})
 }
 
@@ -135,8 +142,8 @@ func ListModels(c *gin.Context) {
 	for _, availableModel := range availableModels {
 		modelSet[availableModel] = true
 	}
-	var availableOpenAIModels []OpenAIModels
-	for _, model := range openAIModels {
+	availableOpenAIModels := make([]OpenAIModels, 0)
+	for _, model := range models {
 		if _, ok := modelSet[model.Id]; ok {
 			modelSet[model.Id] = false
 			availableOpenAIModels = append(availableOpenAIModels, model)
@@ -162,7 +169,7 @@ func ListModels(c *gin.Context) {
 
 func RetrieveModel(c *gin.Context) {
 	modelId := c.Param("model")
-	if model, ok := openAIModelsMap[modelId]; ok {
+	if model, ok := modelsMap[modelId]; ok {
 		c.JSON(200, model)
 	} else {
 		Error := relaymodel.Error{

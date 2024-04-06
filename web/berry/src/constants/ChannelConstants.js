@@ -107,6 +107,12 @@ export const CHANNEL_OPTIONS = {
     value: 31,
     color: 'primary'
   },
+  32: {
+    key: 32,
+    text: '阶跃星辰',
+    value: 32,
+    color: 'primary'
+  },
   8: {
     key: 8,
     text: '自定义渠道',
