@@ -201,3 +201,23 @@ export function removeTrailingSlash(url) {
     return url;
   }
 }
+
+export function trims(values) {
+  if (typeof values === 'string') {
+    return values.trim();
+  }
+
+  if (Array.isArray(values)) {
+    return values.map((value) => trims(value));
+  }
+
+  if (typeof values === 'object') {
+    let newValues = {};
+    for (let key in values) {
+      newValues[key] = trims(values[key]);
+    }
+    return newValues;
+  }
+
+  return values;
+}

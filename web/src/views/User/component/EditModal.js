@@ -23,7 +23,7 @@ import {
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 
-import { renderQuotaWithPrompt, showSuccess, showError } from 'utils/common';
+import { renderQuotaWithPrompt, showSuccess, showError, trims } from 'utils/common';
 import { API } from 'utils/api';
 
 const validationSchema = Yup.object().shape({
@@ -66,7 +66,7 @@ const EditModal = ({ open, userId, onCancel, onOk }) => {
     setSubmitting(true);
 
     let res;
-
+    values = trims(values);
     try {
       if (values.is_edit) {
         res = await API.put(`/api/user/`, { ...values, id: parseInt(userId) });

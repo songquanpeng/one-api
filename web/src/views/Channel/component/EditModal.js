@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { CHANNEL_OPTIONS } from 'constants/ChannelConstants';
 import { useTheme } from '@mui/material/styles';
 import { API } from 'utils/api';
-import { showError, showSuccess } from 'utils/common';
+import { showError, showSuccess, trims } from 'utils/common';
 import {
   Dialog,
   DialogTitle,
@@ -171,6 +171,8 @@ const EditModal = ({ open, channelId, onCancel, onOk, groupOptions }) => {
 
   const submit = async (values, { setErrors, setStatus, setSubmitting }) => {
     setSubmitting(true);
+    console.log(values);
+    values = trims(values);
     if (values.base_url && values.base_url.endsWith('/')) {
       values.base_url = values.base_url.slice(0, values.base_url.length - 1);
     }

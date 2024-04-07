@@ -6,7 +6,7 @@ import SubCard from 'ui-component/cards/SubCard';
 import { IconBrandWechat, IconBrandGithub, IconMail, IconBrandTelegram } from '@tabler/icons-react';
 import Label from 'ui-component/Label';
 import { API } from 'utils/api';
-import { showError, showSuccess, onGitHubOAuthClicked, copy } from 'utils/common';
+import { showError, showSuccess, onGitHubOAuthClicked, copy, trims } from 'utils/common';
 import * as Yup from 'yup';
 import WechatModal from 'views/Authentication/AuthForms/WechatModal';
 import { useSelector } from 'react-redux';
@@ -89,8 +89,11 @@ export default function Profile() {
 
   const submit = async () => {
     try {
-      await validationSchema.validate(inputs);
-      const res = await API.put(`/api/user/self`, inputs);
+      let inputValue = inputs;
+      inputValue.username = trims(inputValue.username);
+      inputValue.display_name = trims(inputValue.display_name);
+      await validationSchema.validate(inputValue);
+      const res = await API.put(`/api/user/self`, inputValue);
       const { success, message } = res.data;
       if (success) {
         showSuccess('用户信息更新成功！');

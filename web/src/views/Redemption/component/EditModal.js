@@ -17,7 +17,7 @@ import {
   FormHelperText
 } from '@mui/material';
 
-import { renderQuotaWithPrompt, showSuccess, showError, downloadTextAsFile } from 'utils/common';
+import { renderQuotaWithPrompt, showSuccess, showError, downloadTextAsFile, trims } from 'utils/common';
 import { API } from 'utils/api';
 
 const validationSchema = Yup.object().shape({
@@ -44,7 +44,7 @@ const EditModal = ({ open, redemptiondId, onCancel, onOk }) => {
 
   const submit = async (values, { setErrors, setStatus, setSubmitting }) => {
     setSubmitting(true);
-
+    values = trims(values);
     let res;
     try {
       if (values.is_edit) {

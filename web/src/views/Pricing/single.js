@@ -7,7 +7,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/DeleteOutlined';
 import SaveIcon from '@mui/icons-material/Save';
 import CancelIcon from '@mui/icons-material/Close';
-import { showError, showSuccess } from 'utils/common';
+import { showError, showSuccess, trims } from 'utils/common';
 import { API } from 'utils/api';
 import { ValueFormatter, priceType } from './component/util';
 
@@ -76,6 +76,7 @@ const Single = ({ ownedby, prices, reloadData }) => {
     async (newRow, oldRow, reject, resolve) => {
       try {
         let res;
+        newRow = trims(newRow);
         if (oldRow.model == '') {
           res = await API.post('/api/prices/single', newRow);
         } else {

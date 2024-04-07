@@ -101,12 +101,12 @@ export default function TableToolBar({ filterName, handleFilterName, userIsAdmin
           </LocalizationProvider>
         </FormControl>
         <FormControl sx={{ minWidth: '22%' }}>
-          <InputLabel htmlFor="channel-type-label">类型</InputLabel>
+          <InputLabel htmlFor="channel-log_type-label">类型</InputLabel>
           <Select
             id="channel-type-label"
             label="类型"
-            value={filterName.type}
-            name="type"
+            value={filterName.log_type}
+            name="log_type"
             onChange={handleFilterName}
             sx={{
               minWidth: '100%'

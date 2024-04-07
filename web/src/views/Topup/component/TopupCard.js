@@ -6,7 +6,7 @@ import UserCard from 'ui-component/cards/UserCard';
 
 import { API } from 'utils/api';
 import React, { useEffect, useState } from 'react';
-import { showError, showInfo, showSuccess, renderQuota } from 'utils/common';
+import { showError, showInfo, showSuccess, renderQuota, trims } from 'utils/common';
 
 const TopupCard = () => {
   const theme = useTheme();
@@ -23,7 +23,7 @@ const TopupCard = () => {
     setIsSubmitting(true);
     try {
       const res = await API.post('/api/user/topup', {
-        key: redemptionCode
+        key: trims(redemptionCode)
       });
       const { success, message, data } = res.data;
       if (success) {

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { showError, showSuccess } from 'utils/common';
+import { showError, showSuccess, trims } from 'utils/common';
 
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -60,6 +60,7 @@ export default function Redemption() {
 
   const fetchData = async (page, rowsPerPage, keyword, order, orderBy) => {
     setSearching(true);
+    keyword = trims(keyword);
     try {
       if (orderBy) {
         orderBy = order === 'desc' ? '-' + orderBy : orderBy;

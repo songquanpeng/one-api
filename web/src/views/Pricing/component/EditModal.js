@@ -22,7 +22,7 @@ import {
   MenuItem
 } from '@mui/material';
 
-import { showSuccess, showError } from 'utils/common';
+import { showSuccess, showError, trims } from 'utils/common';
 import { API } from 'utils/api';
 import { createFilterOptions } from '@mui/material/Autocomplete';
 import { ValueFormatter, priceType } from './util';
@@ -58,6 +58,7 @@ const EditModal = ({ open, pricesItem, onCancel, onOk, ownedby, noPriceModel }) 
 
   const submit = async (values, { setErrors, setStatus, setSubmitting }) => {
     setSubmitting(true);
+    values.models = trims(values.models);
     try {
       const res = await API.post(`/api/prices/multiple`, {
         original_models: inputs.models,

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { showError, showSuccess, showInfo } from 'utils/common';
+import { showError, showSuccess, showInfo, trims } from 'utils/common';
 
 import { useTheme } from '@mui/material/styles';
 import Table from '@mui/material/Table';
@@ -256,6 +256,7 @@ export default function ChannelPage() {
 
   const fetchData = async (page, rowsPerPage, keyword, order, orderBy) => {
     setSearching(true);
+    keyword = trims(keyword);
     const data = await fetchChannelData(page, rowsPerPage, keyword, order, orderBy);
 
     if (data) {

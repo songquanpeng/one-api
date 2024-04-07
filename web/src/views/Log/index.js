@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { showError } from 'utils/common';
+import { showError, trims } from 'utils/common';
 
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -74,6 +74,7 @@ export default function Log() {
   const fetchData = useCallback(
     async (page, rowsPerPage, keyword, order, orderBy) => {
       setSearching(true);
+      keyword = trims(keyword);
       try {
         if (orderBy) {
           orderBy = order === 'desc' ? '-' + orderBy : orderBy;
