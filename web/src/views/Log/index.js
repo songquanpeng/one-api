@@ -28,7 +28,7 @@ export default function Log() {
     model_name: '',
     start_timestamp: 0,
     end_timestamp: dayjs().unix() + 3600,
-    type: 0,
+    log_type: 0,
     channel: ''
   };
 
