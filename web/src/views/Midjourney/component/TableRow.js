@@ -50,7 +50,7 @@ async function downloadImage(url, filename) {
 }
 
 function TruncatedText(text) {
-  const truncatedText = text.length > 30 ? text.substring(0, 100) + '...' : text;
+  const truncatedText = text.length > 30 ? text.substring(0, 30) + '...' : text;
 
   return (
     <Tooltip
