@@ -112,7 +112,7 @@ func (stream *streamReader[T]) deserializeEventMessage(msg *eventstream.Message)
 func RequestStream[T any](resp *http.Response, handlerPrefix requester.HandlerPrefix[T]) (*streamReader[T], *types.OpenAIErrorWithStatusCode) {
 	// 如果返回的头是json格式 说明有错误
 	if strings.Contains(resp.Header.Get("Content-Type"), "application/json") {
-		return nil, requester.HandleErrorResp(resp, requestErrorHandle)
+		return nil, requester.HandleErrorResp(resp, requestErrorHandle, true)
 	}
 
 	stream := &streamReader[T]{

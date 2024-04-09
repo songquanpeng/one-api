@@ -197,6 +197,6 @@ func shouldRetry(c *gin.Context, statusCode int) bool {
 func processChannelRelayError(ctx context.Context, channelId int, channelName string, err *types.OpenAIErrorWithStatusCode) {
 	common.LogError(ctx, fmt.Sprintf("relay error (channel #%d(%s)): %s", channelId, channelName, err.Message))
 	if controller.ShouldDisableChannel(&err.OpenAIError, err.StatusCode) {
-		controller.DisableChannel(channelId, channelName, err.Message)
+		controller.DisableChannel(channelId, channelName, err.Message, true)
 	}
 }

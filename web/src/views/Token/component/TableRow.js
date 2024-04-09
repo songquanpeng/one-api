@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 
 import {
@@ -50,6 +50,21 @@ function createMenu(menuItems) {
       ))}
     </>
   );
+}
+
+function statusInfo(status) {
+  switch (status) {
+    case 1:
+      return '已启用';
+    case 2:
+      return '已禁用';
+    case 3:
+      return '已过期';
+    case 4:
+      return '已耗尽';
+    default:
+      return '未知';
+  }
 }
 
 export default function TokensTableRow({ item, manageToken, handleOpenModal, setModalTokenId }) {
@@ -164,6 +179,10 @@ export default function TokensTableRow({ item, manageToken, handleOpenModal, set
     }))
   );
 
+  useEffect(() => {
+    setStatusSwitch(item.status);
+  }, [item.status]);
+
   return (
     <>
       <TableRow tabIndex={item.id}>
@@ -172,18 +191,7 @@ export default function TokensTableRow({ item, manageToken, handleOpenModal, set
         <TableCell>
           <Tooltip
             title={(() => {
-              switch (statusSwitch) {
-                case 1:
-                  return '已启用';
-                case 2:
-                  return '已禁用';
-                case 3:
-                  return '已过期';
-                case 4:
-                  return '已耗尽';
-                default:
-                  return '未知';
-              }
+              return statusInfo(statusSwitch);
             })()}
             placement="top"
           >

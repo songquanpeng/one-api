@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"one-api/common"
 	"one-api/common/config"
+	"one-api/common/notify"
 	"one-api/common/requester"
 	"one-api/common/telegram"
 	"one-api/controller"
@@ -46,6 +47,7 @@ func main() {
 	telegram.InitTelegramBot()
 
 	controller.InitMidjourneyTask()
+	notify.InitNotifier()
 
 	initHttpServer()
 }

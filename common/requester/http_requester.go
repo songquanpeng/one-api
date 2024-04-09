@@ -24,6 +24,7 @@ type HTTPRequester struct {
 	ErrorHandler      HttpErrorHandler
 	proxyAddr         string
 	Context           context.Context
+	IsOpenAI          bool
 }
 
 // NewHTTPRequester 创建一个新的 HTTPRequester 实例。
@@ -39,6 +40,7 @@ func NewHTTPRequester(proxyAddr string, errorHandler HttpErrorHandler) *HTTPRequ
 		ErrorHandler: errorHandler,
 		proxyAddr:    proxyAddr,
 		Context:      context.Background(),
+		IsOpenAI:     true,
 	}
 }
 
@@ -94,10 +96,14 @@ func (r *HTTPRequester) SendRequest(req *http.Request, response any, outputResp 
 
 	// 处理响应
 	if r.IsFailureStatusCode(resp) {
-		return nil, HandleErrorResp(resp, r.ErrorHandler)
+		return nil, HandleErrorResp(resp, r.ErrorHandler, r.IsOpenAI)
 	}
 
 	// 解析响应
+	if response == nil {
+		return resp, nil
+	}
+
 	if outputResp {
 		var buf bytes.Buffer
 		tee := io.TeeReader(resp.Body, &buf)
@@ -126,7 +132,7 @@ func (r *HTTPRequester) SendRequestRaw(req *http.Request) (*http.Response, *type
 
 	// 处理响应
 	if r.IsFailureStatusCode(resp) {
-		return nil, HandleErrorResp(resp, r.ErrorHandler)
+		return nil, HandleErrorResp(resp, r.ErrorHandler, r.IsOpenAI)
 	}
 
 	return resp, nil
@@ -136,7 +142,7 @@ func (r *HTTPRequester) SendRequestRaw(req *http.Request) (*http.Response, *type
 func RequestStream[T streamable](requester *HTTPRequester, resp *http.Response, handlerPrefix HandlerPrefix[T]) (*streamReader[T], *types.OpenAIErrorWithStatusCode) {
 	// 如果返回的头是json格式 说明有错误
 	if strings.Contains(resp.Header.Get("Content-Type"), "application/json") {
-		return nil, HandleErrorResp(resp, requester.ErrorHandler)
+		return nil, HandleErrorResp(resp, requester.ErrorHandler, requester.IsOpenAI)
 	}
 
 	stream := &streamReader[T]{
@@ -180,7 +186,7 @@ func (r *HTTPRequester) IsFailureStatusCode(resp *http.Response) bool {
 }
 
 // 处理错误响应
-func HandleErrorResp(resp *http.Response, toOpenAIError HttpErrorHandler) *types.OpenAIErrorWithStatusCode {
+func HandleErrorResp(resp *http.Response, toOpenAIError HttpErrorHandler, isPrefix bool) *types.OpenAIErrorWithStatusCode {
 
 	openAIErrorWithStatusCode := &types.OpenAIErrorWithStatusCode{
 		StatusCode: resp.StatusCode,
@@ -199,12 +205,19 @@ func HandleErrorResp(resp *http.Response, toOpenAIError HttpErrorHandler) *types
 
 		if errorResponse != nil && errorResponse.Message != "" {
 			openAIErrorWithStatusCode.OpenAIError = *errorResponse
-			openAIErrorWithStatusCode.OpenAIError.Message = fmt.Sprintf("Provider API error: %s", openAIErrorWithStatusCode.OpenAIError.Message)
+			if isPrefix {
+				openAIErrorWithStatusCode.OpenAIError.Message = fmt.Sprintf("Provider API error: %s", openAIErrorWithStatusCode.OpenAIError.Message)
+			}
 		}
 	}
 
 	if openAIErrorWithStatusCode.OpenAIError.Message == "" {
 		openAIErrorWithStatusCode.OpenAIError.Message = fmt.Sprintf("Provider API error: bad response status code %d", resp.StatusCode)
+		if isPrefix {
+			openAIErrorWithStatusCode.OpenAIError.Message = fmt.Sprintf("Provider API error: bad response status code %d", resp.StatusCode)
+		} else {
+			openAIErrorWithStatusCode.OpenAIError.Message = fmt.Sprintf("bad response status code %d", resp.StatusCode)
+		}
 	}
 
 	return openAIErrorWithStatusCode
@@ -216,6 +229,12 @@ func SetEventStreamHeaders(c *gin.Context) {
 	c.Writer.Header().Set("Connection", "keep-alive")
 	c.Writer.Header().Set("Transfer-Encoding", "chunked")
 	c.Writer.Header().Set("X-Accel-Buffering", "no")
+}
+
+func GetJsonHeaders() map[string]string {
+	return map[string]string{
+		"Content-type": "application/json",
+	}
 }
 
 type Stringer interface {

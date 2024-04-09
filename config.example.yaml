@@ -43,3 +43,21 @@ data_gym_cache_dir: ""
 tg:
   bot_api_key: "" # 你的 Telegram bot 的 API 密钥
   webhook_secret: "" # 你的 webhook 密钥。你可以自定义这个密钥。如果设置了这个密钥，将使用webhook的方式接收消息，否则使用轮询（Polling）的方式。
+notify: # 通知设置, 配置了几个通知方式，就会同时发送几次通知 如果不需要通知，可以删除这个配置
+  email: # 邮件通知 (具体stmp配置在后台设置)
+    disable: false # 是否禁用邮件通知
+    smtp_to: "" # 收件人地址 (可空，如果为空则使用超级管理员邮箱)
+  dingTalk: # 钉钉机器人通知
+    token: "" # webhook 地址最后一串字符
+    secret: "" # 密钥 (secret/keyWord 二选一)
+    keyWord: "" # 关键字 (secret/keyWord 二选一)
+  lark: # 飞书机器人通知
+    token: "" # webhook 地址最后一串字符
+    secret: "" # 密钥 (secret/keyWord 二选一)
+    keyWord: "" # 关键字 (secret/keyWord 二选一)
+  pushdeer: # pushdeer 通知
+    url: "https://api2.pushdeer.com" # pushdeer地址 (可空，如果自建需填写)
+    pushkey: "" # pushkey
+  telegram: # Telegram 通知
+    bot_api_key: "" # 你的 Telegram bot 的 API 密钥
+    chat_id: "" # 你的 Telegram chat_id

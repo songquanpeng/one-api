@@ -335,7 +335,7 @@ export default function ChannelPage() {
                   搜索
                 </Button>
                 <Button onClick={testAllChannels} startIcon={<IconBrandSpeedtest width={'18px'} />}>
-                  测试启用渠道
+                  测试所有渠道
                 </Button>
                 <Button onClick={updateAllChannelsBalance} startIcon={<IconCoinYuan width={'18px'} />}>
                   更新启用余额

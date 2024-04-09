@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 import { showInfo, showError, renderNumber } from 'utils/common';
 import { API } from 'utils/api';
@@ -75,6 +75,19 @@ const StyledMenu = styled((props) => (
     }
   }
 }));
+
+function statusInfo(status) {
+  switch (status) {
+    case 1:
+      return '启用';
+    case 2:
+      return '手动';
+    case 3:
+      return '自动';
+    default:
+      return '未知';
+  }
+}
 
 export default function ChannelTableRow({ item, manageChannel, handleOpenModal, setModalChannelId }) {
   const [open, setOpen] = useState(null);
@@ -189,6 +202,14 @@ export default function ChannelTableRow({ item, manageChannel, handleOpenModal, 
     await manageChannel(item.id, 'delete', '');
   };
 
+  useEffect(() => {
+    setStatusSwitch(item.status);
+    setPriority(item.priority);
+    setWeight(item.weight);
+    setItemBalance(item.balance);
+    setResponseTimeData({ test_time: item.test_time, response_time: item.response_time });
+  }, [item]);
+
   return (
     <>
       <TableRow tabIndex={item.id}>
@@ -219,6 +240,7 @@ export default function ChannelTableRow({ item, manageChannel, handleOpenModal, 
         </TableCell>
         <TableCell>
           <TableSwitch id={`switch-${item.id}`} checked={statusSwitch === 1} onChange={handleStatus} />
+          {statusInfo(statusSwitch)}
         </TableCell>
 
         <TableCell>

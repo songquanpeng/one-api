@@ -2,8 +2,8 @@ package model
 
 import (
 	"errors"
-	"fmt"
 	"one-api/common"
+	"one-api/common/stmp"
 
 	"gorm.io/gorm"
 )
@@ -114,15 +114,13 @@ func GetTokenById(id int) (*Token, error) {
 }
 
 func (token *Token) Insert() error {
-	var err error
-	err = DB.Create(token).Error
+	err := DB.Create(token).Error
 	return err
 }
 
 // Update Make sure your token's fields is completed, because this will update non-zero values
 func (token *Token) Update() error {
-	var err error
-	err = DB.Model(token).Select("name", "status", "expired_time", "remain_quota", "unlimited_quota").Updates(token).Error
+	err := DB.Model(token).Select("name", "status", "expired_time", "remain_quota", "unlimited_quota").Updates(token).Error
 	return err
 }
 
@@ -132,8 +130,7 @@ func (token *Token) SelectUpdate() error {
 }
 
 func (token *Token) Delete() error {
-	var err error
-	err = DB.Delete(token).Error
+	err := DB.Delete(token).Error
 	return err
 }
 
@@ -228,26 +225,35 @@ func PreConsumeTokenQuota(tokenId int, quota int) (err error) {
 }
 
 func sendQuotaWarningEmail(userId int, userQuota int, noMoreQuota bool) {
-	email, err := GetUserEmail(userId)
-	if err != nil {
+	user := User{Id: userId}
+
+	if err := user.FillUserById(); err != nil {
 		common.SysError("failed to fetch user email: " + err.Error())
+		return
 	}
-	prompt := "您的额度即将用尽"
-	if noMoreQuota {
-		prompt = "您的额度已用尽"
+
+	if user.Email == "" {
+		common.SysError("user email is empty")
+		return
 	}
-	if email != "" {
-		topUpLink := fmt.Sprintf("%s/topup", common.ServerAddress)
-		err = common.SendEmail(prompt, email,
-			fmt.Sprintf("%s，当前剩余额度为 %d，为了不影响您的使用，请及时充值。<br/>充值链接：<a href='%s'>%s</a>", prompt, userQuota, topUpLink, topUpLink))
-		if err != nil {
-			common.SysError("failed to send email" + err.Error())
-		}
+
+	userName := user.DisplayName
+	if userName == "" {
+		userName = user.Username
+	}
+
+	err := stmp.SendQuotaWarningCodeEmail(userName, user.Email, userQuota, noMoreQuota)
+
+	if err != nil {
+		common.SysError("failed to send email" + err.Error())
 	}
 }
 
 func PostConsumeTokenQuota(tokenId int, quota int) (err error) {
 	token, err := GetTokenById(tokenId)
+	if err != nil {
+		return err
+	}
 	if quota > 0 {
 		err = DecreaseUserQuota(token.UserId, quota)
 	} else {

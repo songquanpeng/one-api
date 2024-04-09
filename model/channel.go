@@ -265,6 +265,19 @@ func (channel *Channel) Delete() error {
 	return err
 }
 
+func (channel *Channel) StatusToStr() string {
+	switch channel.Status {
+	case common.ChannelStatusEnabled:
+		return "启用"
+	case common.ChannelStatusAutoDisabled:
+		return "自动禁用"
+	case common.ChannelStatusManuallyDisabled:
+		return "手动禁用"
+	}
+
+	return "禁用"
+}
+
 func UpdateChannelStatusById(id int, status int) {
 	err := UpdateAbilityStatus(id, status == common.ChannelStatusEnabled)
 	if err != nil {

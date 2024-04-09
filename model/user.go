@@ -149,6 +149,11 @@ func (user *User) Update(updatePassword bool) error {
 		}
 	}
 	err = DB.Model(user).Updates(user).Error
+
+	if err == nil && user.Role == common.RoleRootUser {
+		common.RootUserEmail = user.Email
+	}
+
 	return err
 }
 
@@ -201,7 +206,14 @@ func (user *User) FillUserById() error {
 	if user.Id == 0 {
 		return errors.New("id 为空！")
 	}
-	DB.Where(User{Id: user.Id}).First(user)
+
+	result := DB.Where(User{Id: user.Id}).First(user)
+	if result.Error != nil {
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			return errors.New("没有找到用户！")
+		}
+		return result.Error
+	}
 	return nil
 }
 
@@ -209,7 +221,14 @@ func (user *User) FillUserByEmail() error {
 	if user.Email == "" {
 		return errors.New("email 为空！")
 	}
-	DB.Where(User{Email: user.Email}).First(user)
+
+	result := DB.Where(User{Email: user.Email}).First(user)
+	if result.Error != nil {
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			return errors.New("没有找到用户！")
+		}
+		return result.Error
+	}
 	return nil
 }
 

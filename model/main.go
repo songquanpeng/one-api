@@ -22,6 +22,7 @@ func SetupDB() {
 		common.FatalLog("failed to initialize database: " + err.Error())
 	}
 	ChannelGroup.Load()
+	common.RootUserEmail = GetRootUserEmail()
 
 	if viper.GetBool("BATCH_UPDATE_ENABLED") {
 		common.BatchUpdateEnabled = true
