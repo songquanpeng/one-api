@@ -41,7 +41,7 @@ const typeConfig = {
     },
     prompt: {
       base_url: "请填写AZURE_OPENAI_ENDPOINT",
-      other: "请输入默认API版本，例如：2023-06-01-preview",
+      other: "请输入默认API版本，例如：2024-03-01-preview",
     },
   },
   11: {
@@ -67,7 +67,7 @@ const typeConfig = {
   },
   16: {
     input: {
-      models: ["chatglm_turbo", "chatglm_pro", "chatglm_std", "chatglm_lite"],
+      models: ["glm-4", "glm-4v", "glm-3-turbo", "chatglm_turbo", "chatglm_pro", "chatglm_std", "chatglm_lite"],
     },
     modelGroup: "zhipu",
   },
@@ -144,6 +144,33 @@ const typeConfig = {
       other: "请输入版本号，例如：v1",
     },
     modelGroup: "google gemini",
+  },
+  25: {
+    input: {
+      models: ['moonshot-v1-8k', 'moonshot-v1-32k', 'moonshot-v1-128k'],
+    },
+    modelGroup: "moonshot",
+  },
+  26: {
+    input: {
+      models: ['Baichuan2-Turbo', 'Baichuan2-Turbo-192k', 'Baichuan-Text-Embedding'],
+    },
+    modelGroup: "baichuan",
+  },
+  27: {
+    input: {
+      models: ['abab5.5s-chat', 'abab5.5-chat', 'abab6-chat'],
+    },
+    modelGroup: "minimax",
+  },
+  29: {
+    modelGroup: "groq",
+  },
+  30: {
+    modelGroup: "ollama",
+  },
+  31: {
+    modelGroup: "lingyiwanwu",
   },
 };
 

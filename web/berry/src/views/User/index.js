@@ -139,7 +139,7 @@ export default function Users() {
 
   return (
     <>
-      <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
+      <Stack direction="row" alignItems="center" justifyContent="space-between" mb={2.5}>
         <Typography variant="h4">用户</Typography>
 
         <Button variant="contained" color="primary" startIcon={<IconPlus />} onClick={() => handleOpenModal(0)}>
@@ -147,7 +147,7 @@ export default function Users() {
         </Button>
       </Stack>
       <Card>
-        <Box component="form" onSubmit={searchUsers} noValidate>
+        <Box component="form" onSubmit={searchUsers} noValidate sx={{marginTop: 2}}>
           <TableToolBar
             filterName={searchKeyword}
             handleFilterName={handleSearchKeyword}
@@ -164,7 +164,7 @@ export default function Users() {
           }}
         >
           <Container>
-            <ButtonGroup variant="outlined" aria-label="outlined small primary button group">
+            <ButtonGroup variant="outlined" aria-label="outlined small primary button group" sx={{marginBottom: 2}}>
               <Button onClick={handleRefresh} startIcon={<IconRefresh width={'18px'} />}>
                 刷新
               </Button>

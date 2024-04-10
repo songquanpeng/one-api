@@ -28,10 +28,10 @@ const COPY_OPTIONS = [
   {
     key: 'next',
     text: 'ChatGPT Next',
-    url: 'https://chat.oneapi.pro/#/?settings={"key":"sk-{key}","url":"{serverAddress}"}',
+    url: 'https://app.nextchat.dev/#/?settings={"key":"sk-{key}","url":"{serverAddress}"}',
     encode: false
   },
-  { key: 'ama', text: 'AMA 问天', url: 'ama://set-api-key?server={serverAddress}&key=sk-{key}', encode: true },
+  { key: 'ama', text: 'BotGem', url: 'ama://set-api-key?server={serverAddress}&key=sk-{key}', encode: true },
   { key: 'opencat', text: 'OpenCat', url: 'opencat://team/join?domain={serverAddress}&token=sk-{key}', encode: true }
 ];
 

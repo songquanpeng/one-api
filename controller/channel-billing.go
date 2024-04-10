@@ -4,11 +4,12 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/songquanpeng/one-api/common"
 	"github.com/songquanpeng/one-api/common/config"
 	"github.com/songquanpeng/one-api/common/logger"
 	"github.com/songquanpeng/one-api/model"
-	"github.com/songquanpeng/one-api/relay/util"
+	"github.com/songquanpeng/one-api/monitor"
+	"github.com/songquanpeng/one-api/relay/channeltype"
+	"github.com/songquanpeng/one-api/relay/client"
 	"io"
 	"net/http"
 	"strconv"
@@ -95,7 +96,7 @@ func GetResponseBody(method, url string, channel *model.Channel, headers http.He
 	for k := range headers {
 		req.Header.Add(k, headers.Get(k))
 	}
-	res, err := util.HTTPClient.Do(req)
+	res, err := client.HTTPClient.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -203,28 +204,28 @@ func updateChannelAIGC2DBalance(channel *model.Channel) (float64, error) {
 }
 
 func updateChannelBalance(channel *model.Channel) (float64, error) {
-	baseURL := common.ChannelBaseURLs[channel.Type]
+	baseURL := channeltype.ChannelBaseURLs[channel.Type]
 	if channel.GetBaseURL() == "" {
 		channel.BaseURL = &baseURL
 	}
 	switch channel.Type {
-	case common.ChannelTypeOpenAI:
+	case channeltype.OpenAI:
 		if channel.GetBaseURL() != "" {
 			baseURL = channel.GetBaseURL()
 		}
-	case common.ChannelTypeAzure:
+	case channeltype.Azure:
 		return 0, errors.New("尚未实现")
-	case common.ChannelTypeCustom:
+	case channeltype.Custom:
 		baseURL = channel.GetBaseURL()
-	case common.ChannelTypeCloseAI:
+	case channeltype.CloseAI:
 		return updateChannelCloseAIBalance(channel)
-	case common.ChannelTypeOpenAISB:
+	case channeltype.OpenAISB:
 		return updateChannelOpenAISBBalance(channel)
-	case common.ChannelTypeAIProxy:
+	case channeltype.AIProxy:
 		return updateChannelAIProxyBalance(channel)
-	case common.ChannelTypeAPI2GPT:
+	case channeltype.API2GPT:
 		return updateChannelAPI2GPTBalance(channel)
-	case common.ChannelTypeAIGC2D:
+	case channeltype.AIGC2D:
 		return updateChannelAIGC2DBalance(channel)
 	default:
 		return 0, errors.New("尚未实现")
@@ -295,16 +296,16 @@ func UpdateChannelBalance(c *gin.Context) {
 }
 
 func updateAllChannelsBalance() error {
-	channels, err := model.GetAllChannels(0, 0, true)
+	channels, err := model.GetAllChannels(0, 0, "all")
 	if err != nil {
 		return err
 	}
 	for _, channel := range channels {
-		if channel.Status != common.ChannelStatusEnabled {
+		if channel.Status != model.ChannelStatusEnabled {
 			continue
 		}
 		// TODO: support Azure
-		if channel.Type != common.ChannelTypeOpenAI && channel.Type != common.ChannelTypeCustom {
+		if channel.Type != channeltype.OpenAI && channel.Type != channeltype.Custom {
 			continue
 		}
 		balance, err := updateChannelBalance(channel)
@@ -313,7 +314,7 @@ func updateAllChannelsBalance() error {
 		} else {
 			// err is nil & balance <= 0 means quota is used up
 			if balance <= 0 {
-				disableChannel(channel.Id, channel.Name, "余额不足")
+				monitor.DisableChannel(channel.Id, channel.Name, "余额不足")
 			}
 		}
 		time.Sleep(config.RequestInterval)
@@ -322,15 +323,14 @@ func updateAllChannelsBalance() error {
 }
 
 func UpdateAllChannelsBalance(c *gin.Context) {
-	// TODO: make it async
-	err := updateAllChannelsBalance()
-	if err != nil {
-		c.JSON(http.StatusOK, gin.H{
-			"success": false,
-			"message": err.Error(),
-		})
-		return
-	}
+	//err := updateAllChannelsBalance()
+	//if err != nil {
+	//	c.JSON(http.StatusOK, gin.H{
+	//		"success": false,
+	//		"message": err.Error(),
+	//	})
+	//	return
+	//}
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"message": "",

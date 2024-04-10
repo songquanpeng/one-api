@@ -3,7 +3,8 @@ import { Button, Divider, Form, Grid, Header, Image, Message, Modal, Segment } f
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { UserContext } from '../context/User';
 import { API, getLogo, showError, showSuccess, showWarning } from '../helpers';
-import { onGitHubOAuthClicked } from './utils';
+import { onGitHubOAuthClicked, onLarkOAuthClicked } from './utils';
+import larkIcon from '../images/lark.svg';
 
 const LoginForm = () => {
   const [inputs, setInputs] = useState({
@@ -94,7 +95,7 @@ const LoginForm = () => {
               fluid
               icon='user'
               iconPosition='left'
-              placeholder='用户名'
+              placeholder='用户名 / 邮箱地址'
               name='username'
               value={username}
               onChange={handleChange}
@@ -124,29 +125,52 @@ const LoginForm = () => {
             点击注册
           </Link>
         </Message>
-        {status.github_oauth || status.wechat_login ? (
+        {status.github_oauth || status.wechat_login || status.lark_client_id ? (
           <>
             <Divider horizontal>Or</Divider>
-            {status.github_oauth ? (
-              <Button
-                circular
-                color='black'
-                icon='github'
-                onClick={() => onGitHubOAuthClicked(status.github_client_id)}
-              />
-            ) : (
-              <></>
-            )}
-            {status.wechat_login ? (
-              <Button
-                circular
-                color='green'
-                icon='wechat'
-                onClick={onWeChatLoginClicked}
-              />
-            ) : (
-              <></>
-            )}
+            <div style={{ display: "flex", justifyContent: "center" }}>
+              {status.github_oauth ? (
+                <Button
+                  circular
+                  color='black'
+                  icon='github'
+                  onClick={() => onGitHubOAuthClicked(status.github_client_id)}
+                />
+              ) : (
+                <></>
+              )}
+              {status.wechat_login ? (
+                <Button
+                  circular
+                  color='green'
+                  icon='wechat'
+                  onClick={onWeChatLoginClicked}
+                />
+              ) : (
+                <></>
+              )}
+              {status.lark_client_id ? (
+                <div style={{
+                  background: "radial-gradient(circle, #FFFFFF, #FFFFFF, #00D6B9, #2F73FF, #0a3A9C)",
+                  width: "36px",
+                  height: "36px",
+                  borderRadius: "10em",
+                  display: "flex",
+                  cursor: "pointer"
+                }}
+                  onClick={() => onLarkOAuthClicked(status.lark_client_id)}
+                >
+                  <Image
+                    src={larkIcon}
+                    avatar
+                    style={{ width: "16px", height: "16px", cursor: "pointer", margin: "auto" }}
+                    onClick={() => onLarkOAuthClicked(status.lark_client_id)}
+                  />
+                </div>
+              ) : (
+                <></>
+              )}
+            </div>
           </>
         ) : (
           <></>

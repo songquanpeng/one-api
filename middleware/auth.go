@@ -1,9 +1,11 @@
 package middleware
 
 import (
+	"fmt"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
-	"github.com/songquanpeng/one-api/common"
+	"github.com/songquanpeng/one-api/common/blacklist"
+	"github.com/songquanpeng/one-api/common/network"
 	"github.com/songquanpeng/one-api/model"
 	"net/http"
 	"strings"
@@ -42,11 +44,14 @@ func authHelper(c *gin.Context, minRole int) {
 			return
 		}
 	}
-	if status.(int) == common.UserStatusDisabled {
+	if status.(int) == model.UserStatusDisabled || blacklist.IsUserBanned(id.(int)) {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
 			"message": "用户已被封禁",
 		})
+		session := sessions.Default(c)
+		session.Clear()
+		_ = session.Save()
 		c.Abort()
 		return
 	}
@@ -66,24 +71,25 @@ func authHelper(c *gin.Context, minRole int) {
 
 func UserAuth() func(c *gin.Context) {
 	return func(c *gin.Context) {
-		authHelper(c, common.RoleCommonUser)
+		authHelper(c, model.RoleCommonUser)
 	}
 }
 
 func AdminAuth() func(c *gin.Context) {
 	return func(c *gin.Context) {
-		authHelper(c, common.RoleAdminUser)
+		authHelper(c, model.RoleAdminUser)
 	}
 }
 
 func RootAuth() func(c *gin.Context) {
 	return func(c *gin.Context) {
-		authHelper(c, common.RoleRootUser)
+		authHelper(c, model.RoleRootUser)
 	}
 }
 
 func TokenAuth() func(c *gin.Context) {
 	return func(c *gin.Context) {
+		ctx := c.Request.Context()
 		key := c.Request.Header.Get("Authorization")
 		key = strings.TrimPrefix(key, "Bearer ")
 		key = strings.TrimPrefix(key, "sk-")
@@ -94,14 +100,33 @@ func TokenAuth() func(c *gin.Context) {
 			abortWithMessage(c, http.StatusUnauthorized, err.Error())
 			return
 		}
+		if token.Subnet != nil && *token.Subnet != "" {
+			if !network.IsIpInSubnets(ctx, c.ClientIP(), *token.Subnet) {
+				abortWithMessage(c, http.StatusForbidden, fmt.Sprintf("该令牌只能在指定网段使用：%s，当前 ip：%s", *token.Subnet, c.ClientIP()))
+				return
+			}
+		}
 		userEnabled, err := model.CacheIsUserEnabled(token.UserId)
 		if err != nil {
 			abortWithMessage(c, http.StatusInternalServerError, err.Error())
 			return
 		}
-		if !userEnabled {
+		if !userEnabled || blacklist.IsUserBanned(token.UserId) {
 			abortWithMessage(c, http.StatusForbidden, "用户已被封禁")
 			return
+		}
+		requestModel, err := getRequestModel(c)
+		if err != nil && shouldCheckModel(c) {
+			abortWithMessage(c, http.StatusBadRequest, err.Error())
+			return
+		}
+		c.Set("request_model", requestModel)
+		if token.Models != nil && *token.Models != "" {
+			c.Set("available_models", *token.Models)
+			if requestModel != "" && !isModelInList(requestModel, *token.Models) {
+				abortWithMessage(c, http.StatusForbidden, fmt.Sprintf("该令牌无权使用模型：%s", requestModel))
+				return
+			}
 		}
 		c.Set("id", token.UserId)
 		c.Set("token_id", token.Id)
@@ -116,4 +141,20 @@ func TokenAuth() func(c *gin.Context) {
 		}
 		c.Next()
 	}
+}
+
+func shouldCheckModel(c *gin.Context) bool {
+	if strings.HasPrefix(c.Request.URL.Path, "/v1/completions") {
+		return true
+	}
+	if strings.HasPrefix(c.Request.URL.Path, "/v1/chat/completions") {
+		return true
+	}
+	if strings.HasPrefix(c.Request.URL.Path, "/v1/images") {
+		return true
+	}
+	if strings.HasPrefix(c.Request.URL.Path, "/v1/audio") {
+		return true
+	}
+	return false
 }

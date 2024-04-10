@@ -67,6 +67,7 @@ _✨ 通过标准的 OpenAI API 格式访问所有的大模型，开箱即用 �
    + [x] [OpenAI ChatGPT 系列模型](https://platform.openai.com/docs/guides/gpt/chat-completions-api)（支持 [Azure OpenAI API](https://learn.microsoft.com/en-us/azure/ai-services/openai/reference)）
    + [x] [Anthropic Claude 系列模型](https://anthropic.com)
    + [x] [Google PaLM2/Gemini 系列模型](https://developers.generativeai.google)
+   + [x] [Mistral 系列模型](https://mistral.ai/)
    + [x] [百度文心一言系列模型](https://cloud.baidu.com/doc/WENXINWORKSHOP/index.html)
    + [x] [阿里通义千问系列模型](https://help.aliyun.com/document_detail/2400395.html)
    + [x] [讯飞星火认知大模型](https://www.xfyun.cn/doc/spark/Web.html)
@@ -74,15 +75,20 @@ _✨ 通过标准的 OpenAI API 格式访问所有的大模型，开箱即用 �
    + [x] [360 智脑](https://ai.360.cn)
    + [x] [腾讯混元大模型](https://cloud.tencent.com/document/product/1729)
    + [x] [Moonshot AI](https://platform.moonshot.cn/)
+   + [x] [百川大模型](https://platform.baichuan-ai.com)
    + [ ] [字节云雀大模型](https://www.volcengine.com/product/ark) (WIP)
-   + [ ] [MINIMAX](https://api.minimax.chat/) (WIP)
+   + [x] [MINIMAX](https://api.minimax.chat/)
+   + [x] [Groq](https://wow.groq.com/)
+   + [x] [Ollama](https://github.com/ollama/ollama)
+   + [x] [零一万物](https://platform.lingyiwanwu.com/)
+   + [x] [阶跃星辰](https://platform.stepfun.com/)
 2. 支持配置镜像以及众多[第三方代理服务](https://iamazing.cn/page/openai-api-third-party-services)。
 3. 支持通过**负载均衡**的方式访问多个渠道。
 4. 支持 **stream 模式**，可以通过流式传输实现打字机效果。
 5. 支持**多机部署**，[详见此处](#多机部署)。
-6. 支持**令牌管理**，设置令牌的过期时间和额度。
+6. 支持**令牌管理**，设置令牌的过期时间、额度、允许的 IP 范围以及允许的模型访问。
 7. 支持**兑换码管理**，支持批量生成和导出兑换码，可使用兑换码为账户进行充值。
-8. 支持**通道管理**，批量创建通道。
+8. 支持**渠道管理**，批量创建渠道。
 9. 支持**用户分组**以及**渠道分组**，支持为不同分组设置不同的倍率。
 10. 支持渠道**设置模型列表**。
 11. 支持**查看额度明细**。
@@ -96,13 +102,15 @@ _✨ 通过标准的 OpenAI API 格式访问所有的大模型，开箱即用 �
 19. 支持丰富的**自定义**设置，
     1. 支持自定义系统名称，logo 以及页脚。
     2. 支持自定义首页和关于页面，可以选择使用 HTML & Markdown 代码进行自定义，或者使用一个单独的网页通过 iframe 嵌入。
-20. 支持通过系统访问令牌访问管理 API（bearer token，用以替代 cookie，你可以自行抓包来查看 API 的用法）。
+20. 支持通过系统访问令牌调用管理 API，进而**在无需二开的情况下扩展和自定义** One API 的功能，详情请参考此处 [API 文档](./docs/API.md)。。
 21. 支持 Cloudflare Turnstile 用户校验。
 22. 支持用户管理，支持**多种用户登录注册方式**：
     + 邮箱登录注册（支持注册邮箱白名单）以及通过邮箱进行密码重置。
+    + 支持使用飞书进行授权登录。
     + [GitHub 开放授权](https://github.com/settings/applications/new)。
     + 微信公众号授权（需要额外部署 [WeChat Server](https://github.com/songquanpeng/wechat-server)）。
 23. 支持主题切换，设置环境变量 `THEME` 即可，默认为 `default`，欢迎 PR 更多主题，具体参考[此处](./web/README.md)。
+24. 配合 [Message Pusher](https://github.com/songquanpeng/message-pusher) 可将报警信息推送到多种 App 上。
 
 ## 部署
 ### 基于 Docker 进行部署
@@ -343,35 +351,41 @@ graph LR
      + `SQL_MAX_OPEN_CONNS`：最大打开连接数，默认为 `1000`。
        + 如果报错 `Error 1040: Too many connections`，请适当减小该值。
      + `SQL_CONN_MAX_LIFETIME`：连接的最大生命周期，默认为 `60`，单位分钟。
-4. `FRONTEND_BASE_URL`：设置之后将重定向页面请求到指定的地址，仅限从服务器设置。
+4. `LOG_SQL_DSN`：设置之后将为 `logs` 表使用独立的数据库，请使用 MySQL 或 PostgreSQL。
+5. `FRONTEND_BASE_URL`：设置之后将重定向页面请求到指定的地址，仅限从服务器设置。
    + 例子：`FRONTEND_BASE_URL=https://openai.justsong.cn`
-5. `MEMORY_CACHE_ENABLED`：启用内存缓存，会导致用户额度的更新存在一定的延迟，可选值为 `true` 和 `false`，未设置则默认为 `false`。
+6. `MEMORY_CACHE_ENABLED`：启用内存缓存，会导致用户额度的更新存在一定的延迟，可选值为 `true` 和 `false`，未设置则默认为 `false`。
    + 例子：`MEMORY_CACHE_ENABLED=true`
-6. `SYNC_FREQUENCY`：在启用缓存的情况下与数据库同步配置的频率，单位为秒，默认为 `600` 秒。
+7. `SYNC_FREQUENCY`：在启用缓存的情况下与数据库同步配置的频率，单位为秒，默认为 `600` 秒。
    + 例子：`SYNC_FREQUENCY=60`
-7. `NODE_TYPE`：设置之后将指定节点类型，可选值为 `master` 和 `slave`，未设置则默认为 `master`。
+8. `NODE_TYPE`：设置之后将指定节点类型，可选值为 `master` 和 `slave`，未设置则默认为 `master`。
    + 例子：`NODE_TYPE=slave`
-8. `CHANNEL_UPDATE_FREQUENCY`：设置之后将定期更新渠道余额，单位为分钟，未设置则不进行更新。
+9. `CHANNEL_UPDATE_FREQUENCY`：设置之后将定期更新渠道余额，单位为分钟，未设置则不进行更新。
    + 例子：`CHANNEL_UPDATE_FREQUENCY=1440`
-9. `CHANNEL_TEST_FREQUENCY`：设置之后将定期检查渠道，单位为分钟，未设置则不进行检查。
-   + 例子：`CHANNEL_TEST_FREQUENCY=1440`
-10. `POLLING_INTERVAL`：批量更新渠道余额以及测试可用性时的请求间隔，单位为秒，默认无间隔。
+10. `CHANNEL_TEST_FREQUENCY`：设置之后将定期检查渠道，单位为分钟，未设置则不进行检查。
+11. 例子：`CHANNEL_TEST_FREQUENCY=1440`
+12. `POLLING_INTERVAL`：批量更新渠道余额以及测试可用性时的请求间隔，单位为秒，默认无间隔。
     + 例子：`POLLING_INTERVAL=5`
-11. `BATCH_UPDATE_ENABLED`：启用数据库批量更新聚合，会导致用户额度的更新存在一定的延迟可选值为 `true` 和 `false`，未设置则默认为 `false`。
+13. `BATCH_UPDATE_ENABLED`：启用数据库批量更新聚合，会导致用户额度的更新存在一定的延迟可选值为 `true` 和 `false`，未设置则默认为 `false`。
     + 例子：`BATCH_UPDATE_ENABLED=true`
     + 如果你遇到了数据库连接数过多的问题，可以尝试启用该选项。
-12. `BATCH_UPDATE_INTERVAL=5`：批量更新聚合的时间间隔，单位为秒，默认为 `5`。
+14. `BATCH_UPDATE_INTERVAL=5`：批量更新聚合的时间间隔，单位为秒，默认为 `5`。
     + 例子：`BATCH_UPDATE_INTERVAL=5`
-13. 请求频率限制：
+15. 请求频率限制：
     + `GLOBAL_API_RATE_LIMIT`：全局 API 速率限制（除中继请求外），单 ip 三分钟内的最大请求数，默认为 `180`。
     + `GLOBAL_WEB_RATE_LIMIT`：全局 Web 速率限制，单 ip 三分钟内的最大请求数，默认为 `60`。
-14. 编码器缓存设置：
+16. 编码器缓存设置：
     + `TIKTOKEN_CACHE_DIR`：默认程序启动时会联网下载一些通用的词元的编码，如：`gpt-3.5-turbo`，在一些网络环境不稳定，或者离线情况，可能会导致启动有问题，可以配置此目录缓存数据，可迁移到离线环境。
     + `DATA_GYM_CACHE_DIR`：目前该配置作用与 `TIKTOKEN_CACHE_DIR` 一致，但是优先级没有它高。
-15. `RELAY_TIMEOUT`：中继超时设置，单位为秒，默认不设置超时时间。
-16. `SQLITE_BUSY_TIMEOUT`：SQLite 锁等待超时设置，单位为毫秒，默认 `3000`。
-17. `GEMINI_SAFETY_SETTING`：Gemini 的安全设置，默认 `BLOCK_NONE`。
-18. `THEME`：系统的主题设置，默认为 `default`，具体可选值参考[此处](./web/README.md)。
+17. `RELAY_TIMEOUT`：中继超时设置，单位为秒，默认不设置超时时间。
+18. `SQLITE_BUSY_TIMEOUT`：SQLite 锁等待超时设置，单位为毫秒，默认 `3000`。
+19. `GEMINI_SAFETY_SETTING`：Gemini 的安全设置，默认 `BLOCK_NONE`。
+20. `GEMINI_VERSION`：One API 所使用的 Gemini 版本，默认为 `v1`。
+21. `THEME`：系统的主题设置，默认为 `default`，具体可选值参考[此处](./web/README.md)。
+22. `ENABLE_METRIC`：是否根据请求成功率禁用渠道，默认不开启，可选值为 `true` 和 `false`。
+23. `METRIC_QUEUE_SIZE`：请求成功率统计队列大小，默认为 `10`。
+24. `METRIC_SUCCESS_RATE_THRESHOLD`：请求成功率阈值，默认为 `0.8`。
+25. `INITIAL_ROOT_TOKEN`：如果设置了该值，则在系统首次启动时会自动创建一个值为该环境变量值的 root 用户令牌。
 
 ### 命令行参数
 1. `--port <port_number>`: 指定服务器监听的端口号，默认为 `3000`。
@@ -410,7 +424,7 @@ https://openai.justsong.cn
    + 检查你的接口地址和 API Key 有没有填对。
    + 检查是否启用了 HTTPS，浏览器会拦截 HTTPS 域名下的 HTTP 请求。
 6. 报错：`当前分组负载已饱和，请稍后再试`
-   + 上游通道 429 了。
+   + 上游渠道 429 了。
 7. 升级之后我的数据会丢失吗？
    + 如果使用 MySQL，不会。
    + 如果使用 SQLite，需要按照我所给的部署命令挂载 volume 持久化 one-api.db 数据库文件，否则容器重启后数据会丢失。
@@ -418,8 +432,8 @@ https://openai.justsong.cn
    + 一般情况下不需要，系统将在初始化的时候自动调整。
    + 如果需要的话，我会在更新日志中说明，并给出脚本。
 9. 手动修改数据库后报错：`数据库一致性已被破坏，请联系管理员`？
-   + 这是检测到 ability 表里有些记录的通道 id 是不存在的，这大概率是因为你删了 channel 表里的记录但是没有同步在 ability 表里清理无效的通道。
-   + 对于每一个通道，其所支持的模型都需要有一个专门的 ability 表的记录，表示该通道支持该模型。
+   + 这是检测到 ability 表里有些记录的渠道 id 是不存在的，这大概率是因为你删了 channel 表里的记录但是没有同步在 ability 表里清理无效的渠道。
+   + 对于每一个渠道，其所支持的模型都需要有一个专门的 ability 表的记录，表示该渠道支持该模型。
 
 ## 相关项目
 * [FastGPT](https://github.com/labring/FastGPT): 基于 LLM 大语言模型的知识库问答系统

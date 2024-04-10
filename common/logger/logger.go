@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/songquanpeng/one-api/common/config"
+	"github.com/songquanpeng/one-api/common/helper"
 	"io"
 	"log"
 	"os"
@@ -13,14 +15,12 @@ import (
 )
 
 const (
+	loggerDEBUG = "DEBUG"
 	loggerINFO  = "INFO"
 	loggerWarn  = "WARN"
 	loggerError = "ERR"
 )
 
-const maxLogCount = 1000000
-
-var logCount int
 var setupLogLock sync.Mutex
 var setupLogWorking bool
 
@@ -55,6 +55,12 @@ func SysError(s string) {
 	_, _ = fmt.Fprintf(gin.DefaultErrorWriter, "[SYS] %v | %s \n", t.Format("2006/01/02 - 15:04:05"), s)
 }
 
+func Debug(ctx context.Context, msg string) {
+	if config.DebugEnabled {
+		logHelper(ctx, loggerDEBUG, msg)
+	}
+}
+
 func Info(ctx context.Context, msg string) {
 	logHelper(ctx, loggerINFO, msg)
 }
@@ -65,6 +71,10 @@ func Warn(ctx context.Context, msg string) {
 
 func Error(ctx context.Context, msg string) {
 	logHelper(ctx, loggerError, msg)
+}
+
+func Debugf(ctx context.Context, format string, a ...any) {
+	Debug(ctx, fmt.Sprintf(format, a...))
 }
 
 func Infof(ctx context.Context, format string, a ...any) {
@@ -85,11 +95,12 @@ func logHelper(ctx context.Context, level string, msg string) {
 		writer = gin.DefaultWriter
 	}
 	id := ctx.Value(RequestIdKey)
+	if id == nil {
+		id = helper.GenRequestID()
+	}
 	now := time.Now()
 	_, _ = fmt.Fprintf(writer, "[%s] %v | %s | %s \n", level, now.Format("2006/01/02 - 15:04:05"), id, msg)
-	logCount++ // we don't need accurate count, so no lock here
-	if logCount > maxLogCount && !setupLogWorking {
-		logCount = 0
+	if !setupLogWorking {
 		setupLogWorking = true
 		go func() {
 			SetupLogger()

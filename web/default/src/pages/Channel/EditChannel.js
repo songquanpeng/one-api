@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Form, Header, Input, Message, Segment } from 'semantic-ui-react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { API, showError, showInfo, showSuccess, verifyJSON } from '../../helpers';
+import { API, copy, getChannelModels, showError, showInfo, showSuccess, verifyJSON } from '../../helpers';
 import { CHANNEL_OPTIONS } from '../../constants';
 
 const MODEL_MAPPING_EXAMPLE = {
@@ -56,54 +56,12 @@ const EditChannel = () => {
   const [customModel, setCustomModel] = useState('');
   const handleInputChange = (e, { name, value }) => {
     setInputs((inputs) => ({ ...inputs, [name]: value }));
-    if (name === 'type' && inputs.models.length === 0) {
-      let localModels = [];
-      switch (value) {
-        case 14:
-          localModels = ['claude-instant-1', 'claude-2', 'claude-2.0', 'claude-2.1'];
-          break;
-        case 11:
-          localModels = ['PaLM-2'];
-          break;
-        case 15:
-          localModels = ['ERNIE-Bot', 'ERNIE-Bot-turbo', 'ERNIE-Bot-4', 'Embedding-V1'];
-          break;
-        case 17:
-          localModels = ['qwen-turbo', 'qwen-plus', 'qwen-max', 'qwen-max-longcontext', 'text-embedding-v1'];
-          let withInternetVersion = [];
-          for (let i = 0; i < localModels.length; i++) {
-            if (localModels[i].startsWith('qwen-')) {
-              withInternetVersion.push(localModels[i] + '-internet');
-            }
-          }
-          localModels = [...localModels, ...withInternetVersion];
-          break;
-        case 16:
-          localModels = ['chatglm_turbo', 'chatglm_pro', 'chatglm_std', 'chatglm_lite'];
-          break;
-        case 18:
-          localModels = [
-            'SparkDesk',
-            'SparkDesk-v1.1',
-            'SparkDesk-v2.1',
-            'SparkDesk-v3.1',
-            'SparkDesk-v3.5'
-          ];
-          break;
-        case 19:
-          localModels = ['360GPT_S2_V9', 'embedding-bert-512-v1', 'embedding_s1_v1', 'semantic_similarity_s1_v1'];
-          break;
-        case 23:
-          localModels = ['hunyuan'];
-          break;
-        case 24:
-          localModels = ['gemini-pro', 'gemini-pro-vision'];
-          break;
-        case 25:
-          localModels = ['moonshot-v1-8k', 'moonshot-v1-32k', 'moonshot-v1-128k'];
-          break;
+    if (name === 'type') {
+      let localModels = getChannelModels(value);
+      if (inputs.models.length === 0) {
+        setInputs((inputs) => ({ ...inputs, models: localModels }));
       }
-      setInputs((inputs) => ({ ...inputs, models: localModels }));
+      setBasicModels(localModels);
     }
   };
 
@@ -125,6 +83,7 @@ const EditChannel = () => {
         data.model_mapping = JSON.stringify(JSON.parse(data.model_mapping), null, 2);
       }
       setInputs(data);
+      setBasicModels(getChannelModels(data.type));
     } else {
       showError(message);
     }
@@ -141,9 +100,6 @@ const EditChannel = () => {
       }));
       setOriginModelOptions(localModelOptions);
       setFullModels(res.data.data.map((model) => model.id));
-      setBasicModels(res.data.data.filter((model) => {
-        return model.id.startsWith('gpt-3') || model.id.startsWith('text-');
-      }).map((model) => model.id));
     } catch (error) {
       showError(error.message);
     }
@@ -179,6 +135,9 @@ const EditChannel = () => {
   useEffect(() => {
     if (isEdit) {
       loadChannel().then();
+    } else {
+      let localModels = getChannelModels(inputs.type);
+      setBasicModels(localModels);
     }
     fetchModels().then();
     fetchGroups().then();
@@ -202,7 +161,7 @@ const EditChannel = () => {
       localInputs.base_url = localInputs.base_url.slice(0, localInputs.base_url.length - 1);
     }
     if (localInputs.type === 3 && localInputs.other === '') {
-      localInputs.other = '2023-06-01-preview';
+      localInputs.other = '2024-03-01-preview';
     }
     if (localInputs.type === 18 && localInputs.other === '') {
       localInputs.other = 'v2.1';
@@ -256,6 +215,7 @@ const EditChannel = () => {
               label='类型'
               name='type'
               required
+              search
               options={CHANNEL_OPTIONS}
               value={inputs.type}
               onChange={handleInputChange}
@@ -283,7 +243,7 @@ const EditChannel = () => {
                   <Form.Input
                     label='默认 API 版本'
                     name='other'
-                    placeholder={'请输入默认 API 版本，例如：2023-06-01-preview，该配置可以被实际的请求查询参数所覆盖'}
+                    placeholder={'请输入默认 API 版本，例如：2024-03-01-preview，该配置可以被实际的请求查询参数所覆盖'}
                     onChange={handleInputChange}
                     value={inputs.other}
                     autoComplete='new-password'
@@ -384,6 +344,8 @@ const EditChannel = () => {
               required
               fluid
               multiple
+              search
+              onLabelClick={(e, { value }) => {copy(value).then()}}
               selection
               onChange={handleInputChange}
               value={inputs.models}
@@ -394,7 +356,7 @@ const EditChannel = () => {
           <div style={{ lineHeight: '40px', marginBottom: '12px' }}>
             <Button type={'button'} onClick={() => {
               handleInputChange(null, { name: 'models', value: basicModels });
-            }}>填入基础模型</Button>
+            }}>填入相关模型</Button>
             <Button type={'button'} onClick={() => {
               handleInputChange(null, { name: 'models', value: fullModels });
             }}>填入所有模型</Button>

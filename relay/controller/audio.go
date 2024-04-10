@@ -12,16 +12,21 @@ import (
 	"github.com/songquanpeng/one-api/common/config"
 	"github.com/songquanpeng/one-api/common/logger"
 	"github.com/songquanpeng/one-api/model"
-	"github.com/songquanpeng/one-api/relay/channel/openai"
-	"github.com/songquanpeng/one-api/relay/constant"
+	"github.com/songquanpeng/one-api/relay/adaptor/azure"
+	"github.com/songquanpeng/one-api/relay/adaptor/openai"
+	"github.com/songquanpeng/one-api/relay/billing"
+	billingratio "github.com/songquanpeng/one-api/relay/billing/ratio"
+	"github.com/songquanpeng/one-api/relay/channeltype"
+	"github.com/songquanpeng/one-api/relay/client"
 	relaymodel "github.com/songquanpeng/one-api/relay/model"
-	"github.com/songquanpeng/one-api/relay/util"
+	"github.com/songquanpeng/one-api/relay/relaymode"
 	"io"
 	"net/http"
 	"strings"
 )
 
 func RelayAudioHelper(c *gin.Context, relayMode int) *relaymodel.ErrorWithStatusCode {
+	ctx := c.Request.Context()
 	audioModel := "whisper-1"
 
 	tokenId := c.GetInt("token_id")
@@ -32,7 +37,7 @@ func RelayAudioHelper(c *gin.Context, relayMode int) *relaymodel.ErrorWithStatus
 	tokenName := c.GetString("token_name")
 
 	var ttsRequest openai.TextToSpeechRequest
-	if relayMode == constant.RelayModeAudioSpeech {
+	if relayMode == relaymode.AudioSpeech {
 		// Read JSON
 		err := common.UnmarshalBodyReusable(c, &ttsRequest)
 		// Check if JSON is valid
@@ -46,19 +51,19 @@ func RelayAudioHelper(c *gin.Context, relayMode int) *relaymodel.ErrorWithStatus
 		}
 	}
 
-	modelRatio := common.GetModelRatio(audioModel)
-	groupRatio := common.GetGroupRatio(group)
+	modelRatio := billingratio.GetModelRatio(audioModel)
+	groupRatio := billingratio.GetGroupRatio(group)
 	ratio := modelRatio * groupRatio
-	var quota int
-	var preConsumedQuota int
+	var quota int64
+	var preConsumedQuota int64
 	switch relayMode {
-	case constant.RelayModeAudioSpeech:
-		preConsumedQuota = int(float64(len(ttsRequest.Input)) * ratio)
+	case relaymode.AudioSpeech:
+		preConsumedQuota = int64(float64(len(ttsRequest.Input)) * ratio)
 		quota = preConsumedQuota
 	default:
-		preConsumedQuota = int(float64(config.PreConsumedQuota) * ratio)
+		preConsumedQuota = int64(float64(config.PreConsumedQuota) * ratio)
 	}
-	userQuota, err := model.CacheGetUserQuota(userId)
+	userQuota, err := model.CacheGetUserQuota(ctx, userId)
 	if err != nil {
 		return openai.ErrorWrapper(err, "get_user_quota_failed", http.StatusInternalServerError)
 	}
@@ -82,6 +87,24 @@ func RelayAudioHelper(c *gin.Context, relayMode int) *relaymodel.ErrorWithStatus
 			return openai.ErrorWrapper(err, "pre_consume_token_quota_failed", http.StatusForbidden)
 		}
 	}
+	succeed := false
+	defer func() {
+		if succeed {
+			return
+		}
+		if preConsumedQuota > 0 {
+			// we need to roll back the pre-consumed quota
+			defer func(ctx context.Context) {
+				go func() {
+					// negative means add quota back for token & user
+					err := model.PostConsumeTokenQuota(tokenId, -preConsumedQuota)
+					if err != nil {
+						logger.Error(ctx, fmt.Sprintf("error rollback pre-consumed quota: %s", err.Error()))
+					}
+				}()
+			}(c.Request.Context())
+		}
+	}()
 
 	// map model name
 	modelMapping := c.GetString("model_mapping")
@@ -96,17 +119,22 @@ func RelayAudioHelper(c *gin.Context, relayMode int) *relaymodel.ErrorWithStatus
 		}
 	}
 
-	baseURL := common.ChannelBaseURLs[channelType]
+	baseURL := channeltype.ChannelBaseURLs[channelType]
 	requestURL := c.Request.URL.String()
 	if c.GetString("base_url") != "" {
 		baseURL = c.GetString("base_url")
 	}
 
-	fullRequestURL := util.GetFullRequestURL(baseURL, requestURL, channelType)
-	if relayMode == constant.RelayModeAudioTranscription && channelType == common.ChannelTypeAzure {
-		// https://learn.microsoft.com/en-us/azure/ai-services/openai/whisper-quickstart?tabs=command-line#rest-api
-		apiVersion := util.GetAzureAPIVersion(c)
-		fullRequestURL = fmt.Sprintf("%s/openai/deployments/%s/audio/transcriptions?api-version=%s", baseURL, audioModel, apiVersion)
+	fullRequestURL := openai.GetFullRequestURL(baseURL, requestURL, channelType)
+	if channelType == channeltype.Azure {
+		apiVersion := azure.GetAPIVersion(c)
+		if relayMode == relaymode.AudioTranscription {
+			// https://learn.microsoft.com/en-us/azure/ai-services/openai/whisper-quickstart?tabs=command-line#rest-api
+			fullRequestURL = fmt.Sprintf("%s/openai/deployments/%s/audio/transcriptions?api-version=%s", baseURL, audioModel, apiVersion)
+		} else if relayMode == relaymode.AudioSpeech {
+			// https://learn.microsoft.com/en-us/azure/ai-services/openai/text-to-speech-quickstart?tabs=command-line#rest-api
+			fullRequestURL = fmt.Sprintf("%s/openai/deployments/%s/audio/speech?api-version=%s", baseURL, audioModel, apiVersion)
+		}
 	}
 
 	requestBody := &bytes.Buffer{}
@@ -122,7 +150,7 @@ func RelayAudioHelper(c *gin.Context, relayMode int) *relaymodel.ErrorWithStatus
 		return openai.ErrorWrapper(err, "new_request_failed", http.StatusInternalServerError)
 	}
 
-	if relayMode == constant.RelayModeAudioTranscription && channelType == common.ChannelTypeAzure {
+	if (relayMode == relaymode.AudioTranscription || relayMode == relaymode.AudioSpeech) && channelType == channeltype.Azure {
 		// https://learn.microsoft.com/en-us/azure/ai-services/openai/whisper-quickstart?tabs=command-line#rest-api
 		apiKey := c.Request.Header.Get("Authorization")
 		apiKey = strings.TrimPrefix(apiKey, "Bearer ")
@@ -134,7 +162,7 @@ func RelayAudioHelper(c *gin.Context, relayMode int) *relaymodel.ErrorWithStatus
 	req.Header.Set("Content-Type", c.Request.Header.Get("Content-Type"))
 	req.Header.Set("Accept", c.Request.Header.Get("Accept"))
 
-	resp, err := util.HTTPClient.Do(req)
+	resp, err := client.HTTPClient.Do(req)
 	if err != nil {
 		return openai.ErrorWrapper(err, "do_request_failed", http.StatusInternalServerError)
 	}
@@ -148,7 +176,7 @@ func RelayAudioHelper(c *gin.Context, relayMode int) *relaymodel.ErrorWithStatus
 		return openai.ErrorWrapper(err, "close_request_body_failed", http.StatusInternalServerError)
 	}
 
-	if relayMode != constant.RelayModeAudioSpeech {
+	if relayMode != relaymode.AudioSpeech {
 		responseBody, err := io.ReadAll(resp.Body)
 		if err != nil {
 			return openai.ErrorWrapper(err, "read_response_body_failed", http.StatusInternalServerError)
@@ -183,27 +211,16 @@ func RelayAudioHelper(c *gin.Context, relayMode int) *relaymodel.ErrorWithStatus
 		if err != nil {
 			return openai.ErrorWrapper(err, "get_text_from_body_err", http.StatusInternalServerError)
 		}
-		quota = openai.CountTokenText(text, audioModel)
+		quota = int64(openai.CountTokenText(text, audioModel))
 		resp.Body = io.NopCloser(bytes.NewBuffer(responseBody))
 	}
 	if resp.StatusCode != http.StatusOK {
-		if preConsumedQuota > 0 {
-			// we need to roll back the pre-consumed quota
-			defer func(ctx context.Context) {
-				go func() {
-					// negative means add quota back for token & user
-					err := model.PostConsumeTokenQuota(tokenId, -preConsumedQuota)
-					if err != nil {
-						logger.Error(ctx, fmt.Sprintf("error rollback pre-consumed quota: %s", err.Error()))
-					}
-				}()
-			}(c.Request.Context())
-		}
-		return util.RelayErrorHandler(resp)
+		return RelayErrorHandler(resp)
 	}
+	succeed = true
 	quotaDelta := quota - preConsumedQuota
 	defer func(ctx context.Context) {
-		go util.PostConsumeQuota(ctx, tokenId, quotaDelta, quota, userId, channelId, modelRatio, groupRatio, audioModel, tokenName)
+		go billing.PostConsumeQuota(ctx, tokenId, quotaDelta, quota, userId, channelId, modelRatio, groupRatio, audioModel, tokenName)
 	}(c.Request.Context())
 
 	for k, v := range resp.Header {

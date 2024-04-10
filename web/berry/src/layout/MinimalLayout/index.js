@@ -1,6 +1,6 @@
 import { Outlet } from 'react-router-dom';
 import { useTheme } from '@mui/material/styles';
-import { AppBar, Box, CssBaseline, Toolbar } from '@mui/material';
+import { AppBar, Box, CssBaseline, Toolbar, Container } from '@mui/material';
 import Header from './Header';
 import Footer from 'ui-component/Footer';
 
@@ -22,9 +22,11 @@ const MinimalLayout = () => {
           flex: 'none'
         }}
       >
-        <Toolbar>
-          <Header />
-        </Toolbar>
+        <Container>
+          <Toolbar>
+            <Header />
+          </Toolbar>
+        </Container>
       </AppBar>
       <Box sx={{ flex: '1 1 auto', overflow: 'auto' }} marginTop={'80px'}>
         <Outlet />

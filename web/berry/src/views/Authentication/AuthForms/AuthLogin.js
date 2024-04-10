@@ -35,7 +35,8 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff';
 
 import Github from 'assets/images/icons/github.svg';
 import Wechat from 'assets/images/icons/wechat.svg';
-import { onGitHubOAuthClicked } from 'utils/common';
+import Lark from 'assets/images/icons/lark.svg';
+import { onGitHubOAuthClicked, onLarkOAuthClicked } from 'utils/common';
 
 // ============================|| FIREBASE - LOGIN ||============================ //
 
@@ -49,7 +50,7 @@ const LoginForm = ({ ...others }) => {
   // const [checked, setChecked] = useState(true);
 
   let tripartiteLogin = false;
-  if (siteInfo.github_oauth || siteInfo.wechat_login) {
+  if (siteInfo.github_oauth || siteInfo.wechat_login || siteInfo.lark_client_id) {
     tripartiteLogin = true;
   }
 
@@ -121,6 +122,29 @@ const LoginForm = ({ ...others }) => {
               <WechatModal open={openWechat} handleClose={handleWechatClose} wechatLogin={wechatLogin} qrCode={siteInfo.wechat_qrcode} />
             </Grid>
           )}
+          {siteInfo.lark_client_id && (
+            <Grid item xs={12}>
+              <AnimateButton>
+                <Button
+                  disableElevation
+                  fullWidth
+                  onClick={() => onLarkOAuthClicked(siteInfo.lark_client_id)}
+                  size="large"
+                  variant="outlined"
+                  sx={{
+                    color: 'grey.700',
+                    backgroundColor: theme.palette.grey[50],
+                    borderColor: theme.palette.grey[100]
+                  }}
+                >
+                  <Box sx={{ mr: { xs: 1, sm: 2, width: 20 }, display: 'flex', alignItems: 'center' }}>
+                    <img src={Lark} alt="Lark" width={25} height={25} style={{ marginRight: matchDownSM ? 8 : 16 }} />
+                  </Box>
+                  使用飞书登录
+                </Button>
+              </AnimateButton>
+            </Grid>
+          )}
           <Grid item xs={12}>
             <Box
               sx={{
@@ -180,7 +204,7 @@ const LoginForm = ({ ...others }) => {
         {({ errors, handleBlur, handleChange, handleSubmit, isSubmitting, touched, values }) => (
           <form noValidate onSubmit={handleSubmit} {...others}>
             <FormControl fullWidth error={Boolean(touched.username && errors.username)} sx={{ ...theme.typography.customInput }}>
-              <InputLabel htmlFor="outlined-adornment-username-login">用户名</InputLabel>
+              <InputLabel htmlFor="outlined-adornment-username-login">用户名 / 邮箱</InputLabel>
               <OutlinedInput
                 id="outlined-adornment-username-login"
                 type="text"

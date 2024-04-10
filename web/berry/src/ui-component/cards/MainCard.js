@@ -15,7 +15,7 @@ const headerSX = {
 const MainCard = forwardRef(
   (
     {
-      border = true,
+      border = false,
       boxShadow,
       children,
       content = true,

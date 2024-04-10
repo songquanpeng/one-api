@@ -10,6 +10,8 @@ const SystemSetting = () => {
     GitHubOAuthEnabled: '',
     GitHubClientId: '',
     GitHubClientSecret: '',
+    LarkClientId: '',
+    LarkClientSecret: '',
     Notice: '',
     SMTPServer: '',
     SMTPPort: '',
@@ -22,6 +24,8 @@ const SystemSetting = () => {
     WeChatServerAddress: '',
     WeChatServerToken: '',
     WeChatAccountQRCodeImageURL: '',
+    MessagePusherAddress: '',
+    MessagePusherToken: '',
     TurnstileCheckEnabled: '',
     TurnstileSiteKey: '',
     TurnstileSecretKey: '',
@@ -107,6 +111,8 @@ const SystemSetting = () => {
       name === 'ServerAddress' ||
       name === 'GitHubClientId' ||
       name === 'GitHubClientSecret' ||
+      name === 'LarkClientId' ||
+      name === 'LarkClientSecret' ||
       name === 'WeChatServerAddress' ||
       name === 'WeChatServerToken' ||
       name === 'WeChatAccountQRCodeImageURL' ||
@@ -183,6 +189,21 @@ const SystemSetting = () => {
     }
   };
 
+  const submitMessagePusher = async () => {
+    if (originInputs['MessagePusherAddress'] !== inputs.MessagePusherAddress) {
+      await updateOption(
+        'MessagePusherAddress',
+        removeTrailingSlash(inputs.MessagePusherAddress)
+      );
+    }
+    if (
+      originInputs['MessagePusherToken'] !== inputs.MessagePusherToken &&
+      inputs.MessagePusherToken !== ''
+    ) {
+      await updateOption('MessagePusherToken', inputs.MessagePusherToken);
+    }
+  };
+
   const submitGitHubOAuth = async () => {
     if (originInputs['GitHubClientId'] !== inputs.GitHubClientId) {
       await updateOption('GitHubClientId', inputs.GitHubClientId);
@@ -192,6 +213,18 @@ const SystemSetting = () => {
       inputs.GitHubClientSecret !== ''
     ) {
       await updateOption('GitHubClientSecret', inputs.GitHubClientSecret);
+    }
+  };
+
+   const submitLarkOAuth = async () => {
+    if (originInputs['LarkClientId'] !== inputs.LarkClientId) {
+      await updateOption('LarkClientId', inputs.LarkClientId);
+    }
+    if (
+      originInputs['LarkClientSecret'] !== inputs.LarkClientSecret &&
+      inputs.LarkClientSecret !== ''
+    ) {
+      await updateOption('LarkClientSecret', inputs.LarkClientSecret);
     }
   };
 
@@ -453,6 +486,44 @@ const SystemSetting = () => {
           </Form.Button>
           <Divider />
           <Header as='h3'>
+            配置飞书授权登录
+            <Header.Subheader>
+              用以支持通过飞书进行登录注册，
+              <a href='https://open.feishu.cn/app' target='_blank'>
+                点击此处
+              </a>
+              管理你的飞书应用
+            </Header.Subheader>
+          </Header>
+          <Message>
+            主页链接填 <code>{inputs.ServerAddress}</code>
+            ，重定向 URL 填{' '}
+            <code>{`${inputs.ServerAddress}/oauth/lark`}</code>
+          </Message>
+          <Form.Group widths={3}>
+            <Form.Input
+              label='App ID'
+              name='LarkClientId'
+              onChange={handleInputChange}
+              autoComplete='new-password'
+              value={inputs.LarkClientId}
+              placeholder='输入 App ID'
+            />
+            <Form.Input
+              label='App Secret'
+              name='LarkClientSecret'
+              onChange={handleInputChange}
+              type='password'
+              autoComplete='new-password'
+              value={inputs.LarkClientSecret}
+              placeholder='敏感信息不会发送到前端显示'
+            />
+          </Form.Group>
+          <Form.Button onClick={submitLarkOAuth}>
+            保存飞书 OAuth 设置
+          </Form.Button>
+          <Divider />
+          <Header as='h3'>
             配置 WeChat Server
             <Header.Subheader>
               用以支持通过微信进行登录注册，
@@ -494,6 +565,42 @@ const SystemSetting = () => {
           </Form.Group>
           <Form.Button onClick={submitWeChat}>
             保存 WeChat Server 设置
+          </Form.Button>
+          <Divider />
+          <Header as='h3'>
+            配置 Message Pusher
+            <Header.Subheader>
+              用以推送报警信息，
+              <a
+                href='https://github.com/songquanpeng/message-pusher'
+                target='_blank'
+              >
+                点击此处
+              </a>
+              了解 Message Pusher
+            </Header.Subheader>
+          </Header>
+          <Form.Group widths={3}>
+            <Form.Input
+              label='Message Pusher 推送地址'
+              name='MessagePusherAddress'
+              placeholder='例如：https://msgpusher.com/push/your_username'
+              onChange={handleInputChange}
+              autoComplete='new-password'
+              value={inputs.MessagePusherAddress}
+            />
+            <Form.Input
+              label='Message Pusher 访问凭证'
+              name='MessagePusherToken'
+              type='password'
+              onChange={handleInputChange}
+              autoComplete='new-password'
+              value={inputs.MessagePusherToken}
+              placeholder='敏感信息不会发送到前端显示'
+            />
+          </Form.Group>
+          <Form.Button onClick={submitMessagePusher}>
+            保存 Message Pusher 设置
           </Form.Button>
           <Divider />
           <Header as='h3'>
