@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 	"one-api/common"
-	"one-api/common/image"
 	"one-api/common/requester"
 	"one-api/types"
 	"strings"
@@ -113,75 +112,20 @@ func convertFromChatOpenai(request *types.ChatCompletionRequest) (*GeminiChatReq
 			MaxOutputTokens: request.MaxTokens,
 		},
 	}
-	if request.Functions != nil {
-		geminiRequest.Tools = []GeminiChatTools{
-			{
-				FunctionDeclarations: request.Functions,
-			},
+	if request.Tools != nil {
+		var geminiChatTools GeminiChatTools
+		for _, tool := range request.Tools {
+			geminiChatTools.FunctionDeclarations = append(geminiChatTools.FunctionDeclarations, tool.Function)
 		}
+		geminiRequest.Tools = append(geminiRequest.Tools, geminiChatTools)
 	}
-	shouldAddDummyModelMessage := false
-	for _, message := range request.Messages {
-		content := GeminiChatContent{
-			Role: message.Role,
-			Parts: []GeminiPart{
-				{
-					Text: message.StringContent(),
-				},
-			},
-		}
 
-		openaiContent := message.ParseContent()
-		var parts []GeminiPart
-		imageNum := 0
-		for _, part := range openaiContent {
-			if part.Type == types.ContentTypeText {
-				parts = append(parts, GeminiPart{
-					Text: part.Text,
-				})
-			} else if part.Type == types.ContentTypeImageURL {
-				imageNum += 1
-				if imageNum > GeminiVisionMaxImageNum {
-					continue
-				}
-				mimeType, data, err := image.GetImageFromUrl(part.ImageURL.URL)
-				if err != nil {
-					return nil, common.ErrorWrapper(err, "image_url_invalid", http.StatusBadRequest)
-				}
-				parts = append(parts, GeminiPart{
-					InlineData: &GeminiInlineData{
-						MimeType: mimeType,
-						Data:     data,
-					},
-				})
-			}
-		}
-		content.Parts = parts
-
-		// there's no assistant role in gemini and API shall vomit if Role is not user or model
-		if content.Role == "assistant" {
-			content.Role = "model"
-		}
-		// Converting system prompt to prompt from user for the same reason
-		if content.Role == "system" {
-			content.Role = "user"
-			shouldAddDummyModelMessage = true
-		}
-		geminiRequest.Contents = append(geminiRequest.Contents, content)
-
-		// If a system message is the last message, we need to add a dummy model message to make gemini happy
-		if shouldAddDummyModelMessage {
-			geminiRequest.Contents = append(geminiRequest.Contents, GeminiChatContent{
-				Role: "model",
-				Parts: []GeminiPart{
-					{
-						Text: "Okay",
-					},
-				},
-			})
-			shouldAddDummyModelMessage = false
-		}
+	geminiContent, err := OpenAIToGeminiChatContent(request.Messages)
+	if err != nil {
+		return nil, err
 	}
+
+	geminiRequest.Contents = geminiContent
 
 	return &geminiRequest, nil
 }
@@ -207,13 +151,24 @@ func (p *GeminiProvider) convertToChatOpenai(response *GeminiChatResponse, reque
 		choice := types.ChatCompletionChoice{
 			Index: i,
 			Message: types.ChatCompletionMessage{
-				Role:    "assistant",
-				Content: "",
+				Role: "assistant",
+				// Content: "",
 			},
 			FinishReason: types.FinishReasonStop,
 		}
-		if len(candidate.Content.Parts) > 0 {
-			choice.Message.Content = candidate.Content.Parts[0].Text
+		if len(candidate.Content.Parts) == 0 {
+			choice.Message.Content = ""
+			openaiResponse.Choices = append(openaiResponse.Choices, choice)
+			continue
+			// choice.Message.Content = candidate.Content.Parts[0].Text
+		}
+		// 开始判断
+		geminiParts := candidate.Content.Parts[0]
+
+		if geminiParts.FunctionCall != nil {
+			choice.Message.ToolCalls = geminiParts.FunctionCall.ToOpenAITool()
+		} else {
+			choice.Message.Content = geminiParts.Text
 		}
 		openaiResponse.Choices = append(openaiResponse.Choices, choice)
 	}
@@ -251,34 +206,69 @@ func (h *geminiStreamHandler) handlerStream(rawLine *[]byte, dataChan chan strin
 		return
 	}
 
-	h.convertToOpenaiStream(&geminiResponse, dataChan, errChan)
+	h.convertToOpenaiStream(&geminiResponse, dataChan)
 
 }
 
-func (h *geminiStreamHandler) convertToOpenaiStream(geminiResponse *GeminiChatResponse, dataChan chan string, errChan chan error) {
-	choices := make([]types.ChatCompletionStreamChoice, 0, len(geminiResponse.Candidates))
-
-	for i, candidate := range geminiResponse.Candidates {
-		choice := types.ChatCompletionStreamChoice{
-			Index: i,
-			Delta: types.ChatCompletionStreamChoiceDelta{
-				Content: candidate.Content.Parts[0].Text,
-			},
-			FinishReason: types.FinishReasonStop,
-		}
-		choices = append(choices, choice)
-	}
-
+func (h *geminiStreamHandler) convertToOpenaiStream(geminiResponse *GeminiChatResponse, dataChan chan string) {
 	streamResponse := types.ChatCompletionStreamResponse{
 		ID:      fmt.Sprintf("chatcmpl-%s", common.GetUUID()),
 		Object:  "chat.completion.chunk",
 		Created: common.GetTimestamp(),
 		Model:   h.Request.Model,
-		Choices: choices,
+		// Choices: choices,
 	}
 
-	responseBody, _ := json.Marshal(streamResponse)
-	dataChan <- string(responseBody)
+	choices := make([]types.ChatCompletionStreamChoice, 0, len(geminiResponse.Candidates))
+
+	for i, candidate := range geminiResponse.Candidates {
+		parts := candidate.Content.Parts[0]
+
+		choice := types.ChatCompletionStreamChoice{
+			Index: i,
+			Delta: types.ChatCompletionStreamChoiceDelta{
+				Role: types.ChatMessageRoleAssistant,
+			},
+			FinishReason: types.FinishReasonStop,
+		}
+
+		if parts.FunctionCall != nil {
+			if parts.FunctionCall.Args == nil {
+				parts.FunctionCall.Args = map[string]interface{}{}
+			}
+			args, _ := json.Marshal(parts.FunctionCall.Args)
+
+			choice.Delta.ToolCalls = []*types.ChatCompletionToolCalls{
+				{
+					Id:    "call_" + common.GetRandomString(24),
+					Type:  types.ChatMessageRoleFunction,
+					Index: 0,
+					Function: &types.ChatCompletionToolCallsFunction{
+						Name:      parts.FunctionCall.Name,
+						Arguments: string(args),
+					},
+				},
+			}
+		} else {
+			choice.Delta.Content = parts.Text
+		}
+
+		choices = append(choices, choice)
+	}
+
+	if len(choices) > 0 && choices[0].Delta.ToolCalls != nil {
+		choices := choices[0].ConvertOpenaiStream()
+		for _, choice := range choices {
+			chatCompletionCopy := streamResponse
+			chatCompletionCopy.Choices = []types.ChatCompletionStreamChoice{choice}
+			responseBody, _ := json.Marshal(chatCompletionCopy)
+			dataChan <- string(responseBody)
+		}
+	} else {
+		streamResponse.Choices = choices
+		responseBody, _ := json.Marshal(streamResponse)
+		dataChan <- string(responseBody)
+	}
 
 	h.Usage.CompletionTokens += common.CountTokenText(geminiResponse.GetResponseText(), h.Request.Model)
 	h.Usage.TotalTokens = h.Usage.PromptTokens + h.Usage.CompletionTokens
