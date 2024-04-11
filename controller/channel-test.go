@@ -153,7 +153,7 @@ func testAllChannels(isNotify bool) error {
 			time.Sleep(common.RequestInterval)
 
 			isChannelEnabled := channel.Status == common.ChannelStatusEnabled
-			sendMessage += fmt.Sprintf("**通道 %s (#%d) [%s]** : \n\n", channel.Name, channel.Id, channel.StatusToStr())
+			sendMessage += fmt.Sprintf("**通道 %s - #%d - %s** : \n\n", common.EscapeMarkdownText(channel.Name), channel.Id, channel.StatusToStr())
 			tik := time.Now()
 			err, openaiErr := testChannel(channel, "")
 			tok := time.Now()
@@ -161,7 +161,7 @@ func testAllChannels(isNotify bool) error {
 			// 通道为禁用状态，并且还是请求错误 或者 响应时间超过阈值 直接跳过，也不需要更新响应时间。
 			if !isChannelEnabled {
 				if err != nil {
-					sendMessage += fmt.Sprintf("- 测试报错: %s \n\n- 无需改变状态，跳过\n\n", err.Error())
+					sendMessage += fmt.Sprintf("- 测试报错: %s \n\n- 无需改变状态，跳过\n\n", common.EscapeMarkdownText(err.Error()))
 					continue
 				}
 				if milliseconds > disableThreshold {
@@ -187,13 +187,13 @@ func testAllChannels(isNotify bool) error {
 				}
 
 				if ShouldDisableChannel(openaiErr, -1) {
-					sendMessage += fmt.Sprintf("- 已被禁用，原因：%s\n\n", err.Error())
+					sendMessage += fmt.Sprintf("- 已被禁用，原因：%s\n\n", common.EscapeMarkdownText(err.Error()))
 					DisableChannel(channel.Id, channel.Name, err.Error(), false)
 					continue
 				}
 
 				if err != nil {
-					sendMessage += fmt.Sprintf("- 测试报错: %s \n\n", err.Error())
+					sendMessage += fmt.Sprintf("- 测试报错: %s \n\n", common.EscapeMarkdownText(err.Error()))
 					continue
 				}
 			}

@@ -61,7 +61,7 @@ func (t *Telegram) sendMessage(message string, client *requester.HTTPRequester) 
 	msg := telegramMessage{
 		ChatID:    t.chatID,
 		Text:      message,
-		ParseMode: "Markdown",
+		ParseMode: "html",
 	}
 
 	uri := telegramURL + t.secret + "/sendMessage"

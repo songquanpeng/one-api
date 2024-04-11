@@ -240,3 +240,11 @@ func GetModelsWithMatch(modelList *[]string, modelName string) string {
 	}
 	return ""
 }
+
+func EscapeMarkdownText(text string) string {
+	chars := []string{"_", "*", "[", "]", "(", ")", ">", "#", "+", "-", "=", "|", "{", "}", ".", "!", "`"}
+	for _, char := range chars {
+		text = strings.ReplaceAll(text, char, "\\"+char)
+	}
+	return text
+}
