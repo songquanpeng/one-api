@@ -132,7 +132,7 @@ func (a *Adaptor) DoResponse(c *gin.Context, resp *http.Response, meta *meta.Met
 func ConvertEmbeddingRequest(request model.GeneralOpenAIRequest) *EmbeddingRequest {
 	return &EmbeddingRequest{
 		Model: "embedding-2",
-		Input: request.Input.(string),
+		Input: strings.Join(request.ParseInput(), " "),
 	}
 }
 
