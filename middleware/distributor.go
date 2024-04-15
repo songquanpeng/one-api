@@ -39,7 +39,7 @@ func Distribute() func(c *gin.Context) {
 				return
 			}
 		} else {
-			requestModel := c.GetString("request_model")
+			requestModel = c.GetString("request_model")
 			var err error
 			channel, err = model.CacheGetRandomSatisfiedChannel(userGroup, requestModel, false)
 			if err != nil {
