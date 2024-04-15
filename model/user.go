@@ -31,7 +31,7 @@ type User struct {
 	AffCode          string         `json:"aff_code" gorm:"type:varchar(32);column:aff_code;uniqueIndex"`
 	InviterId        int            `json:"inviter_id" gorm:"type:int;column:inviter_id;index"`
 	CreatedTime      int64          `json:"created_time" gorm:"bigint"`
-	DeletedAt        gorm.DeletedAt `gorm:"index"`
+	DeletedAt        gorm.DeletedAt `json:"-" gorm:"index"`
 }
 
 type UserUpdates func(*User)
