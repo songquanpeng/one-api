@@ -37,6 +37,10 @@ var WeChatAuthEnabled = false
 var TurnstileCheckEnabled = false
 var RegisterEnabled = true
 
+// chat cache
+var ChatCacheEnabled = false
+var ChatCacheExpireMinute = 5 // 5 Minute
+
 // mj
 var MjNotifyEnabled = false
 

@@ -30,7 +30,9 @@ const OperationSetting = () => {
     ApproximateTokenEnabled: '',
     RetryTimes: 0,
     RetryCooldownSeconds: 0,
-    MjNotifyEnabled: ''
+    MjNotifyEnabled: '',
+    ChatCacheEnabled: '',
+    ChatCacheExpireMinute: 5
   });
   const [originInputs, setOriginInputs] = useState({});
   let [loading, setLoading] = useState(false);
@@ -150,6 +152,11 @@ const OperationSetting = () => {
         }
         if (originInputs['RetryCooldownSeconds'] !== inputs.RetryCooldownSeconds) {
           await updateOption('RetryCooldownSeconds', inputs.RetryCooldownSeconds);
+        }
+        break;
+      case 'other':
+        if (originInputs['ChatCacheExpireMinute'] !== inputs.ChatCacheExpireMinute) {
+          await updateOption('ChatCacheExpireMinute', inputs.ChatCacheExpireMinute);
         }
         break;
     }
@@ -292,7 +299,34 @@ const OperationSetting = () => {
               label="Midjourney 允许回调（会泄露服务器ip地址）"
               control={<Checkbox checked={inputs.MjNotifyEnabled === 'true'} onChange={handleInputChange} name="MjNotifyEnabled" />}
             />
+            <FormControlLabel
+              sx={{ marginLeft: '0px' }}
+              label="是否开启聊天缓存(如果没有启用Redis，将会存储在数据库中)"
+              control={<Checkbox checked={inputs.ChatCacheEnabled === 'true'} onChange={handleInputChange} name="ChatCacheEnabled" />}
+            />
           </Stack>
+          <Stack direction={{ sm: 'column', md: 'row' }} spacing={{ xs: 3, sm: 2, md: 4 }}>
+            <FormControl>
+              <InputLabel htmlFor="ChatCacheExpireMinute">缓存时间(分钟)</InputLabel>
+              <OutlinedInput
+                id="ChatCacheExpireMinute"
+                name="ChatCacheExpireMinute"
+                value={inputs.ChatCacheExpireMinute}
+                onChange={handleInputChange}
+                label="缓存时间(分钟)"
+                placeholder="开启缓存时，数据缓存的时间"
+                disabled={loading}
+              />
+            </FormControl>
+          </Stack>
+          <Button
+            variant="contained"
+            onClick={() => {
+              submitConfig('other').then();
+            }}
+          >
+            保存其他设置
+          </Button>
         </Stack>
       </SubCard>
       <SubCard title="日志设置">

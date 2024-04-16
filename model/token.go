@@ -2,6 +2,7 @@ package model
 
 import (
 	"errors"
+	"fmt"
 	"one-api/common"
 	"one-api/common/stmp"
 
@@ -20,6 +21,7 @@ type Token struct {
 	RemainQuota    int    `json:"remain_quota" gorm:"default:0"`
 	UnlimitedQuota bool   `json:"unlimited_quota" gorm:"default:false"`
 	UsedQuota      int    `json:"used_quota" gorm:"default:0"` // used quota
+	ChatCache      bool   `json:"chat_cache" gorm:"default:false"`
 }
 
 var allowedTokenOrderFields = map[string]bool{
@@ -40,7 +42,7 @@ func GetUserTokensList(userId int, params *GenericParams) (*DataResult[Token], e
 		db = db.Where("name LIKE ?", params.Keyword+"%")
 	}
 
-	return PaginateAndOrder[Token](db, &params.PaginationParams, &tokens, allowedTokenOrderFields)
+	return PaginateAndOrder(db, &params.PaginationParams, &tokens, allowedTokenOrderFields)
 }
 
 // 获取状态为可用的令牌
@@ -114,13 +116,26 @@ func GetTokenById(id int) (*Token, error) {
 }
 
 func (token *Token) Insert() error {
+	if token.ChatCache && !common.ChatCacheEnabled {
+		token.ChatCache = false
+	}
+
 	err := DB.Create(token).Error
 	return err
 }
 
 // Update Make sure your token's fields is completed, because this will update non-zero values
 func (token *Token) Update() error {
-	err := DB.Model(token).Select("name", "status", "expired_time", "remain_quota", "unlimited_quota").Updates(token).Error
+	if token.ChatCache && !common.ChatCacheEnabled {
+		token.ChatCache = false
+	}
+
+	err := DB.Model(token).Select("name", "status", "expired_time", "remain_quota", "unlimited_quota", "chat_cache").Updates(token).Error
+	// 防止Redis缓存不生效，直接删除
+	if err == nil && common.RedisEnabled {
+		common.RedisDel(fmt.Sprintf("token:%s", token.Key))
+	}
+
 	return err
 }
 

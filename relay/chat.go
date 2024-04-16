@@ -37,6 +37,10 @@ func (r *relayChat) setRequest() error {
 	return nil
 }
 
+func (r *relayChat) getRequest() interface{} {
+	return &r.chatRequest
+}
+
 func (r *relayChat) getPromptTokens() (int, error) {
 	return common.CountTokenMessages(r.chatRequest.Messages, r.modelName), nil
 }
@@ -58,7 +62,7 @@ func (r *relayChat) send() (err *types.OpenAIErrorWithStatusCode, done bool) {
 			return
 		}
 
-		err = responseStreamClient(r.c, response)
+		err = responseStreamClient(r.c, response, r.cache)
 	} else {
 		var response *types.ChatCompletionResponse
 		response, err = chatProvider.CreateChatCompletion(&r.chatRequest)
@@ -66,6 +70,7 @@ func (r *relayChat) send() (err *types.OpenAIErrorWithStatusCode, done bool) {
 			return
 		}
 		err = responseJsonClient(r.c, response)
+		r.cache.SetResponse(response)
 	}
 
 	if err != nil {

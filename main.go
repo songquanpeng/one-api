@@ -9,6 +9,7 @@ import (
 	"one-api/common/requester"
 	"one-api/common/telegram"
 	"one-api/controller"
+	"one-api/cron"
 	"one-api/middleware"
 	"one-api/model"
 	"one-api/relay/util"
@@ -48,6 +49,7 @@ func main() {
 
 	controller.InitMidjourneyTask()
 	notify.InitNotifier()
+	cron.InitCron()
 
 	initHttpServer()
 }

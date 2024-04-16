@@ -1,6 +1,7 @@
 package common
 
 import (
+	"encoding/json"
 	"fmt"
 	"html/template"
 	"log"
@@ -247,4 +248,17 @@ func EscapeMarkdownText(text string) string {
 		text = strings.ReplaceAll(text, char, "\\"+char)
 	}
 	return text
+}
+
+func UnmarshalString[T interface{}](data string) (form T, err error) {
+	err = json.Unmarshal([]byte(data), &form)
+	return form, err
+}
+
+func Marshal[T interface{}](data T) string {
+	res, err := json.Marshal(data)
+	if err != nil {
+		return ""
+	}
+	return string(res)
 }

@@ -76,6 +76,9 @@ func InitOptionMap() {
 
 	common.OptionMap["MjNotifyEnabled"] = strconv.FormatBool(common.MjNotifyEnabled)
 
+	common.OptionMap["ChatCacheEnabled"] = strconv.FormatBool(common.ChatCacheEnabled)
+	common.OptionMap["ChatCacheExpireMinute"] = strconv.Itoa(common.ChatCacheExpireMinute)
+
 	common.OptionMapRWMutex.Unlock()
 	loadOptionsFromDatabase()
 }
@@ -115,14 +118,15 @@ func UpdateOption(key string, value string) error {
 }
 
 var optionIntMap = map[string]*int{
-	"SMTPPort":             &common.SMTPPort,
-	"QuotaForNewUser":      &common.QuotaForNewUser,
-	"QuotaForInviter":      &common.QuotaForInviter,
-	"QuotaForInvitee":      &common.QuotaForInvitee,
-	"QuotaRemindThreshold": &common.QuotaRemindThreshold,
-	"PreConsumedQuota":     &common.PreConsumedQuota,
-	"RetryTimes":           &common.RetryTimes,
-	"RetryCooldownSeconds": &common.RetryCooldownSeconds,
+	"SMTPPort":              &common.SMTPPort,
+	"QuotaForNewUser":       &common.QuotaForNewUser,
+	"QuotaForInviter":       &common.QuotaForInviter,
+	"QuotaForInvitee":       &common.QuotaForInvitee,
+	"QuotaRemindThreshold":  &common.QuotaRemindThreshold,
+	"PreConsumedQuota":      &common.PreConsumedQuota,
+	"RetryTimes":            &common.RetryTimes,
+	"RetryCooldownSeconds":  &common.RetryCooldownSeconds,
+	"ChatCacheExpireMinute": &common.ChatCacheExpireMinute,
 }
 
 var optionBoolMap = map[string]*bool{
@@ -141,6 +145,7 @@ var optionBoolMap = map[string]*bool{
 	"DisplayInCurrencyEnabled":       &common.DisplayInCurrencyEnabled,
 	"DisplayTokenStatEnabled":        &common.DisplayTokenStatEnabled,
 	"MjNotifyEnabled":                &common.MjNotifyEnabled,
+	"ChatCacheEnabled":               &common.ChatCacheEnabled,
 }
 
 var optionStringMap = map[string]*string{

@@ -37,6 +37,10 @@ func (r *relayCompletions) setRequest() error {
 	return nil
 }
 
+func (r *relayCompletions) getRequest() interface{} {
+	return &r.request
+}
+
 func (r *relayCompletions) getPromptTokens() (int, error) {
 	return common.CountTokenInput(r.request.Prompt, r.modelName), nil
 }
@@ -58,7 +62,7 @@ func (r *relayCompletions) send() (err *types.OpenAIErrorWithStatusCode, done bo
 			return
 		}
 
-		err = responseStreamClient(r.c, response)
+		err = responseStreamClient(r.c, response, r.cache)
 	} else {
 		var response *types.CompletionResponse
 		response, err = provider.CreateCompletion(&r.request)
@@ -66,6 +70,7 @@ func (r *relayCompletions) send() (err *types.OpenAIErrorWithStatusCode, done bo
 			return
 		}
 		err = responseJsonClient(r.c, response)
+		r.cache.SetResponse(response)
 	}
 
 	if err != nil {

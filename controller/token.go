@@ -104,6 +104,7 @@ func AddToken(c *gin.Context) {
 		ExpiredTime:    token.ExpiredTime,
 		RemainQuota:    token.RemainQuota,
 		UnlimitedQuota: token.UnlimitedQuota,
+		ChatCache:      token.ChatCache,
 	}
 	err = cleanToken.Insert()
 	if err != nil {
@@ -187,6 +188,7 @@ func UpdateToken(c *gin.Context) {
 		cleanToken.ExpiredTime = token.ExpiredTime
 		cleanToken.RemainQuota = token.RemainQuota
 		cleanToken.UnlimitedQuota = token.UnlimitedQuota
+		cleanToken.ChatCache = token.ChatCache
 	}
 	err = cleanToken.Update()
 	if err != nil {

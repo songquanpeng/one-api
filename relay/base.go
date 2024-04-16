@@ -1,6 +1,7 @@
 package relay
 
 import (
+	"one-api/relay/util"
 	"one-api/types"
 
 	providersBase "one-api/providers/base"
@@ -13,17 +14,33 @@ type relayBase struct {
 	provider      providersBase.ProviderInterface
 	originalModel string
 	modelName     string
+	cache         *util.ChatCacheProps
 }
 
 type RelayBaseInterface interface {
 	send() (err *types.OpenAIErrorWithStatusCode, done bool)
 	getPromptTokens() (int, error)
 	setRequest() error
+	getRequest() any
 	setProvider(modelName string) error
 	getProvider() providersBase.ProviderInterface
 	getOriginalModel() string
 	getModelName() string
 	getContext() *gin.Context
+	SetChatCache(allow bool)
+	GetChatCache() *util.ChatCacheProps
+}
+
+func (r *relayBase) SetChatCache(allow bool) {
+	r.cache = util.NewChatCacheProps(r.c, allow)
+}
+
+func (r *relayBase) GetChatCache() *util.ChatCacheProps {
+	return r.cache
+}
+
+func (r *relayBase) getRequest() interface{} {
+	return nil
 }
 
 func (r *relayBase) setProvider(modelName string) error {

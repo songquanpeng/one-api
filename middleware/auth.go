@@ -105,6 +105,7 @@ func tokenAuth(c *gin.Context, key string) {
 	c.Set("id", token.UserId)
 	c.Set("token_id", token.Id)
 	c.Set("token_name", token.Name)
+	c.Set("chat_cache", token.ChatCache)
 	if len(parts) > 1 {
 		if model.IsAdmin(token.UserId) {
 			channelId := common.String2Int(parts[1])
