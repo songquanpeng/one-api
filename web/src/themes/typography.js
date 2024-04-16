@@ -145,6 +145,11 @@ export default function themeTypography(theme) {
     },
     SubCard: {
       border: theme.mode === 'dark' ? '1px solid rgba(227, 232, 239, 0.2)' : '1px solid rgb(227, 232, 239)'
+    },
+    LoginButton: {
+      color: theme.darkTextPrimary,
+      backgroundColor: theme.mode === 'dark' ? theme.backgroundDefault : theme.colors?.grey50,
+      borderColor: theme.mode === 'dark' ? theme.colors?.grey700 : theme.colors?.grey100
     }
   };
 }

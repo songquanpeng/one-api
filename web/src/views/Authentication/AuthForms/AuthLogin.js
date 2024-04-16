@@ -85,9 +85,7 @@ const LoginForm = ({ ...others }) => {
                   size="large"
                   variant="outlined"
                   sx={{
-                    color: 'grey.700',
-                    backgroundColor: theme.palette.grey[50],
-                    borderColor: theme.palette.grey[100]
+                    ...theme.typography.LoginButton
                   }}
                 >
                   <Box sx={{ mr: { xs: 1, sm: 2, width: 20 }, display: 'flex', alignItems: 'center' }}>
@@ -108,9 +106,7 @@ const LoginForm = ({ ...others }) => {
                   size="large"
                   variant="outlined"
                   sx={{
-                    color: 'grey.700',
-                    backgroundColor: theme.palette.grey[50],
-                    borderColor: theme.palette.grey[100]
+                    ...theme.typography.LoginButton
                   }}
                 >
                   <Box sx={{ mr: { xs: 1, sm: 2, width: 20 }, display: 'flex', alignItems: 'center' }}>
@@ -132,9 +128,7 @@ const LoginForm = ({ ...others }) => {
                   size="large"
                   variant="outlined"
                   sx={{
-                    color: 'grey.700',
-                    backgroundColor: theme.palette.grey[50],
-                    borderColor: theme.palette.grey[100]
+                    ...theme.typography.LoginButton
                   }}
                 >
                   <Box sx={{ mr: { xs: 1, sm: 2, width: 20 }, display: 'flex', alignItems: 'center' }}>
