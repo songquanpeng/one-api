@@ -262,6 +262,27 @@ const typeConfig = {
       model_mapping: ''
     },
     modelGroup: 'Midjourney'
+  },
+  35: {
+    input: {
+      models: [
+        '@cf/stabilityai/stable-diffusion-xl-base-1.0',
+        '@cf/lykon/dreamshaper-8-lcm',
+        '@cf/bytedance/stable-diffusion-xl-lightning',
+        '@cf/qwen/qwen1.5-7b-chat-awq',
+        '@cf/qwen/qwen1.5-14b-chat-awq',
+        '@hf/google/gemma-7b-it',
+        '@hf/thebloke/deepseek-coder-6.7b-base-awq',
+        '@hf/thebloke/llama-2-13b-chat-awq',
+        '@cf/openai/whisper'
+      ],
+      test_model: '@hf/google/gemma-7b-it'
+    },
+    prompt: {
+      key: '按照如下格式输入：CLOUDFLARE_ACCOUNT_ID|CLOUDFLARE_API_TOKEN',
+      base_url: ''
+    },
+    modelGroup: 'Cloudflare AI'
   }
 };
 

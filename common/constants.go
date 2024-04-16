@@ -172,6 +172,7 @@ const (
 	ChannelTypeBedrock        = 32
 	ChannelTypeLingyi         = 33
 	ChannelTypeMidjourney     = 34
+	ChannelTypeCloudflareAI   = 35
 )
 
 var ChannelBaseURLs = []string{
@@ -210,6 +211,7 @@ var ChannelBaseURLs = []string{
 	"",                                  //32
 	"https://api.lingyiwanwu.com",       //33
 	"",                                  //34
+	"",                                  //35
 }
 
 const (

@@ -11,6 +11,7 @@ import (
 	"one-api/providers/base"
 	"one-api/providers/bedrock"
 	"one-api/providers/claude"
+	"one-api/providers/cloudflareAI"
 	"one-api/providers/deepseek"
 	"one-api/providers/gemini"
 	"one-api/providers/groq"
@@ -54,6 +55,7 @@ func init() {
 	providerFactories[common.ChannelTypeGroq] = groq.GroqProviderFactory{}
 	providerFactories[common.ChannelTypeBedrock] = bedrock.BedrockProviderFactory{}
 	providerFactories[common.ChannelTypeMidjourney] = midjourney.MidjourneyProviderFactory{}
+	providerFactories[common.ChannelTypeCloudflareAI] = cloudflareAI.CloudflareAIProviderFactory{}
 
 }
 

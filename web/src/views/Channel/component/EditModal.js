@@ -351,27 +351,29 @@ const EditModal = ({ open, channelId, onCancel, onOk, groupOptions }) => {
                 )}
               </FormControl>
 
-              <FormControl fullWidth error={Boolean(touched.base_url && errors.base_url)} sx={{ ...theme.typography.otherInput }}>
-                <InputLabel htmlFor="channel-base_url-label">{inputLabel.base_url}</InputLabel>
-                <OutlinedInput
-                  id="channel-base_url-label"
-                  label={inputLabel.base_url}
-                  type="text"
-                  value={values.base_url}
-                  name="base_url"
-                  onBlur={handleBlur}
-                  onChange={handleChange}
-                  inputProps={{}}
-                  aria-describedby="helper-text-channel-base_url-label"
-                />
-                {touched.base_url && errors.base_url ? (
-                  <FormHelperText error id="helper-tex-channel-base_url-label">
-                    {errors.base_url}
-                  </FormHelperText>
-                ) : (
-                  <FormHelperText id="helper-tex-channel-base_url-label"> {inputPrompt.base_url} </FormHelperText>
-                )}
-              </FormControl>
+              {inputPrompt.base_url && (
+                <FormControl fullWidth error={Boolean(touched.base_url && errors.base_url)} sx={{ ...theme.typography.otherInput }}>
+                  <InputLabel htmlFor="channel-base_url-label">{inputLabel.base_url}</InputLabel>
+                  <OutlinedInput
+                    id="channel-base_url-label"
+                    label={inputLabel.base_url}
+                    type="text"
+                    value={values.base_url}
+                    name="base_url"
+                    onBlur={handleBlur}
+                    onChange={handleChange}
+                    inputProps={{}}
+                    aria-describedby="helper-text-channel-base_url-label"
+                  />
+                  {touched.base_url && errors.base_url ? (
+                    <FormHelperText error id="helper-tex-channel-base_url-label">
+                      {errors.base_url}
+                    </FormHelperText>
+                  ) : (
+                    <FormHelperText id="helper-tex-channel-base_url-label"> {inputPrompt.base_url} </FormHelperText>
+                  )}
+                </FormControl>
+              )}
 
               {inputPrompt.other && (
                 <FormControl fullWidth error={Boolean(touched.other && errors.other)} sx={{ ...theme.typography.otherInput }}>

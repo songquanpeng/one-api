@@ -20,11 +20,18 @@ type AudioRequest struct {
 }
 
 type AudioResponse struct {
-	Task     string  `json:"task,omitempty"`
-	Language string  `json:"language,omitempty"`
-	Duration float64 `json:"duration,omitempty"`
-	Segments any     `json:"segments,omitempty"`
-	Text     string  `json:"text"`
+	Task     string           `json:"task,omitempty"`
+	Language string           `json:"language,omitempty"`
+	Duration float64          `json:"duration,omitempty"`
+	Segments any              `json:"segments,omitempty"`
+	Text     string           `json:"text"`
+	Words    []AudioWordsList `json:"words,omitempty"`
+}
+
+type AudioWordsList struct {
+	Word  string  `json:"word"`
+	Start float64 `json:"start"`
+	End   float64 `json:"end"`
 }
 
 type AudioResponseWrapper struct {

@@ -139,6 +139,13 @@ export const CHANNEL_OPTIONS = {
     color: 'orange',
     url: ''
   },
+  35: {
+    key: 35,
+    text: 'Cloudflare AI',
+    value: 35,
+    color: 'orange',
+    url: ''
+  },
   24: {
     key: 24,
     text: 'Azure Speech',
