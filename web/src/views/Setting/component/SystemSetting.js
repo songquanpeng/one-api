@@ -31,6 +31,8 @@ const SystemSetting = () => {
     GitHubOAuthEnabled: '',
     GitHubClientId: '',
     GitHubClientSecret: '',
+    LarkClientId: '',
+    LarkClientSecret: '',
     Notice: '',
     SMTPServer: '',
     SMTPPort: '',
@@ -144,7 +146,9 @@ const SystemSetting = () => {
       name === 'WeChatAccountQRCodeImageURL' ||
       name === 'TurnstileSiteKey' ||
       name === 'TurnstileSecretKey' ||
-      name === 'EmailDomainWhitelist'
+      name === 'EmailDomainWhitelist' ||
+      name === 'LarkClientId' ||
+      name === 'LarkClientSecret'
     ) {
       setInputs((inputs) => ({ ...inputs, [name]: value }));
     } else {
@@ -206,6 +210,15 @@ const SystemSetting = () => {
     }
     if (originInputs['TurnstileSecretKey'] !== inputs.TurnstileSecretKey && inputs.TurnstileSecretKey !== '') {
       await updateOption('TurnstileSecretKey', inputs.TurnstileSecretKey);
+    }
+  };
+
+  const submitLarkOAuth = async () => {
+    if (originInputs['LarkClientId'] !== inputs.LarkClientId) {
+      await updateOption('LarkClientId', inputs.LarkClientId);
+    }
+    if (originInputs['LarkClientSecret'] !== inputs.LarkClientSecret && inputs.LarkClientSecret !== '') {
+      await updateOption('LarkClientSecret', inputs.LarkClientSecret);
     }
   };
 
@@ -541,6 +554,61 @@ const SystemSetting = () => {
             <Grid xs={12}>
               <Button variant="contained" onClick={submitWeChat}>
                 保存 WeChat Server 设置
+              </Button>
+            </Grid>
+          </Grid>
+        </SubCard>
+        <SubCard
+          title="配置飞书授权登录"
+          subTitle={
+            <span>
+              {' '}
+              用以支持通过飞书进行登录注册，
+              <a href="https://open.feishu.cn/app" target="_blank" rel="noreferrer">
+                点击此处
+              </a>
+              管理你的飞书应用
+            </span>
+          }
+        >
+          <Grid container spacing={{ xs: 3, sm: 2, md: 4 }}>
+            <Grid xs={12}>
+              <Alert severity="info" sx={{ wordWrap: 'break-word' }}>
+                主页链接填 <code>{inputs.ServerAddress}</code>
+                ，重定向 URL 填 <code>{`${inputs.ServerAddress}/oauth/lark`}</code>
+              </Alert>
+            </Grid>
+            <Grid xs={12} md={6}>
+              <FormControl fullWidth>
+                <InputLabel htmlFor="LarkClientId">App ID</InputLabel>
+                <OutlinedInput
+                  id="LarkClientId"
+                  name="LarkClientId"
+                  value={inputs.LarkClientId || ''}
+                  onChange={handleInputChange}
+                  label="App ID"
+                  placeholder="输入 App ID"
+                  disabled={loading}
+                />
+              </FormControl>
+            </Grid>
+            <Grid xs={12} md={6}>
+              <FormControl fullWidth>
+                <InputLabel htmlFor="LarkClientSecret">App Secret</InputLabel>
+                <OutlinedInput
+                  id="LarkClientSecret"
+                  name="LarkClientSecret"
+                  value={inputs.LarkClientSecret || ''}
+                  onChange={handleInputChange}
+                  label="App Secret"
+                  placeholder="敏感信息不会发送到前端显示"
+                  disabled={loading}
+                />
+              </FormControl>
+            </Grid>
+            <Grid xs={12}>
+              <Button variant="contained" onClick={submitLarkOAuth}>
+                保存飞书 OAuth 设置
               </Button>
             </Grid>
           </Grid>

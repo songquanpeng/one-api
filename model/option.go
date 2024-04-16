@@ -166,6 +166,8 @@ var optionStringMap = map[string]*string{
 	"TurnstileSecretKey":          &common.TurnstileSecretKey,
 	"TopUpLink":                   &common.TopUpLink,
 	"ChatLink":                    &common.ChatLink,
+	"LarkClientId":                &common.LarkClientId,
+	"LarkClientSecret":            &common.LarkClientSecret,
 }
 
 func updateOptionMap(key string, value string) (err error) {

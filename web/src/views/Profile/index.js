@@ -1,17 +1,32 @@
 import { useState, useEffect } from 'react';
 import UserCard from 'ui-component/cards/UserCard';
-import { Card, Button, InputLabel, FormControl, OutlinedInput, Stack, Alert, Divider, Chip, Typography } from '@mui/material';
+import {
+  Card,
+  Button,
+  InputLabel,
+  FormControl,
+  OutlinedInput,
+  Stack,
+  Alert,
+  Divider,
+  Chip,
+  Typography,
+  SvgIcon,
+  useMediaQuery
+} from '@mui/material';
 import Grid from '@mui/material/Unstable_Grid2';
 import SubCard from 'ui-component/cards/SubCard';
 import { IconBrandWechat, IconBrandGithub, IconMail, IconBrandTelegram } from '@tabler/icons-react';
 import Label from 'ui-component/Label';
 import { API } from 'utils/api';
-import { showError, showSuccess, onGitHubOAuthClicked, copy, trims } from 'utils/common';
+import { showError, showSuccess, onGitHubOAuthClicked, copy, trims, onLarkOAuthClicked } from 'utils/common';
 import * as Yup from 'yup';
 import WechatModal from 'views/Authentication/AuthForms/WechatModal';
 import { useSelector } from 'react-redux';
 import EmailModal from './component/EmailModal';
 import Turnstile from 'react-turnstile';
+import { ReactComponent as Lark } from 'assets/images/icons/lark.svg';
+import { useTheme } from '@mui/material/styles';
 
 const validationSchema = Yup.object().shape({
   username: Yup.string().required('用户名 不能为空').min(3, '用户名 不能小于 3 个字符'),
@@ -29,6 +44,8 @@ export default function Profile() {
   const [openWechat, setOpenWechat] = useState(false);
   const [openEmail, setOpenEmail] = useState(false);
   const status = useSelector((state) => state.siteInfo);
+  const theme = useTheme();
+  const matchDownSM = useMediaQuery(theme.breakpoints.down('md'));
 
   const handleWechatOpen = () => {
     setOpenWechat(true);
@@ -120,7 +137,13 @@ export default function Profile() {
       <UserCard>
         <Card sx={{ paddingTop: '20px' }}>
           <Stack spacing={2}>
-            <Stack direction="row" alignItems="center" justifyContent="center" spacing={2} sx={{ paddingBottom: '20px' }}>
+            <Stack
+              direction={matchDownSM ? 'column' : 'row'}
+              alignItems="center"
+              justifyContent="center"
+              spacing={2}
+              sx={{ paddingBottom: '20px' }}
+            >
               <Label variant="ghost" color={inputs.wechat_id ? 'primary' : 'default'}>
                 <IconBrandWechat /> {inputs.wechat_id || '未绑定'}
               </Label>
@@ -132,6 +155,9 @@ export default function Profile() {
               </Label>
               <Label variant="ghost" color={inputs.telegram_id ? 'primary' : 'default'}>
                 <IconBrandTelegram /> {inputs.telegram_id || '未绑定'}
+              </Label>
+              <Label variant="ghost" color={inputs.lark_id ? 'primary' : 'default'}>
+                <SvgIcon component={Lark} inheritViewBox="0 0 24 24" /> {inputs.lark_id || '未绑定'}
               </Label>
             </Stack>
             <SubCard title="个人信息">
@@ -198,6 +224,14 @@ export default function Profile() {
                   <Grid xs={12} md={4}>
                     <Button variant="contained" onClick={() => onGitHubOAuthClicked(status.github_client_id, true)}>
                       绑定GitHub账号
+                    </Button>
+                  </Grid>
+                )}
+
+                {status.lark_client_id && !inputs.lark_id && (
+                  <Grid xs={12} md={4}>
+                    <Button variant="contained" onClick={() => onLarkOAuthClicked(status.lark_client_id)}>
+                      绑定 飞书 账号
                     </Button>
                   </Grid>
                 )}
