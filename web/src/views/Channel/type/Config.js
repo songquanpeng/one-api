@@ -283,6 +283,13 @@ const typeConfig = {
       base_url: ''
     },
     modelGroup: 'Cloudflare AI'
+  },
+  36: {
+    input: {
+      models: ['command-r', 'command-r-plus'],
+      test_model: 'command-r'
+    },
+    modelGroup: 'Cohere'
   }
 };
 

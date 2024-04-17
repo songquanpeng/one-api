@@ -295,6 +295,10 @@ func GetDefaultPrice() []*Price {
 		"@hf/google/gemma-7b-it":                       {[]float64{0, 0}, common.ChannelTypeCloudflareAI},
 		"@hf/thebloke/llama-2-13b-chat-awq":            {[]float64{0, 0}, common.ChannelTypeCloudflareAI},
 		"@cf/openai/whisper":                           {[]float64{0, 0}, common.ChannelTypeCloudflareAI},
+		//$0.50 /1M TOKENS   $1.50/1M TOKENS
+		"command-r": {[]float64{0.25, 0.75}, common.ChannelTypeCohere},
+		//$3 /1M TOKENS   $15/1M TOKENS
+		"command-r-plus": {[]float64{1.5, 7.5}, common.ChannelTypeCohere},
 	}
 
 	var prices []*Price
