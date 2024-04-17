@@ -163,7 +163,8 @@ const typeConfig = {
       models: ['tts-1', 'tts-1-hd']
     },
     prompt: {
-      test_model: ''
+      test_model: '',
+      base_url: '请输入请求地址，例如：https://eastasia.tts.speech.microsoft.com'
     }
   },
   27: {
