@@ -27,5 +27,6 @@ func init() {
 		common.ChannelTypeMidjourney:   "Midjourney",
 		common.ChannelTypeCloudflareAI: "Cloudflare AI",
 		common.ChannelTypeCohere:       "Cohere",
+		common.ChannelTypeStabilityAI:  "Stability AI",
 	}
 }

@@ -153,6 +153,13 @@ export const CHANNEL_OPTIONS = {
     color: 'default',
     url: ''
   },
+  37: {
+    key: 37,
+    text: 'Stability AI',
+    value: 37,
+    color: 'default',
+    url: ''
+  },
   24: {
     key: 24,
     text: 'Azure Speech',

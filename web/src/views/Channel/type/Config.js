@@ -291,6 +291,15 @@ const typeConfig = {
       test_model: 'command-r'
     },
     modelGroup: 'Cohere'
+  },
+  37: {
+    input: {
+      models: ['sd3', 'sd3-turbo', 'stable-image-core']
+    },
+    prompt: {
+      test_model: ''
+    },
+    modelGroup: 'Stability AI'
   }
 };
 

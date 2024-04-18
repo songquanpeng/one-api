@@ -299,6 +299,13 @@ func GetDefaultPrice() []*Price {
 		"command-r": {[]float64{0.25, 0.75}, common.ChannelTypeCohere},
 		//$3 /1M TOKENS   $15/1M TOKENS
 		"command-r-plus": {[]float64{1.5, 7.5}, common.ChannelTypeCohere},
+
+		// 0.065
+		"sd3": {[]float64{32.5, 32.5}, common.ChannelTypeStabilityAI},
+		// 0.04
+		"sd3-turbo": {[]float64{20, 20}, common.ChannelTypeStabilityAI},
+		// 0.03
+		"stable-image-core": {[]float64{15, 15}, common.ChannelTypeStabilityAI},
 	}
 
 	var prices []*Price
