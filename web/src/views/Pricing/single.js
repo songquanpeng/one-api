@@ -327,12 +327,12 @@ const Single = ({ ownedby, prices, reloadData }) => {
       }}
     >
       <DataGrid
-        autoHeight
         autosizeOnMount
         rows={rows}
         columns={modelRatioColumns}
         editMode="row"
-        hideFooter
+        initialState={{ pagination: { paginationModel: { pageSize: 20 } } }}
+        pageSizeOptions={[20, 30, 50, 100]}
         disableRowSelectionOnClick
         rowModesModel={rowModesModel}
         onRowModesModelChange={handleRowModesModelChange}
