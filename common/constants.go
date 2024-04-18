@@ -11,4 +11,5 @@ var (
 	CtxKeyRequestModel     string = "request_model"
 	CtxKeyRawRequest       string = "raw_request"
 	CtxKeyConvertedRequest string = "converted_request"
+	CtxKeyOriginModel      string = "origin_model"
 )
