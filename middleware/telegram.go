@@ -11,7 +11,7 @@ func Telegram() func(c *gin.Context) {
 	return func(c *gin.Context) {
 		token := c.Param("token")
 
-		if !telegram.TGEnabled || telegram.TGWebHookSecret == "" || token == "" || token != viper.GetString("TG_BOT_API_KEY") {
+		if !telegram.TGEnabled || telegram.TGWebHookSecret == "" || token == "" || token != viper.GetString("tg.bot_api_key") {
 			c.String(404, "Page not found")
 			c.Abort()
 			return

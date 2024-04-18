@@ -13,13 +13,13 @@ var RedisEnabled = false
 
 // InitRedisClient This function is called after init()
 func InitRedisClient() (err error) {
-	redisConn := viper.GetString("REDIS_CONN_STRING")
+	redisConn := viper.GetString("redis_conn_string")
 
 	if redisConn == "" {
 		SysLog("REDIS_CONN_STRING not set, Redis is not enabled")
 		return nil
 	}
-	if viper.GetInt("SYNC_FREQUENCY") == 0 {
+	if viper.GetInt("sync_frequency") == 0 {
 		SysLog("SYNC_FREQUENCY not set, Redis is disabled")
 		return nil
 	}
@@ -47,7 +47,7 @@ func InitRedisClient() (err error) {
 }
 
 func ParseRedisOption() *redis.Options {
-	opt, err := redis.ParseURL(viper.GetString("REDIS_CONN_STRING"))
+	opt, err := redis.ParseURL(viper.GetString("redis_conn_string"))
 	if err != nil {
 		FatalLog("failed to parse Redis connection string: " + err.Error())
 	}

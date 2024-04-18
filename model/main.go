@@ -24,9 +24,9 @@ func SetupDB() {
 	ChannelGroup.Load()
 	common.RootUserEmail = GetRootUserEmail()
 
-	if viper.GetBool("BATCH_UPDATE_ENABLED") {
+	if viper.GetBool("batch_update_enabled") {
 		common.BatchUpdateEnabled = true
-		common.BatchUpdateInterval = common.GetOrDefault("BATCH_UPDATE_INTERVAL", 5)
+		common.BatchUpdateInterval = common.GetOrDefault("batch_update_interval", 5)
 		common.SysLog("batch update enabled with interval " + strconv.Itoa(common.BatchUpdateInterval) + "s")
 		InitBatchUpdater()
 	}
@@ -56,8 +56,8 @@ func createRootAccountIfNeed() error {
 }
 
 func chooseDB() (*gorm.DB, error) {
-	if viper.IsSet("SQL_DSN") {
-		dsn := viper.GetString("SQL_DSN")
+	if viper.IsSet("sql_dsn") {
+		dsn := viper.GetString("sql_dsn")
 		if strings.HasPrefix(dsn, "postgres://") {
 			// Use PostgreSQL
 			common.SysLog("using PostgreSQL as database")
@@ -78,7 +78,7 @@ func chooseDB() (*gorm.DB, error) {
 	// Use SQLite
 	common.SysLog("SQL_DSN not set, using SQLite as database")
 	common.UsingSQLite = true
-	config := fmt.Sprintf("?_busy_timeout=%d", common.GetOrDefault("SQLITE_BUSY_TIMEOUT", 3000))
+	config := fmt.Sprintf("?_busy_timeout=%d", common.GetOrDefault("sqlite_busy_timeout", 3000))
 	return gorm.Open(sqlite.Open(viper.GetString("sqlite_path")+config), &gorm.Config{
 		PrepareStmt: true, // precompile SQL
 	})

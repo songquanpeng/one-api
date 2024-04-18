@@ -53,14 +53,3 @@ func TestImgurUpload(t *testing.T) {
 	fmt.Println(err)
 	assert.Nil(t, err)
 }
-
-// func TestSMMSUploadError(t *testing.T) {
-// 	InitConfig()
-// 	access_token := viper.GetString("notify.dingtalk.token")
-// 	secret := "test"
-// 	dingTalk := channel.NewDingTalk(access_token, secret)
-
-// 	err := dingTalk.Send(context.Background(), "Test Title", "*Test Message*")
-// 	fmt.Println(err)
-// 	assert.Error(t, err)
-// }

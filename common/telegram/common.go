@@ -28,7 +28,7 @@ func InitTelegramBot() {
 		return
 	}
 
-	botKey := viper.GetString("TG_BOT_API_KEY")
+	botKey := viper.GetString("tg.bot_api_key")
 	if botKey == "" {
 		common.SysLog("Telegram bot is not enabled")
 		return
@@ -48,7 +48,7 @@ func InitTelegramBot() {
 }
 
 func StartTelegramBot() {
-	botWebhook := viper.GetString("TG_WEBHOOK_SECRET")
+	botWebhook := viper.GetString("tg.webhook_secret")
 	if botWebhook != "" {
 		if common.ServerAddress == "" {
 			common.SysLog("Telegram bot is not enabled: Server address is not set")
@@ -57,7 +57,7 @@ func StartTelegramBot() {
 		}
 		TGWebHookSecret = botWebhook
 		serverAddress := strings.TrimSuffix(common.ServerAddress, "/")
-		urlPath := fmt.Sprintf("/api/telegram/%s", viper.GetString("TG_BOT_API_KEY"))
+		urlPath := fmt.Sprintf("/api/telegram/%s", viper.GetString("tg.bot_api_key"))
 
 		webHookOpts := &ext.AddWebhookOpts{
 			SecretToken: TGWebHookSecret,

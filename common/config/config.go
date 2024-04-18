@@ -20,9 +20,9 @@ func InitConf() {
 		common.SysLog("running in debug mode")
 	}
 
-	common.IsMasterNode = viper.GetString("NODE_TYPE") != "slave"
-	common.RequestInterval = time.Duration(viper.GetInt("POLLING_INTERVAL")) * time.Second
-	common.SessionSecret = common.GetOrDefault("SESSION_SECRET", common.SessionSecret)
+	common.IsMasterNode = viper.GetString("node_type") != "slave"
+	common.RequestInterval = time.Duration(viper.GetInt("polling_interval")) * time.Second
+	common.SessionSecret = common.GetOrDefault("session_secret", common.SessionSecret)
 }
 
 func setConfigFile() {

@@ -15,7 +15,7 @@ func SetRouter(router *gin.Engine, buildFS embed.FS, indexPage []byte) {
 	SetApiRouter(router)
 	SetDashboardRouter(router)
 	SetRelayRouter(router)
-	frontendBaseUrl := viper.GetString("FRONTEND_BASE_URL")
+	frontendBaseUrl := viper.GetString("frontend_base_url")
 	if common.IsMasterNode && frontendBaseUrl != "" {
 		frontendBaseUrl = ""
 		common.SysLog("FRONTEND_BASE_URL is ignored on master node")
