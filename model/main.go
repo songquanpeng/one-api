@@ -91,6 +91,11 @@ func chooseDB(envName string) (*gorm.DB, error) {
 
 func InitDB(envName string) (db *gorm.DB, err error) {
 	db, err = chooseDB(envName)
+
+	if config.DebugEnabled {
+		db = db.Debug()
+	}
+
 	if err == nil {
 		if config.DebugSQLEnabled {
 			db = db.Debug()

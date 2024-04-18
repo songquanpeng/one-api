@@ -34,6 +34,7 @@ const (
 	Ollama
 	LingYiWanWu
 	StepFun
+	AwsClaude
 
 	Dummy
 )

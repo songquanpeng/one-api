@@ -18,7 +18,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build && mv -f build ../build/default",
+    "build": "react-scripts build && rm -rf ../build/default && mv -f build ../build/default",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },

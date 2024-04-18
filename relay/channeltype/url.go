@@ -34,6 +34,7 @@ var ChannelBaseURLs = []string{
 	"http://localhost:11434",                    // 30
 	"https://api.lingyiwanwu.com",               // 31
 	"https://api.stepfun.com",                   // 32
+	"",                                          // 33
 }
 
 func init() {
