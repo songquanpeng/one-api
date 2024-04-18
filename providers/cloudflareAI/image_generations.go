@@ -5,6 +5,7 @@ import (
 	"io"
 	"net/http"
 	"one-api/common"
+	"one-api/common/storage"
 	"one-api/types"
 	"time"
 )
@@ -43,16 +44,25 @@ func (p *CloudflareAIProvider) CreateImageGenerations(request *types.ImageReques
 		return nil, common.ErrorWrapper(err, "read_response_failed", http.StatusInternalServerError)
 	}
 
-	base64Image := base64.StdEncoding.EncodeToString(body)
+	url := ""
+	if request.ResponseFormat == "" || request.ResponseFormat == "url" {
+		url = storage.Upload(body, common.GetUUID()+".png")
+	}
+
 	openaiResponse := &types.ImageResponse{
 		Created: time.Now().Unix(),
-		Data:    []types.ImageResponseDataInner{{B64JSON: base64Image}},
+	}
+
+	if url == "" {
+		base64Image := base64.StdEncoding.EncodeToString(body)
+		openaiResponse.Data = []types.ImageResponseDataInner{{B64JSON: base64Image}}
+	} else {
+		openaiResponse.Data = []types.ImageResponseDataInner{{URL: url}}
 	}
 
 	p.Usage.PromptTokens = 1000
 
 	return openaiResponse, nil
-
 }
 
 func convertFromIamgeOpenai(request *types.ImageRequest) *ImageRequest {

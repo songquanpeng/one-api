@@ -7,6 +7,7 @@ import (
 	"one-api/common/config"
 	"one-api/common/notify"
 	"one-api/common/requester"
+	"one-api/common/storage"
 	"one-api/common/telegram"
 	"one-api/controller"
 	"one-api/cron"
@@ -50,6 +51,7 @@ func main() {
 	controller.InitMidjourneyTask()
 	notify.InitNotifier()
 	cron.InitCron()
+	storage.InitStorage()
 
 	initHttpServer()
 }
