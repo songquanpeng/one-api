@@ -11,6 +11,7 @@ type Storage struct {
 }
 
 func InitStorage() {
+	InitImgurStorage()
 	InitSMStorage()
 }
 
@@ -22,4 +23,14 @@ func InitSMStorage() {
 
 	smUpload := drives.NewSMUpload(smSecret)
 	AddStorageDrive(smUpload)
+}
+
+func InitImgurStorage() {
+	imgurClientId := viper.GetString("storage.imgur.client_id")
+	if imgurClientId == "" {
+		return
+	}
+
+	imgurUpload := drives.NewImgurUpload(imgurClientId)
+	AddStorageDrive(imgurUpload)
 }

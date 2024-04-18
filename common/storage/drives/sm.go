@@ -31,7 +31,7 @@ type SMResponse struct {
 	Success   bool   `json:"success"`
 	Code      string `json:"code"`
 	Message   string `json:"message"`
-	Data      SMData `json:"data"`
+	Data      SMData `json:"data,omitempty"`
 	RequestID string `json:"RequestId"`
 }
 
@@ -56,6 +56,7 @@ func (sm *SMUpload) Upload(data []byte, fileName string) (string, error) {
 		return "", fmt.Errorf("creating form file: %w", err)
 	}
 	builder.WriteField("format", "json")
+	builder.Close()
 
 	headers := map[string]string{
 		"Content-type":  "application/json",

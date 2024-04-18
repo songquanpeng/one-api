@@ -38,6 +38,22 @@ func TestSMMSUpload(t *testing.T) {
 	assert.Nil(t, err)
 }
 
+func TestImgurUpload(t *testing.T) {
+	InitConfig()
+	imgurClientId := viper.GetString("storage.imgur.client_id")
+	imgurUpload := drives.NewImgurUpload(imgurClientId)
+
+	image, err := base64.StdEncoding.DecodeString(testImageB64)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	url, err := imgurUpload.Upload(image, common.GetUUID()+".png")
+	fmt.Println(url)
+	fmt.Println(err)
+	assert.Nil(t, err)
+}
+
 // func TestSMMSUploadError(t *testing.T) {
 // 	InitConfig()
 // 	access_token := viper.GetString("notify.dingtalk.token")
