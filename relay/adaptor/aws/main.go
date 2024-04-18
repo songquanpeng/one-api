@@ -188,6 +188,7 @@ func StreamHandler(c *gin.Context, resp *http.Response) (*relaymodel.ErrorWithSt
 	c.Stream(func(w io.Writer) bool {
 		event, ok := <-stream.Events()
 		if !ok {
+			c.Render(-1, common.CustomEvent{Data: "data: [DONE]"})
 			return false
 		}
 
