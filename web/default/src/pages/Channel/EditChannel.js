@@ -92,7 +92,9 @@ const EditChannel = () => {
         data.model_mapping = JSON.stringify(JSON.parse(data.model_mapping), null, 2);
       }
       setInputs(data);
-      setConfig(JSON.parse(data.config));
+      if (data.config !== '') {
+        setConfig(JSON.parse(data.config));
+      }
       setBasicModels(getChannelModels(data.type));
     } else {
       showError(message);
