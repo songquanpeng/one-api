@@ -212,7 +212,7 @@ func StreamHandler(c *gin.Context, resp *http.Response) (*relaymodel.ErrorWithSt
 				return true
 			}
 			response.Id = id
-			response.Model = c.GetString(ctxkey.OriginModel)
+			response.Model = c.GetString(ctxkey.OriginalModel)
 			response.Created = createdTime
 			jsonStr, err := json.Marshal(response)
 			if err != nil {

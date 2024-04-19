@@ -55,7 +55,7 @@ func Relay(c *gin.Context) {
 	lastFailedChannelId := channelId
 	channelName := c.GetString("channel_name")
 	group := c.GetString("group")
-	originalModel := c.GetString(ctxkey.OriginModel)
+	originalModel := c.GetString(ctxkey.OriginalModel)
 	go processChannelRelayError(ctx, channelId, channelName, bizErr)
 	requestId := c.GetString(logger.RequestIdKey)
 	retryTimes := config.RetryTimes
