@@ -65,7 +65,7 @@ _✨ 通过标准的 OpenAI API 格式访问所有的大模型，开箱即用 �
 ## 功能
 1. 支持多种大模型：
    + [x] [OpenAI ChatGPT 系列模型](https://platform.openai.com/docs/guides/gpt/chat-completions-api)（支持 [Azure OpenAI API](https://learn.microsoft.com/en-us/azure/ai-services/openai/reference)）
-   + [x] [Anthropic Claude 系列模型](https://anthropic.com)
+   + [x] [Anthropic Claude 系列模型](https://anthropic.com) (支持 AWS Claude)
    + [x] [Google PaLM2/Gemini 系列模型](https://developers.generativeai.google)
    + [x] [Mistral 系列模型](https://mistral.ai/)
    + [x] [百度文心一言系列模型](https://cloud.baidu.com/doc/WENXINWORKSHOP/index.html)
