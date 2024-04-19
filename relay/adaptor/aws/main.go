@@ -43,7 +43,7 @@ func wrapErr(err error) *relaymodel.ErrorWithStatusCode {
 	return &relaymodel.ErrorWithStatusCode{
 		StatusCode: http.StatusInternalServerError,
 		Error: relaymodel.Error{
-			Message: fmt.Sprintf("%+v", err),
+			Message: fmt.Sprintf("%s", err.Error()),
 		},
 	}
 }
