@@ -183,6 +183,7 @@ func StreamHandler(c *gin.Context, resp *http.Response) (*relaymodel.ErrorWithSt
 	stream := awsResp.GetStream()
 	defer stream.Close()
 
+	c.Writer.Header().Set("Content-Type", "text/event-stream")
 	var usage relaymodel.Usage
 	var id string
 	c.Stream(func(w io.Writer) bool {
