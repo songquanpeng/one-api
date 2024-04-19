@@ -54,6 +54,11 @@ const EditChannel = () => {
   const [basicModels, setBasicModels] = useState([]);
   const [fullModels, setFullModels] = useState([]);
   const [customModel, setCustomModel] = useState('');
+  const [config, setConfig] = useState({
+    region: '',
+    sk: '',
+    ak: ''
+  });
   const handleInputChange = (e, { name, value }) => {
     setInputs((inputs) => ({ ...inputs, [name]: value }));
     if (name === 'type') {
@@ -63,6 +68,10 @@ const EditChannel = () => {
       }
       setBasicModels(localModels);
     }
+  };
+
+  const handleConfigChange = (e, { name, value }) => {
+    setConfig((inputs) => ({ ...inputs, [name]: value }));
   };
 
   const loadChannel = async () => {
@@ -83,6 +92,7 @@ const EditChannel = () => {
         data.model_mapping = JSON.stringify(JSON.parse(data.model_mapping), null, 2);
       }
       setInputs(data);
+      setConfig(JSON.parse(data.config));
       setBasicModels(getChannelModels(data.type));
     } else {
       showError(message);
@@ -176,6 +186,7 @@ const EditChannel = () => {
     let res;
     localInputs.models = localInputs.models.join(',');
     localInputs.group = localInputs.groups.join(',');
+    localInputs.config = JSON.stringify(config);
     if (isEdit) {
       res = await API.put(`/api/channel/`, { ...localInputs, id: parseInt(channelId) });
     } else {
@@ -352,7 +363,9 @@ const EditChannel = () => {
               fluid
               multiple
               search
-              onLabelClick={(e, { value }) => {copy(value).then()}}
+              onLabelClick={(e, { value }) => {
+                copy(value).then();
+              }}
               selection
               onChange={handleInputChange}
               value={inputs.models}
@@ -403,11 +416,11 @@ const EditChannel = () => {
               <Form.Field>
                 <Form.Input
                   label='Region'
-                  name='base_url'
+                  name='region'
                   required
                   placeholder={'region，e.g. us-west-2'}
-                  onChange={handleInputChange}
-                  value={inputs.base_url}
+                  onChange={handleConfigChange}
+                  value={config.region}
                   autoComplete=''
                 />
                 <Form.Input
@@ -415,8 +428,8 @@ const EditChannel = () => {
                   name='ak'
                   required
                   placeholder={'AWS IAM Access Key'}
-                  onChange={handleInputChange}
-                  value={inputs.ak}
+                  onChange={handleConfigChange}
+                  value={config.ak}
                   autoComplete=''
                 />
                 <Form.Input
@@ -424,8 +437,8 @@ const EditChannel = () => {
                   name='sk'
                   required
                   placeholder={'AWS IAM Secret Key'}
-                  onChange={handleInputChange}
-                  value={inputs.sk}
+                  onChange={handleConfigChange}
+                  value={config.sk}
                   autoComplete=''
                 />
               </Form.Field>

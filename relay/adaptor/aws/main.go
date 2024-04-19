@@ -5,10 +5,10 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/songquanpeng/one-api/common/config"
 	"github.com/songquanpeng/one-api/common/ctxkey"
 	"io"
 	"net/http"
-	"strings"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/credentials"
@@ -20,20 +20,16 @@ import (
 	"github.com/songquanpeng/one-api/common"
 	"github.com/songquanpeng/one-api/common/helper"
 	"github.com/songquanpeng/one-api/common/logger"
-	"github.com/songquanpeng/one-api/model"
 	"github.com/songquanpeng/one-api/relay/adaptor/anthropic"
 	relaymodel "github.com/songquanpeng/one-api/relay/model"
 )
 
-func newAwsClient(channel *model.Channel) (*bedrockruntime.Client, error) {
-	ks := strings.Split(channel.Key, "\n")
-	if len(ks) != 2 {
-		return nil, errors.New("invalid key")
-	}
-	ak, sk := ks[0], ks[1]
-
+func newAwsClient(c *gin.Context) (*bedrockruntime.Client, error) {
+	ak := c.GetString(config.KeyAK)
+	sk := c.GetString(config.KeySK)
+	region := c.GetString(config.KeyRegion)
 	client := bedrockruntime.New(bedrockruntime.Options{
-		Region:      *channel.BaseURL,
+		Region:      region,
 		Credentials: aws.NewCredentialsCache(credentials.NewStaticCredentialsProvider(ak, sk, "")),
 	})
 
@@ -68,14 +64,7 @@ func awsModelID(requestModel string) (string, error) {
 }
 
 func Handler(c *gin.Context, resp *http.Response, promptTokens int, modelName string) (*relaymodel.ErrorWithStatusCode, *relaymodel.Usage) {
-	var channel *model.Channel
-	if channel_, ok := c.Get(ctxkey.Channel); !ok {
-		return wrapErr(errors.New("channel not found")), nil
-	} else {
-		channel = channel_.(*model.Channel)
-	}
-
-	awsCli, err := newAwsClient(channel)
+	awsCli, err := newAwsClient(c)
 	if err != nil {
 		return wrapErr(errors.Wrap(err, "newAwsClient")), nil
 	}
@@ -134,15 +123,7 @@ func Handler(c *gin.Context, resp *http.Response, promptTokens int, modelName st
 
 func StreamHandler(c *gin.Context, resp *http.Response) (*relaymodel.ErrorWithStatusCode, *relaymodel.Usage) {
 	createdTime := helper.GetTimestamp()
-
-	var channel *model.Channel
-	if channel_, ok := c.Get(ctxkey.Channel); !ok {
-		return wrapErr(errors.New("channel not found")), nil
-	} else {
-		channel = channel_.(*model.Channel)
-	}
-
-	awsCli, err := newAwsClient(channel)
+	awsCli, err := newAwsClient(c)
 	if err != nil {
 		return wrapErr(errors.Wrap(err, "newAwsClient")), nil
 	}
