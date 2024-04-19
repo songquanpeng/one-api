@@ -25,6 +25,9 @@ func ToAPIType(channelType int) int {
 		apiType = apitype.Gemini
 	case Ollama:
 		apiType = apitype.Ollama
+	case AwsClaude:
+		apiType = apitype.AwsClaude
 	}
+
 	return apiType
 }

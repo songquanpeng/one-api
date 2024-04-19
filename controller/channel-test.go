@@ -88,7 +88,7 @@ func testChannel(channel *model.Channel) (err error, openaiErr *relaymodel.Error
 	if err != nil {
 		return err, nil
 	}
-	if resp.StatusCode != http.StatusOK {
+	if resp != nil && resp.StatusCode != http.StatusOK {
 		err := controller.RelayErrorHandler(resp)
 		return fmt.Errorf("status code %d: %s", resp.StatusCode, err.Error.Message), &err.Error
 	}

@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/songquanpeng/one-api/common"
 	"github.com/songquanpeng/one-api/common/config"
+	"github.com/songquanpeng/one-api/common/ctxkey"
 	"github.com/songquanpeng/one-api/common/helper"
 	"github.com/songquanpeng/one-api/common/logger"
 	"github.com/songquanpeng/one-api/middleware"
@@ -54,7 +55,7 @@ func Relay(c *gin.Context) {
 	lastFailedChannelId := channelId
 	channelName := c.GetString("channel_name")
 	group := c.GetString("group")
-	originalModel := c.GetString("original_model")
+	originalModel := c.GetString(ctxkey.OriginalModel)
 	go processChannelRelayError(ctx, channelId, channelName, bizErr)
 	requestId := c.GetString(logger.RequestIdKey)
 	retryTimes := config.RetryTimes
@@ -65,7 +66,7 @@ func Relay(c *gin.Context) {
 	for i := retryTimes; i > 0; i-- {
 		channel, err := dbmodel.CacheGetRandomSatisfiedChannel(group, originalModel, i != retryTimes)
 		if err != nil {
-			logger.Errorf(ctx, "CacheGetRandomSatisfiedChannel failed: %w", err)
+			logger.Errorf(ctx, "CacheGetRandomSatisfiedChannel failed: %+v", err)
 			break
 		}
 		logger.Infof(ctx, "using channel #%d to retry (remain times %d)", channel.Id, i)

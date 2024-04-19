@@ -91,7 +91,7 @@ func ConvertRequest(textRequest model.GeneralOpenAIRequest) *Request {
 }
 
 // https://docs.anthropic.com/claude/reference/messages-streaming
-func streamResponseClaude2OpenAI(claudeResponse *StreamResponse) (*openai.ChatCompletionsStreamResponse, *Response) {
+func StreamResponseClaude2OpenAI(claudeResponse *StreamResponse) (*openai.ChatCompletionsStreamResponse, *Response) {
 	var response *Response
 	var responseText string
 	var stopReason string
@@ -129,7 +129,7 @@ func streamResponseClaude2OpenAI(claudeResponse *StreamResponse) (*openai.ChatCo
 	return &openaiResponse, response
 }
 
-func responseClaude2OpenAI(claudeResponse *Response) *openai.TextResponse {
+func ResponseClaude2OpenAI(claudeResponse *Response) *openai.TextResponse {
 	var responseText string
 	if len(claudeResponse.Content) > 0 {
 		responseText = claudeResponse.Content[0].Text
@@ -199,7 +199,7 @@ func StreamHandler(c *gin.Context, resp *http.Response) (*model.ErrorWithStatusC
 				logger.SysError("error unmarshalling stream response: " + err.Error())
 				return true
 			}
-			response, meta := streamResponseClaude2OpenAI(&claudeResponse)
+			response, meta := StreamResponseClaude2OpenAI(&claudeResponse)
 			if meta != nil {
 				usage.PromptTokens += meta.Usage.InputTokens
 				usage.CompletionTokens += meta.Usage.OutputTokens
@@ -254,7 +254,7 @@ func Handler(c *gin.Context, resp *http.Response, promptTokens int, modelName st
 			StatusCode: resp.StatusCode,
 		}, nil
 	}
-	fullTextResponse := responseClaude2OpenAI(&claudeResponse)
+	fullTextResponse := ResponseClaude2OpenAI(&claudeResponse)
 	fullTextResponse.Model = modelName
 	usage := model.Usage{
 		PromptTokens:     claudeResponse.Usage.InputTokens,

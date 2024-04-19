@@ -106,9 +106,10 @@ func RelayImageHelper(c *gin.Context, relayMode int) *relaymodel.ErrorWithStatus
 	}
 
 	defer func(ctx context.Context) {
-		if resp.StatusCode != http.StatusOK {
+		if resp != nil && resp.StatusCode != http.StatusOK {
 			return
 		}
+
 		err := model.PostConsumeTokenQuota(meta.TokenId, quota)
 		if err != nil {
 			logger.SysError("error consuming token remain quota: " + err.Error())

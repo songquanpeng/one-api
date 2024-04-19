@@ -54,6 +54,11 @@ const EditChannel = () => {
   const [basicModels, setBasicModels] = useState([]);
   const [fullModels, setFullModels] = useState([]);
   const [customModel, setCustomModel] = useState('');
+  const [config, setConfig] = useState({
+    region: '',
+    sk: '',
+    ak: ''
+  });
   const handleInputChange = (e, { name, value }) => {
     setInputs((inputs) => ({ ...inputs, [name]: value }));
     if (name === 'type') {
@@ -63,6 +68,10 @@ const EditChannel = () => {
       }
       setBasicModels(localModels);
     }
+  };
+
+  const handleConfigChange = (e, { name, value }) => {
+    setConfig((inputs) => ({ ...inputs, [name]: value }));
   };
 
   const loadChannel = async () => {
@@ -83,6 +92,7 @@ const EditChannel = () => {
         data.model_mapping = JSON.stringify(JSON.parse(data.model_mapping), null, 2);
       }
       setInputs(data);
+      setConfig(JSON.parse(data.config));
       setBasicModels(getChannelModels(data.type));
     } else {
       showError(message);
@@ -144,6 +154,13 @@ const EditChannel = () => {
   }, []);
 
   const submit = async () => {
+    // some provider as AWS need both AK and SK rather than a single key,
+    // so we need to combine them into a single key to achieve the best compatibility.
+    if (inputs.ak && inputs.sk) {
+      console.log(`combine ak ${inputs.ak} and sk ${inputs.sk}`, inputs.ak, inputs.sk);
+      inputs.key = `${inputs.ak}\n${inputs.sk}`;
+    }
+
     if (!isEdit && (inputs.name === '' || inputs.key === '')) {
       showInfo('请填写渠道名称和渠道密钥！');
       return;
@@ -169,6 +186,7 @@ const EditChannel = () => {
     let res;
     localInputs.models = localInputs.models.join(',');
     localInputs.group = localInputs.groups.join(',');
+    localInputs.config = JSON.stringify(config);
     if (isEdit) {
       res = await API.put(`/api/channel/`, { ...localInputs, id: parseInt(channelId) });
     } else {
@@ -345,7 +363,9 @@ const EditChannel = () => {
               fluid
               multiple
               search
-              onLabelClick={(e, { value }) => {copy(value).then()}}
+              onLabelClick={(e, { value }) => {
+                copy(value).then();
+              }}
               selection
               onChange={handleInputChange}
               value={inputs.models}
@@ -392,7 +412,40 @@ const EditChannel = () => {
             />
           </Form.Field>
           {
-            batch ? <Form.Field>
+            inputs.type === 33 && (
+              <Form.Field>
+                <Form.Input
+                  label='Region'
+                  name='region'
+                  required
+                  placeholder={'region，e.g. us-west-2'}
+                  onChange={handleConfigChange}
+                  value={config.region}
+                  autoComplete=''
+                />
+                <Form.Input
+                  label='AK'
+                  name='ak'
+                  required
+                  placeholder={'AWS IAM Access Key'}
+                  onChange={handleConfigChange}
+                  value={config.ak}
+                  autoComplete=''
+                />
+                <Form.Input
+                  label='SK'
+                  name='sk'
+                  required
+                  placeholder={'AWS IAM Secret Key'}
+                  onChange={handleConfigChange}
+                  value={config.sk}
+                  autoComplete=''
+                />
+              </Form.Field>
+            )
+          }
+          {
+            inputs.type !== 33 && (batch ? <Form.Field>
               <Form.TextArea
                 label='密钥'
                 name='key'
@@ -413,10 +466,10 @@ const EditChannel = () => {
                 value={inputs.key}
                 autoComplete='new-password'
               />
-            </Form.Field>
+            </Form.Field>)
           }
           {
-            !isEdit && (
+            inputs.type !== 33 && !isEdit && (
               <Form.Checkbox
                 checked={batch}
                 label='批量创建'
@@ -426,7 +479,7 @@ const EditChannel = () => {
             )
           }
           {
-            inputs.type !== 3 && inputs.type !== 8 && inputs.type !== 22 && (
+            inputs.type !== 3 && inputs.type !== 33 && inputs.type !== 8 && inputs.type !== 22 && (
               <Form.Field>
                 <Form.Input
                   label='代理'
