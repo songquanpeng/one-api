@@ -39,7 +39,7 @@ func proxyFunc(req *http.Request) (*url.URL, error) {
 func socks5ProxyFunc(ctx context.Context, network, addr string) (net.Conn, error) {
 	// 设置TCP超时
 	dialer := &net.Dialer{
-		Timeout:   time.Duration(common.GetOrDefault("CONNECT_TIMEOUT", 5)) * time.Second,
+		Timeout:   time.Duration(common.GetOrDefault("connect_timeout", 5)) * time.Second,
 		KeepAlive: 30 * time.Second,
 	}
 
@@ -74,7 +74,7 @@ func InitHttpClient() {
 		Transport: trans,
 	}
 
-	relayTimeout := common.GetOrDefault("connect_timeout", 600)
+	relayTimeout := common.GetOrDefault("relay_timeout", 600)
 	if relayTimeout != 0 {
 		HTTPClient.Timeout = time.Duration(relayTimeout) * time.Second
 	}
