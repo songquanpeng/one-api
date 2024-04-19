@@ -62,15 +62,12 @@ func (a *Adaptor) DoResponse(c *gin.Context, resp *http.Response, meta *meta.Met
 	return
 }
 
-// https://docs.aws.amazon.com/bedrock/latest/userguide/model-ids.html
-var ModelList = []string{
-	"claude-3-haiku-20240307",
-	"claude-3-sonnet-20240229",
-	"claude-3-opus-20240229",
-}
+func (a *Adaptor) GetModelList() (models []string) {
+	for n := range awsModelIDMap {
+		models = append(models, n)
+	}
 
-func (a *Adaptor) GetModelList() []string {
-	return ModelList
+	return
 }
 
 func (a *Adaptor) GetChannelName() string {
