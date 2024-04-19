@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/songquanpeng/one-api/common"
 	"github.com/songquanpeng/one-api/common/config"
+	"github.com/songquanpeng/one-api/common/ctxkey"
 	"github.com/songquanpeng/one-api/common/helper"
 	"github.com/songquanpeng/one-api/common/logger"
 	"github.com/songquanpeng/one-api/middleware"
@@ -54,7 +55,7 @@ func Relay(c *gin.Context) {
 	lastFailedChannelId := channelId
 	channelName := c.GetString("channel_name")
 	group := c.GetString("group")
-	originalModel := c.GetString(common.CtxKeyOriginModel)
+	originalModel := c.GetString(ctxkey.OriginModel)
 	go processChannelRelayError(ctx, channelId, channelName, bizErr)
 	requestId := c.GetString(logger.RequestIdKey)
 	retryTimes := config.RetryTimes

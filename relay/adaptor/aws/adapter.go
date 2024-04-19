@@ -1,12 +1,12 @@
 package aws
 
 import (
+	"github.com/songquanpeng/one-api/common/ctxkey"
 	"io"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/pkg/errors"
-	"github.com/songquanpeng/one-api/common"
 	"github.com/songquanpeng/one-api/relay/adaptor"
 	"github.com/songquanpeng/one-api/relay/adaptor/anthropic"
 	"github.com/songquanpeng/one-api/relay/meta"
@@ -36,9 +36,8 @@ func (a *Adaptor) ConvertRequest(c *gin.Context, relayMode int, request *model.G
 	}
 
 	claudeReq := anthropic.ConvertRequest(*request)
-	c.Set(common.CtxKeyRequestModel, request.Model)
-	c.Set(common.CtxKeyRawRequest, request)
-	c.Set(common.CtxKeyConvertedRequest, claudeReq)
+	c.Set(ctxkey.RequestModel, request.Model)
+	c.Set(ctxkey.ConvertedRequest, claudeReq)
 	return claudeReq, nil
 }
 

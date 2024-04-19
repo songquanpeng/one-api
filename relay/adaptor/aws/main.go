@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/songquanpeng/one-api/common/ctxkey"
 	"io"
 	"net/http"
 	"strings"
@@ -68,10 +69,10 @@ func awsModelID(requestModel string) (string, error) {
 
 func Handler(c *gin.Context, resp *http.Response, promptTokens int, modelName string) (*relaymodel.ErrorWithStatusCode, *relaymodel.Usage) {
 	var channel *model.Channel
-	if channeli, ok := c.Get(common.CtxKeyChannel); !ok {
+	if channel_, ok := c.Get(ctxkey.Channel); !ok {
 		return wrapErr(errors.New("channel not found")), nil
 	} else {
-		channel = channeli.(*model.Channel)
+		channel = channel_.(*model.Channel)
 	}
 
 	awsCli, err := newAwsClient(channel)
@@ -79,7 +80,7 @@ func Handler(c *gin.Context, resp *http.Response, promptTokens int, modelName st
 		return wrapErr(errors.Wrap(err, "newAwsClient")), nil
 	}
 
-	awsModelId, err := awsModelID(c.GetString(common.CtxKeyRequestModel))
+	awsModelId, err := awsModelID(c.GetString(ctxkey.RequestModel))
 	if err != nil {
 		return wrapErr(errors.Wrap(err, "awsModelID")), nil
 	}
@@ -90,11 +91,11 @@ func Handler(c *gin.Context, resp *http.Response, promptTokens int, modelName st
 		ContentType: aws.String("application/json"),
 	}
 
-	claudeReqi, ok := c.Get(common.CtxKeyConvertedRequest)
+	claudeReq_, ok := c.Get(ctxkey.ConvertedRequest)
 	if !ok {
 		return wrapErr(errors.New("request not found")), nil
 	}
-	claudeReq := claudeReqi.(*anthropic.Request)
+	claudeReq := claudeReq_.(*anthropic.Request)
 	awsClaudeReq := &Request{
 		AnthropicVersion: "bedrock-2023-05-31",
 	}
@@ -135,10 +136,10 @@ func StreamHandler(c *gin.Context, resp *http.Response) (*relaymodel.ErrorWithSt
 	createdTime := helper.GetTimestamp()
 
 	var channel *model.Channel
-	if channeli, ok := c.Get(common.CtxKeyChannel); !ok {
+	if channel_, ok := c.Get(ctxkey.Channel); !ok {
 		return wrapErr(errors.New("channel not found")), nil
 	} else {
-		channel = channeli.(*model.Channel)
+		channel = channel_.(*model.Channel)
 	}
 
 	awsCli, err := newAwsClient(channel)
@@ -146,7 +147,7 @@ func StreamHandler(c *gin.Context, resp *http.Response) (*relaymodel.ErrorWithSt
 		return wrapErr(errors.Wrap(err, "newAwsClient")), nil
 	}
 
-	awsModelId, err := awsModelID(c.GetString(common.CtxKeyRequestModel))
+	awsModelId, err := awsModelID(c.GetString(ctxkey.RequestModel))
 	if err != nil {
 		return wrapErr(errors.Wrap(err, "awsModelID")), nil
 	}
@@ -157,11 +158,11 @@ func StreamHandler(c *gin.Context, resp *http.Response) (*relaymodel.ErrorWithSt
 		ContentType: aws.String("application/json"),
 	}
 
-	claudeReqi, ok := c.Get(common.CtxKeyConvertedRequest)
+	claudeReq_, ok := c.Get(ctxkey.ConvertedRequest)
 	if !ok {
 		return wrapErr(errors.New("request not found")), nil
 	}
-	claudeReq := claudeReqi.(*anthropic.Request)
+	claudeReq := claudeReq_.(*anthropic.Request)
 
 	awsClaudeReq := &Request{
 		AnthropicVersion: "bedrock-2023-05-31",
@@ -211,7 +212,7 @@ func StreamHandler(c *gin.Context, resp *http.Response) (*relaymodel.ErrorWithSt
 				return true
 			}
 			response.Id = id
-			response.Model = c.GetString(common.CtxKeyOriginModel)
+			response.Model = c.GetString(ctxkey.OriginModel)
 			response.Created = createdTime
 			jsonStr, err := json.Marshal(response)
 			if err != nil {
