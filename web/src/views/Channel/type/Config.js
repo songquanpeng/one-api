@@ -300,6 +300,17 @@ const typeConfig = {
       test_model: ''
     },
     modelGroup: 'Stability AI'
+  },
+  38: {
+    input: {
+      models: ['coze-*']
+    },
+    prompt: {
+      models: '模型名称为coze-{bot_id}，你也可以直接使用 coze-* 通配符来匹配所有coze开头的模型',
+      model_mapping:
+        '模型名称映射， 你可以取一个容易记忆的名字来代替coze-{bot_id}，例如：{"coze-translate": "coze-xxxxx"},注意：如果使用了模型映射，那么上面的模型名称必须使用映射前的名称，上述例子中，你应该在模型中填入coze-translate(如果已经使用了coze-*，可以忽略)。'
+    },
+    modelGroup: 'Coze'
   }
 };
 

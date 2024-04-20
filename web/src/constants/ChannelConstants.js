@@ -160,6 +160,13 @@ export const CHANNEL_OPTIONS = {
     color: 'default',
     url: ''
   },
+  38: {
+    key: 38,
+    text: 'Coze',
+    value: 38,
+    color: 'primary',
+    url: ''
+  },
   24: {
     key: 24,
     text: 'Azure Speech',

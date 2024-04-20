@@ -13,6 +13,7 @@ import (
 	"one-api/providers/claude"
 	"one-api/providers/cloudflareAI"
 	"one-api/providers/cohere"
+	"one-api/providers/coze"
 	"one-api/providers/deepseek"
 	"one-api/providers/gemini"
 	"one-api/providers/groq"
@@ -60,6 +61,7 @@ func init() {
 	providerFactories[common.ChannelTypeCloudflareAI] = cloudflareAI.CloudflareAIProviderFactory{}
 	providerFactories[common.ChannelTypeCohere] = cohere.CohereProviderFactory{}
 	providerFactories[common.ChannelTypeStabilityAI] = stabilityAI.StabilityAIProviderFactory{}
+	providerFactories[common.ChannelTypeCoze] = coze.CozeProviderFactory{}
 
 }
 
