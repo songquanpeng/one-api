@@ -13,6 +13,7 @@ const COPY_OPTIONS = [
 ];
 
 const OPEN_LINK_OPTIONS = [
+  { key: 'next', text: 'ChatGPT Next Web', value: 'next' },
   { key: 'ama', text: 'BotGem', value: 'ama' },
   { key: 'opencat', text: 'OpenCat', value: 'opencat' },
 ];
