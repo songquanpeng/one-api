@@ -15,6 +15,12 @@ import (
 	"strings"
 )
 
+const (
+	dataPrefix       = "data: "
+	done             = "[DONE]"
+	dataPrefixLength = len(dataPrefix)
+)
+
 func StreamHandler(c *gin.Context, resp *http.Response, relayMode int) (*model.ErrorWithStatusCode, string, *model.Usage) {
 	responseText := ""
 	scanner := bufio.NewScanner(resp.Body)
@@ -36,39 +42,46 @@ func StreamHandler(c *gin.Context, resp *http.Response, relayMode int) (*model.E
 	go func() {
 		for scanner.Scan() {
 			data := scanner.Text()
-			if len(data) < 6 { // ignore blank line or wrong format
+			if len(data) < dataPrefixLength { // ignore blank line or wrong format
 				continue
 			}
-			if data[:6] != "data: " && data[:6] != "[DONE]" {
+			if data[:dataPrefixLength] != dataPrefix && data[:dataPrefixLength] != done {
 				continue
 			}
-			dataChan <- data
-			data = data[6:]
-			if !strings.HasPrefix(data, "[DONE]") {
-				switch relayMode {
-				case relaymode.ChatCompletions:
-					var streamResponse ChatCompletionsStreamResponse
-					err := json.Unmarshal([]byte(data), &streamResponse)
-					if err != nil {
-						logger.SysError("error unmarshalling stream response: " + err.Error())
-						continue // just ignore the error
-					}
-					for _, choice := range streamResponse.Choices {
-						responseText += conv.AsString(choice.Delta.Content)
-					}
-					if streamResponse.Usage != nil {
-						usage = streamResponse.Usage
-					}
-				case relaymode.Completions:
-					var streamResponse CompletionsStreamResponse
-					err := json.Unmarshal([]byte(data), &streamResponse)
-					if err != nil {
-						logger.SysError("error unmarshalling stream response: " + err.Error())
-						continue
-					}
-					for _, choice := range streamResponse.Choices {
-						responseText += choice.Text
-					}
+			if strings.HasPrefix(data[dataPrefixLength:], done) {
+				dataChan <- data
+				continue
+			}
+			switch relayMode {
+			case relaymode.ChatCompletions:
+				var streamResponse ChatCompletionsStreamResponse
+				err := json.Unmarshal([]byte(data[dataPrefixLength:]), &streamResponse)
+				if err != nil {
+					logger.SysError("error unmarshalling stream response: " + err.Error())
+					dataChan <- data // if error happened, pass the data to client
+					continue         // just ignore the error
+				}
+				if len(streamResponse.Choices) == 0 {
+					// but for empty choice, we should not pass it to client, this is for azure
+					continue // just ignore empty choice
+				}
+				dataChan <- data
+				for _, choice := range streamResponse.Choices {
+					responseText += conv.AsString(choice.Delta.Content)
+				}
+				if streamResponse.Usage != nil {
+					usage = streamResponse.Usage
+				}
+			case relaymode.Completions:
+				dataChan <- data
+				var streamResponse CompletionsStreamResponse
+				err := json.Unmarshal([]byte(data[dataPrefixLength:]), &streamResponse)
+				if err != nil {
+					logger.SysError("error unmarshalling stream response: " + err.Error())
+					continue
+				}
+				for _, choice := range streamResponse.Choices {
+					responseText += choice.Text
 				}
 			}
 		}
