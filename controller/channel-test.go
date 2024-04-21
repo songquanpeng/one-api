@@ -64,8 +64,12 @@ func testChannel(channel *model.Channel) (err error, openaiErr *relaymodel.Error
 		return fmt.Errorf("invalid api type: %d, adaptor is nil", apiType), nil
 	}
 	adaptor.Init(meta)
-	modelName := adaptor.GetModelList()[0]
-	if !strings.Contains(channel.Models, modelName) {
+	var modelName string
+	modelList := adaptor.GetModelList()
+	if len(modelList) != 0 {
+		modelName = modelList[0]
+	}
+	if modelName == "" || !strings.Contains(channel.Models, modelName) {
 		modelNames := strings.Split(channel.Models, ",")
 		if len(modelNames) > 0 {
 			modelName = modelNames[0]
@@ -82,6 +86,7 @@ func testChannel(channel *model.Channel) (err error, openaiErr *relaymodel.Error
 	if err != nil {
 		return err, nil
 	}
+	logger.SysLog(string(jsonData))
 	requestBody := bytes.NewBuffer(jsonData)
 	c.Request.Body = io.NopCloser(requestBody)
 	resp, err := adaptor.DoRequest(c, meta, requestBody)

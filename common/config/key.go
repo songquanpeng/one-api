@@ -9,4 +9,5 @@ const (
 	KeySK         = KeyPrefix + "sk"
 	KeyAK         = KeyPrefix + "ak"
 	KeyRegion     = KeyPrefix + "region"
+	KeyUserID     = KeyPrefix + "user_id"
 )

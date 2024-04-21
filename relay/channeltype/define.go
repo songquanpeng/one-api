@@ -35,6 +35,7 @@ const (
 	LingYiWanWu
 	StepFun
 	AwsClaude
+	Coze
 
 	Dummy
 )

@@ -7,6 +7,7 @@ import (
 	"github.com/songquanpeng/one-api/relay/adaptor/anthropic"
 	"github.com/songquanpeng/one-api/relay/adaptor/aws"
 	"github.com/songquanpeng/one-api/relay/adaptor/baidu"
+	"github.com/songquanpeng/one-api/relay/adaptor/coze"
 	"github.com/songquanpeng/one-api/relay/adaptor/gemini"
 	"github.com/songquanpeng/one-api/relay/adaptor/ollama"
 	"github.com/songquanpeng/one-api/relay/adaptor/openai"
@@ -43,6 +44,8 @@ func GetAdaptor(apiType int) adaptor.Adaptor {
 		return &zhipu.Adaptor{}
 	case apitype.Ollama:
 		return &ollama.Adaptor{}
+	case apitype.Coze:
+		return &coze.Adaptor{}
 	}
 	return nil
 }
