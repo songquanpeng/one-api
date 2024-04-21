@@ -156,13 +156,9 @@ const EditChannel = () => {
   }, []);
 
   const submit = async () => {
-    // some provider as AWS need both AK and SK rather than a single key,
-    // so we need to combine them into a single key to achieve the best compatibility.
-    if (inputs.ak && inputs.sk) {
-      console.log(`combine ak ${inputs.ak} and sk ${inputs.sk}`, inputs.ak, inputs.sk);
-      inputs.key = `${inputs.ak}\n${inputs.sk}`;
+    if (inputs.key === "") {
+      inputs.key = `${config.ak}|${config.sk}|${config.region}`;
     }
-
     if (!isEdit && (inputs.name === '' || inputs.key === '')) {
       showInfo('请填写渠道名称和渠道密钥！');
       return;
