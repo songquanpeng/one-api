@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/songquanpeng/one-api/common/config"
+	"github.com/songquanpeng/one-api/common/ctxkey"
 	"github.com/songquanpeng/one-api/common/logger"
 	"github.com/songquanpeng/one-api/common/message"
 	"github.com/songquanpeng/one-api/middleware"
@@ -54,8 +55,8 @@ func testChannel(channel *model.Channel) (err error, openaiErr *relaymodel.Error
 	}
 	c.Request.Header.Set("Authorization", "Bearer "+channel.Key)
 	c.Request.Header.Set("Content-Type", "application/json")
-	c.Set("channel", channel.Type)
-	c.Set("base_url", channel.GetBaseURL())
+	c.Set(ctxkey.Channel, channel.Type)
+	c.Set(ctxkey.BaseURL, channel.GetBaseURL())
 	middleware.SetupContextForSelectedChannel(c, channel, "")
 	meta := meta.GetByContext(c)
 	apiType := channeltype.ToAPIType(channel.Type)

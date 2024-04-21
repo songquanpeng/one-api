@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/songquanpeng/one-api/common/config"
+	"github.com/songquanpeng/one-api/common/ctxkey"
 	"github.com/songquanpeng/one-api/controller"
 	"github.com/songquanpeng/one-api/model"
 	"net/http"
@@ -136,7 +137,7 @@ func WeChatBind(c *gin.Context) {
 		})
 		return
 	}
-	id := c.GetInt("id")
+	id := c.GetInt(ctxkey.Id)
 	user := model.User{
 		Id: id,
 	}

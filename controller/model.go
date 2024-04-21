@@ -3,6 +3,7 @@ package controller
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/songquanpeng/one-api/common/ctxkey"
 	"github.com/songquanpeng/one-api/model"
 	relay "github.com/songquanpeng/one-api/relay"
 	"github.com/songquanpeng/one-api/relay/adaptor/openai"
@@ -131,10 +132,10 @@ func ListAllModels(c *gin.Context) {
 func ListModels(c *gin.Context) {
 	ctx := c.Request.Context()
 	var availableModels []string
-	if c.GetString("available_models") != "" {
-		availableModels = strings.Split(c.GetString("available_models"), ",")
+	if c.GetString(ctxkey.AvailableModels) != "" {
+		availableModels = strings.Split(c.GetString(ctxkey.AvailableModels), ",")
 	} else {
-		userId := c.GetInt("id")
+		userId := c.GetInt(ctxkey.Id)
 		userGroup, _ := model.CacheGetUserGroup(userId)
 		availableModels, _ = model.CacheGetGroupModels(ctx, userGroup)
 	}
@@ -186,7 +187,7 @@ func RetrieveModel(c *gin.Context) {
 
 func GetUserAvailableModels(c *gin.Context) {
 	ctx := c.Request.Context()
-	id := c.GetInt("id")
+	id := c.GetInt(ctxkey.Id)
 	userGroup, err := model.CacheGetUserGroup(id)
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{

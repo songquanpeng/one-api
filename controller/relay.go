@@ -46,15 +46,15 @@ func Relay(c *gin.Context) {
 		requestBody, _ := common.GetRequestBody(c)
 		logger.Debugf(ctx, "request body: %s", string(requestBody))
 	}
-	channelId := c.GetInt("channel_id")
+	channelId := c.GetInt(ctxkey.ChannelId)
 	bizErr := relayHelper(c, relayMode)
 	if bizErr == nil {
 		monitor.Emit(channelId, true)
 		return
 	}
 	lastFailedChannelId := channelId
-	channelName := c.GetString("channel_name")
-	group := c.GetString("group")
+	channelName := c.GetString(ctxkey.ChannelName)
+	group := c.GetString(ctxkey.Group)
 	originalModel := c.GetString(ctxkey.OriginalModel)
 	go processChannelRelayError(ctx, channelId, channelName, bizErr)
 	requestId := c.GetString(logger.RequestIdKey)
@@ -80,9 +80,9 @@ func Relay(c *gin.Context) {
 		if bizErr == nil {
 			return
 		}
-		channelId := c.GetInt("channel_id")
+		channelId := c.GetInt(ctxkey.ChannelId)
 		lastFailedChannelId = channelId
-		channelName := c.GetString("channel_name")
+		channelName := c.GetString(ctxkey.ChannelName)
 		go processChannelRelayError(ctx, channelId, channelName, bizErr)
 	}
 	if bizErr != nil {
@@ -97,7 +97,7 @@ func Relay(c *gin.Context) {
 }
 
 func shouldRetry(c *gin.Context, statusCode int) bool {
-	if _, ok := c.Get("specific_channel_id"); ok {
+	if _, ok := c.Get(ctxkey.SpecificChannelId); ok {
 		return false
 	}
 	if statusCode == http.StatusTooManyRequests {

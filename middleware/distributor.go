@@ -17,12 +17,12 @@ type ModelRequest struct {
 
 func Distribute() func(c *gin.Context) {
 	return func(c *gin.Context) {
-		userId := c.GetInt("id")
+		userId := c.GetInt(ctxkey.Id)
 		userGroup, _ := model.CacheGetUserGroup(userId)
-		c.Set("group", userGroup)
+		c.Set(ctxkey.Group, userGroup)
 		var requestModel string
 		var channel *model.Channel
-		channelId, ok := c.Get("specific_channel_id")
+		channelId, ok := c.Get(ctxkey.SpecificChannelId)
 		if ok {
 			id, err := strconv.Atoi(channelId.(string))
 			if err != nil {
@@ -39,7 +39,7 @@ func Distribute() func(c *gin.Context) {
 				return
 			}
 		} else {
-			requestModel = c.GetString("request_model")
+			requestModel = c.GetString(ctxkey.RequestModel)
 			var err error
 			channel, err = model.CacheGetRandomSatisfiedChannel(userGroup, requestModel, false)
 			if err != nil {
@@ -58,13 +58,13 @@ func Distribute() func(c *gin.Context) {
 }
 
 func SetupContextForSelectedChannel(c *gin.Context, channel *model.Channel, modelName string) {
-	c.Set("channel", channel.Type)
-	c.Set("channel_id", channel.Id)
-	c.Set("channel_name", channel.Name)
-	c.Set("model_mapping", channel.GetModelMapping())
+	c.Set(ctxkey.Channel, channel.Type)
+	c.Set(ctxkey.ChannelId, channel.Id)
+	c.Set(ctxkey.ChannelName, channel.Name)
+	c.Set(ctxkey.ModelMapping, channel.GetModelMapping())
 	c.Set(ctxkey.OriginalModel, modelName) // for retry
 	c.Request.Header.Set("Authorization", fmt.Sprintf("Bearer %s", channel.Key))
-	c.Set("base_url", channel.GetBaseURL())
+	c.Set(ctxkey.BaseURL, channel.GetBaseURL())
 	// this is for backward compatibility
 	switch channel.Type {
 	case channeltype.Azure:
