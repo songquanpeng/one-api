@@ -355,6 +355,13 @@ const EditChannel = () => {
               </Form.Field>
             )
           }
+          {
+            inputs.type === 34 && (
+              <Message>
+                对于 Coze 而言，模型名称即 Bot ID，你可以添加一个前缀 `bot-`，例如：`bot-123456`。
+              </Message>
+            )
+          }
           <Form.Field>
             <Form.Dropdown
               label='模型'

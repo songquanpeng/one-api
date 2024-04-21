@@ -39,10 +39,7 @@ func ConvertRequest(textRequest model.GeneralOpenAIRequest) *Request {
 	cozeRequest := Request{
 		Stream: textRequest.Stream,
 		User:   textRequest.User,
-		BotId:  textRequest.Model,
-	}
-	if cozeRequest.User == "" {
-		cozeRequest.User = "One API User"
+		BotId:  strings.TrimPrefix(textRequest.Model, "bot-"),
 	}
 	for i, message := range textRequest.Messages {
 		if i == len(textRequest.Messages)-1 {
