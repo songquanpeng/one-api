@@ -2,7 +2,7 @@ package meta
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/songquanpeng/one-api/common/config"
+	"github.com/songquanpeng/one-api/common/ctxkey"
 	"github.com/songquanpeng/one-api/relay/adaptor/azure"
 	"github.com/songquanpeng/one-api/relay/channeltype"
 	"github.com/songquanpeng/one-api/relay/relaymode"
@@ -41,7 +41,7 @@ func GetByContext(c *gin.Context) *Meta {
 		Group:          c.GetString("group"),
 		ModelMapping:   c.GetStringMapString("model_mapping"),
 		BaseURL:        c.GetString("base_url"),
-		APIVersion:     c.GetString(config.KeyAPIVersion),
+		APIVersion:     c.GetString(ctxkey.ConfigAPIVersion),
 		APIKey:         strings.TrimPrefix(c.Request.Header.Get("Authorization"), "Bearer "),
 		Config:         nil,
 		RequestURLPath: c.Request.URL.String(),

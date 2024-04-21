@@ -3,7 +3,6 @@ package middleware
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/songquanpeng/one-api/common/config"
 	"github.com/songquanpeng/one-api/common/ctxkey"
 	"github.com/songquanpeng/one-api/common/logger"
 	"github.com/songquanpeng/one-api/model"
@@ -69,18 +68,18 @@ func SetupContextForSelectedChannel(c *gin.Context, channel *model.Channel, mode
 	// this is for backward compatibility
 	switch channel.Type {
 	case channeltype.Azure:
-		c.Set(config.KeyAPIVersion, channel.Other)
+		c.Set(ctxkey.ConfigAPIVersion, channel.Other)
 	case channeltype.Xunfei:
-		c.Set(config.KeyAPIVersion, channel.Other)
+		c.Set(ctxkey.ConfigAPIVersion, channel.Other)
 	case channeltype.Gemini:
-		c.Set(config.KeyAPIVersion, channel.Other)
+		c.Set(ctxkey.ConfigAPIVersion, channel.Other)
 	case channeltype.AIProxyLibrary:
-		c.Set(config.KeyLibraryID, channel.Other)
+		c.Set(ctxkey.ConfigLibraryID, channel.Other)
 	case channeltype.Ali:
-		c.Set(config.KeyPlugin, channel.Other)
+		c.Set(ctxkey.ConfigPlugin, channel.Other)
 	}
 	cfg, _ := channel.LoadConfig()
 	for k, v := range cfg {
-		c.Set(config.KeyPrefix+k, v)
+		c.Set(ctxkey.ConfigPrefix+k, v)
 	}
 }
