@@ -3,6 +3,7 @@ package model
 import (
 	"one-api/common"
 
+	"github.com/shopspring/decimal"
 	"gorm.io/gorm"
 )
 
@@ -62,11 +63,17 @@ func (price *Price) GetOutput() float64 {
 }
 
 func (price *Price) FetchInputCurrencyPrice(rate float64) float64 {
-	return price.GetInput() * rate
+	r := decimal.NewFromFloat(price.GetInput()).Mul(decimal.NewFromFloat(rate))
+	v, _ := r.Float64()
+
+	return v
 }
 
 func (price *Price) FetchOutputCurrencyPrice(rate float64) float64 {
-	return price.GetOutput() * rate
+	r := decimal.NewFromFloat(price.GetOutput()).Mul(decimal.NewFromFloat(rate))
+	v, _ := r.Float64()
+
+	return v
 }
 
 func UpdatePrices(tx *gorm.DB, models []string, prices *Price) error {
