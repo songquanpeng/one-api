@@ -28,7 +28,7 @@ type ChatSafetySettings struct {
 }
 
 type ChatTools struct {
-	FunctionDeclarations any `json:"functionDeclarations,omitempty"`
+	FunctionDeclarations any `json:"function_declarations,omitempty"`
 }
 
 type ChatGenerationConfig struct {
