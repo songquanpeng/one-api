@@ -159,12 +159,16 @@ const typeConfig = {
     modelGroup: 'Baichuan'
   },
   24: {
+    inputLabel: {
+      other: '位置/区域'
+    },
     input: {
       models: ['tts-1', 'tts-1-hd']
     },
     prompt: {
       test_model: '',
-      base_url: '请输入请求地址，例如：https://eastasia.tts.speech.microsoft.com'
+      base_url: '',
+      other: '请输入你 Speech Studio 的位置/区域，例如：eastasia'
     }
   },
   27: {

@@ -1,9 +1,11 @@
 package azureSpeech
 
 import (
+	"fmt"
 	"one-api/common/requester"
 	"one-api/model"
 	"one-api/providers/base"
+	"strings"
 )
 
 // 定义供应商工厂
@@ -24,6 +26,17 @@ func (f AzureSpeechProviderFactory) Create(channel *model.Channel) base.Provider
 
 type AzureSpeechProvider struct {
 	base.BaseProvider
+}
+
+func (p *AzureSpeechProvider) GetFullRequestURL(requestURL string, modelName string) string {
+	baseURL := ""
+	if p.Channel.Other != "" {
+		baseURL = fmt.Sprintf("https://%s.tts.speech.microsoft.com", p.Channel.Other)
+	} else {
+		baseURL = strings.TrimSuffix(p.GetBaseURL(), "/")
+	}
+
+	return fmt.Sprintf("%s%s", baseURL, requestURL)
 }
 
 // 获取请求头
