@@ -1,4 +1,4 @@
-name: one-api docker image
+name: one-api docker image en
 
 on:
   push:
@@ -46,7 +46,7 @@ jobs:
           export VERSION=$(cat VERSION)
           cd web
           yarn install
-          REACT_APP_VERSION=$VERSION yarn run build
+          DISABLE_ESLINT_PLUGIN='true' REACT_APP_VERSION=$VERSION yarn run build
           cd ..
       - name: Set up Go
         uses: actions/setup-go@v3
