@@ -133,7 +133,7 @@ export default function LogTableRow({ item, userIsAdmin }) {
         anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
         transformOrigin={{ vertical: 'top', horizontal: 'right' }}
         PaperProps={{
-          sx: { width: 140 }
+          sx: { minWidth: 140 }
         }}
       >
         <MenuList>

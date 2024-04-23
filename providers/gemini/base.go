@@ -13,7 +13,7 @@ import (
 
 type GeminiProviderFactory struct{}
 
-// 创建 ClaudeProvider
+// 创建 GeminiProvider
 func (f GeminiProviderFactory) Create(channel *model.Channel) base.ProviderInterface {
 	return &GeminiProvider{
 		BaseProvider: base.BaseProvider{

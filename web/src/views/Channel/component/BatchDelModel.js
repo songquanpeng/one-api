@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Grid, TextField, InputAdornment, Checkbox, Button, FormControlLabel, IconButton, Alert } from '@mui/material';
 import { gridSpacing } from 'store/constant';
-import { IconSearch, IconHttpDelete } from '@tabler/icons-react';
+import { IconSearch, IconTrash } from '@tabler/icons-react';
 import { fetchChannelData } from '../index';
 import { API } from 'utils/api';
 import { showError, showSuccess } from 'utils/common';
@@ -112,7 +112,7 @@ const BatchDelModel = () => {
             ))}
           </Grid>
           <Grid item xs={12}>
-            <Button variant="contained" color="primary" startIcon={<IconHttpDelete />} onClick={handleSubmit} disabled={loadding}>
+            <Button variant="contained" color="primary" startIcon={<IconTrash />} onClick={handleSubmit} disabled={loadding}>
               删除
             </Button>
           </Grid>

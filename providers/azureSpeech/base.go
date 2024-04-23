@@ -9,7 +9,7 @@ import (
 // 定义供应商工厂
 type AzureSpeechProviderFactory struct{}
 
-// 创建 AliProvider
+// 创建 AzureSpeechProvider
 func (f AzureSpeechProviderFactory) Create(channel *model.Channel) base.ProviderInterface {
 	return &AzureSpeechProvider{
 		BaseProvider: base.BaseProvider{

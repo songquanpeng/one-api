@@ -17,7 +17,7 @@ import { Button, IconButton, Card, Box, Stack, Container, Typography, Divider } 
 import ChannelTableRow from './component/TableRow';
 import KeywordTableHead from 'ui-component/TableHead';
 import { API } from 'utils/api';
-import { IconRefresh, IconHttpDelete, IconPlus, IconMenu2, IconBrandSpeedtest, IconCoinYuan, IconSearch } from '@tabler/icons-react';
+import { IconRefresh, IconTrash, IconPlus, IconMenu2, IconBrandSpeedtest, IconCoinYuan, IconSearch } from '@tabler/icons-react';
 import EditeModal from './component/EditModal';
 import { ITEMS_PER_PAGE } from 'constants';
 import TableToolBar from './component/TableToolBar';
@@ -340,7 +340,7 @@ export default function ChannelPage() {
                 <Button onClick={updateAllChannelsBalance} startIcon={<IconCoinYuan width={'18px'} />}>
                   更新启用余额
                 </Button>
-                <Button onClick={deleteAllDisabledChannels} startIcon={<IconHttpDelete width={'18px'} />}>
+                <Button onClick={deleteAllDisabledChannels} startIcon={<IconTrash width={'18px'} />}>
                   删除禁用渠道
                 </Button>
               </ButtonGroup>
@@ -365,7 +365,7 @@ export default function ChannelPage() {
                   <IconCoinYuan />
                 </IconButton>
                 <IconButton onClick={deleteAllDisabledChannels} size="large">
-                  <IconHttpDelete />
+                  <IconTrash />
                 </IconButton>
               </Stack>
             )}

@@ -138,7 +138,7 @@ export default function UsersTableRow({ item, manageUser, handleOpenModal, setMo
         anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
         transformOrigin={{ vertical: 'top', horizontal: 'right' }}
         PaperProps={{
-          sx: { width: 140 }
+          sx: { minWidth: 140 }
         }}
       >
         {item.role !== 100 && (

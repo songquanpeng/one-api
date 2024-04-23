@@ -1,5 +1,5 @@
 <p align="right">
-   <strong>中文</strong> | <a href="./README.en.md">English</a>
+   <strong>English</strong> | <a href="./README.md">中文</a>
 </p>
 
 <p align="center">
@@ -13,7 +13,7 @@
 
 # One API
 
-_本项目是基于[one-api](https://github.com/songquanpeng/one-api)二次开发而来的，主要将原项目中的模块代码分离，模块化，并修改了前端界面。本项目同样遵循 MIT 协议。_
+_This project is based on [one-api](https://github.com/songquanpeng/one-api) and has been developed for the second time. The main purpose is to separate the module code in the original project, modularize it, and modify the front-end interface. This project also follows the MIT protocol._
 
 <p align="center">
   <a href="https://raw.githubusercontent.com/MartialBE/one-api/main/LICENSE">
@@ -33,42 +33,42 @@ _本项目是基于[one-api](https://github.com/songquanpeng/one-api)二次开�
   </a>
 </p>
 
-**请不要和原版混用，因为新增功能，数据库与原版不兼容**
+**Please do not mix with the original version, because the new functions, the database is not compatible with the original version**
 
-**为了更加简洁，本项目之后，除了新增供应商时会更新程序自带的模型列表，平常不再更新程序自带的模型列表。**
+**For the sake of simplicity, after this project, except for updating the model list built into the program when adding a new supplier, the model list built into the program will not be updated under normal circumstances.**
 
-**如果发现缺少新模型，请在`后台-模型价格-更新价格`中更新新增的模型**
+If you find that a new model is missing, please update the newly added model in `Backend-Model Price-Update Price`
 
-[演示网站](https://one-api-martialbe.vercel.app/)
+[Demo Site](https://one-api-martialbe.vercel.app/)
 
 </div>
 
-## 功能变化
+## Functional Changes
 
-- 全新的 UI 界面
-- 新增用户仪表盘
-- 新增管理员分析数据统计界面
-- 重构了中转`供应商`模块
-- 支持使用`Azure Speech`模拟`TTS`功能
-- 渠道可配置单独的 http/socks5 代理
-- 支持动态返回用户模型列表
-- 支持自定义测速模型
-- 日志增加请求耗时
-- 支持和优化非 OpenAI 模型的函数调用（支持的模型可以在 lobe-chat 直接使用）
-- 支持完成倍率自定义
-- 支持完整的分页和排序
-- 支持`Telegram bot`
-- 支持模型按次收费
-- 支持模型通配符
-- 支持使用配置文件启动程序
+- Brand new UI interface
+- Added user dashboard
+- Added administrator data analysis and statistics interface
+- Refactored the intermediary `supplier` module
+- Support for using `Azure Speech` to simulate `TTS` function
+- Channels can be configured with separate http/socks5 proxies
+- Support for dynamically returning user model lists
+- Support for custom speed testing models
+- Logs now include request duration
+- Support and optimize function calls for non-OpenAI models (supported models can be used directly in Lobe-Chat)
+- Support for custom completion rates
+- Support for full pagination and sorting
+- Support for `Telegram bot`
+- Support for models charged per use
+- Support for model wildcards
+- Support for starting the program using a configuration file
 
-## 文档
+## Documentation
 
-请查看[文档](https://github.com/MartialBE/one-api/wiki)
+Please refer to the [documentation](https://github.com/MartialBE/one-api/wiki).
 
-## 当前支持的供应商
+## Current Supported Providers
 
-| 供应商                                                                | Chat                     | Embeddings | Audio  | Images      | 其他                                                             |
+| Provider                                                               | Chat                     | Embeddings | Audio  | Images      | Other                                                             |
 | --------------------------------------------------------------------- | ------------------------ | ---------- | ------ | ----------- | ---------------------------------------------------------------- |
 | [OpenAI](https://platform.openai.com/docs/api-reference/introduction) | ✅                       | ✅         | ✅     | ✅          | -                                                                |
 | [Azure OpenAI](https://oai.azure.com/)                                | ✅                       | ✅         | ✅     | ✅          | -                                                                |
@@ -78,7 +78,7 @@ _本项目是基于[one-api](https://github.com/songquanpeng/one-api)二次开�
 | [百度文心](https://console.bce.baidu.com/qianfan/overview)            | ✅                       | ✅         | -      | -           | -                                                                |
 | [通义千问](https://dashscope.console.aliyun.com/overview)             | ✅                       | ✅         | -      | -           | -                                                                |
 | [讯飞星火](https://console.xfyun.cn/)                                 | ✅                       | -          | -      | -           | -                                                                |
-| [智谱](https://open.bigmodel.cn/overview)                             | ✅                       | ✅         | -      | ⚠️ 图片生成 | -                                                                |
+| [智谱](https://open.bigmodel.cn/overview)                             | ✅                       | ✅         | -      | ⚠️ image | -                                                                |
 | [腾讯混元](https://cloud.tencent.com/product/hunyuan)                 | ✅                       | -          | -      | -           | -                                                                |
 | [百川](https://platform.baichuan-ai.com/console/apikey)               | ✅                       | ✅         | -      | -           | -                                                                |
 | [MiniMax](https://www.minimaxi.com/user-center/basic-information)     | ✅                       | ✅         | -      | -           | -                                                                |
@@ -86,25 +86,25 @@ _本项目是基于[one-api](https://github.com/songquanpeng/one-api)二次开�
 | [Moonshot](https://moonshot.ai/)                                      | ✅                       | -          | -      | -           | -                                                                |
 | [Mistral](https://mistral.ai/)                                        | ✅                       | ✅         | -      | -           | -                                                                |
 | [Groq](https://console.groq.com/keys)                                 | ✅                       | -          | -      | -           | -                                                                |
-| [Amazon Bedrock](https://console.aws.amazon.com/bedrock/home)         | ⚠️ 仅支持 Anthropic 模型 | -          | -      | -           | -                                                                |
+| [Amazon Bedrock](https://console.aws.amazon.com/bedrock/home)         | ⚠️ Only support Anthropic models | -          | -      | -           | -                                                                |
 | [零一万物](https://platform.lingyiwanwu.com/details)                  | ✅                       | -          | -      | -           | -                                                                |
-| [Cloudflare AI](https://ai.cloudflare.com/)                           | ✅                       | -          | ⚠️ stt | ⚠️ 图片生成 | -                                                                |
+| [Cloudflare AI](https://ai.cloudflare.com/)                           | ✅                       | -          | ⚠️ stt | ⚠️ image | -                                                                |
 | [Midjourney](https://www.midjourney.com/)                             | -                        | -          | -      | -           | [midjourney-proxy](https://github.com/novicezk/midjourney-proxy) |
 | [Cohere](https://cohere.com/)                                         | ✅                       | -          | -      | -           | -                                                                |
-| [Stability AI](https://platform.stability.ai/account/credits)         | -                        | -          | -      | ⚠️ 图片生成 | -                                                                |
+| [Stability AI](https://platform.stability.ai/account/credits)         | -                        | -          | -      | ⚠️ image | -                                                                |
 | [Coze](https://www.coze.com/open/docs/chat?_lang=zh)                  | ✅                       | -          | -      | -           | -                                                                |
 
-## 感谢
+## Acknowledgements
 
-- 本程序使用了以下开源项目
-  - [one-api](https://github.com/songquanpeng/one-api)为本项目的基础
-  - [Berry Free React Admin Template](https://github.com/codedthemes/berry-free-react-admin-template)为本项目的前端界面
-  - [minimal-ui-kit](https://github.com/minimal-ui-kit/material-kit-react),使用了其中的部分样式
-  - [new api](https://github.com/Calcium-Ion/new-api)，Midjourney 模块的代码来源于此
+- This program utilizes the following open-source projects:
+  - [one-api](https://github.com/songquanpeng/one-api) serves as the foundation of this project.
+  - [Berry Free React Admin Template](https://github.com/codedthemes/berry-free-react-admin-template) provides the frontend interface for this project.
+  - [minimal-ui-kit](https://github.com/minimal-ui-kit/material-kit-react), some styles from this project were used.
+  - [new api](https://github.com/Calcium-Ion/new-api), the code for the Midjourney module is sourced from here.
 
-感谢以上项目的作者和贡献者
+Special thanks to the authors and contributors of the above projects.
 
-## 其他
+## Others
 
 <a href="https://next.ossinsight.io/widgets/official/analyze-repo-stars-history?repo_id=689214770" target="_blank" style="display: block" align="center">
   <picture>

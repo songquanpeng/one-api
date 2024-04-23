@@ -1,5 +1,5 @@
 import { Typography, Stack, OutlinedInput, InputAdornment, Button, InputLabel, FormControl } from '@mui/material';
-import { IconWallet } from '@tabler/icons-react';
+import { IconBuildingBank } from '@tabler/icons-react';
 import { useTheme } from '@mui/material/styles';
 import SubCard from 'ui-component/cards/SubCard';
 import UserCard from 'ui-component/cards/UserCard';
@@ -78,7 +78,7 @@ const TopupCard = () => {
   return (
     <UserCard>
       <Stack direction="row" alignItems="center" justifyContent="center" spacing={2} paddingTop={'20px'}>
-        <IconWallet color={theme.palette.primary.main} />
+        <IconBuildingBank color={theme.palette.primary.main} />
         <Typography variant="h4">当前额度:</Typography>
         <Typography variant="h4">{renderQuota(userQuota)}</Typography>
       </Stack>

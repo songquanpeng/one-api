@@ -309,7 +309,7 @@ export default function ChannelTableRow({ item, manageChannel, handleOpenModal, 
         anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
         transformOrigin={{ vertical: 'top', horizontal: 'right' }}
         PaperProps={{
-          sx: { width: 140 }
+          sx: { minWidth: 140 }
         }}
       >
         <MenuItem

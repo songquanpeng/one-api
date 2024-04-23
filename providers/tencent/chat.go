@@ -69,7 +69,7 @@ func (p *TencentProvider) getChatRequest(request *types.ChatCompletionRequest) (
 	// 获取请求地址
 	fullRequestURL := p.GetFullRequestURL(url, request.Model)
 	if fullRequestURL == "" {
-		return nil, common.ErrorWrapper(nil, "invalid_baidu_config", http.StatusInternalServerError)
+		return nil, common.ErrorWrapper(nil, "invalid_tencent_config", http.StatusInternalServerError)
 	}
 
 	// 获取请求头

@@ -61,7 +61,7 @@ func (p *PalmProvider) getChatRequest(request *types.ChatCompletionRequest) (*ht
 	// 获取请求地址
 	fullRequestURL := p.GetFullRequestURL(url, request.Model)
 	if fullRequestURL == "" {
-		return nil, common.ErrorWrapper(nil, "invalid_baidu_config", http.StatusInternalServerError)
+		return nil, common.ErrorWrapper(nil, "invalid_palm_config", http.StatusInternalServerError)
 	}
 
 	// 获取请求头

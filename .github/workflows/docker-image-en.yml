@@ -1,0 +1,111 @@
+name: one-api docker image
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - "v*"
+    paths-ignore:
+      - "README.md"
+
+env:
+  # github.repository as <account>/<repo>
+  DOCKER_HUB_USERNAME: martialbe
+  DOCKER_HUB_REPO: one-api-en
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Save dev version info
+        run: |
+          HASH=$(git rev-parse --short=7 HEAD)
+          echo "dev-$HASH" > VERSION
+      - name: Save Tag version info
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          git describe --tags > VERSION
+      - name: Translate
+        run: |
+          python ./i18n/translate.py --repository_path . --json_file_path ./i18n/en.json
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+      - name: Build Frontend
+        env:
+          CI: ""
+        run: |
+          export VERSION=$(cat VERSION)
+          cd web
+          yarn install
+          REACT_APP_VERSION=$VERSION yarn run build
+          cd ..
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: ">=1.18.0"
+      - name: Build Backend (amd64)
+        run: |
+          go mod download
+          go build -ldflags "-s -w -X 'one-api/common.Version=$(cat VERSION)' -extldflags '-static'" -o one-api-amd64
+
+      - name: Build Backend (arm64)
+        run: |
+          sudo apt-get update
+          sudo apt-get install gcc-aarch64-linux-gnu
+          CC=aarch64-linux-gnu-gcc CGO_ENABLED=1 GOOS=linux GOARCH=arm64 go build -ldflags "-s -w -X 'one-api/common.Version=$(cat VERSION)' -extldflags '-static'" -o one-api-arm64
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Login to GHCR
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          registry: docker.io
+          username: ${{ env.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_TOKEN }} # Replace with your Docker Hub password secret
+
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          # list of Docker images to use as base name for tags
+          images: |
+            ghcr.io/${{ github.repository }}-en
+            docker.io/${{ env.DOCKER_HUB_USERNAME }}/${{ env.DOCKER_HUB_REPO }}
+          # generate Docker tags based on the following events/attributes
+          tags: |
+            type=raw,value=dev,enable=${{ github.ref == 'refs/heads/main' }}
+            type=raw,value=latest,enable=${{ startsWith(github.ref, 'refs/tags/') }}
+            type=pep440,pattern={{raw}},enable=${{ startsWith(github.ref, 'refs/tags/') }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64
+          build-args: |
+            COMMIT_SHA=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.revision'] }}
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          file: Dockerfile-action
