@@ -12,9 +12,15 @@ type InlineData struct {
 	Data     string `json:"data"`
 }
 
+type FunctionCall struct {
+	FunctionName string `json:"name"`
+	Arguments    any    `json:"args"`
+}
+
 type Part struct {
-	Text       string      `json:"text,omitempty"`
-	InlineData *InlineData `json:"inlineData,omitempty"`
+	Text         string        `json:"text,omitempty"`
+	InlineData   *InlineData   `json:"inlineData,omitempty"`
+	FunctionCall *FunctionCall `json:"functionCall,omitempty"`
 }
 
 type ChatContent struct {
