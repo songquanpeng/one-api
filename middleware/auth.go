@@ -114,6 +114,10 @@ func tokenAuth(c *gin.Context, key string) {
 				return
 			}
 			c.Set("specific_channel_id", channelId)
+			if len(parts) == 3 && parts[2] == "ignore" {
+				c.Set("specific_channel_id_ignore", true)
+			}
+
 		} else {
 			abortWithMessage(c, http.StatusForbidden, "普通用户不支持指定渠道")
 			return
@@ -133,5 +137,18 @@ func MjAuth() func(c *gin.Context) {
 	return func(c *gin.Context) {
 		key := c.Request.Header.Get("mj-api-secret")
 		tokenAuth(c, key)
+	}
+}
+
+func SpecifiedChannel() func(c *gin.Context) {
+	return func(c *gin.Context) {
+		channelId := c.GetInt("specific_channel_id")
+		c.Set("specific_channel_id_ignore", false)
+
+		if channelId <= 0 {
+			abortWithMessage(c, http.StatusForbidden, "必须指定渠道")
+			return
+		}
+		c.Next()
 	}
 }

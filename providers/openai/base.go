@@ -85,22 +85,28 @@ func (p *OpenAIProvider) GetFullRequestURL(requestURL string, modelName string) 
 
 	if p.IsAzure {
 		apiVersion := p.Channel.Other
-		// 检测模型是是否包含 . 如果有则直接去掉
-		modelName = strings.Replace(modelName, ".", "", -1)
+		if modelName != "" {
+			// 检测模型是是否包含 . 如果有则直接去掉
+			modelName = strings.Replace(modelName, ".", "", -1)
 
-		if modelName == "dall-e-2" {
-			// 因为dall-e-3需要api-version=2023-12-01-preview，但是该版本
-			// 已经没有dall-e-2了，所以暂时写死
-			requestURL = fmt.Sprintf("/openai/%s:submit?api-version=2023-09-01-preview", requestURL)
+			if modelName == "dall-e-2" {
+				// 因为dall-e-3需要api-version=2023-12-01-preview，但是该版本
+				// 已经没有dall-e-2了，所以暂时写死
+				requestURL = fmt.Sprintf("/openai/%s:submit?api-version=2023-09-01-preview", requestURL)
+			} else {
+				requestURL = fmt.Sprintf("/openai/deployments/%s%s?api-version=%s", modelName, requestURL, apiVersion)
+			}
 		} else {
-			requestURL = fmt.Sprintf("/openai/deployments/%s%s?api-version=%s", modelName, requestURL, apiVersion)
+			requestURL = strings.TrimPrefix(requestURL, "/v1")
+			requestURL = fmt.Sprintf("/openai%s?api-version=%s", requestURL, apiVersion)
 		}
 
 	}
 
 	if strings.HasPrefix(baseURL, "https://gateway.ai.cloudflare.com") {
 		if p.IsAzure {
-			requestURL = strings.TrimPrefix(requestURL, "/openai/deployments")
+			requestURL = strings.TrimPrefix(requestURL, "/openai")
+			requestURL = strings.TrimPrefix(requestURL, "/deployments")
 		} else {
 			requestURL = strings.TrimPrefix(requestURL, "/v1")
 		}

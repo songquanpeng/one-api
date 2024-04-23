@@ -75,15 +75,10 @@ func Relay(c *gin.Context) {
 	}
 
 	if apiErr != nil {
-		requestId := c.GetString(common.RequestIdKey)
 		if apiErr.StatusCode == http.StatusTooManyRequests {
 			apiErr.OpenAIError.Message = "当前分组上游负载已饱和，请稍后再试"
 		}
-		apiErr.OpenAIError.Message = common.MessageWithRequestId(apiErr.OpenAIError.Message, requestId)
-		c.JSON(apiErr.StatusCode, gin.H{
-			"error": apiErr.OpenAIError,
-		})
-
+		relayResponseWithErr(c, apiErr)
 	}
 }
 

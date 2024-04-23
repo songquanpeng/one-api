@@ -1122,5 +1122,7 @@
   "模型名称映射， 你可以取一个容易记忆的名字来代替coze-{bot_id}，例如：": "Model name mapping, you can take an easy-to-remember name to replace coze-{bot_id}, for example: ",
   ",注意：如果使用了模型映射，那么上面的模型名称必须使用映射前的名称，上述例子中，你应该在模型中填入coze-translate(如果已经使用了coze-*，可以忽略)。": ", Note: If a model mapping is used, then the model name above must use the name before the mapping. In the example above, you should fill in coze-translate in the model (if coze-* has been used, it can be ignored).",
   "位置/区域": "Location/Region",
-  "请输入你 Speech Studio 的位置/区域，例如：eastasia": "Please enter the location/region of your Speech Studio, for example: eastasia"
+  "请输入你 Speech Studio 的位置/区域，例如：eastasia": "Please enter the location/region of your Speech Studio, for example: eastasia",
+  "必须指定渠道": "Channel must be specified",
+  "中继": "Relay"
 }
