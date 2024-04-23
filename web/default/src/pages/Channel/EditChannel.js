@@ -174,7 +174,7 @@ const EditChannel = () => {
       showInfo('模型映射必须是合法的 JSON 格式！');
       return;
     }
-    let localInputs = inputs;
+    let localInputs = JSON.parse(JSON.stringify(inputs));
     if (localInputs.base_url && localInputs.base_url.endsWith('/')) {
       localInputs.base_url = localInputs.base_url.slice(0, localInputs.base_url.length - 1);
     }
