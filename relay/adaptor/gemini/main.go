@@ -55,7 +55,17 @@ func ConvertRequest(textRequest model.GeneralOpenAIRequest) *ChatRequest {
 			MaxOutputTokens: textRequest.MaxTokens,
 		},
 	}
-	if textRequest.Functions != nil {
+	if textRequest.Tools != nil {
+		functions := make([]model.Function, 0, len(textRequest.Tools))
+		for _, tool := range textRequest.Tools {
+			functions = append(functions, tool.Function)
+		}
+		geminiRequest.Tools = []ChatTools{
+			{
+				FunctionDeclarations: functions,
+			},
+		}
+	} else if textRequest.Functions != nil {
 		geminiRequest.Tools = []ChatTools{
 			{
 				FunctionDeclarations: textRequest.Functions,
