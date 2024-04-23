@@ -11,10 +11,7 @@ import {
   MenuItem,
   TableCell,
   IconButton,
-  FormControl,
-  InputLabel,
-  InputAdornment,
-  Input,
+  TextField,
   Dialog,
   DialogActions,
   DialogContent,
@@ -31,12 +28,7 @@ import ResponseTimeLabel from "./ResponseTimeLabel";
 import GroupLabel from "./GroupLabel";
 import NameLabel from "./NameLabel";
 
-import {
-  IconDotsVertical,
-  IconEdit,
-  IconTrash,
-  IconPencil,
-} from "@tabler/icons-react";
+import { IconDotsVertical, IconEdit, IconTrash } from "@tabler/icons-react";
 
 export default function ChannelTableRow({
   item,
@@ -79,11 +71,19 @@ export default function ChannelTableRow({
     }
   };
 
-  const handlePriority = async () => {
-    if (priorityValve === "" || priorityValve === item.priority) {
+  const handlePriority = async (event) => {
+    const currentValue = parseInt(event.target.value);
+    if (isNaN(currentValue) || currentValue === priorityValve) {
       return;
     }
-    await manageChannel(item.id, "priority", priorityValve);
+
+    if (currentValue < 0) {
+      showError("优先级不能小于 0");
+      return;
+    }
+
+    await manageChannel(item.id, "priority", currentValue);
+    setPriority(currentValue);
   };
 
   const handleResponseTime = async () => {
@@ -170,9 +170,7 @@ export default function ChannelTableRow({
             handle_action={handleResponseTime}
           />
         </TableCell>
-        <TableCell>
-          {renderNumber(item.used_quota)}
-        </TableCell>
+        <TableCell>{renderNumber(item.used_quota)}</TableCell>
         <TableCell>
           <Tooltip
             title={"点击更新余额"}
@@ -183,27 +181,16 @@ export default function ChannelTableRow({
           </Tooltip>
         </TableCell>
         <TableCell>
-          <FormControl sx={{ m: 1, width: "70px" }} variant="standard">
-            <InputLabel htmlFor={`priority-${item.id}`}>优先级</InputLabel>
-            <Input
-              id={`priority-${item.id}`}
-              type="text"
-              value={priorityValve}
-              onChange={(e) => setPriority(e.target.value)}
-              sx={{ textAlign: "center" }}
-              endAdornment={
-                <InputAdornment position="end">
-                  <IconButton
-                    onClick={handlePriority}
-                    sx={{ color: "rgb(99, 115, 129)" }}
-                    size="small"
-                  >
-                    <IconPencil />
-                  </IconButton>
-                </InputAdornment>
-              }
-            />
-          </FormControl>
+          <TextField
+            id={`priority-${item.id}`}
+            onBlur={handlePriority}
+            type="number"
+            label="优先级"
+            variant="standard"
+            defaultValue={item.priority}
+            inputProps={{ min: "0" }}
+            sx={{ width: 80 }}
+          />
         </TableCell>
 
         <TableCell>

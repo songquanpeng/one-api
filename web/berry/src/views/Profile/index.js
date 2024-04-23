@@ -12,7 +12,8 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  Divider
+  Divider,
+  SvgIcon
 } from '@mui/material';
 import Grid from '@mui/material/Unstable_Grid2';
 import SubCard from 'ui-component/cards/SubCard';
@@ -20,12 +21,13 @@ import { IconBrandWechat, IconBrandGithub, IconMail } from '@tabler/icons-react'
 import Label from 'ui-component/Label';
 import { API } from 'utils/api';
 import { showError, showSuccess } from 'utils/common';
-import { onGitHubOAuthClicked } from 'utils/common';
+import { onGitHubOAuthClicked, onLarkOAuthClicked } from 'utils/common';
 import * as Yup from 'yup';
 import WechatModal from 'views/Authentication/AuthForms/WechatModal';
 import { useSelector } from 'react-redux';
 import EmailModal from './component/EmailModal';
 import Turnstile from 'react-turnstile';
+import { ReactComponent as Lark } from 'assets/images/icons/lark.svg';
 
 const validationSchema = Yup.object().shape({
   username: Yup.string().required('用户名 不能为空').min(3, '用户名 不能小于 3 个字符'),
@@ -137,6 +139,9 @@ export default function Profile() {
               <Label variant="ghost" color={inputs.email ? 'primary' : 'default'}>
                 <IconMail /> {inputs.email || '未绑定'}
               </Label>
+              <Label variant="ghost" color={inputs.lark_id ? 'primary' : 'default'}>
+                <SvgIcon component={Lark} inheritViewBox="0 0 24 24" /> {inputs.lark_id || '未绑定'}
+              </Label>
             </Stack>
             <SubCard title="个人信息">
               <Grid container spacing={2}>
@@ -202,6 +207,13 @@ export default function Profile() {
                   <Grid xs={12} md={4}>
                     <Button variant="contained" onClick={() => onGitHubOAuthClicked(status.github_client_id, true)}>
                       绑定 GitHub 账号
+                    </Button>
+                  </Grid>
+                )}
+                {status.lark_client_id && !inputs.lark_id && (
+                  <Grid xs={12} md={4}>
+                    <Button variant="contained" onClick={() => onLarkOAuthClicked(status.lark_client_id)}>
+                      绑定 飞书 账号
                     </Button>
                   </Grid>
                 )}

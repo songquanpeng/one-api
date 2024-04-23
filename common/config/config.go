@@ -4,6 +4,7 @@ import (
 	"github.com/songquanpeng/one-api/common/env"
 	"os"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 
@@ -51,9 +52,9 @@ var EmailDomainWhitelist = []string{
 	"foxmail.com",
 }
 
-var DebugEnabled = os.Getenv("DEBUG") == "true"
-var DebugSQLEnabled = os.Getenv("DEBUG_SQL") == "true"
-var MemoryCacheEnabled = os.Getenv("MEMORY_CACHE_ENABLED") == "true"
+var DebugEnabled = strings.ToLower(os.Getenv("DEBUG")) == "true"
+var DebugSQLEnabled = strings.ToLower(os.Getenv("DEBUG_SQL")) == "true"
+var MemoryCacheEnabled = strings.ToLower(os.Getenv("MEMORY_CACHE_ENABLED")) == "true"
 
 var LogConsumeEnabled = true
 
@@ -141,3 +142,5 @@ var MetricSuccessChanSize = env.Int("METRIC_SUCCESS_CHAN_SIZE", 1024)
 var MetricFailChanSize = env.Int("METRIC_FAIL_CHAN_SIZE", 128)
 
 var InitialRootToken = os.Getenv("INITIAL_ROOT_TOKEN")
+
+var GeminiVersion = env.String("GEMINI_VERSION", "v1")

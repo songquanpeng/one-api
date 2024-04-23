@@ -1,6 +1,7 @@
 export const CHANNEL_OPTIONS = [
   { key: 1, text: 'OpenAI', value: 1, color: 'green' },
   { key: 14, text: 'Anthropic Claude', value: 14, color: 'black' },
+  { key: 33, text: 'AWS Claude', value: 33, color: 'black' },
   { key: 3, text: 'Azure OpenAI', value: 3, color: 'olive' },
   { key: 11, text: 'Google PaLM2', value: 11, color: 'orange' },
   { key: 24, text: 'Google Gemini', value: 24, color: 'orange' },
@@ -18,6 +19,7 @@ export const CHANNEL_OPTIONS = [
   { key: 30, text: 'Ollama', value: 30, color: 'black' },
   { key: 31, text: '零一万物', value: 31, color: 'green' },
   { key: 32, text: '阶跃星辰', value: 32, color: 'blue' },
+  { key: 34, text: 'Coze', value: 34, color: 'blue' },
   { key: 8, text: '自定义渠道', value: 8, color: 'pink' },
   { key: 22, text: '知识库：FastGPT', value: 22, color: 'blue' },
   { key: 21, text: '知识库：AI Proxy', value: 21, color: 'purple' },

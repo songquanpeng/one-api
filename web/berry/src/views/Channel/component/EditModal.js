@@ -21,15 +21,16 @@ import {
   Container,
   Autocomplete,
   FormHelperText,
-  Checkbox
+  Switch,
+  Checkbox,
 } from "@mui/material";
 
 import { Formik } from "formik";
 import * as Yup from "yup";
 import { defaultConfig, typeConfig } from "../type/Config"; //typeConfig
 import { createFilterOptions } from "@mui/material/Autocomplete";
-import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
-import CheckBoxIcon from '@mui/icons-material/CheckBox';
+import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank";
+import CheckBoxIcon from "@mui/icons-material/CheckBox";
 
 const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
 const checkedIcon = <CheckBoxIcon fontSize="small" />;
@@ -79,6 +80,7 @@ const EditModal = ({ open, channelId, onCancel, onOk }) => {
   const [inputPrompt, setInputPrompt] = useState(defaultConfig.prompt);
   const [groupOptions, setGroupOptions] = useState([]);
   const [modelOptions, setModelOptions] = useState([]);
+  const [batchAdd, setBatchAdd] = useState(false);
 
   const initChannel = (typeValue) => {
     if (typeConfig[typeValue]?.inputLabel) {
@@ -151,7 +153,7 @@ const EditModal = ({ open, channelId, onCancel, onOk }) => {
     try {
       let res = await API.get(`/api/channel/models`);
       const { data } = res.data;
-      data.forEach(item => {
+      data.forEach((item) => {
         if (!item.owned_by) {
           item.owned_by = "未知";
         }
@@ -166,7 +168,7 @@ const EditModal = ({ open, channelId, onCancel, onOk }) => {
       });
 
       setModelOptions(
-         data.map((model) => {
+        data.map((model) => {
           return {
             id: model.id,
             group: model.owned_by,
@@ -258,7 +260,7 @@ const EditModal = ({ open, channelId, onCancel, onOk }) => {
           2
         );
       }
-      data.base_url = data.base_url ?? '';
+      data.base_url = data.base_url ?? "";
       data.is_edit = true;
       initChannel(data.type);
       setInitialInput(data);
@@ -273,6 +275,7 @@ const EditModal = ({ open, channelId, onCancel, onOk }) => {
   }, []);
 
   useEffect(() => {
+    setBatchAdd(false);
     if (channelId) {
       loadChannel().then();
     } else {
@@ -340,15 +343,17 @@ const EditModal = ({ open, channelId, onCancel, onOk }) => {
                     },
                   }}
                 >
-                  {Object.values(CHANNEL_OPTIONS).sort((a, b) => {
-                    return a.text.localeCompare(b.text)
-                  }).map((option) => {
-                    return (
-                      <MenuItem key={option.value} value={option.value}>
-                        {option.text}
-                      </MenuItem>
-                    );
-                  })}
+                  {Object.values(CHANNEL_OPTIONS)
+                    .sort((a, b) => {
+                      return a.text.localeCompare(b.text);
+                    })
+                    .map((option) => {
+                      return (
+                        <MenuItem key={option.value} value={option.value}>
+                          {option.text}
+                        </MenuItem>
+                      );
+                    })}
                 </Select>
                 {touched.type && errors.type ? (
                   <FormHelperText error id="helper-tex-channel-type-label">
@@ -553,7 +558,12 @@ const EditModal = ({ open, channelId, onCancel, onOk }) => {
                   }}
                   renderOption={(props, option, { selected }) => (
                     <li {...props}>
-                      <Checkbox icon={icon} checkedIcon={checkedIcon} style={{ marginRight: 8 }} checked={selected} />
+                      <Checkbox
+                        icon={icon}
+                        checkedIcon={checkedIcon}
+                        style={{ marginRight: 8 }}
+                        checked={selected}
+                      />
                       {option.id}
                     </li>
                   )}
@@ -599,20 +609,38 @@ const EditModal = ({ open, channelId, onCancel, onOk }) => {
                 error={Boolean(touched.key && errors.key)}
                 sx={{ ...theme.typography.otherInput }}
               >
-                <InputLabel htmlFor="channel-key-label">
-                  {inputLabel.key}
-                </InputLabel>
-                <OutlinedInput
-                  id="channel-key-label"
-                  label={inputLabel.key}
-                  type="text"
-                  value={values.key}
-                  name="key"
-                  onBlur={handleBlur}
-                  onChange={handleChange}
-                  inputProps={{}}
-                  aria-describedby="helper-text-channel-key-label"
-                />
+                {!batchAdd ? (
+                  <>
+                    <InputLabel htmlFor="channel-key-label">
+                      {inputLabel.key}
+                    </InputLabel>
+                    <OutlinedInput
+                      id="channel-key-label"
+                      label={inputLabel.key}
+                      type="text"
+                      value={values.key}
+                      name="key"
+                      onBlur={handleBlur}
+                      onChange={handleChange}
+                      inputProps={{}}
+                      aria-describedby="helper-text-channel-key-label"
+                    />
+                  </>
+                ) : (
+                  <TextField
+                    multiline
+                    id="channel-key-label"
+                    label={inputLabel.key}
+                    value={values.key}
+                    name="key"
+                    onBlur={handleBlur}
+                    onChange={handleChange}
+                    aria-describedby="helper-text-channel-key-label"
+                    minRows={5}
+                    placeholder={inputPrompt.key + "，一行一个密钥"}
+                  />
+                )}
+
                 {touched.key && errors.key ? (
                   <FormHelperText error id="helper-tex-channel-key-label">
                     {errors.key}
@@ -624,6 +652,19 @@ const EditModal = ({ open, channelId, onCancel, onOk }) => {
                   </FormHelperText>
                 )}
               </FormControl>
+              {channelId === 0 && (
+                <Container
+                  sx={{
+                    textAlign: "right",
+                  }}
+                >
+                  <Switch
+                    checked={batchAdd}
+                    onChange={(e) => setBatchAdd(e.target.checked)}
+                  />
+                  批量添加
+                </Container>
+              )}
               <FormControl
                 fullWidth
                 error={Boolean(touched.model_mapping && errors.model_mapping)}
