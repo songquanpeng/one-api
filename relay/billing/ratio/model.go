@@ -163,13 +163,13 @@ var ModelRatio = map[string]float64{
 	"step-1v-32k": 0.024 * RMB,
 	"step-1-32k":  0.024 * RMB,
 	"step-1-200k": 0.15 * RMB,
-	//https://cohere.com/pricing  command系列没有给出定价 所以采用的openrouter的标准
+	// https://cohere.com/pricing
 	"command":               0.5,
-	"command-light":         0.5,
 	"command-nightly":       0.5,
+	"command-light":         0.5,
 	"command-light-nightly": 0.5,
-	"command-r":             0.25,
-	"command-r-plus	":       1.5,
+	"command-r":             0.5 / 1000 * USD,
+	"command-r-plus	":       3.0 / 1000 * USD,
 }
 
 var CompletionRatio = map[string]float64{}

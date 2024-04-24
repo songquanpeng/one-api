@@ -1,3 +1,7 @@
 package cohere
 
-var ModelList = []string{"command", "command-light", "command-nightly", "command-light-nightly", "command-r", "command-r-plus"}
+var ModelList = []string{
+	"command", "command-nightly",
+	"command-light", "command-light-nightly",
+	"command-r", "command-r-plus",
+}

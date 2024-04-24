@@ -7,7 +7,6 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/songquanpeng/one-api/common/logger"
 	"github.com/songquanpeng/one-api/relay/adaptor"
 	"github.com/songquanpeng/one-api/relay/meta"
 	"github.com/songquanpeng/one-api/relay/model"
@@ -17,7 +16,7 @@ type Adaptor struct{}
 
 // ConvertImageRequest implements adaptor.Adaptor.
 func (*Adaptor) ConvertImageRequest(request *model.ImageRequest) (any, error) {
-	panic("unimplemented")
+	return nil, errors.New("not implemented")
 }
 
 // ConvertImageRequest implements adaptor.Adaptor.
@@ -32,8 +31,7 @@ func (a *Adaptor) GetRequestURL(meta *meta.Meta) (string, error) {
 
 func (a *Adaptor) SetupRequestHeader(c *gin.Context, req *http.Request, meta *meta.Meta) error {
 	adaptor.SetupCommonRequestHeader(c, req, meta)
-	logger.SysLog(meta.APIKey)
-	req.Header.Set("Authorization", "bearer "+meta.APIKey)
+	req.Header.Set("Authorization", "Bearer "+meta.APIKey)
 	return nil
 }
 
