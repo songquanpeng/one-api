@@ -36,6 +36,7 @@ var ChannelBaseURLs = []string{
 	"https://api.stepfun.com",                   // 32
 	"",                                          // 33
 	"https://api.coze.com",                      // 34
+	"",                                          // 35
 }
 
 func init() {

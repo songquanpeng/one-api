@@ -13,6 +13,7 @@ import (
 	"github.com/songquanpeng/one-api/relay/adaptor/openai"
 	"github.com/songquanpeng/one-api/relay/adaptor/palm"
 	"github.com/songquanpeng/one-api/relay/adaptor/tencent"
+	"github.com/songquanpeng/one-api/relay/adaptor/vertex"
 	"github.com/songquanpeng/one-api/relay/adaptor/xunfei"
 	"github.com/songquanpeng/one-api/relay/adaptor/zhipu"
 	"github.com/songquanpeng/one-api/relay/apitype"
@@ -46,6 +47,8 @@ func GetAdaptor(apiType int) adaptor.Adaptor {
 		return &ollama.Adaptor{}
 	case apitype.Coze:
 		return &coze.Adaptor{}
+	case apitype.Vertex:
+		return &vertex.Adaptor{}
 	}
 	return nil
 }

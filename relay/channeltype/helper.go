@@ -29,6 +29,8 @@ func ToAPIType(channelType int) int {
 		apiType = apitype.AwsClaude
 	case Coze:
 		apiType = apitype.Coze
+	case Vertex:
+		apiType = apitype.Vertex
 	}
 
 	return apiType

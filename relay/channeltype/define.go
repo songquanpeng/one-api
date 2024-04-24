@@ -36,6 +36,7 @@ const (
 	StepFun
 	AwsClaude
 	Coze
+	Vertex
 
 	Dummy
 )
