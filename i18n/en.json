@@ -1124,5 +1124,9 @@
   "位置/区域": "Location/Region",
   "请输入你 Speech Studio 的位置/区域，例如：eastasia": "Please enter the location/region of your Speech Studio, for example: eastasia",
   "必须指定渠道": "Channel must be specified",
-  "中继": "Relay"
+  "中继": "Relay",
+  "请输入你部署的Ollama地址，例如：http://127.0.0.1:11434，如果你使用了cloudflare Zero Trust，可以在下方插件填入授权信息": "Please enter the Ollama address you deployed, for example: http://127.0.0.1:11434. If you are using Cloudflare Zero Trust, you can fill in the authorization information in the plugin below.",
+  "请随意填写": "Please fill in at will",
+  "Header 配置": "Header Configuration",
+  "本配置主要是用于使用cloudflare Zero Trust将端口暴露到公网时，需要配置的header": "This configuration is mainly used for the header that needs to be configured when using Cloudflare Zero Trust to expose the port to the public network"
 }

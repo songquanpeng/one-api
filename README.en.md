@@ -68,31 +68,32 @@ Please refer to the [documentation](https://github.com/MartialBE/one-api/wiki).
 
 ## Current Supported Providers
 
-| Provider                                                               | Chat                     | Embeddings | Audio  | Images      | Other                                                             |
-| --------------------------------------------------------------------- | ------------------------ | ---------- | ------ | ----------- | ---------------------------------------------------------------- |
-| [OpenAI](https://platform.openai.com/docs/api-reference/introduction) | ✅                       | ✅         | ✅     | ✅          | -                                                                |
-| [Azure OpenAI](https://oai.azure.com/)                                | ✅                       | ✅         | ✅     | ✅          | -                                                                |
-| [Azure Speech](https://portal.azure.com/)                             | -                        | -          | ⚠️ tts | -           | -                                                                |
-| [Anthropic](https://www.anthropic.com/)                               | ✅                       | -          | -      | -           | -                                                                |
-| [Gemini](https://aistudio.google.com/)                                | ✅                       | -          | -      | -           | -                                                                |
-| [百度文心](https://console.bce.baidu.com/qianfan/overview)            | ✅                       | ✅         | -      | -           | -                                                                |
-| [通义千问](https://dashscope.console.aliyun.com/overview)             | ✅                       | ✅         | -      | -           | -                                                                |
-| [讯飞星火](https://console.xfyun.cn/)                                 | ✅                       | -          | -      | -           | -                                                                |
-| [智谱](https://open.bigmodel.cn/overview)                             | ✅                       | ✅         | -      | ⚠️ image | -                                                                |
-| [腾讯混元](https://cloud.tencent.com/product/hunyuan)                 | ✅                       | -          | -      | -           | -                                                                |
-| [百川](https://platform.baichuan-ai.com/console/apikey)               | ✅                       | ✅         | -      | -           | -                                                                |
-| [MiniMax](https://www.minimaxi.com/user-center/basic-information)     | ✅                       | ✅         | -      | -           | -                                                                |
-| [Deepseek](https://platform.deepseek.com/usage)                       | ✅                       | -          | -      | -           | -                                                                |
-| [Moonshot](https://moonshot.ai/)                                      | ✅                       | -          | -      | -           | -                                                                |
-| [Mistral](https://mistral.ai/)                                        | ✅                       | ✅         | -      | -           | -                                                                |
-| [Groq](https://console.groq.com/keys)                                 | ✅                       | -          | -      | -           | -                                                                |
-| [Amazon Bedrock](https://console.aws.amazon.com/bedrock/home)         | ⚠️ Only support Anthropic models | -          | -      | -           | -                                                                |
-| [零一万物](https://platform.lingyiwanwu.com/details)                  | ✅                       | -          | -      | -           | -                                                                |
-| [Cloudflare AI](https://ai.cloudflare.com/)                           | ✅                       | -          | ⚠️ stt | ⚠️ image | -                                                                |
-| [Midjourney](https://www.midjourney.com/)                             | -                        | -          | -      | -           | [midjourney-proxy](https://github.com/novicezk/midjourney-proxy) |
-| [Cohere](https://cohere.com/)                                         | ✅                       | -          | -      | -           | -                                                                |
-| [Stability AI](https://platform.stability.ai/account/credits)         | -                        | -          | -      | ⚠️ image | -                                                                |
-| [Coze](https://www.coze.com/open/docs/chat?_lang=zh)                  | ✅                       | -          | -      | -           | -                                                                |
+| Provider                                                              | Chat                             | Embeddings | Audio  | Images   | Other                                                            |
+| --------------------------------------------------------------------- | -------------------------------- | ---------- | ------ | -------- | ---------------------------------------------------------------- |
+| [OpenAI](https://platform.openai.com/docs/api-reference/introduction) | ✅                               | ✅         | ✅     | ✅       | -                                                                |
+| [Azure OpenAI](https://oai.azure.com/)                                | ✅                               | ✅         | ✅     | ✅       | -                                                                |
+| [Azure Speech](https://portal.azure.com/)                             | -                                | -          | ⚠️ tts | -        | -                                                                |
+| [Anthropic](https://www.anthropic.com/)                               | ✅                               | -          | -      | -        | -                                                                |
+| [Gemini](https://aistudio.google.com/)                                | ✅                               | -          | -      | -        | -                                                                |
+| [百度文心](https://console.bce.baidu.com/qianfan/overview)            | ✅                               | ✅         | -      | -        | -                                                                |
+| [通义千问](https://dashscope.console.aliyun.com/overview)             | ✅                               | ✅         | -      | -        | -                                                                |
+| [讯飞星火](https://console.xfyun.cn/)                                 | ✅                               | -          | -      | -        | -                                                                |
+| [智谱](https://open.bigmodel.cn/overview)                             | ✅                               | ✅         | -      | ⚠️ image | -                                                                |
+| [腾讯混元](https://cloud.tencent.com/product/hunyuan)                 | ✅                               | -          | -      | -        | -                                                                |
+| [百川](https://platform.baichuan-ai.com/console/apikey)               | ✅                               | ✅         | -      | -        | -                                                                |
+| [MiniMax](https://www.minimaxi.com/user-center/basic-information)     | ✅                               | ✅         | -      | -        | -                                                                |
+| [Deepseek](https://platform.deepseek.com/usage)                       | ✅                               | -          | -      | -        | -                                                                |
+| [Moonshot](https://moonshot.ai/)                                      | ✅                               | -          | -      | -        | -                                                                |
+| [Mistral](https://mistral.ai/)                                        | ✅                               | ✅         | -      | -        | -                                                                |
+| [Groq](https://console.groq.com/keys)                                 | ✅                               | -          | -      | -        | -                                                                |
+| [Amazon Bedrock](https://console.aws.amazon.com/bedrock/home)         | ⚠️ Only support Anthropic models | -          | -      | -        | -                                                                |
+| [零一万物](https://platform.lingyiwanwu.com/details)                  | ✅                               | -          | -      | -        | -                                                                |
+| [Cloudflare AI](https://ai.cloudflare.com/)                           | ✅                               | -          | ⚠️ stt | ⚠️ image | -                                                                |
+| [Midjourney](https://www.midjourney.com/)                             | -                                | -          | -      | -        | [midjourney-proxy](https://github.com/novicezk/midjourney-proxy) |
+| [Cohere](https://cohere.com/)                                         | ✅                               | -          | -      | -        | -                                                                |
+| [Stability AI](https://platform.stability.ai/account/credits)         | -                                | -          | -      | ⚠️ image | -                                                                |
+| [Coze](https://www.coze.com/open/docs/chat?_lang=zh)                  | ✅                               | -          | -      | -        | -                                                                |
+| [Ollama](https://github.com/ollama/ollama)                            | ✅                               | ✅         | -      | -        | -                                                                |
 
 ## Acknowledgements
 

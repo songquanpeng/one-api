@@ -144,27 +144,34 @@ export const CHANNEL_OPTIONS = {
     text: 'Cloudflare AI',
     value: 35,
     color: 'orange',
-    url: ''
+    url: 'https://ai.cloudflare.com/'
   },
   36: {
     key: 36,
     text: 'Cohere',
     value: 36,
     color: 'default',
-    url: ''
+    url: 'https://cohere.com/'
   },
   37: {
     key: 37,
     text: 'Stability AI',
     value: 37,
     color: 'default',
-    url: ''
+    url: 'https://platform.stability.ai/account/credits'
   },
   38: {
     key: 38,
     text: 'Coze',
     value: 38,
     color: 'primary',
+    url: 'https://www.coze.com/open/docs/chat?_lang=zh'
+  },
+  39: {
+    key: 39,
+    text: 'Ollama',
+    value: 39,
+    color: 'orange',
     url: ''
   },
   24: {

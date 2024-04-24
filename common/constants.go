@@ -176,6 +176,7 @@ const (
 	ChannelTypeCohere         = 36
 	ChannelTypeStabilityAI    = 37
 	ChannelTypeCoze           = 38
+	ChannelTypeOllama         = 39
 )
 
 var ChannelBaseURLs = []string{
@@ -218,6 +219,7 @@ var ChannelBaseURLs = []string{
 	"https://api.cohere.ai/v1",          //36
 	"https://api.stability.ai/v2beta",   //37
 	"https://api.coze.com/open_api",     //38
+	"",                                  //39
 }
 
 const (

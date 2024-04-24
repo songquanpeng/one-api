@@ -88,5 +88,25 @@
         }
       }
     }
+  },
+  "39": {
+    "headers": {
+      "name": "Header 配置",
+      "description": "本配置主要是用于使用cloudflare Zero Trust将端口暴露到公网时，需要配置的header",
+      "params": {
+        "CF-Access-Client-Id": {
+          "name": "CF-Access-Client-Id",
+          "description": "CF-Access-Client-Id",
+          "type": "string",
+          "required": true
+        },
+        "CF-Access-Client-Secret": {
+          "name": "CF-Access-Client-Secret",
+          "description": "CF-Access-Client-Secret",
+          "type": "string",
+          "required": true
+        }
+      }
+    }
   }
 }

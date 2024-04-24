@@ -636,6 +636,7 @@ const EditModal = ({ open, channelId, onCancel, onOk, groupOptions }) => {
                     <>
                       <Divider sx={{ ...theme.typography.otherInput }} />
                       <Typography variant="h3">{plugin.name}</Typography>
+                      <Typography variant="caption">{plugin.description}</Typography>
                       {Object.keys(plugin.params).map((paramId) => {
                         const param = plugin.params[paramId];
                         const name = `plugin.${pluginId}.${paramId}`;

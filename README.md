@@ -93,6 +93,7 @@ _本项目是基于[one-api](https://github.com/songquanpeng/one-api)二次开�
 | [Cohere](https://cohere.com/)                                         | ✅                       | -          | -      | -           | -                                                                |
 | [Stability AI](https://platform.stability.ai/account/credits)         | -                        | -          | -      | ⚠️ 图片生成 | -                                                                |
 | [Coze](https://www.coze.com/open/docs/chat?_lang=zh)                  | ✅                       | -          | -      | -           | -                                                                |
+| [Ollama](https://github.com/ollama/ollama)                            | ✅                       | ✅         | -      | -           | -                                                                |
 
 ## 感谢
 

@@ -315,6 +315,15 @@ const typeConfig = {
         '模型名称映射， 你可以取一个容易记忆的名字来代替coze-{bot_id}，例如：{"coze-translate": "coze-xxxxx"},注意：如果使用了模型映射，那么上面的模型名称必须使用映射前的名称，上述例子中，你应该在模型中填入coze-translate(如果已经使用了coze-*，可以忽略)。'
     },
     modelGroup: 'Coze'
+  },
+  39: {
+    input: {
+      models: ['phi3', 'llama3']
+    },
+    prompt: {
+      base_url: '请输入你部署的Ollama地址，例如：http://127.0.0.1:11434，如果你使用了cloudflare Zero Trust，可以在下方插件填入授权信息',
+      key: '请随意填写'
+    }
   }
 };
 

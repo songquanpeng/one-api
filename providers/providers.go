@@ -20,6 +20,7 @@ import (
 	"one-api/providers/midjourney"
 	"one-api/providers/minimax"
 	"one-api/providers/mistral"
+	"one-api/providers/ollama"
 	"one-api/providers/openai"
 	"one-api/providers/palm"
 	"one-api/providers/stabilityAI"
@@ -62,6 +63,7 @@ func init() {
 	providerFactories[common.ChannelTypeCohere] = cohere.CohereProviderFactory{}
 	providerFactories[common.ChannelTypeStabilityAI] = stabilityAI.StabilityAIProviderFactory{}
 	providerFactories[common.ChannelTypeCoze] = coze.CozeProviderFactory{}
+	providerFactories[common.ChannelTypeOllama] = ollama.OllamaProviderFactory{}
 
 }
 
