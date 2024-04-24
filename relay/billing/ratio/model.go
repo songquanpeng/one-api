@@ -2,8 +2,9 @@ package ratio
 
 import (
 	"encoding/json"
-	"github.com/songquanpeng/one-api/common/logger"
 	"strings"
+
+	"github.com/songquanpeng/one-api/common/logger"
 )
 
 const (
@@ -162,6 +163,13 @@ var ModelRatio = map[string]float64{
 	"step-1v-32k": 0.024 * RMB,
 	"step-1-32k":  0.024 * RMB,
 	"step-1-200k": 0.15 * RMB,
+	// https://cohere.com/pricing
+	"command":               0.5,
+	"command-nightly":       0.5,
+	"command-light":         0.5,
+	"command-light-nightly": 0.5,
+	"command-r":             0.5 / 1000 * USD,
+	"command-r-plus	":       3.0 / 1000 * USD,
 }
 
 var CompletionRatio = map[string]float64{}
@@ -284,6 +292,12 @@ func GetCompletionRatio(name string) float64 {
 		return 2
 	case "llama3-70b-8192":
 		return 0.79 / 0.59
+	case "command", "command-light", "command-nightly", "command-light-nightly":
+		return 2
+	case "command-r":
+		return 3
+	case "command-r-plus":
+		return 5
 	}
 	return 1
 }

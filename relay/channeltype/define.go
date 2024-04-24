@@ -36,6 +36,7 @@ const (
 	StepFun
 	AwsClaude
 	Coze
+	Cohere
 
 	Dummy
 )

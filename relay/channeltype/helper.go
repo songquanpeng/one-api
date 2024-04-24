@@ -29,6 +29,8 @@ func ToAPIType(channelType int) int {
 		apiType = apitype.AwsClaude
 	case Coze:
 		apiType = apitype.Coze
+	case Cohere:
+		apiType = apitype.Cohere
 	}
 
 	return apiType
