@@ -70,7 +70,10 @@ func (r *relayChat) send() (err *types.OpenAIErrorWithStatusCode, done bool) {
 			return
 		}
 		err = responseJsonClient(r.c, response)
-		r.cache.SetResponse(response)
+
+		if err == nil && response.GetContent() != "" {
+			r.cache.SetResponse(response)
+		}
 	}
 
 	if err != nil {

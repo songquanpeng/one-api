@@ -90,7 +90,16 @@ func (p *ChatCacheProps) SetResponse(response any) {
 		return
 	}
 
-	p.Response = common.Marshal(response)
+	responseStr := common.Marshal(response)
+	if responseStr == "" {
+		return
+	}
+
+	p.Response = responseStr
+}
+
+func (p *ChatCacheProps) NoCache() {
+	p.Cache = false
 }
 
 func (p *ChatCacheProps) StoreCache(channelId, promptTokens, completionTokens int, modelName string) error {

@@ -146,6 +146,8 @@ func responseStreamClient(c *gin.Context, stream requester.StreamReaderInterface
 			if !errors.Is(err, io.EOF) {
 				fmt.Fprint(w, "data: "+err.Error()+"\n\n")
 				errWithOP = common.ErrorWrapper(err, "stream_error", http.StatusInternalServerError)
+				// 报错不应该缓存
+				cache.NoCache()
 			}
 
 			streamData := "data: [DONE]\n"
