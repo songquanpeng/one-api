@@ -11,6 +11,12 @@ export const CHANNEL_OPTIONS = {
     value: 14,
     color: 'primary'
   },
+  // 33: {
+  //   key: 33,
+  //   text: 'AWS Claude',
+  //   value: 33,
+  //   color: 'primary'
+  // },
   3: {
     key: 3,
     text: 'Azure OpenAI',
@@ -111,6 +117,18 @@ export const CHANNEL_OPTIONS = {
     key: 32,
     text: '阶跃星辰',
     value: 32,
+    color: 'primary'
+  },
+  // 34: {
+  //   key: 34,
+  //   text: 'Coze',
+  //   value: 34,
+  //   color: 'primary'
+  // },
+  35: {
+    key: 35,
+    text: 'Cohere',
+    value: 35,
     color: 'primary'
   },
   8: {
