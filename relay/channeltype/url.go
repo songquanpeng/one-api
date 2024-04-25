@@ -36,7 +36,8 @@ var ChannelBaseURLs = []string{
 	"https://api.stepfun.com",                   // 32
 	"",                                          // 33
 	"https://api.coze.com",                      // 34
-	"https://api.cohere.ai",                     //35
+	"https://api.cohere.ai",                     // 35
+	"https://api.deepseek.com",                  // 36
 }
 
 func init() {

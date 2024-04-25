@@ -21,6 +21,7 @@ export const CHANNEL_OPTIONS = [
   { key: 32, text: '阶跃星辰', value: 32, color: 'blue' },
   { key: 34, text: 'Coze', value: 34, color: 'blue' },
   { key: 35, text: 'Cohere', value: 35, color: 'blue' },
+  { key: 36, text: 'DeepSeek', value: 36, color: 'black' },
   { key: 8, text: '自定义渠道', value: 8, color: 'pink' },
   { key: 22, text: '知识库：FastGPT', value: 22, color: 'blue' },
   { key: 21, text: '知识库：AI Proxy', value: 21, color: 'purple' },
