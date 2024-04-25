@@ -2,6 +2,7 @@ package ctxkey
 
 const (
 	Id                = "id"
+	RequestId         = "X-Oneapi-Request-Id"
 	Username          = "username"
 	Role              = "role"
 	Status            = "status"
@@ -14,6 +15,7 @@ const (
 	Group             = "group"
 	ModelMapping      = "model_mapping"
 	ChannelName       = "channel_name"
+	ContentType       = "content_type"
 	TokenId           = "token_id"
 	TokenName         = "token_name"
 	BaseURL           = "base_url"
