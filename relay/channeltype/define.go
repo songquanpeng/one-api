@@ -37,6 +37,7 @@ const (
 	AwsClaude
 	Coze
 	Cohere
+	Vertex
 
 	Dummy
 )

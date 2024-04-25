@@ -31,6 +31,8 @@ func ToAPIType(channelType int) int {
 		apiType = apitype.Coze
 	case Cohere:
 		apiType = apitype.Cohere
+	case Vertex:
+		apiType = apitype.Vertex
 	}
 
 	return apiType
