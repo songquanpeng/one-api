@@ -134,7 +134,7 @@ type ChatCompletionsStreamResponse struct {
 	Created int64                                 `json:"created"`
 	Model   string                                `json:"model"`
 	Choices []ChatCompletionsStreamResponseChoice `json:"choices"`
-	Usage   *model.Usage                          `json:"usage"`
+	Usage   *model.Usage                          `json:"usage,omitempty"`
 }
 
 type CompletionsStreamResponse struct {

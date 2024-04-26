@@ -2,6 +2,7 @@ package helper
 
 import (
 	"fmt"
+	"github.com/gin-gonic/gin"
 	"github.com/songquanpeng/one-api/common/random"
 	"html/template"
 	"log"
@@ -103,6 +104,11 @@ func IntMax(a int, b int) int {
 
 func GenRequestID() string {
 	return GetTimeString() + random.GetRandomNumberString(8)
+}
+
+func GetResponseID(c *gin.Context) string {
+	logID := c.GetString(RequestIdKey)
+	return fmt.Sprintf("chatcmpl-%s", logID)
 }
 
 func Max(a int, b int) int {

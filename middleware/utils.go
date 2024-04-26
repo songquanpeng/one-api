@@ -12,7 +12,7 @@ import (
 func abortWithMessage(c *gin.Context, statusCode int, message string) {
 	c.JSON(statusCode, gin.H{
 		"error": gin.H{
-			"message": helper.MessageWithRequestId(message, c.GetString(logger.RequestIdKey)),
+			"message": helper.MessageWithRequestId(message, c.GetString(helper.RequestIdKey)),
 			"type":    "one_api_error",
 		},
 	})

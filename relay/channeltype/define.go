@@ -38,6 +38,7 @@ const (
 	Coze
 	Cohere
 	DeepSeek
+	Cloudflare
 
 	Dummy
 )

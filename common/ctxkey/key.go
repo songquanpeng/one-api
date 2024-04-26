@@ -1,6 +1,7 @@
 package ctxkey
 
 const (
+	Config            = "config"
 	Id                = "id"
 	Username          = "username"
 	Role              = "role"
