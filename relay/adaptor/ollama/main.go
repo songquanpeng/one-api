@@ -13,6 +13,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/songquanpeng/one-api/common"
+	"github.com/songquanpeng/one-api/common/image"
 	"github.com/songquanpeng/one-api/common/logger"
 	"github.com/songquanpeng/one-api/relay/adaptor/openai"
 	"github.com/songquanpeng/one-api/relay/constant"
@@ -32,9 +33,24 @@ func ConvertRequest(request model.GeneralOpenAIRequest) *ChatRequest {
 		Stream: request.Stream,
 	}
 	for _, message := range request.Messages {
+        openaiContent := message.ParseContent()
+        var imageUrls []string
+		var contentText string
+        for _, part := range openaiContent {
+            logger.SysLog(part.Type)
+			switch part.Type {
+			case model.ContentTypeText:
+			    contentText = part.Text
+			case model.ContentTypeImageURL:
+				_ , data, _ := image.GetImageFromUrl(part.ImageURL.Url)
+				imageUrls = append(imageUrls, data)
+			}
+		}
+
 		ollamaRequest.Messages = append(ollamaRequest.Messages, Message{
 			Role:    message.Role,
-			Content: message.StringContent(),
+			Content:    contentText,
+            Images:    imageUrls,
 		})
 	}
 	return &ollamaRequest
