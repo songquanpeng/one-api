@@ -228,6 +228,9 @@ func GetModelRatio(name string) float64 {
 	if strings.HasPrefix(name, "qwen-") && strings.HasSuffix(name, "-internet") {
 		name = strings.TrimSuffix(name, "-internet")
 	}
+	if strings.HasPrefix(name, "command-") && strings.HasSuffix(name, "-internet") {
+		name = strings.TrimSuffix(name, "-internet")
+	}
 	ratio, ok := ModelRatio[name]
 	if !ok {
 		ratio, ok = DefaultModelRatio[name]
