@@ -5,6 +5,15 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
+	"net/http"
+	"net/http/httptest"
+	"net/url"
+	"strconv"
+	"strings"
+	"sync"
+	"time"
+
 	"github.com/songquanpeng/one-api/common/config"
 	"github.com/songquanpeng/one-api/common/ctxkey"
 	"github.com/songquanpeng/one-api/common/logger"
@@ -18,14 +27,6 @@ import (
 	"github.com/songquanpeng/one-api/relay/meta"
 	relaymodel "github.com/songquanpeng/one-api/relay/model"
 	"github.com/songquanpeng/one-api/relay/relaymode"
-	"io"
-	"net/http"
-	"net/http/httptest"
-	"net/url"
-	"strconv"
-	"strings"
-	"sync"
-	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -57,6 +58,8 @@ func testChannel(channel *model.Channel) (err error, openaiErr *relaymodel.Error
 	c.Request.Header.Set("Content-Type", "application/json")
 	c.Set(ctxkey.Channel, channel.Type)
 	c.Set(ctxkey.BaseURL, channel.GetBaseURL())
+	cfg, _ := channel.LoadConfig()
+	c.Set(ctxkey.Config, cfg)
 	middleware.SetupContextForSelectedChannel(c, channel, "")
 	meta := meta.GetByContext(c)
 	apiType := channeltype.ToAPIType(channel.Type)
@@ -67,6 +70,7 @@ func testChannel(channel *model.Channel) (err error, openaiErr *relaymodel.Error
 	adaptor.Init(meta)
 	var modelName string
 	modelList := adaptor.GetModelList()
+	modelMap := channel.GetModelMapping()
 	if len(modelList) != 0 {
 		modelName = modelList[0]
 	}
@@ -74,6 +78,9 @@ func testChannel(channel *model.Channel) (err error, openaiErr *relaymodel.Error
 		modelNames := strings.Split(channel.Models, ",")
 		if len(modelNames) > 0 {
 			modelName = modelNames[0]
+		}
+		if modelMap != nil && modelMap[modelName] != "" {
+			modelName = modelMap[modelName]
 		}
 	}
 	request := buildTestRequest()

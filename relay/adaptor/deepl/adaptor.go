@@ -1,20 +1,19 @@
-package xunfei
+package deepl
 
 import (
 	"errors"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/songquanpeng/one-api/relay/adaptor"
-	"github.com/songquanpeng/one-api/relay/adaptor/openai"
 	"github.com/songquanpeng/one-api/relay/meta"
 	"github.com/songquanpeng/one-api/relay/model"
 	"io"
 	"net/http"
-	"strings"
 )
 
 type Adaptor struct {
-	request *model.GeneralOpenAIRequest
-	meta    *meta.Meta
+	meta       *meta.Meta
+	promptText string
 }
 
 func (a *Adaptor) Init(meta *meta.Meta) {
@@ -22,20 +21,12 @@ func (a *Adaptor) Init(meta *meta.Meta) {
 }
 
 func (a *Adaptor) GetRequestURL(meta *meta.Meta) (string, error) {
-	return "", nil
+	return fmt.Sprintf("%s/v2/translate", meta.BaseURL), nil
 }
 
 func (a *Adaptor) SetupRequestHeader(c *gin.Context, req *http.Request, meta *meta.Meta) error {
 	adaptor.SetupCommonRequestHeader(c, req, meta)
-	version := parseAPIVersionByModelName(meta.ActualModelName)
-	if version == "" {
-		version = a.meta.Config.APIVersion
-	}
-	if version == "" {
-		version = "v1.1"
-	}
-	a.meta.Config.APIVersion = version
-	// check DoResponse for auth part
+	req.Header.Set("Authorization", "DeepL-Auth-Key "+meta.APIKey)
 	return nil
 }
 
@@ -43,8 +34,9 @@ func (a *Adaptor) ConvertRequest(c *gin.Context, relayMode int, request *model.G
 	if request == nil {
 		return nil, errors.New("request is nil")
 	}
-	a.request = request
-	return nil, nil
+	convertedRequest, text := ConvertRequest(*request)
+	a.promptText = text
+	return convertedRequest, nil
 }
 
 func (a *Adaptor) ConvertImageRequest(request *model.ImageRequest) (any, error) {
@@ -55,24 +47,19 @@ func (a *Adaptor) ConvertImageRequest(request *model.ImageRequest) (any, error) 
 }
 
 func (a *Adaptor) DoRequest(c *gin.Context, meta *meta.Meta, requestBody io.Reader) (*http.Response, error) {
-	// xunfei's request is not http request, so we don't need to do anything here
-	dummyResp := &http.Response{}
-	dummyResp.StatusCode = http.StatusOK
-	return dummyResp, nil
+	return adaptor.DoRequestHelper(a, c, meta, requestBody)
 }
 
 func (a *Adaptor) DoResponse(c *gin.Context, resp *http.Response, meta *meta.Meta) (usage *model.Usage, err *model.ErrorWithStatusCode) {
-	splits := strings.Split(meta.APIKey, "|")
-	if len(splits) != 3 {
-		return nil, openai.ErrorWrapper(errors.New("invalid auth"), "invalid_auth", http.StatusBadRequest)
-	}
-	if a.request == nil {
-		return nil, openai.ErrorWrapper(errors.New("request is nil"), "request_is_nil", http.StatusBadRequest)
-	}
 	if meta.IsStream {
-		err, usage = StreamHandler(c, meta, *a.request, splits[0], splits[1], splits[2])
+		err = StreamHandler(c, resp, meta.ActualModelName)
 	} else {
-		err, usage = Handler(c, meta, *a.request, splits[0], splits[1], splits[2])
+		err = Handler(c, resp, meta.ActualModelName)
+	}
+	promptTokens := len(a.promptText)
+	usage = &model.Usage{
+		PromptTokens: promptTokens,
+		TotalTokens:  promptTokens,
 	}
 	return
 }
@@ -82,5 +69,5 @@ func (a *Adaptor) GetModelList() []string {
 }
 
 func (a *Adaptor) GetChannelName() string {
-	return "xunfei"
+	return "deepl"
 }

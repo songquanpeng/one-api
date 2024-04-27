@@ -66,21 +66,29 @@ func SetupContextForSelectedChannel(c *gin.Context, channel *model.Channel, mode
 	c.Set(ctxkey.OriginalModel, modelName) // for retry
 	c.Request.Header.Set("Authorization", fmt.Sprintf("Bearer %s", channel.Key))
 	c.Set(ctxkey.BaseURL, channel.GetBaseURL())
+	cfg, _ := channel.LoadConfig()
 	// this is for backward compatibility
 	switch channel.Type {
 	case channeltype.Azure:
-		c.Set(ctxkey.ConfigAPIVersion, channel.Other)
+		if cfg.APIVersion == "" {
+			cfg.APIVersion = channel.Other
+		}
 	case channeltype.Xunfei:
-		c.Set(ctxkey.ConfigAPIVersion, channel.Other)
+		if cfg.APIVersion == "" {
+			cfg.APIVersion = channel.Other
+		}
 	case channeltype.Gemini:
-		c.Set(ctxkey.ConfigAPIVersion, channel.Other)
+		if cfg.APIVersion == "" {
+			cfg.APIVersion = channel.Other
+		}
 	case channeltype.AIProxyLibrary:
-		c.Set(ctxkey.ConfigLibraryID, channel.Other)
+		if cfg.LibraryID == "" {
+			cfg.LibraryID = channel.Other
+		}
 	case channeltype.Ali:
-		c.Set(ctxkey.ConfigPlugin, channel.Other)
+		if cfg.Plugin == "" {
+			cfg.Plugin = channel.Other
+		}
 	}
-	cfg, _ := channel.LoadConfig()
-	for k, v := range cfg {
-		c.Set(ctxkey.ConfigPrefix+k, v)
-	}
+	c.Set(ctxkey.Config, cfg)
 }

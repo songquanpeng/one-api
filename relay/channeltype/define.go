@@ -37,6 +37,9 @@ const (
 	AwsClaude
 	Coze
 	Cohere
+	DeepSeek
+	Cloudflare
+	DeepL
 
 	Dummy
 )

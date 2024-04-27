@@ -206,3 +206,7 @@ func CountTokenText(text string, model string) int {
 	tokenEncoder := getTokenEncoder(model)
 	return getTokenNum(tokenEncoder, text)
 }
+
+func CountToken(text string) int {
+	return CountTokenInput(text, "gpt-3.5-turbo")
+}

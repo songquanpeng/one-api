@@ -489,6 +489,21 @@ const EditChannel = () => {
             </Form.Field>)
           }
           {
+            inputs.type === 37 && (
+              <Form.Field>
+                <Form.Input
+                  label='Account ID'
+                  name='user_id'
+                  required
+                  placeholder={'请输入 Account ID，例如：d8d7c61dbc334c32d3ced580e4bf42b4'}
+                  onChange={handleConfigChange}
+                  value={config.user_id}
+                  autoComplete=''
+                />
+              </Form.Field>
+            )
+          }
+          {
             inputs.type !== 33 && !isEdit && (
               <Form.Checkbox
                 checked={batch}

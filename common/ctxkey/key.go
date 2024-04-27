@@ -1,6 +1,7 @@
 package ctxkey
 
 const (
+	Config            = "config"
 	Id                = "id"
 	RequestId         = "X-Oneapi-Request-Id"
 	Username          = "username"

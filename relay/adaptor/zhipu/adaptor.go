@@ -62,8 +62,8 @@ func (a *Adaptor) ConvertRequest(c *gin.Context, relayMode int, request *model.G
 	}
 	switch relayMode {
 	case relaymode.Embeddings:
-		baiduEmbeddingRequest := ConvertEmbeddingRequest(*request)
-		return baiduEmbeddingRequest, nil
+		baiduEmbeddingRequest, err := ConvertEmbeddingRequest(*request)
+		return baiduEmbeddingRequest, err
 	default:
 		// TopP (0.0, 1.0)
 		request.TopP = math.Min(0.99, request.TopP)
@@ -129,11 +129,15 @@ func (a *Adaptor) DoResponse(c *gin.Context, resp *http.Response, meta *meta.Met
 	return
 }
 
-func ConvertEmbeddingRequest(request model.GeneralOpenAIRequest) *EmbeddingRequest {
-	return &EmbeddingRequest{
-		Model: "embedding-2",
-		Input: request.Input.(string),
+func ConvertEmbeddingRequest(request model.GeneralOpenAIRequest) (*EmbeddingRequest, error) {
+	inputs := request.ParseInput()
+	if len(inputs) != 1 {
+		return nil, errors.New("invalid input length, zhipu only support one input")
 	}
+	return &EmbeddingRequest{
+		Model: request.Model,
+		Input: inputs[0],
+	}, nil
 }
 
 func (a *Adaptor) GetModelList() []string {

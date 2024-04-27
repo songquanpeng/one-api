@@ -11,10 +11,10 @@ import (
 func RequestId() func(c *gin.Context) {
 	return func(c *gin.Context) {
 		id := helper.GenRequestID()
-		c.Set(ctxkey.RequestId, id)
-		ctx := context.WithValue(c.Request.Context(), ctxkey.RequestId, id)
+		c.Set(helper.RequestIdKey, id)
+		ctx := context.WithValue(c.Request.Context(), helper.RequestIdKey, id)
 		c.Request = c.Request.WithContext(ctx)
-		c.Header(ctxkey.RequestId, id)
+		c.Header(helper.RequestIdKey, id)
 		c.Next()
 	}
 }
