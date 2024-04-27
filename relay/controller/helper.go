@@ -18,6 +18,7 @@ import (
 	"github.com/songquanpeng/one-api/relay/relaymode"
 	"math"
 	"net/http"
+	"strings"
 )
 
 func getAndValidateTextRequest(c *gin.Context, relayMode int) (*relaymodel.GeneralOpenAIRequest, error) {
@@ -203,4 +204,21 @@ func getMappedModelName(modelName string, mapping map[string]string) (string, bo
 		return mappedModelName, true
 	}
 	return modelName, false
+}
+
+func isErrorHappened(meta *meta.Meta, resp *http.Response) bool {
+	if resp == nil {
+		return true
+	}
+	if resp.StatusCode != http.StatusOK {
+		return true
+	}
+	if meta.ChannelType == channeltype.DeepL {
+		// skip stream check for deepl
+		return false
+	}
+	if meta.IsStream && strings.HasPrefix(resp.Header.Get("Content-Type"), "application/json") {
+		return true
+	}
+	return false
 }

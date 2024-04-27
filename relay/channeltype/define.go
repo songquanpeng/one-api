@@ -39,6 +39,7 @@ const (
 	Cohere
 	DeepSeek
 	Cloudflare
+	DeepL
 
 	Dummy
 )

@@ -137,6 +137,12 @@ export const CHANNEL_OPTIONS = {
     value: 36,
     color: 'primary'
   },
+  38: {
+    key: 38,
+    text: 'DeepL',
+    value: 38,
+    color: 'primary'
+  },
   8: {
     key: 8,
     text: '自定义渠道',

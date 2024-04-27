@@ -173,6 +173,10 @@ var ModelRatio = map[string]float64{
 	// https://platform.deepseek.com/api-docs/pricing/
 	"deepseek-chat":  1.0 / 1000 * RMB,
 	"deepseek-coder": 1.0 / 1000 * RMB,
+	// https://www.deepl.com/pro?cta=header-prices
+	"deepl-zh": 25.0 / 1000 * USD,
+	"deepl-en": 25.0 / 1000 * USD,
+	"deepl-ja": 25.0 / 1000 * USD,
 }
 
 var CompletionRatio = map[string]float64{}

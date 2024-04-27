@@ -33,6 +33,8 @@ func ToAPIType(channelType int) int {
 		apiType = apitype.Cohere
 	case Cloudflare:
 		apiType = apitype.Cloudflare
+	case DeepL:
+		apiType = apitype.DeepL
 	}
 
 	return apiType
