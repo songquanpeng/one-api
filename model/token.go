@@ -115,6 +115,16 @@ func GetTokenById(id int) (*Token, error) {
 	return &token, err
 }
 
+func GetTokenByName(name string) (*Token, error) {
+	if name == "" {
+		return nil, errors.New("name 为空！")
+	}
+	token := Token{Name: name}
+	var err error = nil
+	err = DB.First(&token, "name = ?", name).Error
+	return &token, err
+}
+
 func (token *Token) Insert() error {
 	if token.ChatCache && !common.ChatCacheEnabled {
 		token.ChatCache = false

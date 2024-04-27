@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import SubCard from 'ui-component/cards/SubCard';
 import {
   Stack,
@@ -19,6 +19,7 @@ import Grid from '@mui/material/Unstable_Grid2';
 import { showError, showSuccess } from 'utils/common'; //,
 import { API } from 'utils/api';
 import { marked } from 'marked';
+import { LoadStatusContext } from 'contexts/StatusContext';
 
 const OtherSetting = () => {
   let [inputs, setInputs] = useState({
@@ -35,6 +36,7 @@ const OtherSetting = () => {
     tag_name: '',
     content: ''
   });
+  const loadStatus = useContext(LoadStatusContext);
 
   const getOptions = async () => {
     try {
@@ -70,8 +72,9 @@ const OtherSetting = () => {
       });
       const { success, message } = res.data;
       if (success) {
-        setInputs((inputs) => ({ ...inputs, [key]: value }));
         showSuccess('保存成功');
+        getOptions();
+        await loadStatus();
       } else {
         showError(message);
       }

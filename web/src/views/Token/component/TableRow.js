@@ -20,24 +20,9 @@ import {
 } from '@mui/material';
 
 import TableSwitch from 'ui-component/Switch';
-import { renderQuota, timestamp2string, copy } from 'utils/common';
+import { renderQuota, timestamp2string, copy, getChatLinks, replaceChatPlaceholders } from 'utils/common';
 
 import { IconDotsVertical, IconEdit, IconTrash, IconCaretDownFilled } from '@tabler/icons-react';
-
-const COPY_OPTIONS = [
-  {
-    key: 'next',
-    text: 'ChatGPT Next',
-    url: 'https://chat.oneapi.pro/#/?settings={"key":"sk-{key}","url":"{serverAddress}"}',
-    encode: false
-  },
-  { key: 'ama', text: 'AMA 问天', url: 'ama://set-api-key?server={serverAddress}&key=sk-{key}', encode: true },
-  { key: 'opencat', text: 'OpenCat', url: 'opencat://team/join?domain={serverAddress}&token=sk-{key}', encode: true }
-];
-
-function replacePlaceholders(text, key, serverAddress) {
-  return text.replace('{key}', key).replace('{serverAddress}', serverAddress);
-}
 
 function createMenu(menuItems) {
   return (
@@ -73,6 +58,7 @@ export default function TokensTableRow({ item, manageToken, handleOpenModal, set
   const [openDelete, setOpenDelete] = useState(false);
   const [statusSwitch, setStatusSwitch] = useState(item.status);
   const siteInfo = useSelector((state) => state.siteInfo);
+  const chatLinks = getChatLinks();
 
   const handleDeleteOpen = () => {
     handleCloseMenu();
@@ -134,25 +120,19 @@ export default function TokensTableRow({ item, manageToken, handleOpenModal, set
   ]);
 
   const handleCopy = (option, type) => {
-    let serverAddress = '';
+    let server = '';
     if (siteInfo?.server_address) {
-      serverAddress = siteInfo.server_address;
+      server = siteInfo.server_address;
     } else {
-      serverAddress = window.location.host;
+      server = window.location.host;
     }
 
-    if (option.encode) {
-      serverAddress = encodeURIComponent(serverAddress);
-    }
+    server = encodeURIComponent(server);
 
     let url = option.url;
 
-    if (option.key === 'next' && siteInfo?.chat_link) {
-      url = siteInfo.chat_link + `/#/?settings={"key":"sk-{key}","url":"{serverAddress}"}`;
-    }
-
-    const key = item.key;
-    const text = replacePlaceholders(url, key, serverAddress);
+    const key = 'sk-' + item.key;
+    const text = replaceChatPlaceholders(url, key, server);
     if (type === 'link') {
       window.open(text);
     } else {
@@ -162,8 +142,8 @@ export default function TokensTableRow({ item, manageToken, handleOpenModal, set
   };
 
   const copyItems = createMenu(
-    COPY_OPTIONS.map((option) => ({
-      text: option.text,
+    chatLinks.map((option) => ({
+      text: option.name,
       icon: undefined,
       onClick: () => handleCopy(option, 'copy'),
       color: undefined
@@ -171,8 +151,8 @@ export default function TokensTableRow({ item, manageToken, handleOpenModal, set
   );
 
   const linkItems = createMenu(
-    COPY_OPTIONS.map((option) => ({
-      text: option.text,
+    chatLinks.map((option) => ({
+      text: option.name,
       icon: undefined,
       onClick: () => handleCopy(option, 'link'),
       color: undefined
@@ -227,9 +207,9 @@ export default function TokensTableRow({ item, manageToken, handleOpenModal, set
                 <IconCaretDownFilled size={'16px'} />
               </Button>
             </ButtonGroup>
-            <ButtonGroup size="small" aria-label="split button">
+            <ButtonGroup size="small" onClick={(e) => handleOpenMenu(e, 'link')} aria-label="split button">
               <Button color="primary">聊天</Button>
-              <Button size="small" onClick={(e) => handleOpenMenu(e, 'link')}>
+              <Button size="small">
                 <IconCaretDownFilled size={'16px'} />
               </Button>
             </ButtonGroup>

@@ -70,6 +70,7 @@ func InitOptionMap() {
 	common.OptionMap["GroupRatio"] = common.GroupRatio2JSONString()
 	common.OptionMap["TopUpLink"] = common.TopUpLink
 	common.OptionMap["ChatLink"] = common.ChatLink
+	common.OptionMap["ChatLinks"] = common.ChatLinks
 	common.OptionMap["QuotaPerUnit"] = strconv.FormatFloat(common.QuotaPerUnit, 'f', -1, 64)
 	common.OptionMap["RetryTimes"] = strconv.Itoa(common.RetryTimes)
 	common.OptionMap["RetryCooldownSeconds"] = strconv.Itoa(common.RetryCooldownSeconds)
@@ -166,6 +167,7 @@ var optionStringMap = map[string]*string{
 	"TurnstileSecretKey":          &common.TurnstileSecretKey,
 	"TopUpLink":                   &common.TopUpLink,
 	"ChatLink":                    &common.ChatLink,
+	"ChatLinks":                   &common.ChatLinks,
 	"LarkClientId":                &common.LarkClientId,
 	"LarkClientSecret":            &common.LarkClientSecret,
 }

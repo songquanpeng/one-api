@@ -15,6 +15,7 @@ const Home = Loadable(lazy(() => import('views/Home')));
 const About = Loadable(lazy(() => import('views/About')));
 const NotFoundView = Loadable(lazy(() => import('views/Error')));
 const Jump = Loadable(lazy(() => import('views/Jump')));
+const Playground = Loadable(lazy(() => import('views/Playground')));
 
 // ==============================|| AUTHENTICATION ROUTING ||============================== //
 
@@ -61,6 +62,10 @@ const OtherRoutes = {
     {
       path: '/jump',
       element: <Jump />
+    },
+    {
+      path: '/playground',
+      element: <Playground />
     }
   ]
 };

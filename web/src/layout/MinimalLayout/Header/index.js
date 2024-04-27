@@ -74,6 +74,11 @@ const Header = () => {
             <Button component={Link} variant="text" to="/" color={pathname === '/' ? 'primary' : 'inherit'}>
               首页
             </Button>
+            {account.user && (
+              <Button component={Link} variant="text" to="/playground" color={pathname === '/playground' ? 'primary' : 'inherit'}>
+                Playground
+              </Button>
+            )}
             <Button component={Link} variant="text" to="/about" color={pathname === '/about' ? 'primary' : 'inherit'}>
               关于
             </Button>
@@ -133,6 +138,12 @@ const Header = () => {
                     <ListItemButton component={Link} variant="text" to="/">
                       <ListItemText primary={<Typography variant="body2">首页</Typography>} />
                     </ListItemButton>
+
+                    {account.user && (
+                      <ListItemButton component={Link} variant="text" to="/playground">
+                        <ListItemText primary={<Typography variant="body2">Playground</Typography>} />
+                      </ListItemButton>
+                    )}
 
                     <ListItemButton component={Link} variant="text" to="/about">
                       <ListItemText primary={<Typography variant="body2">关于</Typography>} />

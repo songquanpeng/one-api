@@ -1,6 +1,7 @@
 import { enqueueSnackbar } from 'notistack';
 import { snackbarConstants } from 'constants/SnackbarConstants';
 import { API } from './api';
+import { CHAT_LINKS } from 'constants/chatLinks';
 
 export function getSystemName() {
   let system_name = localStorage.getItem('system_name');
@@ -227,4 +228,36 @@ export function trims(values) {
   }
 
   return values;
+}
+
+export function getChatLinks(filterShow = false) {
+  let links = [];
+  let siteInfo = JSON.parse(localStorage.getItem('siteInfo'));
+  let chatLinks = JSON.parse(siteInfo?.chat_links || '[]');
+
+  if (chatLinks.length === 0) {
+    links = CHAT_LINKS;
+    if (siteInfo?.chat_link) {
+      // 循环找到name为ChatGPT Next的链接
+      for (let i = 0; i < links.length; i++) {
+        if (links[i].name === 'ChatGPT Next') {
+          links[i].url = siteInfo.chat_link + `/#/?settings={"key":"sk-{key}","url":"{server}"}`;
+          links[i].show = true;
+          break;
+        }
+      }
+    }
+  } else {
+    links = chatLinks;
+  }
+
+  if (filterShow) {
+    links = links.filter((link) => link.show);
+  }
+
+  return links;
+}
+
+export function replaceChatPlaceholders(text, key, server) {
+  return text.replace('{key}', key).replace('{server}', server);
 }

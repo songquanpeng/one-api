@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import SubCard from 'ui-component/cards/SubCard';
 import {
   Stack,
@@ -21,6 +21,7 @@ import Grid from '@mui/material/Unstable_Grid2';
 import { showError, showSuccess, removeTrailingSlash } from 'utils/common'; //,
 import { API } from 'utils/api';
 import { createFilterOptions } from '@mui/material/Autocomplete';
+import { LoadStatusContext } from 'contexts/StatusContext';
 
 const filter = createFilterOptions();
 const SystemSetting = () => {
@@ -56,6 +57,7 @@ const SystemSetting = () => {
   let [loading, setLoading] = useState(false);
   const [EmailDomainWhitelist, setEmailDomainWhitelist] = useState([]);
   const [showPasswordWarningModal, setShowPasswordWarningModal] = useState(false);
+  const loadStatus = useContext(LoadStatusContext);
 
   const getOptions = async () => {
     try {
@@ -116,6 +118,8 @@ const SystemSetting = () => {
           ...inputs,
           [key]: value
         }));
+        getOptions();
+        await loadStatus();
         showSuccess('设置成功！');
       } else {
         showError(message);

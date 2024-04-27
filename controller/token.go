@@ -54,6 +54,39 @@ func GetToken(c *gin.Context) {
 	})
 }
 
+func GetPlaygroundToken(c *gin.Context) {
+	tokenName := "sys_playground"
+	token, err := model.GetTokenByName(tokenName)
+	if err != nil {
+		cleanToken := model.Token{
+			UserId:         c.GetInt("id"),
+			Name:           tokenName,
+			Key:            common.GenerateKey(),
+			CreatedTime:    common.GetTimestamp(),
+			AccessedTime:   common.GetTimestamp(),
+			ExpiredTime:    0,
+			RemainQuota:    0,
+			UnlimitedQuota: true,
+			ChatCache:      false,
+		}
+		err = cleanToken.Insert()
+		if err != nil {
+			c.JSON(http.StatusOK, gin.H{
+				"success": false,
+				"message": "创建令牌失败，请去系统手动配置一个名称为：sys_playground 的令牌",
+			})
+			return
+		}
+		token = &cleanToken
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "",
+		"data":    token.Key,
+	})
+}
+
 func GetTokenStatus(c *gin.Context) {
 	tokenId := c.GetInt("token_id")
 	userId := c.GetInt("id")
