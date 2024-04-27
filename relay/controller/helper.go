@@ -125,9 +125,9 @@ func getPromptTokens(textRequest *relaymodel.GeneralOpenAIRequest, relayMode int
 }
 
 func getPreConsumedQuota(textRequest *relaymodel.GeneralOpenAIRequest, promptTokens int, ratio float64) int64 {
-	preConsumedTokens := config.PreConsumedQuota
+	preConsumedTokens := config.PreConsumedQuota + int64(promptTokens)
 	if textRequest.MaxTokens != 0 {
-		preConsumedTokens = int64(promptTokens) + int64(textRequest.MaxTokens)
+		preConsumedTokens += int64(textRequest.MaxTokens)
 	}
 	return int64(float64(preConsumedTokens) * ratio)
 }
