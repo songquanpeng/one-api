@@ -37,20 +37,18 @@ func ConvertRequest(request model.GeneralOpenAIRequest) *ChatRequest {
 		var imageUrls []string
 		var contentText string
 		for _, part := range openaiContent {
-			logger.SysLog(part.Type)
 			switch part.Type {
 			case model.ContentTypeText:
 				contentText = part.Text
 			case model.ContentTypeImageURL:
-				_ , data, _ := image.GetImageFromUrl(part.ImageURL.Url)
+				_, data, _ := image.GetImageFromUrl(part.ImageURL.Url)
 				imageUrls = append(imageUrls, data)
 			}
 		}
-
 		ollamaRequest.Messages = append(ollamaRequest.Messages, Message{
 			Role:    message.Role,
-			Content:    contentText,
-			Images:    imageUrls,
+			Content: contentText,
+			Images:  imageUrls,
 		})
 	}
 	return &ollamaRequest
