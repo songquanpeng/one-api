@@ -274,7 +274,7 @@ func StreamHandler(c *gin.Context, resp *http.Response) (*model.ErrorWithStatusC
 			if response == nil {
 				return true
 			}
-			responseText += fmt.Sprintf("%v", response.Choices[0].Delta.Content)
+			responseText += response.Choices[0].Delta.StringContent()
 			jsonResponse, err := json.Marshal(response)
 			if err != nil {
 				logger.SysError("error marshalling stream response: " + err.Error())
