@@ -134,7 +134,7 @@ const panel = {
       url: '/panel/profile',
       icon: icons.IconUserScan,
       breadcrumbs: false,
-      isAdmin: true
+      isAdmin: false
     },
     {
       id: 'pricing',
@@ -152,7 +152,7 @@ const panel = {
       url: '/panel/model_price',
       icon: icons.IconBrandGithubCopilot,
       breadcrumbs: false,
-      isAdmin: true
+      isAdmin: false
     },
     {
       id: 'setting',
