@@ -35,12 +35,15 @@ func (cc *ChannelsChooser) Cooldowns(channelId int) bool {
 	return true
 }
 
-func (cc *ChannelsChooser) balancer(channelIds []int) *Channel {
+func (cc *ChannelsChooser) balancer(channelIds []int, skipChannelId int) *Channel {
 	nowTime := time.Now().Unix()
 	totalWeight := 0
 
 	validChannels := make([]*ChannelChoice, 0, len(channelIds))
 	for _, channelId := range channelIds {
+		if skipChannelId > 0 && channelId == skipChannelId {
+			continue
+		}
 		if choice, ok := cc.Channels[channelId]; ok && choice.CooldownsTime < nowTime {
 			weight := int(*choice.Channel.Weight)
 			totalWeight += weight
@@ -68,7 +71,7 @@ func (cc *ChannelsChooser) balancer(channelIds []int) *Channel {
 	return nil
 }
 
-func (cc *ChannelsChooser) Next(group, modelName string) (*Channel, error) {
+func (cc *ChannelsChooser) Next(group, modelName string, skipChannelId int) (*Channel, error) {
 	cc.RLock()
 	defer cc.RUnlock()
 	if _, ok := cc.Rule[group]; !ok {
@@ -89,7 +92,7 @@ func (cc *ChannelsChooser) Next(group, modelName string) (*Channel, error) {
 	}
 
 	for _, priority := range channelsPriority {
-		channel := cc.balancer(priority)
+		channel := cc.balancer(priority, skipChannelId)
 		if channel != nil {
 			return channel, nil
 		}
