@@ -8,6 +8,7 @@ import "github.com/songquanpeng/one-api/relay/adaptor/anthropic"
 type Request struct {
 	// AnthropicVersion should be "bedrock-2023-05-31"
 	AnthropicVersion string              `json:"anthropic_version"`
+	System           string              `json:"system,omitempty"`
 	Messages         []anthropic.Message `json:"messages"`
 	MaxTokens        int                 `json:"max_tokens,omitempty"`
 	Temperature      float64             `json:"temperature,omitempty"`
