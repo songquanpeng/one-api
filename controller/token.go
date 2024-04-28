@@ -56,10 +56,11 @@ func GetToken(c *gin.Context) {
 
 func GetPlaygroundToken(c *gin.Context) {
 	tokenName := "sys_playground"
-	token, err := model.GetTokenByName(tokenName)
+	userId := c.GetInt("id")
+	token, err := model.GetTokenByName(tokenName, userId)
 	if err != nil {
 		cleanToken := model.Token{
-			UserId:         c.GetInt("id"),
+			UserId:         userId,
 			Name:           tokenName,
 			Key:            common.GenerateKey(),
 			CreatedTime:    common.GetTimestamp(),
