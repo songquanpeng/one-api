@@ -10,6 +10,7 @@ import (
 	"github.com/songquanpeng/one-api/relay/adaptor/mistral"
 	"github.com/songquanpeng/one-api/relay/adaptor/moonshot"
 	"github.com/songquanpeng/one-api/relay/adaptor/stepfun"
+	"github.com/songquanpeng/one-api/relay/adaptor/togetherai"
 	"github.com/songquanpeng/one-api/relay/channeltype"
 )
 
@@ -24,6 +25,7 @@ var CompatibleChannels = []int{
 	channeltype.LingYiWanWu,
 	channeltype.StepFun,
 	channeltype.DeepSeek,
+	channeltype.TogetherAI,
 }
 
 func GetCompatibleChannelMeta(channelType int) (string, []string) {
@@ -48,6 +50,8 @@ func GetCompatibleChannelMeta(channelType int) (string, []string) {
 		return "stepfun", stepfun.ModelList
 	case channeltype.DeepSeek:
 		return "deepseek", deepseek.ModelList
+	case channeltype.TogetherAI:
+		return "together.ai", togetherai.ModelList
 	default:
 		return "openai", ModelList
 	}

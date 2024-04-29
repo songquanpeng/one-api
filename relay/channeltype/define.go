@@ -40,6 +40,7 @@ const (
 	DeepSeek
 	Cloudflare
 	DeepL
+	TogetherAI
 
 	Dummy
 )

@@ -143,6 +143,12 @@ export const CHANNEL_OPTIONS = {
     value: 38,
     color: 'primary'
   },
+  39: {
+    key: 39,
+    text: 'together.ai',
+    value: 39,
+    color: 'primary'
+  },
   8: {
     key: 8,
     text: '自定义渠道',
