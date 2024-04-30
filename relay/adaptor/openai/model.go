@@ -143,3 +143,27 @@ type CompletionsStreamResponse struct {
 		FinishReason string `json:"finish_reason"`
 	} `json:"choices"`
 }
+type Document struct {
+	Text string `json:"text"`
+}
+
+type DocumentResult struct {
+	Index    int       `json:"index"`
+	Score    float64   `json:"score"`
+	Document *Document `json:"document,omitempty"`
+}
+
+type RerankRequest struct {
+	Model           string     `json:"model"`
+	Query           string     `json:"query"`
+	Documents       []Document `json:"documents"`
+	TopN            *int       `json:"top_n,omitempty"`
+	MaxChunksPerDoc *int       `json:"max_chunks_per_doc,omitempty"`
+	ReturnDocuments bool       `json:"return_documents"`
+}
+
+type RerankResponse struct {
+	ID      string           `json:"id,omitempty"`
+	Results []DocumentResult `json:"results"`
+	Error   *string          `json:"error,omitempty"`
+}

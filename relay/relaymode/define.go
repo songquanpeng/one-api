@@ -11,4 +11,5 @@ const (
 	AudioSpeech
 	AudioTranscription
 	AudioTranslation
+	Rerank
 )
