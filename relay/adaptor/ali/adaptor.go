@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/songquanpeng/one-api/common/config"
 	"github.com/songquanpeng/one-api/relay/adaptor"
 	"github.com/songquanpeng/one-api/relay/meta"
 	"github.com/songquanpeng/one-api/relay/model"
@@ -16,10 +15,11 @@ import (
 // https://help.aliyun.com/zh/dashscope/developer-reference/api-details
 
 type Adaptor struct {
+	meta *meta.Meta
 }
 
 func (a *Adaptor) Init(meta *meta.Meta) {
-
+	a.meta = meta
 }
 
 func (a *Adaptor) GetRequestURL(meta *meta.Meta) (string, error) {
@@ -47,8 +47,8 @@ func (a *Adaptor) SetupRequestHeader(c *gin.Context, req *http.Request, meta *me
 	if meta.Mode == relaymode.ImagesGenerations {
 		req.Header.Set("X-DashScope-Async", "enable")
 	}
-	if c.GetString(config.KeyPlugin) != "" {
-		req.Header.Set("X-DashScope-Plugin", c.GetString(config.KeyPlugin))
+	if a.meta.Config.Plugin != "" {
+		req.Header.Set("X-DashScope-Plugin", a.meta.Config.Plugin)
 	}
 	return nil
 }

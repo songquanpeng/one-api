@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/songquanpeng/one-api/common/config"
 	"github.com/songquanpeng/one-api/relay/adaptor"
 	"github.com/songquanpeng/one-api/relay/meta"
 	"github.com/songquanpeng/one-api/relay/model"
@@ -13,10 +12,11 @@ import (
 )
 
 type Adaptor struct {
+	meta *meta.Meta
 }
 
 func (a *Adaptor) Init(meta *meta.Meta) {
-
+	a.meta = meta
 }
 
 func (a *Adaptor) GetRequestURL(meta *meta.Meta) (string, error) {
@@ -34,7 +34,7 @@ func (a *Adaptor) ConvertRequest(c *gin.Context, relayMode int, request *model.G
 		return nil, errors.New("request is nil")
 	}
 	aiProxyLibraryRequest := ConvertRequest(*request)
-	aiProxyLibraryRequest.LibraryId = c.GetString(config.KeyLibraryID)
+	aiProxyLibraryRequest.LibraryId = a.meta.Config.LibraryID
 	return aiProxyLibraryRequest, nil
 }
 

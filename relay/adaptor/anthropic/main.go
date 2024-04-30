@@ -4,6 +4,10 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
+	"io"
+	"net/http"
+	"strings"
+
 	"github.com/gin-gonic/gin"
 	"github.com/songquanpeng/one-api/common"
 	"github.com/songquanpeng/one-api/common/helper"
@@ -11,9 +15,6 @@ import (
 	"github.com/songquanpeng/one-api/common/logger"
 	"github.com/songquanpeng/one-api/relay/adaptor/openai"
 	"github.com/songquanpeng/one-api/relay/model"
-	"io"
-	"net/http"
-	"strings"
 )
 
 func stopReasonClaude2OpenAI(reason *string) string {
@@ -91,7 +92,7 @@ func ConvertRequest(textRequest model.GeneralOpenAIRequest) *Request {
 }
 
 // https://docs.anthropic.com/claude/reference/messages-streaming
-func streamResponseClaude2OpenAI(claudeResponse *StreamResponse) (*openai.ChatCompletionsStreamResponse, *Response) {
+func StreamResponseClaude2OpenAI(claudeResponse *StreamResponse) (*openai.ChatCompletionsStreamResponse, *Response) {
 	var response *Response
 	var responseText string
 	var stopReason string
@@ -129,7 +130,7 @@ func streamResponseClaude2OpenAI(claudeResponse *StreamResponse) (*openai.ChatCo
 	return &openaiResponse, response
 }
 
-func responseClaude2OpenAI(claudeResponse *Response) *openai.TextResponse {
+func ResponseClaude2OpenAI(claudeResponse *Response) *openai.TextResponse {
 	var responseText string
 	if len(claudeResponse.Content) > 0 {
 		responseText = claudeResponse.Content[0].Text
@@ -176,10 +177,10 @@ func StreamHandler(c *gin.Context, resp *http.Response) (*model.ErrorWithStatusC
 			if len(data) < 6 {
 				continue
 			}
-			if !strings.HasPrefix(data, "data: ") {
+			if !strings.HasPrefix(data, "data:") {
 				continue
 			}
-			data = strings.TrimPrefix(data, "data: ")
+			data = strings.TrimPrefix(data, "data:")
 			dataChan <- data
 		}
 		stopChan <- true
@@ -192,14 +193,14 @@ func StreamHandler(c *gin.Context, resp *http.Response) (*model.ErrorWithStatusC
 		select {
 		case data := <-dataChan:
 			// some implementations may add \r at the end of data
-			data = strings.TrimSuffix(data, "\r")
+			data = strings.TrimSpace(data)
 			var claudeResponse StreamResponse
 			err := json.Unmarshal([]byte(data), &claudeResponse)
 			if err != nil {
 				logger.SysError("error unmarshalling stream response: " + err.Error())
 				return true
 			}
-			response, meta := streamResponseClaude2OpenAI(&claudeResponse)
+			response, meta := StreamResponseClaude2OpenAI(&claudeResponse)
 			if meta != nil {
 				usage.PromptTokens += meta.Usage.InputTokens
 				usage.CompletionTokens += meta.Usage.OutputTokens
@@ -254,7 +255,7 @@ func Handler(c *gin.Context, resp *http.Response, promptTokens int, modelName st
 			StatusCode: resp.StatusCode,
 		}, nil
 	}
-	fullTextResponse := responseClaude2OpenAI(&claudeResponse)
+	fullTextResponse := ResponseClaude2OpenAI(&claudeResponse)
 	fullTextResponse.Model = modelName
 	usage := model.Usage{
 		PromptTokens:     claudeResponse.Usage.InputTokens,

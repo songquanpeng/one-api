@@ -33,7 +33,7 @@ function renderType(type) {
     }
     type2label[0] = { value: 0, text: '未知类型', color: 'grey' };
   }
-  return <Label basic color={type2label[type]?.color}>{type2label[type]?.text}</Label>;
+  return <Label basic color={type2label[type]?.color}>{type2label[type] ? type2label[type].text : type}</Label>;
 }
 
 function renderBalance(type, balance) {

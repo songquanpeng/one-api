@@ -3,6 +3,9 @@ package gemini
 import (
 	"errors"
 	"fmt"
+	"io"
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	"github.com/songquanpeng/one-api/common/config"
 	"github.com/songquanpeng/one-api/common/helper"
@@ -10,8 +13,6 @@ import (
 	"github.com/songquanpeng/one-api/relay/adaptor/openai"
 	"github.com/songquanpeng/one-api/relay/meta"
 	"github.com/songquanpeng/one-api/relay/model"
-	"io"
-	"net/http"
 )
 
 type Adaptor struct {
@@ -22,10 +23,10 @@ func (a *Adaptor) Init(meta *meta.Meta) {
 }
 
 func (a *Adaptor) GetRequestURL(meta *meta.Meta) (string, error) {
-	version := helper.AssignOrDefault(meta.APIVersion, config.GeminiVersion)
+	version := helper.AssignOrDefault(meta.Config.APIVersion, config.GeminiVersion)
 	action := "generateContent"
 	if meta.IsStream {
-		action = "streamGenerateContent"
+		action = "streamGenerateContent?alt=sse"
 	}
 	return fmt.Sprintf("%s/%s/models/%s:%s", meta.BaseURL, version, meta.ActualModelName, action), nil
 }

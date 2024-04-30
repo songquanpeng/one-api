@@ -5,7 +5,17 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
+	"net/http"
+	"net/http/httptest"
+	"net/url"
+	"strconv"
+	"strings"
+	"sync"
+	"time"
+
 	"github.com/songquanpeng/one-api/common/config"
+	"github.com/songquanpeng/one-api/common/ctxkey"
 	"github.com/songquanpeng/one-api/common/logger"
 	"github.com/songquanpeng/one-api/common/message"
 	"github.com/songquanpeng/one-api/middleware"
@@ -17,14 +27,6 @@ import (
 	"github.com/songquanpeng/one-api/relay/meta"
 	relaymodel "github.com/songquanpeng/one-api/relay/model"
 	"github.com/songquanpeng/one-api/relay/relaymode"
-	"io"
-	"net/http"
-	"net/http/httptest"
-	"net/url"
-	"strconv"
-	"strings"
-	"sync"
-	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -54,8 +56,10 @@ func testChannel(channel *model.Channel) (err error, openaiErr *relaymodel.Error
 	}
 	c.Request.Header.Set("Authorization", "Bearer "+channel.Key)
 	c.Request.Header.Set("Content-Type", "application/json")
-	c.Set("channel", channel.Type)
-	c.Set("base_url", channel.GetBaseURL())
+	c.Set(ctxkey.Channel, channel.Type)
+	c.Set(ctxkey.BaseURL, channel.GetBaseURL())
+	cfg, _ := channel.LoadConfig()
+	c.Set(ctxkey.Config, cfg)
 	middleware.SetupContextForSelectedChannel(c, channel, "")
 	meta := meta.GetByContext(c)
 	apiType := channeltype.ToAPIType(channel.Type)
@@ -64,11 +68,19 @@ func testChannel(channel *model.Channel) (err error, openaiErr *relaymodel.Error
 		return fmt.Errorf("invalid api type: %d, adaptor is nil", apiType), nil
 	}
 	adaptor.Init(meta)
-	modelName := adaptor.GetModelList()[0]
-	if !strings.Contains(channel.Models, modelName) {
+	var modelName string
+	modelList := adaptor.GetModelList()
+	modelMap := channel.GetModelMapping()
+	if len(modelList) != 0 {
+		modelName = modelList[0]
+	}
+	if modelName == "" || !strings.Contains(channel.Models, modelName) {
 		modelNames := strings.Split(channel.Models, ",")
 		if len(modelNames) > 0 {
 			modelName = modelNames[0]
+		}
+		if modelMap != nil && modelMap[modelName] != "" {
+			modelName = modelMap[modelName]
 		}
 	}
 	request := buildTestRequest()
@@ -82,13 +94,14 @@ func testChannel(channel *model.Channel) (err error, openaiErr *relaymodel.Error
 	if err != nil {
 		return err, nil
 	}
+	logger.SysLog(string(jsonData))
 	requestBody := bytes.NewBuffer(jsonData)
 	c.Request.Body = io.NopCloser(requestBody)
 	resp, err := adaptor.DoRequest(c, meta, requestBody)
 	if err != nil {
 		return err, nil
 	}
-	if resp.StatusCode != http.StatusOK {
+	if resp != nil && resp.StatusCode != http.StatusOK {
 		err := controller.RelayErrorHandler(resp)
 		return fmt.Errorf("status code %d: %s", resp.StatusCode, err.Error.Message), &err.Error
 	}

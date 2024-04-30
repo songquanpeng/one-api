@@ -3,12 +3,14 @@ package openai
 import (
 	"github.com/songquanpeng/one-api/relay/adaptor/ai360"
 	"github.com/songquanpeng/one-api/relay/adaptor/baichuan"
+	"github.com/songquanpeng/one-api/relay/adaptor/deepseek"
 	"github.com/songquanpeng/one-api/relay/adaptor/groq"
 	"github.com/songquanpeng/one-api/relay/adaptor/lingyiwanwu"
 	"github.com/songquanpeng/one-api/relay/adaptor/minimax"
 	"github.com/songquanpeng/one-api/relay/adaptor/mistral"
 	"github.com/songquanpeng/one-api/relay/adaptor/moonshot"
 	"github.com/songquanpeng/one-api/relay/adaptor/stepfun"
+	"github.com/songquanpeng/one-api/relay/adaptor/togetherai"
 	"github.com/songquanpeng/one-api/relay/channeltype"
 )
 
@@ -22,6 +24,8 @@ var CompatibleChannels = []int{
 	channeltype.Groq,
 	channeltype.LingYiWanWu,
 	channeltype.StepFun,
+	channeltype.DeepSeek,
+	channeltype.TogetherAI,
 }
 
 func GetCompatibleChannelMeta(channelType int) (string, []string) {
@@ -44,6 +48,10 @@ func GetCompatibleChannelMeta(channelType int) (string, []string) {
 		return "lingyiwanwu", lingyiwanwu.ModelList
 	case channeltype.StepFun:
 		return "stepfun", stepfun.ModelList
+	case channeltype.DeepSeek:
+		return "deepseek", deepseek.ModelList
+	case channeltype.TogetherAI:
+		return "together.ai", togetherai.ModelList
 	default:
 		return "openai", ModelList
 	}

@@ -2,8 +2,8 @@ package meta
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/songquanpeng/one-api/common/config"
-	"github.com/songquanpeng/one-api/relay/adaptor/azure"
+	"github.com/songquanpeng/one-api/common/ctxkey"
+	"github.com/songquanpeng/one-api/model"
 	"github.com/songquanpeng/one-api/relay/channeltype"
 	"github.com/songquanpeng/one-api/relay/relaymode"
 	"strings"
@@ -19,10 +19,9 @@ type Meta struct {
 	Group           string
 	ModelMapping    map[string]string
 	BaseURL         string
-	APIVersion      string
 	APIKey          string
 	APIType         int
-	Config          map[string]string
+	Config          model.ChannelConfig
 	IsStream        bool
 	OriginModelName string
 	ActualModelName string
@@ -32,22 +31,22 @@ type Meta struct {
 
 func GetByContext(c *gin.Context) *Meta {
 	meta := Meta{
-		Mode:           relaymode.GetByPath(c.Request.URL.Path),
-		ChannelType:    c.GetInt("channel"),
-		ChannelId:      c.GetInt("channel_id"),
-		TokenId:        c.GetInt("token_id"),
-		TokenName:      c.GetString("token_name"),
-		UserId:         c.GetInt("id"),
-		Group:          c.GetString("group"),
-		ModelMapping:   c.GetStringMapString("model_mapping"),
-		BaseURL:        c.GetString("base_url"),
-		APIVersion:     c.GetString(config.KeyAPIVersion),
-		APIKey:         strings.TrimPrefix(c.Request.Header.Get("Authorization"), "Bearer "),
-		Config:         nil,
-		RequestURLPath: c.Request.URL.String(),
+		Mode:            relaymode.GetByPath(c.Request.URL.Path),
+		ChannelType:     c.GetInt(ctxkey.Channel),
+		ChannelId:       c.GetInt(ctxkey.ChannelId),
+		TokenId:         c.GetInt(ctxkey.TokenId),
+		TokenName:       c.GetString(ctxkey.TokenName),
+		UserId:          c.GetInt(ctxkey.Id),
+		Group:           c.GetString(ctxkey.Group),
+		ModelMapping:    c.GetStringMapString(ctxkey.ModelMapping),
+		OriginModelName: c.GetString(ctxkey.RequestModel),
+		BaseURL:         c.GetString(ctxkey.BaseURL),
+		APIKey:          strings.TrimPrefix(c.Request.Header.Get("Authorization"), "Bearer "),
+		RequestURLPath:  c.Request.URL.String(),
 	}
-	if meta.ChannelType == channeltype.Azure {
-		meta.APIVersion = azure.GetAPIVersion(c)
+	cfg, ok := c.Get(ctxkey.Config)
+	if ok {
+		meta.Config = cfg.(model.ChannelConfig)
 	}
 	if meta.BaseURL == "" {
 		meta.BaseURL = channeltype.ChannelBaseURLs[meta.ChannelType]

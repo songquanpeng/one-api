@@ -34,6 +34,13 @@ var ChannelBaseURLs = []string{
 	"http://localhost:11434",                    // 30
 	"https://api.lingyiwanwu.com",               // 31
 	"https://api.stepfun.com",                   // 32
+	"",                                          // 33
+	"https://api.coze.com",                      // 34
+	"https://api.cohere.ai",                     // 35
+	"https://api.deepseek.com",                  // 36
+	"https://api.cloudflare.com",                // 37
+	"https://api-free.deepl.com",                // 38
+	"https://api.together.xyz",                  // 39
 }
 
 func init() {

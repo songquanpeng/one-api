@@ -5,6 +5,7 @@ import (
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"github.com/songquanpeng/one-api/common/blacklist"
+	"github.com/songquanpeng/one-api/common/ctxkey"
 	"github.com/songquanpeng/one-api/common/network"
 	"github.com/songquanpeng/one-api/model"
 	"net/http"
@@ -120,20 +121,20 @@ func TokenAuth() func(c *gin.Context) {
 			abortWithMessage(c, http.StatusBadRequest, err.Error())
 			return
 		}
-		c.Set("request_model", requestModel)
+		c.Set(ctxkey.RequestModel, requestModel)
 		if token.Models != nil && *token.Models != "" {
-			c.Set("available_models", *token.Models)
+			c.Set(ctxkey.AvailableModels, *token.Models)
 			if requestModel != "" && !isModelInList(requestModel, *token.Models) {
 				abortWithMessage(c, http.StatusForbidden, fmt.Sprintf("该令牌无权使用模型：%s", requestModel))
 				return
 			}
 		}
-		c.Set("id", token.UserId)
-		c.Set("token_id", token.Id)
-		c.Set("token_name", token.Name)
+		c.Set(ctxkey.Id, token.UserId)
+		c.Set(ctxkey.TokenId, token.Id)
+		c.Set(ctxkey.TokenName, token.Name)
 		if len(parts) > 1 {
 			if model.IsAdmin(token.UserId) {
-				c.Set("specific_channel_id", parts[1])
+				c.Set(ctxkey.SpecificChannelId, parts[1])
 			} else {
 				abortWithMessage(c, http.StatusForbidden, "普通用户不支持指定渠道")
 				return

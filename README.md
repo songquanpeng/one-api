@@ -65,7 +65,7 @@ _✨ 通过标准的 OpenAI API 格式访问所有的大模型，开箱即用 �
 ## 功能
 1. 支持多种大模型：
    + [x] [OpenAI ChatGPT 系列模型](https://platform.openai.com/docs/guides/gpt/chat-completions-api)（支持 [Azure OpenAI API](https://learn.microsoft.com/en-us/azure/ai-services/openai/reference)）
-   + [x] [Anthropic Claude 系列模型](https://anthropic.com)
+   + [x] [Anthropic Claude 系列模型](https://anthropic.com) (支持 AWS Claude)
    + [x] [Google PaLM2/Gemini 系列模型](https://developers.generativeai.google)
    + [x] [Mistral 系列模型](https://mistral.ai/)
    + [x] [百度文心一言系列模型](https://cloud.baidu.com/doc/WENXINWORKSHOP/index.html)
@@ -82,6 +82,12 @@ _✨ 通过标准的 OpenAI API 格式访问所有的大模型，开箱即用 �
    + [x] [Ollama](https://github.com/ollama/ollama)
    + [x] [零一万物](https://platform.lingyiwanwu.com/)
    + [x] [阶跃星辰](https://platform.stepfun.com/)
+   + [x] [Coze](https://www.coze.com/)
+   + [x] [Cohere](https://cohere.com/)
+   + [x] [DeepSeek](https://www.deepseek.com/)
+   + [x] [Cloudflare Workers AI](https://developers.cloudflare.com/workers-ai/)
+   + [x] [DeepL](https://www.deepl.com/)
+   + [x] [together.ai](https://www.together.ai/)
 2. 支持配置镜像以及众多[第三方代理服务](https://iamazing.cn/page/openai-api-third-party-services)。
 3. 支持通过**负载均衡**的方式访问多个渠道。
 4. 支持 **stream 模式**，可以通过流式传输实现打字机效果。

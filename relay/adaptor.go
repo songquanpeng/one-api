@@ -5,7 +5,12 @@ import (
 	"github.com/songquanpeng/one-api/relay/adaptor/aiproxy"
 	"github.com/songquanpeng/one-api/relay/adaptor/ali"
 	"github.com/songquanpeng/one-api/relay/adaptor/anthropic"
+	"github.com/songquanpeng/one-api/relay/adaptor/aws"
 	"github.com/songquanpeng/one-api/relay/adaptor/baidu"
+	"github.com/songquanpeng/one-api/relay/adaptor/cloudflare"
+	"github.com/songquanpeng/one-api/relay/adaptor/cohere"
+	"github.com/songquanpeng/one-api/relay/adaptor/coze"
+	"github.com/songquanpeng/one-api/relay/adaptor/deepl"
 	"github.com/songquanpeng/one-api/relay/adaptor/gemini"
 	"github.com/songquanpeng/one-api/relay/adaptor/ollama"
 	"github.com/songquanpeng/one-api/relay/adaptor/openai"
@@ -24,6 +29,8 @@ func GetAdaptor(apiType int) adaptor.Adaptor {
 		return &ali.Adaptor{}
 	case apitype.Anthropic:
 		return &anthropic.Adaptor{}
+	case apitype.AwsClaude:
+		return &aws.Adaptor{}
 	case apitype.Baidu:
 		return &baidu.Adaptor{}
 	case apitype.Gemini:
@@ -40,6 +47,14 @@ func GetAdaptor(apiType int) adaptor.Adaptor {
 		return &zhipu.Adaptor{}
 	case apitype.Ollama:
 		return &ollama.Adaptor{}
+	case apitype.Coze:
+		return &coze.Adaptor{}
+	case apitype.Cohere:
+		return &cohere.Adaptor{}
+	case apitype.Cloudflare:
+		return &cloudflare.Adaptor{}
+	case apitype.DeepL:
+		return &deepl.Adaptor{}
 	}
 	return nil
 }
