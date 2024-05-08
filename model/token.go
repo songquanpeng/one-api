@@ -13,24 +13,44 @@ import (
 	"gorm.io/gorm"
 )
 
+const (
+	TokenStatusEnabled   = 1 // don't use 0, 0 is the default value!
+	TokenStatusDisabled  = 2 // also don't use 0
+	TokenStatusExpired   = 3
+	TokenStatusExhausted = 4
+)
+
 type Token struct {
-	Id             int    `json:"id"`
-	UserId         int    `json:"user_id"`
-	Key            string `json:"key" gorm:"type:char(48);uniqueIndex"`
-	Status         int    `json:"status" gorm:"default:1"`
-	Name           string `json:"name" gorm:"index" `
-	CreatedTime    int64  `json:"created_time" gorm:"bigint"`
-	AccessedTime   int64  `json:"accessed_time" gorm:"bigint"`
-	ExpiredTime    int64  `json:"expired_time" gorm:"bigint;default:-1"` // -1 means never expired
-	RemainQuota    int64  `json:"remain_quota" gorm:"default:0"`
-	UnlimitedQuota bool   `json:"unlimited_quota" gorm:"default:false"`
-	UsedQuota      int64  `json:"used_quota" gorm:"default:0"` // used quota
+	Id             int     `json:"id"`
+	UserId         int     `json:"user_id"`
+	Key            string  `json:"key" gorm:"type:char(48);uniqueIndex"`
+	Status         int     `json:"status" gorm:"default:1"`
+	Name           string  `json:"name" gorm:"index" `
+	CreatedTime    int64   `json:"created_time" gorm:"bigint"`
+	AccessedTime   int64   `json:"accessed_time" gorm:"bigint"`
+	ExpiredTime    int64   `json:"expired_time" gorm:"bigint;default:-1"` // -1 means never expired
+	RemainQuota    int64   `json:"remain_quota" gorm:"bigint;default:0"`
+	UnlimitedQuota bool    `json:"unlimited_quota" gorm:"default:false"`
+	UsedQuota      int64   `json:"used_quota" gorm:"bigint;default:0"` // used quota
+	Models         *string `json:"models" gorm:"default:''"`           // allowed models
+	Subnet         *string `json:"subnet" gorm:"default:''"`           // allowed subnet
 }
 
-func GetAllUserTokens(userId int, startIdx int, num int) ([]*Token, error) {
+func GetAllUserTokens(userId int, startIdx int, num int, order string) ([]*Token, error) {
 	var tokens []*Token
 	var err error
-	err = DB.Where("user_id = ?", userId).Order("id desc").Limit(num).Offset(startIdx).Find(&tokens).Error
+	query := DB.Where("user_id = ?", userId)
+
+	switch order {
+	case "remain_quota":
+		query = query.Order("unlimited_quota desc, remain_quota desc")
+	case "used_quota":
+		query = query.Order("used_quota desc")
+	default:
+		query = query.Order("id desc")
+	}
+
+	err = query.Limit(num).Offset(startIdx).Find(&tokens).Error
 	return tokens, err
 }
 
@@ -59,17 +79,17 @@ func ValidateUserToken(key string) (token *Token, err error) {
 		}
 		return nil, errors.New("令牌验证失败")
 	}
-	if token.Status == common.TokenStatusExhausted {
-		return nil, errors.New("该令牌额度已用尽")
-	} else if token.Status == common.TokenStatusExpired {
+	if token.Status == TokenStatusExhausted {
+		return nil, fmt.Errorf("令牌 %s（#%d）额度已用尽", token.Name, token.Id)
+	} else if token.Status == TokenStatusExpired {
 		return nil, errors.New("该令牌已过期")
 	}
-	if token.Status != common.TokenStatusEnabled {
+	if token.Status != TokenStatusEnabled {
 		return nil, errors.New("该令牌状态不可用")
 	}
 	if token.ExpiredTime != -1 && token.ExpiredTime < helper.GetTimestamp() {
 		if !common.RedisEnabled {
-			token.Status = common.TokenStatusExpired
+			token.Status = TokenStatusExpired
 			err := token.SelectUpdate()
 			if err != nil {
 				logger.SysError("failed to update token status" + err.Error())
@@ -80,7 +100,7 @@ func ValidateUserToken(key string) (token *Token, err error) {
 	if !token.UnlimitedQuota && token.RemainQuota <= 0 {
 		if !common.RedisEnabled {
 			// in this case, we can make sure the token is exhausted
-			token.Status = common.TokenStatusExhausted
+			token.Status = TokenStatusExhausted
 			err := token.SelectUpdate()
 			if err != nil {
 				logger.SysError("failed to update token status" + err.Error())
@@ -120,7 +140,7 @@ func (token *Token) Insert() error {
 // Update Make sure your token's fields is completed, because this will update non-zero values
 func (token *Token) Update() error {
 	var err error
-	err = DB.Model(token).Select("name", "status", "expired_time", "remain_quota", "unlimited_quota").Updates(token).Error
+	err = DB.Model(token).Select("name", "status", "expired_time", "remain_quota", "unlimited_quota", "models", "subnet").Updates(token).Error
 	return err
 }
 

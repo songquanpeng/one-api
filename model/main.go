@@ -7,6 +7,7 @@ import (
 	"github.com/songquanpeng/one-api/common/env"
 	"github.com/songquanpeng/one-api/common/helper"
 	"github.com/songquanpeng/one-api/common/logger"
+	"github.com/songquanpeng/one-api/common/random"
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"
@@ -23,7 +24,7 @@ func CreateRootAccountIfNeed() error {
 	var user User
 	//if user.Status != util.UserStatusEnabled {
 	if err := DB.First(&user).Error; err != nil {
-		logger.SysLog("no user exists, create a root user for you: username is root, password is 123456")
+		logger.SysLog("no user exists, creating a root user for you: username is root, password is 123456")
 		hashedPassword, err := common.Password2Hash("123456")
 		if err != nil {
 			return err
@@ -31,13 +32,29 @@ func CreateRootAccountIfNeed() error {
 		rootUser := User{
 			Username:    "root",
 			Password:    hashedPassword,
-			Role:        common.RoleRootUser,
-			Status:      common.UserStatusEnabled,
+			Role:        RoleRootUser,
+			Status:      UserStatusEnabled,
 			DisplayName: "Root User",
-			AccessToken: helper.GetUUID(),
-			Quota:       100000000,
+			AccessToken: random.GetUUID(),
+			Quota:       500000000000000,
 		}
 		DB.Create(&rootUser)
+		if config.InitialRootToken != "" {
+			logger.SysLog("creating initial root token as requested")
+			token := Token{
+				Id:             1,
+				UserId:         rootUser.Id,
+				Key:            config.InitialRootToken,
+				Status:         TokenStatusEnabled,
+				Name:           "Initial Root Token",
+				CreatedTime:    helper.GetTimestamp(),
+				AccessedTime:   helper.GetTimestamp(),
+				ExpiredTime:    -1,
+				RemainQuota:    500000000000000,
+				UnlimitedQuota: true,
+			}
+			DB.Create(&token)
+		}
 	}
 	return nil
 }

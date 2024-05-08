@@ -3,6 +3,7 @@ package controller
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/songquanpeng/one-api/common/config"
+	"github.com/songquanpeng/one-api/common/ctxkey"
 	"github.com/songquanpeng/one-api/model"
 	relaymodel "github.com/songquanpeng/one-api/relay/model"
 )
@@ -14,13 +15,13 @@ func GetSubscription(c *gin.Context) {
 	var token *model.Token
 	var expiredTime int64
 	if config.DisplayTokenStatEnabled {
-		tokenId := c.GetInt("token_id")
+		tokenId := c.GetInt(ctxkey.TokenId)
 		token, err = model.GetTokenById(tokenId)
 		expiredTime = token.ExpiredTime
 		remainQuota = token.RemainQuota
 		usedQuota = token.UsedQuota
 	} else {
-		userId := c.GetInt("id")
+		userId := c.GetInt(ctxkey.Id)
 		remainQuota, err = model.GetUserQuota(userId)
 		if err != nil {
 			usedQuota, err = model.GetUserUsedQuota(userId)
@@ -64,11 +65,11 @@ func GetUsage(c *gin.Context) {
 	var err error
 	var token *model.Token
 	if config.DisplayTokenStatEnabled {
-		tokenId := c.GetInt("token_id")
+		tokenId := c.GetInt(ctxkey.TokenId)
 		token, err = model.GetTokenById(tokenId)
 		quota = token.UsedQuota
 	} else {
-		userId := c.GetInt("id")
+		userId := c.GetInt(ctxkey.Id)
 		quota, err = model.GetUserUsedQuota(userId)
 	}
 	if err != nil {

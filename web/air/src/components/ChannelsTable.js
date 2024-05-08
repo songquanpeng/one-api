@@ -437,7 +437,7 @@ const ChannelsTable = () => {
     if (success) {
       record.response_time = time * 1000;
       record.test_time = Date.now() / 1000;
-      showInfo(`通道 ${record.name} 测试成功，耗时 ${time.toFixed(2)} 秒。`);
+      showInfo(`渠道 ${record.name} 测试成功，耗时 ${time.toFixed(2)} 秒。`);
     } else {
       showError(message);
     }
@@ -447,7 +447,7 @@ const ChannelsTable = () => {
     const res = await API.get(`/api/channel/test?scope=${scope}`);
     const { success, message } = res.data;
     if (success) {
-      showInfo('已成功开始测试通道，请刷新页面查看结果。');
+      showInfo('已成功开始测试渠道，请刷新页面查看结果。');
     } else {
       showError(message);
     }
@@ -470,7 +470,7 @@ const ChannelsTable = () => {
     if (success) {
       record.balance = balance;
       record.balance_updated_time = Date.now() / 1000;
-      showInfo(`通道 ${record.name} 余额更新成功！`);
+      showInfo(`渠道 ${record.name} 余额更新成功！`);
     } else {
       showError(message);
     }
@@ -481,7 +481,7 @@ const ChannelsTable = () => {
     const res = await API.get(`/api/channel/update_balance`);
     const { success, message } = res.data;
     if (success) {
-      showInfo('已更新完毕所有已启用通道余额！');
+      showInfo('已更新完毕所有已启用渠道余额！');
     } else {
       showError(message);
     }
@@ -490,7 +490,7 @@ const ChannelsTable = () => {
 
   const batchDeleteChannels = async () => {
     if (selectedChannels.length === 0) {
-      showError('请先选择要删除的通道！');
+      showError('请先选择要删除的渠道！');
       return;
     }
     setLoading(true);
@@ -501,7 +501,7 @@ const ChannelsTable = () => {
     const res = await API.post(`/api/channel/batch`, { ids: ids });
     const { success, message, data } = res.data;
     if (success) {
-      showSuccess(`已删除 ${data} 个通道！`);
+      showSuccess(`已删除 ${data} 个渠道！`);
       await refresh();
     } else {
       showError(message);
@@ -513,7 +513,7 @@ const ChannelsTable = () => {
     const res = await API.post(`/api/channel/fix`);
     const { success, message, data } = res.data;
     if (success) {
-      showSuccess(`已修复 ${data} 个通道！`);
+      showSuccess(`已修复 ${data} 个渠道！`);
       await refresh();
     } else {
       showError(message);
@@ -633,7 +633,7 @@ const ChannelsTable = () => {
               onConfirm={() => { testChannels("all") }}
               position={isMobile() ? 'top' : 'left'}
             >
-              <Button theme="light" type="warning" style={{ marginRight: 8 }}>测试所有通道</Button>
+              <Button theme="light" type="warning" style={{ marginRight: 8 }}>测试所有渠道</Button>
             </Popconfirm>
             <Popconfirm
               title="确定？"
@@ -648,16 +648,16 @@ const ChannelsTable = () => {
             okType={'secondary'}
             onConfirm={updateAllChannelsBalance}
           >
-            <Button theme="light" type="secondary" style={{ marginRight: 8 }}>更新所有已启用通道余额</Button>
+            <Button theme="light" type="secondary" style={{ marginRight: 8 }}>更新所有已启用渠道余额</Button>
           </Popconfirm> */}
             <Popconfirm
-              title="确定是否要删除禁用通道？"
+              title="确定是否要删除禁用渠道？"
               content="此修改将不可逆"
               okType={'danger'}
               onConfirm={deleteAllDisabledChannels}
               position={isMobile() ? 'top' : 'left'}
             >
-              <Button theme="light" type="danger" style={{ marginRight: 8 }}>删除禁用通道</Button>
+              <Button theme="light" type="danger" style={{ marginRight: 8 }}>删除禁用渠道</Button>
             </Popconfirm>
 
             <Button theme="light" type="primary" style={{ marginRight: 8 }} onClick={refresh}>刷新</Button>
@@ -673,7 +673,7 @@ const ChannelsTable = () => {
               setEnableBatchDelete(v);
             }}></Switch>
             <Popconfirm
-              title="确定是否要删除所选通道？"
+              title="确定是否要删除所选渠道？"
               content="此修改将不可逆"
               okType={'danger'}
               onConfirm={batchDeleteChannels}
@@ -681,7 +681,7 @@ const ChannelsTable = () => {
               position={'top'}
             >
               <Button disabled={!enableBatchDelete} theme="light" type="danger"
-                style={{ marginRight: 8 }}>删除所选通道</Button>
+                style={{ marginRight: 8 }}>删除所选渠道</Button>
             </Popconfirm>
             <Popconfirm
               title="确定是否要修复数据库一致性？"

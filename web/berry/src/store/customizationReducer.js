@@ -9,7 +9,8 @@ export const initialState = {
   defaultId: 'default',
   fontFamily: config.fontFamily,
   borderRadius: config.borderRadius,
-  opened: true
+  opened: true,
+  theme: 'light'
 };
 
 // ==============================|| CUSTOMIZATION REDUCER ||============================== //
@@ -37,6 +38,11 @@ const customizationReducer = (state = initialState, action) => {
       return {
         ...state,
         borderRadius: action.borderRadius
+      };
+    case actionTypes.SET_THEME:
+      return {
+        ...state,
+        theme: action.theme
       };
     default:
       return state;

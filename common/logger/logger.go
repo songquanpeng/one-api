@@ -3,15 +3,16 @@ package logger
 import (
 	"context"
 	"fmt"
-	"github.com/gin-gonic/gin"
-	"github.com/songquanpeng/one-api/common/config"
-	"github.com/songquanpeng/one-api/common/helper"
 	"io"
 	"log"
 	"os"
 	"path/filepath"
 	"sync"
 	"time"
+
+	"github.com/gin-gonic/gin"
+	"github.com/songquanpeng/one-api/common/config"
+	"github.com/songquanpeng/one-api/common/helper"
 )
 
 const (
@@ -21,28 +22,20 @@ const (
 	loggerError = "ERR"
 )
 
-var setupLogLock sync.Mutex
-var setupLogWorking bool
+var setupLogOnce sync.Once
 
 func SetupLogger() {
-	if LogDir != "" {
-		ok := setupLogLock.TryLock()
-		if !ok {
-			log.Println("setup log is already working")
-			return
+	setupLogOnce.Do(func() {
+		if LogDir != "" {
+			logPath := filepath.Join(LogDir, fmt.Sprintf("oneapi-%s.log", time.Now().Format("20060102")))
+			fd, err := os.OpenFile(logPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+			if err != nil {
+				log.Fatal("failed to open log file")
+			}
+			gin.DefaultWriter = io.MultiWriter(os.Stdout, fd)
+			gin.DefaultErrorWriter = io.MultiWriter(os.Stderr, fd)
 		}
-		defer func() {
-			setupLogLock.Unlock()
-			setupLogWorking = false
-		}()
-		logPath := filepath.Join(LogDir, fmt.Sprintf("oneapi-%s.log", time.Now().Format("20060102")))
-		fd, err := os.OpenFile(logPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-		if err != nil {
-			log.Fatal("failed to open log file")
-		}
-		gin.DefaultWriter = io.MultiWriter(os.Stdout, fd)
-		gin.DefaultErrorWriter = io.MultiWriter(os.Stderr, fd)
-	}
+	})
 }
 
 func SysLog(s string) {
@@ -94,18 +87,13 @@ func logHelper(ctx context.Context, level string, msg string) {
 	if level == loggerINFO {
 		writer = gin.DefaultWriter
 	}
-	id := ctx.Value(RequestIdKey)
+	id := ctx.Value(helper.RequestIdKey)
 	if id == nil {
 		id = helper.GenRequestID()
 	}
 	now := time.Now()
 	_, _ = fmt.Fprintf(writer, "[%s] %v | %s | %s \n", level, now.Format("2006/01/02 - 15:04:05"), id, msg)
-	if !setupLogWorking {
-		setupLogWorking = true
-		go func() {
-			SetupLogger()
-		}()
-	}
+	SetupLogger()
 }
 
 func FatalLog(v ...any) {

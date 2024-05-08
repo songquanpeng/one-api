@@ -247,6 +247,8 @@ const TokensTable = () => {
   const [editingToken, setEditingToken] = useState({
     id: undefined
   });
+  const [orderBy, setOrderBy] = useState('');
+  const [dropdownVisible, setDropdownVisible] = useState(false);
 
   const closeEdit = () => {
     setShowEdit(false);
@@ -269,7 +271,7 @@ const TokensTable = () => {
   let pageData = tokens.slice((activePage - 1) * pageSize, activePage * pageSize);
   const loadTokens = async (startIdx) => {
     setLoading(true);
-    const res = await API.get(`/api/token/?p=${startIdx}&size=${pageSize}`);
+    const res = await API.get(`/api/token/?p=${startIdx}&size=${pageSize}&order=${orderBy}`);
     const { success, message, data } = res.data;
     if (success) {
       if (startIdx === 0) {
@@ -289,7 +291,7 @@ const TokensTable = () => {
     (async () => {
       if (activePage === Math.ceil(tokens.length / pageSize) + 1) {
         // In this case we have to load more data and then append them.
-        await loadTokens(activePage - 1);
+        await loadTokens(activePage - 1, orderBy);
       }
       setActivePage(activePage);
     })();
@@ -317,7 +319,7 @@ const TokensTable = () => {
     if (nextLink) {
       nextUrl = nextLink + `/#/?settings={"key":"sk-${key}","url":"${serverAddress}"}`;
     } else {
-      nextUrl = `https://chat.oneapi.pro/#/?settings={"key":"sk-${key}","url":"${serverAddress}"}`;
+      nextUrl = `https://app.nextchat.dev/#/?settings={"key":"sk-${key}","url":"${serverAddress}"}`;
     }
 
     let url;
@@ -392,12 +394,12 @@ const TokensTable = () => {
   };
 
   useEffect(() => {
-    loadTokens(0)
+    loadTokens(0, orderBy)
       .then()
       .catch((reason) => {
         showError(reason);
       });
-  }, [pageSize]);
+  }, [pageSize, orderBy]);
 
   const removeRecord = key => {
     let newDataSource = [...tokens];
@@ -452,6 +454,7 @@ const TokensTable = () => {
       // if keyword is blank, load files instead.
       await loadTokens(0);
       setActivePage(1);
+      setOrderBy('');
       return;
     }
     setSearching(true);
@@ -520,6 +523,23 @@ const TokensTable = () => {
     }
   };
 
+  const handleOrderByChange = (e, { value }) => {
+    setOrderBy(value);
+    setActivePage(1);
+    setDropdownVisible(false);
+  };
+
+  const renderSelectedOption = (orderBy) => {
+    switch (orderBy) {
+      case 'remain_quota':
+        return '按剩余额度排序';
+      case 'used_quota':
+        return '按已用额度排序';
+      default:
+        return '默认排序';
+    }
+  };
+
   return (
     <>
       <EditToken refresh={refresh} editingToken={editingToken} visiable={showEdit} handleClose={closeEdit}></EditToken>
@@ -579,6 +599,21 @@ const TokensTable = () => {
           await copyText(keys);
         }
       }>复制所选令牌到剪贴板</Button>
+      <Dropdown
+        trigger="click"
+        position="bottomLeft"
+        visible={dropdownVisible}
+        onVisibleChange={(visible) => setDropdownVisible(visible)}
+        render={
+          <Dropdown.Menu>
+            <Dropdown.Item onClick={() => handleOrderByChange('', { value: '' })}>默认排序</Dropdown.Item>
+            <Dropdown.Item onClick={() => handleOrderByChange('', { value: 'remain_quota' })}>按剩余额度排序</Dropdown.Item>
+            <Dropdown.Item onClick={() => handleOrderByChange('', { value: 'used_quota' })}>按已用额度排序</Dropdown.Item>
+          </Dropdown.Menu>
+        }
+      >
+      <Button style={{ marginLeft: '10px' }}>{renderSelectedOption(orderBy)}</Button>
+      </Dropdown>
     </>
   );
 };

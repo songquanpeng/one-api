@@ -7,7 +7,6 @@ import (
 	"github.com/songquanpeng/one-api/common/config"
 	"github.com/songquanpeng/one-api/common/helper"
 	"github.com/songquanpeng/one-api/common/logger"
-
 	"gorm.io/gorm"
 )
 
@@ -44,6 +43,21 @@ func RecordLog(userId int, logType int, content string) {
 		CreatedAt: helper.GetTimestamp(),
 		Type:      logType,
 		Content:   content,
+	}
+	err := LOG_DB.Create(log).Error
+	if err != nil {
+		logger.SysError("failed to record log: " + err.Error())
+	}
+}
+
+func RecordTopupLog(userId int, content string, quota int) {
+	log := &Log{
+		UserId:    userId,
+		Username:  GetUsernameById(userId),
+		CreatedAt: helper.GetTimestamp(),
+		Type:      LogTypeTopup,
+		Content:   content,
+		Quota:     quota,
 	}
 	err := LOG_DB.Create(log).Error
 	if err != nil {

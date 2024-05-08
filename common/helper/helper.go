@@ -2,16 +2,15 @@ package helper
 
 import (
 	"fmt"
-	"github.com/google/uuid"
+	"github.com/gin-gonic/gin"
+	"github.com/songquanpeng/one-api/common/random"
 	"html/template"
 	"log"
-	"math/rand"
 	"net"
 	"os/exec"
 	"runtime"
 	"strconv"
 	"strings"
-	"time"
 )
 
 func OpenBrowser(url string) {
@@ -79,31 +78,6 @@ func Bytes2Size(num int64) string {
 	return numStr + " " + unit
 }
 
-func Seconds2Time(num int) (time string) {
-	if num/31104000 > 0 {
-		time += strconv.Itoa(num/31104000) + " 年 "
-		num %= 31104000
-	}
-	if num/2592000 > 0 {
-		time += strconv.Itoa(num/2592000) + " 个月 "
-		num %= 2592000
-	}
-	if num/86400 > 0 {
-		time += strconv.Itoa(num/86400) + " 天 "
-		num %= 86400
-	}
-	if num/3600 > 0 {
-		time += strconv.Itoa(num/3600) + " 小时 "
-		num %= 3600
-	}
-	if num/60 > 0 {
-		time += strconv.Itoa(num/60) + " 分钟 "
-		num %= 60
-	}
-	time += strconv.Itoa(num) + " 秒"
-	return
-}
-
 func Interface2String(inter interface{}) string {
 	switch inter := inter.(type) {
 	case string:
@@ -128,65 +102,13 @@ func IntMax(a int, b int) int {
 	}
 }
 
-func GetUUID() string {
-	code := uuid.New().String()
-	code = strings.Replace(code, "-", "", -1)
-	return code
-}
-
-const keyChars = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-const keyNumbers = "0123456789"
-
-func init() {
-	rand.Seed(time.Now().UnixNano())
-}
-
-func GenerateKey() string {
-	rand.Seed(time.Now().UnixNano())
-	key := make([]byte, 48)
-	for i := 0; i < 16; i++ {
-		key[i] = keyChars[rand.Intn(len(keyChars))]
-	}
-	uuid_ := GetUUID()
-	for i := 0; i < 32; i++ {
-		c := uuid_[i]
-		if i%2 == 0 && c >= 'a' && c <= 'z' {
-			c = c - 'a' + 'A'
-		}
-		key[i+16] = c
-	}
-	return string(key)
-}
-
-func GetRandomString(length int) string {
-	rand.Seed(time.Now().UnixNano())
-	key := make([]byte, length)
-	for i := 0; i < length; i++ {
-		key[i] = keyChars[rand.Intn(len(keyChars))]
-	}
-	return string(key)
-}
-
-func GetRandomNumberString(length int) string {
-	rand.Seed(time.Now().UnixNano())
-	key := make([]byte, length)
-	for i := 0; i < length; i++ {
-		key[i] = keyNumbers[rand.Intn(len(keyNumbers))]
-	}
-	return string(key)
-}
-
-func GetTimestamp() int64 {
-	return time.Now().Unix()
-}
-
-func GetTimeString() string {
-	now := time.Now()
-	return fmt.Sprintf("%s%d", now.Format("20060102150405"), now.UnixNano()%1e9)
-}
-
 func GenRequestID() string {
-	return GetTimeString() + GetRandomNumberString(8)
+	return GetTimeString() + random.GetRandomNumberString(8)
+}
+
+func GetResponseID(c *gin.Context) string {
+	logID := c.GetString(RequestIdKey)
+	return fmt.Sprintf("chatcmpl-%s", logID)
 }
 
 func Max(a int, b int) int {

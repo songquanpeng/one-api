@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { API, copy, showError, showInfo, showNotice, showSuccess } from '../helpers';
 import Turnstile from 'react-turnstile';
 import { UserContext } from '../context/User';
-import { onGitHubOAuthClicked } from './utils';
+import { onGitHubOAuthClicked, onLarkOAuthClicked } from './utils';
 
 const PersonalSetting = () => {
   const [userState, userDispatch] = useContext(UserContext);
@@ -245,6 +245,11 @@ const PersonalSetting = () => {
       {
         status.github_oauth && (
           <Button onClick={()=>{onGitHubOAuthClicked(status.github_client_id)}}>绑定 GitHub 账号</Button>
+        )
+      }
+      {
+        status.lark_client_id && (
+          <Button onClick={()=>{onLarkOAuthClicked(status.lark_client_id)}}>绑定飞书账号</Button>
         )
       }
       <Button

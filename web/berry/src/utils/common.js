@@ -51,9 +51,9 @@ export function showError(error) {
 
 export function showNotice(message, isHTML = false) {
   if (isHTML) {
-    enqueueSnackbar(<SnackbarHTMLContent htmlContent={message} />, getSnackbarOptions('INFO'));
+    enqueueSnackbar(<SnackbarHTMLContent htmlContent={message} />, getSnackbarOptions('NOTICE'));
   } else {
-    enqueueSnackbar(message, getSnackbarOptions('INFO'));
+    enqueueSnackbar(message, getSnackbarOptions('NOTICE'));
   }
 }
 
@@ -89,6 +89,13 @@ export async function onGitHubOAuthClicked(github_client_id, openInNewTab = fals
   } else {
     window.location.href = url;
   }
+}
+
+export async function onLarkOAuthClicked(lark_client_id) {
+  const state = await getOAuthState();
+  if (!state) return;
+  let redirect_uri = `${window.location.origin}/oauth/lark`;
+  window.open(`https://open.feishu.cn/open-apis/authen/v1/index?redirect_uri=${redirect_uri}&app_id=${lark_client_id}&state=${state}`);
 }
 
 export function isAdmin() {

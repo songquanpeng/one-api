@@ -23,6 +23,7 @@ func GetStatus(c *gin.Context) {
 			"email_verification":  config.EmailVerificationEnabled,
 			"github_oauth":        config.GitHubOAuthEnabled,
 			"github_client_id":    config.GitHubClientId,
+			"lark_client_id":      config.LarkClientId,
 			"system_name":         config.SystemName,
 			"logo":                config.Logo,
 			"footer_html":         config.Footer,

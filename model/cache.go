@@ -8,6 +8,7 @@ import (
 	"github.com/songquanpeng/one-api/common"
 	"github.com/songquanpeng/one-api/common/config"
 	"github.com/songquanpeng/one-api/common/logger"
+	"github.com/songquanpeng/one-api/common/random"
 	"math/rand"
 	"sort"
 	"strconv"
@@ -21,6 +22,7 @@ var (
 	UserId2GroupCacheSeconds  = config.SyncFrequency
 	UserId2QuotaCacheSeconds  = config.SyncFrequency
 	UserId2StatusCacheSeconds = config.SyncFrequency
+	GroupModelsCacheSeconds   = config.SyncFrequency
 )
 
 func CacheGetTokenByKey(key string) (*Token, error) {
@@ -146,13 +148,32 @@ func CacheIsUserEnabled(userId int) (bool, error) {
 	return userEnabled, err
 }
 
+func CacheGetGroupModels(ctx context.Context, group string) ([]string, error) {
+	if !common.RedisEnabled {
+		return GetGroupModels(ctx, group)
+	}
+	modelsStr, err := common.RedisGet(fmt.Sprintf("group_models:%s", group))
+	if err == nil {
+		return strings.Split(modelsStr, ","), nil
+	}
+	models, err := GetGroupModels(ctx, group)
+	if err != nil {
+		return nil, err
+	}
+	err = common.RedisSet(fmt.Sprintf("group_models:%s", group), strings.Join(models, ","), time.Duration(GroupModelsCacheSeconds)*time.Second)
+	if err != nil {
+		logger.SysError("Redis set group models error: " + err.Error())
+	}
+	return models, nil
+}
+
 var group2model2channels map[string]map[string][]*Channel
 var channelSyncLock sync.RWMutex
 
 func InitChannelCache() {
 	newChannelId2channel := make(map[int]*Channel)
 	var channels []*Channel
-	DB.Where("status = ?", common.ChannelStatusEnabled).Find(&channels)
+	DB.Where("status = ?", ChannelStatusEnabled).Find(&channels)
 	for _, channel := range channels {
 		newChannelId2channel[channel.Id] = channel
 	}
@@ -205,7 +226,7 @@ func SyncChannelCache(frequency int) {
 
 func CacheGetRandomSatisfiedChannel(group string, model string, ignoreFirstPriority bool) (*Channel, error) {
 	if !config.MemoryCacheEnabled {
-		return GetRandomSatisfiedChannel(group, model)
+		return GetRandomSatisfiedChannel(group, model, ignoreFirstPriority)
 	}
 	channelSyncLock.RLock()
 	defer channelSyncLock.RUnlock()
@@ -227,7 +248,7 @@ func CacheGetRandomSatisfiedChannel(group string, model string, ignoreFirstPrior
 	idx := rand.Intn(endIdx)
 	if ignoreFirstPriority {
 		if endIdx < len(channels) { // which means there are more than one priority
-			idx = common.RandRange(endIdx, len(channels))
+			idx = random.RandRange(endIdx, len(channels))
 		}
 	}
 	return channels[idx], nil
