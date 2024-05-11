@@ -9,8 +9,6 @@ import (
 	"one-api/providers/base"
 	"one-api/types"
 	"strings"
-
-	"github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream"
 )
 
 type CohereStreamHandler struct {
@@ -52,8 +50,6 @@ func (p *CohereProvider) CreateChatCompletionStream(request *types.ChatCompletio
 		Usage:   p.Usage,
 		Request: request,
 	}
-
-	eventstream.NewDecoder()
 
 	return requester.RequestStream(p.Requester, resp, chatHandler.HandlerStream)
 }
