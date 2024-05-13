@@ -133,6 +133,8 @@ func GetDefaultPrice() []*Price {
 		"gpt-4-0125-preview":     {[]float64{5, 15}, common.ChannelTypeOpenAI},
 		"gpt-4-turbo-preview":    {[]float64{5, 15}, common.ChannelTypeOpenAI},
 		"gpt-4-vision-preview":   {[]float64{5, 15}, common.ChannelTypeOpenAI},
+		// $0.005 / 1K tokens	$0.015 / 1K tokens
+		"gpt-4o": {[]float64{2.5, 7.5}, common.ChannelTypeOpenAI},
 		// 	$0.0005 / 1K tokens	$0.0015 / 1K tokens
 		"gpt-3.5-turbo":      {[]float64{0.25, 0.75}, common.ChannelTypeOpenAI},
 		"gpt-3.5-turbo-0125": {[]float64{0.25, 0.75}, common.ChannelTypeOpenAI},
