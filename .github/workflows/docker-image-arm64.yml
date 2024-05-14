@@ -3,7 +3,7 @@ name: Publish Docker image (arm64)
 on:
   push:
     tags:
-      - '*'
+      - 'v*.*.*'
       - '!*-alpha*'
   workflow_dispatch:
     inputs:

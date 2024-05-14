@@ -40,7 +40,8 @@ export function generateChartOptions(data, unit) {
       chart: {
         sparkline: {
           enabled: true
-        }
+        },
+        background: 'transparent'
       },
       dataLabels: {
         enabled: false

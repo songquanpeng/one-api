@@ -15,19 +15,10 @@ import themeTypography from './typography';
 
 export const theme = (customization) => {
   const color = colors;
-
+  const options = customization.theme === 'light' ? GetLightOption() : GetDarkOption();
   const themeOption = {
     colors: color,
-    heading: color.grey900,
-    paper: color.paper,
-    backgroundDefault: color.paper,
-    background: color.primaryLight,
-    darkTextPrimary: color.grey700,
-    darkTextSecondary: color.grey500,
-    textDark: color.grey900,
-    menuSelected: color.secondaryDark,
-    menuSelectedBack: color.secondaryLight,
-    divider: color.grey200,
+    ...options,
     customization
   };
 
@@ -53,3 +44,49 @@ export const theme = (customization) => {
 };
 
 export default theme;
+
+function GetDarkOption() {
+  const color = colors;
+  return {
+    mode: 'dark',
+    heading: color.darkTextTitle,
+    paper: color.darkLevel2,
+    backgroundDefault: color.darkPaper,
+    background: color.darkBackground,
+    darkTextPrimary: color.darkTextPrimary,
+    darkTextSecondary: color.darkTextSecondary,
+    textDark: color.darkTextTitle,
+    menuSelected: color.darkSecondaryMain,
+    menuSelectedBack: color.darkSelectedBack,
+    divider: color.darkDivider,
+    borderColor: color.darkBorderColor,
+    menuButton: color.darkLevel1,
+    menuButtonColor: color.darkSecondaryMain,
+    menuChip: color.darkLevel1,
+    headBackgroundColor: color.darkBackground,
+    tableBorderBottom: color.darkDivider
+  };
+}
+
+function GetLightOption() {
+  const color = colors;
+  return {
+    mode: 'light',
+    heading: color.grey900,
+    paper: color.paper,
+    backgroundDefault: color.paper,
+    background: color.primaryLight,
+    darkTextPrimary: color.grey700,
+    darkTextSecondary: color.grey500,
+    textDark: color.grey900,
+    menuSelected: color.secondaryDark,
+    menuSelectedBack: color.secondaryLight,
+    divider: color.grey200,
+    borderColor: color.grey300,
+    menuButton: color.secondaryLight,
+    menuButtonColor: color.secondaryDark,
+    menuChip: color.primaryLight,
+    headBackgroundColor: color.tableBackground,
+    tableBorderBottom: color.tableBorderBottom
+  };
+}
