@@ -101,7 +101,7 @@ export default function LogTableRow({ item, userIsAdmin }) {
         </TableCell>
         <TableCell>{item.prompt_tokens || '0'}</TableCell>
         <TableCell>{item.completion_tokens || '0'}</TableCell>
-        <TableCell>{item.quota ? renderQuota(item.quota, 6) : '0'}</TableCell>
+        <TableCell>{item.quota ? renderQuota(item.quota, 6) : '$0'}</TableCell>
         <TableCell>{item.content}</TableCell>
       </TableRow>
     </>
