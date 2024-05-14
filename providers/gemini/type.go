@@ -94,9 +94,15 @@ type GeminiErrorResponse struct {
 type GeminiChatResponse struct {
 	Candidates     []GeminiChatCandidate    `json:"candidates"`
 	PromptFeedback GeminiChatPromptFeedback `json:"promptFeedback"`
-	Usage          *types.Usage             `json:"usage,omitempty"`
+	UsageMetadata  *GeminiUsageMetadata     `json:"usageMetadata,omitempty"`
 	Model          string                   `json:"model,omitempty"`
 	GeminiErrorResponse
+}
+
+type GeminiUsageMetadata struct {
+	PromptTokenCount     int `json:"promptTokenCount"`
+	CandidatesTokenCount int `json:"candidatesTokenCount"`
+	TotalTokenCount      int `json:"totalTokenCount"`
 }
 
 type GeminiChatCandidate struct {
