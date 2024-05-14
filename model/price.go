@@ -62,18 +62,14 @@ func (price *Price) GetOutput() float64 {
 	return price.Output
 }
 
-func (price *Price) FetchInputCurrencyPrice(rate float64) float64 {
+func (price *Price) FetchInputCurrencyPrice(rate float64) string {
 	r := decimal.NewFromFloat(price.GetInput()).Mul(decimal.NewFromFloat(rate))
-	v, _ := r.Float64()
-
-	return v
+	return r.String()
 }
 
-func (price *Price) FetchOutputCurrencyPrice(rate float64) float64 {
+func (price *Price) FetchOutputCurrencyPrice(rate float64) string {
 	r := decimal.NewFromFloat(price.GetOutput()).Mul(decimal.NewFromFloat(rate))
-	v, _ := r.Float64()
-
-	return v
+	return r.String()
 }
 
 func UpdatePrices(tx *gorm.DB, models []string, prices *Price) error {
