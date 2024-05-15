@@ -35,6 +35,7 @@ require (
 	filippo.io/edwards25519 v1.1.0 // indirect
 	github.com/chenzhuoyu/iasm v0.9.1 // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
+	github.com/go-gormigrate/gormigrate/v2 v2.1.2 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/jackc/puddle/v2 v2.2.1 // indirect
 	github.com/jonboulle/clockwork v0.4.0 // indirect

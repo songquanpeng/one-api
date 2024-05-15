@@ -104,10 +104,9 @@ func InitDB() (err error) {
 			return nil
 		}
 		common.SysLog("database migration started")
-		// err = MigrateDB(DB)
-		// if err != nil {
-		// 	return err
-		// }
+
+		migration(DB)
+
 		err = db.AutoMigrate(&Channel{})
 		if err != nil {
 			return err
