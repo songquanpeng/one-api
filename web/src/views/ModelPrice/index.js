@@ -85,8 +85,8 @@ export default function ModelPrice() {
         model: model.id,
         type: type_label?.label || '未知',
         channel_type: channel_label?.label || '未知',
-        input: ValueFormatter(price?.input || 30),
-        output: ValueFormatter(price?.output || 30)
+        input: ValueFormatter(price?.input !== undefined && price?.input !== null ? price.input : 30),
+        output: ValueFormatter(price?.output !== undefined && price?.output !== null ? price.output : 30)
       });
     });
     setRows(newRows);
