@@ -29,7 +29,7 @@ export default function Log() {
     start_timestamp: 0,
     end_timestamp: dayjs().unix() + 3600,
     log_type: 0,
-    channel: ''
+    channel_id: ''
   };
 
   const [page, setPage] = useState(0);
@@ -82,7 +82,7 @@ export default function Log() {
         const url = userIsAdmin ? '/api/log/' : '/api/log/self/';
         if (!userIsAdmin) {
           delete keyword.username;
-          delete keyword.channel;
+          delete keyword.channel_id;
         }
 
         const res = await API.get(url, {

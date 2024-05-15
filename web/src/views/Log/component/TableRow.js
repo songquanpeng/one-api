@@ -70,7 +70,7 @@ export default function LogTableRow({ item, userIsAdmin }) {
       <TableRow tabIndex={item.id}>
         <TableCell>{timestamp2string(item.created_at)}</TableCell>
 
-        {userIsAdmin && <TableCell>{item.channel || ''}</TableCell>}
+        {userIsAdmin && <TableCell>{(item.channel_id || '') + '(' + (item.channel?.name || '未知') + ')'}</TableCell>}
         {userIsAdmin && (
           <TableCell>
             <Label color="default" variant="outlined">

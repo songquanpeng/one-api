@@ -133,15 +133,15 @@ export default function TableToolBar({ filterName, handleFilterName, userIsAdmin
       {userIsAdmin && (
         <Stack direction={{ xs: 'column', sm: 'row' }} spacing={{ xs: 3, sm: 2, md: 4 }} padding={'24px'}>
           <FormControl>
-            <InputLabel htmlFor="channel-channel-label">渠道ID</InputLabel>
+            <InputLabel htmlFor="channel-channel_id-label">渠道ID</InputLabel>
             <OutlinedInput
-              id="channel"
-              name="channel"
+              id="channel_id"
+              name="channel_id"
               sx={{
                 minWidth: '100%'
               }}
               label="渠道ID"
-              value={filterName.channel}
+              value={filterName.channel_id}
               onChange={handleFilterName}
               placeholder="渠道ID"
               startAdornment={
