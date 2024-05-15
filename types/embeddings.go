@@ -4,6 +4,7 @@ type EmbeddingRequest struct {
 	Model          string `json:"model" binding:"required"`
 	Input          any    `json:"input" binding:"required"`
 	EncodingFormat string `json:"encoding_format,omitempty"`
+	Dimensions     int    `json:"dimensions,omitempty"`
 	User           string `json:"user,omitempty"`
 }
 
