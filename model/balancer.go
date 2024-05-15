@@ -21,6 +21,20 @@ type ChannelsChooser struct {
 	Match    []string
 }
 
+type ChannelsFilterFunc func(channelId int, choice *ChannelChoice) bool
+
+func FilterChannelId(skipChannelId int) ChannelsFilterFunc {
+	return func(channelId int, choice *ChannelChoice) bool {
+		return skipChannelId > 0 && channelId == skipChannelId
+	}
+}
+
+func FilterOnlyChat() ChannelsFilterFunc {
+	return func(channelId int, choice *ChannelChoice) bool {
+		return choice.Channel.OnlyChat
+	}
+}
+
 func (cc *ChannelsChooser) Cooldowns(channelId int) bool {
 	if common.RetryCooldownSeconds == 0 {
 		return false
@@ -35,20 +49,31 @@ func (cc *ChannelsChooser) Cooldowns(channelId int) bool {
 	return true
 }
 
-func (cc *ChannelsChooser) balancer(channelIds []int, skipChannelId int) *Channel {
+func (cc *ChannelsChooser) balancer(channelIds []int, filters []ChannelsFilterFunc) *Channel {
 	nowTime := time.Now().Unix()
 	totalWeight := 0
 
 	validChannels := make([]*ChannelChoice, 0, len(channelIds))
 	for _, channelId := range channelIds {
-		if skipChannelId > 0 && channelId == skipChannelId {
+		choice, ok := cc.Channels[channelId]
+		if !ok || choice.CooldownsTime >= nowTime {
 			continue
 		}
-		if choice, ok := cc.Channels[channelId]; ok && choice.CooldownsTime < nowTime {
-			weight := int(*choice.Channel.Weight)
-			totalWeight += weight
-			validChannels = append(validChannels, choice)
+
+		isSkip := false
+		for _, filter := range filters {
+			if filter(channelId, choice) {
+				isSkip = true
+				break
+			}
 		}
+		if isSkip {
+			continue
+		}
+
+		weight := int(*choice.Channel.Weight)
+		totalWeight += weight
+		validChannels = append(validChannels, choice)
 	}
 
 	if len(validChannels) == 0 {
@@ -71,7 +96,7 @@ func (cc *ChannelsChooser) balancer(channelIds []int, skipChannelId int) *Channe
 	return nil
 }
 
-func (cc *ChannelsChooser) Next(group, modelName string, skipChannelId int) (*Channel, error) {
+func (cc *ChannelsChooser) Next(group, modelName string, filters ...ChannelsFilterFunc) (*Channel, error) {
 	cc.RLock()
 	defer cc.RUnlock()
 	if _, ok := cc.Rule[group]; !ok {
@@ -92,7 +117,7 @@ func (cc *ChannelsChooser) Next(group, modelName string, skipChannelId int) (*Ch
 	}
 
 	for _, priority := range channelsPriority {
-		channel := cc.balancer(priority, skipChannelId)
+		channel := cc.balancer(priority, filters)
 		if channel != nil {
 			return channel, nil
 		}

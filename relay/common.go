@@ -101,7 +101,16 @@ func fetchChannelById(channelId int) (*model.Channel, error) {
 func fetchChannelByModel(c *gin.Context, modelName string) (*model.Channel, error) {
 	group := c.GetString("group")
 	skip_channel_id := c.GetInt("skip_channel_id")
-	channel, err := model.ChannelGroup.Next(group, modelName, skip_channel_id)
+	skip_only_chat := c.GetBool("skip_only_chat")
+	var filters []model.ChannelsFilterFunc
+	if skip_only_chat {
+		filters = append(filters, model.FilterOnlyChat())
+	}
+	if skip_channel_id > 0 {
+		filters = append(filters, model.FilterChannelId(skip_channel_id))
+	}
+
+	channel, err := model.ChannelGroup.Next(group, modelName, filters...)
 	if err != nil {
 		message := fmt.Sprintf("当前分组 %s 下对于模型 %s 无可用渠道", group, modelName)
 		if channel != nil {

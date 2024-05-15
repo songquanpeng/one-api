@@ -10,7 +10,8 @@ const defaultConfig = {
     model_mapping: '',
     models: [],
     groups: ['default'],
-    plugin: {}
+    plugin: {},
+    only_chat: false
   },
   inputLabel: {
     name: '渠道名称',
@@ -22,7 +23,8 @@ const defaultConfig = {
     test_model: '测速模型',
     models: '模型',
     model_mapping: '模型映射关系',
-    groups: '用户组'
+    groups: '用户组',
+    only_chat: '仅支持聊天'
   },
   prompt: {
     type: '请选择渠道类型',
@@ -36,7 +38,8 @@ const defaultConfig = {
       '请选择该渠道所支持的模型,你也可以输入通配符*来匹配模型，例如：gpt-3.5*，表示支持所有gpt-3.5开头的模型，*号只能在最后一位使用，前面必须有字符，例如：gpt-3.5*是正确的，*gpt-3.5是错误的',
     model_mapping:
       '请输入要修改的模型映射关系，格式为：api请求模型ID:实际转发给渠道的模型ID，使用JSON数组表示，例如：{"gpt-3.5": "gpt-35"}',
-    groups: '请选择该渠道所支持的用户组'
+    groups: '请选择该渠道所支持的用户组',
+    only_chat: '如果选择了仅支持聊天，那么遇到有函数调用的请求会跳过该渠道'
   },
   modelGroup: 'OpenAI'
 };

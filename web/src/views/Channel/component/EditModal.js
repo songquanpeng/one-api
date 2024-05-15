@@ -629,6 +629,22 @@ const EditModal = ({ open, channelId, onCancel, onOk, groupOptions }) => {
                   )}
                 </FormControl>
               )}
+              {inputPrompt.only_chat && (
+                <FormControl fullWidth>
+                  <FormControlLabel
+                    control={
+                      <Switch
+                        checked={values.only_chat === true}
+                        onClick={() => {
+                          setFieldValue('only_chat', !values.only_chat);
+                        }}
+                      />
+                    }
+                    label={inputLabel.only_chat}
+                  />
+                  <FormHelperText id="helper-tex-only_chat_model-label"> {inputPrompt.only_chat} </FormHelperText>
+                </FormControl>
+              )}
               {pluginList[values.type] &&
                 Object.keys(pluginList[values.type]).map((pluginId) => {
                   const plugin = pluginList[values.type][pluginId];

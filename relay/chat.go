@@ -32,6 +32,10 @@ func (r *relayChat) setRequest() error {
 		return errors.New("max_tokens is invalid")
 	}
 
+	if r.chatRequest.Tools != nil {
+		r.c.Set("skip_only_chat", true)
+	}
+
 	r.originalModel = r.chatRequest.Model
 
 	return nil
