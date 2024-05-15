@@ -139,9 +139,6 @@ func (user *User) Insert(inviterId int) error {
 }
 
 func (user *User) Update(updatePassword bool) error {
-	if RecordExists(&User{}, "username", user.Username, user.Id) {
-		return errors.New("用户名已存在！")
-	}
 	var err error
 	if updatePassword {
 		user.Password, err = common.Password2Hash(user.Password)

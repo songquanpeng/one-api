@@ -415,8 +415,8 @@ func UpdateSelf(c *gin.Context) {
 	}
 
 	cleanUser := model.User{
-		Id:          c.GetInt("id"),
-		Username:    user.Username,
+		Id: c.GetInt("id"),
+		// Username:    user.Username,
 		Password:    user.Password,
 		DisplayName: user.DisplayName,
 	}

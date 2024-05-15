@@ -107,7 +107,7 @@ export default function Profile() {
   const submit = async () => {
     try {
       let inputValue = inputs;
-      inputValue.username = trims(inputValue.username);
+      // inputValue.username = trims(inputValue.username);
       inputValue.display_name = trims(inputValue.display_name);
       await validationSchema.validate(inputValue);
       const res = await API.put(`/api/user/self`, inputValue);
@@ -170,7 +170,8 @@ export default function Profile() {
                       label="用户名"
                       type="text"
                       value={inputs.username || ''}
-                      onChange={handleInputChange}
+                      // onChange={handleInputChange}
+                      disabled
                       name="username"
                       placeholder="请输入用户名"
                     />
