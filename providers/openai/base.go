@@ -57,6 +57,7 @@ func getOpenAIConfig(baseURL string) base.ProviderConfig {
 		ImagesGenerations:   "/v1/images/generations",
 		ImagesEdit:          "/v1/images/edits",
 		ImagesVariations:    "/v1/images/variations",
+		ModelList:           "/v1/models",
 	}
 }
 

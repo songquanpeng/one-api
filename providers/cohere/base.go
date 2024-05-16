@@ -32,6 +32,7 @@ func getConfig() base.ProviderConfig {
 	return base.ProviderConfig{
 		BaseURL:         "https://api.cohere.ai/v1",
 		ChatCompletions: "/chat",
+		ModelList:       "/models",
 	}
 }
 

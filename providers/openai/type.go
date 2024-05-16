@@ -73,3 +73,15 @@ type OpenAIUsageResponse struct {
 	//DailyCosts []OpenAIUsageDailyCost `json:"daily_costs"`
 	TotalUsage float64 `json:"total_usage"` // unit: 0.01 dollar
 }
+
+type ModelListResponse struct {
+	Object string         `json:"object"`
+	Data   []ModelDetails `json:"data"`
+}
+
+type ModelDetails struct {
+	Id      string `json:"id"`
+	Object  string `json:"object"`
+	Created int64  `json:"created"`
+	OwnedBy string `json:"owned_by"`
+}

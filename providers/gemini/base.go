@@ -32,6 +32,7 @@ func getConfig() base.ProviderConfig {
 	return base.ProviderConfig{
 		BaseURL:         "https://generativelanguage.googleapis.com",
 		ChatCompletions: "/",
+		ModelList:       "/models",
 	}
 }
 

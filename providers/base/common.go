@@ -25,6 +25,7 @@ type ProviderConfig struct {
 	ImagesGenerations   string
 	ImagesEdit          string
 	ImagesVariations    string
+	ModelList           string
 }
 
 type BaseProvider struct {

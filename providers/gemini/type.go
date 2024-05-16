@@ -218,3 +218,12 @@ func ConvertRole(roleName string) string {
 		return types.ChatMessageRoleUser
 	}
 }
+
+type ModelListResponse struct {
+	Models []ModelDetails `json:"models"`
+}
+
+type ModelDetails struct {
+	Name                       string   `json:"name"`
+	SupportedGenerationMethods []string `json:"supportedGenerationMethods"`
+}

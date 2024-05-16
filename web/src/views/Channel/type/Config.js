@@ -24,7 +24,8 @@ const defaultConfig = {
     models: '模型',
     model_mapping: '模型映射关系',
     groups: '用户组',
-    only_chat: '仅支持聊天'
+    only_chat: '仅支持聊天',
+    provider_models_list: ''
   },
   prompt: {
     type: '请选择渠道类型',
@@ -39,12 +40,23 @@ const defaultConfig = {
     model_mapping:
       '请输入要修改的模型映射关系，格式为：api请求模型ID:实际转发给渠道的模型ID，使用JSON数组表示，例如：{"gpt-3.5": "gpt-35"}',
     groups: '请选择该渠道所支持的用户组',
-    only_chat: '如果选择了仅支持聊天，那么遇到有函数调用的请求会跳过该渠道'
+    only_chat: '如果选择了仅支持聊天，那么遇到有函数调用的请求会跳过该渠道',
+    provider_models_list: '必须填写所有数据后才能获取模型列表'
   },
   modelGroup: 'OpenAI'
 };
 
 const typeConfig = {
+  1: {
+    inputLabel: {
+      provider_models_list: '从OpenAI获取模型列表'
+    }
+  },
+  8: {
+    inputLabel: {
+      provider_models_list: '从渠道获取模型列表'
+    }
+  },
   3: {
     inputLabel: {
       base_url: 'AZURE_OPENAI_ENDPOINT',
@@ -143,7 +155,8 @@ const typeConfig = {
   },
   25: {
     inputLabel: {
-      other: '版本号'
+      other: '版本号',
+      provider_models_list: '从Gemini获取模型列表'
     },
     input: {
       models: ['gemini-pro', 'gemini-pro-vision', 'gemini-1.0-pro', 'gemini-1.5-pro'],
@@ -189,6 +202,9 @@ const typeConfig = {
       models: ['deepseek-coder', 'deepseek-chat'],
       test_model: 'deepseek-chat'
     },
+    inputLabel: {
+      provider_models_list: '从Deepseek获取模型列表'
+    },
     modelGroup: 'Deepseek'
   },
   29: {
@@ -210,12 +226,18 @@ const typeConfig = {
       ],
       test_model: 'open-mistral-7b'
     },
+    inputLabel: {
+      provider_models_list: '从Mistral获取模型列表'
+    },
     modelGroup: 'Mistral'
   },
   31: {
     input: {
       models: ['llama2-7b-2048', 'llama2-70b-4096', 'mixtral-8x7b-32768', 'gemma-7b-it'],
       test_model: 'llama2-7b-2048'
+    },
+    inputLabel: {
+      provider_models_list: '从Groq获取模型列表'
     },
     modelGroup: 'Groq'
   },
@@ -296,6 +318,9 @@ const typeConfig = {
     input: {
       models: ['command-r', 'command-r-plus'],
       test_model: 'command-r'
+    },
+    inputLabel: {
+      provider_models_list: '从Cohere获取模型列表'
     },
     modelGroup: 'Cohere'
   },

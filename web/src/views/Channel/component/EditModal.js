@@ -24,8 +24,10 @@ import {
   Checkbox,
   Switch,
   FormControlLabel,
-  Typography
+  Typography,
+  Tooltip
 } from '@mui/material';
+import LoadingButton from '@mui/lab/LoadingButton';
 
 import { Formik } from 'formik';
 import * as Yup from 'yup';
@@ -78,6 +80,7 @@ const EditModal = ({ open, channelId, onCancel, onOk, groupOptions }) => {
   const [inputPrompt, setInputPrompt] = useState(defaultConfig.prompt);
   const [modelOptions, setModelOptions] = useState([]);
   const [batchAdd, setBatchAdd] = useState(false);
+  const [providerModelsLoad, setProviderModelsLoad] = useState(false);
 
   const initChannel = (typeValue) => {
     if (typeConfig[typeValue]?.inputLabel) {
@@ -142,6 +145,22 @@ const EditModal = ({ open, channelId, onCancel, onOk, groupOptions }) => {
       }
     });
     return modelList;
+  };
+
+  const getProviderModels = async (values, setFieldValue) => {
+    setProviderModelsLoad(true);
+    try {
+      const res = await API.post(`/api/channel/provider_models_list`, { ...values, models: '' });
+      const { success, message, data } = res.data;
+      if (success && data) {
+        setFieldValue('models', data);
+      } else {
+        showError(message || '获取模型列表失败');
+      }
+    } catch (error) {
+      showError(error.message);
+    }
+    setProviderModelsLoad(false);
   };
 
   const fetchModels = async () => {
@@ -505,6 +524,18 @@ const EditModal = ({ open, channelId, onCancel, onOk, groupOptions }) => {
                   >
                     填入所有模型
                   </Button>
+                  {inputLabel.provider_models_list && (
+                    <Tooltip title={inputPrompt.provider_models_list} placement="top">
+                      <LoadingButton
+                        loading={providerModelsLoad}
+                        onClick={() => {
+                          getProviderModels(values, setFieldValue);
+                        }}
+                      >
+                        {inputLabel.provider_models_list}
+                      </LoadingButton>
+                    </Tooltip>
+                  )}
                 </ButtonGroup>
               </Container>
               <FormControl fullWidth error={Boolean(touched.key && errors.key)} sx={{ ...theme.typography.otherInput }}>

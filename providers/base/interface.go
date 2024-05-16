@@ -99,6 +99,16 @@ type ImageVariationsInterface interface {
 	CreateImageVariations(request *types.ImageEditRequest) (*types.ImageResponse, *types.OpenAIErrorWithStatusCode)
 }
 
+// type RelayInterface interface {
+// 	ProviderInterface
+// 	CreateRelay() (*http.Response, *types.OpenAIErrorWithStatusCode)
+// }
+
+type ModelListInterface interface {
+	ProviderInterface
+	GetModelList() ([]string, error)
+}
+
 // 余额接口
 type BalanceInterface interface {
 	Balance() (float64, error)

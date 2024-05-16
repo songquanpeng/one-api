@@ -53,3 +53,15 @@ type ChatCompletionStreamResponse struct {
 	types.ChatCompletionStreamResponse
 	Usage *types.Usage `json:"usage,omitempty"`
 }
+
+type ModelListResponse struct {
+	Object string         `json:"object"`
+	Data   []ModelDetails `json:"data"`
+}
+
+type ModelDetails struct {
+	Id      string `json:"id"`
+	Object  string `json:"object"`
+	Created int64  `json:"created"`
+	OwnedBy string `json:"owned_by"`
+}

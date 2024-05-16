@@ -41,6 +41,7 @@ func getMistralConfig(baseURL string) base.ProviderConfig {
 		BaseURL:         baseURL,
 		ChatCompletions: "/v1/chat/completions",
 		Embeddings:      "/v1/embeddings",
+		ModelList:       "/v1/models",
 	}
 }
 

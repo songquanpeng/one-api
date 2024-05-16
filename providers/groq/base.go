@@ -27,6 +27,7 @@ func getConfig() base.ProviderConfig {
 	return base.ProviderConfig{
 		BaseURL:         "https://api.groq.com/openai",
 		ChatCompletions: "/v1/chat/completions",
+		ModelList:       "/v1/models",
 	}
 }
 

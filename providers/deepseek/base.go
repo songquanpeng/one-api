@@ -28,6 +28,7 @@ func getDeepseekConfig() base.ProviderConfig {
 	return base.ProviderConfig{
 		BaseURL:         "https://api.deepseek.com",
 		ChatCompletions: "/v1/chat/completions",
+		ModelList:       "/v1/models",
 	}
 }
 
