@@ -153,7 +153,14 @@ const EditModal = ({ open, channelId, onCancel, onOk, groupOptions }) => {
       const res = await API.post(`/api/channel/provider_models_list`, { ...values, models: '' });
       const { success, message, data } = res.data;
       if (success && data) {
-        setFieldValue('models', data);
+        let modelList = data.map((model) => {
+          return {
+            id: model,
+            group: '自定义：点击或回车输入'
+          };
+        });
+
+        setFieldValue('models', modelList);
       } else {
         showError(message || '获取模型列表失败');
       }
