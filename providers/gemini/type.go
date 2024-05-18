@@ -139,18 +139,19 @@ func OpenAIToGeminiChatContent(openaiContents []types.ChatCompletionMessage) ([]
 			Parts: make([]GeminiPart, 0),
 		}
 		content.Role = ConvertRole(openaiContent.Role)
-		if openaiContent.Role == types.ChatMessageRoleFunction {
-			contents = append(contents, GeminiChatContent{
+		if openaiContent.ToolCalls != nil {
+			content = GeminiChatContent{
 				Role: "model",
 				Parts: []GeminiPart{
 					{
 						FunctionCall: &GeminiFunctionCall{
-							Name: *openaiContent.Name,
+							Name: openaiContent.ToolCalls[0].Function.Name,
 							Args: map[string]interface{}{},
 						},
 					},
 				},
-			})
+			}
+		} else if openaiContent.Role == types.ChatMessageRoleTool {
 			content = GeminiChatContent{
 				Role: "function",
 				Parts: []GeminiPart{
