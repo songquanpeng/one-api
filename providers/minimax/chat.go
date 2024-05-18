@@ -145,7 +145,7 @@ func convertFromChatOpenai(request *types.ChatCompletionRequest) *MiniMaxChatReq
 		}
 
 		// 如果role为function， 则需要在前面一条记录添加function_call，如果没有消息，则添加一个message
-		if message.Role == types.ChatMessageRoleFunction {
+		if message.Role == types.ChatMessageRoleFunction || message.Role == types.ChatMessageRoleTool {
 			if len(messges) == 0 {
 				messges = append(messges, MiniMaxChatMessage{
 					SenderType: "USER",

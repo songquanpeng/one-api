@@ -151,7 +151,7 @@ func OpenAIToGeminiChatContent(openaiContents []types.ChatCompletionMessage) ([]
 					},
 				},
 			}
-		} else if openaiContent.Role == types.ChatMessageRoleTool {
+		} else if openaiContent.Role == types.ChatMessageRoleFunction || openaiContent.Role == types.ChatMessageRoleTool {
 			content = GeminiChatContent{
 				Role: "function",
 				Parts: []GeminiPart{

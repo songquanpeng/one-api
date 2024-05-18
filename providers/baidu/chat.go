@@ -150,7 +150,7 @@ func convertFromChatOpenai(request *types.ChatCompletionRequest) *BaiduChatReque
 		if message.Role == types.ChatMessageRoleSystem {
 			baiduChatRequest.System = message.StringContent()
 			continue
-		} else if message.Role == types.ChatMessageRoleFunction {
+		} else if message.Role == types.ChatMessageRoleFunction || message.Role == types.ChatMessageRoleTool {
 			baiduChatRequest.Messages = append(baiduChatRequest.Messages, BaiduMessage{
 				Role: types.ChatMessageRoleAssistant,
 				FunctionCall: &types.ChatCompletionToolCallsFunction{
