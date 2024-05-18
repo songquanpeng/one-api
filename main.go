@@ -15,6 +15,7 @@ import (
 	"one-api/model"
 	"one-api/relay/util"
 	"one-api/router"
+	"time"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
@@ -71,10 +72,11 @@ func initMemoryCache() {
 	common.SysLog("memory cache enabled")
 	common.SysError(fmt.Sprintf("sync frequency: %d seconds", syncFrequency))
 	go model.SyncOptions(syncFrequency)
+	go SyncChannelCache(syncFrequency)
 }
 
 func initSync() {
-	go controller.AutomaticallyUpdateChannels(viper.GetInt("channel.update_frequency"))
+	// go controller.AutomaticallyUpdateChannels(viper.GetInt("channel.update_frequency"))
 	go controller.AutomaticallyTestChannels(viper.GetInt("channel.test_frequency"))
 }
 
@@ -97,5 +99,19 @@ func initHttpServer() {
 	err := server.Run(":" + port)
 	if err != nil {
 		common.FatalLog("failed to start HTTP server: " + err.Error())
+	}
+}
+
+func SyncChannelCache(frequency int) {
+	// 只有 从 服务器端获取数据的时候才会用到
+	if common.IsMasterNode {
+		common.SysLog("master node does't synchronize the channel")
+		return
+	}
+	for {
+		time.Sleep(time.Duration(frequency) * time.Second)
+		common.SysLog("syncing channels from database")
+		model.ChannelGroup.Load()
+		util.PricingInstance.Init()
 	}
 }
