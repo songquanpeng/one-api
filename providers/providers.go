@@ -17,9 +17,11 @@ import (
 	"one-api/providers/deepseek"
 	"one-api/providers/gemini"
 	"one-api/providers/groq"
+	"one-api/providers/lingyi"
 	"one-api/providers/midjourney"
 	"one-api/providers/minimax"
 	"one-api/providers/mistral"
+	"one-api/providers/moonshot"
 	"one-api/providers/ollama"
 	"one-api/providers/openai"
 	"one-api/providers/palm"
@@ -64,6 +66,8 @@ func init() {
 	providerFactories[common.ChannelTypeStabilityAI] = stabilityAI.StabilityAIProviderFactory{}
 	providerFactories[common.ChannelTypeCoze] = coze.CozeProviderFactory{}
 	providerFactories[common.ChannelTypeOllama] = ollama.OllamaProviderFactory{}
+	providerFactories[common.ChannelTypeMoonshot] = moonshot.MoonshotProviderFactory{}
+	providerFactories[common.ChannelTypeLingyi] = lingyi.LingyiProviderFactory{}
 
 }
 
