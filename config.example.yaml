@@ -43,6 +43,7 @@ data_gym_cache_dir: ""
 tg:
   bot_api_key: "" # 你的 Telegram bot 的 API 密钥
   webhook_secret: "" # 你的 webhook 密钥。你可以自定义这个密钥。如果设置了这个密钥，将使用webhook的方式接收消息，否则使用轮询（Polling）的方式。
+  http_proxy: "" # 代理设置，格式为 "http://127.0.0.1:1080" 或 "socks5://"，未设置则不使用代理。
 notify: # 通知设置, 配置了几个通知方式，就会同时发送几次通知 如果不需要通知，可以删除这个配置
   email: # 邮件通知 (具体stmp配置在后台设置)
     disable: false # 是否禁用邮件通知
@@ -61,6 +62,7 @@ notify: # 通知设置, 配置了几个通知方式，就会同时发送几次�
   telegram: # Telegram 通知
     bot_api_key: "" # 你的 Telegram bot 的 API 密钥
     chat_id: "" # 你的 Telegram chat_id
+    http_proxy: "" # 代理设置，格式为 "http://127.0.0.1:1080" 或 "socks5://"，未设置则不使用代理。
 storage: # 存储设置 (可选,主要用于图片生成，有些供应商不提供url，只能返回base64图片，设置后可以正常返回url格式的图片生成)
   smms: # sm.ms 图床设置
     secret: "" # 你的 sm.ms API 密钥

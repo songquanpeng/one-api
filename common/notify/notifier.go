@@ -87,11 +87,12 @@ func InitPushdeerNotifier() {
 func InitTelegramNotifier() {
 	bot_token := viper.GetString("notify.telegram.bot_api_key")
 	chat_id := viper.GetString("notify.telegram.chat_id")
+	httpProxy := viper.GetString("notify.telegram.http_proxy")
 	if bot_token == "" || chat_id == "" {
 		return
 	}
 
-	telegramNotifier := channel.NewTelegram(bot_token, chat_id)
+	telegramNotifier := channel.NewTelegram(bot_token, chat_id, httpProxy)
 
 	AddNotifiers(telegramNotifier)
 	common.SysLog("telegram notifier enable")

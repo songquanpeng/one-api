@@ -12,8 +12,9 @@ import (
 const telegramURL = "https://api.telegram.org/bot"
 
 type Telegram struct {
-	secret string
-	chatID string
+	secret    string
+	chatID    string
+	httpProxy string
 }
 
 type telegramMessage struct {
@@ -27,10 +28,11 @@ type telegramResponse struct {
 	Description string `json:"description"`
 }
 
-func NewTelegram(secret string, chatID string) *Telegram {
+func NewTelegram(secret, chatID, httpProxy string) *Telegram {
 	return &Telegram{
-		secret: secret,
-		chatID: chatID,
+		secret:    secret,
+		chatID:    chatID,
+		httpProxy: httpProxy,
 	}
 }
 
@@ -43,7 +45,7 @@ func (t *Telegram) Send(ctx context.Context, title, message string) error {
 	message = fmt.Sprintf("*%s*\n%s", title, message)
 	messages := splitTelegramMessageIntoParts(message, maxMessageLength)
 
-	client := requester.NewHTTPRequester("", telegramErrFunc)
+	client := requester.NewHTTPRequester(t.httpProxy, telegramErrFunc)
 	client.Context = ctx
 	client.IsOpenAI = false
 

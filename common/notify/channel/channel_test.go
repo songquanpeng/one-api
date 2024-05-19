@@ -109,7 +109,8 @@ func TestTelegramSend(t *testing.T) {
 	InitConfig()
 	secret := viper.GetString("notify.telegram.bot_api_key")
 	chatID := viper.GetString("notify.telegram.chat_id")
-	dingTalk := channel.NewTelegram(secret, chatID)
+	httpProxy := viper.GetString("notify.telegram.http_proxy")
+	dingTalk := channel.NewTelegram(secret, chatID, httpProxy)
 
 	err := dingTalk.Send(context.Background(), "Test Title", "*Test Message*")
 	fmt.Println(err)
@@ -120,7 +121,7 @@ func TestTelegramSendError(t *testing.T) {
 	InitConfig()
 	secret := "test"
 	chatID := viper.GetString("notify.telegram.chat_id")
-	dingTalk := channel.NewTelegram(secret, chatID)
+	dingTalk := channel.NewTelegram(secret, chatID, "")
 
 	err := dingTalk.Send(context.Background(), "Test Title", "*Test Message*")
 	fmt.Println(err)

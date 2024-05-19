@@ -3,6 +3,8 @@ package telegram
 import (
 	"errors"
 	"fmt"
+	"net/http"
+	"net/url"
 	"one-api/common"
 	"one-api/model"
 	"strings"
@@ -14,6 +16,7 @@ import (
 	"github.com/PaulSonOfLars/gotgbot/v2/ext/handlers/filters/callbackquery"
 	"github.com/PaulSonOfLars/gotgbot/v2/ext/handlers/filters/message"
 	"github.com/spf13/viper"
+	"golang.org/x/net/proxy"
 )
 
 var TGupdater *ext.Updater
@@ -35,7 +38,7 @@ func InitTelegramBot() {
 	}
 
 	var err error
-	TGBot, err = gotgbot.NewBot(botKey, nil)
+	TGBot, err = gotgbot.NewBot(botKey, getBotOpts())
 	if err != nil {
 		common.SysLog("failed to create new telegram bot: " + err.Error())
 		return
@@ -219,4 +222,54 @@ func getBindUser(b *gotgbot.Bot, ctx *ext.Context) *model.User {
 	}
 
 	return user
+}
+
+func getHttpClient() (httpClient *http.Client) {
+	proxyAddr := viper.GetString("tg.http_proxy") // http/socks5
+	if proxyAddr == "" {
+		return
+	}
+
+	proxyURL, err := url.Parse(proxyAddr)
+	if err != nil {
+		common.SysLog("failed to parse TG proxy URL: " + err.Error())
+		return
+	}
+
+	switch proxyURL.Scheme {
+	case "http", "https":
+		httpClient = &http.Client{
+			Transport: &http.Transport{
+				Proxy: http.ProxyURL(proxyURL),
+			},
+		}
+	case "socks5":
+		dialer, err := proxy.SOCKS5("tcp", proxyURL.Host, nil, proxy.Direct)
+		if err != nil {
+			common.SysLog("failed to create TG SOCKS5 dialer: " + err.Error())
+			return
+		}
+		httpClient = &http.Client{
+			Transport: &http.Transport{
+				Dial: dialer.Dial,
+			},
+		}
+	default:
+		common.SysLog("unknown TG proxy type: " + proxyAddr)
+	}
+
+	return
+}
+
+func getBotOpts() *gotgbot.BotOpts {
+	httpClient := getHttpClient()
+	if httpClient == nil {
+		return nil
+	}
+
+	return &gotgbot.BotOpts{
+		BotClient: &gotgbot.BaseBotClient{
+			Client: *httpClient,
+		},
+	}
 }
