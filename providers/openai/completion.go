@@ -40,7 +40,7 @@ func (p *OpenAIProvider) CreateCompletion(request *types.CompletionRequest) (ope
 }
 
 func (p *OpenAIProvider) CreateCompletionStream(request *types.CompletionRequest) (stream requester.StreamReaderInterface[string], errWithCode *types.OpenAIErrorWithStatusCode) {
-	req, errWithCode := p.GetRequestTextBody(common.RelayModeChatCompletions, request.Model, request)
+	req, errWithCode := p.GetRequestTextBody(common.RelayModeCompletions, request.Model, request)
 	if errWithCode != nil {
 		return nil, errWithCode
 	}
