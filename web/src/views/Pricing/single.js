@@ -1,6 +1,17 @@
 import PropTypes from 'prop-types';
 import { useState, useEffect, useMemo, useCallback } from 'react';
-import { GridRowModes, DataGrid, GridToolbarContainer, GridActionsCellItem } from '@mui/x-data-grid';
+import {
+  GridRowModes,
+  DataGrid,
+  GridToolbarContainer,
+  GridActionsCellItem,
+  GridToolbarExport,
+  GridToolbarColumnsButton,
+  GridToolbarFilterButton,
+  GridToolbarQuickFilter,
+  GridToolbarDensitySelector
+} from '@mui/x-data-grid';
+import { zhCN } from '@mui/x-data-grid/locales';
 import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
@@ -58,6 +69,11 @@ function EditToolbar({ setRows, setRowModesModel }) {
       <Button color="primary" startIcon={<AddIcon />} onClick={handleClick}>
         新增
       </Button>
+      <GridToolbarColumnsButton />
+      <GridToolbarFilterButton />
+      <GridToolbarDensitySelector />
+      <GridToolbarExport printOptions={{ disableToolbarButton: true }} csvOptions={{ utf8WithBom: true }} />
+      <GridToolbarQuickFilter />
     </GridToolbarContainer>
   );
 }
@@ -185,8 +201,7 @@ const Single = ({ ownedby, prices, reloadData }) => {
         headerName: '模型名称',
         minWidth: 220,
         flex: 1,
-        editable: true,
-        hideable: false
+        editable: true
       },
       {
         field: 'type',
@@ -196,8 +211,7 @@ const Single = ({ ownedby, prices, reloadData }) => {
         minWidth: 100,
         type: 'singleSelect',
         valueOptions: priceType,
-        editable: true,
-        hideable: false
+        editable: true
       },
       {
         field: 'channel_type',
@@ -207,8 +221,7 @@ const Single = ({ ownedby, prices, reloadData }) => {
         minWidth: 100,
         type: 'singleSelect',
         valueOptions: ownedby,
-        editable: true,
-        hideable: false
+        editable: true
       },
       {
         field: 'input',
@@ -218,8 +231,7 @@ const Single = ({ ownedby, prices, reloadData }) => {
         minWidth: 150,
         type: 'number',
         editable: true,
-        valueFormatter: (params) => ValueFormatter(params.value),
-        hideable: false
+        valueFormatter: (params) => ValueFormatter(params.value)
       },
       {
         field: 'output',
@@ -229,8 +241,7 @@ const Single = ({ ownedby, prices, reloadData }) => {
         minWidth: 150,
         type: 'number',
         editable: true,
-        valueFormatter: (params) => ValueFormatter(params.value),
-        hideable: false
+        valueFormatter: (params) => ValueFormatter(params.value)
       },
       {
         field: 'actions',
@@ -241,6 +252,7 @@ const Single = ({ ownedby, prices, reloadData }) => {
         // width: 100,
         cellClassName: 'actions',
         hideable: false,
+        disableExport: true,
         getActions: ({ id }) => {
           const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit;
 
@@ -338,6 +350,7 @@ const Single = ({ ownedby, prices, reloadData }) => {
         onRowModesModelChange={handleRowModesModelChange}
         processRowUpdate={processRowUpdate}
         onProcessRowUpdateError={handleProcessRowUpdateError}
+        localeText={zhCN.components.MuiDataGrid.defaultProps.localeText}
         // onCellDoubleClick={(params, event) => {
         //   event.defaultMuiPrevented = true;
         // }}

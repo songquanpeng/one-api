@@ -1,14 +1,15 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableContainer from '@mui/material/TableContainer';
-import PerfectScrollbar from 'react-perfect-scrollbar';
-
-import { Card } from '@mui/material';
-import PricesTableRow from './component/TableRow';
-import TableNoData from 'ui-component/TableNoData';
-import KeywordTableHead from 'ui-component/TableHead';
+import { Card, Stack, Typography } from '@mui/material';
+import {
+  DataGrid,
+  GridToolbarContainer,
+  GridToolbarColumnsButton,
+  GridToolbarFilterButton,
+  GridToolbarQuickFilter,
+  GridToolbarDensitySelector
+} from '@mui/x-data-grid';
+import { zhCN } from '@mui/x-data-grid/locales';
 import { API } from 'utils/api';
 import { showError } from 'utils/common';
 import { ValueFormatter, priceType } from 'views/Pricing/component/util';
@@ -77,18 +78,20 @@ export default function ModelPrice() {
     }
 
     let newRows = [];
-    userModelList.forEach((model) => {
+    userModelList.forEach((model, index) => {
       const price = prices[model.id];
-      const type_label = priceType.find((pt) => pt.value === price?.type);
-      const channel_label = ownedby.find((ob) => ob.value === price?.channel_type);
+      // const type_label = priceType.find((pt) => pt.value === price?.type);
+      // const channel_label = ownedby.find((ob) => ob.value === price?.channel_type);
       newRows.push({
+        id: index + 1,
         model: model.id,
-        type: type_label?.label || '未知',
-        channel_type: channel_label?.label || '未知',
-        input: ValueFormatter(price?.input !== undefined && price?.input !== null ? price.input : 30),
-        output: ValueFormatter(price?.output !== undefined && price?.output !== null ? price.output : 30)
+        type: price?.type,
+        channel_type: price?.channel_type,
+        input: price?.input !== undefined && price?.input !== null ? price.input : 30,
+        output: price?.output !== undefined && price?.output !== null ? price.output : 30
       });
     });
+    console.log(newRows);
     setRows(newRows);
   }, [userModelList, ownedby, prices]);
 
@@ -105,31 +108,81 @@ export default function ModelPrice() {
     fetchData();
   }, [fetchOwnedby, fetchUserModelList, fetchPrices]);
 
+  const modelRatioColumns = useMemo(
+    () => [
+      {
+        field: 'model',
+        sortable: true,
+        headerName: '模型名称',
+        minWidth: 220,
+        flex: 1
+      },
+      {
+        field: 'type',
+        sortable: true,
+        headerName: '类型',
+        flex: 0.5,
+        minWidth: 100,
+        type: 'singleSelect',
+        valueOptions: priceType
+      },
+      {
+        field: 'channel_type',
+        sortable: true,
+        headerName: '供应商',
+        flex: 0.5,
+        minWidth: 100,
+        type: 'singleSelect',
+        valueOptions: ownedby
+      },
+      {
+        field: 'input',
+        sortable: true,
+        headerName: '输入倍率',
+        flex: 0.8,
+        minWidth: 150,
+        type: 'number',
+        valueFormatter: (params) => ValueFormatter(params.value)
+      },
+      {
+        field: 'output',
+        sortable: true,
+        headerName: '输出倍率',
+        flex: 0.8,
+        minWidth: 150,
+        type: 'number',
+        valueFormatter: (params) => ValueFormatter(params.value)
+      }
+    ],
+    [ownedby]
+  );
+
+  function EditToolbar() {
+    return (
+      <GridToolbarContainer>
+        <GridToolbarColumnsButton />
+        <GridToolbarFilterButton />
+        <GridToolbarDensitySelector />
+        <GridToolbarQuickFilter />
+      </GridToolbarContainer>
+    );
+  }
+
   return (
     <>
+      <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
+        <Typography variant="h4">可用模型</Typography>
+      </Stack>
       <Card>
-        <PerfectScrollbar component="div">
-          <TableContainer sx={{ overflow: 'unset' }}>
-            <Table sx={{ minWidth: 800 }}>
-              <KeywordTableHead
-                headLabel={[
-                  { id: 'model', label: '模型名称', disableSort: true },
-                  { id: 'type', label: '类型', disableSort: true },
-                  { id: 'channel_type', label: '供应商', disableSort: true },
-                  { id: 'input', label: '输入(/1k tokens)', disableSort: true },
-                  { id: 'output', label: '输出(/1k tokens)', disableSort: true }
-                ]}
-              />
-              <TableBody>
-                {rows.length === 0 ? (
-                  <TableNoData message="无可用模型" />
-                ) : (
-                  rows.map((row) => <PricesTableRow item={row} key={row.model} />)
-                )}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </PerfectScrollbar>
+        <DataGrid
+          rows={rows}
+          columns={modelRatioColumns}
+          initialState={{ pagination: { paginationModel: { pageSize: 20 } } }}
+          pageSizeOptions={[20, 30, 50, 100]}
+          disableRowSelectionOnClick
+          slots={{ toolbar: EditToolbar }}
+          localeText={zhCN.components.MuiDataGrid.defaultProps.localeText}
+        />
       </Card>
     </>
   );
