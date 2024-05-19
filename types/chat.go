@@ -111,6 +111,21 @@ func (m ChatCompletionMessage) ParseContent() []ChatMessagePart {
 	return nil
 }
 
+func (m *ChatCompletionMessage) FuncToToolCalls() {
+	if m.ToolCalls != nil {
+		return
+	}
+	if m.FunctionCall != nil {
+		m.ToolCalls = []*ChatCompletionToolCalls{
+			{
+				Type:     ChatMessageRoleFunction,
+				Function: m.FunctionCall,
+			},
+		}
+		m.FunctionCall = nil
+	}
+}
+
 type ChatMessageImageURL struct {
 	URL    string `json:"url,omitempty"`
 	Detail string `json:"detail,omitempty"`

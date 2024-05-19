@@ -133,25 +133,34 @@ func (g *GeminiChatResponse) GetResponseText() string {
 
 func OpenAIToGeminiChatContent(openaiContents []types.ChatCompletionMessage) ([]GeminiChatContent, *types.OpenAIErrorWithStatusCode) {
 	contents := make([]GeminiChatContent, 0)
+	useToolName := ""
 	for _, openaiContent := range openaiContents {
 		content := GeminiChatContent{
 			Role:  ConvertRole(openaiContent.Role),
 			Parts: make([]GeminiPart, 0),
 		}
 		content.Role = ConvertRole(openaiContent.Role)
-		if openaiContent.ToolCalls != nil {
+		if openaiContent.ToolCalls != nil || openaiContent.FunctionCall != nil {
+			if openaiContent.ToolCalls != nil {
+				useToolName = openaiContent.ToolCalls[0].Function.Name
+			} else {
+				useToolName = openaiContent.FunctionCall.Name
+			}
 			content = GeminiChatContent{
 				Role: "model",
 				Parts: []GeminiPart{
 					{
 						FunctionCall: &GeminiFunctionCall{
-							Name: openaiContent.ToolCalls[0].Function.Name,
+							Name: useToolName,
 							Args: map[string]interface{}{},
 						},
 					},
 				},
 			}
 		} else if openaiContent.Role == types.ChatMessageRoleFunction || openaiContent.Role == types.ChatMessageRoleTool {
+			if openaiContent.Name == nil {
+				openaiContent.Name = &useToolName
+			}
 			content = GeminiChatContent{
 				Role: "function",
 				Parts: []GeminiPart{

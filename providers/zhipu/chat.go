@@ -105,8 +105,11 @@ func (p *ZhipuProvider) convertToChatOpenai(response *ZhipuResponse, request *ty
 }
 
 func (p *ZhipuProvider) convertFromChatOpenai(request *types.ChatCompletionRequest) *ZhipuRequest {
-	for i := range request.Messages {
+	for i, _ := range request.Messages {
 		request.Messages[i].Role = convertRole(request.Messages[i].Role)
+		if request.Messages[i].FunctionCall != nil {
+			request.Messages[i].FuncToToolCalls()
+		}
 	}
 
 	zhipuRequest := &ZhipuRequest{
@@ -167,7 +170,6 @@ func (p *ZhipuProvider) convertFromChatOpenai(request *types.ChatCompletionReque
 	}
 
 	p.pluginHandle(zhipuRequest)
-
 	return zhipuRequest
 }
 

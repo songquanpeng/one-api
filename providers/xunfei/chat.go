@@ -3,6 +3,7 @@ package xunfei
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 	"one-api/common"
@@ -75,7 +76,21 @@ func (p *XunfeiProvider) getChatRequest(request *types.ChatCompletionRequest) (*
 func (p *XunfeiProvider) convertFromChatOpenai(request *types.ChatCompletionRequest) *XunfeiChatRequest {
 	messages := make([]XunfeiMessage, 0, len(request.Messages))
 	for _, message := range request.Messages {
-		if message.Role == types.ChatMessageRoleFunction || message.Role == types.ChatMessageRoleTool {
+		if message.FunctionCall != nil || message.ToolCalls != nil {
+			useToolName := ""
+			useToolArgs := ""
+			if message.ToolCalls != nil {
+				useToolName = message.ToolCalls[0].Function.Name
+				useToolArgs = message.ToolCalls[0].Function.Arguments
+			} else {
+				useToolName = message.FunctionCall.Name
+				useToolArgs = message.FunctionCall.Arguments
+			}
+			messages = append(messages, XunfeiMessage{
+				Role:    message.Role,
+				Content: fmt.Sprintf("使用工具：%s，参数：%s", useToolName, useToolArgs),
+			})
+		} else if message.Role == types.ChatMessageRoleFunction || message.Role == types.ChatMessageRoleTool {
 			messages = append(messages, XunfeiMessage{
 				Role:    types.ChatMessageRoleUser,
 				Content: "这是函数调用返回的内容，请回答之前的问题：\n" + message.StringContent(),
