@@ -111,7 +111,6 @@ func dingtalkErrFunc(resp *http.Response) *types.OpenAIError {
 
 	err := json.NewDecoder(resp.Body).Decode(respMsg)
 	if err != nil {
-		fmt.Println(err)
 		return nil
 	}
 

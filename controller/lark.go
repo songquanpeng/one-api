@@ -143,7 +143,6 @@ func getLarkUserInfoByCode(code string) (*LarkUser, error) {
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println("larkUser", larkUser)
 	return &larkUser, nil
 }
 
