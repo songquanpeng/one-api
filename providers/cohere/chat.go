@@ -86,6 +86,7 @@ func (p *CohereProvider) getChatRequest(request *types.ChatCompletionRequest) (*
 }
 
 func ConvertFromChatOpenai(request *types.ChatCompletionRequest) (*CohereRequest, *types.OpenAIErrorWithStatusCode) {
+	request.ClearEmptyMessages()
 	cohereRequest := CohereRequest{
 		Model:            request.Model,
 		MaxTokens:        request.MaxTokens,

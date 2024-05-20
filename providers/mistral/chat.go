@@ -79,6 +79,7 @@ func (p *MistralProvider) getChatRequest(request *types.ChatCompletionRequest) (
 }
 
 func convertFromChatOpenai(request *types.ChatCompletionRequest) *MistralChatCompletionRequest {
+	request.ClearEmptyMessages()
 	mistralRequest := &MistralChatCompletionRequest{
 		Model:       request.Model,
 		Messages:    make([]types.ChatCompletionMessage, 0, len(request.Messages)),

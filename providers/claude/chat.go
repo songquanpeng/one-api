@@ -94,6 +94,7 @@ func (p *ClaudeProvider) getChatRequest(request *types.ChatCompletionRequest) (*
 }
 
 func ConvertFromChatOpenai(request *types.ChatCompletionRequest) (*ClaudeRequest, *types.OpenAIErrorWithStatusCode) {
+	request.ClearEmptyMessages()
 	claudeRequest := ClaudeRequest{
 		Model:         request.Model,
 		Messages:      []Message{},

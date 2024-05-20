@@ -86,6 +86,7 @@ func (p *GeminiProvider) getChatRequest(request *types.ChatCompletionRequest) (*
 }
 
 func convertFromChatOpenai(request *types.ChatCompletionRequest) (*GeminiChatRequest, *types.OpenAIErrorWithStatusCode) {
+	request.ClearEmptyMessages()
 	geminiRequest := GeminiChatRequest{
 		Contents: make([]GeminiChatContent, 0, len(request.Messages)),
 		SafetySettings: []GeminiChatSafetySettings{

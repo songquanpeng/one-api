@@ -62,6 +62,7 @@ func (p *BaichuanProvider) CreateChatCompletionStream(request *types.ChatComplet
 
 // 获取聊天请求体
 func (p *BaichuanProvider) getChatRequestBody(request *types.ChatCompletionRequest) *BaichuanChatRequest {
+	request.ClearEmptyMessages()
 	messages := make([]BaichuanMessage, 0, len(request.Messages))
 	for i := 0; i < len(request.Messages); i++ {
 		message := request.Messages[i]

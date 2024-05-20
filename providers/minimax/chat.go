@@ -132,6 +132,7 @@ func (p *MiniMaxProvider) convertToChatOpenai(response *MiniMaxChatResponse, req
 func convertFromChatOpenai(request *types.ChatCompletionRequest) *MiniMaxChatRequest {
 	var botSettings []MiniMaxBotSetting
 	var messges []MiniMaxChatMessage
+	request.ClearEmptyMessages()
 	for _, message := range request.Messages {
 		if message.Role == types.ChatMessageRoleSystem {
 			botSettings = append(botSettings, MiniMaxBotSetting{

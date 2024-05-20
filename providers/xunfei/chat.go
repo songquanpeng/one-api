@@ -74,6 +74,7 @@ func (p *XunfeiProvider) getChatRequest(request *types.ChatCompletionRequest) (*
 }
 
 func (p *XunfeiProvider) convertFromChatOpenai(request *types.ChatCompletionRequest) *XunfeiChatRequest {
+	request.ClearEmptyMessages()
 	messages := make([]XunfeiMessage, 0, len(request.Messages))
 	for _, message := range request.Messages {
 		if message.FunctionCall != nil || message.ToolCalls != nil {

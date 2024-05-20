@@ -205,6 +205,16 @@ func (r *ChatCompletionRequest) GetFunctions() []*ChatCompletionFunction {
 	return r.Functions
 }
 
+func (r *ChatCompletionRequest) ClearEmptyMessages() {
+	var messages []ChatCompletionMessage
+	for _, message := range r.Messages {
+		if message.StringContent() != "" || message.ToolCalls != nil || message.FunctionCall != nil {
+			messages = append(messages, message)
+		}
+	}
+	r.Messages = messages
+}
+
 type ChatCompletionFunction struct {
 	Name        string `json:"name"`
 	Description string `json:"description"`

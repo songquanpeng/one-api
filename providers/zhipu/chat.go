@@ -110,6 +110,7 @@ func (p *ZhipuProvider) convertToChatOpenai(response *ZhipuResponse, request *ty
 }
 
 func (p *ZhipuProvider) convertFromChatOpenai(request *types.ChatCompletionRequest) *ZhipuRequest {
+	request.ClearEmptyMessages()
 	for i, _ := range request.Messages {
 		request.Messages[i].Role = convertRole(request.Messages[i].Role)
 		if request.Messages[i].FunctionCall != nil {

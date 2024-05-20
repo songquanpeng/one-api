@@ -109,6 +109,7 @@ func (p *CloudflareAIProvider) convertToChatOpenai(response *ChatRespone, reques
 }
 
 func (p *CloudflareAIProvider) convertFromChatOpenai(request *types.ChatCompletionRequest) *ChatRequest {
+	request.ClearEmptyMessages()
 	chatRequest := &ChatRequest{
 		Stream:    request.Stream,
 		MaxTokens: request.MaxTokens,

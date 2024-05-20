@@ -131,6 +131,7 @@ func (p *BaiduProvider) convertToChatOpenai(response *BaiduChatResponse, request
 }
 
 func convertFromChatOpenai(request *types.ChatCompletionRequest) *BaiduChatRequest {
+	request.ClearEmptyMessages()
 	baiduChatRequest := &BaiduChatRequest{
 		Messages:        make([]BaiduMessage, 0, len(request.Messages)),
 		Temperature:     request.Temperature,

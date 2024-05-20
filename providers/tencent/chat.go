@@ -123,6 +123,7 @@ func (p *TencentProvider) convertToChatOpenai(response *TencentChatResponse, req
 }
 
 func convertFromChatOpenai(request *types.ChatCompletionRequest) *TencentChatRequest {
+	request.ClearEmptyMessages()
 	messages := make([]TencentMessage, 0, len(request.Messages))
 	for i := 0; i < len(request.Messages); i++ {
 		message := request.Messages[i]
