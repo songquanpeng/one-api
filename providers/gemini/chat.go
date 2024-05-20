@@ -112,10 +112,13 @@ func convertFromChatOpenai(request *types.ChatCompletionRequest) (*GeminiChatReq
 			MaxOutputTokens: request.MaxTokens,
 		},
 	}
-	if request.Tools != nil {
+
+	functions := request.GetFunctions()
+
+	if functions != nil {
 		var geminiChatTools GeminiChatTools
-		for _, tool := range request.Tools {
-			geminiChatTools.FunctionDeclarations = append(geminiChatTools.FunctionDeclarations, tool.Function)
+		for _, function := range functions {
+			geminiChatTools.FunctionDeclarations = append(geminiChatTools.FunctionDeclarations, *function)
 		}
 		geminiRequest.Tools = append(geminiRequest.Tools, geminiChatTools)
 	}
@@ -147,30 +150,8 @@ func (p *GeminiProvider) convertToChatOpenai(response *GeminiChatResponse, reque
 		Model:   request.Model,
 		Choices: make([]types.ChatCompletionChoice, 0, len(response.Candidates)),
 	}
-	for i, candidate := range response.Candidates {
-		choice := types.ChatCompletionChoice{
-			Index: i,
-			Message: types.ChatCompletionMessage{
-				Role: "assistant",
-				// Content: "",
-			},
-			FinishReason: types.FinishReasonStop,
-		}
-		if len(candidate.Content.Parts) == 0 {
-			choice.Message.Content = ""
-			openaiResponse.Choices = append(openaiResponse.Choices, choice)
-			continue
-			// choice.Message.Content = candidate.Content.Parts[0].Text
-		}
-		// 开始判断
-		geminiParts := candidate.Content.Parts[0]
-
-		if geminiParts.FunctionCall != nil {
-			choice.Message.ToolCalls = geminiParts.FunctionCall.ToOpenAITool()
-		} else {
-			choice.Message.Content = geminiParts.Text
-		}
-		openaiResponse.Choices = append(openaiResponse.Choices, choice)
+	for _, candidate := range response.Candidates {
+		openaiResponse.Choices = append(openaiResponse.Choices, candidate.ToOpenAIChoice(request))
 	}
 
 	*p.Usage = convertOpenAIUsage(request.Model, response.UsageMetadata)
@@ -218,42 +199,11 @@ func (h *geminiStreamHandler) convertToOpenaiStream(geminiResponse *GeminiChatRe
 
 	choices := make([]types.ChatCompletionStreamChoice, 0, len(geminiResponse.Candidates))
 
-	for i, candidate := range geminiResponse.Candidates {
-		parts := candidate.Content.Parts[0]
-
-		choice := types.ChatCompletionStreamChoice{
-			Index: i,
-			Delta: types.ChatCompletionStreamChoiceDelta{
-				Role: types.ChatMessageRoleAssistant,
-			},
-			FinishReason: types.FinishReasonStop,
-		}
-
-		if parts.FunctionCall != nil {
-			if parts.FunctionCall.Args == nil {
-				parts.FunctionCall.Args = map[string]interface{}{}
-			}
-			args, _ := json.Marshal(parts.FunctionCall.Args)
-
-			choice.Delta.ToolCalls = []*types.ChatCompletionToolCalls{
-				{
-					Id:    "call_" + common.GetRandomString(24),
-					Type:  types.ChatMessageRoleFunction,
-					Index: 0,
-					Function: &types.ChatCompletionToolCallsFunction{
-						Name:      parts.FunctionCall.Name,
-						Arguments: string(args),
-					},
-				},
-			}
-		} else {
-			choice.Delta.Content = parts.Text
-		}
-
-		choices = append(choices, choice)
+	for _, candidate := range geminiResponse.Candidates {
+		choices = append(choices, candidate.ToOpenAIStreamChoice(h.Request))
 	}
 
-	if len(choices) > 0 && choices[0].Delta.ToolCalls != nil {
+	if len(choices) > 0 && (choices[0].Delta.ToolCalls != nil || choices[0].Delta.FunctionCall != nil) {
 		choices := choices[0].ConvertOpenaiStream()
 		for _, choice := range choices {
 			chatCompletionCopy := streamResponse
