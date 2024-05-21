@@ -102,6 +102,8 @@ func (p *OpenAIProvider) GetFullRequestURL(requestURL string, modelName string) 
 			requestURL = fmt.Sprintf("/openai%s?api-version=%s", requestURL, apiVersion)
 		}
 
+	} else if p.Channel.Type == common.ChannelTypeCustom && p.Channel.Other != "" {
+		requestURL = strings.Replace(requestURL, "v1", p.Channel.Other, 1)
 	}
 
 	if strings.HasPrefix(baseURL, "https://gateway.ai.cloudflare.com") {

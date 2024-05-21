@@ -153,7 +153,8 @@ const EditModal = ({ open, channelId, onCancel, onOk, groupOptions }) => {
       const res = await API.post(`/api/channel/provider_models_list`, { ...values, models: '' });
       const { success, message, data } = res.data;
       if (success && data) {
-        let modelList = data.map((model) => {
+        let uniqueModels = Array.from(new Set(data));
+        let modelList = uniqueModels.map((model) => {
           return {
             id: model,
             group: '自定义：点击或回车输入'

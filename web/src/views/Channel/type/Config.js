@@ -54,7 +54,11 @@ const typeConfig = {
   },
   8: {
     inputLabel: {
-      provider_models_list: '从渠道获取模型列表'
+      provider_models_list: '从渠道获取模型列表',
+      other: '替换 API 版本'
+    },
+    prompt: {
+      other: '输入后，会替换请求地址中的v1，例如：freeapi，则请求chat时会变成https://xxx.com/freeapi/chat/completions'
     }
   },
   3: {
