@@ -34,7 +34,7 @@ const defaultConfig = {
     key: '请输入渠道对应的鉴权密钥',
     other: '',
     proxy: '单独设置代理地址，支持http和socks5，例如：http://127.0.0.1:1080',
-    test_model: '用于测试使用的模型，为空时无法测速,如：gpt-3.5-turbo',
+    test_model: '用于测试使用的模型，为空时无法测速,如：gpt-3.5-turbo，仅支持chat模型',
     models:
       '请选择该渠道所支持的模型,你也可以输入通配符*来匹配模型，例如：gpt-3.5*，表示支持所有gpt-3.5开头的模型，*号只能在最后一位使用，前面必须有字符，例如：gpt-3.5*是正确的，*gpt-3.5是错误的',
     model_mapping:

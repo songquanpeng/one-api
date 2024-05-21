@@ -281,20 +281,21 @@ export default function ChannelTableRow({ item, manageChannel, handleOpenModal, 
 
         <TableCell>
           <Stack direction="row" justifyContent="center" alignItems="center" spacing={1}>
-            <Button
-              id="test-model-button"
-              aria-controls={openTest ? 'test-model-menu' : undefined}
-              aria-haspopup="true"
-              aria-expanded={openTest ? 'true' : undefined}
-              variant="outlined"
-              disableElevation
-              onClick={handleTestModel}
-              endIcon={<KeyboardArrowDownIcon />}
-              size="small"
-            >
-              测试
-            </Button>
-
+            <Tooltip title="仅支持chat模型" placement="top">
+              <Button
+                id="test-model-button"
+                aria-controls={openTest ? 'test-model-menu' : undefined}
+                aria-haspopup="true"
+                aria-expanded={openTest ? 'true' : undefined}
+                variant="outlined"
+                disableElevation
+                onClick={handleTestModel}
+                endIcon={<KeyboardArrowDownIcon />}
+                size="small"
+              >
+                测试
+              </Button>
+            </Tooltip>
             <IconButton onClick={handleOpenMenu} sx={{ color: 'rgb(99, 115, 129)' }}>
               <IconDotsVertical />
             </IconButton>

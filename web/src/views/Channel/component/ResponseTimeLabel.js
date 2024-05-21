@@ -21,7 +21,7 @@ const ResponseTimeLabel = ({ test_time, response_time, handle_action }) => {
   }
   let title = (
     <>
-      点击测速
+      点击测速(仅支持chat模型)
       <br />
       {test_time != 0 ? '上次测速时间：' + timestamp2string(test_time) : '未测试'}
     </>
