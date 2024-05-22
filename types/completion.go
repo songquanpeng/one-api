@@ -29,7 +29,7 @@ type CompletionChoice struct {
 type CompletionResponse struct {
 	ID      string             `json:"id"`
 	Object  string             `json:"object"`
-	Created int64              `json:"created"`
+	Created any                `json:"created"`
 	Model   string             `json:"model"`
 	Choices []CompletionChoice `json:"choices"`
 	Usage   *Usage             `json:"usage,omitempty"`

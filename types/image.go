@@ -14,7 +14,7 @@ type ImageRequest struct {
 }
 
 type ImageResponse struct {
-	Created int64                    `json:"created,omitempty"`
+	Created any                      `json:"created,omitempty"`
 	Data    []ImageResponseDataInner `json:"data,omitempty"`
 }
 

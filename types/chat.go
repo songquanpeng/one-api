@@ -245,7 +245,7 @@ func (c *ChatCompletionChoice) CheckChoice(request *ChatCompletionRequest) {
 type ChatCompletionResponse struct {
 	ID                  string                 `json:"id"`
 	Object              string                 `json:"object"`
-	Created             int64                  `json:"created"`
+	Created             any                    `json:"created"`
 	Model               string                 `json:"model"`
 	Choices             []ChatCompletionChoice `json:"choices"`
 	Usage               *Usage                 `json:"usage,omitempty"`
@@ -368,7 +368,7 @@ func (c *ChatCompletionStreamChoice) CheckChoice(request *ChatCompletionRequest)
 type ChatCompletionStreamResponse struct {
 	ID                string                       `json:"id"`
 	Object            string                       `json:"object"`
-	Created           int64                        `json:"created"`
+	Created           any                          `json:"created"`
 	Model             string                       `json:"model"`
 	Choices           []ChatCompletionStreamChoice `json:"choices"`
 	PromptAnnotations any                          `json:"prompt_annotations,omitempty"`
