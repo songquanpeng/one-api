@@ -55,6 +55,7 @@ func (s *StmpConfig) Send(to, subject, body string) error {
 		client.SetSSL(true)
 	case 587:
 		client.SetTLSPolicy(mail.TLSMandatory)
+		client.SetSMTPAuth(mail.SMTPAuthLogin)
 	}
 
 	if err := client.DialAndSend(message); err != nil {

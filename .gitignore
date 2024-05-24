@@ -13,3 +13,4 @@ tmp/
 common/balancer/
 config.yaml
 dist
+test.yaml
