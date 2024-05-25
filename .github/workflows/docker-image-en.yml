@@ -75,7 +75,7 @@ jobs:
         uses: docker/login-action@v2
         with:
           registry: docker.io
-          username: ${{ env.DOCKER_HUB_USERNAME }}
+          username: ${{ vars.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_TOKEN }} # Replace with your Docker Hub password secret
 
       - name: Docker meta
@@ -85,7 +85,7 @@ jobs:
           # list of Docker images to use as base name for tags
           images: |
             ghcr.io/${{ github.repository }}-en
-            docker.io/${{ env.DOCKER_HUB_USERNAME }}/${{ env.DOCKER_HUB_REPO_EN }}
+            docker.io/${{ vars.DOCKER_HUB_USERNAME }}/${{ vars.DOCKER_HUB_REPO_EN }}
           # generate Docker tags based on the following events/attributes
           tags: |
             type=raw,value=dev,enable=${{ github.ref == 'refs/heads/main' }}
