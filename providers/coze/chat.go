@@ -103,9 +103,8 @@ func (p *CozeProvider) convertToChatOpenai(response *CozeResponse, request *type
 		}},
 	}
 
-	p.Usage.CompletionTokens = 0
-	p.Usage.PromptTokens = 1
-	p.Usage.TotalTokens = 1
+	p.Usage.CompletionTokens = common.CountTokenText(response.String(), request.Model)
+	p.Usage.TotalTokens = p.Usage.CompletionTokens + p.Usage.PromptTokens
 	openaiResponse.Usage = p.Usage
 
 	return
@@ -187,9 +186,8 @@ func (h *CozeStreamHandler) convertToOpenaiStream(chatResponse *CozeStreamRespon
 		choice.FinishReason = types.FinishReasonStop
 	} else {
 		choice.Delta.Content = chatResponse.Message.Content
-
-		h.Usage.TotalTokens = 1
-		h.Usage.PromptTokens = 1
+		h.Usage.CompletionTokens += common.CountTokenText(chatResponse.Message.Content, h.Request.Model)
+		h.Usage.TotalTokens = h.Usage.CompletionTokens + h.Usage.PromptTokens
 	}
 
 	streamResponse.Choices = []types.ChatCompletionStreamChoice{choice}
