@@ -91,6 +91,7 @@ func RelayImageHelper(c *gin.Context, relayMode int) *relaymodel.ErrorWithStatus
 		if err != nil {
 			return openai.ErrorWrapper(err, "marshal_image_request_failed", http.StatusInternalServerError)
 		}
+		c.Set(ctxkey.ConvertedRequest, finalRequest)
 		requestBody = bytes.NewBuffer(jsonStr)
 	}
 

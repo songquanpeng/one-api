@@ -69,7 +69,7 @@ func ConvertEmbeddingRequest(request model.GeneralOpenAIRequest) *EmbeddingReque
 func ConvertImageRequest(request model.ImageRequest) *ImageRequest {
 	var imageRequest ImageRequest
 	imageRequest.Input.Prompt = request.Prompt
-	imageRequest.Model = request.Model
+	imageRequest.Model = strings.TrimPrefix(request.Model, "ali-")
 	imageRequest.Parameters.Size = strings.Replace(request.Size, "x", "*", -1)
 	imageRequest.Parameters.N = request.N
 	imageRequest.ResponseFormat = request.ResponseFormat
