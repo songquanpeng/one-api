@@ -9,11 +9,6 @@ on:
     paths-ignore:
       - "README.md"
 
-env:
-  # github.repository as <account>/<repo>
-  DOCKER_HUB_USERNAME: martialbe
-  DOCKER_HUB_REPO: one-api-en
-
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
@@ -90,7 +85,7 @@ jobs:
           # list of Docker images to use as base name for tags
           images: |
             ghcr.io/${{ github.repository }}-en
-            docker.io/${{ env.DOCKER_HUB_USERNAME }}/${{ env.DOCKER_HUB_REPO }}
+            docker.io/${{ env.DOCKER_HUB_USERNAME }}/${{ env.DOCKER_HUB_REPO_EN }}
           # generate Docker tags based on the following events/attributes
           tags: |
             type=raw,value=dev,enable=${{ github.ref == 'refs/heads/main' }}

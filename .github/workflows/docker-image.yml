@@ -9,11 +9,6 @@ on:
     paths-ignore:
       - "README.md"
 
-env:
-  # github.repository as <account>/<repo>
-  DOCKER_HUB_USERNAME: martialbe
-  DOCKER_HUB_REPO: one-api
-
 jobs:
   build-and-push:
     runs-on: ubuntu-latest

@@ -18,6 +18,10 @@ function validation(row) {
     return 'URL不能为空';
   }
 
+  if (row.sort != '' && !/^[0-9]\d*$/.test(row.sort)) {
+    return '排序必须为正整数';
+  }
+
   return false;
 }
 
@@ -28,7 +32,7 @@ function randomId() {
 function EditToolbar({ setRows, setRowModesModel }) {
   const handleClick = () => {
     const id = randomId();
-    setRows((oldRows) => [{ id, name: '', url: '', show: true, isNew: true }, ...oldRows]);
+    setRows((oldRows) => [{ id, name: '', url: '', show: true, sort: 0, isNew: true }, ...oldRows]);
     setRowModesModel((oldModel) => ({
       [id]: { mode: GridRowModes.Edit, fieldToFocus: 'name' },
       ...oldModel
@@ -103,7 +107,13 @@ const ChatLinksDataGrid = ({ links, onChange }) => {
   );
 
   const processRowUpdate = (newRow, oldRows) => {
-    if (!newRow.isNew && newRow.name === oldRows.name && newRow.url === oldRows.url && newRow.show === oldRows.show) {
+    if (
+      !newRow.isNew &&
+      newRow.name === oldRows.name &&
+      newRow.url === oldRows.url &&
+      newRow.sort === oldRows.sort &&
+      newRow.show === oldRows.show
+    ) {
       return oldRows;
     }
     const updatedRow = { ...newRow, isNew: false };
@@ -150,6 +160,16 @@ const ChatLinksDataGrid = ({ links, onChange }) => {
         flex: 1,
         minWidth: 200,
         type: 'boolean',
+        editable: true,
+        hideable: false
+      },
+      {
+        field: 'sort',
+        sortable: true,
+        headerName: '排序',
+        type: 'number',
+        flex: 1,
+        minWidth: 100,
         editable: true,
         hideable: false
       },

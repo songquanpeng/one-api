@@ -553,6 +553,7 @@ const OperationSetting = () => {
             <br />
             opencat ： {'opencat://team/join?domain={server}&token={key}'}
             <br />
+            排序规则：值越大越靠前，值相同则按照配置顺序
           </Alert>
           <Stack justifyContent="flex-start" alignItems="flex-start" spacing={2}>
             <ChatLinksDataGrid links={inputs.ChatLinks || '[]'} onChange={handleInputChange} />

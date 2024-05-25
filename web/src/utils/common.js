@@ -254,7 +254,12 @@ export function getChatLinks(filterShow = false) {
   if (filterShow) {
     links = links.filter((link) => link.show);
   }
-
+  // 对links进行排序，sort为空的项排在最后
+  links.sort((a, b) => {
+    if (!a?.sort) return 1;
+    if (!b?.sort) return -1;
+    return b.sort - a.sort;
+  });
   return links;
 }
 
