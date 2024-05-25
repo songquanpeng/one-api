@@ -15,8 +15,13 @@ import (
 	"github.com/songquanpeng/one-api/relay/meta"
 	"github.com/songquanpeng/one-api/relay/model"
 	"io"
+	"math"
 	"net/http"
+	"os"
+	"strings"
 )
+
+var fixAIProxyGpt4oMaxTokens = os.Getenv("FIX_AI_PROXY_GPT4O_MAX_TOKENS") == "1"
 
 func RelayTextHelper(c *gin.Context) *model.ErrorWithStatusCode {
 	ctx := c.Request.Context()
@@ -57,8 +62,18 @@ func RelayTextHelper(c *gin.Context) *model.ErrorWithStatusCode {
 	var requestBody io.Reader
 	if meta.APIType == apitype.OpenAI {
 		// no need to convert request for openai
-		shouldResetRequestBody := isModelMapped || meta.ChannelType == channeltype.Baichuan // frequency_penalty 0 is not acceptable for baichuan
+		shouldResetRequestBody := isModelMapped ||
+			meta.ChannelType == channeltype.Baichuan /*frequency_penalty 0 is not acceptable for baichuan*/ ||
+			(meta.ChannelType == channeltype.AIProxy && fixAIProxyGpt4oMaxTokens && strings.HasPrefix(textRequest.Model, "gpt-4o"))
 		if shouldResetRequestBody {
+			if meta.ChannelType == channeltype.AIProxy {
+				maxTokens := textRequest.MaxTokens
+				maxTokens = int(math.Min(float64(maxTokens), 4096))
+				if maxTokens == 0 {
+					maxTokens = 4096
+				}
+				textRequest.MaxTokens = maxTokens
+			}
 			jsonStr, err := json.Marshal(textRequest)
 			if err != nil {
 				return openai.ErrorWrapper(err, "json_marshal_failed", http.StatusInternalServerError)
