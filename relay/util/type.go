@@ -28,6 +28,8 @@ func init() {
 		common.ChannelTypeCloudflareAI: "Cloudflare AI",
 		common.ChannelTypeCohere:       "Cohere",
 		common.ChannelTypeStabilityAI:  "Stability AI",
+		common.ChannelTypeCoze:         "Coze",
 		common.ChannelTypeOllama:       "Ollama",
+		common.ChannelTypeHunyuan:      "Hunyuan",
 	}
 }

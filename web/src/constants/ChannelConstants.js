@@ -71,7 +71,7 @@ export const CHANNEL_OPTIONS = {
   },
   23: {
     key: 23,
-    text: '腾讯混元',
+    text: '腾讯混元(旧)',
     value: 23,
     color: 'default',
     url: 'https://cloud.tencent.com/product/hunyuan'
@@ -173,6 +173,13 @@ export const CHANNEL_OPTIONS = {
     value: 39,
     color: 'orange',
     url: ''
+  },
+  40: {
+    key: 40,
+    text: '腾讯混元',
+    value: 40,
+    color: 'default',
+    url: 'https://cloud.tencent.com/product/hunyuan'
   },
   24: {
     key: 24,

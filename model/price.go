@@ -313,6 +313,12 @@ func GetDefaultPrice() []*Price {
 		"sd3-turbo": {[]float64{20, 20}, common.ChannelTypeStabilityAI},
 		// 0.03
 		"stable-image-core": {[]float64{15, 15}, common.ChannelTypeStabilityAI},
+
+		// hunyuan
+		"hunyuan-lite":          {[]float64{0, 0}, common.ChannelTypeHunyuan},
+		"hunyuan-standard":      {[]float64{0.3214, 0.3571}, common.ChannelTypeHunyuan},
+		"hunyuan-standard-256k": {[]float64{1.0714, 4.2857}, common.ChannelTypeHunyuan},
+		"hunyuan-pro":           {[]float64{2.1429, 7.1429}, common.ChannelTypeHunyuan},
 	}
 
 	var prices []*Price
