@@ -90,6 +90,7 @@ var AutomaticEnableChannelEnabled = false
 var QuotaRemindThreshold = 1000
 var PreConsumedQuota = 500
 var ApproximateTokenEnabled = false
+var DISABLE_TOKEN_ENCODERS = false
 var RetryTimes = 0
 var DefaultChannelWeight = uint(1)
 var RetryCooldownSeconds = 5
