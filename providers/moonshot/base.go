@@ -28,6 +28,7 @@ func getMoonshotConfig() base.ProviderConfig {
 	return base.ProviderConfig{
 		BaseURL:         "https://api.moonshot.cn",
 		ChatCompletions: "/v1/chat/completions",
+		ModelList:       "/v1/models",
 	}
 }
 

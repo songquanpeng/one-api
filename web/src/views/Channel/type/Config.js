@@ -212,6 +212,9 @@ const typeConfig = {
     modelGroup: 'Deepseek'
   },
   29: {
+    inputLabel: {
+      provider_models_list: '从Moonshot获取模型列表'
+    },
     input: {
       models: ['moonshot-v1-8k', 'moonshot-v1-32k', 'moonshot-v1-128k'],
       test_model: 'moonshot-v1-8k'
