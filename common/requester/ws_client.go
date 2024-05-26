@@ -38,7 +38,15 @@ func setWSProxy(dialer *websocket.Dialer, proxyAddr string) error {
 	case "http", "https":
 		dialer.Proxy = http.ProxyURL(proxyURL)
 	case "socks5":
-		socks5Proxy, err := proxy.SOCKS5("tcp", proxyURL.Host, nil, proxy.Direct)
+		var auth *proxy.Auth = nil
+		password, isSetPassword := proxyURL.User.Password()
+		if isSetPassword {
+			auth = &proxy.Auth{
+				User:     proxyURL.User.Username(),
+				Password: password,
+			}
+		}
+		socks5Proxy, err := proxy.SOCKS5("tcp", proxyURL.Host, auth, proxy.Direct)
 		if err != nil {
 			return fmt.Errorf("error creating socks5 dialer: %w", err)
 		}

@@ -53,8 +53,15 @@ func socks5ProxyFunc(ctx context.Context, network, addr string) (net.Conn, error
 	if err != nil {
 		return nil, fmt.Errorf("error parsing proxy address: %w", err)
 	}
-
-	proxyDialer, err := proxy.SOCKS5("tcp", proxyURL.Host, nil, proxy.Direct)
+	var auth *proxy.Auth = nil
+	password, isSetPassword := proxyURL.User.Password()
+	if isSetPassword {
+		auth = &proxy.Auth{
+			User:     proxyURL.User.Username(),
+			Password: password,
+		}
+	}
+	proxyDialer, err := proxy.SOCKS5("tcp", proxyURL.Host, auth, proxy.Direct)
 	if err != nil {
 		return nil, fmt.Errorf("error creating socks5 dialer: %w", err)
 	}

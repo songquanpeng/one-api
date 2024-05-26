@@ -235,7 +235,6 @@ func getHttpClient() (httpClient *http.Client) {
 		common.SysLog("failed to parse TG proxy URL: " + err.Error())
 		return
 	}
-
 	switch proxyURL.Scheme {
 	case "http", "https":
 		httpClient = &http.Client{
@@ -244,7 +243,15 @@ func getHttpClient() (httpClient *http.Client) {
 			},
 		}
 	case "socks5":
-		dialer, err := proxy.SOCKS5("tcp", proxyURL.Host, nil, proxy.Direct)
+		var auth *proxy.Auth = nil
+		password, isSetPassword := proxyURL.User.Password()
+		if isSetPassword {
+			auth = &proxy.Auth{
+				User:     proxyURL.User.Username(),
+				Password: password,
+			}
+		}
+		dialer, err := proxy.SOCKS5("tcp", proxyURL.Host, auth, proxy.Direct)
 		if err != nil {
 			common.SysLog("failed to create TG SOCKS5 dialer: " + err.Error())
 			return
