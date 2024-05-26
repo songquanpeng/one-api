@@ -165,6 +165,7 @@ type ChatCompletionRequest struct {
 	TopP             float64                       `json:"top_p,omitempty"`
 	N                int                           `json:"n,omitempty"`
 	Stream           bool                          `json:"stream,omitempty"`
+	StreamOptions    *StreamOptions                `json:"stream_options,omitempty"`
 	Stop             []string                      `json:"stop,omitempty"`
 	PresencePenalty  float64                       `json:"presence_penalty,omitempty"`
 	ResponseFormat   *ChatCompletionResponseFormat `json:"response_format,omitempty"`
@@ -356,6 +357,7 @@ type ChatCompletionStreamChoice struct {
 	Delta                ChatCompletionStreamChoiceDelta `json:"delta"`
 	FinishReason         any                             `json:"finish_reason"`
 	ContentFilterResults any                             `json:"content_filter_results,omitempty"`
+	Usage                *Usage                          `json:"usage,omitempty"`
 }
 
 func (c *ChatCompletionStreamChoice) CheckChoice(request *ChatCompletionRequest) {
@@ -372,4 +374,5 @@ type ChatCompletionStreamResponse struct {
 	Model             string                       `json:"model"`
 	Choices           []ChatCompletionStreamChoice `json:"choices"`
 	PromptAnnotations any                          `json:"prompt_annotations,omitempty"`
+	Usage             *Usage                       `json:"usage,omitempty"`
 }

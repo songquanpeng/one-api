@@ -140,7 +140,9 @@ func responseJsonClient(c *gin.Context, data interface{}) *types.OpenAIErrorWith
 	return nil
 }
 
-func responseStreamClient(c *gin.Context, stream requester.StreamReaderInterface[string], cache *util.ChatCacheProps) (errWithOP *types.OpenAIErrorWithStatusCode) {
+type StreamEndHandler func() string
+
+func responseStreamClient(c *gin.Context, stream requester.StreamReaderInterface[string], cache *util.ChatCacheProps, endHandler StreamEndHandler) (errWithOP *types.OpenAIErrorWithStatusCode) {
 	requester.SetEventStreamHeaders(c)
 	dataChan, errChan := stream.Recv()
 
@@ -160,6 +162,14 @@ func responseStreamClient(c *gin.Context, stream requester.StreamReaderInterface
 				cache.NoCache()
 			}
 
+			if errWithOP == nil && endHandler != nil {
+				streamData := endHandler()
+				if streamData != "" {
+					fmt.Fprint(w, "data: "+streamData+"\n\n")
+					cache.SetResponse(streamData)
+				}
+			}
+
 			streamData := "data: [DONE]\n"
 			fmt.Fprint(w, streamData)
 			cache.SetResponse(streamData)
@@ -167,7 +177,7 @@ func responseStreamClient(c *gin.Context, stream requester.StreamReaderInterface
 		}
 	})
 
-	return errWithOP
+	return nil
 }
 
 func responseMultipart(c *gin.Context, resp *http.Response) *types.OpenAIErrorWithStatusCode {

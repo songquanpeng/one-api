@@ -1,7 +1,9 @@
 package relay
 
 import (
+	"encoding/json"
 	"errors"
+	"fmt"
 	"math"
 	"net/http"
 	"one-api/common"
@@ -30,6 +32,10 @@ func (r *relayCompletions) setRequest() error {
 
 	if r.request.MaxTokens < 0 || r.request.MaxTokens > math.MaxInt32/2 {
 		return errors.New("max_tokens is invalid")
+	}
+
+	if !r.request.Stream && r.request.StreamOptions != nil {
+		return errors.New("The 'stream_options' parameter is only allowed when 'stream' is enabled.")
 	}
 
 	r.originalModel = r.request.Model
@@ -62,7 +68,11 @@ func (r *relayCompletions) send() (err *types.OpenAIErrorWithStatusCode, done bo
 			return
 		}
 
-		err = responseStreamClient(r.c, response, r.cache)
+		doneStr := func() string {
+			return r.getUsageResponse()
+		}
+
+		err = responseStreamClient(r.c, response, r.cache, doneStr)
 	} else {
 		var response *types.CompletionResponse
 		response, err = provider.CreateCompletion(&r.request)
@@ -78,4 +88,26 @@ func (r *relayCompletions) send() (err *types.OpenAIErrorWithStatusCode, done bo
 	}
 
 	return
+}
+
+func (r *relayCompletions) getUsageResponse() string {
+	if r.request.StreamOptions != nil && r.request.StreamOptions.IncludeUsage {
+		usageResponse := types.CompletionResponse{
+			ID:      fmt.Sprintf("chatcmpl-%s", common.GetUUID()),
+			Object:  "chat.completion.chunk",
+			Created: common.GetTimestamp(),
+			Model:   r.request.Model,
+			Choices: []types.CompletionChoice{},
+			Usage:   r.provider.GetUsage(),
+		}
+
+		responseBody, err := json.Marshal(usageResponse)
+		if err != nil {
+			return ""
+		}
+
+		return string(responseBody)
+	}
+
+	return ""
 }

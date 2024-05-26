@@ -40,11 +40,24 @@ func (p *OpenAIProvider) CreateCompletion(request *types.CompletionRequest) (ope
 }
 
 func (p *OpenAIProvider) CreateCompletionStream(request *types.CompletionRequest) (stream requester.StreamReaderInterface[string], errWithCode *types.OpenAIErrorWithStatusCode) {
+	streamOptions := request.StreamOptions
+	// 如果支持流式返回Usage 则需要更改配置：
+	if p.SupportStreamOptions {
+		request.StreamOptions = &types.StreamOptions{
+			IncludeUsage: true,
+		}
+	} else {
+		// 避免误传导致报错
+		request.StreamOptions = nil
+	}
 	req, errWithCode := p.GetRequestTextBody(common.RelayModeCompletions, request.Model, request)
 	if errWithCode != nil {
 		return nil, errWithCode
 	}
 	defer req.Body.Close()
+
+	// 恢复原来的配置
+	request.StreamOptions = streamOptions
 
 	// 发送请求
 	resp, errWithCode := p.Requester.SendRequestRaw(req)
@@ -90,8 +103,19 @@ func (h *OpenAIStreamHandler) handlerCompletionStream(rawLine *[]byte, dataChan 
 		return
 	}
 
+	if len(openaiResponse.Choices) == 0 {
+		if openaiResponse.Usage != nil {
+			*h.Usage = *openaiResponse.Usage
+		}
+		*rawLine = nil
+		return
+	}
+
 	dataChan <- string(*rawLine)
 
+	if h.Usage.TotalTokens == 0 {
+		h.Usage.TotalTokens = h.Usage.PromptTokens
+	}
 	countTokenText := common.CountTokenText(openaiResponse.getResponseText(), h.ModelName)
 	h.Usage.CompletionTokens += countTokenText
 	h.Usage.TotalTokens += countTokenText
