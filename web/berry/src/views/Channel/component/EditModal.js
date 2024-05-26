@@ -40,8 +40,8 @@ const validationSchema = Yup.object().shape({
   is_edit: Yup.boolean(),
   name: Yup.string().required('名称 不能为空'),
   type: Yup.number().required('渠道 不能为空'),
-  key: Yup.string().when('is_edit', {
-    is: false,
+  key: Yup.string().when(['is_edit', 'type'], {
+    is: (is_edit, type) => !is_edit && type !== 33,
     then: Yup.string().required('密钥 不能为空')
   }),
   other: Yup.string(),
@@ -107,6 +107,8 @@ const EditModal = ({ open, channelId, onCancel, onOk }) => {
     if (localModels.length > 0 && Array.isArray(values['models']) && values['models'].length == 0) {
       setFieldValue('models', initialModel(localModels));
     }
+
+    setFieldValue('config', {});
   };
 
   const fetchGroups = async () => {
@@ -160,17 +162,25 @@ const EditModal = ({ open, channelId, onCancel, onOk }) => {
     if (values.type === 18 && values.other === '') {
       values.other = 'v2.1';
     }
+    if (values.key === '') {
+      if (values.config.ak !== '' && values.config.sk !== '' && values.config.region !== '') {
+        values.key = `${values.config.ak}|${values.config.sk}|${values.config.region}`;
+      }
+    }
+
     let res;
     const modelsStr = values.models.map((model) => model.id).join(',');
+    const configStr = JSON.stringify(values.config);
     values.group = values.groups.join(',');
     if (channelId) {
       res = await API.put(`/api/channel/`, {
         ...values,
         id: parseInt(channelId),
-        models: modelsStr
+        models: modelsStr,
+        config: configStr
       });
     } else {
-      res = await API.post(`/api/channel/`, { ...values, models: modelsStr });
+      res = await API.post(`/api/channel/`, { ...values, models: modelsStr, config: configStr });
     }
     const { success, message } = res.data;
     if (success) {
@@ -225,6 +235,10 @@ const EditModal = ({ open, channelId, onCancel, onOk }) => {
       if (data.model_mapping !== '') {
         data.model_mapping = JSON.stringify(JSON.parse(data.model_mapping), null, 2);
       }
+      if (data.config !== '') {
+        data.config = JSON.parse(data.config);
+      }
+
       data.base_url = data.base_url ?? '';
       data.is_edit = true;
       initChannel(data.type);
@@ -485,55 +499,78 @@ const EditModal = ({ open, channelId, onCancel, onOk }) => {
                   </Button>
                 </ButtonGroup>
               </Container>
-              <FormControl fullWidth error={Boolean(touched.key && errors.key)} sx={{ ...theme.typography.otherInput }}>
-                {!batchAdd ? (
-                  <>
-                    <InputLabel htmlFor="channel-key-label">{inputLabel.key}</InputLabel>
-                    <OutlinedInput
-                      id="channel-key-label"
-                      label={inputLabel.key}
-                      type="text"
-                      value={values.key}
-                      name="key"
-                      onBlur={handleBlur}
-                      onChange={handleChange}
-                      inputProps={{}}
-                      aria-describedby="helper-text-channel-key-label"
-                    />
-                  </>
-                ) : (
-                  <TextField
-                    multiline
-                    id="channel-key-label"
-                    label={inputLabel.key}
-                    value={values.key}
-                    name="key"
-                    onBlur={handleBlur}
-                    onChange={handleChange}
-                    aria-describedby="helper-text-channel-key-label"
-                    minRows={5}
-                    placeholder={inputPrompt.key + '，一行一个密钥'}
-                  />
-                )}
+              {inputLabel.key && (
+                <>
+                  <FormControl fullWidth error={Boolean(touched.key && errors.key)} sx={{ ...theme.typography.otherInput }}>
+                    {!batchAdd ? (
+                      <>
+                        <InputLabel htmlFor="channel-key-label">{inputLabel.key}</InputLabel>
+                        <OutlinedInput
+                          id="channel-key-label"
+                          label={inputLabel.key}
+                          type="text"
+                          value={values.key}
+                          name="key"
+                          onBlur={handleBlur}
+                          onChange={handleChange}
+                          inputProps={{}}
+                          aria-describedby="helper-text-channel-key-label"
+                        />
+                      </>
+                    ) : (
+                      <TextField
+                        multiline
+                        id="channel-key-label"
+                        label={inputLabel.key}
+                        value={values.key}
+                        name="key"
+                        onBlur={handleBlur}
+                        onChange={handleChange}
+                        aria-describedby="helper-text-channel-key-label"
+                        minRows={5}
+                        placeholder={inputPrompt.key + '，一行一个密钥'}
+                      />
+                    )}
 
-                {touched.key && errors.key ? (
-                  <FormHelperText error id="helper-tex-channel-key-label">
-                    {errors.key}
-                  </FormHelperText>
-                ) : (
-                  <FormHelperText id="helper-tex-channel-key-label"> {inputPrompt.key} </FormHelperText>
-                )}
-              </FormControl>
-              {channelId === 0 && (
-                <Container
-                  sx={{
-                    textAlign: 'right'
-                  }}
-                >
-                  <Switch checked={batchAdd} onChange={(e) => setBatchAdd(e.target.checked)} />
-                  批量添加
-                </Container>
+                    {touched.key && errors.key ? (
+                      <FormHelperText error id="helper-tex-channel-key-label">
+                        {errors.key}
+                      </FormHelperText>
+                    ) : (
+                      <FormHelperText id="helper-tex-channel-key-label"> {inputPrompt.key} </FormHelperText>
+                    )}
+                  </FormControl>
+                  {channelId === 0 && (
+                    <Container
+                      sx={{
+                        textAlign: 'right'
+                      }}
+                    >
+                      <Switch checked={batchAdd} onChange={(e) => setBatchAdd(e.target.checked)} />
+                      批量添加
+                    </Container>
+                  )}
+                </>
               )}
+
+              {inputLabel.config &&
+                Object.keys(inputLabel.config).map((configName) => {
+                  return (
+                    <FormControl key={'config.' + configName} fullWidth sx={{ ...theme.typography.otherInput }}>
+                      <TextField
+                        multiline
+                        key={'config.' + configName}
+                        name={'config.' + configName}
+                        value={values.config?.[configName] || ''}
+                        label={configName}
+                        placeholder={inputPrompt.config[configName]}
+                        onChange={handleChange}
+                      />
+                      <FormHelperText id={`helper-tex-config.${configName}-label`}> {inputPrompt.config[configName]} </FormHelperText>
+                    </FormControl>
+                  );
+                })}
+
               <FormControl fullWidth error={Boolean(touched.model_mapping && errors.model_mapping)} sx={{ ...theme.typography.otherInput }}>
                 {/* <InputLabel htmlFor="channel-model_mapping-label">{inputLabel.model_mapping}</InputLabel> */}
                 <TextField
