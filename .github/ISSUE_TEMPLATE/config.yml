@@ -1,5 +1,8 @@
 blank_issues_enabled: false
 contact_links:
+  - name: 交流群
+    url: https://github.com/MartialBE/one-api/assets/42402987/9b608d39-70ae-4b2e-be49-09afab6bd536
+    about: QQ群：970824646
   - name: 赞赏支持
     url: https://github.com/MartialBE/one-api/wiki/Coffee
     about: 请作者喝杯咖啡，以激励作者持续开发
