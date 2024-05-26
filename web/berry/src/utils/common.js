@@ -219,3 +219,14 @@ export function getChannelModels(type) {
   }
   return [];
 }
+
+export function copy(text, name = '') {
+  try {
+    navigator.clipboard.writeText(text);
+  } catch (error) {
+    text = `复制${name}失败，请手动复制：<br /><br />${text}`;
+    enqueueSnackbar(<SnackbarHTMLContent htmlContent={text} />, getSnackbarOptions('COPY'));
+    return;
+  }
+  showSuccess(`复制${name}成功！`);
+}

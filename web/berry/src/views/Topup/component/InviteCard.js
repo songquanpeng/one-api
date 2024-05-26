@@ -4,7 +4,7 @@ import SubCard from 'ui-component/cards/SubCard';
 import inviteImage from 'assets/images/invite/cwok_casual_19.webp';
 import { useState } from 'react';
 import { API } from 'utils/api';
-import { showError, showSuccess } from 'utils/common';
+import { showError, copy } from 'utils/common';
 
 const InviteCard = () => {
   const theme = useTheme();
@@ -12,8 +12,7 @@ const InviteCard = () => {
 
   const handleInviteUrl = async () => {
     if (inviteUl) {
-      navigator.clipboard.writeText(inviteUl);
-      showSuccess(`邀请链接已复制到剪切板`);
+      copy(inviteUl, '邀请链接');
       return;
     }
     const res = await API.get('/api/user/aff');
@@ -21,8 +20,7 @@ const InviteCard = () => {
     if (success) {
       let link = `${window.location.origin}/register?aff=${data}`;
       setInviteUrl(link);
-      navigator.clipboard.writeText(link);
-      showSuccess(`邀请链接已复制到剪切板`);
+      copy(link, '邀请链接');
     } else {
       showError(message);
     }
