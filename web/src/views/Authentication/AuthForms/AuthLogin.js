@@ -118,7 +118,7 @@ const LoginForm = ({ ...others }) => {
               <WechatModal open={openWechat} handleClose={handleWechatClose} wechatLogin={wechatLogin} qrCode={siteInfo.wechat_qrcode} />
             </Grid>
           )}
-          {siteInfo.lark_client_id && (
+          {siteInfo.lark_login && (
             <Grid item xs={12}>
               <AnimateButton>
                 <Button

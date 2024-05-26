@@ -32,6 +32,7 @@ const SystemSetting = () => {
     GitHubOAuthEnabled: '',
     GitHubClientId: '',
     GitHubClientSecret: '',
+    LarkAuthEnabled: '',
     LarkClientId: '',
     LarkClientSecret: '',
     Notice: '',
@@ -95,6 +96,7 @@ const SystemSetting = () => {
       case 'EmailVerificationEnabled':
       case 'GitHubOAuthEnabled':
       case 'WeChatAuthEnabled':
+      case 'LarkAuthEnabled':
       case 'TurnstileCheckEnabled':
       case 'EmailDomainRestrictionEnabled':
       case 'RegisterEnabled':
@@ -296,6 +298,12 @@ const SystemSetting = () => {
               <FormControlLabel
                 label="允许通过微信登录 & 注册"
                 control={<Checkbox checked={inputs.WeChatAuthEnabled === 'true'} onChange={handleInputChange} name="WeChatAuthEnabled" />}
+              />
+            </Grid>
+            <Grid xs={12} md={3}>
+              <FormControlLabel
+                label="允许通过飞书登录 & 注册"
+                control={<Checkbox checked={inputs.LarkAuthEnabled === 'true'} onChange={handleInputChange} name="LarkAuthEnabled" />}
               />
             </Grid>
             <Grid xs={12} md={3}>

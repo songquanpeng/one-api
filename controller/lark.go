@@ -147,6 +147,13 @@ func getLarkUserInfoByCode(code string) (*LarkUser, error) {
 }
 
 func LarkOAuth(c *gin.Context) {
+	if !common.LarkAuthEnabled {
+		c.JSON(http.StatusOK, gin.H{
+			"message": "管理员未开启通过飞书登录以及注册",
+			"success": false,
+		})
+		return
+	}
 	session := sessions.Default(c)
 	state := c.Query("state")
 	if state == "" || session.Get("oauth_state") == nil || state != session.Get("oauth_state").(string) {
@@ -220,6 +227,13 @@ func LarkOAuth(c *gin.Context) {
 }
 
 func LarkBind(c *gin.Context) {
+	if !common.LarkAuthEnabled {
+		c.JSON(http.StatusOK, gin.H{
+			"message": "管理员未开启通过飞书登录以及注册",
+			"success": false,
+		})
+		return
+	}
 	code := c.Query("code")
 	larkUser, err := getLarkUserInfoByCode(code)
 	if err != nil {

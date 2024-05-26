@@ -35,6 +35,7 @@ var PasswordRegisterEnabled = true
 var EmailVerificationEnabled = false
 var GitHubOAuthEnabled = false
 var WeChatAuthEnabled = false
+var LarkAuthEnabled = false
 var TurnstileCheckEnabled = false
 var RegisterEnabled = true
 
