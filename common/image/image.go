@@ -30,10 +30,6 @@ func IsImageUrl(url string) (bool, error) {
 }
 
 func GetImageSizeFromUrl(url string) (width int, height int, err error) {
-	isImage, err := IsImageUrl(url)
-	if !isImage {
-		return
-	}
 	resp, err := http.Get(url)
 	if err != nil {
 		return
