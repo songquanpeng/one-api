@@ -58,6 +58,7 @@ func RelayImageHelper(c *gin.Context, relayMode int) *relaymodel.ErrorWithStatus
 	imageModel := imageRequest.Model
 	// Convert the original image model
 	imageRequest.Model, _ = getMappedModelName(imageRequest.Model, billingratio.ImageOriginModelName)
+	c.Set("response_format", imageRequest.ResponseFormat)
 
 	var requestBody io.Reader
 	if isModelMapped || meta.ChannelType == channeltype.Azure { // make Azure channel request body
