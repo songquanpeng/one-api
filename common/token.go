@@ -118,7 +118,8 @@ func CountTokenMessages(messages []types.ChatCompletionMessage, model string) in
 						}
 						imageTokens, err := countImageTokens(url, detail)
 						if err != nil {
-							SysError("error counting image tokens: " + err.Error())
+							//Due to the excessive length of the error information, only extract and record the most critical part.
+							SysError("error counting image tokens: " + err.Error()) 
 						} else {
 							tokenNum += imageTokens
 						}
