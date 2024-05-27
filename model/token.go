@@ -7,7 +7,9 @@ import (
 	"github.com/songquanpeng/one-api/common/config"
 	"github.com/songquanpeng/one-api/common/helper"
 	"github.com/songquanpeng/one-api/common/logger"
+
 	"github.com/songquanpeng/one-api/common/message"
+
 	"gorm.io/gorm"
 )
 
@@ -56,7 +58,15 @@ func SearchUserTokens(userId int, keyword string) (tokens []*Token, err error) {
 	err = DB.Where("user_id = ?", userId).Where("name LIKE ?", keyword+"%").Find(&tokens).Error
 	return tokens, err
 }
-
+func GetNameByToken(token string) (*Token, error) {
+	if token == "" {
+		return nil, errors.New("token为空")
+	}
+	token_name := Token{Key: token}
+	var err error = nil
+	err = DB.First(&token_name, "`key` = ?", token).Error
+	return &token_name, err
+}
 func ValidateUserToken(key string) (token *Token, err error) {
 	if key == "" {
 		return nil, errors.New("未提供令牌")

@@ -1,12 +1,14 @@
 package controller
 
 import (
+
 	"github.com/gin-gonic/gin"
 	"github.com/songquanpeng/one-api/common/config"
 	"github.com/songquanpeng/one-api/common/ctxkey"
 	"github.com/songquanpeng/one-api/model"
 	"net/http"
 	"strconv"
+
 )
 
 func GetAllLogs(c *gin.Context) {
@@ -36,7 +38,36 @@ func GetAllLogs(c *gin.Context) {
 	})
 	return
 }
+func GetLogsByKey(c *gin.Context) {
+	startidx, _ := strconv.Atoi(c.Query("startIdx"))
+	num, _ := strconv.Atoi(c.Query("num"))
 
+	if startidx <= 0 {
+		startidx = 0
+	}
+	if num <= 0 {
+		num = 10
+	}
+
+	logType, _ := strconv.Atoi(c.Query("type"))
+	startTimestamp, _ := strconv.ParseInt(c.Query("start_timestamp"), 10, 64)
+	endTimestamp, _ := strconv.ParseInt(c.Query("end_timestamp"), 10, 64)
+	key := c.Query("key")
+	logs, err := model.GetLogsByKey(logType, startTimestamp, endTimestamp, key, startidx, num)
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "",
+		"data":    logs,
+	})
+	return
+}
 func GetUserLogs(c *gin.Context) {
 	p, _ := strconv.Atoi(c.Query("p"))
 	if p < 0 {

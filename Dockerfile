@@ -1,4 +1,4 @@
-FROM node:16 as builder
+FROM node:20 as builder
 
 WORKDIR /web
 COPY ./VERSION .

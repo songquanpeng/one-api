@@ -3,11 +3,12 @@ package adaptor
 import (
 	"errors"
 	"fmt"
+	"io"
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	"github.com/songquanpeng/one-api/relay/client"
 	"github.com/songquanpeng/one-api/relay/meta"
-	"io"
-	"net/http"
 )
 
 func SetupCommonRequestHeader(c *gin.Context, req *http.Request, meta *meta.Meta) {
@@ -21,19 +22,19 @@ func SetupCommonRequestHeader(c *gin.Context, req *http.Request, meta *meta.Meta
 func DoRequestHelper(a Adaptor, c *gin.Context, meta *meta.Meta, requestBody io.Reader) (*http.Response, error) {
 	fullRequestURL, err := a.GetRequestURL(meta)
 	if err != nil {
-		return nil, fmt.Errorf("get request url failed: %w", err)
+		return nil, fmt.Errorf("get request url failed: ")
 	}
 	req, err := http.NewRequest(c.Request.Method, fullRequestURL, requestBody)
 	if err != nil {
-		return nil, fmt.Errorf("new request failed: %w", err)
+		return nil, fmt.Errorf("new request failed: ")
 	}
 	err = a.SetupRequestHeader(c, req, meta)
 	if err != nil {
-		return nil, fmt.Errorf("setup request header failed: %w", err)
+		return nil, fmt.Errorf("setup request header failed: ")
 	}
 	resp, err := DoRequest(c, req)
 	if err != nil {
-		return nil, fmt.Errorf("do request failed: %w", err)
+		return nil, fmt.Errorf("do request failed: ")
 	}
 	return resp, nil
 }

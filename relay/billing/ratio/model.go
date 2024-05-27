@@ -20,10 +20,12 @@ const (
 // 1 === $0.002 / 1K tokens
 // 1 === ￥0.014 / 1k tokens
 var ModelRatio = map[string]float64{
+
 	// https://openai.com/pricing
 	"gpt-4":                   15,
 	"gpt-4-0314":              15,
 	"gpt-4-0613":              15,
+  "gpt-4-gizmo":             15,
 	"gpt-4-32k":               30,
 	"gpt-4-32k-0314":          30,
 	"gpt-4-32k-0613":          30,
@@ -240,6 +242,9 @@ func GetModelRatio(name string) float64 {
 		name = strings.TrimSuffix(name, "-internet")
 	}
 	ratio, ok := ModelRatio[name]
+	if strings.Index(name, "gpt-4-gizmo") != -1 {
+		return ModelRatio["gpt-4-gizmo"]
+	}
 	if !ok {
 		ratio, ok = DefaultModelRatio[name]
 	}

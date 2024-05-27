@@ -18,7 +18,7 @@ func SetRouter(router *gin.Engine, buildFS embed.FS) {
 	frontendBaseUrl := os.Getenv("FRONTEND_BASE_URL")
 	if config.IsMasterNode && frontendBaseUrl != "" {
 		frontendBaseUrl = ""
-		logger.SysLog("FRONTEND_BASE_URL is ignored on master node")
+		logger.SysLog("FRONTEND_——BASE_URL is ignored on master node")
 	}
 	if frontendBaseUrl == "" {
 		SetWebRouter(router, buildFS)
