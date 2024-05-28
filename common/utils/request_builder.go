@@ -1,27 +1,14 @@
-package requester
+package utils
 
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"io"
 	"net/http"
 )
 
-type RequestBuilder interface {
-	Build(ctx context.Context, method, url string, body any, header http.Header) (*http.Request, error)
-}
-
-type HTTPRequestBuilder struct {
-	marshaller Marshaller
-}
-
-func NewRequestBuilder() *HTTPRequestBuilder {
-	return &HTTPRequestBuilder{
-		marshaller: &JSONMarshaller{},
-	}
-}
-
-func (b *HTTPRequestBuilder) Build(
+func RequestBuilder(
 	ctx context.Context,
 	method string,
 	url string,
@@ -34,7 +21,7 @@ func (b *HTTPRequestBuilder) Build(
 			bodyReader = v
 		} else {
 			var reqBytes []byte
-			reqBytes, err = b.marshaller.Marshal(body)
+			reqBytes, err = json.Marshal(body)
 			if err != nil {
 				return
 			}

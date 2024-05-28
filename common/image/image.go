@@ -16,17 +16,8 @@ import (
 	_ "golang.org/x/image/webp"
 )
 
-// var ImageHttpClients = &http.Client{
-// 	Transport: &http.Transport{
-// 		DialContext: requester.Socks5ProxyFunc,
-// 		Proxy:       requester.ProxyFunc,
-// 	},
-// 	//
-// 	// // Timeout: 30 * time.Second,
-// }
-
 func IsImageUrl(url string) (bool, error) {
-	resp, err := http.Head(url)
+	resp, err := requestImage(url, http.MethodHead)
 	if err != nil {
 		return false, err
 	}
@@ -41,7 +32,7 @@ func GetImageSizeFromUrl(url string) (width int, height int, err error) {
 	if !isImage {
 		return
 	}
-	resp, err := http.Get(url)
+	resp, err := requestImage(url, http.MethodGet)
 	if err != nil {
 		return
 	}
@@ -126,6 +117,6 @@ func GetImageSize(image string) (width int, height int, err error) {
 	case strings.HasPrefix(image, "http"):
 		return GetImageSizeFromUrl(image)
 	default:
-		return 0, 0, errors.New("invalid file type, Please view request interface!")
+		return 0, 0, errors.New("invalid file type, please view request interface")
 	}
 }

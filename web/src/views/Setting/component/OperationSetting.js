@@ -35,7 +35,8 @@ const OperationSetting = () => {
     RetryCooldownSeconds: 0,
     MjNotifyEnabled: '',
     ChatCacheEnabled: '',
-    ChatCacheExpireMinute: 5
+    ChatCacheExpireMinute: 5,
+    ChatImageRequestProxy: ''
   });
   const [originInputs, setOriginInputs] = useState({});
   let [loading, setLoading] = useState(false);
@@ -172,6 +173,9 @@ const OperationSetting = () => {
       case 'other':
         if (originInputs['ChatCacheExpireMinute'] !== inputs.ChatCacheExpireMinute) {
           await updateOption('ChatCacheExpireMinute', inputs.ChatCacheExpireMinute);
+        }
+        if (originInputs['ChatImageRequestProxy'] !== inputs.ChatImageRequestProxy) {
+          await updateOption('ChatImageRequestProxy', inputs.ChatImageRequestProxy);
         }
         break;
     }
@@ -330,6 +334,26 @@ const OperationSetting = () => {
                 onChange={handleInputChange}
                 label="缓存时间(分钟)"
                 placeholder="开启缓存时，数据缓存的时间"
+                disabled={loading}
+              />
+            </FormControl>
+          </Stack>
+
+          <Stack spacing={2}>
+            <Alert severity="info">
+              当用户使用vision模型并提供了图片链接时，我们的服务器需要下载这些图片并计算 tokens。为了在下载图片时保护服务器的 IP
+              地址不被泄露，可以在下方配置一个代理。这个代理配置使用的是 HTTP 或 SOCKS5
+              代理。如果你是个人用户，这个配置可以不用理会。代理格式为 http://127.0.0.1:1080 或 socks5://127.0.0.1:1080
+            </Alert>
+            <FormControl>
+              <InputLabel htmlFor="ChatImageRequestProxy">图片检测代理</InputLabel>
+              <OutlinedInput
+                id="ChatImageRequestProxy"
+                name="ChatImageRequestProxy"
+                value={inputs.ChatImageRequestProxy}
+                onChange={handleInputChange}
+                label="图片检测代理"
+                placeholder="聊天图片检测代理设置，如果不设置可能会泄漏服务器ip"
                 disabled={loading}
               />
             </FormControl>

@@ -20,7 +20,7 @@ import (
 type HttpErrorHandler func(*http.Response) *types.OpenAIError
 
 type HTTPRequester struct {
-	requestBuilder    RequestBuilder
+	// requestBuilder    utils.RequestBuilder
 	CreateFormBuilder func(io.Writer) FormBuilder
 	ErrorHandler      HttpErrorHandler
 	proxyAddr         string
@@ -34,7 +34,6 @@ type HTTPRequester struct {
 // 如果 errorHandler 为 nil，那么会使用一个默认的错误处理函数。
 func NewHTTPRequester(proxyAddr string, errorHandler HttpErrorHandler) *HTTPRequester {
 	return &HTTPRequester{
-		requestBuilder: NewRequestBuilder(),
 		CreateFormBuilder: func(body io.Writer) FormBuilder {
 			return NewFormBuilder(body)
 		},
@@ -53,7 +52,7 @@ type requestOptions struct {
 type requestOption func(*requestOptions)
 
 func (r *HTTPRequester) setProxy() context.Context {
-	return utils.SetProxy(r.Context, r.proxyAddr)
+	return utils.SetProxy(r.proxyAddr, r.Context)
 }
 
 // 创建请求
@@ -65,7 +64,7 @@ func (r *HTTPRequester) NewRequest(method, url string, setters ...requestOption)
 	for _, setter := range setters {
 		setter(args)
 	}
-	req, err := r.requestBuilder.Build(r.setProxy(), method, url, args.body, args.header)
+	req, err := utils.RequestBuilder(r.setProxy(), method, url, args.body, args.header)
 	if err != nil {
 		return nil, err
 	}

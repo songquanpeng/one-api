@@ -60,7 +60,11 @@ func Socks5ProxyFunc(ctx context.Context, network, addr string) (net.Conn, error
 	return proxyDialer.Dial(network, addr)
 }
 
-func SetProxy(ctx context.Context, proxyAddr string) context.Context {
+func SetProxy(proxyAddr string, ctx context.Context) context.Context {
+	if ctx == nil {
+		ctx = context.Background()
+	}
+
 	if proxyAddr == "" {
 		return ctx
 	}

@@ -376,6 +376,9 @@ const SystemSetting = () => {
         </SubCard>
         <SubCard title="配置 SMTP" subTitle="用以支持系统的邮件发送">
           <Grid container spacing={{ xs: 3, sm: 2, md: 4 }}>
+            <Grid xs={12}>
+              <Alert severity="info">请注意，有些邮箱服务商发送邮件时会携带你的服务器IP地址，非个人使用时建议使用专业的邮件服务商</Alert>
+            </Grid>
             <Grid xs={12} md={4}>
               <FormControl fullWidth>
                 <InputLabel htmlFor="SMTPServer">SMTP 服务器地址</InputLabel>

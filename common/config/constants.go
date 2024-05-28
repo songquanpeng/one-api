@@ -69,6 +69,8 @@ var SMTPAccount = ""
 var SMTPFrom = ""
 var SMTPToken = ""
 
+var ChatImageRequestProxy = ""
+
 var GitHubClientId = ""
 var GitHubClientSecret = ""
 

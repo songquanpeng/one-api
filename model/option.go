@@ -16,8 +16,7 @@ type Option struct {
 
 func AllOption() ([]*Option, error) {
 	var options []*Option
-	var err error
-	err = DB.Find(&options).Error
+	err := DB.Find(&options).Error
 	return options, err
 }
 
@@ -82,6 +81,8 @@ func InitOptionMap() {
 
 	config.OptionMap["ChatCacheEnabled"] = strconv.FormatBool(config.ChatCacheEnabled)
 	config.OptionMap["ChatCacheExpireMinute"] = strconv.Itoa(config.ChatCacheExpireMinute)
+
+	config.OptionMap["ChatImageRequestProxy"] = ""
 
 	config.OptionMapRWMutex.Unlock()
 	loadOptionsFromDatabase()
@@ -174,6 +175,7 @@ var optionStringMap = map[string]*string{
 	"ChatLinks":                   &config.ChatLinks,
 	"LarkClientId":                &config.LarkClientId,
 	"LarkClientSecret":            &config.LarkClientSecret,
+	"ChatImageRequestProxy":       &config.ChatImageRequestProxy,
 }
 
 func updateOptionMap(key string, value string) (err error) {
