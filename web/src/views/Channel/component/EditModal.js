@@ -203,7 +203,7 @@ const EditModal = ({ open, channelId, onCancel, onOk, groupOptions }) => {
       values.base_url = values.base_url.slice(0, values.base_url.length - 1);
     }
     if (values.type === 3 && values.other === '') {
-      values.other = '2023-09-01-preview';
+      values.other = '2024-05-01-preview';
     }
     if (values.type === 18 && values.other === '') {
       values.other = 'v2.1';

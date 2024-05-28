@@ -68,7 +68,7 @@ const typeConfig = {
     },
     prompt: {
       base_url: '请填写AZURE_OPENAI_ENDPOINT',
-      other: '请输入默认API版本，例如：2023-06-01-preview'
+      other: '请输入默认API版本，例如：2024-05-01-preview'
     }
   },
   11: {
