@@ -40,6 +40,7 @@ var ChannelBaseURLs = []string{
 	"https://api.deepseek.com",                  // 36
 	"https://api.cloudflare.com",                // 37
 	"https://api-free.deepl.com",                // 38
+	"https://api.together.xyz",                  // 39
 }
 
 func init() {

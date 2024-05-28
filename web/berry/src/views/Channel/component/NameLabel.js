@@ -1,20 +1,20 @@
-import PropTypes from "prop-types";
-import { Tooltip, Stack, Container } from "@mui/material";
-import Label from "ui-component/Label";
-import { styled } from "@mui/material/styles";
-import { showSuccess } from "utils/common";
+import PropTypes from 'prop-types';
+import { Tooltip, Stack, Container } from '@mui/material';
+import Label from 'ui-component/Label';
+import { styled } from '@mui/material/styles';
+import { showSuccess, copy } from 'utils/common';
 
 const TooltipContainer = styled(Container)({
-  maxHeight: "250px",
-  overflow: "auto",
-  "&::-webkit-scrollbar": {
-    width: "0px", // Set the width to 0 to hide the scrollbar
-  },
+  maxHeight: '250px',
+  overflow: 'auto',
+  '&::-webkit-scrollbar': {
+    width: '0px' // Set the width to 0 to hide the scrollbar
+  }
 });
 
 const NameLabel = ({ name, models }) => {
   let modelMap = [];
-  modelMap = models.split(",");
+  modelMap = models.split(',');
   modelMap.sort();
 
   return (
@@ -28,8 +28,7 @@ const NameLabel = ({ name, models }) => {
                   variant="ghost"
                   key={index}
                   onClick={() => {
-                    navigator.clipboard.writeText(item);
-                    showSuccess("复制模型名称成功！");
+                    copy(item, '模型名称');
                   }}
                 >
                   {item}
@@ -48,7 +47,7 @@ const NameLabel = ({ name, models }) => {
 
 NameLabel.propTypes = {
   name: PropTypes.string,
-  models: PropTypes.string,
+  models: PropTypes.string
 };
 
 export default NameLabel;

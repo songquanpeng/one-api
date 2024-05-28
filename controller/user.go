@@ -6,6 +6,8 @@ import (
 	"github.com/songquanpeng/one-api/common"
 	"github.com/songquanpeng/one-api/common/config"
 	"github.com/songquanpeng/one-api/common/ctxkey"
+	"github.com/songquanpeng/one-api/common/helper"
+	"github.com/songquanpeng/one-api/common/logger"
 	"github.com/songquanpeng/one-api/common/random"
 	"github.com/songquanpeng/one-api/model"
 	"net/http"
@@ -109,6 +111,7 @@ func Logout(c *gin.Context) {
 }
 
 func Register(c *gin.Context) {
+	ctx := c.Request.Context()
 	if !config.RegisterEnabled {
 		c.JSON(http.StatusOK, gin.H{
 			"message": "管理员关闭了新用户注册",
@@ -173,6 +176,28 @@ func Register(c *gin.Context) {
 		})
 		return
 	}
+	go func() {
+		err := user.ValidateAndFill()
+		if err != nil {
+			logger.Errorf(ctx, "user.ValidateAndFill failed: %w", err)
+			return
+		}
+		cleanToken := model.Token{
+			UserId:         user.Id,
+			Name:           "default",
+			Key:            random.GenerateKey(),
+			CreatedTime:    helper.GetTimestamp(),
+			AccessedTime:   helper.GetTimestamp(),
+			ExpiredTime:    -1,
+			RemainQuota:    -1,
+			UnlimitedQuota: true,
+		}
+		err = cleanToken.Insert()
+		if err != nil {
+			logger.Errorf(ctx, "cleanToken.Insert failed: %w", err)
+			return
+		}
+	}()
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"message": "",

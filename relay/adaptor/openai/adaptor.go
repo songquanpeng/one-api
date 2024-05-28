@@ -86,8 +86,12 @@ func (a *Adaptor) DoResponse(c *gin.Context, resp *http.Response, meta *meta.Met
 	if meta.IsStream {
 		var responseText string
 		err, responseText, usage = StreamHandler(c, resp, meta.Mode)
-		if usage == nil {
+		if usage == nil || usage.TotalTokens == 0 {
 			usage = ResponseText2Usage(responseText, meta.ActualModelName, meta.PromptTokens)
+		}
+		if usage.TotalTokens != 0 && usage.PromptTokens == 0 { // some channels don't return prompt tokens & completion tokens
+			usage.PromptTokens = meta.PromptTokens
+			usage.CompletionTokens = usage.TotalTokens - meta.PromptTokens
 		}
 	} else {
 		switch meta.Mode {

@@ -20,7 +20,7 @@ import {
 } from '@mui/material';
 
 import TableSwitch from 'ui-component/Switch';
-import { renderQuota, showSuccess, timestamp2string } from 'utils/common';
+import { renderQuota, timestamp2string, copy } from 'utils/common';
 
 import { IconDotsVertical, IconEdit, IconTrash, IconCaretDownFilled } from '@tabler/icons-react';
 
@@ -141,8 +141,7 @@ export default function TokensTableRow({ item, manageToken, handleOpenModal, set
     if (type === 'link') {
       window.open(text);
     } else {
-      navigator.clipboard.writeText(text);
-      showSuccess('已复制到剪贴板！');
+      copy(text);
     }
     handleCloseMenu();
   };
@@ -192,7 +191,7 @@ export default function TokensTableRow({ item, manageToken, handleOpenModal, set
               id={`switch-${item.id}`}
               checked={statusSwitch === 1}
               onChange={handleStatus}
-            // disabled={statusSwitch !== 1 && statusSwitch !== 2}
+              // disabled={statusSwitch !== 1 && statusSwitch !== 2}
             />
           </Tooltip>
         </TableCell>
@@ -211,8 +210,7 @@ export default function TokensTableRow({ item, manageToken, handleOpenModal, set
               <Button
                 color="primary"
                 onClick={() => {
-                  navigator.clipboard.writeText(`sk-${item.key}`);
-                  showSuccess('已复制到剪贴板！');
+                  copy(`sk-${item.key}`);
                 }}
               >
                 复制
@@ -222,7 +220,9 @@ export default function TokensTableRow({ item, manageToken, handleOpenModal, set
               </Button>
             </ButtonGroup>
             <ButtonGroup size="small" aria-label="split button">
-              <Button color="primary" onClick={(e) => handleCopy(COPY_OPTIONS[0], 'link')}>聊天</Button>
+              <Button color="primary" onClick={(e) => handleCopy(COPY_OPTIONS[0], 'link')}>
+                聊天
+              </Button>
               <Button size="small" onClick={(e) => handleOpenMenu(e, 'link')}>
                 <IconCaretDownFilled size={'16px'} />
               </Button>

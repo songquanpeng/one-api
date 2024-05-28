@@ -21,7 +21,7 @@ import { IconBrandWechat, IconBrandGithub, IconMail } from '@tabler/icons-react'
 import Label from 'ui-component/Label';
 import { API } from 'utils/api';
 import { showError, showSuccess } from 'utils/common';
-import { onGitHubOAuthClicked, onLarkOAuthClicked } from 'utils/common';
+import { onGitHubOAuthClicked, onLarkOAuthClicked, copy } from 'utils/common';
 import * as Yup from 'yup';
 import WechatModal from 'views/Authentication/AuthForms/WechatModal';
 import { useSelector } from 'react-redux';
@@ -90,8 +90,7 @@ export default function Profile() {
     const { success, message, data } = res.data;
     if (success) {
       setInputs((inputs) => ({ ...inputs, access_token: data }));
-      navigator.clipboard.writeText(data);
-      showSuccess(`令牌已重置并已复制到剪贴板`);
+      copy(data, '访问令牌');
     } else {
       showError(message);
     }

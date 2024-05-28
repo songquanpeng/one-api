@@ -208,6 +208,9 @@ func getMappedModelName(modelName string, mapping map[string]string) (string, bo
 
 func isErrorHappened(meta *meta.Meta, resp *http.Response) bool {
 	if resp == nil {
+		if meta.ChannelType == channeltype.AwsClaude {
+			return false
+		}
 		return true
 	}
 	if resp.StatusCode != http.StatusOK {
