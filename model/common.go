@@ -3,6 +3,7 @@ package model
 import (
 	"fmt"
 	"one-api/common"
+	"one-api/common/config"
 	"strings"
 
 	"gorm.io/gorm"
@@ -43,11 +44,11 @@ func PaginateAndOrder[T modelable](db *gorm.DB, params *PaginationParams, result
 		params.Page = 1
 	}
 	if params.Size < 1 {
-		params.Size = common.ItemsPerPage
+		params.Size = config.ItemsPerPage
 	}
 
-	if params.Size > common.MaxRecentItems {
-		return nil, fmt.Errorf("size 参数不能超过 %d", common.MaxRecentItems)
+	if params.Size > config.MaxRecentItems {
+		return nil, fmt.Errorf("size 参数不能超过 %d", config.MaxRecentItems)
 	}
 
 	offset := (params.Page - 1) * params.Size

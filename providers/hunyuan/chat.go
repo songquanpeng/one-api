@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"one-api/common"
+	"one-api/common/config"
 	"one-api/common/requester"
 	"one-api/types"
 	"strings"
@@ -53,7 +54,7 @@ func (p *HunyuanProvider) CreateChatCompletionStream(request *types.ChatCompleti
 }
 
 func (p *HunyuanProvider) getChatRequest(request *types.ChatCompletionRequest) (*http.Request, *types.OpenAIErrorWithStatusCode) {
-	action, errWithCode := p.GetSupportedAPIUri(common.RelayModeChatCompletions)
+	action, errWithCode := p.GetSupportedAPIUri(config.RelayModeChatCompletions)
 	if errWithCode != nil {
 		return nil, errWithCode
 	}

@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"one-api/common"
+	"one-api/common/config"
 	"one-api/common/utils"
 	"one-api/model"
 
@@ -57,7 +58,7 @@ func NewChatCacheProps(c *gin.Context, allow bool) *ChatCacheProps {
 		return props
 	}
 
-	if common.ChatCacheEnabled && c.GetBool("chat_cache") {
+	if config.ChatCacheEnabled && c.GetBool("chat_cache") {
 		props.Cache = true
 	}
 
@@ -113,7 +114,7 @@ func (p *ChatCacheProps) StoreCache(channelId, promptTokens, completionTokens in
 	p.CompletionTokens = completionTokens
 	p.ModelName = modelName
 
-	return p.Driver.Set(p.getHash(), p, int64(common.ChatCacheExpireMinute))
+	return p.Driver.Set(p.getHash(), p, int64(config.ChatCacheExpireMinute))
 }
 
 func (p *ChatCacheProps) GetCache() *ChatCacheProps {
@@ -125,7 +126,7 @@ func (p *ChatCacheProps) GetCache() *ChatCacheProps {
 }
 
 func (p *ChatCacheProps) needCache() bool {
-	return common.ChatCacheEnabled && p.Cache
+	return config.ChatCacheEnabled && p.Cache
 }
 
 func (p *ChatCacheProps) getHash() string {

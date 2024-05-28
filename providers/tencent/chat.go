@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net/http"
 	"one-api/common"
+	"one-api/common/config"
 	"one-api/common/requester"
 	"one-api/common/utils"
 	"one-api/types"
@@ -55,7 +56,7 @@ func (p *TencentProvider) CreateChatCompletionStream(request *types.ChatCompleti
 }
 
 func (p *TencentProvider) getChatRequest(request *types.ChatCompletionRequest) (*http.Request, *types.OpenAIErrorWithStatusCode) {
-	url, errWithCode := p.GetSupportedAPIUri(common.RelayModeChatCompletions)
+	url, errWithCode := p.GetSupportedAPIUri(config.RelayModeChatCompletions)
 	if errWithCode != nil {
 		return nil, errWithCode
 	}

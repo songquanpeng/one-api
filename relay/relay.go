@@ -3,6 +3,7 @@ package relay
 import (
 	"net/http"
 	"one-api/common"
+	"one-api/common/config"
 	"one-api/model"
 	"one-api/providers/azure"
 	"one-api/providers/openai"
@@ -20,7 +21,7 @@ func RelayOnly(c *gin.Context) {
 	}
 
 	channel := provider.GetChannel()
-	if channel.Type != common.ChannelTypeOpenAI && channel.Type != common.ChannelTypeAzure {
+	if channel.Type != config.ChannelTypeOpenAI && channel.Type != config.ChannelTypeAzure {
 		common.AbortWithMessage(c, http.StatusServiceUnavailable, "provider must be of type azureopenai or openai")
 		return
 	}

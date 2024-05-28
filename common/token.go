@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"math"
+	"one-api/common/config"
 	"one-api/common/logger"
 	"strings"
 
@@ -21,7 +22,7 @@ var gpt4oTokenEncoder *tiktoken.Tiktoken
 
 func InitTokenEncoders() {
 	if viper.GetBool("disable_token_encoders") {
-		DISABLE_TOKEN_ENCODERS = true
+		config.DISABLE_TOKEN_ENCODERS = true
 		logger.SysLog("token encoders disabled")
 		return
 	}
@@ -46,7 +47,7 @@ func InitTokenEncoders() {
 }
 
 func getTokenEncoder(model string) *tiktoken.Tiktoken {
-	if DISABLE_TOKEN_ENCODERS {
+	if config.DISABLE_TOKEN_ENCODERS {
 		return nil
 	}
 
@@ -75,7 +76,7 @@ func getTokenEncoder(model string) *tiktoken.Tiktoken {
 }
 
 func getTokenNum(tokenEncoder *tiktoken.Tiktoken, text string) int {
-	if DISABLE_TOKEN_ENCODERS || ApproximateTokenEnabled {
+	if config.DISABLE_TOKEN_ENCODERS || config.ApproximateTokenEnabled {
 		return int(float64(len(text)) * 0.38)
 	}
 	return len(tokenEncoder.Encode(text, nil, nil))

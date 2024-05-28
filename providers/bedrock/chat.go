@@ -3,6 +3,7 @@ package bedrock
 import (
 	"net/http"
 	"one-api/common"
+	"one-api/common/config"
 	"one-api/common/requester"
 	"one-api/providers/bedrock/category"
 	"one-api/types"
@@ -48,7 +49,7 @@ func (p *BedrockProvider) getChatRequest(request *types.ChatCompletionRequest) (
 		return nil, common.StringErrorWrapper("bedrock provider not found", "bedrock_err", http.StatusInternalServerError)
 	}
 
-	url, errWithCode := p.GetSupportedAPIUri(common.RelayModeChatCompletions)
+	url, errWithCode := p.GetSupportedAPIUri(config.RelayModeChatCompletions)
 	if errWithCode != nil {
 		return nil, errWithCode
 	}

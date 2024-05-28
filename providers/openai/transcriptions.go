@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"one-api/common"
+	"one-api/common/config"
 	"one-api/common/requester"
 	"one-api/types"
 	"regexp"
@@ -15,7 +16,7 @@ import (
 )
 
 func (p *OpenAIProvider) CreateTranscriptions(request *types.AudioRequest) (*types.AudioResponseWrapper, *types.OpenAIErrorWithStatusCode) {
-	req, errWithCode := p.getRequestAudioBody(common.RelayModeAudioTranscription, request.Model, request)
+	req, errWithCode := p.getRequestAudioBody(config.RelayModeAudioTranscription, request.Model, request)
 	if errWithCode != nil {
 		return nil, errWithCode
 	}

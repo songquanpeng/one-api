@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"one-api/common"
+	"one-api/common/config"
 	"one-api/common/image"
 	"one-api/common/requester"
 	"one-api/common/utils"
@@ -56,7 +57,7 @@ func (p *OllamaProvider) CreateChatCompletionStream(request *types.ChatCompletio
 }
 
 func (p *OllamaProvider) getChatRequest(request *types.ChatCompletionRequest) (*http.Request, *types.OpenAIErrorWithStatusCode) {
-	url, errWithCode := p.GetSupportedAPIUri(common.RelayModeChatCompletions)
+	url, errWithCode := p.GetSupportedAPIUri(config.RelayModeChatCompletions)
 	if errWithCode != nil {
 		return nil, errWithCode
 	}

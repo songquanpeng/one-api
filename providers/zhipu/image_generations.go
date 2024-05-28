@@ -3,12 +3,13 @@ package zhipu
 import (
 	"net/http"
 	"one-api/common"
+	"one-api/common/config"
 	"one-api/types"
 	"time"
 )
 
 func (p *ZhipuProvider) CreateImageGenerations(request *types.ImageRequest) (*types.ImageResponse, *types.OpenAIErrorWithStatusCode) {
-	url, errWithCode := p.GetSupportedAPIUri(common.RelayModeImagesGenerations)
+	url, errWithCode := p.GetSupportedAPIUri(config.RelayModeImagesGenerations)
 	if errWithCode != nil {
 		return nil, errWithCode
 	}

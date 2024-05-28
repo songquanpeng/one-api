@@ -3,11 +3,12 @@ package ollama
 import (
 	"net/http"
 	"one-api/common"
+	"one-api/common/config"
 	"one-api/types"
 )
 
 func (p *OllamaProvider) CreateEmbeddings(request *types.EmbeddingRequest) (*types.EmbeddingResponse, *types.OpenAIErrorWithStatusCode) {
-	url, errWithCode := p.GetSupportedAPIUri(common.RelayModeEmbeddings)
+	url, errWithCode := p.GetSupportedAPIUri(config.RelayModeEmbeddings)
 	if errWithCode != nil {
 		return nil, errWithCode
 	}

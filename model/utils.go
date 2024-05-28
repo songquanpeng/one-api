@@ -1,7 +1,7 @@
 package model
 
 import (
-	"one-api/common"
+	"one-api/common/config"
 	"one-api/common/logger"
 	"sync"
 	"time"
@@ -29,7 +29,7 @@ func init() {
 func InitBatchUpdater() {
 	go func() {
 		for {
-			time.Sleep(time.Duration(common.BatchUpdateInterval) * time.Second)
+			time.Sleep(time.Duration(config.BatchUpdateInterval) * time.Second)
 			batchUpdate()
 		}
 	}()

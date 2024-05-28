@@ -4,11 +4,12 @@ import (
 	"io"
 	"net/http"
 	"one-api/common"
+	"one-api/common/config"
 	"one-api/types"
 )
 
 func (p *OpenAIProvider) CreateTranslation(request *types.AudioRequest) (*types.AudioResponseWrapper, *types.OpenAIErrorWithStatusCode) {
-	req, errWithCode := p.getRequestAudioBody(common.RelayModeAudioTranslation, request.Model, request)
+	req, errWithCode := p.getRequestAudioBody(config.RelayModeAudioTranslation, request.Model, request)
 	if errWithCode != nil {
 		return nil, errWithCode
 	}

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"one-api/common"
+	"one-api/common/config"
 	"one-api/types"
 	"strings"
 )
@@ -82,7 +83,7 @@ func (p *AzureSpeechProvider) getRequestBody(request *types.SpeechAudioRequest) 
 }
 
 func (p *AzureSpeechProvider) CreateSpeech(request *types.SpeechAudioRequest) (*http.Response, *types.OpenAIErrorWithStatusCode) {
-	url, errWithCode := p.GetSupportedAPIUri(common.RelayModeAudioSpeech)
+	url, errWithCode := p.GetSupportedAPIUri(config.RelayModeAudioSpeech)
 	if errWithCode != nil {
 		return nil, errWithCode
 	}

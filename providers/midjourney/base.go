@@ -7,7 +7,7 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"one-api/common"
+	"one-api/common/config"
 	"one-api/common/logger"
 	"one-api/common/requester"
 	"one-api/model"
@@ -48,7 +48,7 @@ func (p *MidjourneyProvider) Send(timeout int, requestURL string) (*MidjourneyRe
 			return MidjourneyErrorWithStatusCodeWrapper(MjErrorUnknown, "read_request_body_failed", http.StatusInternalServerError), nullBytes, err
 		}
 		delete(mapResult, "accountFilter")
-		if !common.MjNotifyEnabled {
+		if !config.MjNotifyEnabled {
 			delete(mapResult, "notifyHook")
 		}
 	}

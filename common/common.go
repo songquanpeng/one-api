@@ -1,10 +1,13 @@
 package common
 
-import "fmt"
+import (
+	"fmt"
+	"one-api/common/config"
+)
 
 func LogQuota(quota int) string {
-	if DisplayInCurrencyEnabled {
-		return fmt.Sprintf("＄%.6f 额度", float64(quota)/QuotaPerUnit)
+	if config.DisplayInCurrencyEnabled {
+		return fmt.Sprintf("＄%.6f 额度", float64(quota)/config.QuotaPerUnit)
 	} else {
 		return fmt.Sprintf("%d 点额度", quota)
 	}

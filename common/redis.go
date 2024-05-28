@@ -2,6 +2,7 @@ package common
 
 import (
 	"context"
+	"one-api/common/config"
 	"one-api/common/logger"
 	"time"
 
@@ -41,7 +42,7 @@ func InitRedisClient() (err error) {
 	} else {
 		RedisEnabled = true
 		// for compatibility with old versions
-		MemoryCacheEnabled = true
+		config.MemoryCacheEnabled = true
 	}
 
 	return err

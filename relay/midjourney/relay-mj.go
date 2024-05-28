@@ -10,6 +10,7 @@ import (
 	"log"
 	"net/http"
 	"one-api/common"
+	"one-api/common/config"
 	"one-api/controller"
 	"one-api/model"
 	provider "one-api/providers/midjourney"
@@ -112,7 +113,7 @@ func coverMidjourneyTaskDto(originTask *model.Midjourney) (midjourneyTask provid
 	midjourneyTask.FinishTime = originTask.FinishTime
 	midjourneyTask.ImageUrl = ""
 	if originTask.ImageUrl != "" {
-		midjourneyTask.ImageUrl = common.ServerAddress + "/mj/image/" + originTask.MjId
+		midjourneyTask.ImageUrl = config.ServerAddress + "/mj/image/" + originTask.MjId
 		if originTask.Status != "SUCCESS" {
 			midjourneyTask.ImageUrl += "?rand=" + strconv.FormatInt(time.Now().UnixNano(), 10)
 		}

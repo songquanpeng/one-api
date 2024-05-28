@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"one-api/common"
+	"one-api/common/config"
 	"one-api/common/logger"
 	"one-api/common/stmp"
 	"one-api/common/utils"
@@ -49,7 +50,7 @@ func GetUserTokensList(userId int, params *GenericParams) (*DataResult[Token], e
 
 // 获取状态为可用的令牌
 func GetUserEnabledTokens(userId int) (tokens []*Token, err error) {
-	err = DB.Where("user_id = ? and status = ?", userId, common.TokenStatusEnabled).Find(&tokens).Error
+	err = DB.Where("user_id = ? and status = ?", userId, config.TokenStatusEnabled).Find(&tokens).Error
 	return tokens, err
 }
 
@@ -65,17 +66,17 @@ func ValidateUserToken(key string) (token *Token, err error) {
 		}
 		return nil, errors.New("令牌验证失败")
 	}
-	if token.Status == common.TokenStatusExhausted {
+	if token.Status == config.TokenStatusExhausted {
 		return nil, errors.New("该令牌额度已用尽")
-	} else if token.Status == common.TokenStatusExpired {
+	} else if token.Status == config.TokenStatusExpired {
 		return nil, errors.New("该令牌已过期")
 	}
-	if token.Status != common.TokenStatusEnabled {
+	if token.Status != config.TokenStatusEnabled {
 		return nil, errors.New("该令牌状态不可用")
 	}
 	if token.ExpiredTime != -1 && token.ExpiredTime < utils.GetTimestamp() {
 		if !common.RedisEnabled {
-			token.Status = common.TokenStatusExpired
+			token.Status = config.TokenStatusExpired
 			err := token.SelectUpdate()
 			if err != nil {
 				logger.SysError("failed to update token status" + err.Error())
@@ -86,7 +87,7 @@ func ValidateUserToken(key string) (token *Token, err error) {
 	if !token.UnlimitedQuota && token.RemainQuota <= 0 {
 		if !common.RedisEnabled {
 			// in this case, we can make sure the token is exhausted
-			token.Status = common.TokenStatusExhausted
+			token.Status = config.TokenStatusExhausted
 			err := token.SelectUpdate()
 			if err != nil {
 				logger.SysError("failed to update token status" + err.Error())
@@ -128,7 +129,7 @@ func GetTokenByName(name string, user_id int) (*Token, error) {
 }
 
 func (token *Token) Insert() error {
-	if token.ChatCache && !common.ChatCacheEnabled {
+	if token.ChatCache && !config.ChatCacheEnabled {
 		token.ChatCache = false
 	}
 
@@ -138,7 +139,7 @@ func (token *Token) Insert() error {
 
 // Update Make sure your token's fields is completed, because this will update non-zero values
 func (token *Token) Update() error {
-	if token.ChatCache && !common.ChatCacheEnabled {
+	if token.ChatCache && !config.ChatCacheEnabled {
 		token.ChatCache = false
 	}
 
@@ -178,7 +179,7 @@ func IncreaseTokenQuota(id int, quota int) (err error) {
 	if quota < 0 {
 		return errors.New("quota 不能为负数！")
 	}
-	if common.BatchUpdateEnabled {
+	if config.BatchUpdateEnabled {
 		addNewRecord(BatchUpdateTypeTokenQuota, id, quota)
 		return nil
 	}
@@ -200,7 +201,7 @@ func DecreaseTokenQuota(id int, quota int) (err error) {
 	if quota < 0 {
 		return errors.New("quota 不能为负数！")
 	}
-	if common.BatchUpdateEnabled {
+	if config.BatchUpdateEnabled {
 		addNewRecord(BatchUpdateTypeTokenQuota, id, -quota)
 		return nil
 	}
@@ -236,7 +237,7 @@ func PreConsumeTokenQuota(tokenId int, quota int) (err error) {
 	if userQuota < quota {
 		return errors.New("用户额度不足")
 	}
-	quotaTooLow := userQuota >= common.QuotaRemindThreshold && userQuota-quota < common.QuotaRemindThreshold
+	quotaTooLow := userQuota >= config.QuotaRemindThreshold && userQuota-quota < config.QuotaRemindThreshold
 	noMoreQuota := userQuota-quota <= 0
 	if quotaTooLow || noMoreQuota {
 		go sendQuotaWarningEmail(token.UserId, userQuota, noMoreQuota)

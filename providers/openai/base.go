@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"one-api/common"
+	"one-api/common/config"
 	"one-api/common/requester"
 	"one-api/model"
 	"one-api/types"
@@ -32,11 +33,11 @@ func (f OpenAIProviderFactory) Create(channel *model.Channel) base.ProviderInter
 // 创建 OpenAIProvider
 // https://platform.openai.com/docs/api-reference/introduction
 func CreateOpenAIProvider(channel *model.Channel, baseURL string) *OpenAIProvider {
-	config := getOpenAIConfig(baseURL)
+	openaiConfig := getOpenAIConfig(baseURL)
 
 	OpenAIProvider := &OpenAIProvider{
 		BaseProvider: base.BaseProvider{
-			Config:    config,
+			Config:    openaiConfig,
 			Channel:   channel,
 			Requester: requester.NewHTTPRequester(*channel.Proxy, RequestErrorHandle),
 		},
@@ -44,7 +45,7 @@ func CreateOpenAIProvider(channel *model.Channel, baseURL string) *OpenAIProvide
 		BalanceAction: true,
 	}
 
-	if channel.Type == common.ChannelTypeOpenAI {
+	if channel.Type == config.ChannelTypeOpenAI {
 		OpenAIProvider.SupportStreamOptions = true
 	}
 
@@ -109,7 +110,7 @@ func (p *OpenAIProvider) GetFullRequestURL(requestURL string, modelName string) 
 			requestURL = fmt.Sprintf("/openai%s?api-version=%s", requestURL, apiVersion)
 		}
 
-	} else if p.Channel.Type == common.ChannelTypeCustom && p.Channel.Other != "" {
+	} else if p.Channel.Type == config.ChannelTypeCustom && p.Channel.Other != "" {
 		requestURL = strings.Replace(requestURL, "v1", p.Channel.Other, 1)
 	}
 

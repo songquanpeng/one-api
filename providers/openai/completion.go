@@ -5,13 +5,14 @@ import (
 	"io"
 	"net/http"
 	"one-api/common"
+	"one-api/common/config"
 	"one-api/common/requester"
 	"one-api/types"
 	"strings"
 )
 
 func (p *OpenAIProvider) CreateCompletion(request *types.CompletionRequest) (openaiResponse *types.CompletionResponse, errWithCode *types.OpenAIErrorWithStatusCode) {
-	req, errWithCode := p.GetRequestTextBody(common.RelayModeCompletions, request.Model, request)
+	req, errWithCode := p.GetRequestTextBody(config.RelayModeCompletions, request.Model, request)
 	if errWithCode != nil {
 		return nil, errWithCode
 	}
@@ -50,7 +51,7 @@ func (p *OpenAIProvider) CreateCompletionStream(request *types.CompletionRequest
 		// 避免误传导致报错
 		request.StreamOptions = nil
 	}
-	req, errWithCode := p.GetRequestTextBody(common.RelayModeCompletions, request.Model, request)
+	req, errWithCode := p.GetRequestTextBody(config.RelayModeCompletions, request.Model, request)
 	if errWithCode != nil {
 		return nil, errWithCode
 	}

@@ -3,6 +3,7 @@ package openai
 import (
 	"net/http"
 	"one-api/common"
+	"one-api/common/config"
 	"one-api/types"
 )
 
@@ -11,7 +12,7 @@ func (p *OpenAIProvider) CreateImageGenerations(request *types.ImageRequest) (*t
 		return nil, common.StringErrorWrapper("n_not_within_range", "n_not_within_range", http.StatusBadRequest)
 	}
 
-	req, errWithCode := p.GetRequestTextBody(common.RelayModeImagesGenerations, request.Model, request)
+	req, errWithCode := p.GetRequestTextBody(config.RelayModeImagesGenerations, request.Model, request)
 	if errWithCode != nil {
 		return nil, errWithCode
 	}

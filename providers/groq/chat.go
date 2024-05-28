@@ -2,7 +2,7 @@ package groq
 
 import (
 	"net/http"
-	"one-api/common"
+	"one-api/common/config"
 	"one-api/common/requester"
 	"one-api/providers/openai"
 	"one-api/types"
@@ -11,7 +11,7 @@ import (
 func (p *GroqProvider) CreateChatCompletion(request *types.ChatCompletionRequest) (openaiResponse *types.ChatCompletionResponse, errWithCode *types.OpenAIErrorWithStatusCode) {
 	p.getChatRequestBody(request)
 
-	req, errWithCode := p.GetRequestTextBody(common.RelayModeChatCompletions, request.Model, request)
+	req, errWithCode := p.GetRequestTextBody(config.RelayModeChatCompletions, request.Model, request)
 	if errWithCode != nil {
 		return nil, errWithCode
 	}
@@ -51,7 +51,7 @@ func (p *GroqProvider) CreateChatCompletionStream(request *types.ChatCompletionR
 		request.StreamOptions = nil
 	}
 	p.getChatRequestBody(request)
-	req, errWithCode := p.GetRequestTextBody(common.RelayModeChatCompletions, request.Model, request)
+	req, errWithCode := p.GetRequestTextBody(config.RelayModeChatCompletions, request.Model, request)
 	if errWithCode != nil {
 		return nil, errWithCode
 	}

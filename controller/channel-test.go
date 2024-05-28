@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
-	"one-api/common"
+	"one-api/common/config"
 	"one-api/common/logger"
 	"one-api/common/notify"
 	"one-api/common/utils"
@@ -145,16 +145,16 @@ func testAllChannels(isNotify bool) error {
 	if err != nil {
 		return err
 	}
-	var disableThreshold = int64(common.ChannelDisableThreshold * 1000)
+	var disableThreshold = int64(config.ChannelDisableThreshold * 1000)
 	if disableThreshold == 0 {
 		disableThreshold = 10000000 // a impossible value
 	}
 	go func() {
 		var sendMessage string
 		for _, channel := range channels {
-			time.Sleep(common.RequestInterval)
+			time.Sleep(config.RequestInterval)
 
-			isChannelEnabled := channel.Status == common.ChannelStatusEnabled
+			isChannelEnabled := channel.Status == config.ChannelStatusEnabled
 			sendMessage += fmt.Sprintf("**通道 %s - #%d - %s** : \n\n", utils.EscapeMarkdownText(channel.Name), channel.Id, channel.StatusToStr())
 			tik := time.Now()
 			err, openaiErr := testChannel(channel, "")
@@ -173,7 +173,7 @@ func testAllChannels(isNotify bool) error {
 				// 如果已被禁用，但是请求成功，需要判断是否需要恢复
 				// 手动禁用的通道，不会自动恢复
 				if shouldEnableChannel(err, openaiErr) {
-					if channel.Status == common.ChannelStatusAutoDisabled {
+					if channel.Status == config.ChannelStatusAutoDisabled {
 						EnableChannel(channel.Id, channel.Name, false)
 						sendMessage += "- 已被启用 \n\n"
 					} else {

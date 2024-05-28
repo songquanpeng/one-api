@@ -3,7 +3,7 @@ package model
 import (
 	"errors"
 	"math/rand"
-	"one-api/common"
+	"one-api/common/config"
 	"one-api/common/logger"
 	"one-api/common/utils"
 	"strings"
@@ -38,7 +38,7 @@ func FilterOnlyChat() ChannelsFilterFunc {
 }
 
 func (cc *ChannelsChooser) Cooldowns(channelId int) bool {
-	if common.RetryCooldownSeconds == 0 {
+	if config.RetryCooldownSeconds == 0 {
 		return false
 	}
 	cc.Lock()
@@ -47,7 +47,7 @@ func (cc *ChannelsChooser) Cooldowns(channelId int) bool {
 		return false
 	}
 
-	cc.Channels[channelId].CooldownsTime = time.Now().Unix() + int64(common.RetryCooldownSeconds)
+	cc.Channels[channelId].CooldownsTime = time.Now().Unix() + int64(config.RetryCooldownSeconds)
 	return true
 }
 
@@ -159,7 +159,7 @@ var ChannelGroup = ChannelsChooser{}
 
 func (cc *ChannelsChooser) Load() {
 	var channels []*Channel
-	DB.Where("status = ?", common.ChannelStatusEnabled).Find(&channels)
+	DB.Where("status = ?", config.ChannelStatusEnabled).Find(&channels)
 
 	abilities, err := GetAbilityChannelGroup()
 	if err != nil {
@@ -173,7 +173,7 @@ func (cc *ChannelsChooser) Load() {
 
 	for _, channel := range channels {
 		if *channel.Weight == 0 {
-			channel.Weight = &common.DefaultChannelWeight
+			channel.Weight = &config.DefaultChannelWeight
 		}
 		newChannels[channel.Id] = &ChannelChoice{
 			Channel:       channel,

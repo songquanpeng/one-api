@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"one-api/common"
+	"one-api/common/config"
 	"one-api/common/logger"
 	"one-api/model"
 	"one-api/relay/relay_util"
@@ -50,7 +51,7 @@ func Relay(c *gin.Context) {
 	channel := relay.getProvider().GetChannel()
 	go processChannelRelayError(c.Request.Context(), channel.Id, channel.Name, apiErr)
 
-	retryTimes := common.RetryTimes
+	retryTimes := config.RetryTimes
 	if done || !shouldRetry(c, apiErr.StatusCode) {
 		logger.LogError(c.Request.Context(), fmt.Sprintf("relay error happen, status code is %d, won't retry in this case", apiErr.StatusCode))
 		retryTimes = 0

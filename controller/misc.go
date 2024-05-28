@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"one-api/common"
+	"one-api/common/config"
 	"one-api/common/stmp"
 	"one-api/common/telegram"
 	"one-api/model"
@@ -23,60 +24,60 @@ func GetStatus(c *gin.Context) {
 		"success": true,
 		"message": "",
 		"data": gin.H{
-			"version":             common.Version,
-			"start_time":          common.StartTime,
-			"email_verification":  common.EmailVerificationEnabled,
-			"github_oauth":        common.GitHubOAuthEnabled,
-			"github_client_id":    common.GitHubClientId,
-			"lark_login":          common.LarkAuthEnabled,
-			"lark_client_id":      common.LarkClientId,
-			"system_name":         common.SystemName,
-			"logo":                common.Logo,
-			"footer_html":         common.Footer,
-			"wechat_qrcode":       common.WeChatAccountQRCodeImageURL,
-			"wechat_login":        common.WeChatAuthEnabled,
-			"server_address":      common.ServerAddress,
-			"turnstile_check":     common.TurnstileCheckEnabled,
-			"turnstile_site_key":  common.TurnstileSiteKey,
-			"top_up_link":         common.TopUpLink,
-			"chat_link":           common.ChatLink,
-			"quota_per_unit":      common.QuotaPerUnit,
-			"display_in_currency": common.DisplayInCurrencyEnabled,
+			"version":             config.Version,
+			"start_time":          config.StartTime,
+			"email_verification":  config.EmailVerificationEnabled,
+			"github_oauth":        config.GitHubOAuthEnabled,
+			"github_client_id":    config.GitHubClientId,
+			"lark_login":          config.LarkAuthEnabled,
+			"lark_client_id":      config.LarkClientId,
+			"system_name":         config.SystemName,
+			"logo":                config.Logo,
+			"footer_html":         config.Footer,
+			"wechat_qrcode":       config.WeChatAccountQRCodeImageURL,
+			"wechat_login":        config.WeChatAuthEnabled,
+			"server_address":      config.ServerAddress,
+			"turnstile_check":     config.TurnstileCheckEnabled,
+			"turnstile_site_key":  config.TurnstileSiteKey,
+			"top_up_link":         config.TopUpLink,
+			"chat_link":           config.ChatLink,
+			"quota_per_unit":      config.QuotaPerUnit,
+			"display_in_currency": config.DisplayInCurrencyEnabled,
 			"telegram_bot":        telegram_bot,
-			"mj_notify_enabled":   common.MjNotifyEnabled,
-			"chat_cache_enabled":  common.ChatCacheEnabled,
-			"chat_links":          common.ChatLinks,
+			"mj_notify_enabled":   config.MjNotifyEnabled,
+			"chat_cache_enabled":  config.ChatCacheEnabled,
+			"chat_links":          config.ChatLinks,
 		},
 	})
 }
 
 func GetNotice(c *gin.Context) {
-	common.OptionMapRWMutex.RLock()
-	defer common.OptionMapRWMutex.RUnlock()
+	config.OptionMapRWMutex.RLock()
+	defer config.OptionMapRWMutex.RUnlock()
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"message": "",
-		"data":    common.OptionMap["Notice"],
+		"data":    config.OptionMap["Notice"],
 	})
 }
 
 func GetAbout(c *gin.Context) {
-	common.OptionMapRWMutex.RLock()
-	defer common.OptionMapRWMutex.RUnlock()
+	config.OptionMapRWMutex.RLock()
+	defer config.OptionMapRWMutex.RUnlock()
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"message": "",
-		"data":    common.OptionMap["About"],
+		"data":    config.OptionMap["About"],
 	})
 }
 
 func GetHomePageContent(c *gin.Context) {
-	common.OptionMapRWMutex.RLock()
-	defer common.OptionMapRWMutex.RUnlock()
+	config.OptionMapRWMutex.RLock()
+	defer config.OptionMapRWMutex.RUnlock()
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"message": "",
-		"data":    common.OptionMap["HomePageContent"],
+		"data":    config.OptionMap["HomePageContent"],
 	})
 }
 
@@ -89,9 +90,9 @@ func SendEmailVerification(c *gin.Context) {
 		})
 		return
 	}
-	if common.EmailDomainRestrictionEnabled {
+	if config.EmailDomainRestrictionEnabled {
 		allowed := false
-		for _, domain := range common.EmailDomainWhitelist {
+		for _, domain := range config.EmailDomainWhitelist {
 			if strings.HasSuffix(email, "@"+domain) {
 				allowed = true
 				break
@@ -157,7 +158,7 @@ func SendPasswordResetEmail(c *gin.Context) {
 
 	code := common.GenerateVerificationCode(0)
 	common.RegisterVerificationCodeWithKey(email, code, common.PasswordResetPurpose)
-	link := fmt.Sprintf("%s/user/reset?email=%s&token=%s", common.ServerAddress, email, code)
+	link := fmt.Sprintf("%s/user/reset?email=%s&token=%s", config.ServerAddress, email, code)
 	err := stmp.SendPasswordResetEmail(userName, email, link)
 
 	if err != nil {

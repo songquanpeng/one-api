@@ -3,6 +3,7 @@ package model
 import (
 	"fmt"
 	"one-api/common"
+	"one-api/common/config"
 	"one-api/common/logger"
 	"one-api/common/utils"
 	"strconv"
@@ -24,12 +25,12 @@ func SetupDB() {
 		logger.FatalLog("failed to initialize database: " + err.Error())
 	}
 	ChannelGroup.Load()
-	common.RootUserEmail = GetRootUserEmail()
+	config.RootUserEmail = GetRootUserEmail()
 
 	if viper.GetBool("batch_update_enabled") {
-		common.BatchUpdateEnabled = true
-		common.BatchUpdateInterval = utils.GetOrDefault("batch_update_interval", 5)
-		logger.SysLog("batch update enabled with interval " + strconv.Itoa(common.BatchUpdateInterval) + "s")
+		config.BatchUpdateEnabled = true
+		config.BatchUpdateInterval = utils.GetOrDefault("batch_update_interval", 5)
+		logger.SysLog("batch update enabled with interval " + strconv.Itoa(config.BatchUpdateInterval) + "s")
 		InitBatchUpdater()
 	}
 }
@@ -46,8 +47,8 @@ func createRootAccountIfNeed() error {
 		rootUser := User{
 			Username:    "root",
 			Password:    hashedPassword,
-			Role:        common.RoleRootUser,
-			Status:      common.UserStatusEnabled,
+			Role:        config.RoleRootUser,
+			Status:      config.UserStatusEnabled,
 			DisplayName: "Root User",
 			AccessToken: utils.GetUUID(),
 			Quota:       100000000,
@@ -102,7 +103,7 @@ func InitDB() (err error) {
 		sqlDB.SetMaxOpenConns(utils.GetOrDefault("SQL_MAX_OPEN_CONNS", 1000))
 		sqlDB.SetConnMaxLifetime(time.Second * time.Duration(utils.GetOrDefault("SQL_MAX_LIFETIME", 60)))
 
-		if !common.IsMasterNode {
+		if !config.IsMasterNode {
 			return nil
 		}
 		logger.SysLog("database migration started")

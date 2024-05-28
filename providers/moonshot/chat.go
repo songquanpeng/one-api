@@ -3,6 +3,7 @@ package moonshot
 import (
 	"net/http"
 	"one-api/common"
+	"one-api/common/config"
 	"one-api/common/requester"
 	"one-api/providers/openai"
 	"one-api/types"
@@ -10,7 +11,7 @@ import (
 
 func (p *MoonshotProvider) CreateChatCompletion(request *types.ChatCompletionRequest) (openaiResponse *types.ChatCompletionResponse, errWithCode *types.OpenAIErrorWithStatusCode) {
 	request.ClearEmptyMessages()
-	req, errWithCode := p.GetRequestTextBody(common.RelayModeChatCompletions, request.Model, request)
+	req, errWithCode := p.GetRequestTextBody(config.RelayModeChatCompletions, request.Model, request)
 	if errWithCode != nil {
 		return nil, errWithCode
 	}
@@ -51,7 +52,7 @@ func (p *MoonshotProvider) CreateChatCompletion(request *types.ChatCompletionReq
 
 func (p *MoonshotProvider) CreateChatCompletionStream(request *types.ChatCompletionRequest) (requester.StreamReaderInterface[string], *types.OpenAIErrorWithStatusCode) {
 	request.ClearEmptyMessages()
-	req, errWithCode := p.GetRequestTextBody(common.RelayModeChatCompletions, request.Model, request)
+	req, errWithCode := p.GetRequestTextBody(config.RelayModeChatCompletions, request.Model, request)
 	if errWithCode != nil {
 		return nil, errWithCode
 	}

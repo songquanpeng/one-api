@@ -7,6 +7,7 @@ import (
 	"math"
 	"net/http"
 	"one-api/common"
+	"one-api/common/config"
 	"one-api/common/logger"
 	"one-api/model"
 	"one-api/types"
@@ -45,7 +46,7 @@ func NewQuota(c *gin.Context, modelName string, promptTokens int) (*Quota, *type
 	if quota.price.Type == model.TimesPriceType {
 		quota.preConsumedQuota = int(1000 * quota.inputRatio)
 	} else {
-		quota.preConsumedQuota = int(float64(quota.promptTokens+common.PreConsumedQuota) * quota.inputRatio)
+		quota.preConsumedQuota = int(float64(quota.promptTokens+config.PreConsumedQuota) * quota.inputRatio)
 	}
 
 	errWithCode := quota.preQuotaConsumption()

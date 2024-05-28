@@ -4,6 +4,7 @@ import (
 	"errors"
 	"net/http"
 	"one-api/common"
+	"one-api/common/config"
 	"one-api/providers/openai"
 	"one-api/types"
 	"time"
@@ -14,7 +15,7 @@ func (p *AzureProvider) CreateImageGenerations(request *types.ImageRequest) (*ty
 		return nil, common.StringErrorWrapper("n_not_within_range", "n_not_within_range", http.StatusBadRequest)
 	}
 
-	req, errWithCode := p.GetRequestTextBody(common.RelayModeImagesGenerations, request.Model, request)
+	req, errWithCode := p.GetRequestTextBody(config.RelayModeImagesGenerations, request.Model, request)
 	if errWithCode != nil {
 		return nil, errWithCode
 	}

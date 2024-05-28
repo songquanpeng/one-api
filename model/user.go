@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"one-api/common"
+	"one-api/common/config"
 	"one-api/common/logger"
 	"one-api/common/utils"
 	"strings"
@@ -116,7 +117,7 @@ func (user *User) Insert(inviterId int) error {
 			return err
 		}
 	}
-	user.Quota = common.QuotaForNewUser
+	user.Quota = config.QuotaForNewUser
 	user.AccessToken = utils.GetUUID()
 	user.AffCode = utils.GetRandomString(4)
 	user.CreatedTime = utils.GetTimestamp()
@@ -124,17 +125,17 @@ func (user *User) Insert(inviterId int) error {
 	if result.Error != nil {
 		return result.Error
 	}
-	if common.QuotaForNewUser > 0 {
-		RecordLog(user.Id, LogTypeSystem, fmt.Sprintf("新用户注册赠送 %s", common.LogQuota(common.QuotaForNewUser)))
+	if config.QuotaForNewUser > 0 {
+		RecordLog(user.Id, LogTypeSystem, fmt.Sprintf("新用户注册赠送 %s", common.LogQuota(config.QuotaForNewUser)))
 	}
 	if inviterId != 0 {
-		if common.QuotaForInvitee > 0 {
-			_ = IncreaseUserQuota(user.Id, common.QuotaForInvitee)
-			RecordLog(user.Id, LogTypeSystem, fmt.Sprintf("使用邀请码赠送 %s", common.LogQuota(common.QuotaForInvitee)))
+		if config.QuotaForInvitee > 0 {
+			_ = IncreaseUserQuota(user.Id, config.QuotaForInvitee)
+			RecordLog(user.Id, LogTypeSystem, fmt.Sprintf("使用邀请码赠送 %s", common.LogQuota(config.QuotaForInvitee)))
 		}
-		if common.QuotaForInviter > 0 {
-			_ = IncreaseUserQuota(inviterId, common.QuotaForInviter)
-			RecordLog(inviterId, LogTypeSystem, fmt.Sprintf("邀请用户赠送 %s", common.LogQuota(common.QuotaForInviter)))
+		if config.QuotaForInviter > 0 {
+			_ = IncreaseUserQuota(inviterId, config.QuotaForInviter)
+			RecordLog(inviterId, LogTypeSystem, fmt.Sprintf("邀请用户赠送 %s", common.LogQuota(config.QuotaForInviter)))
 		}
 	}
 	return nil
@@ -150,8 +151,8 @@ func (user *User) Update(updatePassword bool) error {
 	}
 	err = DB.Model(user).Updates(user).Error
 
-	if err == nil && user.Role == common.RoleRootUser {
-		common.RootUserEmail = user.Email
+	if err == nil && user.Role == config.RoleRootUser {
+		config.RootUserEmail = user.Email
 	}
 
 	return err
@@ -196,7 +197,7 @@ func (user *User) ValidateAndFill() (err error) {
 		}
 	}
 	okay := common.ValidatePasswordAndHash(password, user.Password)
-	if !okay || user.Status != common.UserStatusEnabled {
+	if !okay || user.Status != config.UserStatusEnabled {
 		return errors.New("用户名或密码错误，或用户已被封禁")
 	}
 	return nil
@@ -310,7 +311,7 @@ func IsAdmin(userId int) bool {
 		logger.SysError("no such user " + err.Error())
 		return false
 	}
-	return user.Role >= common.RoleAdminUser
+	return user.Role >= config.RoleAdminUser
 }
 
 func IsUserEnabled(userId int) (bool, error) {
@@ -322,7 +323,7 @@ func IsUserEnabled(userId int) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	return user.Status == common.UserStatusEnabled, nil
+	return user.Status == config.UserStatusEnabled, nil
 }
 
 func ValidateAccessToken(token string) (user *User) {
@@ -366,7 +367,7 @@ func IncreaseUserQuota(id int, quota int) (err error) {
 	if quota < 0 {
 		return errors.New("quota 不能为负数！")
 	}
-	if common.BatchUpdateEnabled {
+	if config.BatchUpdateEnabled {
 		addNewRecord(BatchUpdateTypeUserQuota, id, quota)
 		return nil
 	}
@@ -382,7 +383,7 @@ func DecreaseUserQuota(id int, quota int) (err error) {
 	if quota < 0 {
 		return errors.New("quota 不能为负数！")
 	}
-	if common.BatchUpdateEnabled {
+	if config.BatchUpdateEnabled {
 		addNewRecord(BatchUpdateTypeUserQuota, id, -quota)
 		return nil
 	}
@@ -395,12 +396,12 @@ func decreaseUserQuota(id int, quota int) (err error) {
 }
 
 func GetRootUserEmail() (email string) {
-	DB.Model(&User{}).Where("role = ?", common.RoleRootUser).Select("email").Find(&email)
+	DB.Model(&User{}).Where("role = ?", config.RoleRootUser).Select("email").Find(&email)
 	return email
 }
 
 func UpdateUserUsedQuotaAndRequestCount(id int, quota int) {
-	if common.BatchUpdateEnabled {
+	if config.BatchUpdateEnabled {
 		addNewRecord(BatchUpdateTypeUsedQuota, id, quota)
 		addNewRecord(BatchUpdateTypeRequestCount, id, 1)
 		return

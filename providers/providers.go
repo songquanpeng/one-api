@@ -1,7 +1,7 @@
 package providers
 
 import (
-	"one-api/common"
+	"one-api/common/config"
 	"one-api/model"
 	"one-api/providers/ali"
 	"one-api/providers/azure"
@@ -44,32 +44,32 @@ var providerFactories = make(map[int]ProviderFactory)
 
 // 在程序启动时，添加所有的供应商工厂
 func init() {
-	providerFactories[common.ChannelTypeOpenAI] = openai.OpenAIProviderFactory{}
-	providerFactories[common.ChannelTypeAzure] = azure.AzureProviderFactory{}
-	providerFactories[common.ChannelTypeAli] = ali.AliProviderFactory{}
-	providerFactories[common.ChannelTypeTencent] = tencent.TencentProviderFactory{}
-	providerFactories[common.ChannelTypeBaidu] = baidu.BaiduProviderFactory{}
-	providerFactories[common.ChannelTypeAnthropic] = claude.ClaudeProviderFactory{}
-	providerFactories[common.ChannelTypePaLM] = palm.PalmProviderFactory{}
-	providerFactories[common.ChannelTypeZhipu] = zhipu.ZhipuProviderFactory{}
-	providerFactories[common.ChannelTypeXunfei] = xunfei.XunfeiProviderFactory{}
-	providerFactories[common.ChannelTypeAzureSpeech] = azurespeech.AzureSpeechProviderFactory{}
-	providerFactories[common.ChannelTypeGemini] = gemini.GeminiProviderFactory{}
-	providerFactories[common.ChannelTypeBaichuan] = baichuan.BaichuanProviderFactory{}
-	providerFactories[common.ChannelTypeMiniMax] = minimax.MiniMaxProviderFactory{}
-	providerFactories[common.ChannelTypeDeepseek] = deepseek.DeepseekProviderFactory{}
-	providerFactories[common.ChannelTypeMistral] = mistral.MistralProviderFactory{}
-	providerFactories[common.ChannelTypeGroq] = groq.GroqProviderFactory{}
-	providerFactories[common.ChannelTypeBedrock] = bedrock.BedrockProviderFactory{}
-	providerFactories[common.ChannelTypeMidjourney] = midjourney.MidjourneyProviderFactory{}
-	providerFactories[common.ChannelTypeCloudflareAI] = cloudflareAI.CloudflareAIProviderFactory{}
-	providerFactories[common.ChannelTypeCohere] = cohere.CohereProviderFactory{}
-	providerFactories[common.ChannelTypeStabilityAI] = stabilityAI.StabilityAIProviderFactory{}
-	providerFactories[common.ChannelTypeCoze] = coze.CozeProviderFactory{}
-	providerFactories[common.ChannelTypeOllama] = ollama.OllamaProviderFactory{}
-	providerFactories[common.ChannelTypeMoonshot] = moonshot.MoonshotProviderFactory{}
-	providerFactories[common.ChannelTypeLingyi] = lingyi.LingyiProviderFactory{}
-	providerFactories[common.ChannelTypeHunyuan] = hunyuan.HunyuanProviderFactory{}
+	providerFactories[config.ChannelTypeOpenAI] = openai.OpenAIProviderFactory{}
+	providerFactories[config.ChannelTypeAzure] = azure.AzureProviderFactory{}
+	providerFactories[config.ChannelTypeAli] = ali.AliProviderFactory{}
+	providerFactories[config.ChannelTypeTencent] = tencent.TencentProviderFactory{}
+	providerFactories[config.ChannelTypeBaidu] = baidu.BaiduProviderFactory{}
+	providerFactories[config.ChannelTypeAnthropic] = claude.ClaudeProviderFactory{}
+	providerFactories[config.ChannelTypePaLM] = palm.PalmProviderFactory{}
+	providerFactories[config.ChannelTypeZhipu] = zhipu.ZhipuProviderFactory{}
+	providerFactories[config.ChannelTypeXunfei] = xunfei.XunfeiProviderFactory{}
+	providerFactories[config.ChannelTypeAzureSpeech] = azurespeech.AzureSpeechProviderFactory{}
+	providerFactories[config.ChannelTypeGemini] = gemini.GeminiProviderFactory{}
+	providerFactories[config.ChannelTypeBaichuan] = baichuan.BaichuanProviderFactory{}
+	providerFactories[config.ChannelTypeMiniMax] = minimax.MiniMaxProviderFactory{}
+	providerFactories[config.ChannelTypeDeepseek] = deepseek.DeepseekProviderFactory{}
+	providerFactories[config.ChannelTypeMistral] = mistral.MistralProviderFactory{}
+	providerFactories[config.ChannelTypeGroq] = groq.GroqProviderFactory{}
+	providerFactories[config.ChannelTypeBedrock] = bedrock.BedrockProviderFactory{}
+	providerFactories[config.ChannelTypeMidjourney] = midjourney.MidjourneyProviderFactory{}
+	providerFactories[config.ChannelTypeCloudflareAI] = cloudflareAI.CloudflareAIProviderFactory{}
+	providerFactories[config.ChannelTypeCohere] = cohere.CohereProviderFactory{}
+	providerFactories[config.ChannelTypeStabilityAI] = stabilityAI.StabilityAIProviderFactory{}
+	providerFactories[config.ChannelTypeCoze] = coze.CozeProviderFactory{}
+	providerFactories[config.ChannelTypeOllama] = ollama.OllamaProviderFactory{}
+	providerFactories[config.ChannelTypeMoonshot] = moonshot.MoonshotProviderFactory{}
+	providerFactories[config.ChannelTypeLingyi] = lingyi.LingyiProviderFactory{}
+	providerFactories[config.ChannelTypeHunyuan] = hunyuan.HunyuanProviderFactory{}
 
 }
 
@@ -79,7 +79,7 @@ func GetProvider(channel *model.Channel, c *gin.Context) base.ProviderInterface 
 	var provider base.ProviderInterface
 	if !ok {
 		// 处理未找到的供应商工厂
-		baseURL := common.ChannelBaseURLs[channel.Type]
+		baseURL := config.ChannelBaseURLs[channel.Type]
 		if channel.GetBaseURL() != "" {
 			baseURL = channel.GetBaseURL()
 		}

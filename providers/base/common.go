@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"one-api/common"
+	"one-api/common/config"
 	"one-api/common/requester"
 	"one-api/model"
 	"one-api/types"
@@ -110,25 +111,25 @@ func (p *BaseProvider) ModelMappingHandler(modelName string) (string, error) {
 
 func (p *BaseProvider) GetAPIUri(relayMode int) string {
 	switch relayMode {
-	case common.RelayModeChatCompletions:
+	case config.RelayModeChatCompletions:
 		return p.Config.ChatCompletions
-	case common.RelayModeCompletions:
+	case config.RelayModeCompletions:
 		return p.Config.Completions
-	case common.RelayModeEmbeddings:
+	case config.RelayModeEmbeddings:
 		return p.Config.Embeddings
-	case common.RelayModeAudioSpeech:
+	case config.RelayModeAudioSpeech:
 		return p.Config.AudioSpeech
-	case common.RelayModeAudioTranscription:
+	case config.RelayModeAudioTranscription:
 		return p.Config.AudioTranscriptions
-	case common.RelayModeAudioTranslation:
+	case config.RelayModeAudioTranslation:
 		return p.Config.AudioTranslations
-	case common.RelayModeModerations:
+	case config.RelayModeModerations:
 		return p.Config.Moderation
-	case common.RelayModeImagesGenerations:
+	case config.RelayModeImagesGenerations:
 		return p.Config.ImagesGenerations
-	case common.RelayModeImagesEdits:
+	case config.RelayModeImagesEdits:
 		return p.Config.ImagesEdit
-	case common.RelayModeImagesVariations:
+	case config.RelayModeImagesVariations:
 		return p.Config.ImagesVariations
 	default:
 		return ""

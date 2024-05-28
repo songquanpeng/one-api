@@ -3,7 +3,8 @@ package cli
 import (
 	"flag"
 	"fmt"
-	"one-api/common"
+	"one-api/common/config"
+	"one-api/common/utils"
 	"os"
 
 	"github.com/spf13/viper"
@@ -18,11 +19,11 @@ var (
 	export       = flag.Bool("export", false, "Exports prices to a JSON file.")
 )
 
-func FlagConfig() {
+func InitCli() {
 	flag.Parse()
 
 	if *printVersion {
-		fmt.Println(common.Version)
+		fmt.Println(config.Version)
 		os.Exit(0)
 	}
 
@@ -44,10 +45,19 @@ func FlagConfig() {
 		os.Exit(0)
 	}
 
+	if Config != nil && !utils.IsFileExist(*Config) {
+		panic("Config file not found")
+	}
+
+	viper.SetConfigFile(*Config)
+	if err := viper.ReadInConfig(); err != nil {
+		panic(err)
+	}
+
 }
 
 func help() {
-	fmt.Println("One API " + common.Version + " - All in one API service for OpenAI API.")
+	fmt.Println("One API " + config.Version + " - All in one API service for OpenAI API.")
 	fmt.Println("Copyright (C) 2024 MartialBE. All rights reserved.")
 	fmt.Println("Original copyright holder: JustSong")
 	fmt.Println("GitHub: https://github.com/MartialBE/one-api")

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"one-api/common"
+	"one-api/common/config"
 	"one-api/common/requester"
 	"one-api/common/utils"
 	"one-api/types"
@@ -55,7 +56,7 @@ func (p *AliProvider) CreateChatCompletionStream(request *types.ChatCompletionRe
 }
 
 func (p *AliProvider) getAliChatRequest(request *types.ChatCompletionRequest) (*http.Request, *types.OpenAIErrorWithStatusCode) {
-	url, errWithCode := p.GetSupportedAPIUri(common.RelayModeChatCompletions)
+	url, errWithCode := p.GetSupportedAPIUri(config.RelayModeChatCompletions)
 	if errWithCode != nil {
 		return nil, errWithCode
 	}

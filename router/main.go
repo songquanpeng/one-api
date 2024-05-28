@@ -4,7 +4,7 @@ import (
 	"embed"
 	"fmt"
 	"net/http"
-	"one-api/common"
+	"one-api/common/config"
 	"one-api/common/logger"
 	"strings"
 
@@ -17,7 +17,7 @@ func SetRouter(router *gin.Engine, buildFS embed.FS, indexPage []byte) {
 	SetDashboardRouter(router)
 	SetRelayRouter(router)
 	frontendBaseUrl := viper.GetString("frontend_base_url")
-	if common.IsMasterNode && frontendBaseUrl != "" {
+	if config.IsMasterNode && frontendBaseUrl != "" {
 		frontendBaseUrl = ""
 		logger.SysLog("FRONTEND_BASE_URL is ignored on master node")
 	}

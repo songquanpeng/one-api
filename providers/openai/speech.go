@@ -2,13 +2,13 @@ package openai
 
 import (
 	"net/http"
-	"one-api/common"
+	"one-api/common/config"
 	"one-api/common/requester"
 	"one-api/types"
 )
 
 func (p *OpenAIProvider) CreateSpeech(request *types.SpeechAudioRequest) (*http.Response, *types.OpenAIErrorWithStatusCode) {
-	req, errWithCode := p.GetRequestTextBody(common.RelayModeAudioSpeech, request.Model, request)
+	req, errWithCode := p.GetRequestTextBody(config.RelayModeAudioSpeech, request.Model, request)
 	if errWithCode != nil {
 		return nil, errWithCode
 	}

@@ -5,12 +5,13 @@ import (
 	"fmt"
 	"net/http"
 	"one-api/common"
+	"one-api/common/config"
 	"one-api/common/requester"
 	"one-api/types"
 )
 
 func (p *OpenAIProvider) CreateImageEdits(request *types.ImageEditRequest) (*types.ImageResponse, *types.OpenAIErrorWithStatusCode) {
-	req, errWithCode := p.getRequestImageBody(common.RelayModeEdits, request.Model, request)
+	req, errWithCode := p.getRequestImageBody(config.RelayModeEdits, request.Model, request)
 	if errWithCode != nil {
 		return nil, errWithCode
 	}

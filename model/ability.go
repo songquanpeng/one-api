@@ -2,6 +2,7 @@ package model
 
 import (
 	"one-api/common"
+	"one-api/common/config"
 	"strings"
 )
 
@@ -66,7 +67,7 @@ func (channel *Channel) AddAbilities() error {
 				Group:     group,
 				Model:     model,
 				ChannelId: channel.Id,
-				Enabled:   channel.Status == common.ChannelStatusEnabled,
+				Enabled:   channel.Status == config.ChannelStatusEnabled,
 				Priority:  channel.Priority,
 				Weight:    channel.Weight,
 			}

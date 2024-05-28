@@ -4,7 +4,7 @@ import (
 	"errors"
 	"net/http"
 	"net/http/httptest"
-	"one-api/common"
+	"one-api/common/config"
 	"one-api/model"
 	"one-api/providers"
 	providersBase "one-api/providers/base"
@@ -109,11 +109,11 @@ func updateAllChannelsBalance() error {
 		return err
 	}
 	for _, channel := range channels {
-		if channel.Status != common.ChannelStatusEnabled {
+		if channel.Status != config.ChannelStatusEnabled {
 			continue
 		}
 		// TODO: support Azure
-		if channel.Type != common.ChannelTypeOpenAI && channel.Type != common.ChannelTypeCustom {
+		if channel.Type != config.ChannelTypeOpenAI && channel.Type != config.ChannelTypeCustom {
 			continue
 		}
 		balance, err := updateChannelBalance(channel)
@@ -125,7 +125,7 @@ func updateAllChannelsBalance() error {
 				DisableChannel(channel.Id, channel.Name, "余额不足", true)
 			}
 		}
-		time.Sleep(common.RequestInterval)
+		time.Sleep(config.RequestInterval)
 	}
 	return nil
 }

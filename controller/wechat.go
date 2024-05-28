@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"one-api/common"
+	"one-api/common/config"
 	"one-api/model"
 	"strconv"
 	"time"
@@ -23,11 +23,11 @@ func getWeChatIdByCode(code string) (string, error) {
 	if code == "" {
 		return "", errors.New("无效的参数")
 	}
-	req, err := http.NewRequest("GET", fmt.Sprintf("%s/api/wechat/user?code=%s", common.WeChatServerAddress, code), nil)
+	req, err := http.NewRequest("GET", fmt.Sprintf("%s/api/wechat/user?code=%s", config.WeChatServerAddress, code), nil)
 	if err != nil {
 		return "", err
 	}
-	req.Header.Set("Authorization", common.WeChatServerToken)
+	req.Header.Set("Authorization", config.WeChatServerToken)
 	client := http.Client{
 		Timeout: 5 * time.Second,
 	}
@@ -51,7 +51,7 @@ func getWeChatIdByCode(code string) (string, error) {
 }
 
 func WeChatAuth(c *gin.Context) {
-	if !common.WeChatAuthEnabled {
+	if !config.WeChatAuthEnabled {
 		c.JSON(http.StatusOK, gin.H{
 			"message": "管理员未开启通过微信登录以及注册",
 			"success": false,
@@ -80,11 +80,11 @@ func WeChatAuth(c *gin.Context) {
 			return
 		}
 	} else {
-		if common.RegisterEnabled {
+		if config.RegisterEnabled {
 			user.Username = "wechat_" + strconv.Itoa(model.GetMaxUserId()+1)
 			user.DisplayName = "WeChat User"
-			user.Role = common.RoleCommonUser
-			user.Status = common.UserStatusEnabled
+			user.Role = config.RoleCommonUser
+			user.Status = config.UserStatusEnabled
 
 			if err := user.Insert(0); err != nil {
 				c.JSON(http.StatusOK, gin.H{
@@ -102,7 +102,7 @@ func WeChatAuth(c *gin.Context) {
 		}
 	}
 
-	if user.Status != common.UserStatusEnabled {
+	if user.Status != config.UserStatusEnabled {
 		c.JSON(http.StatusOK, gin.H{
 			"message": "用户已被封禁",
 			"success": false,
@@ -113,7 +113,7 @@ func WeChatAuth(c *gin.Context) {
 }
 
 func WeChatBind(c *gin.Context) {
-	if !common.WeChatAuthEnabled {
+	if !config.WeChatAuthEnabled {
 		c.JSON(http.StatusOK, gin.H{
 			"message": "管理员未开启通过微信登录以及注册",
 			"success": false,

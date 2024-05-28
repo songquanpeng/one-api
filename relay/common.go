@@ -8,6 +8,7 @@ import (
 	"io"
 	"net/http"
 	"one-api/common"
+	"one-api/common/config"
 	"one-api/common/logger"
 	"one-api/common/requester"
 	"one-api/common/utils"
@@ -93,7 +94,7 @@ func fetchChannelById(channelId int) (*model.Channel, error) {
 	if err != nil {
 		return nil, errors.New("无效的渠道 Id")
 	}
-	if channel.Status != common.ChannelStatusEnabled {
+	if channel.Status != config.ChannelStatusEnabled {
 		return nil, errors.New("该渠道已被禁用")
 	}
 

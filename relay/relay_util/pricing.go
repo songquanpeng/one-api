@@ -3,7 +3,7 @@ package relay_util
 import (
 	"encoding/json"
 	"errors"
-	"one-api/common"
+	"one-api/common/config"
 	"one-api/common/logger"
 	"one-api/common/utils"
 	"one-api/model"
@@ -107,7 +107,7 @@ func (p *Pricing) GetPrice(modelName string) *model.Price {
 
 	return &model.Price{
 		Type:        model.TokensPriceType,
-		ChannelType: common.ChannelTypeUnknown,
+		ChannelType: config.ChannelTypeUnknown,
 		Input:       model.DefaultPrice,
 		Output:      model.DefaultPrice,
 	}

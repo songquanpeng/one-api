@@ -3,6 +3,7 @@ package main
 import (
 	"embed"
 	"fmt"
+	"one-api/cli"
 	"one-api/common"
 	"one-api/common/config"
 	"one-api/common/logger"
@@ -31,9 +32,10 @@ var buildFS embed.FS
 var indexPage []byte
 
 func main() {
+	cli.InitCli()
 	config.InitConf()
 	logger.SetupLogger()
-	logger.SysLog("One API " + common.Version + " started")
+	logger.SysLog("One API " + config.Version + " started")
 	// Initialize SQL Database
 	model.SetupDB()
 	defer model.CloseDB()
@@ -60,10 +62,10 @@ func main() {
 
 func initMemoryCache() {
 	if viper.GetBool("memory_cache_enabled") {
-		common.MemoryCacheEnabled = true
+		config.MemoryCacheEnabled = true
 	}
 
-	if !common.MemoryCacheEnabled {
+	if !config.MemoryCacheEnabled {
 		return
 	}
 
@@ -91,7 +93,7 @@ func initHttpServer() {
 	server.Use(middleware.RequestId())
 	middleware.SetUpLogger(server)
 
-	store := cookie.NewStore([]byte(common.SessionSecret))
+	store := cookie.NewStore([]byte(config.SessionSecret))
 	server.Use(sessions.Sessions("session", store))
 
 	router.SetRouter(server, buildFS, indexPage)
@@ -105,7 +107,7 @@ func initHttpServer() {
 
 func SyncChannelCache(frequency int) {
 	// 只有 从 服务器端获取数据的时候才会用到
-	if common.IsMasterNode {
+	if config.IsMasterNode {
 		logger.SysLog("master node does't synchronize the channel")
 		return
 	}

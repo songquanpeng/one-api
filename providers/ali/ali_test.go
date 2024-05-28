@@ -2,7 +2,7 @@ package ali_test
 
 import (
 	"net/http"
-	"one-api/common"
+	"one-api/common/config"
 	"one-api/common/test"
 	"one-api/model"
 )
@@ -20,5 +20,5 @@ func setupAliTestServer() (baseUrl string, server *test.ServerTest, teardown fun
 }
 
 func getAliChannel(baseUrl string) model.Channel {
-	return test.GetChannel(common.ChannelTypeAli, baseUrl, "", "", "")
+	return test.GetChannel(config.ChannelTypeAli, baseUrl, "", "", "")
 }

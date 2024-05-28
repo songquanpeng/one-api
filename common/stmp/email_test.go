@@ -2,6 +2,7 @@ package stmp_test
 
 import (
 	"fmt"
+	"one-api/common/config"
 	"testing"
 
 	"one-api/common"
@@ -56,7 +57,7 @@ func TestSend(t *testing.T) {
 					验证码 %d 分钟内有效，如果不是本人操作，请忽略。
 				</p>`
 
-			subject := fmt.Sprintf("%s邮箱验证邮件", common.SystemName)
+			subject := fmt.Sprintf("%s邮箱验证邮件", config.SystemName)
 			content := fmt.Sprintf(contentTemp, code, common.VerificationValidMinutes)
 
 			err := stmpClient.Render(email, subject, content)

@@ -1,7 +1,7 @@
 package model
 
 import (
-	"one-api/common"
+	"one-api/common/config"
 	"one-api/common/logger"
 	"one-api/common/utils"
 	"strings"
@@ -270,11 +270,11 @@ func (channel *Channel) Delete() error {
 
 func (channel *Channel) StatusToStr() string {
 	switch channel.Status {
-	case common.ChannelStatusEnabled:
+	case config.ChannelStatusEnabled:
 		return "启用"
-	case common.ChannelStatusAutoDisabled:
+	case config.ChannelStatusAutoDisabled:
 		return "自动禁用"
-	case common.ChannelStatusManuallyDisabled:
+	case config.ChannelStatusManuallyDisabled:
 		return "手动禁用"
 	}
 
@@ -282,7 +282,7 @@ func (channel *Channel) StatusToStr() string {
 }
 
 func UpdateChannelStatusById(id int, status int) {
-	err := UpdateAbilityStatus(id, status == common.ChannelStatusEnabled)
+	err := UpdateAbilityStatus(id, status == config.ChannelStatusEnabled)
 	if err != nil {
 		logger.SysError("failed to update ability status: " + err.Error())
 	}
@@ -298,7 +298,7 @@ func UpdateChannelStatusById(id int, status int) {
 }
 
 func UpdateChannelUsedQuota(id int, quota int) {
-	if common.BatchUpdateEnabled {
+	if config.BatchUpdateEnabled {
 		addNewRecord(BatchUpdateTypeChannelUsedQuota, id, quota)
 		return
 	}
@@ -318,7 +318,7 @@ func DeleteChannelByStatus(status int64) (int64, error) {
 }
 
 func DeleteDisabledChannel() (int64, error) {
-	result := DB.Where("status = ? or status = ?", common.ChannelStatusAutoDisabled, common.ChannelStatusManuallyDisabled).Delete(&Channel{})
+	result := DB.Where("status = ? or status = ?", config.ChannelStatusAutoDisabled, config.ChannelStatusManuallyDisabled).Delete(&Channel{})
 	// 同时删除Ability
 	DB.Where("enabled = ?", false).Delete(&Ability{})
 	return result.RowsAffected, result.Error

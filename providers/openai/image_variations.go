@@ -2,12 +2,12 @@ package openai
 
 import (
 	"net/http"
-	"one-api/common"
+	"one-api/common/config"
 	"one-api/types"
 )
 
 func (p *OpenAIProvider) CreateImageVariations(request *types.ImageEditRequest) (*types.ImageResponse, *types.OpenAIErrorWithStatusCode) {
-	req, errWithCode := p.getRequestImageBody(common.RelayModeImagesVariations, request.Model, request)
+	req, errWithCode := p.getRequestImageBody(config.RelayModeImagesVariations, request.Model, request)
 	if errWithCode != nil {
 		return nil, errWithCode
 	}

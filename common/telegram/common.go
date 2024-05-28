@@ -7,7 +7,7 @@ import (
 	"net"
 	"net/http"
 	"net/url"
-	"one-api/common"
+	"one-api/common/config"
 	"one-api/common/logger"
 	"one-api/model"
 	"strings"
@@ -56,13 +56,13 @@ func InitTelegramBot() {
 func StartTelegramBot() {
 	botWebhook := viper.GetString("tg.webhook_secret")
 	if botWebhook != "" {
-		if common.ServerAddress == "" {
+		if config.ServerAddress == "" {
 			logger.SysLog("Telegram bot is not enabled: Server address is not set")
 			StopTelegramBot()
 			return
 		}
 		TGWebHookSecret = botWebhook
-		serverAddress := strings.TrimSuffix(common.ServerAddress, "/")
+		serverAddress := strings.TrimSuffix(config.ServerAddress, "/")
 		urlPath := fmt.Sprintf("/api/telegram/%s", viper.GetString("tg.bot_api_key"))
 
 		webHookOpts := &ext.AddWebhookOpts{

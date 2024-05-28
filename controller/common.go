@@ -3,7 +3,7 @@ package controller
 import (
 	"fmt"
 	"net/http"
-	"one-api/common"
+	"one-api/common/config"
 	"one-api/common/notify"
 	"one-api/model"
 	"one-api/types"
@@ -13,7 +13,7 @@ import (
 )
 
 func shouldEnableChannel(err error, openAIErr *types.OpenAIError) bool {
-	if !common.AutomaticEnableChannelEnabled {
+	if !config.AutomaticEnableChannelEnabled {
 		return false
 	}
 	if err != nil {
@@ -26,7 +26,7 @@ func shouldEnableChannel(err error, openAIErr *types.OpenAIError) bool {
 }
 
 func ShouldDisableChannel(err *types.OpenAIError, statusCode int) bool {
-	if !common.AutomaticDisableChannelEnabled {
+	if !config.AutomaticDisableChannelEnabled {
 		return false
 	}
 
@@ -74,7 +74,7 @@ func ShouldDisableChannel(err *types.OpenAIError, statusCode int) bool {
 
 // disable & notify
 func DisableChannel(channelId int, channelName string, reason string, sendNotify bool) {
-	model.UpdateChannelStatusById(channelId, common.ChannelStatusAutoDisabled)
+	model.UpdateChannelStatusById(channelId, config.ChannelStatusAutoDisabled)
 	if !sendNotify {
 		return
 	}
@@ -86,7 +86,7 @@ func DisableChannel(channelId int, channelName string, reason string, sendNotify
 
 // enable & notify
 func EnableChannel(channelId int, channelName string, sendNotify bool) {
-	model.UpdateChannelStatusById(channelId, common.ChannelStatusEnabled)
+	model.UpdateChannelStatusById(channelId, config.ChannelStatusEnabled)
 	if !sendNotify {
 		return
 	}

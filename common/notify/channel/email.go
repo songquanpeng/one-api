@@ -3,7 +3,7 @@ package channel
 import (
 	"context"
 	"errors"
-	"one-api/common"
+	"one-api/common/config"
 	"one-api/common/stmp"
 
 	"github.com/gomarkdown/markdown"
@@ -28,10 +28,10 @@ func (e *Email) Name() string {
 func (e *Email) Send(ctx context.Context, title, message string) error {
 	to := e.To
 	if to == "" {
-		to = common.RootUserEmail
+		to = config.RootUserEmail
 	}
 
-	if common.SMTPServer == "" || common.SMTPAccount == "" || common.SMTPToken == "" || to == "" {
+	if config.SMTPServer == "" || config.SMTPAccount == "" || config.SMTPToken == "" || to == "" {
 		return errors.New("smtp config is not set, skip send email notifier")
 	}
 
@@ -44,7 +44,7 @@ func (e *Email) Send(ctx context.Context, title, message string) error {
 
 	body := markdown.Render(doc, renderer)
 
-	emailClient := stmp.NewStmp(common.SMTPServer, common.SMTPPort, common.SMTPAccount, common.SMTPToken, common.SMTPFrom)
+	emailClient := stmp.NewStmp(config.SMTPServer, config.SMTPPort, config.SMTPAccount, config.SMTPToken, config.SMTPFrom)
 
 	return emailClient.Send(to, title, string(body))
 }

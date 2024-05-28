@@ -6,7 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"one-api/common"
+	"one-api/common/config"
 	"one-api/common/logger"
 	"one-api/common/utils"
 	"one-api/model"
@@ -33,7 +33,7 @@ func getGitHubUserInfoByCode(code string) (*GitHubUser, error) {
 	if code == "" {
 		return nil, errors.New("无效的参数")
 	}
-	values := map[string]string{"client_id": common.GitHubClientId, "client_secret": common.GitHubClientSecret, "code": code}
+	values := map[string]string{"client_id": config.GitHubClientId, "client_secret": config.GitHubClientSecret, "code": code}
 	jsonData, err := json.Marshal(values)
 	if err != nil {
 		return nil, err
@@ -96,7 +96,7 @@ func GitHubOAuth(c *gin.Context) {
 		return
 	}
 
-	if !common.GitHubOAuthEnabled {
+	if !config.GitHubOAuthEnabled {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
 			"message": "管理员未开启通过 GitHub 登录以及注册",
@@ -125,7 +125,7 @@ func GitHubOAuth(c *gin.Context) {
 			return
 		}
 	} else {
-		if common.RegisterEnabled {
+		if config.RegisterEnabled {
 			user.Username = "github_" + strconv.Itoa(model.GetMaxUserId()+1)
 			if githubUser.Name != "" {
 				user.DisplayName = githubUser.Name
@@ -133,8 +133,8 @@ func GitHubOAuth(c *gin.Context) {
 				user.DisplayName = "GitHub User"
 			}
 			user.Email = githubUser.Email
-			user.Role = common.RoleCommonUser
-			user.Status = common.UserStatusEnabled
+			user.Role = config.RoleCommonUser
+			user.Status = config.UserStatusEnabled
 
 			if err := user.Insert(0); err != nil {
 				c.JSON(http.StatusOK, gin.H{
@@ -152,7 +152,7 @@ func GitHubOAuth(c *gin.Context) {
 		}
 	}
 
-	if user.Status != common.UserStatusEnabled {
+	if user.Status != config.UserStatusEnabled {
 		c.JSON(http.StatusOK, gin.H{
 			"message": "用户已被封禁",
 			"success": false,
@@ -163,7 +163,7 @@ func GitHubOAuth(c *gin.Context) {
 }
 
 func GitHubBind(c *gin.Context) {
-	if !common.GitHubOAuthEnabled {
+	if !config.GitHubOAuthEnabled {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
 			"message": "管理员未开启通过 GitHub 登录以及注册",

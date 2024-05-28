@@ -2,6 +2,7 @@ package model
 
 import (
 	"one-api/common"
+	"one-api/common/config"
 	"one-api/common/logger"
 	"strconv"
 	"strings"
@@ -26,63 +27,63 @@ func GetOption(key string) (option Option, err error) {
 }
 
 func InitOptionMap() {
-	common.OptionMapRWMutex.Lock()
-	common.OptionMap = make(map[string]string)
-	common.OptionMap["PasswordLoginEnabled"] = strconv.FormatBool(common.PasswordLoginEnabled)
-	common.OptionMap["PasswordRegisterEnabled"] = strconv.FormatBool(common.PasswordRegisterEnabled)
-	common.OptionMap["EmailVerificationEnabled"] = strconv.FormatBool(common.EmailVerificationEnabled)
-	common.OptionMap["GitHubOAuthEnabled"] = strconv.FormatBool(common.GitHubOAuthEnabled)
-	common.OptionMap["WeChatAuthEnabled"] = strconv.FormatBool(common.WeChatAuthEnabled)
-	common.OptionMap["LarkAuthEnabled"] = strconv.FormatBool(common.LarkAuthEnabled)
-	common.OptionMap["TurnstileCheckEnabled"] = strconv.FormatBool(common.TurnstileCheckEnabled)
-	common.OptionMap["RegisterEnabled"] = strconv.FormatBool(common.RegisterEnabled)
-	common.OptionMap["AutomaticDisableChannelEnabled"] = strconv.FormatBool(common.AutomaticDisableChannelEnabled)
-	common.OptionMap["AutomaticEnableChannelEnabled"] = strconv.FormatBool(common.AutomaticEnableChannelEnabled)
-	common.OptionMap["ApproximateTokenEnabled"] = strconv.FormatBool(common.ApproximateTokenEnabled)
-	common.OptionMap["LogConsumeEnabled"] = strconv.FormatBool(common.LogConsumeEnabled)
-	common.OptionMap["DisplayInCurrencyEnabled"] = strconv.FormatBool(common.DisplayInCurrencyEnabled)
-	common.OptionMap["DisplayTokenStatEnabled"] = strconv.FormatBool(common.DisplayTokenStatEnabled)
-	common.OptionMap["ChannelDisableThreshold"] = strconv.FormatFloat(common.ChannelDisableThreshold, 'f', -1, 64)
-	common.OptionMap["EmailDomainRestrictionEnabled"] = strconv.FormatBool(common.EmailDomainRestrictionEnabled)
-	common.OptionMap["EmailDomainWhitelist"] = strings.Join(common.EmailDomainWhitelist, ",")
-	common.OptionMap["SMTPServer"] = ""
-	common.OptionMap["SMTPFrom"] = ""
-	common.OptionMap["SMTPPort"] = strconv.Itoa(common.SMTPPort)
-	common.OptionMap["SMTPAccount"] = ""
-	common.OptionMap["SMTPToken"] = ""
-	common.OptionMap["Notice"] = ""
-	common.OptionMap["About"] = ""
-	common.OptionMap["HomePageContent"] = ""
-	common.OptionMap["Footer"] = common.Footer
-	common.OptionMap["SystemName"] = common.SystemName
-	common.OptionMap["Logo"] = common.Logo
-	common.OptionMap["ServerAddress"] = ""
-	common.OptionMap["GitHubClientId"] = ""
-	common.OptionMap["GitHubClientSecret"] = ""
-	common.OptionMap["WeChatServerAddress"] = ""
-	common.OptionMap["WeChatServerToken"] = ""
-	common.OptionMap["WeChatAccountQRCodeImageURL"] = ""
-	common.OptionMap["TurnstileSiteKey"] = ""
-	common.OptionMap["TurnstileSecretKey"] = ""
-	common.OptionMap["QuotaForNewUser"] = strconv.Itoa(common.QuotaForNewUser)
-	common.OptionMap["QuotaForInviter"] = strconv.Itoa(common.QuotaForInviter)
-	common.OptionMap["QuotaForInvitee"] = strconv.Itoa(common.QuotaForInvitee)
-	common.OptionMap["QuotaRemindThreshold"] = strconv.Itoa(common.QuotaRemindThreshold)
-	common.OptionMap["PreConsumedQuota"] = strconv.Itoa(common.PreConsumedQuota)
-	common.OptionMap["GroupRatio"] = common.GroupRatio2JSONString()
-	common.OptionMap["TopUpLink"] = common.TopUpLink
-	common.OptionMap["ChatLink"] = common.ChatLink
-	common.OptionMap["ChatLinks"] = common.ChatLinks
-	common.OptionMap["QuotaPerUnit"] = strconv.FormatFloat(common.QuotaPerUnit, 'f', -1, 64)
-	common.OptionMap["RetryTimes"] = strconv.Itoa(common.RetryTimes)
-	common.OptionMap["RetryCooldownSeconds"] = strconv.Itoa(common.RetryCooldownSeconds)
+	config.OptionMapRWMutex.Lock()
+	config.OptionMap = make(map[string]string)
+	config.OptionMap["PasswordLoginEnabled"] = strconv.FormatBool(config.PasswordLoginEnabled)
+	config.OptionMap["PasswordRegisterEnabled"] = strconv.FormatBool(config.PasswordRegisterEnabled)
+	config.OptionMap["EmailVerificationEnabled"] = strconv.FormatBool(config.EmailVerificationEnabled)
+	config.OptionMap["GitHubOAuthEnabled"] = strconv.FormatBool(config.GitHubOAuthEnabled)
+	config.OptionMap["WeChatAuthEnabled"] = strconv.FormatBool(config.WeChatAuthEnabled)
+	config.OptionMap["LarkAuthEnabled"] = strconv.FormatBool(config.LarkAuthEnabled)
+	config.OptionMap["TurnstileCheckEnabled"] = strconv.FormatBool(config.TurnstileCheckEnabled)
+	config.OptionMap["RegisterEnabled"] = strconv.FormatBool(config.RegisterEnabled)
+	config.OptionMap["AutomaticDisableChannelEnabled"] = strconv.FormatBool(config.AutomaticDisableChannelEnabled)
+	config.OptionMap["AutomaticEnableChannelEnabled"] = strconv.FormatBool(config.AutomaticEnableChannelEnabled)
+	config.OptionMap["ApproximateTokenEnabled"] = strconv.FormatBool(config.ApproximateTokenEnabled)
+	config.OptionMap["LogConsumeEnabled"] = strconv.FormatBool(config.LogConsumeEnabled)
+	config.OptionMap["DisplayInCurrencyEnabled"] = strconv.FormatBool(config.DisplayInCurrencyEnabled)
+	config.OptionMap["DisplayTokenStatEnabled"] = strconv.FormatBool(config.DisplayTokenStatEnabled)
+	config.OptionMap["ChannelDisableThreshold"] = strconv.FormatFloat(config.ChannelDisableThreshold, 'f', -1, 64)
+	config.OptionMap["EmailDomainRestrictionEnabled"] = strconv.FormatBool(config.EmailDomainRestrictionEnabled)
+	config.OptionMap["EmailDomainWhitelist"] = strings.Join(config.EmailDomainWhitelist, ",")
+	config.OptionMap["SMTPServer"] = ""
+	config.OptionMap["SMTPFrom"] = ""
+	config.OptionMap["SMTPPort"] = strconv.Itoa(config.SMTPPort)
+	config.OptionMap["SMTPAccount"] = ""
+	config.OptionMap["SMTPToken"] = ""
+	config.OptionMap["Notice"] = ""
+	config.OptionMap["About"] = ""
+	config.OptionMap["HomePageContent"] = ""
+	config.OptionMap["Footer"] = config.Footer
+	config.OptionMap["SystemName"] = config.SystemName
+	config.OptionMap["Logo"] = config.Logo
+	config.OptionMap["ServerAddress"] = ""
+	config.OptionMap["GitHubClientId"] = ""
+	config.OptionMap["GitHubClientSecret"] = ""
+	config.OptionMap["WeChatServerAddress"] = ""
+	config.OptionMap["WeChatServerToken"] = ""
+	config.OptionMap["WeChatAccountQRCodeImageURL"] = ""
+	config.OptionMap["TurnstileSiteKey"] = ""
+	config.OptionMap["TurnstileSecretKey"] = ""
+	config.OptionMap["QuotaForNewUser"] = strconv.Itoa(config.QuotaForNewUser)
+	config.OptionMap["QuotaForInviter"] = strconv.Itoa(config.QuotaForInviter)
+	config.OptionMap["QuotaForInvitee"] = strconv.Itoa(config.QuotaForInvitee)
+	config.OptionMap["QuotaRemindThreshold"] = strconv.Itoa(config.QuotaRemindThreshold)
+	config.OptionMap["PreConsumedQuota"] = strconv.Itoa(config.PreConsumedQuota)
+	config.OptionMap["GroupRatio"] = common.GroupRatio2JSONString()
+	config.OptionMap["TopUpLink"] = config.TopUpLink
+	config.OptionMap["ChatLink"] = config.ChatLink
+	config.OptionMap["ChatLinks"] = config.ChatLinks
+	config.OptionMap["QuotaPerUnit"] = strconv.FormatFloat(config.QuotaPerUnit, 'f', -1, 64)
+	config.OptionMap["RetryTimes"] = strconv.Itoa(config.RetryTimes)
+	config.OptionMap["RetryCooldownSeconds"] = strconv.Itoa(config.RetryCooldownSeconds)
 
-	common.OptionMap["MjNotifyEnabled"] = strconv.FormatBool(common.MjNotifyEnabled)
+	config.OptionMap["MjNotifyEnabled"] = strconv.FormatBool(config.MjNotifyEnabled)
 
-	common.OptionMap["ChatCacheEnabled"] = strconv.FormatBool(common.ChatCacheEnabled)
-	common.OptionMap["ChatCacheExpireMinute"] = strconv.Itoa(common.ChatCacheExpireMinute)
+	config.OptionMap["ChatCacheEnabled"] = strconv.FormatBool(config.ChatCacheEnabled)
+	config.OptionMap["ChatCacheExpireMinute"] = strconv.Itoa(config.ChatCacheExpireMinute)
 
-	common.OptionMapRWMutex.Unlock()
+	config.OptionMapRWMutex.Unlock()
 	loadOptionsFromDatabase()
 }
 
@@ -121,64 +122,64 @@ func UpdateOption(key string, value string) error {
 }
 
 var optionIntMap = map[string]*int{
-	"SMTPPort":              &common.SMTPPort,
-	"QuotaForNewUser":       &common.QuotaForNewUser,
-	"QuotaForInviter":       &common.QuotaForInviter,
-	"QuotaForInvitee":       &common.QuotaForInvitee,
-	"QuotaRemindThreshold":  &common.QuotaRemindThreshold,
-	"PreConsumedQuota":      &common.PreConsumedQuota,
-	"RetryTimes":            &common.RetryTimes,
-	"RetryCooldownSeconds":  &common.RetryCooldownSeconds,
-	"ChatCacheExpireMinute": &common.ChatCacheExpireMinute,
+	"SMTPPort":              &config.SMTPPort,
+	"QuotaForNewUser":       &config.QuotaForNewUser,
+	"QuotaForInviter":       &config.QuotaForInviter,
+	"QuotaForInvitee":       &config.QuotaForInvitee,
+	"QuotaRemindThreshold":  &config.QuotaRemindThreshold,
+	"PreConsumedQuota":      &config.PreConsumedQuota,
+	"RetryTimes":            &config.RetryTimes,
+	"RetryCooldownSeconds":  &config.RetryCooldownSeconds,
+	"ChatCacheExpireMinute": &config.ChatCacheExpireMinute,
 }
 
 var optionBoolMap = map[string]*bool{
-	"PasswordRegisterEnabled":        &common.PasswordRegisterEnabled,
-	"PasswordLoginEnabled":           &common.PasswordLoginEnabled,
-	"EmailVerificationEnabled":       &common.EmailVerificationEnabled,
-	"GitHubOAuthEnabled":             &common.GitHubOAuthEnabled,
-	"WeChatAuthEnabled":              &common.WeChatAuthEnabled,
-	"LarkAuthEnabled":                &common.LarkAuthEnabled,
-	"TurnstileCheckEnabled":          &common.TurnstileCheckEnabled,
-	"RegisterEnabled":                &common.RegisterEnabled,
-	"EmailDomainRestrictionEnabled":  &common.EmailDomainRestrictionEnabled,
-	"AutomaticDisableChannelEnabled": &common.AutomaticDisableChannelEnabled,
-	"AutomaticEnableChannelEnabled":  &common.AutomaticEnableChannelEnabled,
-	"ApproximateTokenEnabled":        &common.ApproximateTokenEnabled,
-	"LogConsumeEnabled":              &common.LogConsumeEnabled,
-	"DisplayInCurrencyEnabled":       &common.DisplayInCurrencyEnabled,
-	"DisplayTokenStatEnabled":        &common.DisplayTokenStatEnabled,
-	"MjNotifyEnabled":                &common.MjNotifyEnabled,
-	"ChatCacheEnabled":               &common.ChatCacheEnabled,
+	"PasswordRegisterEnabled":        &config.PasswordRegisterEnabled,
+	"PasswordLoginEnabled":           &config.PasswordLoginEnabled,
+	"EmailVerificationEnabled":       &config.EmailVerificationEnabled,
+	"GitHubOAuthEnabled":             &config.GitHubOAuthEnabled,
+	"WeChatAuthEnabled":              &config.WeChatAuthEnabled,
+	"LarkAuthEnabled":                &config.LarkAuthEnabled,
+	"TurnstileCheckEnabled":          &config.TurnstileCheckEnabled,
+	"RegisterEnabled":                &config.RegisterEnabled,
+	"EmailDomainRestrictionEnabled":  &config.EmailDomainRestrictionEnabled,
+	"AutomaticDisableChannelEnabled": &config.AutomaticDisableChannelEnabled,
+	"AutomaticEnableChannelEnabled":  &config.AutomaticEnableChannelEnabled,
+	"ApproximateTokenEnabled":        &config.ApproximateTokenEnabled,
+	"LogConsumeEnabled":              &config.LogConsumeEnabled,
+	"DisplayInCurrencyEnabled":       &config.DisplayInCurrencyEnabled,
+	"DisplayTokenStatEnabled":        &config.DisplayTokenStatEnabled,
+	"MjNotifyEnabled":                &config.MjNotifyEnabled,
+	"ChatCacheEnabled":               &config.ChatCacheEnabled,
 }
 
 var optionStringMap = map[string]*string{
-	"SMTPServer":                  &common.SMTPServer,
-	"SMTPAccount":                 &common.SMTPAccount,
-	"SMTPFrom":                    &common.SMTPFrom,
-	"SMTPToken":                   &common.SMTPToken,
-	"ServerAddress":               &common.ServerAddress,
-	"GitHubClientId":              &common.GitHubClientId,
-	"GitHubClientSecret":          &common.GitHubClientSecret,
-	"Footer":                      &common.Footer,
-	"SystemName":                  &common.SystemName,
-	"Logo":                        &common.Logo,
-	"WeChatServerAddress":         &common.WeChatServerAddress,
-	"WeChatServerToken":           &common.WeChatServerToken,
-	"WeChatAccountQRCodeImageURL": &common.WeChatAccountQRCodeImageURL,
-	"TurnstileSiteKey":            &common.TurnstileSiteKey,
-	"TurnstileSecretKey":          &common.TurnstileSecretKey,
-	"TopUpLink":                   &common.TopUpLink,
-	"ChatLink":                    &common.ChatLink,
-	"ChatLinks":                   &common.ChatLinks,
-	"LarkClientId":                &common.LarkClientId,
-	"LarkClientSecret":            &common.LarkClientSecret,
+	"SMTPServer":                  &config.SMTPServer,
+	"SMTPAccount":                 &config.SMTPAccount,
+	"SMTPFrom":                    &config.SMTPFrom,
+	"SMTPToken":                   &config.SMTPToken,
+	"ServerAddress":               &config.ServerAddress,
+	"GitHubClientId":              &config.GitHubClientId,
+	"GitHubClientSecret":          &config.GitHubClientSecret,
+	"Footer":                      &config.Footer,
+	"SystemName":                  &config.SystemName,
+	"Logo":                        &config.Logo,
+	"WeChatServerAddress":         &config.WeChatServerAddress,
+	"WeChatServerToken":           &config.WeChatServerToken,
+	"WeChatAccountQRCodeImageURL": &config.WeChatAccountQRCodeImageURL,
+	"TurnstileSiteKey":            &config.TurnstileSiteKey,
+	"TurnstileSecretKey":          &config.TurnstileSecretKey,
+	"TopUpLink":                   &config.TopUpLink,
+	"ChatLink":                    &config.ChatLink,
+	"ChatLinks":                   &config.ChatLinks,
+	"LarkClientId":                &config.LarkClientId,
+	"LarkClientSecret":            &config.LarkClientSecret,
 }
 
 func updateOptionMap(key string, value string) (err error) {
-	common.OptionMapRWMutex.Lock()
-	defer common.OptionMapRWMutex.Unlock()
-	common.OptionMap[key] = value
+	config.OptionMapRWMutex.Lock()
+	defer config.OptionMapRWMutex.Unlock()
+	config.OptionMap[key] = value
 	if ptr, ok := optionIntMap[key]; ok {
 		*ptr, _ = strconv.Atoi(value)
 		return
@@ -196,13 +197,13 @@ func updateOptionMap(key string, value string) (err error) {
 
 	switch key {
 	case "EmailDomainWhitelist":
-		common.EmailDomainWhitelist = strings.Split(value, ",")
+		config.EmailDomainWhitelist = strings.Split(value, ",")
 	case "GroupRatio":
 		err = common.UpdateGroupRatioByJSONString(value)
 	case "ChannelDisableThreshold":
-		common.ChannelDisableThreshold, _ = strconv.ParseFloat(value, 64)
+		config.ChannelDisableThreshold, _ = strconv.ParseFloat(value, 64)
 	case "QuotaPerUnit":
-		common.QuotaPerUnit, _ = strconv.ParseFloat(value, 64)
+		config.QuotaPerUnit, _ = strconv.ParseFloat(value, 64)
 	}
 	return err
 }

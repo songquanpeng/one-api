@@ -2,12 +2,12 @@ package openai
 
 import (
 	"net/http"
-	"one-api/common"
+	"one-api/common/config"
 	"one-api/types"
 )
 
 func (p *OpenAIProvider) CreateEmbeddings(request *types.EmbeddingRequest) (*types.EmbeddingResponse, *types.OpenAIErrorWithStatusCode) {
-	req, errWithCode := p.GetRequestTextBody(common.RelayModeEmbeddings, request.Model, request)
+	req, errWithCode := p.GetRequestTextBody(config.RelayModeEmbeddings, request.Model, request)
 	if errWithCode != nil {
 		return nil, errWithCode
 	}

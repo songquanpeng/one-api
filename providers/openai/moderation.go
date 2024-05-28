@@ -2,13 +2,13 @@ package openai
 
 import (
 	"net/http"
-	"one-api/common"
+	"one-api/common/config"
 	"one-api/types"
 )
 
 func (p *OpenAIProvider) CreateModeration(request *types.ModerationRequest) (*types.ModerationResponse, *types.OpenAIErrorWithStatusCode) {
 
-	req, errWithCode := p.GetRequestTextBody(common.RelayModeModerations, request.Model, request)
+	req, errWithCode := p.GetRequestTextBody(config.RelayModeModerations, request.Model, request)
 	if errWithCode != nil {
 		return nil, errWithCode
 	}

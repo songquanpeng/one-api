@@ -1,17 +1,17 @@
 package stmp
 
 import (
-	"one-api/common"
+	"one-api/common/config"
 )
 
 func getLogo() string {
-	if common.Logo == "" {
+	if config.Logo == "" {
 		return ""
 	}
 	return `<table class="logo" width="100%">
 	<tr>
 	  <td>
-		<img src="` + common.Logo + `" width="130" style="max-width: 100%"
+		<img src="` + config.Logo + `" width="130" style="max-width: 100%"
 		/>
 	  </td>
 	</tr>
@@ -19,11 +19,11 @@ func getLogo() string {
 }
 
 func getSystemName() string {
-	if common.SystemName == "" {
+	if config.SystemName == "" {
 		return "One API"
 	}
 
-	return common.SystemName
+	return config.SystemName
 }
 
 func getDefaultTemplate(content string) string {

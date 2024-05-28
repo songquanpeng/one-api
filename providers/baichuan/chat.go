@@ -2,7 +2,7 @@ package baichuan
 
 import (
 	"net/http"
-	"one-api/common"
+	"one-api/common/config"
 	"one-api/common/requester"
 	"one-api/providers/openai"
 	"one-api/types"
@@ -11,7 +11,7 @@ import (
 
 func (p *BaichuanProvider) CreateChatCompletion(request *types.ChatCompletionRequest) (openaiResponse *types.ChatCompletionResponse, errWithCode *types.OpenAIErrorWithStatusCode) {
 	requestBody := p.getChatRequestBody(request)
-	req, errWithCode := p.GetRequestTextBody(common.RelayModeChatCompletions, request.Model, requestBody)
+	req, errWithCode := p.GetRequestTextBody(config.RelayModeChatCompletions, request.Model, requestBody)
 	if errWithCode != nil {
 		return nil, errWithCode
 	}
@@ -51,7 +51,7 @@ func (p *BaichuanProvider) CreateChatCompletionStream(request *types.ChatComplet
 		request.StreamOptions = nil
 	}
 
-	req, errWithCode := p.GetRequestTextBody(common.RelayModeChatCompletions, request.Model, request)
+	req, errWithCode := p.GetRequestTextBody(config.RelayModeChatCompletions, request.Model, request)
 	if errWithCode != nil {
 		return nil, errWithCode
 	}

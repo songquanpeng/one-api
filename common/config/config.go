@@ -5,37 +5,22 @@ import (
 	"strings"
 	"time"
 
-	"one-api/cli"
-	"one-api/common"
 	"one-api/common/utils"
 
 	"github.com/spf13/viper"
 )
 
 func InitConf() {
-	cli.FlagConfig()
 	defaultConfig()
-	setConfigFile()
 	setEnv()
 
 	if viper.GetBool("debug") {
 		logger.SysLog("running in debug mode")
 	}
 
-	common.IsMasterNode = viper.GetString("node_type") != "slave"
-	common.RequestInterval = time.Duration(viper.GetInt("polling_interval")) * time.Second
-	common.SessionSecret = utils.GetOrDefault("session_secret", common.SessionSecret)
-}
-
-func setConfigFile() {
-	if !utils.IsFileExist(*cli.Config) {
-		return
-	}
-
-	viper.SetConfigFile(*cli.Config)
-	if err := viper.ReadInConfig(); err != nil {
-		panic(err)
-	}
+	IsMasterNode = viper.GetString("node_type") != "slave"
+	RequestInterval = time.Duration(viper.GetInt("polling_interval")) * time.Second
+	SessionSecret = utils.GetOrDefault("session_secret", SessionSecret)
 }
 
 func setEnv() {

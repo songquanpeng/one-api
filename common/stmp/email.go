@@ -3,6 +3,7 @@ package stmp
 import (
 	"fmt"
 	"one-api/common"
+	"one-api/common/config"
 	"one-api/common/utils"
 	"strings"
 
@@ -38,7 +39,7 @@ func (s *StmpConfig) Send(to, subject, body string) error {
 	message.Subject(subject)
 	message.SetGenHeader("References", s.getReferences())
 	message.SetBodyString(mail.TypeTextHTML, body)
-	message.SetUserAgent(fmt.Sprintf("One API %s // https://github.com/MartialBE/one-api", common.Version))
+	message.SetUserAgent(fmt.Sprintf("One API %s // https://github.com/MartialBE/one-api", config.Version))
 
 	client, err := mail.NewClient(
 		s.Host,
@@ -78,11 +79,11 @@ func (s *StmpConfig) Render(to, subject, content string) error {
 }
 
 func GetSystemStmp() (*StmpConfig, error) {
-	if common.SMTPServer == "" || common.SMTPPort == 0 || common.SMTPAccount == "" || common.SMTPToken == "" {
+	if config.SMTPServer == "" || config.SMTPPort == 0 || config.SMTPAccount == "" || config.SMTPToken == "" {
 		return nil, fmt.Errorf("SMTP 信息未配置")
 	}
 
-	return NewStmp(common.SMTPServer, common.SMTPPort, common.SMTPAccount, common.SMTPToken, common.SMTPFrom), nil
+	return NewStmp(config.SMTPServer, config.SMTPPort, config.SMTPAccount, config.SMTPToken, config.SMTPFrom), nil
 }
 
 func SendPasswordResetEmail(userName, email, link string) error {
@@ -106,7 +107,7 @@ func SendPasswordResetEmail(userName, email, link string) error {
 	</p>
 	<p style="color: #858585;">重置链接 %d 分钟内有效，如果不是本人操作，请忽略。</p>`
 
-	subject := fmt.Sprintf("%s密码重置", common.SystemName)
+	subject := fmt.Sprintf("%s密码重置", config.SystemName)
 	content := fmt.Sprintf(contentTemp, userName, link, link, common.VerificationValidMinutes)
 
 	return stmp.Render(email, subject, content)
@@ -132,7 +133,7 @@ func SendVerificationCodeEmail(email, code string) error {
 		验证码 %d 分钟内有效，如果不是本人操作，请忽略。
 	</p>`
 
-	subject := fmt.Sprintf("%s邮箱验证邮件", common.SystemName)
+	subject := fmt.Sprintf("%s邮箱验证邮件", config.SystemName)
 	content := fmt.Sprintf(contentTemp, code, common.VerificationValidMinutes)
 
 	return stmp.Render(email, subject, content)
@@ -162,7 +163,7 @@ func SendQuotaWarningCodeEmail(userName, email string, quota int, noMoreQuota bo
 	if noMoreQuota {
 		subject = "您的额度已用尽"
 	}
-	topUpLink := fmt.Sprintf("%s/topup", common.ServerAddress)
+	topUpLink := fmt.Sprintf("%s/topup", config.ServerAddress)
 
 	content := fmt.Sprintf(contentTemp, userName, subject, quota, topUpLink, topUpLink)
 
