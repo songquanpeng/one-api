@@ -36,7 +36,7 @@ func (r *relayCompletions) setRequest() error {
 	}
 
 	if !r.request.Stream && r.request.StreamOptions != nil {
-		return errors.New("The 'stream_options' parameter is only allowed when 'stream' is enabled.")
+		return errors.New("the 'stream_options' parameter is only allowed when 'stream' is enabled")
 	}
 
 	r.originalModel = r.request.Model

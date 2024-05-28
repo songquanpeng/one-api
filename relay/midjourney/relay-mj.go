@@ -558,8 +558,8 @@ func getMJProviderWithRequest(c *gin.Context, relayMode int, request *provider.M
 	return getMJProvider(c, midjourneyModel)
 }
 
-func getMJProviderWithChannelId(c *gin.Context, channel_id int) (*provider.MidjourneyProvider, *provider.MidjourneyResponse) {
-	c.Set("specific_channel_id", channel_id)
+func getMJProviderWithChannelId(c *gin.Context, channelId int) (*provider.MidjourneyProvider, *provider.MidjourneyResponse) {
+	c.Set("specific_channel_id", channelId)
 
 	return getMJProvider(c, "")
 }

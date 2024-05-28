@@ -70,10 +70,10 @@ func getPaginationInlineKeyboard(key string, page int, total int) gotgbot.Inline
 	return bt
 }
 
-func getPageParams(key string, page, size, total_count int) *paginationParams {
+func getPageParams(key string, page, size, totalCount int) *paginationParams {
 	// 根据总数计算总页数
-	total := total_count / size
-	if total_count%size > 0 {
+	total := totalCount / size
+	if totalCount%size > 0 {
 		total++
 	}
 

@@ -208,7 +208,7 @@ type LogStatisticGroupModel struct {
 	ModelName string `gorm:"column:model_name"`
 }
 
-func GetUserModelExpensesByPeriod(user_id, startTimestamp, endTimestamp int) (LogStatistic []*LogStatisticGroupModel, err error) {
+func GetUserModelExpensesByPeriod(userId, startTimestamp, endTimestamp int) (LogStatistic []*LogStatisticGroupModel, err error) {
 	groupSelect := getTimestampGroupsSelect("created_at", "day", "date")
 
 	err = DB.Raw(`
@@ -223,7 +223,7 @@ func GetUserModelExpensesByPeriod(user_id, startTimestamp, endTimestamp int) (Lo
 		AND created_at BETWEEN ? AND ?
 		GROUP BY date, model_name
 		ORDER BY date, model_name
-	`, user_id, startTimestamp, endTimestamp).Scan(&LogStatistic).Error
+	`, userId, startTimestamp, endTimestamp).Scan(&LogStatistic).Error
 
 	return
 }

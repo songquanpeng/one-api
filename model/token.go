@@ -112,13 +112,13 @@ func GetTokenById(id int) (*Token, error) {
 	return &token, err
 }
 
-func GetTokenByName(name string, user_id int) (*Token, error) {
+func GetTokenByName(name string, userId int) (*Token, error) {
 	if name == "" {
 		return nil, errors.New("name 为空！")
 	}
 	token := Token{Name: name}
 	var err error = nil
-	err = DB.First(&token, "user_id = ? and name = ?", user_id, name).Error
+	err = DB.First(&token, "user_id = ? and name = ?", userId, name).Error
 	return &token, err
 }
 

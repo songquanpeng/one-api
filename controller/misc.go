@@ -15,9 +15,9 @@ import (
 )
 
 func GetStatus(c *gin.Context) {
-	telegram_bot := ""
+	telegramBot := ""
 	if telegram.TGEnabled {
-		telegram_bot = telegram.TGBot.User.Username
+		telegramBot = telegram.TGBot.User.Username
 	}
 
 	c.JSON(http.StatusOK, gin.H{
@@ -43,7 +43,7 @@ func GetStatus(c *gin.Context) {
 			"chat_link":           config.ChatLink,
 			"quota_per_unit":      config.QuotaPerUnit,
 			"display_in_currency": config.DisplayInCurrencyEnabled,
-			"telegram_bot":        telegram_bot,
+			"telegram_bot":        telegramBot,
 			"mj_notify_enabled":   config.MjNotifyEnabled,
 			"chat_cache_enabled":  config.ChatCacheEnabled,
 			"chat_links":          config.ChatLinks,

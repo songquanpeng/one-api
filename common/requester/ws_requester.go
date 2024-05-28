@@ -50,7 +50,7 @@ func SendWSJsonRequest[T streamable](conn *websocket.Conn, data any, handlerPref
 }
 
 // 设置请求头
-func (r *WSRequester) WithHeader(headers map[string]string) http.Header {
+func (w *WSRequester) WithHeader(headers map[string]string) http.Header {
 	header := make(http.Header)
 	for k, v := range headers {
 		header.Set(k, v)

@@ -70,12 +70,12 @@ func (p *AzureProvider) ResponseAzureImageHandler(resp *http.Response, azure *Im
 		return
 	}
 
-	operation_location := resp.Header.Get("operation-location")
-	if operation_location == "" {
+	operationLocation := resp.Header.Get("operation-location")
+	if operationLocation == "" {
 		return nil, common.ErrorWrapper(errors.New("image url is empty"), "get_images_url_failed", http.StatusInternalServerError)
 	}
 
-	req, err := p.Requester.NewRequest("GET", operation_location, p.Requester.WithHeader(p.GetRequestHeaders()))
+	req, err := p.Requester.NewRequest("GET", operationLocation, p.Requester.WithHeader(p.GetRequestHeaders()))
 	if err != nil {
 		return nil, common.ErrorWrapper(err, "get_images_request_failed", http.StatusInternalServerError)
 	}

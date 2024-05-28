@@ -189,16 +189,16 @@ func (p *ZhipuProvider) pluginHandle(request *ZhipuRequest) {
 
 	// 检测是否开启了 retrieval 插件
 	if pRetrieval, ok := plugin["retrieval"]; ok {
-		if knowledge_id, ok := pRetrieval["knowledge_id"].(string); ok && knowledge_id != "" {
+		if knowledgeId, ok := pRetrieval["knowledge_id"].(string); ok && knowledgeId != "" {
 			retrieval := ZhipuTool{
 				Type: "retrieval",
 				Retrieval: &ZhipuRetrieval{
-					KnowledgeId: knowledge_id,
+					KnowledgeId: knowledgeId,
 				},
 			}
 
-			if prompt_template, ok := pRetrieval["prompt_template"].(string); ok && prompt_template != "" {
-				retrieval.Retrieval.PromptTemplate = prompt_template
+			if promptTemplate, ok := pRetrieval["prompt_template"].(string); ok && promptTemplate != "" {
+				retrieval.Retrieval.PromptTemplate = promptTemplate
 			}
 
 			request.Tools = append(request.Tools, retrieval)
