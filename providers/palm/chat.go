@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"one-api/common"
 	"one-api/common/requester"
+	"one-api/common/utils"
 	"one-api/types"
 	"strings"
 )
@@ -177,11 +178,11 @@ func (h *palmStreamHandler) convertToOpenaiStream(palmChatResponse *PaLMChatResp
 	choice.FinishReason = types.FinishReasonStop
 
 	streamResponse := types.ChatCompletionStreamResponse{
-		ID:      fmt.Sprintf("chatcmpl-%s", common.GetUUID()),
+		ID:      fmt.Sprintf("chatcmpl-%s", utils.GetUUID()),
 		Object:  "chat.completion.chunk",
 		Model:   h.Request.Model,
 		Choices: []types.ChatCompletionStreamChoice{choice},
-		Created: common.GetTimestamp(),
+		Created: utils.GetTimestamp(),
 	}
 
 	responseBody, _ := json.Marshal(streamResponse)

@@ -1,9 +1,10 @@
-package util
+package relay_util
 
 import (
 	"encoding/json"
 	"errors"
 	"one-api/common"
+	"one-api/common/utils"
 	"one-api/model"
 	"sort"
 	"strings"
@@ -98,7 +99,7 @@ func (p *Pricing) GetPrice(modelName string) *model.Price {
 		return price
 	}
 
-	matchModel := common.GetModelsWithMatch(&p.Match, modelName)
+	matchModel := utils.GetModelsWithMatch(&p.Match, modelName)
 	if price, ok := p.Prices[matchModel]; ok {
 		return price
 	}
@@ -281,7 +282,7 @@ func (p *Pricing) BatchSetPrices(batchPrices *BatchPrices, originalModels []stri
 	var updatePrices []string
 
 	for _, model := range originalModels {
-		if !common.Contains(model, batchPrices.Models) {
+		if !utils.Contains(model, batchPrices.Models) {
 			deletePrices = append(deletePrices, model)
 		} else {
 			updatePrices = append(updatePrices, model)
@@ -289,7 +290,7 @@ func (p *Pricing) BatchSetPrices(batchPrices *BatchPrices, originalModels []stri
 	}
 
 	for _, model := range batchPrices.Models {
-		if !common.Contains(model, originalModels) {
+		if !utils.Contains(model, originalModels) {
 			addPrice := batchPrices.Price
 			addPrice.Model = model
 			addPrices = append(addPrices, &addPrice)

@@ -8,6 +8,7 @@ import (
 	"one-api/common"
 	"one-api/common/image"
 	"one-api/common/requester"
+	"one-api/common/utils"
 	"one-api/providers/base"
 	"one-api/types"
 	"strings"
@@ -172,7 +173,7 @@ func ConvertToChatOpenai(provider base.ProviderInterface, response *ClaudeRespon
 	openaiResponse = &types.ChatCompletionResponse{
 		ID:      response.Id,
 		Object:  "chat.completion",
-		Created: common.GetTimestamp(),
+		Created: utils.GetTimestamp(),
 		Choices: []types.ChatCompletionChoice{choice},
 		Model:   request.Model,
 		Usage: &types.Usage{
@@ -264,9 +265,9 @@ func (h *ClaudeStreamHandler) convertToOpenaiStream(claudeResponse *ClaudeStream
 		choice.FinishReason = &finishReason
 	}
 	chatCompletion := types.ChatCompletionStreamResponse{
-		ID:      fmt.Sprintf("chatcmpl-%s", common.GetUUID()),
+		ID:      fmt.Sprintf("chatcmpl-%s", utils.GetUUID()),
 		Object:  "chat.completion.chunk",
-		Created: common.GetTimestamp(),
+		Created: utils.GetTimestamp(),
 		Model:   h.Request.Model,
 		Choices: []types.ChatCompletionStreamChoice{choice},
 	}

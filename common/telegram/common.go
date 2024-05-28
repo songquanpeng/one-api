@@ -1,8 +1,10 @@
 package telegram
 
 import (
+	"context"
 	"errors"
 	"fmt"
+	"net"
 	"net/http"
 	"net/url"
 	"one-api/common"
@@ -243,22 +245,16 @@ func getHttpClient() (httpClient *http.Client) {
 			},
 		}
 	case "socks5":
-		var auth *proxy.Auth = nil
-		password, isSetPassword := proxyURL.User.Password()
-		if isSetPassword {
-			auth = &proxy.Auth{
-				User:     proxyURL.User.Username(),
-				Password: password,
-			}
-		}
-		dialer, err := proxy.SOCKS5("tcp", proxyURL.Host, auth, proxy.Direct)
+		dialer, err := proxy.FromURL(proxyURL, proxy.Direct)
 		if err != nil {
 			common.SysLog("failed to create TG SOCKS5 dialer: " + err.Error())
 			return
 		}
 		httpClient = &http.Client{
 			Transport: &http.Transport{
-				Dial: dialer.Dial,
+				DialContext: func(ctx context.Context, network, addr string) (net.Conn, error) {
+					return dialer.(proxy.ContextDialer).DialContext(ctx, network, addr)
+				},
 			},
 		}
 	default:

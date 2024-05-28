@@ -13,7 +13,7 @@ import (
 	"one-api/cron"
 	"one-api/middleware"
 	"one-api/model"
-	"one-api/relay/util"
+	"one-api/relay/relay_util"
 	"one-api/router"
 	"time"
 
@@ -40,7 +40,7 @@ func main() {
 	common.InitRedisClient()
 	// Initialize options
 	model.InitOptionMap()
-	util.NewPricing()
+	relay_util.NewPricing()
 	initMemoryCache()
 	initSync()
 
@@ -112,6 +112,6 @@ func SyncChannelCache(frequency int) {
 		time.Sleep(time.Duration(frequency) * time.Second)
 		common.SysLog("syncing channels from database")
 		model.ChannelGroup.Load()
-		util.PricingInstance.Init()
+		relay_util.PricingInstance.Init()
 	}
 }

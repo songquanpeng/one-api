@@ -4,6 +4,7 @@ import (
 	"errors"
 	"math/rand"
 	"one-api/common"
+	"one-api/common/utils"
 	"strings"
 	"sync"
 	"time"
@@ -105,7 +106,7 @@ func (cc *ChannelsChooser) Next(group, modelName string, filters ...ChannelsFilt
 
 	channelsPriority, ok := cc.Rule[group][modelName]
 	if !ok {
-		matchModel := common.GetModelsWithMatch(&cc.Match, modelName)
+		matchModel := utils.GetModelsWithMatch(&cc.Match, modelName)
 		channelsPriority, ok = cc.Rule[group][matchModel]
 		if !ok {
 			return nil, errors.New("model not found")
@@ -199,7 +200,7 @@ func (cc *ChannelsChooser) Load() {
 		// 逗号分割 ability.ChannelId
 		channelIds := strings.Split(ability.ChannelIds, ",")
 		for _, channelId := range channelIds {
-			priorityIds = append(priorityIds, common.String2Int(channelId))
+			priorityIds = append(priorityIds, utils.String2Int(channelId))
 		}
 
 		newGroup[ability.Group][ability.Model] = append(newGroup[ability.Group][ability.Model], priorityIds)

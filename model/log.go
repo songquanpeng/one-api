@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"one-api/common"
+	"one-api/common/utils"
 
 	"gorm.io/gorm"
 )
@@ -41,7 +42,7 @@ func RecordLog(userId int, logType int, content string) {
 	log := &Log{
 		UserId:    userId,
 		Username:  GetUsernameById(userId),
-		CreatedAt: common.GetTimestamp(),
+		CreatedAt: utils.GetTimestamp(),
 		Type:      logType,
 		Content:   content,
 	}
@@ -59,7 +60,7 @@ func RecordConsumeLog(ctx context.Context, userId int, channelId int, promptToke
 	log := &Log{
 		UserId:           userId,
 		Username:         GetUsernameById(userId),
-		CreatedAt:        common.GetTimestamp(),
+		CreatedAt:        utils.GetTimestamp(),
 		Type:             LogTypeConsume,
 		Content:          content,
 		PromptTokens:     promptTokens,

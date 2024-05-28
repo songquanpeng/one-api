@@ -1,4 +1,4 @@
-package util
+package relay_util
 
 import "one-api/common"
 

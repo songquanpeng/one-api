@@ -1,8 +1,8 @@
-package util
+package relay_util
 
 import (
 	"errors"
-	"one-api/common"
+	"one-api/common/utils"
 	"one-api/model"
 	"time"
 )
@@ -15,7 +15,7 @@ func (db *ChatCacheDB) Get(hash string, userId int) *ChatCacheProps {
 		return nil
 	}
 
-	props, err := common.UnmarshalString[ChatCacheProps](cache.Data)
+	props, err := utils.UnmarshalString[ChatCacheProps](cache.Data)
 	if err != nil {
 		return nil
 	}
@@ -28,7 +28,7 @@ func (db *ChatCacheDB) Set(hash string, props *ChatCacheProps, expire int64) err
 }
 
 func SetCacheDB(hash string, props *ChatCacheProps, expire int64) error {
-	data := common.Marshal(props)
+	data := utils.Marshal(props)
 	if data == "" {
 		return errors.New("marshal error")
 	}

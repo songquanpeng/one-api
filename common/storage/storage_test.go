@@ -5,7 +5,8 @@ import (
 	"fmt"
 	"testing"
 
-	"one-api/common"
+	"one-api/common/utils"
+
 	"one-api/common/requester"
 	"one-api/common/storage/drives"
 
@@ -32,7 +33,7 @@ func TestSMMSUpload(t *testing.T) {
 		fmt.Println(err)
 	}
 
-	url, err := smUpload.Upload(image, common.GetUUID()+".png")
+	url, err := smUpload.Upload(image, utils.GetUUID()+".png")
 	fmt.Println(url)
 	fmt.Println(err)
 	assert.Nil(t, err)
@@ -48,7 +49,7 @@ func TestImgurUpload(t *testing.T) {
 		fmt.Println(err)
 	}
 
-	url, err := imgurUpload.Upload(image, common.GetUUID()+".png")
+	url, err := imgurUpload.Upload(image, utils.GetUUID()+".png")
 	fmt.Println(url)
 	fmt.Println(err)
 	assert.Nil(t, err)

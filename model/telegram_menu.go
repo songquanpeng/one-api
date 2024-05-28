@@ -2,7 +2,7 @@ package model
 
 import (
 	"errors"
-	"one-api/common"
+	"one-api/common/utils"
 )
 
 type TelegramMenu struct {
@@ -22,7 +22,7 @@ func GetTelegramMenusList(params *GenericParams) (*DataResult[TelegramMenu], err
 	var menus []*TelegramMenu
 	db := DB
 	if params.Keyword != "" {
-		db = db.Where("id = ? or command LIKE ?", common.String2Int(params.Keyword), params.Keyword+"%")
+		db = db.Where("id = ? or command LIKE ?", utils.String2Int(params.Keyword), params.Keyword+"%")
 	}
 
 	return PaginateAndOrder[TelegramMenu](db, &params.PaginationParams, &menus, allowedTelegramMenusOrderFields)

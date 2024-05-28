@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"one-api/common"
 	"one-api/model"
-	"one-api/relay/util"
+	"one-api/relay/relay_util"
 	"one-api/types"
 	"sort"
 
@@ -90,7 +90,7 @@ func ListModels(c *gin.Context) {
 }
 
 func ListModelsForAdmin(c *gin.Context) {
-	prices := util.PricingInstance.GetAllPrices()
+	prices := relay_util.PricingInstance.GetAllPrices()
 	var openAIModels []OpenAIModels
 	for modelId, price := range prices {
 		openAIModels = append(openAIModels, OpenAIModels{
@@ -123,7 +123,7 @@ func ListModelsForAdmin(c *gin.Context) {
 func RetrieveModel(c *gin.Context) {
 	modelName := c.Param("model")
 	openaiModel := getOpenAIModelWithName(modelName)
-	if *openaiModel.OwnedBy != util.UnknownOwnedBy {
+	if *openaiModel.OwnedBy != relay_util.UnknownOwnedBy {
 		c.JSON(200, openaiModel)
 	} else {
 		openAIError := types.OpenAIError{
@@ -139,15 +139,15 @@ func RetrieveModel(c *gin.Context) {
 }
 
 func getModelOwnedBy(channelType int) (ownedBy *string) {
-	if ownedByName, ok := util.ModelOwnedBy[channelType]; ok {
+	if ownedByName, ok := relay_util.ModelOwnedBy[channelType]; ok {
 		return &ownedByName
 	}
 
-	return &util.UnknownOwnedBy
+	return &relay_util.UnknownOwnedBy
 }
 
 func getOpenAIModelWithName(modelName string) *OpenAIModels {
-	price := util.PricingInstance.GetPrice(modelName)
+	price := relay_util.PricingInstance.GetPrice(modelName)
 
 	return &OpenAIModels{
 		Id:         modelName,
@@ -164,6 +164,6 @@ func GetModelOwnedBy(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"message": "",
-		"data":    util.ModelOwnedBy,
+		"data":    relay_util.ModelOwnedBy,
 	})
 }

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"one-api/common"
+	"one-api/common/utils"
 	"one-api/model"
 	"strings"
 
@@ -19,7 +20,7 @@ func GetOptions(c *gin.Context) {
 		}
 		options = append(options, &model.Option{
 			Key:   k,
-			Value: common.Interface2String(v),
+			Value: utils.Interface2String(v),
 		})
 	}
 	common.OptionMapRWMutex.Unlock()

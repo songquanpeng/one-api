@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/url"
 	"one-api/common"
+	"one-api/common/utils"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -14,7 +15,7 @@ import (
 
 func GetWSClient(proxyAddr string) *websocket.Dialer {
 	dialer := &websocket.Dialer{
-		HandshakeTimeout: time.Duration(common.GetOrDefault("connect_timeout", 5)) * time.Second,
+		HandshakeTimeout: time.Duration(utils.GetOrDefault("connect_timeout", 5)) * time.Second,
 	}
 
 	if proxyAddr != "" {
@@ -38,20 +39,16 @@ func setWSProxy(dialer *websocket.Dialer, proxyAddr string) error {
 	case "http", "https":
 		dialer.Proxy = http.ProxyURL(proxyURL)
 	case "socks5":
-		var auth *proxy.Auth = nil
-		password, isSetPassword := proxyURL.User.Password()
-		if isSetPassword {
-			auth = &proxy.Auth{
-				User:     proxyURL.User.Username(),
-				Password: password,
-			}
-		}
-		socks5Proxy, err := proxy.SOCKS5("tcp", proxyURL.Host, auth, proxy.Direct)
+		proxyDialer, err := proxy.FromURL(proxyURL, proxy.Direct)
 		if err != nil {
-			return fmt.Errorf("error creating socks5 dialer: %w", err)
+			return fmt.Errorf("error creating proxy dialer: %w", err)
 		}
+		originalNetDial := dialer.NetDial
 		dialer.NetDial = func(network, addr string) (net.Conn, error) {
-			return socks5Proxy.Dial(network, addr)
+			if originalNetDial != nil {
+				return originalNetDial(network, addr)
+			}
+			return proxyDialer.Dial(network, addr)
 		}
 	default:
 		return fmt.Errorf("unsupported proxy scheme: %s", proxyURL.Scheme)

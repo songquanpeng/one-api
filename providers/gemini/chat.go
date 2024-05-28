@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"one-api/common"
 	"one-api/common/requester"
+	"one-api/common/utils"
 	"one-api/types"
 	"strings"
 )
@@ -145,9 +146,9 @@ func (p *GeminiProvider) convertToChatOpenai(response *GeminiChatResponse, reque
 	}
 
 	openaiResponse = &types.ChatCompletionResponse{
-		ID:      fmt.Sprintf("chatcmpl-%s", common.GetUUID()),
+		ID:      fmt.Sprintf("chatcmpl-%s", utils.GetUUID()),
 		Object:  "chat.completion",
-		Created: common.GetTimestamp(),
+		Created: utils.GetTimestamp(),
 		Model:   request.Model,
 		Choices: make([]types.ChatCompletionChoice, 0, len(response.Candidates)),
 	}
@@ -191,9 +192,9 @@ func (h *geminiStreamHandler) handlerStream(rawLine *[]byte, dataChan chan strin
 
 func (h *geminiStreamHandler) convertToOpenaiStream(geminiResponse *GeminiChatResponse, dataChan chan string) {
 	streamResponse := types.ChatCompletionStreamResponse{
-		ID:      fmt.Sprintf("chatcmpl-%s", common.GetUUID()),
+		ID:      fmt.Sprintf("chatcmpl-%s", utils.GetUUID()),
 		Object:  "chat.completion.chunk",
-		Created: common.GetTimestamp(),
+		Created: utils.GetTimestamp(),
 		Model:   h.Request.Model,
 		// Choices: choices,
 	}

@@ -3,6 +3,7 @@ package controller
 import (
 	"net/http"
 	"one-api/common"
+	"one-api/common/utils"
 	"one-api/model"
 	"strconv"
 
@@ -85,12 +86,12 @@ func AddRedemption(c *gin.Context) {
 	}
 	var keys []string
 	for i := 0; i < redemption.Count; i++ {
-		key := common.GetUUID()
+		key := utils.GetUUID()
 		cleanRedemption := model.Redemption{
 			UserId:      c.GetInt("id"),
 			Name:        redemption.Name,
 			Key:         key,
-			CreatedTime: common.GetTimestamp(),
+			CreatedTime: utils.GetTimestamp(),
 			Quota:       redemption.Quota,
 		}
 		err = cleanRedemption.Insert()

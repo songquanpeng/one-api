@@ -3,6 +3,7 @@ package middleware
 import (
 	"net/http"
 	"one-api/common"
+	"one-api/common/utils"
 	"one-api/model"
 	"strings"
 
@@ -109,10 +110,10 @@ func tokenAuth(c *gin.Context, key string) {
 	if len(parts) > 1 {
 		if model.IsAdmin(token.UserId) {
 			if strings.HasPrefix(parts[1], "!") {
-				channelId := common.String2Int(parts[1][1:])
+				channelId := utils.String2Int(parts[1][1:])
 				c.Set("skip_channel_id", channelId)
 			} else {
-				channelId := common.String2Int(parts[1])
+				channelId := utils.String2Int(parts[1])
 				if channelId == 0 {
 					abortWithMessage(c, http.StatusForbidden, "无效的渠道 Id")
 					return

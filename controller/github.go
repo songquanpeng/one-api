@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net/http"
 	"one-api/common"
+	"one-api/common/utils"
 	"one-api/model"
 	"strconv"
 	"time"
@@ -216,7 +217,7 @@ func GitHubBind(c *gin.Context) {
 
 func GenerateOAuthCode(c *gin.Context) {
 	session := sessions.Default(c)
-	state := common.GetRandomString(12)
+	state := utils.GetRandomString(12)
 	session.Set("oauth_state", state)
 	err := session.Save()
 	if err != nil {

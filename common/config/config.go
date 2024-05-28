@@ -6,6 +6,7 @@ import (
 
 	"one-api/cli"
 	"one-api/common"
+	"one-api/common/utils"
 
 	"github.com/spf13/viper"
 )
@@ -22,11 +23,11 @@ func InitConf() {
 
 	common.IsMasterNode = viper.GetString("node_type") != "slave"
 	common.RequestInterval = time.Duration(viper.GetInt("polling_interval")) * time.Second
-	common.SessionSecret = common.GetOrDefault("session_secret", common.SessionSecret)
+	common.SessionSecret = utils.GetOrDefault("session_secret", common.SessionSecret)
 }
 
 func setConfigFile() {
-	if !common.IsFileExist(*cli.Config) {
+	if !utils.IsFileExist(*cli.Config) {
 		return
 	}
 

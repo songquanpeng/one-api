@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"one-api/common"
 	"one-api/common/requester"
+	"one-api/common/utils"
 	providersBase "one-api/providers/base"
 	"one-api/types"
 
@@ -93,9 +94,9 @@ func (r *relayCompletions) send() (err *types.OpenAIErrorWithStatusCode, done bo
 func (r *relayCompletions) getUsageResponse() string {
 	if r.request.StreamOptions != nil && r.request.StreamOptions.IncludeUsage {
 		usageResponse := types.CompletionResponse{
-			ID:      fmt.Sprintf("chatcmpl-%s", common.GetUUID()),
+			ID:      fmt.Sprintf("chatcmpl-%s", utils.GetUUID()),
 			Object:  "chat.completion.chunk",
-			Created: common.GetTimestamp(),
+			Created: utils.GetTimestamp(),
 			Model:   r.request.Model,
 			Choices: []types.CompletionChoice{},
 			Usage:   r.provider.GetUsage(),

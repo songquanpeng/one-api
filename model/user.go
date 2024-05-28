@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"one-api/common"
+	"one-api/common/utils"
 	"strings"
 
 	"gorm.io/gorm"
@@ -55,7 +56,7 @@ func GetUsersList(params *GenericParams) (*DataResult[User], error) {
 	var users []*User
 	db := DB.Omit("password")
 	if params.Keyword != "" {
-		db = db.Where("id = ? or username LIKE ? or email LIKE ? or display_name LIKE ?", common.String2Int(params.Keyword), params.Keyword+"%", params.Keyword+"%", params.Keyword+"%")
+		db = db.Where("id = ? or username LIKE ? or email LIKE ? or display_name LIKE ?", utils.String2Int(params.Keyword), params.Keyword+"%", params.Keyword+"%", params.Keyword+"%")
 	}
 
 	return PaginateAndOrder[User](db, &params.PaginationParams, &users, allowedUserOrderFields)
@@ -115,9 +116,9 @@ func (user *User) Insert(inviterId int) error {
 		}
 	}
 	user.Quota = common.QuotaForNewUser
-	user.AccessToken = common.GetUUID()
-	user.AffCode = common.GetRandomString(4)
-	user.CreatedTime = common.GetTimestamp()
+	user.AccessToken = utils.GetUUID()
+	user.AffCode = utils.GetRandomString(4)
+	user.CreatedTime = utils.GetTimestamp()
 	result := DB.Create(user)
 	if result.Error != nil {
 		return result.Error
@@ -165,7 +166,7 @@ func (user *User) Delete() error {
 	}
 
 	// 不改变当前数据库索引，通过更改用户名来删除用户
-	user.Username = user.Username + "_del_" + common.GetRandomString(6)
+	user.Username = user.Username + "_del_" + utils.GetRandomString(6)
 	err := user.Update(false)
 	if err != nil {
 		return err

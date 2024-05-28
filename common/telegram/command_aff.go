@@ -2,6 +2,7 @@ package telegram
 
 import (
 	"one-api/common"
+	"one-api/common/utils"
 	"strings"
 
 	"github.com/PaulSonOfLars/gotgbot/v2"
@@ -15,7 +16,7 @@ func commandAffStart(b *gotgbot.Bot, ctx *ext.Context) error {
 	}
 
 	if user.AffCode == "" {
-		user.AffCode = common.GetRandomString(4)
+		user.AffCode = utils.GetRandomString(4)
 		if err := user.Update(false); err != nil {
 			ctx.EffectiveMessage.Reply(b, "系统错误，请稍后再试", nil)
 			return nil

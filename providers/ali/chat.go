@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"one-api/common"
 	"one-api/common/requester"
+	"one-api/common/utils"
 	"one-api/types"
 	"strings"
 )
@@ -92,7 +93,7 @@ func (p *AliProvider) convertToChatOpenai(response *AliChatResponse, request *ty
 	openaiResponse = &types.ChatCompletionResponse{
 		ID:      response.RequestId,
 		Object:  "chat.completion",
-		Created: common.GetTimestamp(),
+		Created: utils.GetTimestamp(),
 		Model:   request.Model,
 		Choices: response.Output.ToChatCompletionChoices(),
 		Usage: &types.Usage{
@@ -223,7 +224,7 @@ func (h *aliStreamHandler) convertToOpenaiStream(aliResponse *AliChatResponse, d
 	streamResponse := types.ChatCompletionStreamResponse{
 		ID:      aliResponse.RequestId,
 		Object:  "chat.completion.chunk",
-		Created: common.GetTimestamp(),
+		Created: utils.GetTimestamp(),
 		Model:   h.Request.Model,
 		Choices: []types.ChatCompletionStreamChoice{choice},
 	}

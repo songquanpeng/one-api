@@ -1,4 +1,4 @@
-package common
+package utils
 
 import (
 	"encoding/json"
@@ -109,13 +109,13 @@ func Seconds2Time(num int) (time string) {
 }
 
 func Interface2String(inter interface{}) string {
-	switch inter.(type) {
+	switch inter := inter.(type) {
 	case string:
-		return inter.(string)
+		return inter
 	case int:
-		return fmt.Sprintf("%d", inter.(int))
+		return fmt.Sprintf("%d", inter)
 	case float64:
-		return fmt.Sprintf("%f", inter.(float64))
+		return fmt.Sprintf("%f", inter)
 	}
 	return "Not Implemented"
 }
@@ -140,12 +140,7 @@ func GetUUID() string {
 
 const keyChars = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
-func init() {
-	rand.Seed(time.Now().UnixNano())
-}
-
 func GenerateKey() string {
-	rand.Seed(time.Now().UnixNano())
 	key := make([]byte, 48)
 	for i := 0; i < 16; i++ {
 		key[i] = keyChars[rand.Intn(len(keyChars))]
@@ -162,7 +157,6 @@ func GenerateKey() string {
 }
 
 func GetRandomString(length int) string {
-	rand.Seed(time.Now().UnixNano())
 	key := make([]byte, length)
 	for i := 0; i < length; i++ {
 		key[i] = keyChars[rand.Intn(len(keyChars))]

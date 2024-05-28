@@ -1,9 +1,10 @@
-package util
+package relay_util
 
 import (
 	"errors"
 	"fmt"
 	"one-api/common"
+	"one-api/common/utils"
 	"time"
 )
 
@@ -17,7 +18,7 @@ func (r *ChatCacheRedis) Get(hash string, userId int) *ChatCacheProps {
 		return nil
 	}
 
-	props, err := common.UnmarshalString[ChatCacheProps](cache)
+	props, err := utils.UnmarshalString[ChatCacheProps](cache)
 	if err != nil {
 		return nil
 	}
@@ -31,7 +32,7 @@ func (r *ChatCacheRedis) Set(hash string, props *ChatCacheProps, expire int64) e
 		return nil
 	}
 
-	data := common.Marshal(&props)
+	data := utils.Marshal(&props)
 	if data == "" {
 		return errors.New("marshal error")
 	}

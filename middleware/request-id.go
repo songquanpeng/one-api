@@ -3,6 +3,7 @@ package middleware
 import (
 	"context"
 	"one-api/common"
+	"one-api/common/utils"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -10,7 +11,7 @@ import (
 
 func RequestId() func(c *gin.Context) {
 	return func(c *gin.Context) {
-		id := common.GetTimeString() + common.GetRandomString(8)
+		id := utils.GetTimeString() + utils.GetRandomString(8)
 		c.Set(common.RequestIdKey, id)
 		ctx := context.WithValue(c.Request.Context(), common.RequestIdKey, id)
 		ctx = context.WithValue(ctx, "requestStartTime", time.Now())

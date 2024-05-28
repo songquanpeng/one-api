@@ -9,11 +9,12 @@ import (
 	"net/http"
 	"one-api/common"
 	"one-api/common/requester"
+	"one-api/common/utils"
 	"one-api/controller"
 	"one-api/model"
 	"one-api/providers"
 	providersBase "one-api/providers/base"
-	"one-api/relay/util"
+	"one-api/relay/relay_util"
 	"one-api/types"
 	"strings"
 
@@ -142,7 +143,7 @@ func responseJsonClient(c *gin.Context, data interface{}) *types.OpenAIErrorWith
 
 type StreamEndHandler func() string
 
-func responseStreamClient(c *gin.Context, stream requester.StreamReaderInterface[string], cache *util.ChatCacheProps, endHandler StreamEndHandler) (errWithOP *types.OpenAIErrorWithStatusCode) {
+func responseStreamClient(c *gin.Context, stream requester.StreamReaderInterface[string], cache *relay_util.ChatCacheProps, endHandler StreamEndHandler) (errWithOP *types.OpenAIErrorWithStatusCode) {
 	requester.SetEventStreamHeaders(c)
 	dataChan, errChan := stream.Recv()
 
@@ -257,7 +258,7 @@ func processChannelRelayError(ctx context.Context, channelId int, channelName st
 
 func relayResponseWithErr(c *gin.Context, err *types.OpenAIErrorWithStatusCode) {
 	requestId := c.GetString(common.RequestIdKey)
-	err.OpenAIError.Message = common.MessageWithRequestId(err.OpenAIError.Message, requestId)
+	err.OpenAIError.Message = utils.MessageWithRequestId(err.OpenAIError.Message, requestId)
 	c.JSON(err.StatusCode, gin.H{
 		"error": err.OpenAIError,
 	})

@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"one-api/common"
 	"one-api/common/requester"
+	"one-api/common/utils"
 	"one-api/types"
 	"strings"
 
@@ -194,7 +195,7 @@ func (h *xunfeiHandler) convertToChatOpenai(stream requester.StreamReaderInterfa
 		ID:      xunfeiResponse.Header.Sid,
 		Object:  "chat.completion",
 		Model:   h.Request.Model,
-		Created: common.GetTimestamp(),
+		Created: utils.GetTimestamp(),
 		Choices: []types.ChatCompletionChoice{choice},
 		Usage:   &xunfeiResponse.Payload.Usage.Text,
 	}
@@ -310,7 +311,7 @@ func (h *xunfeiHandler) convertToOpenaiStream(xunfeiChatResponse *XunfeiChatResp
 	chatCompletion := types.ChatCompletionStreamResponse{
 		ID:      xunfeiChatResponse.Header.Sid,
 		Object:  "chat.completion.chunk",
-		Created: common.GetTimestamp(),
+		Created: utils.GetTimestamp(),
 		Model:   h.Request.Model,
 	}
 

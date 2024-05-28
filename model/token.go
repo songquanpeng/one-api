@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"one-api/common"
 	"one-api/common/stmp"
+	"one-api/common/utils"
 
 	"gorm.io/gorm"
 )
@@ -71,7 +72,7 @@ func ValidateUserToken(key string) (token *Token, err error) {
 	if token.Status != common.TokenStatusEnabled {
 		return nil, errors.New("该令牌状态不可用")
 	}
-	if token.ExpiredTime != -1 && token.ExpiredTime < common.GetTimestamp() {
+	if token.ExpiredTime != -1 && token.ExpiredTime < utils.GetTimestamp() {
 		if !common.RedisEnabled {
 			token.Status = common.TokenStatusExpired
 			err := token.SelectUpdate()
@@ -188,7 +189,7 @@ func increaseTokenQuota(id int, quota int) (err error) {
 		map[string]interface{}{
 			"remain_quota":  gorm.Expr("remain_quota + ?", quota),
 			"used_quota":    gorm.Expr("used_quota - ?", quota),
-			"accessed_time": common.GetTimestamp(),
+			"accessed_time": utils.GetTimestamp(),
 		},
 	).Error
 	return err
@@ -210,7 +211,7 @@ func decreaseTokenQuota(id int, quota int) (err error) {
 		map[string]interface{}{
 			"remain_quota":  gorm.Expr("remain_quota - ?", quota),
 			"used_quota":    gorm.Expr("used_quota + ?", quota),
-			"accessed_time": common.GetTimestamp(),
+			"accessed_time": utils.GetTimestamp(),
 		},
 	).Error
 	return err

@@ -10,6 +10,8 @@ import (
 	"sync"
 	"time"
 
+	"one-api/common/utils"
+
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
 )
@@ -62,13 +64,13 @@ func getLogDir() string {
 	}
 
 	var err error
-	logDir, err = filepath.Abs(viper.GetString("log_dir"))
+	logDir, err = filepath.Abs(logDir)
 	if err != nil {
 		log.Fatal(err)
 		return ""
 	}
 
-	if !IsFileExist(logDir) {
+	if !utils.IsFileExist(logDir) {
 		err = os.Mkdir(logDir, 0777)
 		if err != nil {
 			log.Fatal(err)

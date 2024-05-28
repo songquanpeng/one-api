@@ -7,6 +7,7 @@ import (
 	"one-api/common"
 	"one-api/common/image"
 	"one-api/common/requester"
+	"one-api/common/utils"
 	"one-api/types"
 	"strings"
 )
@@ -100,9 +101,9 @@ func (p *OllamaProvider) convertToChatOpenai(response *ChatResponse, request *ty
 	}
 
 	openaiResponse = &types.ChatCompletionResponse{
-		ID:      fmt.Sprintf("chatcmpl-%s", common.GetUUID()),
+		ID:      fmt.Sprintf("chatcmpl-%s", utils.GetUUID()),
 		Object:  "chat.completion",
-		Created: common.GetTimestamp(),
+		Created: utils.GetTimestamp(),
 		Model:   request.Model,
 		Choices: []types.ChatCompletionChoice{choices},
 		Usage: &types.Usage{
@@ -195,9 +196,9 @@ func (h *ollamaStreamHandler) handlerStream(rawLine *[]byte, dataChan chan strin
 	}
 
 	chatCompletion := types.ChatCompletionStreamResponse{
-		ID:      fmt.Sprintf("chatcmpl-%s", common.GetUUID()),
+		ID:      fmt.Sprintf("chatcmpl-%s", utils.GetUUID()),
 		Object:  "chat.completion.chunk",
-		Created: common.GetTimestamp(),
+		Created: utils.GetTimestamp(),
 		Model:   h.Request.Model,
 		Choices: []types.ChatCompletionStreamChoice{choice},
 	}

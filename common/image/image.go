@@ -16,6 +16,15 @@ import (
 	_ "golang.org/x/image/webp"
 )
 
+// var ImageHttpClients = &http.Client{
+// 	Transport: &http.Transport{
+// 		DialContext: requester.Socks5ProxyFunc,
+// 		Proxy:       requester.ProxyFunc,
+// 	},
+// 	//
+// 	// // Timeout: 30 * time.Second,
+// }
+
 func IsImageUrl(url string) (bool, error) {
 	resp, err := http.Head(url)
 	if err != nil {

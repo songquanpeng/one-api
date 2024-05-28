@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"one-api/common"
 	"one-api/common/image"
+	"one-api/common/utils"
 	"one-api/types"
 )
 
@@ -120,7 +121,7 @@ func (g *GeminiFunctionCall) ToOpenAITool() *types.ChatCompletionToolCalls {
 	args, _ := json.Marshal(g.Args)
 
 	return &types.ChatCompletionToolCalls{
-		Id:    "call_" + common.GetRandomString(24),
+		Id:    "call_" + utils.GetRandomString(24),
 		Type:  types.ChatMessageRoleFunction,
 		Index: 0,
 		Function: &types.ChatCompletionToolCallsFunction{

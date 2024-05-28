@@ -3,6 +3,7 @@ package model
 import (
 	"fmt"
 	"one-api/common"
+	"one-api/common/utils"
 	"strconv"
 	"strings"
 	"time"
@@ -26,7 +27,7 @@ func SetupDB() {
 
 	if viper.GetBool("batch_update_enabled") {
 		common.BatchUpdateEnabled = true
-		common.BatchUpdateInterval = common.GetOrDefault("batch_update_interval", 5)
+		common.BatchUpdateInterval = utils.GetOrDefault("batch_update_interval", 5)
 		common.SysLog("batch update enabled with interval " + strconv.Itoa(common.BatchUpdateInterval) + "s")
 		InitBatchUpdater()
 	}
@@ -47,7 +48,7 @@ func createRootAccountIfNeed() error {
 			Role:        common.RoleRootUser,
 			Status:      common.UserStatusEnabled,
 			DisplayName: "Root User",
-			AccessToken: common.GetUUID(),
+			AccessToken: utils.GetUUID(),
 			Quota:       100000000,
 		}
 		DB.Create(&rootUser)
@@ -78,7 +79,7 @@ func chooseDB() (*gorm.DB, error) {
 	// Use SQLite
 	common.SysLog("SQL_DSN not set, using SQLite as database")
 	common.UsingSQLite = true
-	config := fmt.Sprintf("?_busy_timeout=%d", common.GetOrDefault("sqlite_busy_timeout", 3000))
+	config := fmt.Sprintf("?_busy_timeout=%d", utils.GetOrDefault("sqlite_busy_timeout", 3000))
 	return gorm.Open(sqlite.Open(viper.GetString("sqlite_path")+config), &gorm.Config{
 		PrepareStmt: true, // precompile SQL
 	})
@@ -96,9 +97,9 @@ func InitDB() (err error) {
 			return err
 		}
 
-		sqlDB.SetMaxIdleConns(common.GetOrDefault("SQL_MAX_IDLE_CONNS", 100))
-		sqlDB.SetMaxOpenConns(common.GetOrDefault("SQL_MAX_OPEN_CONNS", 1000))
-		sqlDB.SetConnMaxLifetime(time.Second * time.Duration(common.GetOrDefault("SQL_MAX_LIFETIME", 60)))
+		sqlDB.SetMaxIdleConns(utils.GetOrDefault("SQL_MAX_IDLE_CONNS", 100))
+		sqlDB.SetMaxOpenConns(utils.GetOrDefault("SQL_MAX_OPEN_CONNS", 1000))
+		sqlDB.SetConnMaxLifetime(time.Second * time.Duration(utils.GetOrDefault("SQL_MAX_LIFETIME", 60)))
 
 		if !common.IsMasterNode {
 			return nil

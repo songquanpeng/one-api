@@ -3,6 +3,7 @@ package stmp
 import (
 	"fmt"
 	"one-api/common"
+	"one-api/common/utils"
 	"strings"
 
 	"github.com/wneessen/go-mail"
@@ -67,7 +68,7 @@ func (s *StmpConfig) Send(to, subject, body string) error {
 
 func (s *StmpConfig) getReferences() string {
 	froms := strings.Split(s.From, "@")
-	return fmt.Sprintf("<%s.%s@%s>", froms[0], common.GetUUID(), froms[1])
+	return fmt.Sprintf("<%s.%s@%s>", froms[0], utils.GetUUID(), froms[1])
 }
 
 func (s *StmpConfig) Render(to, subject, content string) error {

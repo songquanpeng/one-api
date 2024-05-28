@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"one-api/common"
 	"one-api/model"
-	"one-api/relay/util"
+	"one-api/relay/relay_util"
 	"one-api/types"
 	"time"
 
@@ -96,8 +96,8 @@ func RelayHandler(relay RelayBaseInterface) (err *types.OpenAIErrorWithStatusCod
 
 	relay.getProvider().SetUsage(usage)
 
-	var quota *util.Quota
-	quota, err = util.NewQuota(relay.getContext(), relay.getModelName(), promptTokens)
+	var quota *relay_util.Quota
+	quota, err = relay_util.NewQuota(relay.getContext(), relay.getModelName(), promptTokens)
 	if err != nil {
 		done = true
 		return
@@ -119,7 +119,7 @@ func RelayHandler(relay RelayBaseInterface) (err *types.OpenAIErrorWithStatusCod
 	return
 }
 
-func cacheProcessing(c *gin.Context, cacheProps *util.ChatCacheProps) {
+func cacheProcessing(c *gin.Context, cacheProps *relay_util.ChatCacheProps) {
 	responseCache(c, cacheProps.Response)
 
 	// 写入日志

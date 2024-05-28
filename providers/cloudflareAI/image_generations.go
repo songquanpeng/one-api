@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"one-api/common"
 	"one-api/common/storage"
+	"one-api/common/utils"
 	"one-api/types"
 	"time"
 )
@@ -46,7 +47,7 @@ func (p *CloudflareAIProvider) CreateImageGenerations(request *types.ImageReques
 
 	url := ""
 	if request.ResponseFormat == "" || request.ResponseFormat == "url" {
-		url = storage.Upload(body, common.GetUUID()+".png")
+		url = storage.Upload(body, utils.GetUUID()+".png")
 	}
 
 	openaiResponse := &types.ImageResponse{

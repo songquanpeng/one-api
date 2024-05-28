@@ -9,6 +9,7 @@ import (
 	"io"
 	"net/http"
 	"one-api/common"
+	"one-api/common/utils"
 	"one-api/types"
 	"strconv"
 	"strings"
@@ -52,18 +53,7 @@ type requestOptions struct {
 type requestOption func(*requestOptions)
 
 func (r *HTTPRequester) setProxy() context.Context {
-	if r.proxyAddr == "" {
-		return r.Context
-	}
-
-	// 如果是以 socks5:// 开头的地址，那么使用 socks5 代理
-	if strings.HasPrefix(r.proxyAddr, "socks5://") {
-		return context.WithValue(r.Context, ProxySock5AddrKey, r.proxyAddr)
-	}
-
-	// 否则使用 http 代理
-	return context.WithValue(r.Context, ProxyHTTPAddrKey, r.proxyAddr)
-
+	return utils.SetProxy(r.Context, r.proxyAddr)
 }
 
 // 创建请求

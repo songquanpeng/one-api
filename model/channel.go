@@ -2,6 +2,7 @@ package model
 
 import (
 	"one-api/common"
+	"one-api/common/utils"
 	"strings"
 
 	"gorm.io/datatypes"
@@ -235,7 +236,7 @@ func (channel *Channel) UpdateRaw(overwrite bool) error {
 
 func (channel *Channel) UpdateResponseTime(responseTime int64) {
 	err := DB.Model(channel).Select("response_time", "test_time").Updates(Channel{
-		TestTime:     common.GetTimestamp(),
+		TestTime:     utils.GetTimestamp(),
 		ResponseTime: int(responseTime),
 	}).Error
 	if err != nil {
@@ -245,7 +246,7 @@ func (channel *Channel) UpdateResponseTime(responseTime int64) {
 
 func (channel *Channel) UpdateBalance(balance float64) {
 	err := DB.Model(channel).Select("balance_updated_time", "balance").Updates(Channel{
-		BalanceUpdatedTime: common.GetTimestamp(),
+		BalanceUpdatedTime: utils.GetTimestamp(),
 		Balance:            balance,
 	}).Error
 	if err != nil {

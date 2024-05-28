@@ -1,10 +1,11 @@
-package util
+package relay_util
 
 import (
 	"crypto/md5"
 	"encoding/hex"
 	"fmt"
 	"one-api/common"
+	"one-api/common/utils"
 	"one-api/model"
 
 	"github.com/gin-gonic/gin"
@@ -37,7 +38,7 @@ func GetDebugList(userId int) ([]*ChatCacheProps, error) {
 
 	var props []*ChatCacheProps
 	for _, cache := range caches {
-		prop, err := common.UnmarshalString[ChatCacheProps](cache.Data)
+		prop, err := utils.UnmarshalString[ChatCacheProps](cache.Data)
 		if err != nil {
 			continue
 		}
@@ -77,7 +78,7 @@ func (p *ChatCacheProps) SetHash(request any) {
 		return
 	}
 
-	p.hash(common.Marshal(request))
+	p.hash(utils.Marshal(request))
 }
 
 func (p *ChatCacheProps) SetResponse(response any) {
@@ -90,7 +91,7 @@ func (p *ChatCacheProps) SetResponse(response any) {
 		return
 	}
 
-	responseStr := common.Marshal(response)
+	responseStr := utils.Marshal(response)
 	if responseStr == "" {
 		return
 	}

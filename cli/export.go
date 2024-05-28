@@ -3,13 +3,13 @@ package cli
 import (
 	"encoding/json"
 	"one-api/common"
-	"one-api/relay/util"
+	"one-api/relay/relay_util"
 	"os"
 	"sort"
 )
 
 func ExportPrices() {
-	prices := util.GetPricesList("default")
+	prices := relay_util.GetPricesList("default")
 
 	if len(prices) == 0 {
 		common.SysError("No prices found")

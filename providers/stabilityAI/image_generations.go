@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"one-api/common"
 	"one-api/common/storage"
+	"one-api/common/utils"
 	"one-api/types"
 	"time"
 )
@@ -71,7 +72,7 @@ func (p *StabilityAIProvider) CreateImageGenerations(request *types.ImageRequest
 	if request.ResponseFormat == "" || request.ResponseFormat == "url" {
 		body, err := base64.StdEncoding.DecodeString(stabilityAIResponse.Image)
 		if err == nil {
-			imgUrl = storage.Upload(body, common.GetUUID()+".png")
+			imgUrl = storage.Upload(body, utils.GetUUID()+".png")
 		}
 	}
 

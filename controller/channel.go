@@ -4,6 +4,7 @@ import (
 	"errors"
 	"net/http"
 	"one-api/common"
+	"one-api/common/utils"
 	"one-api/model"
 	"strconv"
 	"strings"
@@ -64,7 +65,7 @@ func AddChannel(c *gin.Context) {
 		})
 		return
 	}
-	channel.CreatedTime = common.GetTimestamp()
+	channel.CreatedTime = utils.GetTimestamp()
 	keys := strings.Split(channel.Key, "\n")
 	channels := make([]model.Channel, 0, len(keys))
 	for _, key := range keys {

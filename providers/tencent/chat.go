@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"one-api/common"
 	"one-api/common/requester"
+	"one-api/common/utils"
 	"one-api/types"
 	"strings"
 )
@@ -101,7 +102,7 @@ func (p *TencentProvider) convertToChatOpenai(response *TencentChatResponse, req
 
 	openaiResponse = &types.ChatCompletionResponse{
 		Object:  "chat.completion",
-		Created: common.GetTimestamp(),
+		Created: utils.GetTimestamp(),
 		Usage:   response.Usage,
 		Model:   request.Model,
 	}
@@ -137,9 +138,9 @@ func convertFromChatOpenai(request *types.ChatCompletionRequest) *TencentChatReq
 		stream = 1
 	}
 	return &TencentChatRequest{
-		Timestamp:   common.GetTimestamp(),
-		Expired:     common.GetTimestamp() + 24*60*60,
-		QueryID:     common.GetUUID(),
+		Timestamp:   utils.GetTimestamp(),
+		Expired:     utils.GetTimestamp() + 24*60*60,
+		QueryID:     utils.GetUUID(),
 		Temperature: request.Temperature,
 		TopP:        request.TopP,
 		Stream:      stream,
@@ -178,7 +179,7 @@ func (h *tencentStreamHandler) handlerStream(rawLine *[]byte, dataChan chan stri
 func (h *tencentStreamHandler) convertToOpenaiStream(tencentChatResponse *TencentChatResponse, dataChan chan string) {
 	streamResponse := types.ChatCompletionStreamResponse{
 		Object:  "chat.completion.chunk",
-		Created: common.GetTimestamp(),
+		Created: utils.GetTimestamp(),
 		Model:   h.Request.Model,
 	}
 	if len(tencentChatResponse.Choices) > 0 {

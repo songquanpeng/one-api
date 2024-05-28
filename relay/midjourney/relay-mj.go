@@ -14,7 +14,7 @@ import (
 	"one-api/model"
 	provider "one-api/providers/midjourney"
 	"one-api/relay"
-	"one-api/relay/util"
+	"one-api/relay/relay_util"
 	"one-api/types"
 	"strconv"
 	"strings"
@@ -539,10 +539,10 @@ func getMjRequestPath(path string) string {
 	return requestURL
 }
 
-func getQuota(c *gin.Context, action string) (*util.Quota, *types.OpenAIErrorWithStatusCode) {
+func getQuota(c *gin.Context, action string) (*relay_util.Quota, *types.OpenAIErrorWithStatusCode) {
 	modelName := CoverActionToModelName(action)
 
-	return util.NewQuota(c, modelName, 1000)
+	return relay_util.NewQuota(c, modelName, 1000)
 }
 
 func getMJProviderWithRequest(c *gin.Context, relayMode int, request *provider.MidjourneyRequest) (*provider.MidjourneyProvider, *provider.MidjourneyResponse) {
