@@ -69,7 +69,7 @@ func (p *PalmProvider) GetRequestHeaders() (headers map[string]string) {
 }
 
 // 获取完整请求 URL
-func (p *PalmProvider) GetFullRequestURL(requestURL string, modelName string) string {
+func (p *PalmProvider) GetFullRequestURL(requestURL string) string {
 	baseURL := strings.TrimSuffix(p.GetBaseURL(), "/")
 
 	return fmt.Sprintf("%s%s", baseURL, requestURL)

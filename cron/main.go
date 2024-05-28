@@ -3,7 +3,6 @@ package cron
 import (
 	"one-api/common/logger"
 	"one-api/model"
-	"time"
 
 	"github.com/go-co-op/gocron/v2"
 )
@@ -23,7 +22,7 @@ func InitCron() {
 				gocron.NewAtTime(0, 5, 0),
 			)),
 		gocron.NewTask(func() {
-			model.RemoveChatCache(time.Now().Unix())
+			model.RemoveChatCache()
 			logger.SysLog("删除过期缓存数据")
 		}),
 	)

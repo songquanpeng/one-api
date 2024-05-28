@@ -87,7 +87,7 @@ func (p *AzureSpeechProvider) CreateSpeech(request *types.SpeechAudioRequest) (*
 	if errWithCode != nil {
 		return nil, errWithCode
 	}
-	fullRequestURL := p.GetFullRequestURL(url, request.Model)
+	fullRequestURL := p.GetFullRequestURL(url)
 	headers := p.GetRequestHeaders()
 	responseFormatr := outputFormatMap[request.ResponseFormat]
 	if responseFormatr == "" {

@@ -28,7 +28,7 @@ func hmacsha256(s, key string) string {
 func (p *HunyuanProvider) sign(body any, action, method string) (*http.Request, *types.OpenAIErrorWithStatusCode) {
 	service := "hunyuan"
 	version := "2023-09-01"
-	region := ""
+	// region := ""
 	host := strings.Replace(p.GetBaseURL(), "https://", "", 1)
 	algorithm := "TC3-HMAC-SHA256"
 	var timestamp = time.Now().Unix()
@@ -88,9 +88,9 @@ func (p *HunyuanProvider) sign(body any, action, method string) (*http.Request, 
 		"Content-Type":   contentType,
 		"Authorization":  authorization,
 	}
-	if region != "" {
-		headers["X-TC-Region"] = region
-	}
+	// if region != "" {
+	// 	headers["X-TC-Region"] = region
+	// }
 
 	req, err := p.Requester.NewRequest(method, p.GetBaseURL(), p.Requester.WithBody(body), p.Requester.WithHeader(headers))
 	if err != nil {

@@ -48,12 +48,6 @@ func GetUserTokensList(userId int, params *GenericParams) (*DataResult[Token], e
 	return PaginateAndOrder(db, &params.PaginationParams, &tokens, allowedTokenOrderFields)
 }
 
-// 获取状态为可用的令牌
-func GetUserEnabledTokens(userId int) (tokens []*Token, err error) {
-	err = DB.Where("user_id = ? and status = ?", userId, config.TokenStatusEnabled).Find(&tokens).Error
-	return tokens, err
-}
-
 func ValidateUserToken(key string) (token *Token, err error) {
 	if key == "" {
 		return nil, errors.New("未提供令牌")

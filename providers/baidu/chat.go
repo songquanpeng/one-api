@@ -210,7 +210,7 @@ func (h *baiduStreamHandler) handlerStream(rawLine *[]byte, dataChan chan string
 		return
 	}
 
-	h.convertToOpenaiStream(&baiduResponse, dataChan, errChan)
+	h.convertToOpenaiStream(&baiduResponse, dataChan)
 
 	if baiduResponse.IsEnd {
 		errChan <- io.EOF
@@ -219,7 +219,7 @@ func (h *baiduStreamHandler) handlerStream(rawLine *[]byte, dataChan chan string
 	}
 }
 
-func (h *baiduStreamHandler) convertToOpenaiStream(baiduResponse *BaiduChatStreamResponse, dataChan chan string, errChan chan error) {
+func (h *baiduStreamHandler) convertToOpenaiStream(baiduResponse *BaiduChatStreamResponse, dataChan chan string) {
 	choice := types.ChatCompletionStreamChoice{
 		Index: 0,
 		Delta: types.ChatCompletionStreamChoiceDelta{

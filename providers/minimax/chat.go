@@ -62,7 +62,7 @@ func (p *MiniMaxProvider) getChatRequest(request *types.ChatCompletionRequest) (
 	}
 
 	// 获取请求地址
-	fullRequestURL := p.GetFullRequestURL(url, request.Model)
+	fullRequestURL := p.GetFullRequestURL(url)
 	if fullRequestURL == "" {
 		return nil, common.ErrorWrapper(errors.New("API KEY is filled in incorrectly"), "invalid_minimax_config", http.StatusInternalServerError)
 	}

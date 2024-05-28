@@ -71,7 +71,7 @@ func (p *ClaudeProvider) getChatRequest(request *types.ChatCompletionRequest) (*
 	}
 
 	// 获取请求地址
-	fullRequestURL := p.GetFullRequestURL(url, request.Model)
+	fullRequestURL := p.GetFullRequestURL(url)
 	if fullRequestURL == "" {
 		return nil, common.ErrorWrapper(nil, "invalid_claude_config", http.StatusInternalServerError)
 	}

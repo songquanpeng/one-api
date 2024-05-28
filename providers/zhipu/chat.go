@@ -61,7 +61,7 @@ func (p *ZhipuProvider) getChatRequest(request *types.ChatCompletionRequest) (*h
 	}
 
 	// 获取请求地址
-	fullRequestURL := p.GetFullRequestURL(url, request.Model)
+	fullRequestURL := p.GetFullRequestURL(url)
 	if fullRequestURL == "" {
 		return nil, common.ErrorWrapper(nil, "invalid_zhipu_config", http.StatusInternalServerError)
 	}
@@ -100,7 +100,7 @@ func (p *ZhipuProvider) convertToChatOpenai(response *ZhipuResponse, request *ty
 	}
 
 	if len(openaiResponse.Choices) > 0 && openaiResponse.Choices[0].Message.ToolCalls != nil && request.Functions != nil {
-		for i, _ := range openaiResponse.Choices {
+		for i := range openaiResponse.Choices {
 			openaiResponse.Choices[i].CheckChoice(request)
 		}
 	}
@@ -112,7 +112,7 @@ func (p *ZhipuProvider) convertToChatOpenai(response *ZhipuResponse, request *ty
 
 func (p *ZhipuProvider) convertFromChatOpenai(request *types.ChatCompletionRequest) *ZhipuRequest {
 	request.ClearEmptyMessages()
-	for i, _ := range request.Messages {
+	for i := range request.Messages {
 		request.Messages[i].Role = convertRole(request.Messages[i].Role)
 		if request.Messages[i].FunctionCall != nil {
 			request.Messages[i].FuncToToolCalls()

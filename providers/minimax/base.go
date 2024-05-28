@@ -59,7 +59,7 @@ func errorHandle(minimaxError *BaseResp) *types.OpenAIError {
 	}
 }
 
-func (p *MiniMaxProvider) GetFullRequestURL(requestURL string, modelName string) string {
+func (p *MiniMaxProvider) GetFullRequestURL(requestURL string) string {
 	baseURL := strings.TrimSuffix(p.GetBaseURL(), "/")
 	keys := strings.Split(p.Channel.Key, "|")
 	if len(keys) != 2 {

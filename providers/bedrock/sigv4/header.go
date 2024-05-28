@@ -58,10 +58,6 @@ var requiredHeaders = map[string]struct{}{
 	"X-Amz-Tagging":                                               {},
 }
 
-// headerPredicate is a function that evaluates whether a header is of the
-// specific type. For example, whether a header should be ignored during signing.
-type headerPredicate func(header string) bool
-
 // isIgnoredHeader returns true if header must be ignored during signing.
 func isIgnoredHeader(header string) bool {
 	_, ok := ignoreHeaders[header]

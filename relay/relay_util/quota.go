@@ -99,7 +99,7 @@ func (q *Quota) completedQuotaConsumption(usage *types.Usage, tokenName string, 
 		quota = int(1000 * q.inputRatio)
 	} else {
 		completionRatio := q.price.GetOutput() * q.groupRatio
-		quota = int(math.Ceil(((float64(promptTokens) * q.inputRatio) + (float64(completionTokens) * completionRatio))))
+		quota = int(math.Ceil((float64(promptTokens) * q.inputRatio) + (float64(completionTokens) * completionRatio)))
 	}
 
 	if q.inputRatio != 0 && quota <= 0 {

@@ -60,12 +60,12 @@ func (p *XunfeiProvider) CreateChatCompletionStream(request *types.ChatCompletio
 }
 
 func (p *XunfeiProvider) getChatRequest(request *types.ChatCompletionRequest) (*websocket.Conn, *types.OpenAIErrorWithStatusCode) {
-	url, errWithCode := p.GetSupportedAPIUri(config.RelayModeChatCompletions)
+	_, errWithCode := p.GetSupportedAPIUri(config.RelayModeChatCompletions)
 	if errWithCode != nil {
 		return nil, errWithCode
 	}
 
-	authUrl := p.GetFullRequestURL(url, request.Model)
+	authUrl := p.GetFullRequestURL(request.Model)
 
 	wsConn, err := p.wsRequester.NewRequest(authUrl, nil)
 	if err != nil {

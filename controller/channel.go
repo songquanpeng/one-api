@@ -40,7 +40,7 @@ func GetChannel(c *gin.Context) {
 		})
 		return
 	}
-	channel, err := model.GetChannelById(id, false)
+	channel, err := model.GetChannelById(id)
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,

@@ -73,7 +73,7 @@ func (p *ClaudeProvider) GetRequestHeaders() (headers map[string]string) {
 	return headers
 }
 
-func (p *ClaudeProvider) GetFullRequestURL(requestURL string, modelName string) string {
+func (p *ClaudeProvider) GetFullRequestURL(requestURL string) string {
 	baseURL := strings.TrimSuffix(p.GetBaseURL(), "/")
 	if strings.HasPrefix(baseURL, "https://gateway.ai.cloudflare.com") {
 		requestURL = strings.TrimPrefix(requestURL, "/v1")

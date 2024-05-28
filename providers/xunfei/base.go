@@ -63,7 +63,7 @@ func (p *XunfeiProvider) GetRequestHeaders() (headers map[string]string) {
 }
 
 // 获取完整请求 URL
-func (p *XunfeiProvider) GetFullRequestURL(requestURL string, modelName string) string {
+func (p *XunfeiProvider) GetFullRequestURL(modelName string) string {
 	splits := strings.Split(p.Channel.Key, "|")
 	if len(splits) != 3 {
 		return ""

@@ -165,7 +165,7 @@ func SearchUserLogs(userId int, keyword string) (logs []*Log, err error) {
 	return logs, err
 }
 
-func SumUsedQuota(logType int, startTimestamp int64, endTimestamp int64, modelName string, username string, tokenName string, channel int) (quota int) {
+func SumUsedQuota(startTimestamp int64, endTimestamp int64, modelName string, username string, tokenName string, channel int) (quota int) {
 	tx := DB.Table("logs").Select(assembleSumSelectStr("quota"))
 	if username != "" {
 		tx = tx.Where("username = ?", username)
@@ -187,27 +187,6 @@ func SumUsedQuota(logType int, startTimestamp int64, endTimestamp int64, modelNa
 	}
 	tx.Where("type = ?", LogTypeConsume).Scan(&quota)
 	return quota
-}
-
-func SumUsedToken(logType int, startTimestamp int64, endTimestamp int64, modelName string, username string, tokenName string) (token int) {
-	tx := DB.Table("logs").Select(assembleSumSelectStr("prompt_tokens") + " + " + assembleSumSelectStr("completion_tokens"))
-	if username != "" {
-		tx = tx.Where("username = ?", username)
-	}
-	if tokenName != "" {
-		tx = tx.Where("token_name = ?", tokenName)
-	}
-	if startTimestamp != 0 {
-		tx = tx.Where("created_at >= ?", startTimestamp)
-	}
-	if endTimestamp != 0 {
-		tx = tx.Where("created_at <= ?", endTimestamp)
-	}
-	if modelName != "" {
-		tx = tx.Where("model_name = ?", modelName)
-	}
-	tx.Where("type = ?", LogTypeConsume).Scan(&token)
-	return token
 }
 
 func DeleteOldLog(targetTimestamp int64) (int64, error) {

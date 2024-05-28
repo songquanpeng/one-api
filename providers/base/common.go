@@ -48,7 +48,7 @@ func (p *BaseProvider) GetBaseURL() string {
 }
 
 // 获取完整请求URL
-func (p *BaseProvider) GetFullRequestURL(requestURL string, modelName string) string {
+func (p *BaseProvider) GetFullRequestURL(requestURL string, _ string) string {
 	baseURL := strings.TrimSuffix(p.GetBaseURL(), "/")
 
 	return fmt.Sprintf("%s%s", baseURL, requestURL)

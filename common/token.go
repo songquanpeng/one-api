@@ -148,7 +148,7 @@ const (
 // https://platform.openai.com/docs/guides/vision/calculating-costs
 // https://github.com/openai/openai-cookbook/blob/05e3f9be4c7a2ae7ecf029a7c32065b024730ebe/examples/How_to_count_tokens_with_tiktoken.ipynb
 func countImageTokens(url string, detail string) (_ int, err error) {
-	var fetchSize = true
+	// var fetchSize = true
 	var width, height int
 	// Reference: https://platform.openai.com/docs/guides/vision/low-or-high-fidelity-image-understanding
 	// detail == "auto" is undocumented on how it works, it just said the model will use the auto setting which will look at the image input size and decide if it should use the low or high setting.
@@ -183,11 +183,9 @@ func countImageTokens(url string, detail string) (_ int, err error) {
 	case "low":
 		return lowDetailCost, nil
 	case "high":
-		if fetchSize {
-			width, height, err = image.GetImageSize(url)
-			if err != nil {
-				return 0, err
-			}
+		width, height, err = image.GetImageSize(url)
+		if err != nil {
+			return 0, err
 		}
 		if width > 2048 || height > 2048 { // max(width, height) > 2048
 			ratio := float64(2048) / math.Max(float64(width), float64(height))

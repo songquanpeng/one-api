@@ -35,7 +35,7 @@ func GetChatCacheListByUserId(userId int) ([]*ChatCache, error) {
 	return chatCaches, err
 }
 
-func RemoveChatCache(expiration int64) error {
+func RemoveChatCache() error {
 	now := time.Now().Unix()
 	return DB.Where("expiration < ?", now).Delete(ChatCache{}).Error
 }

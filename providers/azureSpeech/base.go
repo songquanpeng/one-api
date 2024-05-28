@@ -28,7 +28,7 @@ type AzureSpeechProvider struct {
 	base.BaseProvider
 }
 
-func (p *AzureSpeechProvider) GetFullRequestURL(requestURL string, modelName string) string {
+func (p *AzureSpeechProvider) GetFullRequestURL(requestURL string) string {
 	baseURL := ""
 	if p.Channel.Other != "" {
 		baseURL = fmt.Sprintf("https://%s.tts.speech.microsoft.com", p.Channel.Other)

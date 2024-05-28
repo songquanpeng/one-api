@@ -15,48 +15,6 @@ type Ability struct {
 	Weight    *uint  `json:"weight" gorm:"default:1"`
 }
 
-func GetRandomSatisfiedChannel(group string, model string) (*Channel, error) {
-	ability := Ability{}
-	groupCol := "`group`"
-	trueVal := "1"
-	if common.UsingPostgreSQL {
-		groupCol = `"group"`
-		trueVal = "true"
-	}
-
-	var err error = nil
-	maxPrioritySubQuery := DB.Model(&Ability{}).Select("MAX(priority)").Where(groupCol+" = ? and model = ? and enabled = "+trueVal, group, model)
-	channelQuery := DB.Where(groupCol+" = ? and model = ? and enabled = "+trueVal+" and priority = (?)", group, model, maxPrioritySubQuery)
-	if common.UsingSQLite || common.UsingPostgreSQL {
-		err = channelQuery.Order("RANDOM()").First(&ability).Error
-	} else {
-		err = channelQuery.Order("RAND()").First(&ability).Error
-	}
-	if err != nil {
-		return nil, err
-	}
-	channel := Channel{}
-	channel.Id = ability.ChannelId
-	err = DB.First(&channel, "id = ?", ability.ChannelId).Error
-	return &channel, err
-}
-
-func GetGroupModels(group string) ([]string, error) {
-	var models []string
-	groupCol := "`group`"
-	trueVal := "1"
-	if common.UsingPostgreSQL {
-		groupCol = `"group"`
-		trueVal = "true"
-	}
-
-	err := DB.Model(&Ability{}).Where(groupCol+" = ? and enabled = ? ", group, trueVal).Distinct("model").Pluck("model", &models).Error
-	if err != nil {
-		return nil, err
-	}
-	return models, nil
-}
-
 func (channel *Channel) AddAbilities() error {
 	models_ := strings.Split(channel.Models, ",")
 	groups_ := strings.Split(channel.Group, ",")
@@ -100,17 +58,6 @@ func (channel *Channel) UpdateAbilities() error {
 
 func UpdateAbilityStatus(channelId int, status bool) error {
 	return DB.Model(&Ability{}).Where("channel_id = ?", channelId).Select("enabled").Update("enabled", status).Error
-}
-
-func GetEnabledAbility() ([]*Ability, error) {
-	trueVal := "1"
-	if common.UsingPostgreSQL {
-		trueVal = "true"
-	}
-
-	var abilities []*Ability
-	err := DB.Where("enabled = ?", trueVal).Order("priority desc, weight desc").Find(&abilities).Error
-	return abilities, err
 }
 
 type AbilityChannelGroup struct {

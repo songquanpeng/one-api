@@ -90,7 +90,7 @@ func fetchChannel(c *gin.Context, modelName string) (channel *model.Channel, fai
 }
 
 func fetchChannelById(channelId int) (*model.Channel, error) {
-	channel, err := model.GetChannelById(channelId, true)
+	channel, err := model.GetChannelById(channelId)
 	if err != nil {
 		return nil, errors.New("无效的渠道 Id")
 	}

@@ -476,32 +476,6 @@ func DeleteUser(c *gin.Context) {
 	}
 }
 
-func DeleteSelf(c *gin.Context) {
-	id := c.GetInt("id")
-	user, _ := model.GetUserById(id, false)
-
-	if user.Role == config.RoleRootUser {
-		c.JSON(http.StatusOK, gin.H{
-			"success": false,
-			"message": "不能删除超级管理员账户",
-		})
-		return
-	}
-
-	err := model.DeleteUserById(id)
-	if err != nil {
-		c.JSON(http.StatusOK, gin.H{
-			"success": false,
-			"message": err.Error(),
-		})
-		return
-	}
-	c.JSON(http.StatusOK, gin.H{
-		"success": true,
-		"message": "",
-	})
-}
-
 func CreateUser(c *gin.Context) {
 	var user model.User
 	err := json.NewDecoder(c.Request.Body).Decode(&user)

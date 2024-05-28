@@ -49,50 +49,15 @@ func GetUserLogsList(c *gin.Context) {
 	})
 }
 
-func SearchAllLogs(c *gin.Context) {
-	keyword := c.Query("keyword")
-	logs, err := model.SearchAllLogs(keyword)
-	if err != nil {
-		c.JSON(http.StatusOK, gin.H{
-			"success": false,
-			"message": err.Error(),
-		})
-		return
-	}
-	c.JSON(http.StatusOK, gin.H{
-		"success": true,
-		"message": "",
-		"data":    logs,
-	})
-}
-
-func SearchUserLogs(c *gin.Context) {
-	keyword := c.Query("keyword")
-	userId := c.GetInt("id")
-	logs, err := model.SearchUserLogs(userId, keyword)
-	if err != nil {
-		c.JSON(http.StatusOK, gin.H{
-			"success": false,
-			"message": err.Error(),
-		})
-		return
-	}
-	c.JSON(http.StatusOK, gin.H{
-		"success": true,
-		"message": "",
-		"data":    logs,
-	})
-}
-
 func GetLogsStat(c *gin.Context) {
-	logType, _ := strconv.Atoi(c.Query("type"))
+	// logType, _ := strconv.Atoi(c.Query("type"))
 	startTimestamp, _ := strconv.ParseInt(c.Query("start_timestamp"), 10, 64)
 	endTimestamp, _ := strconv.ParseInt(c.Query("end_timestamp"), 10, 64)
 	tokenName := c.Query("token_name")
 	username := c.Query("username")
 	modelName := c.Query("model_name")
 	channel, _ := strconv.Atoi(c.Query("channel"))
-	quotaNum := model.SumUsedQuota(logType, startTimestamp, endTimestamp, modelName, username, tokenName, channel)
+	quotaNum := model.SumUsedQuota(startTimestamp, endTimestamp, modelName, username, tokenName, channel)
 	//tokenNum := model.SumUsedToken(logType, startTimestamp, endTimestamp, modelName, username, "")
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
@@ -106,13 +71,13 @@ func GetLogsStat(c *gin.Context) {
 
 func GetLogsSelfStat(c *gin.Context) {
 	username := c.GetString("username")
-	logType, _ := strconv.Atoi(c.Query("type"))
+	// logType, _ := strconv.Atoi(c.Query("type"))
 	startTimestamp, _ := strconv.ParseInt(c.Query("start_timestamp"), 10, 64)
 	endTimestamp, _ := strconv.ParseInt(c.Query("end_timestamp"), 10, 64)
 	tokenName := c.Query("token_name")
 	modelName := c.Query("model_name")
 	channel, _ := strconv.Atoi(c.Query("channel"))
-	quotaNum := model.SumUsedQuota(logType, startTimestamp, endTimestamp, modelName, username, tokenName, channel)
+	quotaNum := model.SumUsedQuota(startTimestamp, endTimestamp, modelName, username, tokenName, channel)
 	//tokenNum := model.SumUsedToken(logType, startTimestamp, endTimestamp, modelName, username, tokenName)
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,

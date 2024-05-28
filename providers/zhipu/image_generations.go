@@ -14,7 +14,7 @@ func (p *ZhipuProvider) CreateImageGenerations(request *types.ImageRequest) (*ty
 		return nil, errWithCode
 	}
 	// 获取请求地址
-	fullRequestURL := p.GetFullRequestURL(url, request.Model)
+	fullRequestURL := p.GetFullRequestURL(url)
 	if fullRequestURL == "" {
 		return nil, common.ErrorWrapper(nil, "invalid_zhipu_config", http.StatusInternalServerError)
 	}

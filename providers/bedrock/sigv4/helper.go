@@ -9,7 +9,6 @@ import (
 	"net/url"
 	"sort"
 	"strings"
-	"time"
 )
 
 var (
@@ -45,17 +44,6 @@ func hmacsha256(key, data, buf []byte) []byte {
 func hasPrefixFold(s, prefix string) bool {
 	return len(s) >= len(prefix) &&
 		strings.EqualFold(s[0:len(prefix)], prefix)
-}
-
-// isSameDay returns true if a and b are the same date (dd-mm-yyyy).
-func isSameDay(a, b time.Time) bool {
-	xYear, xMonth, xDay := a.Date()
-	yYear, yMonth, yDay := b.Date()
-
-	if xYear != yYear || xMonth != yMonth {
-		return false
-	}
-	return xDay == yDay
 }
 
 // hostOrURLHost returns r.Host, or if empty, r.URL.Host.
@@ -270,33 +258,4 @@ func writeCanonicalString(w *bufio.Writer, s string) {
 		lastIsSpace = false
 		w.WriteByte(s[i])
 	}
-}
-
-type debugHasher struct {
-	buf []byte
-}
-
-func (dh *debugHasher) Write(b []byte) (int, error) {
-	dh.buf = append(dh.buf, b...)
-	return len(b), nil
-}
-
-func (dh *debugHasher) Sum(b []byte) []byte {
-	return nil
-}
-
-func (dh *debugHasher) Reset() {
-	// do nothing
-}
-
-func (dh *debugHasher) Size() int {
-	return 0
-}
-
-func (dh *debugHasher) BlockSize() int {
-	return sha256.BlockSize
-}
-
-func (dh *debugHasher) Println() {
-	fmt.Printf("---%s---\n", dh.buf)
 }

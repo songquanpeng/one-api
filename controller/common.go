@@ -96,18 +96,6 @@ func EnableChannel(channelId int, channelName string, sendNotify bool) {
 	notify.Send(subject, content)
 }
 
-func RelayNotImplemented(c *gin.Context) {
-	err := types.OpenAIError{
-		Message: "API not implemented",
-		Type:    "one_api_error",
-		Param:   "",
-		Code:    "api_not_implemented",
-	}
-	c.JSON(http.StatusNotImplemented, gin.H{
-		"error": err,
-	})
-}
-
 func RelayNotFound(c *gin.Context) {
 	err := types.OpenAIError{
 		Message: fmt.Sprintf("Invalid URL (%s %s)", c.Request.Method, c.Request.URL.Path),

@@ -77,7 +77,7 @@ func (p *ZhipuProvider) GetRequestHeaders() (headers map[string]string) {
 }
 
 // 获取完整请求 URL
-func (p *ZhipuProvider) GetFullRequestURL(requestURL string, modelName string) string {
+func (p *ZhipuProvider) GetFullRequestURL(requestURL string) string {
 	baseURL := strings.TrimSuffix(p.GetBaseURL(), "/")
 
 	return fmt.Sprintf("%s%s", baseURL, requestURL)

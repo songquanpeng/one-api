@@ -4,12 +4,10 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"fmt"
+	"github.com/gin-gonic/gin"
 	"one-api/common"
 	"one-api/common/config"
 	"one-api/common/utils"
-	"one-api/model"
-
-	"github.com/gin-gonic/gin"
 )
 
 type ChatCacheProps struct {
@@ -29,24 +27,6 @@ type ChatCacheProps struct {
 type CacheDriver interface {
 	Get(hash string, userId int) *ChatCacheProps
 	Set(hash string, props *ChatCacheProps, expire int64) error
-}
-
-func GetDebugList(userId int) ([]*ChatCacheProps, error) {
-	caches, err := model.GetChatCacheListByUserId(userId)
-	if err != nil {
-		return nil, err
-	}
-
-	var props []*ChatCacheProps
-	for _, cache := range caches {
-		prop, err := utils.UnmarshalString[ChatCacheProps](cache.Data)
-		if err != nil {
-			continue
-		}
-		props = append(props, &prop)
-	}
-
-	return props, nil
 }
 
 func NewChatCacheProps(c *gin.Context, allow bool) *ChatCacheProps {

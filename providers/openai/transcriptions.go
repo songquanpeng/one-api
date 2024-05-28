@@ -165,7 +165,7 @@ func getTextContent(text, format string) string {
 func extractTextFromVTT(vttContent string) string {
 	scanner := bufio.NewScanner(strings.NewReader(vttContent))
 	re := regexp.MustCompile(`\d{2}:\d{2}:\d{2}\.\d{3} --> \d{2}:\d{2}:\d{2}\.\d{3}`)
-	text := []string{}
+	var text []string
 	isStart := true
 
 	for scanner.Scan() {
@@ -185,7 +185,7 @@ func extractTextFromVTT(vttContent string) string {
 func extractTextFromSRT(srtContent string) string {
 	scanner := bufio.NewScanner(strings.NewReader(srtContent))
 	re := regexp.MustCompile(`\d{2}:\d{2}:\d{2},\d{3} --> \d{2}:\d{2}:\d{2},\d{3}`)
-	text := []string{}
+	var text []string
 	isContent := false
 
 	for scanner.Scan() {

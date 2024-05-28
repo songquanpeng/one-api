@@ -100,7 +100,7 @@ func GetAllChannels() ([]*Channel, error) {
 	return channels, err
 }
 
-func GetChannelById(id int, selectAll bool) (*Channel, error) {
+func GetChannelById(id int) (*Channel, error) {
 	channel := Channel{Id: id}
 	var err error = nil
 	err = DB.First(&channel, "id = ?", id).Error
@@ -310,11 +310,6 @@ func updateChannelUsedQuota(id int, quota int) {
 	if err != nil {
 		logger.SysError("failed to update channel used quota: " + err.Error())
 	}
-}
-
-func DeleteChannelByStatus(status int64) (int64, error) {
-	result := DB.Where("status = ?", status).Delete(&Channel{})
-	return result.RowsAffected, result.Error
 }
 
 func DeleteDisabledChannel() (int64, error) {

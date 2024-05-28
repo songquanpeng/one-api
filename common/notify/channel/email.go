@@ -25,7 +25,7 @@ func (e *Email) Name() string {
 	return "Email"
 }
 
-func (e *Email) Send(ctx context.Context, title, message string) error {
+func (e *Email) Send(_ context.Context, title, message string) error {
 	to := e.To
 	if to == "" {
 		to = config.RootUserEmail
