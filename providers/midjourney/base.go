@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"one-api/common"
+	"one-api/common/logger"
 	"one-api/common/requester"
 	"one-api/model"
 	"one-api/providers/base"
@@ -71,7 +72,7 @@ func (p *MidjourneyProvider) Send(timeout int, requestURL string) (*MidjourneyRe
 
 	resp, errWith := p.Requester.SendRequestRaw(req)
 	if errWith != nil {
-		common.SysError("do request failed: " + errWith.Error())
+		logger.SysError("do request failed: " + errWith.Error())
 		return MidjourneyErrorWithStatusCodeWrapper(MjErrorUnknown, "do_request_failed", http.StatusInternalServerError), nullBytes, err
 	}
 	statusCode := resp.StatusCode

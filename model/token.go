@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"one-api/common"
+	"one-api/common/logger"
 	"one-api/common/stmp"
 	"one-api/common/utils"
 
@@ -58,7 +59,7 @@ func ValidateUserToken(key string) (token *Token, err error) {
 	}
 	token, err = CacheGetTokenByKey(key)
 	if err != nil {
-		common.SysError("CacheGetTokenByKey failed: " + err.Error())
+		logger.SysError("CacheGetTokenByKey failed: " + err.Error())
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errors.New("无效的令牌")
 		}
@@ -77,7 +78,7 @@ func ValidateUserToken(key string) (token *Token, err error) {
 			token.Status = common.TokenStatusExpired
 			err := token.SelectUpdate()
 			if err != nil {
-				common.SysError("failed to update token status" + err.Error())
+				logger.SysError("failed to update token status" + err.Error())
 			}
 		}
 		return nil, errors.New("该令牌已过期")
@@ -88,7 +89,7 @@ func ValidateUserToken(key string) (token *Token, err error) {
 			token.Status = common.TokenStatusExhausted
 			err := token.SelectUpdate()
 			if err != nil {
-				common.SysError("failed to update token status" + err.Error())
+				logger.SysError("failed to update token status" + err.Error())
 			}
 		}
 		return nil, errors.New("该令牌额度已用尽")
@@ -254,12 +255,12 @@ func sendQuotaWarningEmail(userId int, userQuota int, noMoreQuota bool) {
 	user := User{Id: userId}
 
 	if err := user.FillUserById(); err != nil {
-		common.SysError("failed to fetch user email: " + err.Error())
+		logger.SysError("failed to fetch user email: " + err.Error())
 		return
 	}
 
 	if user.Email == "" {
-		common.SysError("user email is empty")
+		logger.SysError("user email is empty")
 		return
 	}
 
@@ -271,7 +272,7 @@ func sendQuotaWarningEmail(userId int, userQuota int, noMoreQuota bool) {
 	err := stmp.SendQuotaWarningCodeEmail(userName, user.Email, userQuota, noMoreQuota)
 
 	if err != nil {
-		common.SysError("failed to send email" + err.Error())
+		logger.SysError("failed to send email" + err.Error())
 	}
 }
 

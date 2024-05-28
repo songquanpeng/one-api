@@ -6,7 +6,7 @@ package midjourney
 import (
 	"fmt"
 	"net/http"
-	"one-api/common"
+	"one-api/common/logger"
 	provider "one-api/providers/midjourney"
 	"strings"
 
@@ -46,7 +46,7 @@ func RelayMidjourney(c *gin.Context) {
 			"code":        err.Code,
 		})
 		channelId := c.GetInt("channel_id")
-		common.SysError(fmt.Sprintf("relay error (channel #%d): %s", channelId, fmt.Sprintf("%s %s", err.Description, err.Result)))
+		logger.SysError(fmt.Sprintf("relay error (channel #%d): %s", channelId, fmt.Sprintf("%s %s", err.Description, err.Result)))
 	}
 }
 

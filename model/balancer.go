@@ -4,6 +4,7 @@ import (
 	"errors"
 	"math/rand"
 	"one-api/common"
+	"one-api/common/logger"
 	"one-api/common/utils"
 	"strings"
 	"sync"
@@ -162,7 +163,7 @@ func (cc *ChannelsChooser) Load() {
 
 	abilities, err := GetAbilityChannelGroup()
 	if err != nil {
-		common.SysLog("get enabled abilities failed: " + err.Error())
+		logger.SysLog("get enabled abilities failed: " + err.Error())
 		return
 	}
 
@@ -216,5 +217,5 @@ func (cc *ChannelsChooser) Load() {
 	cc.Channels = newChannels
 	cc.Match = newMatchList
 	cc.Unlock()
-	common.SysLog("channels Load success")
+	logger.SysLog("channels Load success")
 }

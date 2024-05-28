@@ -5,7 +5,7 @@ import (
 	"net"
 	"net/http"
 	"net/url"
-	"one-api/common"
+	"one-api/common/logger"
 	"one-api/common/utils"
 	"time"
 
@@ -21,7 +21,7 @@ func GetWSClient(proxyAddr string) *websocket.Dialer {
 	if proxyAddr != "" {
 		err := setWSProxy(dialer, proxyAddr)
 		if err != nil {
-			common.SysError(err.Error())
+			logger.SysError(err.Error())
 			return dialer
 		}
 	}

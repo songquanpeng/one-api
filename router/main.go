@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"one-api/common"
+	"one-api/common/logger"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -18,7 +19,7 @@ func SetRouter(router *gin.Engine, buildFS embed.FS, indexPage []byte) {
 	frontendBaseUrl := viper.GetString("frontend_base_url")
 	if common.IsMasterNode && frontendBaseUrl != "" {
 		frontendBaseUrl = ""
-		common.SysLog("FRONTEND_BASE_URL is ignored on master node")
+		logger.SysLog("FRONTEND_BASE_URL is ignored on master node")
 	}
 	if frontendBaseUrl == "" {
 		SetWebRouter(router, buildFS, indexPage)

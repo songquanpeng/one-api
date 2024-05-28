@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"one-api/common"
+	"one-api/common/logger"
 	"one-api/common/notify"
 	"one-api/common/utils"
 	"one-api/model"
@@ -70,7 +71,7 @@ func testChannel(channel *model.Channel, testModel string) (err error, openaiErr
 
 	// 转换为JSON字符串
 	jsonBytes, _ := json.Marshal(response)
-	common.SysLog(fmt.Sprintf("测试渠道 %s : %s 返回内容为：%s", channel.Name, request.Model, string(jsonBytes)))
+	logger.SysLog(fmt.Sprintf("测试渠道 %s : %s 返回内容为：%s", channel.Name, request.Model, string(jsonBytes)))
 
 	return nil, nil
 }
@@ -233,8 +234,8 @@ func AutomaticallyTestChannels(frequency int) {
 
 	for {
 		time.Sleep(time.Duration(frequency) * time.Minute)
-		common.SysLog("testing all channels")
+		logger.SysLog("testing all channels")
 		_ = testAllChannels(false)
-		common.SysLog("channel test finished")
+		logger.SysLog("channel test finished")
 	}
 }

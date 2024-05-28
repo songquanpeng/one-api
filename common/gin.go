@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"one-api/common/logger"
 	"one-api/types"
 
 	"github.com/gin-gonic/gin"
@@ -65,7 +66,7 @@ func AbortWithMessage(c *gin.Context, statusCode int, message string) {
 		},
 	})
 	c.Abort()
-	LogError(c.Request.Context(), message)
+	logger.LogError(c.Request.Context(), message)
 }
 
 func APIRespondWithError(c *gin.Context, status int, err error) {

@@ -2,7 +2,7 @@ package middleware
 
 import (
 	"context"
-	"one-api/common"
+	"one-api/common/logger"
 	"one-api/common/utils"
 	"time"
 
@@ -12,11 +12,11 @@ import (
 func RequestId() func(c *gin.Context) {
 	return func(c *gin.Context) {
 		id := utils.GetTimeString() + utils.GetRandomString(8)
-		c.Set(common.RequestIdKey, id)
-		ctx := context.WithValue(c.Request.Context(), common.RequestIdKey, id)
+		c.Set(logger.RequestIdKey, id)
+		ctx := context.WithValue(c.Request.Context(), logger.RequestIdKey, id)
 		ctx = context.WithValue(ctx, "requestStartTime", time.Now())
 		c.Request = c.Request.WithContext(ctx)
-		c.Header(common.RequestIdKey, id)
+		c.Header(logger.RequestIdKey, id)
 		c.Next()
 	}
 }

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"one-api/common"
+	"one-api/common/logger"
 	"strconv"
 	"time"
 )
@@ -34,7 +35,7 @@ func CacheGetTokenByKey(key string) (*Token, error) {
 		}
 		err = common.RedisSet(fmt.Sprintf("token:%s", key), string(jsonBytes), time.Duration(TokenCacheSeconds)*time.Second)
 		if err != nil {
-			common.SysError("Redis set token error: " + err.Error())
+			logger.SysError("Redis set token error: " + err.Error())
 		}
 		return &token, nil
 	}
@@ -54,7 +55,7 @@ func CacheGetUserGroup(id int) (group string, err error) {
 		}
 		err = common.RedisSet(fmt.Sprintf("user_group:%d", id), group, time.Duration(TokenCacheSeconds)*time.Second)
 		if err != nil {
-			common.SysError("Redis set user group error: " + err.Error())
+			logger.SysError("Redis set user group error: " + err.Error())
 		}
 	}
 	return group, err
@@ -72,7 +73,7 @@ func CacheGetUserQuota(id int) (quota int, err error) {
 		}
 		err = common.RedisSet(fmt.Sprintf("user_quota:%d", id), fmt.Sprintf("%d", quota), time.Duration(TokenCacheSeconds)*time.Second)
 		if err != nil {
-			common.SysError("Redis set user quota error: " + err.Error())
+			logger.SysError("Redis set user quota error: " + err.Error())
 		}
 		return quota, err
 	}
@@ -119,7 +120,7 @@ func CacheIsUserEnabled(userId int) (bool, error) {
 	}
 	err = common.RedisSet(fmt.Sprintf("user_enabled:%d", userId), enabled, time.Duration(TokenCacheSeconds)*time.Second)
 	if err != nil {
-		common.SysError("Redis set user enabled error: " + err.Error())
+		logger.SysError("Redis set user enabled error: " + err.Error())
 	}
 	return userEnabled, err
 }

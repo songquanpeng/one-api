@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"math"
+	"one-api/common/logger"
 	"strings"
 
 	"one-api/common/image"
@@ -21,27 +22,27 @@ var gpt4oTokenEncoder *tiktoken.Tiktoken
 func InitTokenEncoders() {
 	if viper.GetBool("disable_token_encoders") {
 		DISABLE_TOKEN_ENCODERS = true
-		SysLog("token encoders disabled")
+		logger.SysLog("token encoders disabled")
 		return
 	}
-	SysLog("initializing token encoders")
+	logger.SysLog("initializing token encoders")
 	var err error
 	gpt35TokenEncoder, err = tiktoken.EncodingForModel("gpt-3.5-turbo")
 	if err != nil {
-		FatalLog(fmt.Sprintf("failed to get gpt-3.5-turbo token encoder: %s", err.Error()))
+		logger.FatalLog(fmt.Sprintf("failed to get gpt-3.5-turbo token encoder: %s", err.Error()))
 	}
 
 	gpt4TokenEncoder, err = tiktoken.EncodingForModel("gpt-4")
 	if err != nil {
-		FatalLog(fmt.Sprintf("failed to get gpt-4 token encoder: %s", err.Error()))
+		logger.FatalLog(fmt.Sprintf("failed to get gpt-4 token encoder: %s", err.Error()))
 	}
 
 	gpt4oTokenEncoder, err = tiktoken.EncodingForModel("gpt-4o")
 	if err != nil {
-		FatalLog(fmt.Sprintf("failed to get gpt-4o token encoder: %s", err.Error()))
+		logger.FatalLog(fmt.Sprintf("failed to get gpt-4o token encoder: %s", err.Error()))
 	}
 
-	SysLog("token encoders initialized")
+	logger.SysLog("token encoders initialized")
 }
 
 func getTokenEncoder(model string) *tiktoken.Tiktoken {
@@ -64,7 +65,7 @@ func getTokenEncoder(model string) *tiktoken.Tiktoken {
 		var err error
 		tokenEncoder, err = tiktoken.EncodingForModel(model)
 		if err != nil {
-			SysError(fmt.Sprintf("failed to get token encoder for model %s: %s, using encoder for gpt-3.5-turbo", model, err.Error()))
+			logger.SysError(fmt.Sprintf("failed to get token encoder for model %s: %s, using encoder for gpt-3.5-turbo", model, err.Error()))
 			tokenEncoder = gpt35TokenEncoder
 		}
 	}
@@ -119,7 +120,7 @@ func CountTokenMessages(messages []types.ChatCompletionMessage, model string) in
 						imageTokens, err := countImageTokens(url, detail)
 						if err != nil {
 							//Due to the excessive length of the error information, only extract and record the most critical part.
-							SysError("error counting image tokens: " + err.Error())
+							logger.SysError("error counting image tokens: " + err.Error())
 						} else {
 							tokenNum += imageTokens
 						}

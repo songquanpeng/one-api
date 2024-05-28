@@ -2,7 +2,7 @@ package cli
 
 import (
 	"encoding/json"
-	"one-api/common"
+	"one-api/common/logger"
 	"one-api/relay/relay_util"
 	"os"
 	"sort"
@@ -12,7 +12,7 @@ func ExportPrices() {
 	prices := relay_util.GetPricesList("default")
 
 	if len(prices) == 0 {
-		common.SysError("No prices found")
+		logger.SysError("No prices found")
 		return
 	}
 
@@ -27,22 +27,22 @@ func ExportPrices() {
 	// 导出到当前目录下的 prices.json 文件
 	file, err := os.Create("prices.json")
 	if err != nil {
-		common.SysError("Failed to create file: " + err.Error())
+		logger.SysError("Failed to create file: " + err.Error())
 		return
 	}
 	defer file.Close()
 
 	jsonData, err := json.MarshalIndent(prices, "", "  ")
 	if err != nil {
-		common.SysError("Failed to encode prices: " + err.Error())
+		logger.SysError("Failed to encode prices: " + err.Error())
 		return
 	}
 
 	_, err = file.Write(jsonData)
 	if err != nil {
-		common.SysError("Failed to write to file: " + err.Error())
+		logger.SysError("Failed to write to file: " + err.Error())
 		return
 	}
 
-	common.SysLog("Prices exported to prices.json")
+	logger.SysLog("Prices exported to prices.json")
 }

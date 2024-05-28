@@ -2,6 +2,7 @@ package model
 
 import (
 	"one-api/common"
+	"one-api/common/logger"
 	"one-api/common/utils"
 	"strings"
 
@@ -240,7 +241,7 @@ func (channel *Channel) UpdateResponseTime(responseTime int64) {
 		ResponseTime: int(responseTime),
 	}).Error
 	if err != nil {
-		common.SysError("failed to update response time: " + err.Error())
+		logger.SysError("failed to update response time: " + err.Error())
 	}
 }
 
@@ -250,7 +251,7 @@ func (channel *Channel) UpdateBalance(balance float64) {
 		Balance:            balance,
 	}).Error
 	if err != nil {
-		common.SysError("failed to update balance: " + err.Error())
+		logger.SysError("failed to update balance: " + err.Error())
 	}
 }
 
@@ -283,11 +284,11 @@ func (channel *Channel) StatusToStr() string {
 func UpdateChannelStatusById(id int, status int) {
 	err := UpdateAbilityStatus(id, status == common.ChannelStatusEnabled)
 	if err != nil {
-		common.SysError("failed to update ability status: " + err.Error())
+		logger.SysError("failed to update ability status: " + err.Error())
 	}
 	err = DB.Model(&Channel{}).Where("id = ?", id).Update("status", status).Error
 	if err != nil {
-		common.SysError("failed to update channel status: " + err.Error())
+		logger.SysError("failed to update channel status: " + err.Error())
 	}
 
 	if err == nil {
@@ -307,7 +308,7 @@ func UpdateChannelUsedQuota(id int, quota int) {
 func updateChannelUsedQuota(id int, quota int) {
 	err := DB.Model(&Channel{}).Where("id = ?", id).Update("used_quota", gorm.Expr("used_quota + ?", quota)).Error
 	if err != nil {
-		common.SysError("failed to update channel used quota: " + err.Error())
+		logger.SysError("failed to update channel used quota: " + err.Error())
 	}
 }
 

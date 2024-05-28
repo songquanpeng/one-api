@@ -1,6 +1,7 @@
 package config
 
 import (
+	"one-api/common/logger"
 	"strings"
 	"time"
 
@@ -18,7 +19,7 @@ func InitConf() {
 	setEnv()
 
 	if viper.GetBool("debug") {
-		common.SysLog("running in debug mode")
+		logger.SysLog("running in debug mode")
 	}
 
 	common.IsMasterNode = viper.GetString("node_type") != "slave"

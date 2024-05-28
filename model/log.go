@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"one-api/common"
+	"one-api/common/logger"
 	"one-api/common/utils"
 
 	"gorm.io/gorm"
@@ -48,12 +49,12 @@ func RecordLog(userId int, logType int, content string) {
 	}
 	err := DB.Create(log).Error
 	if err != nil {
-		common.SysError("failed to record log: " + err.Error())
+		logger.SysError("failed to record log: " + err.Error())
 	}
 }
 
 func RecordConsumeLog(ctx context.Context, userId int, channelId int, promptTokens int, completionTokens int, modelName string, tokenName string, quota int, content string, requestTime int) {
-	common.LogInfo(ctx, fmt.Sprintf("record consume log: userId=%d, channelId=%d, promptTokens=%d, completionTokens=%d, modelName=%s, tokenName=%s, quota=%d, content=%s", userId, channelId, promptTokens, completionTokens, modelName, tokenName, quota, content))
+	logger.LogInfo(ctx, fmt.Sprintf("record consume log: userId=%d, channelId=%d, promptTokens=%d, completionTokens=%d, modelName=%s, tokenName=%s, quota=%d, content=%s", userId, channelId, promptTokens, completionTokens, modelName, tokenName, quota, content))
 	if !common.LogConsumeEnabled {
 		return
 	}
@@ -73,7 +74,7 @@ func RecordConsumeLog(ctx context.Context, userId int, channelId int, promptToke
 	}
 	err := DB.Create(log).Error
 	if err != nil {
-		common.LogError(ctx, "failed to record log: "+err.Error())
+		logger.LogError(ctx, "failed to record log: "+err.Error())
 	}
 }
 

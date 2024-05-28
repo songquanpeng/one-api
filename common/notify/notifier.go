@@ -2,7 +2,7 @@ package notify
 
 import (
 	"context"
-	"one-api/common"
+	"one-api/common/logger"
 	"one-api/common/notify/channel"
 
 	"github.com/spf13/viper"
@@ -23,13 +23,13 @@ func InitNotifier() {
 
 func InitEmailNotifier() {
 	if viper.GetBool("notify.email.disable") {
-		common.SysLog("email notifier disabled")
+		logger.SysLog("email notifier disabled")
 		return
 	}
 	smtp_to := viper.GetString("notify.email.smtp_to")
 	emailNotifier := channel.NewEmail(smtp_to)
 	AddNotifiers(emailNotifier)
-	common.SysLog("email notifier enable")
+	logger.SysLog("email notifier enable")
 }
 
 func InitDingTalkNotifier() {
@@ -49,7 +49,7 @@ func InitDingTalkNotifier() {
 	}
 
 	AddNotifiers(dingTalkNotifier)
-	common.SysLog("dingtalk notifier enable")
+	logger.SysLog("dingtalk notifier enable")
 }
 
 func InitLarkNotifier() {
@@ -69,7 +69,7 @@ func InitLarkNotifier() {
 	}
 
 	AddNotifiers(larkNotifier)
-	common.SysLog("lark notifier enable")
+	logger.SysLog("lark notifier enable")
 }
 
 func InitPushdeerNotifier() {
@@ -81,7 +81,7 @@ func InitPushdeerNotifier() {
 	pushdeerNotifier := channel.NewPushdeer(pushkey, viper.GetString("notify.pushdeer.url"))
 
 	AddNotifiers(pushdeerNotifier)
-	common.SysLog("pushdeer notifier enable")
+	logger.SysLog("pushdeer notifier enable")
 }
 
 func InitTelegramNotifier() {
@@ -95,5 +95,5 @@ func InitTelegramNotifier() {
 	telegramNotifier := channel.NewTelegram(bot_token, chat_id, httpProxy)
 
 	AddNotifiers(telegramNotifier)
-	common.SysLog("telegram notifier enable")
+	logger.SysLog("telegram notifier enable")
 }

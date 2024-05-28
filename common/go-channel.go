@@ -2,6 +2,7 @@ package common
 
 import (
 	"fmt"
+	"one-api/common/logger"
 	"runtime/debug"
 )
 
@@ -9,7 +10,7 @@ func SafeGoroutine(f func()) {
 	go func() {
 		defer func() {
 			if r := recover(); r != nil {
-				SysError(fmt.Sprintf("child goroutine panic occured: error: %v, stack: %s", r, string(debug.Stack())))
+				logger.SysError(fmt.Sprintf("child goroutine panic occured: error: %v, stack: %s", r, string(debug.Stack())))
 			}
 		}()
 		f()

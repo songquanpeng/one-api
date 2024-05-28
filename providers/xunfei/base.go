@@ -6,7 +6,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	"net/url"
-	"one-api/common"
+	"one-api/common/logger"
 	"one-api/common/requester"
 	"one-api/model"
 	"one-api/providers/base"
@@ -94,7 +94,7 @@ func (p *XunfeiProvider) getAPIVersion(modelName string) string {
 	}
 	apiVersion = "v1.1"
 
-	common.SysLog("api_version not found, use default: " + apiVersion)
+	logger.SysLog("api_version not found, use default: " + apiVersion)
 	return apiVersion
 }
 
@@ -130,7 +130,7 @@ func (p *XunfeiProvider) buildXunfeiAuthUrl(hostUrl string, apiKey, apiSecret st
 	}
 	ul, err := url.Parse(hostUrl)
 	if err != nil {
-		common.SysError("url parse error: " + err.Error())
+		logger.SysError("url parse error: " + err.Error())
 		return ""
 	}
 	date := time.Now().UTC().Format(time.RFC1123)

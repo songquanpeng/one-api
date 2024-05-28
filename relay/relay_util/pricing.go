@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"one-api/common"
+	"one-api/common/logger"
 	"one-api/common/utils"
 	"one-api/model"
 	"sort"
@@ -30,7 +31,7 @@ type BatchPrices struct {
 
 // NewPricing creates a new Pricing instance
 func NewPricing() {
-	common.SysLog("Initializing Pricing")
+	logger.SysLog("Initializing Pricing")
 
 	PricingInstance = &Pricing{
 		Prices: make(map[string]*model.Price),
@@ -40,16 +41,16 @@ func NewPricing() {
 	err := PricingInstance.Init()
 
 	if err != nil {
-		common.SysError("Failed to initialize Pricing:" + err.Error())
+		logger.SysError("Failed to initialize Pricing:" + err.Error())
 		return
 	}
 
 	// 初始化时，需要检测是否有更新
 	if viper.GetBool("auto_price_updates") || len(PricingInstance.Prices) == 0 {
-		common.SysLog("Checking for pricing updates")
+		logger.SysLog("Checking for pricing updates")
 		prices := model.GetDefaultPrice()
 		PricingInstance.SyncPricing(prices, false)
-		common.SysLog("Pricing initialized")
+		logger.SysLog("Pricing initialized")
 	}
 }
 

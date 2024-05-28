@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"one-api/common"
 	"one-api/common/config"
+	"one-api/common/logger"
 	"one-api/common/notify"
 	"one-api/common/requester"
 	"one-api/common/storage"
@@ -31,8 +32,8 @@ var indexPage []byte
 
 func main() {
 	config.InitConf()
-	common.SetupLogger()
-	common.SysLog("One API " + common.Version + " started")
+	logger.SetupLogger()
+	logger.SysLog("One API " + common.Version + " started")
 	// Initialize SQL Database
 	model.SetupDB()
 	defer model.CloseDB()
@@ -69,8 +70,8 @@ func initMemoryCache() {
 	syncFrequency := viper.GetInt("sync_frequency")
 	model.TokenCacheSeconds = syncFrequency
 
-	common.SysLog("memory cache enabled")
-	common.SysError(fmt.Sprintf("sync frequency: %d seconds", syncFrequency))
+	logger.SysLog("memory cache enabled")
+	logger.SysError(fmt.Sprintf("sync frequency: %d seconds", syncFrequency))
 	go model.SyncOptions(syncFrequency)
 	go SyncChannelCache(syncFrequency)
 }
@@ -98,19 +99,19 @@ func initHttpServer() {
 
 	err := server.Run(":" + port)
 	if err != nil {
-		common.FatalLog("failed to start HTTP server: " + err.Error())
+		logger.FatalLog("failed to start HTTP server: " + err.Error())
 	}
 }
 
 func SyncChannelCache(frequency int) {
 	// 只有 从 服务器端获取数据的时候才会用到
 	if common.IsMasterNode {
-		common.SysLog("master node does't synchronize the channel")
+		logger.SysLog("master node does't synchronize the channel")
 		return
 	}
 	for {
 		time.Sleep(time.Duration(frequency) * time.Second)
-		common.SysLog("syncing channels from database")
+		logger.SysLog("syncing channels from database")
 		model.ChannelGroup.Load()
 		relay_util.PricingInstance.Init()
 	}

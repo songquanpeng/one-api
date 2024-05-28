@@ -7,6 +7,7 @@ import (
 	"math"
 	"net/http"
 	"one-api/common"
+	"one-api/common/logger"
 	"one-api/model"
 	"one-api/types"
 	"time"
@@ -154,7 +155,7 @@ func (q *Quota) Undo(c *gin.Context) {
 			// return pre-consumed quota
 			err := model.PostConsumeTokenQuota(tokenId, -q.preConsumedQuota)
 			if err != nil {
-				common.LogError(ctx, "error return pre-consumed quota: "+err.Error())
+				logger.LogError(ctx, "error return pre-consumed quota: "+err.Error())
 			}
 		}(c.Request.Context())
 	}
@@ -166,7 +167,7 @@ func (q *Quota) Consume(c *gin.Context, usage *types.Usage) {
 	go func(ctx context.Context) {
 		err := q.completedQuotaConsumption(usage, tokenName, ctx)
 		if err != nil {
-			common.LogError(ctx, err.Error())
+			logger.LogError(ctx, err.Error())
 		}
 	}(c.Request.Context())
 }

@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net/http"
 	"one-api/common"
+	"one-api/common/logger"
 	"one-api/common/utils"
 	"one-api/model"
 	"strconv"
@@ -48,7 +49,7 @@ func getGitHubUserInfoByCode(code string) (*GitHubUser, error) {
 	}
 	res, err := client.Do(req)
 	if err != nil {
-		common.SysLog(err.Error())
+		logger.SysLog(err.Error())
 		return nil, errors.New("无法连接至 GitHub 服务器，请稍后重试！")
 	}
 	defer res.Body.Close()
@@ -64,7 +65,7 @@ func getGitHubUserInfoByCode(code string) (*GitHubUser, error) {
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", oAuthResponse.AccessToken))
 	res2, err := client.Do(req)
 	if err != nil {
-		common.SysLog(err.Error())
+		logger.SysLog(err.Error())
 		return nil, errors.New("无法连接至 GitHub 服务器，请稍后重试！")
 	}
 	defer res2.Body.Close()

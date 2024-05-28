@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"one-api/common"
+	"one-api/common/logger"
 	"one-api/common/requester"
 	"one-api/model"
 	"one-api/providers/base"
@@ -95,7 +95,7 @@ func (p *ZhipuProvider) getZhipuToken() string {
 
 	split := strings.Split(apikey, ".")
 	if len(split) != 2 {
-		common.SysError("invalid zhipu key: " + apikey)
+		logger.SysError("invalid zhipu key: " + apikey)
 		return ""
 	}
 

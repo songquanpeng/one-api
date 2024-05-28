@@ -1,7 +1,7 @@
 package model
 
 import (
-	"one-api/common"
+	"one-api/common/logger"
 
 	"github.com/go-gormigrate/gormigrate/v2"
 	"gorm.io/gorm"
@@ -22,7 +22,7 @@ func removeKeyIndexMigration() *gormigrate.Migration {
 
 			err := tx.Migrator().DropIndex(&Channel{}, "idx_channels_key")
 			if err != nil {
-				common.SysLog("remove idx_channels_key  Failure: " + err.Error())
+				logger.SysLog("remove idx_channels_key  Failure: " + err.Error())
 			}
 			return nil
 		},

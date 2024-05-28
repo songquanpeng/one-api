@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"one-api/common"
+	"one-api/common/logger"
 	"one-api/common/utils"
 	"strings"
 
@@ -306,7 +307,7 @@ func IsAdmin(userId int) bool {
 	var user User
 	err := DB.Where("id = ?", userId).Select("role").Find(&user).Error
 	if err != nil {
-		common.SysError("no such user " + err.Error())
+		logger.SysError("no such user " + err.Error())
 		return false
 	}
 	return user.Role >= common.RoleAdminUser
@@ -415,7 +416,7 @@ func updateUserUsedQuotaAndRequestCount(id int, quota int, count int) {
 		},
 	).Error
 	if err != nil {
-		common.SysError("failed to update user used quota and request count: " + err.Error())
+		logger.SysError("failed to update user used quota and request count: " + err.Error())
 	}
 }
 
@@ -426,14 +427,14 @@ func updateUserUsedQuota(id int, quota int) {
 		},
 	).Error
 	if err != nil {
-		common.SysError("failed to update user used quota: " + err.Error())
+		logger.SysError("failed to update user used quota: " + err.Error())
 	}
 }
 
 func updateUserRequestCount(id int, count int) {
 	err := DB.Model(&User{}).Where("id = ?", id).Update("request_count", gorm.Expr("request_count + ?", count)).Error
 	if err != nil {
-		common.SysError("failed to update user request count: " + err.Error())
+		logger.SysError("failed to update user request count: " + err.Error())
 	}
 }
 

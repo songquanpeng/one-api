@@ -8,6 +8,7 @@ import (
 	"io"
 	"net/http"
 	"one-api/common"
+	"one-api/common/logger"
 	"one-api/common/requester"
 	"one-api/common/utils"
 	"one-api/controller"
@@ -115,7 +116,7 @@ func fetchChannelByModel(c *gin.Context, modelName string) (*model.Channel, erro
 	if err != nil {
 		message := fmt.Sprintf("当前分组 %s 下对于模型 %s 无可用渠道", group, modelName)
 		if channel != nil {
-			common.SysError(fmt.Sprintf("渠道不存在：%d", channel.Id))
+			logger.SysError(fmt.Sprintf("渠道不存在：%d", channel.Id))
 			message = "数据库一致性已被破坏，请联系管理员"
 		}
 		return nil, errors.New(message)
@@ -250,14 +251,14 @@ func shouldRetry(c *gin.Context, statusCode int) bool {
 }
 
 func processChannelRelayError(ctx context.Context, channelId int, channelName string, err *types.OpenAIErrorWithStatusCode) {
-	common.LogError(ctx, fmt.Sprintf("relay error (channel #%d(%s)): %s", channelId, channelName, err.Message))
+	logger.LogError(ctx, fmt.Sprintf("relay error (channel #%d(%s)): %s", channelId, channelName, err.Message))
 	if controller.ShouldDisableChannel(&err.OpenAIError, err.StatusCode) {
 		controller.DisableChannel(channelId, channelName, err.Message, true)
 	}
 }
 
 func relayResponseWithErr(c *gin.Context, err *types.OpenAIErrorWithStatusCode) {
-	requestId := c.GetString(common.RequestIdKey)
+	requestId := c.GetString(logger.RequestIdKey)
 	err.OpenAIError.Message = utils.MessageWithRequestId(err.OpenAIError.Message, requestId)
 	c.JSON(err.StatusCode, gin.H{
 		"error": err.OpenAIError,

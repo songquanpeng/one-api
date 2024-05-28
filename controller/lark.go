@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net/http"
 	"one-api/common"
+	"one-api/common/logger"
 	"one-api/model"
 	"strconv"
 	"time"
@@ -58,7 +59,7 @@ func getLarkAppAccessToken() (string, error) {
 	}
 	res, err := client.Do(req)
 	if err != nil {
-		common.SysLog(err.Error())
+		logger.SysLog(err.Error())
 		return "", errors.New("无法连接至飞书服务器，请稍后重试！")
 	}
 	defer res.Body.Close()
@@ -100,7 +101,7 @@ func getLarkUserAccessToken(code string) (string, error) {
 	}
 	res, err := client.Do(req)
 	if err != nil {
-		common.SysLog(err.Error())
+		logger.SysLog(err.Error())
 		return "", errors.New("无法连接至飞书服务器，请稍后重试！")
 	}
 	defer res.Body.Close()
@@ -135,7 +136,7 @@ func getLarkUserInfoByCode(code string) (*LarkUser, error) {
 	}
 	res2, err := client.Do(req)
 	if err != nil {
-		common.SysLog(err.Error())
+		logger.SysLog(err.Error())
 		return nil, errors.New("无法连接至飞书服务器，请稍后重试！")
 	}
 	var larkUser LarkUser
