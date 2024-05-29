@@ -45,8 +45,8 @@ func InitCli() {
 		os.Exit(0)
 	}
 
-	if Config != nil && !utils.IsFileExist(*Config) {
-		panic("Config file not found")
+	if !utils.IsFileExist(*Config) {
+		return
 	}
 
 	viper.SetConfigFile(*Config)
