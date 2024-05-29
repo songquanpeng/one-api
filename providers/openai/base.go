@@ -111,7 +111,13 @@ func (p *OpenAIProvider) GetFullRequestURL(requestURL string, modelName string) 
 		}
 
 	} else if p.Channel.Type == config.ChannelTypeCustom && p.Channel.Other != "" {
-		requestURL = strings.Replace(requestURL, "v1", p.Channel.Other, 1)
+		if p.Channel.Other == "disable" {
+			p.Channel.Other = ""
+		} else {
+			p.Channel.Other = "/" + p.Channel.Other
+		}
+
+		requestURL = strings.Replace(requestURL, "/v1", p.Channel.Other, 1)
 	}
 
 	if strings.HasPrefix(baseURL, "https://gateway.ai.cloudflare.com") {

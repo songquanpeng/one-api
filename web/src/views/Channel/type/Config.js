@@ -58,7 +58,8 @@ const typeConfig = {
       other: '替换 API 版本'
     },
     prompt: {
-      other: '输入后，会替换请求地址中的v1，例如：freeapi，则请求chat时会变成https://xxx.com/freeapi/chat/completions'
+      other:
+        '输入后，会替换请求地址中的v1，例如：freeapi，则请求chat时会变成https://xxx.com/freeapi/chat/completions,如果需要禁用版本号，请输入 disable'
     }
   },
   3: {
