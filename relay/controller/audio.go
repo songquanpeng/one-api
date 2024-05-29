@@ -72,7 +72,7 @@ func RelayAudioHelper(c *gin.Context, relayMode int) *relaymodel.ErrorWithStatus
 
 	// Check if user quota is enough
 	if userQuota-preConsumedQuota < 0 {
-		return openai.ErrorWrapper(errors.New("user quota is not enough"), "insufficient_user_quota", http.StatusForbidden)
+		return openai.ErrorWrapper(errors.New("请移步充值页面进行充值,可在日志中查阅使用明细"), "insufficient_user_quota", http.StatusForbidden)
 	}
 	err = model.CacheDecreaseUserQuota(userId, preConsumedQuota)
 	if err != nil {
