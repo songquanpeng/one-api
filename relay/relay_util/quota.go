@@ -46,7 +46,7 @@ func NewQuota(c *gin.Context, modelName string, promptTokens int) (*Quota, *type
 	if quota.price.Type == model.TimesPriceType {
 		quota.preConsumedQuota = int(1000 * quota.inputRatio)
 	} else {
-		quota.preConsumedQuota = int(float64(quota.promptTokens+config.PreConsumedQuota) * quota.inputRatio)
+		quota.preConsumedQuota = int(float64(quota.promptTokens)*quota.inputRatio) + config.PreConsumedQuota
 	}
 
 	errWithCode := quota.preQuotaConsumption()
