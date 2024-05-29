@@ -92,10 +92,10 @@ func (p *TencentProvider) getChatRequest(request *types.ChatCompletionRequest) (
 }
 
 func (p *TencentProvider) convertToChatOpenai(response *TencentChatResponse, request *types.ChatCompletionRequest) (openaiResponse *types.ChatCompletionResponse, errWithCode *types.OpenAIErrorWithStatusCode) {
-	error := errorHandle(&response.TencentResponseError)
-	if error != nil {
+	aiError := errorHandle(&response.TencentResponseError)
+	if aiError != nil {
 		errWithCode = &types.OpenAIErrorWithStatusCode{
-			OpenAIError: *error,
+			OpenAIError: *aiError,
 			StatusCode:  http.StatusBadRequest,
 		}
 		return
@@ -167,9 +167,9 @@ func (h *tencentStreamHandler) handlerStream(rawLine *[]byte, dataChan chan stri
 		return
 	}
 
-	error := errorHandle(&tencentChatResponse.TencentResponseError)
-	if error != nil {
-		errChan <- error
+	aiError := errorHandle(&tencentChatResponse.TencentResponseError)
+	if aiError != nil {
+		errChan <- aiError
 		return
 	}
 

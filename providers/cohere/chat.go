@@ -120,10 +120,10 @@ func ConvertFromChatOpenai(request *types.ChatCompletionRequest) (*CohereRequest
 }
 
 func ConvertToChatOpenai(provider base.ProviderInterface, response *CohereResponse, request *types.ChatCompletionRequest) (openaiResponse *types.ChatCompletionResponse, errWithCode *types.OpenAIErrorWithStatusCode) {
-	error := errorHandle(&response.CohereError)
-	if error != nil {
+	aiError := errorHandle(&response.CohereError)
+	if aiError != nil {
 		errWithCode = &types.OpenAIErrorWithStatusCode{
-			OpenAIError: *error,
+			OpenAIError: *aiError,
 			StatusCode:  http.StatusBadRequest,
 		}
 		return

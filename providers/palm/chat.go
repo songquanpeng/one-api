@@ -83,10 +83,10 @@ func (p *PalmProvider) getChatRequest(request *types.ChatCompletionRequest) (*ht
 }
 
 func (p *PalmProvider) convertToChatOpenai(response *PaLMChatResponse, request *types.ChatCompletionRequest) (openaiResponse *types.ChatCompletionResponse, errWithCode *types.OpenAIErrorWithStatusCode) {
-	error := errorHandle(&response.PaLMErrorResponse)
-	if error != nil {
+	aiError := errorHandle(&response.PaLMErrorResponse)
+	if aiError != nil {
 		errWithCode = &types.OpenAIErrorWithStatusCode{
-			OpenAIError: *error,
+			OpenAIError: *aiError,
 			StatusCode:  http.StatusBadRequest,
 		}
 		return
@@ -161,9 +161,9 @@ func (h *palmStreamHandler) handlerStream(rawLine *[]byte, dataChan chan string,
 		return
 	}
 
-	error := errorHandle(&palmChatResponse.PaLMErrorResponse)
-	if error != nil {
-		errChan <- error
+	aiError := errorHandle(&palmChatResponse.PaLMErrorResponse)
+	if aiError != nil {
+		errChan <- aiError
 		return
 	}
 

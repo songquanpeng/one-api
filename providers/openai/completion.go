@@ -98,9 +98,9 @@ func (h *OpenAIStreamHandler) handlerCompletionStream(rawLine *[]byte, dataChan 
 		return
 	}
 
-	error := ErrorHandle(&openaiResponse.OpenAIErrorResponse)
-	if error != nil {
-		errChan <- error
+	aiError := ErrorHandle(&openaiResponse.OpenAIErrorResponse)
+	if aiError != nil {
+		errChan <- aiError
 		return
 	}
 

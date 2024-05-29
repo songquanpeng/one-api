@@ -136,10 +136,10 @@ func convertFromChatOpenai(request *types.ChatCompletionRequest) (*GeminiChatReq
 }
 
 func (p *GeminiProvider) convertToChatOpenai(response *GeminiChatResponse, request *types.ChatCompletionRequest) (openaiResponse *types.ChatCompletionResponse, errWithCode *types.OpenAIErrorWithStatusCode) {
-	error := errorHandle(&response.GeminiErrorResponse)
-	if error != nil {
+	aiError := errorHandle(&response.GeminiErrorResponse)
+	if aiError != nil {
 		errWithCode = &types.OpenAIErrorWithStatusCode{
-			OpenAIError: *error,
+			OpenAIError: *aiError,
 			StatusCode:  http.StatusBadRequest,
 		}
 		return
@@ -180,9 +180,9 @@ func (h *geminiStreamHandler) handlerStream(rawLine *[]byte, dataChan chan strin
 		return
 	}
 
-	error := errorHandle(&geminiResponse.GeminiErrorResponse)
-	if error != nil {
-		errChan <- error
+	aiError := errorHandle(&geminiResponse.GeminiErrorResponse)
+	if aiError != nil {
+		errChan <- aiError
 		return
 	}
 

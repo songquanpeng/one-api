@@ -82,10 +82,10 @@ func (p *MiniMaxProvider) getChatRequest(request *types.ChatCompletionRequest) (
 }
 
 func (p *MiniMaxProvider) convertToChatOpenai(response *MiniMaxChatResponse, request *types.ChatCompletionRequest) (openaiResponse *types.ChatCompletionResponse, errWithCode *types.OpenAIErrorWithStatusCode) {
-	error := errorHandle(&response.MiniMaxBaseResp.BaseResp)
-	if error != nil {
+	aiError := errorHandle(&response.MiniMaxBaseResp.BaseResp)
+	if aiError != nil {
 		errWithCode = &types.OpenAIErrorWithStatusCode{
-			OpenAIError: *error,
+			OpenAIError: *aiError,
 			StatusCode:  http.StatusBadRequest,
 		}
 		return
@@ -214,9 +214,9 @@ func (h *minimaxStreamHandler) handlerStream(rawLine *[]byte, dataChan chan stri
 		return
 	}
 
-	error := errorHandle(&miniResponse.BaseResp)
-	if error != nil {
-		errChan <- error
+	aiError := errorHandle(&miniResponse.BaseResp)
+	if aiError != nil {
+		errChan <- aiError
 		return
 	}
 

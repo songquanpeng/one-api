@@ -47,10 +47,10 @@ func convertFromEmbeddingOpenai(request *types.EmbeddingRequest) *BaiduEmbedding
 }
 
 func (p *BaiduProvider) convertToEmbeddingOpenai(response *BaiduEmbeddingResponse, request *types.EmbeddingRequest) (openaiResponse *types.EmbeddingResponse, errWithCode *types.OpenAIErrorWithStatusCode) {
-	error := errorHandle(&response.BaiduError)
-	if error != nil {
+	aiError := errorHandle(&response.BaiduError)
+	if aiError != nil {
 		errWithCode = &types.OpenAIErrorWithStatusCode{
-			OpenAIError: *error,
+			OpenAIError: *aiError,
 			StatusCode:  http.StatusBadRequest,
 		}
 		return

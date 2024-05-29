@@ -116,9 +116,9 @@ func (h *OpenAIStreamHandler) HandlerChatStream(rawLine *[]byte, dataChan chan s
 		return
 	}
 
-	error := ErrorHandle(&openaiResponse.OpenAIErrorResponse)
-	if error != nil {
-		errChan <- error
+	aiError := ErrorHandle(&openaiResponse.OpenAIErrorResponse)
+	if aiError != nil {
+		errChan <- aiError
 		return
 	}
 

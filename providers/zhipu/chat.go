@@ -81,10 +81,10 @@ func (p *ZhipuProvider) getChatRequest(request *types.ChatCompletionRequest) (*h
 }
 
 func (p *ZhipuProvider) convertToChatOpenai(response *ZhipuResponse, request *types.ChatCompletionRequest) (openaiResponse *types.ChatCompletionResponse, errWithCode *types.OpenAIErrorWithStatusCode) {
-	error := errorHandle(&response.Error)
-	if error != nil {
+	aiError := errorHandle(&response.Error)
+	if aiError != nil {
 		errWithCode = &types.OpenAIErrorWithStatusCode{
-			OpenAIError: *error,
+			OpenAIError: *aiError,
 			StatusCode:  http.StatusBadRequest,
 		}
 		return
@@ -244,9 +244,9 @@ func (h *zhipuStreamHandler) handlerStream(rawLine *[]byte, dataChan chan string
 		return
 	}
 
-	error := errorHandle(&zhipuResponse.Error)
-	if error != nil {
-		errChan <- error
+	aiError := errorHandle(&zhipuResponse.Error)
+	if aiError != nil {
+		errChan <- aiError
 		return
 	}
 

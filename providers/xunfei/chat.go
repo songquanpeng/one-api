@@ -217,9 +217,9 @@ func (h *xunfeiHandler) handlerData(rawLine *[]byte, isFinished *bool) (*XunfeiC
 		return nil, common.ErrorToOpenAIError(err)
 	}
 
-	error := errorHandle(&xunfeiChatResponse)
-	if error != nil {
-		return nil, error
+	aiError := errorHandle(&xunfeiChatResponse)
+	if aiError != nil {
+		return nil, aiError
 	}
 
 	if xunfeiChatResponse.Payload.Choices.Status == 2 {

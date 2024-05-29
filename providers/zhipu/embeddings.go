@@ -48,10 +48,10 @@ func convertFromEmbeddingOpenai(request *types.EmbeddingRequest) *ZhipuEmbedding
 }
 
 func (p *ZhipuProvider) convertToEmbeddingOpenai(response *ZhipuEmbeddingResponse, request *types.EmbeddingRequest) (openaiResponse *types.EmbeddingResponse, errWithCode *types.OpenAIErrorWithStatusCode) {
-	error := errorHandle(&response.Error)
-	if error != nil {
+	aiError := errorHandle(&response.Error)
+	if aiError != nil {
 		errWithCode = &types.OpenAIErrorWithStatusCode{
-			OpenAIError: *error,
+			OpenAIError: *aiError,
 			StatusCode:  http.StatusBadRequest,
 		}
 		return

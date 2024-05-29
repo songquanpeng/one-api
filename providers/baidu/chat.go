@@ -82,10 +82,10 @@ func (p *BaiduProvider) getBaiduChatRequest(request *types.ChatCompletionRequest
 }
 
 func (p *BaiduProvider) convertToChatOpenai(response *BaiduChatResponse, request *types.ChatCompletionRequest) (openaiResponse *types.ChatCompletionResponse, errWithCode *types.OpenAIErrorWithStatusCode) {
-	error := errorHandle(&response.BaiduError)
-	if error != nil {
+	aiError := errorHandle(&response.BaiduError)
+	if aiError != nil {
 		errWithCode = &types.OpenAIErrorWithStatusCode{
-			OpenAIError: *error,
+			OpenAIError: *aiError,
 			StatusCode:  http.StatusBadRequest,
 		}
 		return
@@ -204,9 +204,9 @@ func (h *baiduStreamHandler) handlerStream(rawLine *[]byte, dataChan chan string
 		return
 	}
 
-	error := errorHandle(&baiduResponse.BaiduError)
-	if error != nil {
-		errChan <- error
+	aiError := errorHandle(&baiduResponse.BaiduError)
+	if aiError != nil {
+		errChan <- aiError
 		return
 	}
 

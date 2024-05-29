@@ -61,10 +61,10 @@ func convertFromEmbeddingOpenai(request *types.EmbeddingRequest) *MiniMaxEmbeddi
 }
 
 func (p *MiniMaxProvider) convertToEmbeddingOpenai(response *MiniMaxEmbeddingResponse, request *types.EmbeddingRequest) (openaiResponse *types.EmbeddingResponse, errWithCode *types.OpenAIErrorWithStatusCode) {
-	error := errorHandle(&response.BaseResp)
-	if error != nil {
+	aiError := errorHandle(&response.BaseResp)
+	if aiError != nil {
 		errWithCode = &types.OpenAIErrorWithStatusCode{
-			OpenAIError: *error,
+			OpenAIError: *aiError,
 			StatusCode:  http.StatusBadRequest,
 		}
 		return

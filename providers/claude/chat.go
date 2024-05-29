@@ -153,10 +153,10 @@ func ConvertFromChatOpenai(request *types.ChatCompletionRequest) (*ClaudeRequest
 }
 
 func ConvertToChatOpenai(provider base.ProviderInterface, response *ClaudeResponse, request *types.ChatCompletionRequest) (openaiResponse *types.ChatCompletionResponse, errWithCode *types.OpenAIErrorWithStatusCode) {
-	error := errorHandle(&response.Error)
-	if error != nil {
+	aiError := errorHandle(&response.Error)
+	if aiError != nil {
 		errWithCode = &types.OpenAIErrorWithStatusCode{
-			OpenAIError: *error,
+			OpenAIError: *aiError,
 			StatusCode:  http.StatusBadRequest,
 		}
 		return
@@ -218,9 +218,9 @@ func (h *ClaudeStreamHandler) HandlerStream(rawLine *[]byte, dataChan chan strin
 		return
 	}
 
-	error := errorHandle(&claudeResponse.Error)
-	if error != nil {
-		errChan <- error
+	aiError := errorHandle(&claudeResponse.Error)
+	if aiError != nil {
+		errChan <- aiError
 		return
 	}
 

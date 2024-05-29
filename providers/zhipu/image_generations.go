@@ -42,10 +42,10 @@ func (p *ZhipuProvider) CreateImageGenerations(request *types.ImageRequest) (*ty
 }
 
 func (p *ZhipuProvider) convertToImageOpenai(response *ZhipuImageGenerationResponse) (openaiResponse *types.ImageResponse, errWithCode *types.OpenAIErrorWithStatusCode) {
-	error := errorHandle(&response.Error)
-	if error != nil {
+	aiError := errorHandle(&response.Error)
+	if aiError != nil {
 		errWithCode = &types.OpenAIErrorWithStatusCode{
-			OpenAIError: *error,
+			OpenAIError: *aiError,
 			StatusCode:  http.StatusBadRequest,
 		}
 		return
