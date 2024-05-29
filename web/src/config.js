@@ -25,7 +25,8 @@ const config = {
     wechat_qrcode: '',
     lark_login: false,
     lark_client_id: '',
-    telegram_bot: ''
+    telegram_bot: '',
+    isLoading: true,  // 添加加载状态
   }
 };
 

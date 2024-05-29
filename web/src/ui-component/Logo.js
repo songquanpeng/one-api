@@ -17,9 +17,15 @@ import { useTheme } from '@mui/material/styles';
 const Logo = () => {
   const siteInfo = useSelector((state) => state.siteInfo);
   const theme = useTheme();
-  const logo = theme.palette.mode === 'light' ? logoLight : logoDark;
+  const defaultLogo = theme.palette.mode === 'light' ? logoLight : logoDark;
 
-  return <img src={siteInfo.logo || logo} alt={siteInfo.system_name} height="50" />;
+  if (siteInfo.isLoading) {
+    return null; // 数据加载未完成时不显示 logo
+  }
+
+  const logoToDisplay = siteInfo.logo ? siteInfo.logo : defaultLogo;
+
+  return <img src={logoToDisplay} alt={siteInfo.system_name} height="50" />;
 };
 
 export default Logo;

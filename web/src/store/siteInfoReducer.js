@@ -8,7 +8,8 @@ const siteInfoReducer = (state = initialState, action) => {
     case actionTypes.SET_SITE_INFO:
       return {
         ...state,
-        ...action.payload
+        ...action.payload,
+        isLoading: false,  // 添加加载状态
       };
     default:
       return state;
