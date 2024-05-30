@@ -447,6 +447,7 @@ https://openai.justsong.cn
 ## 相关项目
 * [FastGPT](https://github.com/labring/FastGPT): 基于 LLM 大语言模型的知识库问答系统
 * [ChatGPT Next Web](https://github.com/Yidadaa/ChatGPT-Next-Web):  一键拥有你自己的跨平台 ChatGPT 应用
+* [gogit](https://github.com/LinuxSuRen/gogit)： 基于 One API 生成 git commit message
 
 ## 注意
 
