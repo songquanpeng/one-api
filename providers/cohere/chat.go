@@ -189,6 +189,9 @@ func (h *CohereStreamHandler) convertToOpenaiStream(cohereResponse *CohereStream
 			Role:    types.ChatMessageRoleAssistant,
 			Content: cohereResponse.Text,
 		}
+
+		h.Usage.CompletionTokens += common.CountTokenText(cohereResponse.Text, h.Request.Model)
+		h.Usage.TotalTokens = h.Usage.PromptTokens + h.Usage.CompletionTokens
 	}
 
 	chatCompletion := types.ChatCompletionStreamResponse{

@@ -270,6 +270,9 @@ func (h *minimaxStreamHandler) convertToOpenaiStream(miniResponse *MiniMaxChatRe
 
 	if miniResponse.Usage != nil {
 		h.handleUsage(miniResponse)
+	} else {
+		h.Usage.CompletionTokens += common.CountTokenText(miniChoice.Messages[0].Text, h.Request.Model)
+		h.Usage.TotalTokens = h.Usage.PromptTokens + h.Usage.CompletionTokens
 	}
 }
 

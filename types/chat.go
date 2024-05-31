@@ -376,3 +376,11 @@ type ChatCompletionStreamResponse struct {
 	PromptAnnotations any                          `json:"prompt_annotations,omitempty"`
 	Usage             *Usage                       `json:"usage,omitempty"`
 }
+
+func (c *ChatCompletionStreamResponse) GetResponseText() (responseText string) {
+	for _, choice := range c.Choices {
+		responseText += choice.Delta.Content
+	}
+
+	return
+}

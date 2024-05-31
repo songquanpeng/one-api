@@ -131,6 +131,9 @@ func (h *mistralStreamHandler) handlerStream(rawLine *[]byte, dataChan chan stri
 
 	if mistralResponse.Usage != nil {
 		*h.Usage = *mistralResponse.Usage
+	} else {
+		h.Usage.CompletionTokens += common.CountTokenText(mistralResponse.GetResponseText(), h.Request.Model)
+		h.Usage.TotalTokens = h.Usage.PromptTokens + h.Usage.CompletionTokens
 	}
 
 	stop := false

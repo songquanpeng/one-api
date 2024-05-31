@@ -242,6 +242,8 @@ func (h *ClaudeStreamHandler) HandlerStream(rawLine *[]byte, dataChan chan strin
 
 	case "content_block_delta":
 		h.convertToOpenaiStream(&claudeResponse, dataChan)
+		h.Usage.CompletionTokens += common.CountTokenText(claudeResponse.Delta.Text, h.Request.Model)
+		h.Usage.TotalTokens = h.Usage.PromptTokens + h.Usage.CompletionTokens
 
 	default:
 		return

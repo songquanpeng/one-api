@@ -57,6 +57,14 @@ type ZhipuStreamResponse struct {
 	ZhipuResponseError
 }
 
+func (z *ZhipuStreamResponse) GetResponseText() (responseText string) {
+	for _, choice := range z.Choices {
+		responseText += choice.Delta.Content
+	}
+
+	return
+}
+
 type ZhipuResponseError struct {
 	Error ZhipuError `json:"error,omitempty"`
 }
