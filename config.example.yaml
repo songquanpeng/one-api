@@ -69,3 +69,8 @@ storage: # 存储设置 (可选,主要用于图片生成，有些供应商不提
     secret: "" # 你的 sm.ms API 密钥
   imgur:
     client_id: "" # 你的 imgur client_id
+  alioss: # 阿里云OSS对象存储
+    endpoint: "" # Endpoint（地域节点）,比如oss-cn-beijing.aliyuncs.com
+    bucketName: "" # Bucket名称，比如zerodeng-superai
+    accessKeyId: "" # 阿里授权KEY,在阿里云后台用户RAM控制部分获取
+    accessKeySecret: "" # 阿里授权SECRET,在阿里云后台用户RAM控制部分获取

@@ -5,6 +5,7 @@ go 1.18
 
 require (
 	github.com/MartialBE/tiktoken-go v0.1.7
+	github.com/aliyun/aliyun-oss-go-sdk v3.0.2+incompatible
 	github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.6.1
 	github.com/aws/smithy-go v1.20.1
 	github.com/gin-contrib/cors v1.7.0
@@ -53,6 +54,7 @@ require (
 	go.uber.org/multierr v1.9.0 // indirect
 	golang.org/x/exp v0.0.0-20231219180239-dc181d75b848 // indirect
 	golang.org/x/sync v0.6.0 // indirect
+	golang.org/x/time v0.5.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 )
 
