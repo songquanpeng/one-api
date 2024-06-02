@@ -30,7 +30,7 @@ import (
 func RelayAudioSpeechHelper(c *gin.Context) *relaymodel.ErrorWithStatusCode {
 	ctx := c.Request.Context()
 	meta := meta.GetByContext(c)
-	audioModel := "whisper-1"
+	audioModel := "tts-1"
 
 	tokenId := c.GetInt(ctxkey.TokenId)
 	channelId := c.GetInt(ctxkey.ChannelId)
