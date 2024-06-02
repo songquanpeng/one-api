@@ -14,6 +14,7 @@ import (
 	"github.com/songquanpeng/one-api/common/ctxkey"
 	"github.com/songquanpeng/one-api/common/logger"
 	"github.com/songquanpeng/one-api/model"
+	"github.com/songquanpeng/one-api/relay"
 	"github.com/songquanpeng/one-api/relay/adaptor/openai"
 	"github.com/songquanpeng/one-api/relay/billing"
 	billingratio "github.com/songquanpeng/one-api/relay/billing/ratio"
@@ -25,6 +26,140 @@ import (
 	"net/http"
 	"strings"
 )
+
+func RelayAudioSpeechHelper(c *gin.Context) *relaymodel.ErrorWithStatusCode {
+	ctx := c.Request.Context()
+	meta := meta.GetByContext(c)
+	audioModel := "whisper-1"
+
+	tokenId := c.GetInt(ctxkey.TokenId)
+	channelId := c.GetInt(ctxkey.ChannelId)
+	userId := c.GetInt(ctxkey.Id)
+	group := c.GetString(ctxkey.Group)
+	tokenName := c.GetString(ctxkey.TokenName)
+
+	ttsRequest, err := getTextToSpeechRequest(c)
+	if err != nil {
+		logger.Errorf(ctx, "getTextToSpeechRequest failed: %s", err.Error())
+		return openai.ErrorWrapper(err, "invalid_tts_request", http.StatusBadRequest)
+	}
+
+	audioModel = ttsRequest.Model
+	// Check if text is too long 4096
+	if len(ttsRequest.Input) > 4096 {
+		return openai.ErrorWrapper(errors.New("input is too long (over 4096 characters)"), "text_too_long", http.StatusBadRequest)
+	}
+
+	adaptor := relay.GetAdaptor(meta.APIType)
+	if adaptor == nil {
+		return openai.ErrorWrapper(fmt.Errorf("invalid api type: %d", meta.APIType), "invalid_api_type", http.StatusBadRequest)
+	}
+
+	modelRatio := billingratio.GetModelRatio(audioModel)
+	groupRatio := billingratio.GetGroupRatio(group)
+	ratio := modelRatio * groupRatio
+
+	preConsumedQuota := int64(float64(len(ttsRequest.Input)) * ratio)
+	quota := preConsumedQuota
+
+	userQuota, err := model.CacheGetUserQuota(ctx, userId)
+	if err != nil {
+		return openai.ErrorWrapper(err, "get_user_quota_failed", http.StatusInternalServerError)
+	}
+
+	// Check if user quota is enough
+	if userQuota-preConsumedQuota < 0 {
+		return openai.ErrorWrapper(errors.New("user quota is not enough"), "insufficient_user_quota", http.StatusForbidden)
+	}
+	err = model.CacheDecreaseUserQuota(userId, preConsumedQuota)
+	if err != nil {
+		return openai.ErrorWrapper(err, "decrease_user_quota_failed", http.StatusInternalServerError)
+	}
+	if userQuota > 100*preConsumedQuota {
+		// in this case, we do not pre-consume quota
+		// because the user has enough quota
+		preConsumedQuota = 0
+	}
+	if preConsumedQuota > 0 {
+		err := model.PreConsumeTokenQuota(tokenId, preConsumedQuota)
+		if err != nil {
+			return openai.ErrorWrapper(err, "pre_consume_token_quota_failed", http.StatusForbidden)
+		}
+	}
+	succeed := false
+	defer func() {
+		if succeed {
+			return
+		}
+		if preConsumedQuota > 0 {
+			// we need to roll back the pre-consumed quota
+			defer func(ctx context.Context) {
+				go func() {
+					// negative means add quota back for token & user
+					err := model.PostConsumeTokenQuota(tokenId, -preConsumedQuota)
+					if err != nil {
+						logger.Error(ctx, fmt.Sprintf("error rollback pre-consumed quota: %s", err.Error()))
+					}
+				}()
+			}(c.Request.Context())
+		}
+	}()
+
+	// map model name
+	modelMapping := c.GetString(ctxkey.ModelMapping)
+	if modelMapping != "" {
+		modelMap := make(map[string]string)
+		err := json.Unmarshal([]byte(modelMapping), &modelMap)
+		if err != nil {
+			return openai.ErrorWrapper(err, "unmarshal_model_mapping_failed", http.StatusInternalServerError)
+		}
+		if modelMap[audioModel] != "" {
+			audioModel = modelMap[audioModel]
+		}
+	}
+
+	var requestBody io.Reader
+
+	switch meta.ChannelType {
+	case channeltype.Ali:
+		finalRequest, err := adaptor.ConvertTextToSpeechRequest(ttsRequest)
+		if err != nil {
+			return openai.ErrorWrapper(err, "convert_image_request_failed", http.StatusInternalServerError)
+		}
+		jsonStr, err := json.Marshal(finalRequest)
+		if err != nil {
+			return openai.ErrorWrapper(err, "marshal_image_request_failed", http.StatusInternalServerError)
+		}
+		requestBody = bytes.NewBuffer(jsonStr)
+	default:
+		requestBody = c.Request.Body
+	}
+
+	// do request
+	resp, err := adaptor.DoRequest(c, meta, requestBody)
+	if err != nil {
+		logger.Errorf(ctx, "DoRequest failed: %s", err.Error())
+		return openai.ErrorWrapper(err, "do_request_failed", http.StatusInternalServerError)
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return RelayErrorHandler(resp)
+	}
+	succeed = true
+	quotaDelta := quota - preConsumedQuota
+	defer func(ctx context.Context) {
+		go billing.PostConsumeQuota(ctx, tokenId, quotaDelta, quota, userId, channelId, modelRatio, groupRatio, audioModel, tokenName)
+	}(c.Request.Context())
+
+	// do response
+	_, respErr := adaptor.DoResponse(c, resp, meta)
+	if respErr != nil {
+		logger.Errorf(ctx, "respErr is not nil: %+v", respErr)
+		return respErr
+	}
+
+	return nil
+}
 
 func RelayAudioHelper(c *gin.Context, relayMode int) *relaymodel.ErrorWithStatusCode {
 	ctx := c.Request.Context()

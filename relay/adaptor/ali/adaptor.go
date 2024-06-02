@@ -76,7 +76,19 @@ func (a *Adaptor) ConvertImageRequest(request *model.ImageRequest) (any, error) 
 	return aliRequest, nil
 }
 
+func (a *Adaptor) ConvertTextToSpeechRequest(request *model.TextToSpeechRequest) (any, error) {
+	if request == nil {
+		return nil, errors.New("request is nil")
+	}
+
+	aliRequest := ConvertTextToSpeechRequest(*request)
+	return aliRequest, nil
+}
+
 func (a *Adaptor) DoRequest(c *gin.Context, meta *meta.Meta, requestBody io.Reader) (*http.Response, error) {
+	if meta.Mode == relaymode.AudioSpeech {
+		return a.DoWSSRequest(c, meta, requestBody)
+	}
 	return adaptor.DoRequestHelper(a, c, meta, requestBody)
 }
 
@@ -89,6 +101,8 @@ func (a *Adaptor) DoResponse(c *gin.Context, resp *http.Response, meta *meta.Met
 			err, usage = EmbeddingHandler(c, resp)
 		case relaymode.ImagesGenerations:
 			err, usage = ImageHandler(c, resp)
+		case relaymode.AudioSpeech:
+			err, usage = AudioSpeechHandler(c, resp)
 		default:
 			err, usage = Handler(c, resp)
 		}
@@ -102,4 +116,75 @@ func (a *Adaptor) GetModelList() []string {
 
 func (a *Adaptor) GetChannelName() string {
 	return "ali"
+}
+
+func (a *Adaptor) DoWSSRequest(c *gin.Context, meta *meta.Meta, requestBody io.Reader) (*http.Response, error) {
+	baseURL := "wss://dashscope.aliyuncs.com/api-ws/v1/inference"
+	var usage Usage
+	// Create an empty http.Response object
+	response := &http.Response{
+		StatusCode: http.StatusInternalServerError,
+		Body:       io.NopCloser(nil),
+	}
+
+	conn, _, err := websocket.DefaultDialer.Dial(baseURL, http.Header{"Authorization": {"Bearer " + meta.APIKey}})
+	if err != nil {
+		return response, errors.New("ali_wss_conn_failed")
+	}
+	defer conn.Close()
+
+	var requestBodyBytes []byte
+	requestBodyBytes, err = io.ReadAll(requestBody)
+	if err != nil {
+		return response, errors.New("ali_failed_to_read_request_body")
+	}
+
+	// Convert JSON strings to map[string]interface{}
+	var requestBodyMap map[string]interface{}
+	err = json.Unmarshal(requestBodyBytes, &requestBodyMap)
+	if err != nil {
+		return response, errors.New("ali_failed_to_parse_request_body")
+	}
+
+	if err := conn.WriteJSON(requestBodyMap); err != nil {
+		return response, errors.New("ali_wss_write_msg_failed")
+	}
+
+	const chunkSize = 1024
+
+	for {
+		messageType, audioData, err := conn.ReadMessage()
+		if err != nil {
+			if err == io.EOF {
+				break
+			}
+			return response, errors.New("ali_wss_read_msg_failed")
+		}
+
+		var msg WSSMessage
+		switch messageType {
+		case websocket.TextMessage:
+			err = json.Unmarshal(audioData, &msg)
+			if msg.Header.Event == "task-finished" {
+				response.StatusCode = http.StatusOK
+				usage.TotalTokens = msg.Payload.Usage.Characters
+				return response, nil
+			}
+		case websocket.BinaryMessage:
+			for i := 0; i < len(audioData); i += chunkSize {
+				end := i + chunkSize
+				if end > len(audioData) {
+					end = len(audioData)
+				}
+				chunk := audioData[i:end]
+
+				_, writeErr := c.Writer.Write(chunk)
+				if writeErr != nil {
+					return response, errors.New("wss_write_chunk_failed")
+				}
+			}
+		}
+	}
+
+	return response, nil
 }

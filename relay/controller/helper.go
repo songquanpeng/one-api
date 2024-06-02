@@ -58,6 +58,16 @@ func getImageRequest(c *gin.Context, relayMode int) (*relaymodel.ImageRequest, e
 	return imageRequest, nil
 }
 
+func getTextToSpeechRequest(c *gin.Context) (*relaymodel.TextToSpeechRequest, error) {
+	ttsRequest := &relaymodel.TextToSpeechRequest{}
+	err := common.UnmarshalBodyReusable(c, ttsRequest)
+	if err != nil {
+		return nil, err
+	}
+
+	return ttsRequest, nil
+}
+
 func isValidImageSize(model string, size string) bool {
 	if model == "cogview-3" {
 		return true

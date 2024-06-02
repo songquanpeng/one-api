@@ -29,7 +29,7 @@ func relayHelper(c *gin.Context, relayMode int) *model.ErrorWithStatusCode {
 	case relaymode.ImagesGenerations:
 		err = controller.RelayImageHelper(c, relayMode)
 	case relaymode.AudioSpeech:
-		fallthrough
+		err = controller.RelayAudioSpeechHelper(c)
 	case relaymode.AudioTranslation:
 		fallthrough
 	case relaymode.AudioTranscription:

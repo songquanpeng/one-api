@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"encoding/json"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/songquanpeng/one-api/common"
 	"github.com/songquanpeng/one-api/common/helper"
 	"github.com/songquanpeng/one-api/common/logger"
@@ -75,6 +76,37 @@ func ConvertImageRequest(request model.ImageRequest) *ImageRequest {
 	imageRequest.ResponseFormat = request.ResponseFormat
 
 	return &imageRequest
+}
+
+func ConvertTextToSpeechRequest(request model.TextToSpeechRequest) *WSSMessage {
+	var ttsRequest WSSMessage
+	ttsRequest.Header.Action = "run-task"
+	ttsRequest.Header.Streaming = "out"
+	ttsRequest.Header.TaskID = uuid.New().String()
+	ttsRequest.Payload.Function = "SpeechSynthesizer"
+	ttsRequest.Payload.Input.Text = request.Input
+	ttsRequest.Payload.Model = request.Model
+	ttsRequest.Payload.Parameters.Format = "wav"
+	//ttsRequest.Payload.Parameters.SampleRate = 48000
+	ttsRequest.Payload.Parameters.Rate = 1.0
+	ttsRequest.Payload.Task = "tts"
+	ttsRequest.Payload.TaskGroup = "audio"
+
+	format := map[string]bool{
+		"pcm": true,
+		"wav": true,
+		"mp3": true,
+	}
+
+	if _, ok := format[request.ResponseFormat]; ok {
+		ttsRequest.Payload.Parameters.Format = request.ResponseFormat
+	}
+
+	if 0.5 <= request.Speed && request.Speed <= 2 {
+		ttsRequest.Payload.Parameters.Rate = request.Speed
+	}
+
+	return &ttsRequest
 }
 
 func EmbeddingHandler(c *gin.Context, resp *http.Response) (*model.ErrorWithStatusCode, *model.Usage) {
