@@ -183,8 +183,9 @@ func testAllChannels(isNotify bool) error {
 			} else {
 				// 如果通道启用状态，但是返回了错误 或者 响应时间超过阈值，需要判断是否需要禁用
 				if milliseconds > disableThreshold {
-					sendMessage += fmt.Sprintf("- 响应时间 %.2fs 超过阈值 %.2fs \n\n- 禁用\n\n", float64(milliseconds)/1000.0, float64(disableThreshold)/1000.0)
-					DisableChannel(channel.Id, channel.Name, err.Error(), false)
+					errMsg := fmt.Sprintf("响应时间 %.2fs 超过阈值 %.2fs ", float64(milliseconds)/1000.0, float64(disableThreshold)/1000.0)
+					sendMessage += fmt.Sprintf("- %s \n\n- 禁用\n\n", errMsg)
+					DisableChannel(channel.Id, channel.Name, errMsg, false)
 					continue
 				}
 
