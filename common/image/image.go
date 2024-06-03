@@ -3,6 +3,7 @@ package image
 import (
 	"bytes"
 	"encoding/base64"
+	"github.com/songquanpeng/one-api/common/client"
 	"image"
 	_ "image/gif"
 	_ "image/jpeg"
@@ -19,7 +20,7 @@ import (
 var dataURLPattern = regexp.MustCompile(`data:image/([^;]+);base64,(.*)`)
 
 func IsImageUrl(url string) (bool, error) {
-	resp, err := http.Head(url)
+	resp, err := client.UserContentRequestHTTPClient.Head(url)
 	if err != nil {
 		return false, err
 	}
@@ -34,7 +35,7 @@ func GetImageSizeFromUrl(url string) (width int, height int, err error) {
 	if !isImage {
 		return
 	}
-	resp, err := http.Get(url)
+	resp, err := client.UserContentRequestHTTPClient.Get(url)
 	if err != nil {
 		return
 	}

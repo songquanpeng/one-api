@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { showError, showSuccess, showInfo } from 'utils/common';
+import { showError, showSuccess, showInfo, loadChannelModels } from 'utils/common';
 
 import { useTheme } from '@mui/material/styles';
 import Table from '@mui/material/Table';
@@ -8,7 +8,6 @@ import TableContainer from '@mui/material/TableContainer';
 import PerfectScrollbar from 'react-perfect-scrollbar';
 import TablePagination from '@mui/material/TablePagination';
 import LinearProgress from '@mui/material/LinearProgress';
-import Alert from '@mui/material/Alert';
 import ButtonGroup from '@mui/material/ButtonGroup';
 import Toolbar from '@mui/material/Toolbar';
 import useMediaQuery from '@mui/material/useMediaQuery';
@@ -189,6 +188,7 @@ export default function ChannelPage() {
       .catch((reason) => {
         showError(reason);
       });
+    loadChannelModels().then();
   }, []);
 
   return (
@@ -200,7 +200,7 @@ export default function ChannelPage() {
         </Button>
       </Stack>
       <Card>
-        <Box component="form" onSubmit={searchChannels} noValidate sx={{marginTop: 2}}>
+        <Box component="form" onSubmit={searchChannels} noValidate sx={{ marginTop: 2 }}>
           <TableToolBar filterName={searchKeyword} handleFilterName={handleSearchKeyword} placeholder={'搜索渠道的 ID，名称和密钥 ...'} />
         </Box>
         <Toolbar
@@ -214,7 +214,7 @@ export default function ChannelPage() {
         >
           <Container>
             {matchUpMd ? (
-              <ButtonGroup variant="outlined" aria-label="outlined small primary button group" sx={{marginBottom: 2}}>
+              <ButtonGroup variant="outlined" aria-label="outlined small primary button group" sx={{ marginBottom: 2 }}>
                 <Button onClick={handleRefresh} startIcon={<IconRefresh width={'18px'} />}>
                   刷新
                 </Button>

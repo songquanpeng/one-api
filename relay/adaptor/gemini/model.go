@@ -7,6 +7,33 @@ type ChatRequest struct {
 	Tools            []ChatTools          `json:"tools,omitempty"`
 }
 
+type EmbeddingRequest struct {
+	Model                string      `json:"model"`
+	Content              ChatContent `json:"content"`
+	TaskType             string      `json:"taskType,omitempty"`
+	Title                string      `json:"title,omitempty"`
+	OutputDimensionality int         `json:"outputDimensionality,omitempty"`
+}
+
+type BatchEmbeddingRequest struct {
+	Requests []EmbeddingRequest `json:"requests"`
+}
+
+type EmbeddingData struct {
+	Values []float64 `json:"values"`
+}
+
+type EmbeddingResponse struct {
+	Embeddings []EmbeddingData `json:"embeddings"`
+	Error      *Error          `json:"error,omitempty"`
+}
+
+type Error struct {
+	Code    int    `json:"code,omitempty"`
+	Message string `json:"message,omitempty"`
+	Status  string `json:"status,omitempty"`
+}
+
 type InlineData struct {
 	MimeType string `json:"mimeType"`
 	Data     string `json:"data"`
