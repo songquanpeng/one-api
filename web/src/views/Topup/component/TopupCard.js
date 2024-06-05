@@ -151,7 +151,7 @@ const TopupCard = () => {
 
     let total = Number(amount) + Number(calculateFee());
     if (selectedPayment && selectedPayment.currency === 'CNY') {
-      total = parseFloat((total * 7.3).toFixed(2));
+      total = parseFloat((total * siteInfo.PaymentUSDRate).toFixed(2));
     }
     return total;
   };
