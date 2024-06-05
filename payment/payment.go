@@ -1,6 +1,7 @@
 package payment
 
 import (
+	"one-api/payment/gateway/alipay"
 	"one-api/payment/gateway/epay"
 	"one-api/payment/types"
 
@@ -17,4 +18,5 @@ var Gateways = make(map[string]PaymentProcessor)
 
 func init() {
 	Gateways["epay"] = &epay.Epay{}
+	Gateways["alipay"] = &alipay.Alipay{}
 }
