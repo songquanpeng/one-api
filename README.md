@@ -13,7 +13,7 @@
 
 # One API
 
-_本项目是基于[one-api](https://github.com/songquanpeng/one-api)二次开发而来的，主要将原项目中的模块代码分离，模块化，并修改了前端界面。本项目同样遵循 MIT 协议。_
+_本项目是基于[one-api](https://github.com/songquanpeng/one-api)二次开发而来的_
 
 <p align="center">
   <a href="https://raw.githubusercontent.com/MartialBE/one-api/main/LICENSE">
@@ -65,6 +65,10 @@ _本项目是基于[one-api](https://github.com/songquanpeng/one-api)二次开�
 - 支持模型按次收费
 - 支持模型通配符
 - 支持使用配置文件启动程序
+- 支持模型价格更新
+- 支持自动获取供应商模型
+- 支持仅聊天，开启后如果有传入`function call`参数会跳过该渠道
+- 支持支付
 
 ## 文档
 

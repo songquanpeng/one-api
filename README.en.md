@@ -13,7 +13,7 @@
 
 # One API
 
-_This project is based on [one-api](https://github.com/songquanpeng/one-api) and has been developed for the second time. The main purpose is to separate the module code in the original project, modularize it, and modify the front-end interface. This project also follows the MIT protocol._
+_This project is based on [one-api](https://github.com/songquanpeng/one-api) and has been developed for the second time._
 
 <p align="center">
   <a href="https://raw.githubusercontent.com/MartialBE/one-api/main/LICENSE">
@@ -61,6 +61,10 @@ If you find that a new model is missing, please update the newly added model in 
 - Support for models charged per use
 - Support for model wildcards
 - Support for starting the program using a configuration file
+- Support model price update
+- Support automatic acquisition of supplier models
+- Support chat only. If there is an incoming `function call` parameter after opening, the channel will be skipped.
+- Support payment
 
 ## Documentation
 
