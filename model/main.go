@@ -154,6 +154,14 @@ func InitDB() (err error) {
 		if err != nil {
 			return err
 		}
+		err = db.AutoMigrate(&Payment{})
+		if err != nil {
+			return err
+		}
+		err = db.AutoMigrate(&Order{})
+		if err != nil {
+			return err
+		}
 		logger.SysLog("database migrated")
 		err = createRootAccountIfNeed()
 		return err

@@ -19,6 +19,7 @@ const Pricing = Loadable(lazy(() => import('views/Pricing')));
 const Midjourney = Loadable(lazy(() => import('views/Midjourney')));
 const ModelPrice = Loadable(lazy(() => import('views/ModelPrice')));
 const Playground = Loadable(lazy(() => import('views/Playground')));
+const Payment = Loadable(lazy(() => import('views/Payment')));
 
 // dashboard routing
 const Dashboard = Loadable(lazy(() => import('views/Dashboard')));
@@ -96,6 +97,10 @@ const MainRoutes = {
     {
       path: 'playground',
       element: <Playground />
+    },
+    {
+      path: 'payment',
+      element: <Payment />
     }
   ]
 };

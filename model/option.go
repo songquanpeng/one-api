@@ -84,6 +84,9 @@ func InitOptionMap() {
 
 	config.OptionMap["ChatImageRequestProxy"] = ""
 
+	config.OptionMap["PaymentUSDRate"] = strconv.FormatFloat(config.PaymentUSDRate, 'f', -1, 64)
+	config.OptionMap["PaymentMinAmount"] = strconv.Itoa(config.PaymentMinAmount)
+
 	config.OptionMapRWMutex.Unlock()
 	loadOptionsFromDatabase()
 }
@@ -132,6 +135,7 @@ var optionIntMap = map[string]*int{
 	"RetryTimes":            &config.RetryTimes,
 	"RetryCooldownSeconds":  &config.RetryCooldownSeconds,
 	"ChatCacheExpireMinute": &config.ChatCacheExpireMinute,
+	"PaymentMinAmount":      &config.PaymentMinAmount,
 }
 
 var optionBoolMap = map[string]*bool{
@@ -206,6 +210,8 @@ func updateOptionMap(key string, value string) (err error) {
 		config.ChannelDisableThreshold, _ = strconv.ParseFloat(value, 64)
 	case "QuotaPerUnit":
 		config.QuotaPerUnit, _ = strconv.ParseFloat(value, 64)
+	case "PaymentUSDRate":
+		config.PaymentUSDRate, _ = strconv.ParseFloat(value, 64)
 	}
 	return err
 }

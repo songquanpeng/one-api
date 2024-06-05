@@ -9,7 +9,7 @@ const siteInfoReducer = (state = initialState, action) => {
       return {
         ...state,
         ...action.payload,
-        isLoading: false,  // 添加加载状态
+        isLoading: false // 添加加载状态
       };
     default:
       return state;

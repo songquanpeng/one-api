@@ -31,6 +31,8 @@ func SetApiRouter(router *gin.Engine) {
 		apiRouter.GET("/oauth/wechat/bind", middleware.CriticalRateLimit(), middleware.UserAuth(), controller.WeChatBind)
 		apiRouter.GET("/oauth/email/bind", middleware.CriticalRateLimit(), middleware.UserAuth(), controller.EmailBind)
 
+		apiRouter.Any("/payment/notify/:uuid", controller.PaymentCallback)
+
 		userRoute := apiRouter.Group("/user")
 		{
 			userRoute.POST("/register", middleware.CriticalRateLimit(), middleware.TurnstileCheck(), controller.Register)
@@ -48,6 +50,9 @@ func SetApiRouter(router *gin.Engine) {
 				selfRoute.GET("/aff", controller.GetAffCode)
 				selfRoute.POST("/topup", controller.TopUp)
 				selfRoute.GET("/models", relay.ListModels)
+				selfRoute.GET("/payment", controller.GetUserPaymentList)
+				selfRoute.POST("/order", controller.CreateOrder)
+				selfRoute.GET("/order/status", controller.CheckOrderStatus)
 			}
 
 			adminRoute := userRoute.Group("/")
@@ -146,6 +151,17 @@ func SetApiRouter(router *gin.Engine) {
 			pricesRoute.PUT("/multiple/delete", controller.BatchDeletePrices)
 			pricesRoute.POST("/sync", controller.SyncPricing)
 
+		}
+
+		paymentRoute := apiRouter.Group("/payment")
+		paymentRoute.Use(middleware.AdminAuth())
+		{
+			paymentRoute.GET("/order", controller.GetOrderList)
+			paymentRoute.GET("/", controller.GetPaymentList)
+			paymentRoute.GET("/:id", controller.GetPayment)
+			paymentRoute.POST("/", controller.AddPayment)
+			paymentRoute.PUT("/", controller.UpdatePayment)
+			paymentRoute.DELETE("/:id", controller.DeletePayment)
 		}
 
 		mjRoute := apiRouter.Group("/mj")

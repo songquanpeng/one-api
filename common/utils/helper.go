@@ -14,9 +14,20 @@ import (
 	"strings"
 	"time"
 
+	"github.com/bwmarrin/snowflake"
 	"github.com/google/uuid"
 	"github.com/spf13/viper"
 )
+
+var node *snowflake.Node
+
+func init() {
+	var err error
+	node, err = snowflake.NewNode(1)
+	if err != nil {
+		log.Fatalf("snowflake.NewNode failed: %v", err)
+	}
+}
 
 func OpenBrowser(url string) {
 	var err error
@@ -203,6 +214,14 @@ func String2Int(str string) int {
 	return num
 }
 
+func String2Int64(str string) int64 {
+	num, err := strconv.ParseInt(str, 10, 64)
+	if err != nil {
+		return 0
+	}
+	return num
+}
+
 func IsFileExist(path string) bool {
 	_, err := os.Stat(path)
 	return err == nil || os.IsExist(err)
@@ -255,4 +274,20 @@ func Marshal[T interface{}](data T) string {
 		return ""
 	}
 	return string(res)
+}
+
+func GenerateTradeNo() string {
+	id := node.Generate()
+
+	return id.String()
+}
+
+func Decimal(value float64, decimalPlace int) float64 {
+	format := fmt.Sprintf("%%.%df", decimalPlace)
+	value, _ = strconv.ParseFloat(fmt.Sprintf(format, value), 64)
+	return value
+}
+
+func GetUnixTime() int64 {
+	return time.Now().Unix()
 }

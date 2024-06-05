@@ -36,7 +36,9 @@ const OperationSetting = () => {
     MjNotifyEnabled: '',
     ChatCacheEnabled: '',
     ChatCacheExpireMinute: 5,
-    ChatImageRequestProxy: ''
+    ChatImageRequestProxy: '',
+    PaymentUSDRate: 0,
+    PaymentMinAmount: 1
   });
   const [originInputs, setOriginInputs] = useState({});
   let [loading, setLoading] = useState(false);
@@ -176,6 +178,14 @@ const OperationSetting = () => {
         }
         if (originInputs['ChatImageRequestProxy'] !== inputs.ChatImageRequestProxy) {
           await updateOption('ChatImageRequestProxy', inputs.ChatImageRequestProxy);
+        }
+        break;
+      case 'payment':
+        if (originInputs['PaymentUSDRate'] !== inputs.PaymentUSDRate) {
+          await updateOption('PaymentUSDRate', inputs.PaymentUSDRate);
+        }
+        if (originInputs['PaymentMinAmount'] !== inputs.PaymentMinAmount) {
+          await updateOption('PaymentMinAmount', inputs.PaymentMinAmount);
         }
         break;
     }
@@ -529,6 +539,56 @@ const OperationSetting = () => {
             }}
           >
             保存额度设置
+          </Button>
+        </Stack>
+      </SubCard>
+      <SubCard title="支付设置">
+        <Stack justifyContent="flex-start" alignItems="flex-start" spacing={2}>
+          <FormControl fullWidth>
+            <Alert severity="info">
+              支付设置： <br />
+              1. 美元汇率：用于计算充值金额的美元金额 <br />
+              2. 最低充值金额（美元）：最低充值金额，单位为美元，填写整数 <br />
+              3. 页面都以美元为单位计算，实际用户支付的货币，按照支付网关设置的货币进行转换 <br />
+              例如： A 网关设置货币为 CNY，用户支付 100 美元，那么实际支付金额为 100 * 美元汇率 <br />B 网关设置货币为 USD，用户支付 100
+              美元，那么实际支付金额为 100 美元
+            </Alert>
+          </FormControl>
+          <Stack direction={{ sm: 'column', md: 'row' }} spacing={{ xs: 3, sm: 2, md: 4 }}>
+            <FormControl fullWidth>
+              <InputLabel htmlFor="PaymentUSDRate">美元汇率</InputLabel>
+              <OutlinedInput
+                id="PaymentUSDRate"
+                name="PaymentUSDRate"
+                type="number"
+                value={inputs.PaymentUSDRate}
+                onChange={handleInputChange}
+                label="美元汇率"
+                placeholder="例如：7.3"
+                disabled={loading}
+              />
+            </FormControl>
+            <FormControl fullWidth>
+              <InputLabel htmlFor="PaymentMinAmount">最低充值金额（美元）</InputLabel>
+              <OutlinedInput
+                id="PaymentMinAmount"
+                name="PaymentMinAmount"
+                type="number"
+                value={inputs.PaymentMinAmount}
+                onChange={handleInputChange}
+                label="最低充值金额（美元）"
+                placeholder="例如：1，那么最低充值金额为1美元，请填写整数"
+                disabled={loading}
+              />
+            </FormControl>
+          </Stack>
+          <Button
+            variant="contained"
+            onClick={() => {
+              submitConfig('payment').then();
+            }}
+          >
+            保存支付设置
           </Button>
         </Stack>
       </SubCard>
