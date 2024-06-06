@@ -16,11 +16,17 @@ const PayDialog = ({ open, onClose, amount, uuid }) => {
   const [qrCodeUrl, setQrCodeUrl] = useState(null);
   const [success, setSuccess] = useState(false);
   const [intervalId, setIntervalId] = useState(null);
-
+  const siteInfoStorage = localStorage.getItem('siteInfo');
+  let siteInfo;
+  if (siteInfoStorage) {
+    siteInfo = JSON.parse(siteInfoStorage);
+  }
+  const useLogo = siteInfo.logo ? siteInfo.logo : defaultLogo;
   useEffect(() => {
     if (!open) {
       return;
     }
+
     setMessage('正在拉起支付中...');
     setLoading(true);
 
@@ -99,7 +105,7 @@ const PayDialog = ({ open, onClose, amount, uuid }) => {
       <DialogContent>
         <DialogContent>
           <Stack direction="column" justifyContent="center" alignItems="center" spacing={2}>
-            {loading && <img src={defaultLogo} alt="loading" height="100" />}
+            {loading && <img src={useLogo} alt="loading" height="100" />}
             {qrCodeUrl && (
               <QRCode
                 value={qrCodeUrl}
