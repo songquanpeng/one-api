@@ -43,10 +43,12 @@ func NewQuota(c *gin.Context, modelName string, promptTokens int) (*Quota, *type
 	quota.groupRatio = common.GetGroupRatio(c.GetString("group"))
 	quota.inputRatio = quota.price.GetInput() * quota.groupRatio
 
-	if quota.price.Type == model.TimesPriceType {
-		quota.preConsumedQuota = int(1000 * quota.inputRatio)
-	} else {
-		quota.preConsumedQuota = int(float64(quota.promptTokens)*quota.inputRatio) + config.PreConsumedQuota
+	if quota.price.Input != 0 || quota.price.Output != 0 {
+		if quota.price.Type == model.TimesPriceType {
+			quota.preConsumedQuota = int(1000 * quota.inputRatio)
+		} else {
+			quota.preConsumedQuota = int(float64(quota.promptTokens)*quota.inputRatio) + config.PreConsumedQuota
+		}
 	}
 
 	errWithCode := quota.preQuotaConsumption()
@@ -58,6 +60,10 @@ func NewQuota(c *gin.Context, modelName string, promptTokens int) (*Quota, *type
 }
 
 func (q *Quota) preQuotaConsumption() *types.OpenAIErrorWithStatusCode {
+	if q.preConsumedQuota == 0 {
+		return nil
+	}
+
 	userQuota, err := model.CacheGetUserQuota(q.userId)
 	if err != nil {
 		return common.ErrorWrapper(err, "get_user_quota_failed", http.StatusInternalServerError)
