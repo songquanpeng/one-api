@@ -6,6 +6,7 @@ export const CHANNEL_OPTIONS = [
     {key: 11, text: 'Google PaLM2', value: 11, color: 'orange'},
     {key: 24, text: 'Google Gemini', value: 24, color: 'orange'},
     {key: 28, text: 'Mistral AI', value: 28, color: 'orange'},
+    {key: 40, text: '字节跳动豆包', value: 40, color: 'blue'},
     {key: 15, text: '百度文心千帆', value: 15, color: 'blue'},
     {key: 17, text: '阿里通义千问', value: 17, color: 'orange'},
     {key: 18, text: '讯飞星火认知', value: 18, color: 'blue'},

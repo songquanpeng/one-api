@@ -47,6 +47,12 @@ export const CHANNEL_OPTIONS = {
     value: 28,
     color: 'warning'
   },
+  40: {
+    key: 40,
+    text: '字节跳动豆包',
+    value: 40,
+    color: 'primary'
+  },
   15: {
     key: 15,
     text: '百度文心千帆',
