@@ -362,6 +362,13 @@ const EditChannel = () => {
               </Message>
             )
           }
+          {
+            inputs.type === 40 && (
+              <Message>
+                对于豆包而言，需要手动去 <a target="_blank" href="https://console.volcengine.com/ark/region:ark+cn-beijing/endpoint">模型推理页面</a> 创建推理接入点，以接入点名称作为模型名称，例如：`ep-20240608051426-tkxvl`。
+              </Message>
+            )
+          }
           <Form.Field>
             <Form.Dropdown
               label='模型'
