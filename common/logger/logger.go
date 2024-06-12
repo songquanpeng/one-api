@@ -43,9 +43,17 @@ func SysLog(s string) {
 	_, _ = fmt.Fprintf(gin.DefaultWriter, "[SYS] %v | %s \n", t.Format("2006/01/02 - 15:04:05"), s)
 }
 
+func SysLogf(format string, a ...any) {
+	SysLog(fmt.Sprintf(format, a...))
+}
+
 func SysError(s string) {
 	t := time.Now()
 	_, _ = fmt.Fprintf(gin.DefaultErrorWriter, "[SYS] %v | %s \n", t.Format("2006/01/02 - 15:04:05"), s)
+}
+
+func SysErrorf(format string, a ...any) {
+	SysError(fmt.Sprintf(format, a...))
 }
 
 func Debug(ctx context.Context, msg string) {

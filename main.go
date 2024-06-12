@@ -24,7 +24,7 @@ var buildFS embed.FS
 
 func main() {
 	logger.SetupLogger()
-	logger.SysLog(fmt.Sprintf("One API %s started", common.Version))
+	logger.SysLogf("One API %s started", common.Version)
 	if os.Getenv("GIN_MODE") != "debug" {
 		gin.SetMode(gin.ReleaseMode)
 	}
