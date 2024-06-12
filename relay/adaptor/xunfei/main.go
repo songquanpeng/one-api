@@ -5,6 +5,7 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -201,7 +202,7 @@ func Handler(c *gin.Context, meta *meta.Meta, textRequest model.GeneralOpenAIReq
 		}
 	}
 	if len(xunfeiResponse.Payload.Choices.Text) == 0 {
-		return openai.ErrorWrapper(err, "xunfei_empty_response_detected", http.StatusInternalServerError), nil
+		return openai.ErrorWrapper(errors.New("xunfei empty response detected"), "xunfei_empty_response_detected", http.StatusInternalServerError), nil
 	}
 	xunfeiResponse.Payload.Choices.Text[0].Content = content
 
