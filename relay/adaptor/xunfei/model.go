@@ -9,6 +9,10 @@ type Message struct {
 	Content string `json:"content"`
 }
 
+type Functions struct {
+	Text []model.Tool `json:"text,omitempty"`
+}
+
 type ChatRequest struct {
 	Header struct {
 		AppId string `json:"app_id"`
@@ -26,9 +30,7 @@ type ChatRequest struct {
 		Message struct {
 			Text []Message `json:"text"`
 		} `json:"message"`
-		Functions struct {
-			Text []model.Function `json:"text,omitempty"`
-		} `json:"functions,omitempty"`
+		Functions *Functions `json:"functions,omitempty"`
 	} `json:"payload"`
 }
 

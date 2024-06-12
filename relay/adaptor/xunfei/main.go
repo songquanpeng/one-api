@@ -6,6 +6,12 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"io"
+	"net/http"
+	"net/url"
+	"strings"
+	"time"
+
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 	"github.com/songquanpeng/one-api/common"
@@ -16,11 +22,6 @@ import (
 	"github.com/songquanpeng/one-api/relay/constant"
 	"github.com/songquanpeng/one-api/relay/meta"
 	"github.com/songquanpeng/one-api/relay/model"
-	"io"
-	"net/http"
-	"net/url"
-	"strings"
-	"time"
 )
 
 // https://console.xfyun.cn/services/cbm
@@ -28,11 +29,7 @@ import (
 
 func requestOpenAI2Xunfei(request model.GeneralOpenAIRequest, xunfeiAppId string, domain string) *ChatRequest {
 	messages := make([]Message, 0, len(request.Messages))
-	var lastToolCalls []model.Tool
 	for _, message := range request.Messages {
-		if message.ToolCalls != nil {
-			lastToolCalls = message.ToolCalls
-		}
 		messages = append(messages, Message{
 			Role:    message.Role,
 			Content: message.StringContent(),
@@ -45,9 +42,10 @@ func requestOpenAI2Xunfei(request model.GeneralOpenAIRequest, xunfeiAppId string
 	xunfeiRequest.Parameter.Chat.TopK = request.N
 	xunfeiRequest.Parameter.Chat.MaxTokens = request.MaxTokens
 	xunfeiRequest.Payload.Message.Text = messages
-	if len(lastToolCalls) != 0 {
-		for _, toolCall := range lastToolCalls {
-			xunfeiRequest.Payload.Functions.Text = append(xunfeiRequest.Payload.Functions.Text, toolCall.Function)
+
+	if strings.HasPrefix(domain, "generalv3") {
+		xunfeiRequest.Payload.Functions = &Functions{
+			Text: request.Tools,
 		}
 	}
 
