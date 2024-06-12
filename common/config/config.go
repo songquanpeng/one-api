@@ -117,10 +117,10 @@ var ValidThemes = map[string]bool{
 // All duration's unit is seconds
 // Shouldn't larger then RateLimitKeyExpirationDuration
 var (
-	GlobalApiRateLimitNum            = env.Int("GLOBAL_API_RATE_LIMIT", 180)
+	GlobalApiRateLimitNum            = env.Int("GLOBAL_API_RATE_LIMIT", 240)
 	GlobalApiRateLimitDuration int64 = 3 * 60
 
-	GlobalWebRateLimitNum            = env.Int("GLOBAL_WEB_RATE_LIMIT", 60)
+	GlobalWebRateLimitNum            = env.Int("GLOBAL_WEB_RATE_LIMIT", 120)
 	GlobalWebRateLimitDuration int64 = 3 * 60
 
 	UploadRateLimitNum            = 10
