@@ -141,7 +141,7 @@ func (user *User) Insert(inviterId int) error {
 			RecordLog(inviterId, LogTypeSystem, fmt.Sprintf("邀请用户赠送 %s", common.LogQuota(config.QuotaForInviter)))
 		}
 	}
-	// 创建默认令牌
+	// create default token
 	cleanToken := Token{
 		UserId:         user.Id,
 		Name:           "default",
@@ -154,7 +154,8 @@ func (user *User) Insert(inviterId int) error {
 	}
 	result.Error = cleanToken.Insert()
 	if result.Error != nil {
-		return result.Error
+		// do not block
+		logger.SysError(fmt.Sprintf("create default token for user %d failed: %s", user.Id, result.Error.Error()))
 	}
 	return nil
 }
