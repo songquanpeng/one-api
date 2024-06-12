@@ -181,9 +181,6 @@ const EditChannel = () => {
     if (localInputs.type === 3 && localInputs.other === '') {
       localInputs.other = '2024-03-01-preview';
     }
-    if (localInputs.type === 18 && localInputs.other === '') {
-      localInputs.other = 'v2.1';
-    }
     let res;
     localInputs.models = localInputs.models.join(',');
     localInputs.group = localInputs.groups.join(',');
