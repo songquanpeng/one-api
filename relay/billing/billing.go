@@ -3,10 +3,12 @@ package billing
 import (
 	"context"
 	"fmt"
+
 	"github.com/songquanpeng/one-api/common/logger"
 	"github.com/songquanpeng/one-api/model"
 )
 
+// ReturnPreConsumedQuota 在请求失败的时候,退回预消费的配额
 func ReturnPreConsumedQuota(ctx context.Context, preConsumedQuota int64, tokenId int) {
 	if preConsumedQuota != 0 {
 		go func(ctx context.Context) {

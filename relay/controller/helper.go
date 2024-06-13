@@ -4,6 +4,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"math"
+	"net/http"
+	"strings"
+
 	"github.com/gin-gonic/gin"
 	"github.com/songquanpeng/one-api/common"
 	"github.com/songquanpeng/one-api/common/config"
@@ -16,9 +20,6 @@ import (
 	"github.com/songquanpeng/one-api/relay/meta"
 	relaymodel "github.com/songquanpeng/one-api/relay/model"
 	"github.com/songquanpeng/one-api/relay/relaymode"
-	"math"
-	"net/http"
-	"strings"
 )
 
 func getAndValidateTextRequest(c *gin.Context, relayMode int) (*relaymodel.GeneralOpenAIRequest, error) {
@@ -208,10 +209,7 @@ func getMappedModelName(modelName string, mapping map[string]string) (string, bo
 
 func isErrorHappened(meta *meta.Meta, resp *http.Response) bool {
 	if resp == nil {
-		if meta.ChannelType == channeltype.AwsClaude {
-			return false
-		}
-		return true
+		return meta.ChannelType != channeltype.Azure
 	}
 	if resp.StatusCode != http.StatusOK {
 		return true

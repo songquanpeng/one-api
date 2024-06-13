@@ -1,12 +1,13 @@
 package config
 
 import (
-	"github.com/songquanpeng/one-api/common/env"
 	"os"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/songquanpeng/one-api/common/env"
 
 	"github.com/google/uuid"
 )
@@ -135,6 +136,7 @@ var (
 
 var RateLimitKeyExpirationDuration = 20 * time.Minute
 
+var EnableBilling = env.Bool("ENABLE_BILLING", true)
 var EnableMetric = env.Bool("ENABLE_METRIC", false)
 var MetricQueueSize = env.Int("METRIC_QUEUE_SIZE", 10)
 var MetricSuccessRateThreshold = env.Float64("METRIC_SUCCESS_RATE_THRESHOLD", 0.8)

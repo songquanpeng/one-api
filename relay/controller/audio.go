@@ -7,36 +7,33 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
+	"net/http"
+	"strings"
+
 	"github.com/gin-gonic/gin"
 	"github.com/songquanpeng/one-api/common"
 	"github.com/songquanpeng/one-api/common/client"
 	"github.com/songquanpeng/one-api/common/config"
 	"github.com/songquanpeng/one-api/common/ctxkey"
-	"github.com/songquanpeng/one-api/common/logger"
-	"github.com/songquanpeng/one-api/model"
 	"github.com/songquanpeng/one-api/relay/adaptor/openai"
 	"github.com/songquanpeng/one-api/relay/billing"
-	billingratio "github.com/songquanpeng/one-api/relay/billing/ratio"
 	"github.com/songquanpeng/one-api/relay/channeltype"
 	"github.com/songquanpeng/one-api/relay/meta"
 	relaymodel "github.com/songquanpeng/one-api/relay/model"
 	"github.com/songquanpeng/one-api/relay/relaymode"
-	"io"
-	"net/http"
-	"strings"
 )
 
-func RelayAudioHelper(c *gin.Context, relayMode int) *relaymodel.ErrorWithStatusCode {
-	ctx := c.Request.Context()
+func (rl *defaultRelay) RelayAudioHelper(c *gin.Context, relayMode int) *relaymodel.ErrorWithStatusCode {
 	meta := meta.GetByContext(c)
 	audioModel := "whisper-1"
 
 	tokenId := c.GetInt(ctxkey.TokenId)
 	channelType := c.GetInt(ctxkey.Channel)
-	channelId := c.GetInt(ctxkey.ChannelId)
+	// channelId := c.GetInt(ctxkey.ChannelId)
 	userId := c.GetInt(ctxkey.Id)
 	group := c.GetString(ctxkey.Group)
-	tokenName := c.GetString(ctxkey.TokenName)
+	// tokenName := c.GetString(ctxkey.TokenName)
 
 	var ttsRequest openai.TextToSpeechRequest
 	if relayMode == relaymode.AudioSpeech {
@@ -53,58 +50,45 @@ func RelayAudioHelper(c *gin.Context, relayMode int) *relaymodel.ErrorWithStatus
 		}
 	}
 
-	modelRatio := billingratio.GetModelRatio(audioModel)
-	groupRatio := billingratio.GetGroupRatio(group)
-	ratio := modelRatio * groupRatio
-	var quota int64
-	var preConsumedQuota int64
-	switch relayMode {
-	case relaymode.AudioSpeech:
-		preConsumedQuota = int64(float64(len(ttsRequest.Input)) * ratio)
-		quota = preConsumedQuota
-	default:
-		preConsumedQuota = int64(float64(config.PreConsumedQuota) * ratio)
-	}
-	userQuota, err := model.CacheGetUserQuota(ctx, userId)
-	if err != nil {
-		return openai.ErrorWrapper(err, "get_user_quota_failed", http.StatusInternalServerError)
+	var (
+		modelRatio       float64
+		groupRatio       float64
+		ratio            float64
+		quota            int64
+		preConsumeQuota  int64
+		preConsumedQuota int64
+		bizErr           *relaymodel.ErrorWithStatusCode
+	)
+
+	if rl.Bookkeeper != nil {
+		modelRatio = rl.ModelRatio(audioModel)
+		groupRatio = rl.GroupRation(group)
+		ratio = modelRatio * groupRatio
 	}
 
-	// Check if user quota is enough
-	if userQuota-preConsumedQuota < 0 {
-		return openai.ErrorWrapper(errors.New("user quota is not enough"), "insufficient_user_quota", http.StatusForbidden)
+	switch relayMode {
+	// speech 类型，消费的配额直接根据输入的文本长度计算
+	case relaymode.AudioSpeech:
+		preConsumeQuota = int64(float64(len(ttsRequest.Input)) * ratio)
+		quota = preConsumeQuota
+	// 其他类型，假设消费的配额是预设的配额的 ratio 倍
+	default:
+		preConsumeQuota = int64(float64(config.PreConsumedQuota) * ratio)
 	}
-	err = model.CacheDecreaseUserQuota(userId, preConsumedQuota)
-	if err != nil {
-		return openai.ErrorWrapper(err, "decrease_user_quota_failed", http.StatusInternalServerError)
-	}
-	if userQuota > 100*preConsumedQuota {
-		// in this case, we do not pre-consume quota
-		// because the user has enough quota
-		preConsumedQuota = 0
-	}
-	if preConsumedQuota > 0 {
-		err := model.PreConsumeTokenQuota(tokenId, preConsumedQuota)
-		if err != nil {
-			return openai.ErrorWrapper(err, "pre_consume_token_quota_failed", http.StatusForbidden)
+	if rl.Bookkeeper != nil {
+		preConsumedQuota, bizErr = rl.PreConsumeQuota(c, preConsumeQuota, userId, tokenId)
+		if bizErr != nil {
+			return bizErr
 		}
 	}
+
 	succeed := false
 	defer func() {
 		if succeed {
 			return
 		}
-		if preConsumedQuota > 0 {
-			// we need to roll back the pre-consumed quota
-			defer func(ctx context.Context) {
-				go func() {
-					// negative means add quota back for token & user
-					err := model.PostConsumeTokenQuota(tokenId, -preConsumedQuota)
-					if err != nil {
-						logger.Error(ctx, fmt.Sprintf("error rollback pre-consumed quota: %s", err.Error()))
-					}
-				}()
-			}(c.Request.Context())
+		if rl.Bookkeeper != nil {
+			rl.Bookkeeper.RefundQuota(c.Request.Context(), preConsumedQuota, tokenId)
 		}
 	}()
 
@@ -140,8 +124,7 @@ func RelayAudioHelper(c *gin.Context, relayMode int) *relaymodel.ErrorWithStatus
 	}
 
 	requestBody := &bytes.Buffer{}
-	_, err = io.Copy(requestBody, c.Request.Body)
-	if err != nil {
+	if _, err := io.Copy(requestBody, c.Request.Body); err != nil {
 		return openai.ErrorWrapper(err, "new_request_body_failed", http.StatusInternalServerError)
 	}
 	c.Request.Body = io.NopCloser(bytes.NewBuffer(requestBody.Bytes()))
@@ -220,9 +203,28 @@ func RelayAudioHelper(c *gin.Context, relayMode int) *relaymodel.ErrorWithStatus
 		return RelayErrorHandler(resp)
 	}
 	succeed = true
-	quotaDelta := quota - preConsumedQuota
+	// quotaDelta := quota - preConsumedQuota
 	defer func(ctx context.Context) {
-		go billing.PostConsumeQuota(ctx, tokenId, quotaDelta, quota, userId, channelId, modelRatio, groupRatio, audioModel, tokenName)
+		// go billing.PostConsumeQuota(ctx, tokenId, quotaDelta, quota, userId, channelId, modelRatio, groupRatio, audioModel, tokenName)
+		// post-consume quota
+		if rl.Bookkeeper != nil {
+			// go postConsumeQuota(c, usage, meta, textRequest, ratio, preConsumedQuota, modelRatio, groupRatio)
+
+			logContent := fmt.Sprintf("模型倍率 %.2f，分组倍率 %.2f", modelRatio, groupRatio)
+			consumeLog := &billing.ConsumeLog{
+				UserId:           meta.UserId,
+				ChannelId:        meta.ChannelId,
+				ModelName:        audioModel,
+				TokenName:        c.GetString(ctxkey.TokenName),
+				TokenId:          meta.TokenId,
+				Quota:            quota,
+				Content:          logContent,
+				PromptTokens:     int(preConsumeQuota),
+				CompletionTokens: 0,
+				PreConsumedQuota: preConsumedQuota,
+			}
+			rl.Bookkeeper.Consume(c, consumeLog)
+		}
 	}(c.Request.Context())
 
 	for k, v := range resp.Header {

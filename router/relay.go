@@ -1,6 +1,7 @@
 package router
 
 import (
+	"github.com/songquanpeng/one-api/common/config"
 	"github.com/songquanpeng/one-api/controller"
 	"github.com/songquanpeng/one-api/middleware"
 
@@ -17,19 +18,26 @@ func SetRelayRouter(router *gin.Engine) {
 		modelsRouter.GET("/:model", controller.RetrieveModel)
 	}
 	relayV1Router := router.Group("/v1")
+	opt := controller.Options{
+		EnableMonitor: config.EnableMetric,
+		EnableBilling: config.EnableBilling,
+		Debug:         config.DebugEnabled,
+	}
+	ctrl := controller.NewRelayController(opt)
+
 	relayV1Router.Use(middleware.RelayPanicRecover(), middleware.TokenAuth(), middleware.Distribute())
 	{
-		relayV1Router.POST("/completions", controller.Relay)
-		relayV1Router.POST("/chat/completions", controller.Relay)
-		relayV1Router.POST("/edits", controller.Relay)
-		relayV1Router.POST("/images/generations", controller.Relay)
+		relayV1Router.POST("/completions", ctrl.Relay)
+		relayV1Router.POST("/chat/completions", ctrl.Relay)
+		relayV1Router.POST("/edits", ctrl.Relay)
+		relayV1Router.POST("/images/generations", ctrl.Relay)
 		relayV1Router.POST("/images/edits", controller.RelayNotImplemented)
 		relayV1Router.POST("/images/variations", controller.RelayNotImplemented)
-		relayV1Router.POST("/embeddings", controller.Relay)
-		relayV1Router.POST("/engines/:model/embeddings", controller.Relay)
-		relayV1Router.POST("/audio/transcriptions", controller.Relay)
-		relayV1Router.POST("/audio/translations", controller.Relay)
-		relayV1Router.POST("/audio/speech", controller.Relay)
+		relayV1Router.POST("/embeddings", ctrl.Relay)
+		relayV1Router.POST("/engines/:model/embeddings", ctrl.Relay)
+		relayV1Router.POST("/audio/transcriptions", ctrl.Relay)
+		relayV1Router.POST("/audio/translations", ctrl.Relay)
+		relayV1Router.POST("/audio/speech", ctrl.Relay)
 		relayV1Router.GET("/files", controller.RelayNotImplemented)
 		relayV1Router.POST("/files", controller.RelayNotImplemented)
 		relayV1Router.DELETE("/files/:id", controller.RelayNotImplemented)
@@ -41,7 +49,7 @@ func SetRelayRouter(router *gin.Engine) {
 		relayV1Router.POST("/fine_tuning/jobs/:id/cancel", controller.RelayNotImplemented)
 		relayV1Router.GET("/fine_tuning/jobs/:id/events", controller.RelayNotImplemented)
 		relayV1Router.DELETE("/models/:model", controller.RelayNotImplemented)
-		relayV1Router.POST("/moderations", controller.Relay)
+		relayV1Router.POST("/moderations", ctrl.Relay)
 		relayV1Router.POST("/assistants", controller.RelayNotImplemented)
 		relayV1Router.GET("/assistants/:id", controller.RelayNotImplemented)
 		relayV1Router.POST("/assistants/:id", controller.RelayNotImplemented)
