@@ -13,9 +13,11 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/songquanpeng/one-api/common"
+	"github.com/songquanpeng/one-api/common/audit"
 	"github.com/songquanpeng/one-api/common/client"
 	"github.com/songquanpeng/one-api/common/config"
 	"github.com/songquanpeng/one-api/common/ctxkey"
+	"github.com/songquanpeng/one-api/common/helper"
 	"github.com/songquanpeng/one-api/relay/adaptor/openai"
 	"github.com/songquanpeng/one-api/relay/billing"
 	"github.com/songquanpeng/one-api/relay/channeltype"
@@ -134,6 +136,14 @@ func (rl *defaultRelay) RelayAudioHelper(c *gin.Context, relayMode int) *relaymo
 	if err != nil {
 		return openai.ErrorWrapper(err, "new_request_failed", http.StatusInternalServerError)
 	}
+	if config.UpstreamAuditEnabled {
+		audit.Logger().
+			WithField("stage", "upstream request").
+			WithField("raw", audit.B64encode(requestBody.Bytes())).
+			WithField("requestid", c.GetString(helper.RequestIdKey)).
+			WithFields(meta.ToLogrusFields()).
+			Info("upstream request")
+	}
 
 	if (relayMode == relaymode.AudioTranscription || relayMode == relaymode.AudioSpeech) && channelType == channeltype.Azure {
 		// https://learn.microsoft.com/en-us/azure/ai-services/openai/whisper-quickstart?tabs=command-line#rest-api
@@ -150,6 +160,17 @@ func (rl *defaultRelay) RelayAudioHelper(c *gin.Context, relayMode int) *relaymo
 	resp, err := client.HTTPClient.Do(req)
 	if err != nil {
 		return openai.ErrorWrapper(err, "do_request_failed", http.StatusInternalServerError)
+	}
+	if config.UpstreamAuditEnabled {
+		buf := audit.CaptureHTTPResponseBody(resp)
+		defer func() {
+			audit.Logger().
+				WithField("stage", "upstream response").
+				WithField("raw", audit.B64encode(buf.Bytes())).
+				WithField("requestid", c.GetString(helper.RequestIdKey)).
+				WithFields(meta.ToLogrusFields()).
+				Info("upstream response")
+		}()
 	}
 
 	err = req.Body.Close()

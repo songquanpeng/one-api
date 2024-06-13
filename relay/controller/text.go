@@ -8,7 +8,10 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/songquanpeng/one-api/common/audit"
+	"github.com/songquanpeng/one-api/common/config"
 	"github.com/songquanpeng/one-api/common/ctxkey"
+	"github.com/songquanpeng/one-api/common/helper"
 	"github.com/songquanpeng/one-api/common/logger"
 	"github.com/songquanpeng/one-api/relay"
 	"github.com/songquanpeng/one-api/relay/adaptor/openai"
@@ -88,11 +91,35 @@ func (rl *defaultRelay) RelayTextHelper(c *gin.Context) *model.ErrorWithStatusCo
 		requestBody = bytes.NewBuffer(jsonData)
 	}
 
+	if config.UpstreamAuditEnabled {
+		buf := bytes.Buffer{}
+		requestBody = io.TeeReader(requestBody, &buf)
+		defer func() {
+			audit.Logger().
+				WithField("stage", "upstream request").
+				WithField("raw", audit.B64encode(buf.Bytes())).
+				WithField("requestid", c.GetString(helper.RequestIdKey)).
+				WithFields(meta.ToLogrusFields()).
+				Info("upstream request")
+		}()
+	}
+
 	// do request
 	resp, err := adaptor.DoRequest(c, meta, requestBody)
 	if err != nil {
 		logger.Errorf(c, "DoRequest failed: %s", err.Error())
 		return openai.ErrorWrapper(err, "do_request_failed", http.StatusInternalServerError)
+	}
+	if config.UpstreamAuditEnabled {
+		buf := audit.CaptureHTTPResponseBody(resp)
+		defer func() {
+			audit.Logger().
+				WithField("stage", "upstream response").
+				WithField("raw", audit.B64encode(buf.Bytes())).
+				WithField("requestid", c.GetString(helper.RequestIdKey)).
+				WithFields(meta.ToLogrusFields()).
+				Info("upstream response")
+		}()
 	}
 	refund := func() {
 		if rl.Bookkeeper != nil && preConsumedQuota > 0 {

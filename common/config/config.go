@@ -56,6 +56,8 @@ var EmailDomainWhitelist = []string{
 var DebugEnabled = strings.ToLower(os.Getenv("DEBUG")) == "true"
 var DebugSQLEnabled = strings.ToLower(os.Getenv("DEBUG_SQL")) == "true"
 var MemoryCacheEnabled = strings.ToLower(os.Getenv("MEMORY_CACHE_ENABLED")) == "true"
+var ClientAuditEnabled = env.Bool("CLIENT_AUDIT_ENABLED", false)
+var UpstreamAuditEnabled = env.Bool("UPSTREAM_AUDIT_ENABLED", false)
 
 var LogConsumeEnabled = true
 

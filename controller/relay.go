@@ -9,6 +9,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/songquanpeng/one-api/common"
+	"github.com/songquanpeng/one-api/common/audit"
 	"github.com/songquanpeng/one-api/common/config"
 	"github.com/songquanpeng/one-api/common/ctxkey"
 	"github.com/songquanpeng/one-api/common/helper"
@@ -17,6 +18,7 @@ import (
 	dbmodel "github.com/songquanpeng/one-api/model"
 	"github.com/songquanpeng/one-api/monitor"
 	"github.com/songquanpeng/one-api/relay/controller"
+	"github.com/songquanpeng/one-api/relay/meta"
 	"github.com/songquanpeng/one-api/relay/model"
 	"github.com/songquanpeng/one-api/relay/relaymode"
 )
@@ -49,6 +51,18 @@ func NewRelayController(opts Options) *RelayController {
 }
 
 func (ctrl *RelayController) relayHelper(c *gin.Context, relayMode int) *model.ErrorWithStatusCode {
+	if config.ClientAuditEnabled {
+		buf := audit.CaptureResponseBody(c)
+		m := meta.GetByContext(c)
+		defer func() {
+			audit.Logger().
+				WithField("raw", audit.B64encode(buf.Bytes())).
+				WithField("parsed", audit.ParseOPENAIStreamResponse(buf)).
+				WithField("requestid", c.GetString(helper.RequestIdKey)).
+				WithFields(m.ToLogrusFields()).
+				Info("client response")
+		}()
+	}
 	var err *model.ErrorWithStatusCode
 	switch relayMode {
 	case relaymode.ImagesGenerations:
@@ -71,6 +85,15 @@ func (ctrl *RelayController) Relay(c *gin.Context) {
 	if config.DebugEnabled {
 		requestBody, _ := common.GetRequestBody(c)
 		logger.Debugf(ctx, "request body: %s", string(requestBody))
+	}
+	if config.ClientAuditEnabled {
+		requestBody, _ := common.GetRequestBody(c)
+		m := meta.GetByContext(c)
+		audit.Logger().
+			WithField("raw", audit.B64encode(requestBody)).
+			WithField("requestid", c.GetString(helper.RequestIdKey)).
+			WithFields(m.ToLogrusFields()).
+			Info("client request")
 	}
 	channelId := c.GetInt(ctxkey.ChannelId)
 	bizErr := ctrl.relayHelper(c, relayMode)
