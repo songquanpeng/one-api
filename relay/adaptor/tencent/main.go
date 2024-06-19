@@ -3,8 +3,8 @@ package tencent
 import (
 	"bufio"
 	"crypto/hmac"
-	"crypto/sha1"
-	"encoding/base64"
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -19,34 +19,26 @@ import (
 	"github.com/songquanpeng/one-api/relay/model"
 	"io"
 	"net/http"
-	"sort"
 	"strconv"
 	"strings"
+	"time"
 )
 
-// https://cloud.tencent.com/document/product/1729/97732
-
 func ConvertRequest(request model.GeneralOpenAIRequest) *ChatRequest {
-	messages := make([]Message, 0, len(request.Messages))
+	messages := make([]*Message, 0, len(request.Messages))
 	for i := 0; i < len(request.Messages); i++ {
 		message := request.Messages[i]
-		messages = append(messages, Message{
+		messages = append(messages, &Message{
 			Content: message.StringContent(),
 			Role:    message.Role,
 		})
 	}
-	stream := 0
-	if request.Stream {
-		stream = 1
-	}
 	return &ChatRequest{
-		Timestamp:   helper.GetTimestamp(),
-		Expired:     helper.GetTimestamp() + 24*60*60,
-		QueryID:     random.GetUUID(),
-		Temperature: request.Temperature,
-		TopP:        request.TopP,
-		Stream:      stream,
+		Model:       &request.Model,
+		Stream:      &request.Stream,
 		Messages:    messages,
+		TopP:        &request.TopP,
+		Temperature: &request.Temperature,
 	}
 }
 
@@ -54,7 +46,11 @@ func responseTencent2OpenAI(response *ChatResponse) *openai.TextResponse {
 	fullTextResponse := openai.TextResponse{
 		Object:  "chat.completion",
 		Created: helper.GetTimestamp(),
-		Usage:   response.Usage,
+		Usage: model.Usage{
+			PromptTokens:     response.Usage.PromptTokens,
+			CompletionTokens: response.Usage.CompletionTokens,
+			TotalTokens:      response.Usage.TotalTokens,
+		},
 	}
 	if len(response.Choices) > 0 {
 		choice := openai.TextResponseChoice{
@@ -154,6 +150,7 @@ func StreamHandler(c *gin.Context, resp *http.Response) (*model.ErrorWithStatusC
 
 func Handler(c *gin.Context, resp *http.Response) (*model.ErrorWithStatusCode, *model.Usage) {
 	var TencentResponse ChatResponse
+	var responseP ChatResponseP
 	responseBody, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return openai.ErrorWrapper(err, "read_response_body_failed", http.StatusInternalServerError), nil
@@ -162,10 +159,11 @@ func Handler(c *gin.Context, resp *http.Response) (*model.ErrorWithStatusCode, *
 	if err != nil {
 		return openai.ErrorWrapper(err, "close_response_body_failed", http.StatusInternalServerError), nil
 	}
-	err = json.Unmarshal(responseBody, &TencentResponse)
+	err = json.Unmarshal(responseBody, &responseP)
 	if err != nil {
 		return openai.ErrorWrapper(err, "unmarshal_response_body_failed", http.StatusInternalServerError), nil
 	}
+	TencentResponse = responseP.Response
 	if TencentResponse.Error.Code != 0 {
 		return &model.ErrorWithStatusCode{
 			Error: model.Error{
@@ -202,29 +200,62 @@ func ParseConfig(config string) (appId int64, secretId string, secretKey string,
 	return
 }
 
-func GetSign(req ChatRequest, secretKey string) string {
-	params := make([]string, 0)
-	params = append(params, "app_id="+strconv.FormatInt(req.AppId, 10))
-	params = append(params, "secret_id="+req.SecretId)
-	params = append(params, "timestamp="+strconv.FormatInt(req.Timestamp, 10))
-	params = append(params, "query_id="+req.QueryID)
-	params = append(params, "temperature="+strconv.FormatFloat(req.Temperature, 'f', -1, 64))
-	params = append(params, "top_p="+strconv.FormatFloat(req.TopP, 'f', -1, 64))
-	params = append(params, "stream="+strconv.Itoa(req.Stream))
-	params = append(params, "expired="+strconv.FormatInt(req.Expired, 10))
+func sha256hex(s string) string {
+	b := sha256.Sum256([]byte(s))
+	return hex.EncodeToString(b[:])
+}
 
-	var messageStr string
-	for _, msg := range req.Messages {
-		messageStr += fmt.Sprintf(`{"role":"%s","content":"%s"},`, msg.Role, msg.Content)
-	}
-	messageStr = strings.TrimSuffix(messageStr, ",")
-	params = append(params, "messages=["+messageStr+"]")
+func hmacSha256(s, key string) string {
+	hashed := hmac.New(sha256.New, []byte(key))
+	hashed.Write([]byte(s))
+	return string(hashed.Sum(nil))
+}
 
-	sort.Strings(params)
-	url := "hunyuan.cloud.tencent.com/hyllm/v1/chat/completions?" + strings.Join(params, "&")
-	mac := hmac.New(sha1.New, []byte(secretKey))
-	signURL := url
-	mac.Write([]byte(signURL))
-	sign := mac.Sum([]byte(nil))
-	return base64.StdEncoding.EncodeToString(sign)
+func GetSign(req ChatRequest, adaptor *Adaptor, secId, secKey string) string {
+	// build canonical request string
+	host := "hunyuan.tencentcloudapi.com"
+	httpRequestMethod := "POST"
+	canonicalURI := "/"
+	canonicalQueryString := ""
+	canonicalHeaders := fmt.Sprintf("content-type:%s\nhost:%s\nx-tc-action:%s\n",
+		"application/json", host, strings.ToLower(adaptor.Action))
+	signedHeaders := "content-type;host;x-tc-action"
+	payload, _ := json.Marshal(req)
+	hashedRequestPayload := sha256hex(string(payload))
+	canonicalRequest := fmt.Sprintf("%s\n%s\n%s\n%s\n%s\n%s",
+		httpRequestMethod,
+		canonicalURI,
+		canonicalQueryString,
+		canonicalHeaders,
+		signedHeaders,
+		hashedRequestPayload)
+	// build string to sign
+	algorithm := "TC3-HMAC-SHA256"
+	requestTimestamp := strconv.FormatInt(adaptor.Timestamp, 10)
+	timestamp, _ := strconv.ParseInt(requestTimestamp, 10, 64)
+	t := time.Unix(timestamp, 0).UTC()
+	// must be the format 2006-01-02, ref to package time for more info
+	date := t.Format("2006-01-02")
+	credentialScope := fmt.Sprintf("%s/%s/tc3_request", date, "hunyuan")
+	hashedCanonicalRequest := sha256hex(canonicalRequest)
+	string2sign := fmt.Sprintf("%s\n%s\n%s\n%s",
+		algorithm,
+		requestTimestamp,
+		credentialScope,
+		hashedCanonicalRequest)
+
+	// sign string
+	secretDate := hmacSha256(date, "TC3"+secKey)
+	secretService := hmacSha256("hunyuan", secretDate)
+	secretKey := hmacSha256("tc3_request", secretService)
+	signature := hex.EncodeToString([]byte(hmacSha256(string2sign, secretKey)))
+
+	// build authorization
+	authorization := fmt.Sprintf("%s Credential=%s/%s, SignedHeaders=%s, Signature=%s",
+		algorithm,
+		secId,
+		credentialScope,
+		signedHeaders,
+		signature)
+	return authorization
 }
