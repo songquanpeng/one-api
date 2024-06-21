@@ -2,13 +2,14 @@ package middleware
 
 import (
 	"fmt"
+	"net/http"
+	"strconv"
+
 	"github.com/gin-gonic/gin"
 	"github.com/songquanpeng/one-api/common/ctxkey"
 	"github.com/songquanpeng/one-api/common/logger"
 	"github.com/songquanpeng/one-api/model"
 	"github.com/songquanpeng/one-api/relay/channeltype"
-	"net/http"
-	"strconv"
 )
 
 type ModelRequest struct {
@@ -48,7 +49,7 @@ func Distribute() func(c *gin.Context) {
 					logger.SysError(fmt.Sprintf("渠道不存在：%d", channel.Id))
 					message = "数据库一致性已被破坏，请联系管理员"
 				}
-				abortWithMessage(c, http.StatusServiceUnavailable, message)
+				abortWithMessage(c, http.StatusNotFound, message)
 				return
 			}
 		}
