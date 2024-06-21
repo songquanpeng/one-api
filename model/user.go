@@ -6,6 +6,7 @@ import (
 	"github.com/songquanpeng/one-api/common"
 	"github.com/songquanpeng/one-api/common/blacklist"
 	"github.com/songquanpeng/one-api/common/config"
+	"github.com/songquanpeng/one-api/common/helper"
 	"github.com/songquanpeng/one-api/common/logger"
 	"github.com/songquanpeng/one-api/common/random"
 	"gorm.io/gorm"
@@ -139,6 +140,22 @@ func (user *User) Insert(inviterId int) error {
 			_ = IncreaseUserQuota(inviterId, config.QuotaForInviter)
 			RecordLog(inviterId, LogTypeSystem, fmt.Sprintf("邀请用户赠送 %s", common.LogQuota(config.QuotaForInviter)))
 		}
+	}
+	// create default token
+	cleanToken := Token{
+		UserId:         user.Id,
+		Name:           "default",
+		Key:            random.GenerateKey(),
+		CreatedTime:    helper.GetTimestamp(),
+		AccessedTime:   helper.GetTimestamp(),
+		ExpiredTime:    -1,
+		RemainQuota:    -1,
+		UnlimitedQuota: true,
+	}
+	result.Error = cleanToken.Insert()
+	if result.Error != nil {
+		// do not block
+		logger.SysError(fmt.Sprintf("create default token for user %d failed: %s", user.Id, result.Error.Error()))
 	}
 	return nil
 }

@@ -1,22 +1,22 @@
-import { useState, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 
 // material-ui
-import { Button, Stack, Typography, Alert } from "@mui/material";
+import { Button, Stack, Typography, Alert } from '@mui/material';
 
 // assets
-import { showError, showInfo } from "utils/common";
-import { API } from "utils/api";
+import { showError, copy } from 'utils/common';
+import { API } from 'utils/api';
 
 // ===========================|| FIREBASE - REGISTER ||=========================== //
 
 const ResetPasswordForm = () => {
   const [searchParams] = useSearchParams();
   const [inputs, setInputs] = useState({
-    email: "",
-    token: "",
+    email: '',
+    token: ''
   });
-  const [newPassword, setNewPassword] = useState("");
+  const [newPassword, setNewPassword] = useState('');
 
   const submit = async () => {
     const res = await API.post(`/api/user/reset`, inputs);
@@ -24,31 +24,25 @@ const ResetPasswordForm = () => {
     if (success) {
       let password = res.data.data;
       setNewPassword(password);
-      navigator.clipboard.writeText(password);
-      showInfo(`新密码已复制到剪贴板：${password}`);
+      copy(password, '新密码');
     } else {
       showError(message);
     }
   };
 
   useEffect(() => {
-    let email = searchParams.get("email");
-    let token = searchParams.get("token");
+    let email = searchParams.get('email');
+    let token = searchParams.get('token');
     setInputs({
       token,
-      email,
+      email
     });
   }, []);
 
   return (
-    <Stack
-      spacing={3}
-      padding={"24px"}
-      justifyContent={"center"}
-      alignItems={"center"}
-    >
+    <Stack spacing={3} padding={'24px'} justifyContent={'center'} alignItems={'center'}>
       {!inputs.email || !inputs.token ? (
-        <Typography variant="h3" sx={{ textDecoration: "none" }}>
+        <Typography variant="h3" sx={{ textDecoration: 'none' }}>
           无效的链接
         </Typography>
       ) : newPassword ? (
@@ -57,14 +51,7 @@ const ResetPasswordForm = () => {
           请登录后及时修改密码
         </Alert>
       ) : (
-        <Button
-          fullWidth
-          onClick={submit}
-          size="large"
-          type="submit"
-          variant="contained"
-          color="primary"
-        >
+        <Button fullWidth onClick={submit} size="large" type="submit" variant="contained" color="primary">
           点击重置密码
         </Button>
       )}

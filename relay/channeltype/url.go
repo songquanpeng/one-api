@@ -24,7 +24,7 @@ var ChannelBaseURLs = []string{
 	"https://openrouter.ai/api",                 // 20
 	"https://api.aiproxy.io",                    // 21
 	"https://fastgpt.run/api/openapi",           // 22
-	"https://hunyuan.cloud.tencent.com",         // 23
+	"https://hunyuan.tencentcloudapi.com",       // 23
 	"https://generativelanguage.googleapis.com", // 24
 	"https://api.moonshot.cn",                   // 25
 	"https://api.baichuan-ai.com",               // 26
@@ -41,6 +41,7 @@ var ChannelBaseURLs = []string{
 	"https://api.cloudflare.com",                // 37
 	"https://api-free.deepl.com",                // 38
 	"https://api.together.xyz",                  // 39
+	"https://ark.cn-beijing.volces.com",         // 40
 }
 
 func init() {

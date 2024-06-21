@@ -17,14 +17,20 @@ import (
 )
 
 func ConvertRequest(textRequest model.GeneralOpenAIRequest) *Request {
-	lastMessage := textRequest.Messages[len(textRequest.Messages)-1]
-	return &Request{
-		MaxTokens:   textRequest.MaxTokens,
-		Prompt:      lastMessage.StringContent(),
-		Stream:      textRequest.Stream,
-		Temperature: textRequest.Temperature,
-	}
+    var promptBuilder strings.Builder
+    for _, message := range textRequest.Messages {
+        promptBuilder.WriteString(message.StringContent())
+        promptBuilder.WriteString("\n")  // 添加换行符来分隔每个消息
+    }
+
+    return &Request{
+        MaxTokens:   textRequest.MaxTokens,
+        Prompt:      promptBuilder.String(),
+        Stream:      textRequest.Stream,
+        Temperature: textRequest.Temperature,
+    }
 }
+
 
 func ResponseCloudflare2OpenAI(cloudflareResponse *Response) *openai.TextResponse {
 	choice := openai.TextResponseChoice{

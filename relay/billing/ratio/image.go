@@ -49,3 +49,8 @@ var ImagePromptLengthLimitations = map[string]int{
 	"wanx-v1":                   4000,
 	"cogview-3":                 833,
 }
+
+var ImageOriginModelName = map[string]string{
+	"ali-stable-diffusion-xl":   "stable-diffusion-xl",
+	"ali-stable-diffusion-v1.5": "stable-diffusion-v1.5",
+}

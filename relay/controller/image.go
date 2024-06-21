@@ -55,6 +55,11 @@ func RelayImageHelper(c *gin.Context, relayMode int) *relaymodel.ErrorWithStatus
 		return openai.ErrorWrapper(err, "get_image_cost_ratio_failed", http.StatusInternalServerError)
 	}
 
+	imageModel := imageRequest.Model
+	// Convert the original image model
+	imageRequest.Model, _ = getMappedModelName(imageRequest.Model, billingratio.ImageOriginModelName)
+	c.Set("response_format", imageRequest.ResponseFormat)
+
 	var requestBody io.Reader
 	if isModelMapped || meta.ChannelType == channeltype.Azure { // make Azure channel request body
 		jsonStr, err := json.Marshal(imageRequest)
@@ -89,7 +94,7 @@ func RelayImageHelper(c *gin.Context, relayMode int) *relaymodel.ErrorWithStatus
 		requestBody = bytes.NewBuffer(jsonStr)
 	}
 
-	modelRatio := billingratio.GetModelRatio(imageRequest.Model)
+	modelRatio := billingratio.GetModelRatio(imageModel)
 	groupRatio := billingratio.GetGroupRatio(meta.Group)
 	ratio := modelRatio * groupRatio
 	userQuota, err := model.CacheGetUserQuota(ctx, meta.UserId)
