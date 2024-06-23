@@ -53,3 +53,8 @@ jobs:
         with:
           coverage-artifact-name: "code-coverage" # can be omitted if you used this default value
           coverage-file-name: "coverage.txt" # can be omitted if you used this default value
+
+  commit_lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: wagoid/commitlint-github-action@v6
