@@ -4,20 +4,23 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
+	"io"
+	"net/http"
+
 	"github.com/gin-gonic/gin"
+	"github.com/songquanpeng/one-api/common/audit"
+	"github.com/songquanpeng/one-api/common/config"
 	"github.com/songquanpeng/one-api/common/ctxkey"
+	"github.com/songquanpeng/one-api/common/helper"
 	"github.com/songquanpeng/one-api/common/logger"
-	"github.com/songquanpeng/one-api/model"
 	"github.com/songquanpeng/one-api/relay"
 	"github.com/songquanpeng/one-api/relay/adaptor/openai"
+	"github.com/songquanpeng/one-api/relay/billing"
 	billingratio "github.com/songquanpeng/one-api/relay/billing/ratio"
 	"github.com/songquanpeng/one-api/relay/channeltype"
 	"github.com/songquanpeng/one-api/relay/meta"
 	relaymodel "github.com/songquanpeng/one-api/relay/model"
-	"io"
-	"net/http"
 )
 
 func isWithinRange(element string, value int) bool {
@@ -29,33 +32,40 @@ func isWithinRange(element string, value int) bool {
 	return value >= min && value <= max
 }
 
-func RelayImageHelper(c *gin.Context, relayMode int) *relaymodel.ErrorWithStatusCode {
-	ctx := c.Request.Context()
+func (rl *defaultRelay) RelayImageHelper(c *gin.Context, relayMode int) *relaymodel.ErrorWithStatusCode {
 	meta := meta.GetByContext(c)
 	imageRequest, err := getImageRequest(c, meta.Mode)
 	if err != nil {
-		logger.Errorf(ctx, "getImageRequest failed: %s", err.Error())
+		logger.Errorf(c, "getImageRequest failed: %s", err.Error())
 		return openai.ErrorWrapper(err, "invalid_image_request", http.StatusBadRequest)
 	}
 
 	// map model name
-	var isModelMapped bool
+	var (
+		isModelMapped    bool
+		preConsumeQuota  int64
+		preConsumedQuota int64
+		imageCostRatio   float64
+		bizErr           *relaymodel.ErrorWithStatusCode
+	)
 	meta.OriginModelName = imageRequest.Model
 	imageRequest.Model, isModelMapped = getMappedModelName(imageRequest.Model, meta.ModelMapping)
 	meta.ActualModelName = imageRequest.Model
 
 	// model validation
-	bizErr := validateImageRequest(imageRequest, meta)
+	bizErr = validateImageRequest(imageRequest, meta)
 	if bizErr != nil {
 		return bizErr
 	}
 
-	imageCostRatio, err := getImageCostRatio(imageRequest)
-	if err != nil {
-		return openai.ErrorWrapper(err, "get_image_cost_ratio_failed", http.StatusInternalServerError)
+	if rl.Bookkeeper != nil {
+		imageCostRatio, err = getImageCostRatio(imageRequest)
+		if err != nil {
+			return openai.ErrorWrapper(err, "get_image_cost_ratio_failed", http.StatusInternalServerError)
+		}
 	}
 
-	imageModel := imageRequest.Model
+	originModel := imageRequest.Model
 	// Convert the original image model
 	imageRequest.Model, _ = getMappedModelName(imageRequest.Model, billingratio.ImageOriginModelName)
 	c.Set("response_format", imageRequest.ResponseFormat)
@@ -94,51 +104,89 @@ func RelayImageHelper(c *gin.Context, relayMode int) *relaymodel.ErrorWithStatus
 		requestBody = bytes.NewBuffer(jsonStr)
 	}
 
-	modelRatio := billingratio.GetModelRatio(imageModel)
-	groupRatio := billingratio.GetGroupRatio(meta.Group)
-	ratio := modelRatio * groupRatio
-	userQuota, err := model.CacheGetUserQuota(ctx, meta.UserId)
-
-	quota := int64(ratio*imageCostRatio*1000) * int64(imageRequest.N)
-
-	if userQuota-quota < 0 {
-		return openai.ErrorWrapper(errors.New("user quota is not enough"), "insufficient_user_quota", http.StatusForbidden)
+	if rl.Bookkeeper != nil {
+		modelRatio := rl.ModelRatio(originModel)
+		groupRatio := rl.GroupRation(meta.Group)
+		ratio := modelRatio * groupRatio
+		preConsumeQuota = int64(ratio*imageCostRatio*1000) * int64(imageRequest.N)
+		preConsumedQuota, bizErr = rl.PreConsumeQuota(c, preConsumeQuota, meta.UserId, meta.TokenId)
+		if bizErr != nil {
+			logger.Warnf(c, "preConsumeQuota failed: %+v", *bizErr)
+			return bizErr
+		}
 	}
 
+	refund := func() {
+		if rl.Bookkeeper != nil && preConsumedQuota > 0 {
+			rl.RefundQuota(c, preConsumedQuota, meta.TokenId)
+		}
+	}
+	if config.UpstreamAuditEnabled {
+		buf := bytes.Buffer{}
+		requestBody = io.TeeReader(requestBody, &buf)
+		defer func() {
+			audit.Logger().
+				WithField("stage", "upstream request").
+				WithField("raw", audit.B64encode(buf.Bytes())).
+				WithField("requestid", c.GetString(helper.RequestIdKey)).
+				WithFields(meta.ToLogrusFields()).
+				Info("upstream request")
+		}()
+	}
 	// do request
 	resp, err := adaptor.DoRequest(c, meta, requestBody)
 	if err != nil {
-		logger.Errorf(ctx, "DoRequest failed: %s", err.Error())
+		logger.Errorf(c, "DoRequest failed: %s", err.Error())
+		refund()
 		return openai.ErrorWrapper(err, "do_request_failed", http.StatusInternalServerError)
+	}
+	if config.UpstreamAuditEnabled {
+		buf := audit.CaptureHTTPResponseBody(resp)
+		defer func() {
+			audit.Logger().
+				WithField("stage", "upstream response").
+				WithField("raw", audit.B64encode(buf.Bytes())).
+				WithField("requestid", c.GetString(helper.RequestIdKey)).
+				WithFields(meta.ToLogrusFields()).
+				Info("upstream response")
+		}()
 	}
 
 	defer func(ctx context.Context) {
 		if resp != nil && resp.StatusCode != http.StatusOK {
 			return
 		}
+		if rl.Bookkeeper == nil {
+			return
+		}
+		modelRatio := rl.ModelRatio(originModel)
+		groupRatio := rl.GroupRation(meta.Group)
+		ratio := modelRatio * groupRatio
+		consumedQuota := int64(ratio*imageCostRatio*1000) * int64(imageRequest.N)
 
-		err := model.PostConsumeTokenQuota(meta.TokenId, quota)
-		if err != nil {
-			logger.SysError("error consuming token remain quota: " + err.Error())
-		}
-		err = model.CacheUpdateUserQuota(ctx, meta.UserId)
-		if err != nil {
-			logger.SysError("error update user quota cache: " + err.Error())
-		}
-		if quota != 0 {
+		if consumedQuota != 0 {
 			tokenName := c.GetString(ctxkey.TokenName)
 			logContent := fmt.Sprintf("模型倍率 %.2f，分组倍率 %.2f", modelRatio, groupRatio)
-			model.RecordConsumeLog(ctx, meta.UserId, meta.ChannelId, 0, 0, imageRequest.Model, tokenName, quota, logContent)
-			model.UpdateUserUsedQuotaAndRequestCount(meta.UserId, quota)
-			channelId := c.GetInt(ctxkey.ChannelId)
-			model.UpdateChannelUsedQuota(channelId, quota)
+			consumeLog := &billing.ConsumeLog{
+				UserId:           meta.UserId,
+				ChannelId:        meta.ChannelId,
+				ModelName:        imageRequest.Model,
+				TokenName:        tokenName,
+				TokenId:          meta.TokenId,
+				Quota:            consumedQuota,
+				Content:          logContent,
+				PromptTokens:     0,
+				CompletionTokens: 0,
+				PreConsumedQuota: preConsumedQuota,
+			}
+			rl.Bookkeeper.Consume(c, consumeLog)
 		}
-	}(c.Request.Context())
+	}(c)
 
 	// do response
 	_, respErr := adaptor.DoResponse(c, resp, meta)
 	if respErr != nil {
-		logger.Errorf(ctx, "respErr is not nil: %+v", respErr)
+		logger.Errorf(c, "respErr is not nil: %+v", respErr)
 		return respErr
 	}
 

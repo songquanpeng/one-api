@@ -1,12 +1,13 @@
 package config
 
 import (
-	"github.com/songquanpeng/one-api/common/env"
 	"os"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/songquanpeng/one-api/common/env"
 
 	"github.com/google/uuid"
 )
@@ -55,6 +56,8 @@ var EmailDomainWhitelist = []string{
 var DebugEnabled = strings.ToLower(os.Getenv("DEBUG")) == "true"
 var DebugSQLEnabled = strings.ToLower(os.Getenv("DEBUG_SQL")) == "true"
 var MemoryCacheEnabled = strings.ToLower(os.Getenv("MEMORY_CACHE_ENABLED")) == "true"
+var ClientAuditEnabled = env.Bool("CLIENT_AUDIT_ENABLED", false)
+var UpstreamAuditEnabled = env.Bool("UPSTREAM_AUDIT_ENABLED", false)
 
 var LogConsumeEnabled = true
 
@@ -135,6 +138,7 @@ var (
 
 var RateLimitKeyExpirationDuration = 20 * time.Minute
 
+var EnableBilling = env.Bool("ENABLE_BILLING", true)
 var EnableMetric = env.Bool("ENABLE_METRIC", false)
 var MetricQueueSize = env.Int("METRIC_QUEUE_SIZE", 10)
 var MetricSuccessRateThreshold = env.Float64("METRIC_SUCCESS_RATE_THRESHOLD", 0.8)

@@ -4,27 +4,30 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
+	"net/http"
+
 	"github.com/gin-gonic/gin"
+	"github.com/songquanpeng/one-api/common/audit"
+	"github.com/songquanpeng/one-api/common/config"
+	"github.com/songquanpeng/one-api/common/ctxkey"
+	"github.com/songquanpeng/one-api/common/helper"
 	"github.com/songquanpeng/one-api/common/logger"
 	"github.com/songquanpeng/one-api/relay"
 	"github.com/songquanpeng/one-api/relay/adaptor/openai"
 	"github.com/songquanpeng/one-api/relay/apitype"
 	"github.com/songquanpeng/one-api/relay/billing"
-	billingratio "github.com/songquanpeng/one-api/relay/billing/ratio"
 	"github.com/songquanpeng/one-api/relay/channeltype"
 	"github.com/songquanpeng/one-api/relay/meta"
 	"github.com/songquanpeng/one-api/relay/model"
-	"io"
-	"net/http"
 )
 
-func RelayTextHelper(c *gin.Context) *model.ErrorWithStatusCode {
-	ctx := c.Request.Context()
+func (rl *defaultRelay) RelayTextHelper(c *gin.Context) *model.ErrorWithStatusCode {
 	meta := meta.GetByContext(c)
 	// get & validate textRequest
 	textRequest, err := getAndValidateTextRequest(c, meta.Mode)
 	if err != nil {
-		logger.Errorf(ctx, "getAndValidateTextRequest failed: %s", err.Error())
+		logger.Errorf(c, "getAndValidateTextRequest failed: %s", err.Error())
 		return openai.ErrorWrapper(err, "invalid_text_request", http.StatusBadRequest)
 	}
 	meta.IsStream = textRequest.Stream
@@ -35,18 +38,26 @@ func RelayTextHelper(c *gin.Context) *model.ErrorWithStatusCode {
 	textRequest.Model, isModelMapped = getMappedModelName(textRequest.Model, meta.ModelMapping)
 	meta.ActualModelName = textRequest.Model
 	// get model ratio & group ratio
-	modelRatio := billingratio.GetModelRatio(textRequest.Model)
-	groupRatio := billingratio.GetGroupRatio(meta.Group)
-	ratio := modelRatio * groupRatio
-	// pre-consume quota
-	promptTokens := getPromptTokens(textRequest, meta.Mode)
-	meta.PromptTokens = promptTokens
-	preConsumedQuota, bizErr := preConsumeQuota(ctx, textRequest, promptTokens, ratio, meta)
-	if bizErr != nil {
-		logger.Warnf(ctx, "preConsumeQuota failed: %+v", *bizErr)
-		return bizErr
+	var (
+		preConsumedQuota int64
+		modelRatio       float64
+		groupRatio       float64
+		ratio            float64
+	)
+	if rl.Bookkeeper != nil {
+		modelRatio = rl.ModelRatio(textRequest.Model)
+		groupRatio = rl.GroupRation(meta.Group)
+		ratio = modelRatio * groupRatio
+		// pre-consume quota
+		meta.PromptTokens = getPromptTokens(textRequest, meta.Mode)
+		preConsumeQuota := getPreConsumedQuota(textRequest, meta.PromptTokens, ratio)
+		consumedQuota, bizErr := rl.PreConsumeQuota(c, preConsumeQuota, meta.UserId, meta.TokenId)
+		if bizErr != nil {
+			logger.Warnf(c, "preConsumeQuota failed: %+v", *bizErr)
+			return bizErr
+		}
+		preConsumedQuota = consumedQuota
 	}
-
 	adaptor := relay.GetAdaptor(meta.APIType)
 	if adaptor == nil {
 		return openai.ErrorWrapper(fmt.Errorf("invalid api type: %d", meta.APIType), "invalid_api_type", http.StatusBadRequest)
@@ -76,29 +87,75 @@ func RelayTextHelper(c *gin.Context) *model.ErrorWithStatusCode {
 		if err != nil {
 			return openai.ErrorWrapper(err, "json_marshal_failed", http.StatusInternalServerError)
 		}
-		logger.Debugf(ctx, "converted request: \n%s", string(jsonData))
+		logger.Debugf(c, "converted request: \n%s", string(jsonData))
 		requestBody = bytes.NewBuffer(jsonData)
+	}
+
+	if config.UpstreamAuditEnabled {
+		buf := bytes.Buffer{}
+		requestBody = io.TeeReader(requestBody, &buf)
+		defer func() {
+			audit.Logger().
+				WithField("stage", "upstream request").
+				WithField("raw", audit.B64encode(buf.Bytes())).
+				WithField("requestid", c.GetString(helper.RequestIdKey)).
+				WithFields(meta.ToLogrusFields()).
+				Info("upstream request")
+		}()
 	}
 
 	// do request
 	resp, err := adaptor.DoRequest(c, meta, requestBody)
 	if err != nil {
-		logger.Errorf(ctx, "DoRequest failed: %s", err.Error())
+		logger.Errorf(c, "DoRequest failed: %s", err.Error())
 		return openai.ErrorWrapper(err, "do_request_failed", http.StatusInternalServerError)
 	}
+	if config.UpstreamAuditEnabled {
+		buf := audit.CaptureHTTPResponseBody(resp)
+		defer func() {
+			audit.Logger().
+				WithField("stage", "upstream response").
+				WithField("raw", audit.B64encode(buf.Bytes())).
+				WithField("requestid", c.GetString(helper.RequestIdKey)).
+				WithFields(meta.ToLogrusFields()).
+				Info("upstream response")
+		}()
+	}
+	refund := func() {
+		if rl.Bookkeeper != nil && preConsumedQuota > 0 {
+			rl.RefundQuota(c, preConsumedQuota, meta.TokenId)
+		}
+	}
 	if isErrorHappened(meta, resp) {
-		billing.ReturnPreConsumedQuota(ctx, preConsumedQuota, meta.TokenId)
+		refund()
 		return RelayErrorHandler(resp)
 	}
 
 	// do response
 	usage, respErr := adaptor.DoResponse(c, resp, meta)
 	if respErr != nil {
-		logger.Errorf(ctx, "respErr is not nil: %+v", respErr)
-		billing.ReturnPreConsumedQuota(ctx, preConsumedQuota, meta.TokenId)
+		logger.Errorf(c, "respErr is not nil: %+v", respErr)
+		refund()
 		return respErr
 	}
 	// post-consume quota
-	go postConsumeQuota(ctx, usage, meta, textRequest, ratio, preConsumedQuota, modelRatio, groupRatio)
+	if rl.Bookkeeper != nil {
+		// go postConsumeQuota(c, usage, meta, textRequest, ratio, preConsumedQuota, modelRatio, groupRatio)
+		completionRatio := rl.ModelCompletionRatio(textRequest.Model)
+		logContent := fmt.Sprintf("模型倍率 %.2f，分组倍率 %.2f，补全倍率 %.2f", modelRatio, groupRatio, completionRatio)
+		consumeLog := &billing.ConsumeLog{
+			UserId:           meta.UserId,
+			ChannelId:        meta.ChannelId,
+			ModelName:        textRequest.Model,
+			TokenName:        c.GetString(ctxkey.TokenName),
+			TokenId:          meta.TokenId,
+			Quota:            usage.Quota(completionRatio, ratio),
+			Content:          logContent,
+			PromptTokens:     usage.PromptTokens,
+			CompletionTokens: usage.CompletionTokens,
+			PreConsumedQuota: preConsumedQuota,
+		}
+		rl.Bookkeeper.Consume(c, consumeLog)
+	}
 	return nil
 }
