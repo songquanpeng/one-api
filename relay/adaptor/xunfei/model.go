@@ -10,7 +10,7 @@ type Message struct {
 }
 
 type Functions struct {
-	Text []model.Tool `json:"text,omitempty"`
+	Text []model.Function `json:"text,omitempty"`
 }
 
 type ChatRequest struct {
