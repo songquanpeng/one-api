@@ -2,7 +2,6 @@ package cloudflare
 
 import (
 	"bufio"
-	"bytes"
 	"encoding/json"
 	"io"
 	"net/http"
@@ -17,20 +16,19 @@ import (
 )
 
 func ConvertRequest(textRequest model.GeneralOpenAIRequest) *Request {
-    var promptBuilder strings.Builder
-    for _, message := range textRequest.Messages {
-        promptBuilder.WriteString(message.StringContent())
-        promptBuilder.WriteString("\n")  // 添加换行符来分隔每个消息
-    }
+	var promptBuilder strings.Builder
+	for _, message := range textRequest.Messages {
+		promptBuilder.WriteString(message.StringContent())
+		promptBuilder.WriteString("\n") // 添加换行符来分隔每个消息
+	}
 
-    return &Request{
-        MaxTokens:   textRequest.MaxTokens,
-        Prompt:      promptBuilder.String(),
-        Stream:      textRequest.Stream,
-        Temperature: textRequest.Temperature,
-    }
+	return &Request{
+		MaxTokens:   textRequest.MaxTokens,
+		Prompt:      promptBuilder.String(),
+		Stream:      textRequest.Stream,
+		Temperature: textRequest.Temperature,
+	}
 }
-
 
 func ResponseCloudflare2OpenAI(cloudflareResponse *Response) *openai.TextResponse {
 	choice := openai.TextResponseChoice{
@@ -63,67 +61,54 @@ func StreamResponseCloudflare2OpenAI(cloudflareResponse *StreamResponse) *openai
 
 func StreamHandler(c *gin.Context, resp *http.Response, promptTokens int, modelName string) (*model.ErrorWithStatusCode, *model.Usage) {
 	scanner := bufio.NewScanner(resp.Body)
-	scanner.Split(func(data []byte, atEOF bool) (advance int, token []byte, err error) {
-		if atEOF && len(data) == 0 {
-			return 0, nil, nil
-		}
-		if i := bytes.IndexByte(data, '\n'); i >= 0 {
-			return i + 1, data[0:i], nil
-		}
-		if atEOF {
-			return len(data), data, nil
-		}
-		return 0, nil, nil
-	})
+	scanner.Split(bufio.ScanLines)
 
-	dataChan := make(chan string)
-	stopChan := make(chan bool)
-	go func() {
-		for scanner.Scan() {
-			data := scanner.Text()
-			if len(data) < len("data: ") {
-				continue
-			}
-			data = strings.TrimPrefix(data, "data: ")
-			dataChan <- data
-		}
-		stopChan <- true
-	}()
 	common.SetEventStreamHeaders(c)
 	id := helper.GetResponseID(c)
 	responseModel := c.GetString("original_model")
 	var responseText string
-	c.Stream(func(w io.Writer) bool {
-		select {
-		case data := <-dataChan:
-			// some implementations may add \r at the end of data
-			data = strings.TrimSuffix(data, "\r")
-			var cloudflareResponse StreamResponse
-			err := json.Unmarshal([]byte(data), &cloudflareResponse)
-			if err != nil {
-				logger.SysError("error unmarshalling stream response: " + err.Error())
-				return true
-			}
-			response := StreamResponseCloudflare2OpenAI(&cloudflareResponse)
-			if response == nil {
-				return true
-			}
-			responseText += cloudflareResponse.Response
-			response.Id = id
-			response.Model = responseModel
-			jsonStr, err := json.Marshal(response)
-			if err != nil {
-				logger.SysError("error marshalling stream response: " + err.Error())
-				return true
-			}
-			c.Render(-1, common.CustomEvent{Data: "data: " + string(jsonStr)})
-			return true
-		case <-stopChan:
-			c.Render(-1, common.CustomEvent{Data: "data: [DONE]"})
-			return false
+
+	for scanner.Scan() {
+		data := scanner.Text()
+		if len(data) < len("data: ") {
+			continue
 		}
-	})
-	_ = resp.Body.Close()
+		data = strings.TrimPrefix(data, "data: ")
+		data = strings.TrimSuffix(data, "\r")
+
+		var cloudflareResponse StreamResponse
+		err := json.Unmarshal([]byte(data), &cloudflareResponse)
+		if err != nil {
+			logger.SysError("error unmarshalling stream response: " + err.Error())
+			continue
+		}
+
+		response := StreamResponseCloudflare2OpenAI(&cloudflareResponse)
+		if response == nil {
+			continue
+		}
+
+		responseText += cloudflareResponse.Response
+		response.Id = id
+		response.Model = responseModel
+
+		err = common.RenderData(c, response)
+		if err != nil {
+			logger.SysError(err.Error())
+		}
+	}
+
+	if err := scanner.Err(); err != nil {
+		logger.SysError("error reading stream: " + err.Error())
+	}
+
+	common.RenderStringData(c, "[DONE]")
+
+	err := resp.Body.Close()
+	if err != nil {
+		return openai.ErrorWrapper(err, "close_response_body_failed", http.StatusInternalServerError), nil
+	}
+
 	usage := openai.ResponseText2Usage(responseText, responseModel, promptTokens)
 	return nil, usage
 }
