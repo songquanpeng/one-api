@@ -53,7 +53,7 @@ _✨ 通过标准的 OpenAI API 格式访问所有的大模型，开箱即用 �
 
 > [!NOTE]
 > 本项目为开源项目，使用者必须在遵循 OpenAI 的[使用条款](https://openai.com/policies/terms-of-use)以及**法律法规**的情况下使用，不得用于非法用途。
-> 
+>
 > 根据[《生成式人工智能服务管理暂行办法》](http://www.cac.gov.cn/2023-07/13/c_1690898327029107.htm)的要求，请勿对中国地区公众提供一切未经备案的生成式人工智能服务。
 
 > [!WARNING]
@@ -144,7 +144,7 @@ Nginx 的参考配置：
 ```
 server{
    server_name openai.justsong.cn;  # 请根据实际情况修改你的域名
-   
+
    location / {
           client_max_body_size  64m;
           proxy_http_version 1.1;
@@ -189,12 +189,12 @@ docker-compose ps
 1. 从 [GitHub Releases](https://github.com/songquanpeng/one-api/releases/latest) 下载可执行文件或者从源码编译：
    ```shell
    git clone https://github.com/songquanpeng/one-api.git
-   
+
    # 构建前端
    cd one-api/web/default
    npm install
    npm run build
-   
+
    # 构建后端
    cd ../..
    go mod download
@@ -321,7 +321,7 @@ Render 可以直接部署 docker 镜像，不需要 fork 仓库：https://dashbo
 例如对于 OpenAI 的官方库：
 ```bash
 OPENAI_API_KEY="sk-xxxxxx"
-OPENAI_API_BASE="https://<HOST>:<PORT>/v1" 
+OPENAI_API_BASE="https://<HOST>:<PORT>/v1"
 ```
 
 ```mermaid
@@ -448,6 +448,8 @@ https://openai.justsong.cn
 ## 相关项目
 * [FastGPT](https://github.com/labring/FastGPT): 基于 LLM 大语言模型的知识库问答系统
 * [ChatGPT Next Web](https://github.com/Yidadaa/ChatGPT-Next-Web):  一键拥有你自己的跨平台 ChatGPT 应用
+* [VChart](https://github.com/VisActor/VChart):  不只是开箱即用的多端图表库，更是生动灵活的数据故事讲述者。
+* [VMind](https://github.com/VisActor/VMind):  不仅自动，还很智能。开源智能可视化解决方案。
 
 ## 注意
 

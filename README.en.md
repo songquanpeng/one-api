@@ -101,7 +101,7 @@ Nginx reference configuration:
 ```
 server{
    server_name openai.justsong.cn;  # Modify your domain name accordingly
-   
+
    location / {
           client_max_body_size  64m;
           proxy_http_version 1.1;
@@ -132,12 +132,12 @@ The initial account username is `root` and password is `123456`.
 1. Download the executable file from [GitHub Releases](https://github.com/songquanpeng/one-api/releases/latest) or compile from source:
    ```shell
    git clone https://github.com/songquanpeng/one-api.git
-   
+
    # Build the frontend
    cd one-api/web/default
    npm install
    npm run build
-   
+
    # Build the backend
    cd ../..
    go mod download
@@ -287,7 +287,9 @@ If the channel ID is not provided, load balancing will be used to distribute the
     + Double-check that your interface address and API Key are correct.
 
 ## Related Projects
-[FastGPT](https://github.com/labring/FastGPT): Knowledge question answering system based on the LLM
+* [FastGPT](https://github.com/labring/FastGPT): Knowledge question answering system based on the LLM
+* [VChart](https://github.com/VisActor/VChart):  More than just a cross-platform charting library, but also an expressive data storyteller.
+* [VMind](https://github.com/VisActor/VMind):  Not just automatic, but also fantastic. Open-source solution for intelligent visualization.
 
 ## Note
 This project is an open-source project. Please use it in compliance with OpenAI's [Terms of Use](https://openai.com/policies/terms-of-use) and **applicable laws and regulations**. It must not be used for illegal purposes.
