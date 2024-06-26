@@ -1,10 +1,11 @@
 package monitor
 
 import (
-	"github.com/songquanpeng/one-api/common/config"
-	"github.com/songquanpeng/one-api/relay/model"
 	"net/http"
 	"strings"
+
+	"github.com/songquanpeng/one-api/common/config"
+	"github.com/songquanpeng/one-api/relay/model"
 )
 
 func ShouldDisableChannel(err *model.Error, statusCode int) bool {
@@ -34,6 +35,8 @@ func ShouldDisableChannel(err *model.Error, statusCode int) bool {
 	if strings.HasPrefix(err.Message, "Your credit balance is too low") { // anthropic
 		return true
 	} else if strings.HasPrefix(err.Message, "This organization has been disabled.") {
+		return true
+	} else if strings.HasPrefix(err.Message, "无可用渠道") {
 		return true
 	}
 	//if strings.Contains(err.Message, "quota") {
