@@ -18,6 +18,7 @@ func LogQuota(quota int64) string {
 }
 
 func RenderStringData(c *gin.Context, data string) {
+	data = strings.TrimPrefix(data, "data: ")
 	c.Render(-1, CustomEvent{Data: "data: " + strings.TrimSuffix(data, "\r")})
 	c.Writer.Flush()
 }
