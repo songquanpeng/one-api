@@ -18,7 +18,7 @@ import {
 
 import Label from 'ui-component/Label';
 import TableSwitch from 'ui-component/Switch';
-import { timestamp2string, renderQuota, showSuccess } from 'utils/common';
+import { timestamp2string, renderQuota, copy } from 'utils/common';
 
 import { IconDotsVertical, IconEdit, IconTrash } from '@tabler/icons-react';
 
@@ -83,8 +83,7 @@ export default function RedemptionTableRow({ item, manageRedemption, handleOpenM
               variant="contained"
               color="primary"
               onClick={() => {
-                navigator.clipboard.writeText(item.key);
-                showSuccess('已复制到剪贴板！');
+                copy(item.key, '兑换码');
               }}
             >
               复制

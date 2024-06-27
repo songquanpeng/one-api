@@ -32,6 +32,8 @@ var ModelRatio = map[string]float64{
 	"gpt-4-turbo-preview":     5,    // $0.01 / 1K tokens
 	"gpt-4-turbo":             5,    // $0.01 / 1K tokens
 	"gpt-4-turbo-2024-04-09":  5,    // $0.01 / 1K tokens
+	"gpt-4o":                  2.5,  // $0.005 / 1K tokens
+	"gpt-4o-2024-05-13":       2.5,  // $0.005 / 1K tokens
 	"gpt-4-vision-preview":    5,    // $0.01 / 1K tokens
 	"gpt-3.5-turbo":           0.25, // $0.0005 / 1K tokens
 	"gpt-3.5-turbo-0301":      0.75,
@@ -171,7 +173,7 @@ var ModelRatio = map[string]float64{
 	"command-light":         0.5,
 	"command-light-nightly": 0.5,
 	"command-r":             0.5 / 1000 * USD,
-	"command-r-plus	":       3.0 / 1000 * USD,
+	"command-r-plus":        3.0 / 1000 * USD,
 	// https://platform.deepseek.com/api-docs/pricing/
 	"deepseek-chat":  1.0 / 1000 * RMB,
 	"deepseek-coder": 1.0 / 1000 * RMB,
@@ -280,7 +282,9 @@ func GetCompletionRatio(name string) float64 {
 		return 4.0 / 3.0
 	}
 	if strings.HasPrefix(name, "gpt-4") {
-		if strings.HasPrefix(name, "gpt-4-turbo") || strings.HasSuffix(name, "preview") {
+		if strings.HasPrefix(name, "gpt-4-turbo") ||
+			strings.HasPrefix(name, "gpt-4o") ||
+			strings.HasSuffix(name, "preview") {
 			return 3
 		}
 		return 2
