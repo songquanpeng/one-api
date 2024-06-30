@@ -5,11 +5,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/songquanpeng/one-api/common/helper"
-	"github.com/songquanpeng/one-api/common/random"
+	"github.com/songquanpeng/one-api/common/render"
 	"io"
 	"net/http"
 	"strings"
+
+	"github.com/songquanpeng/one-api/common/helper"
+	"github.com/songquanpeng/one-api/common/random"
 
 	"github.com/gin-gonic/gin"
 	"github.com/songquanpeng/one-api/common"
@@ -105,54 +107,51 @@ func StreamHandler(c *gin.Context, resp *http.Response) (*model.ErrorWithStatusC
 			return 0, nil, nil
 		}
 		if i := strings.Index(string(data), "}\n"); i >= 0 {
-			return i + 2, data[0:i], nil
+			return i + 2, data[0 : i+1], nil
 		}
 		if atEOF {
 			return len(data), data, nil
 		}
 		return 0, nil, nil
 	})
-	dataChan := make(chan string)
-	stopChan := make(chan bool)
-	go func() {
-		for scanner.Scan() {
-			data := strings.TrimPrefix(scanner.Text(), "}")
-			dataChan <- data + "}"
-		}
-		stopChan <- true
-	}()
+
 	common.SetEventStreamHeaders(c)
-	c.Stream(func(w io.Writer) bool {
-		select {
-		case data := <-dataChan:
-			var ollamaResponse ChatResponse
-			err := json.Unmarshal([]byte(data), &ollamaResponse)
-			if err != nil {
-				logger.SysError("error unmarshalling stream response: " + err.Error())
-				return true
-			}
-			if ollamaResponse.EvalCount != 0 {
-				usage.PromptTokens = ollamaResponse.PromptEvalCount
-				usage.CompletionTokens = ollamaResponse.EvalCount
-				usage.TotalTokens = ollamaResponse.PromptEvalCount + ollamaResponse.EvalCount
-			}
-			response := streamResponseOllama2OpenAI(&ollamaResponse)
-			jsonResponse, err := json.Marshal(response)
-			if err != nil {
-				logger.SysError("error marshalling stream response: " + err.Error())
-				return true
-			}
-			c.Render(-1, common.CustomEvent{Data: "data: " + string(jsonResponse)})
-			return true
-		case <-stopChan:
-			c.Render(-1, common.CustomEvent{Data: "data: [DONE]"})
-			return false
+
+	for scanner.Scan() {
+		data := strings.TrimPrefix(scanner.Text(), "}")
+		data = data + "}"
+
+		var ollamaResponse ChatResponse
+		err := json.Unmarshal([]byte(data), &ollamaResponse)
+		if err != nil {
+			logger.SysError("error unmarshalling stream response: " + err.Error())
+			continue
 		}
-	})
+
+		if ollamaResponse.EvalCount != 0 {
+			usage.PromptTokens = ollamaResponse.PromptEvalCount
+			usage.CompletionTokens = ollamaResponse.EvalCount
+			usage.TotalTokens = ollamaResponse.PromptEvalCount + ollamaResponse.EvalCount
+		}
+
+		response := streamResponseOllama2OpenAI(&ollamaResponse)
+		err = render.ObjectData(c, response)
+		if err != nil {
+			logger.SysError(err.Error())
+		}
+	}
+
+	if err := scanner.Err(); err != nil {
+		logger.SysError("error reading stream: " + err.Error())
+	}
+
+	render.Done(c)
+
 	err := resp.Body.Close()
 	if err != nil {
 		return openai.ErrorWrapper(err, "close_response_body_failed", http.StatusInternalServerError), nil
 	}
+
 	return nil, &usage
 }
 
