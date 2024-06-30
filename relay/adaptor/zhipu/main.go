@@ -3,6 +3,7 @@ package zhipu
 import (
 	"bufio"
 	"encoding/json"
+	"github.com/songquanpeng/one-api/common/render"
 	"io"
 	"net/http"
 	"strings"
@@ -172,7 +173,7 @@ func StreamHandler(c *gin.Context, resp *http.Response) (*model.ErrorWithStatusC
 					dataSegment += "\n"
 				}
 				response := streamResponseZhipu2OpenAI(dataSegment)
-				err := common.RenderData(c, response)
+				err := render.ObjectData(c, response)
 				if err != nil {
 					logger.SysError("error marshalling stream response: " + err.Error())
 				}
@@ -185,7 +186,7 @@ func StreamHandler(c *gin.Context, resp *http.Response) (*model.ErrorWithStatusC
 					continue
 				}
 				response, zhipuUsage := streamMetaResponseZhipu2OpenAI(&zhipuResponse)
-				err = common.RenderData(c, response)
+				err = render.ObjectData(c, response)
 				if err != nil {
 					logger.SysError("error marshalling stream response: " + err.Error())
 				}
@@ -198,7 +199,7 @@ func StreamHandler(c *gin.Context, resp *http.Response) (*model.ErrorWithStatusC
 		logger.SysError("error reading stream: " + err.Error())
 	}
 
-	common.RenderStringData(c, "[DONE]")
+	render.Done(c)
 
 	err := resp.Body.Close()
 	if err != nil {

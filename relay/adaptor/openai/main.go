@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"encoding/json"
+	"github.com/songquanpeng/one-api/common/render"
 	"io"
 	"net/http"
 	"strings"
@@ -39,7 +40,7 @@ func StreamHandler(c *gin.Context, resp *http.Response, relayMode int) (*model.E
 			continue
 		}
 		if strings.HasPrefix(data[dataPrefixLength:], done) {
-			common.RenderStringData(c, data)
+			render.StringData(c, data)
 			continue
 		}
 		switch relayMode {
@@ -48,14 +49,14 @@ func StreamHandler(c *gin.Context, resp *http.Response, relayMode int) (*model.E
 			err := json.Unmarshal([]byte(data[dataPrefixLength:]), &streamResponse)
 			if err != nil {
 				logger.SysError("error unmarshalling stream response: " + err.Error())
-				common.RenderStringData(c, data) // if error happened, pass the data to client
-				continue                         // just ignore the error
+				render.StringData(c, data) // if error happened, pass the data to client
+				continue                   // just ignore the error
 			}
 			if len(streamResponse.Choices) == 0 {
 				// but for empty choice, we should not pass it to client, this is for azure
 				continue // just ignore empty choice
 			}
-			common.RenderStringData(c, data)
+			render.StringData(c, data)
 			for _, choice := range streamResponse.Choices {
 				responseText += conv.AsString(choice.Delta.Content)
 			}
@@ -63,7 +64,7 @@ func StreamHandler(c *gin.Context, resp *http.Response, relayMode int) (*model.E
 				usage = streamResponse.Usage
 			}
 		case relaymode.Completions:
-			common.RenderStringData(c, data)
+			render.StringData(c, data)
 			var streamResponse CompletionsStreamResponse
 			err := json.Unmarshal([]byte(data[dataPrefixLength:]), &streamResponse)
 			if err != nil {
@@ -80,7 +81,7 @@ func StreamHandler(c *gin.Context, resp *http.Response, relayMode int) (*model.E
 		logger.SysError("error reading stream: " + err.Error())
 	}
 
-	common.RenderStringData(c, "[DONE]")
+	render.Done(c)
 
 	err := resp.Body.Close()
 	if err != nil {

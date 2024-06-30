@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/songquanpeng/one-api/common/render"
 	"io"
 	"net/http"
 	"strconv"
@@ -111,7 +112,7 @@ func StreamHandler(c *gin.Context, resp *http.Response) (*model.ErrorWithStatusC
 			responseText += conv.AsString(response.Choices[0].Delta.Content)
 		}
 
-		err = common.RenderData(c, response)
+		err = render.ObjectData(c, response)
 		if err != nil {
 			logger.SysError(err.Error())
 		}
@@ -121,7 +122,7 @@ func StreamHandler(c *gin.Context, resp *http.Response) (*model.ErrorWithStatusC
 		logger.SysError("error reading stream: " + err.Error())
 	}
 
-	common.RenderStringData(c, "[DONE]")
+	render.Done(c)
 
 	err := resp.Body.Close()
 	if err != nil {

@@ -3,6 +3,7 @@ package palm
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/songquanpeng/one-api/common/render"
 	"io"
 	"net/http"
 
@@ -116,12 +117,12 @@ func StreamHandler(c *gin.Context, resp *http.Response) (*model.ErrorWithStatusC
 		return openai.ErrorWrapper(err, "marshal_response_body_failed", http.StatusInternalServerError), ""
 	}
 
-	err = common.RenderData(c, string(jsonResponse))
+	err = render.ObjectData(c, string(jsonResponse))
 	if err != nil {
 		logger.SysError(err.Error())
 	}
 
-	common.RenderStringData(c, "[DONE]")
+	render.Done(c)
 
 	return nil, responseText
 }
