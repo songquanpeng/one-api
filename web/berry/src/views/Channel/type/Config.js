@@ -91,7 +91,7 @@ const typeConfig = {
       other: '版本号'
     },
     input: {
-      models: ['SparkDesk', 'SparkDesk-v1.1', 'SparkDesk-v2.1', 'SparkDesk-v3.1', 'SparkDesk-v3.5']
+      models: ['SparkDesk', 'SparkDesk-v1.1', 'SparkDesk-v2.1', 'SparkDesk-v3.1', 'SparkDesk-v3.5', 'SparkDesk-v4.0']
     },
     prompt: {
       key: '按照如下格式输入：APPID|APISecret|APIKey',
