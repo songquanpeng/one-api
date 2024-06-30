@@ -3,6 +3,13 @@ package zhipu
 import (
 	"bufio"
 	"encoding/json"
+	"github.com/songquanpeng/one-api/common/render"
+	"io"
+	"net/http"
+	"strings"
+	"sync"
+	"time"
+
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
 	"github.com/songquanpeng/one-api/common"
@@ -11,11 +18,6 @@ import (
 	"github.com/songquanpeng/one-api/relay/adaptor/openai"
 	"github.com/songquanpeng/one-api/relay/constant"
 	"github.com/songquanpeng/one-api/relay/model"
-	"io"
-	"net/http"
-	"strings"
-	"sync"
-	"time"
 )
 
 // https://open.bigmodel.cn/doc/api#chatglm_std
@@ -155,66 +157,55 @@ func StreamHandler(c *gin.Context, resp *http.Response) (*model.ErrorWithStatusC
 		}
 		return 0, nil, nil
 	})
-	dataChan := make(chan string)
-	metaChan := make(chan string)
-	stopChan := make(chan bool)
-	go func() {
-		for scanner.Scan() {
-			data := scanner.Text()
-			lines := strings.Split(data, "\n")
-			for i, line := range lines {
-				if len(line) < 5 {
+
+	common.SetEventStreamHeaders(c)
+
+	for scanner.Scan() {
+		data := scanner.Text()
+		lines := strings.Split(data, "\n")
+		for i, line := range lines {
+			if len(line) < 5 {
+				continue
+			}
+			if strings.HasPrefix(line, "data:") {
+				dataSegment := line[5:]
+				if i != len(lines)-1 {
+					dataSegment += "\n"
+				}
+				response := streamResponseZhipu2OpenAI(dataSegment)
+				err := render.ObjectData(c, response)
+				if err != nil {
+					logger.SysError("error marshalling stream response: " + err.Error())
+				}
+			} else if strings.HasPrefix(line, "meta:") {
+				metaSegment := line[5:]
+				var zhipuResponse StreamMetaResponse
+				err := json.Unmarshal([]byte(metaSegment), &zhipuResponse)
+				if err != nil {
+					logger.SysError("error unmarshalling stream response: " + err.Error())
 					continue
 				}
-				if line[:5] == "data:" {
-					dataChan <- line[5:]
-					if i != len(lines)-1 {
-						dataChan <- "\n"
-					}
-				} else if line[:5] == "meta:" {
-					metaChan <- line[5:]
+				response, zhipuUsage := streamMetaResponseZhipu2OpenAI(&zhipuResponse)
+				err = render.ObjectData(c, response)
+				if err != nil {
+					logger.SysError("error marshalling stream response: " + err.Error())
 				}
+				usage = zhipuUsage
 			}
 		}
-		stopChan <- true
-	}()
-	common.SetEventStreamHeaders(c)
-	c.Stream(func(w io.Writer) bool {
-		select {
-		case data := <-dataChan:
-			response := streamResponseZhipu2OpenAI(data)
-			jsonResponse, err := json.Marshal(response)
-			if err != nil {
-				logger.SysError("error marshalling stream response: " + err.Error())
-				return true
-			}
-			c.Render(-1, common.CustomEvent{Data: "data: " + string(jsonResponse)})
-			return true
-		case data := <-metaChan:
-			var zhipuResponse StreamMetaResponse
-			err := json.Unmarshal([]byte(data), &zhipuResponse)
-			if err != nil {
-				logger.SysError("error unmarshalling stream response: " + err.Error())
-				return true
-			}
-			response, zhipuUsage := streamMetaResponseZhipu2OpenAI(&zhipuResponse)
-			jsonResponse, err := json.Marshal(response)
-			if err != nil {
-				logger.SysError("error marshalling stream response: " + err.Error())
-				return true
-			}
-			usage = zhipuUsage
-			c.Render(-1, common.CustomEvent{Data: "data: " + string(jsonResponse)})
-			return true
-		case <-stopChan:
-			c.Render(-1, common.CustomEvent{Data: "data: [DONE]"})
-			return false
-		}
-	})
+	}
+
+	if err := scanner.Err(); err != nil {
+		logger.SysError("error reading stream: " + err.Error())
+	}
+
+	render.Done(c)
+
 	err := resp.Body.Close()
 	if err != nil {
 		return openai.ErrorWrapper(err, "close_response_body_failed", http.StatusInternalServerError), nil
 	}
+
 	return nil, usage
 }
 
