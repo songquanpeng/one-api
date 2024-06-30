@@ -163,8 +163,10 @@ func StreamHandler(c *gin.Context, awsCli *bedrockruntime.Client) (*relaymodel.E
 			if meta != nil {
 				usage.PromptTokens += meta.Usage.InputTokens
 				usage.CompletionTokens += meta.Usage.OutputTokens
-				id = fmt.Sprintf("chatcmpl-%s", meta.Id)
-				return true
+				if len(meta.Id) > 0 { // only message_start has id. else it's finish_reason
+					id = fmt.Sprintf("chatcmpl-%s", meta.Id)
+					return true
+				}
 			}
 			if response == nil {
 				return true

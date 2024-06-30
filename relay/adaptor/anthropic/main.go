@@ -29,12 +29,30 @@ func stopReasonClaude2OpenAI(reason *string) string {
 		return "stop"
 	case "max_tokens":
 		return "length"
+	case "tool_use":
+		return "tool_calls"
 	default:
 		return *reason
 	}
 }
 
 func ConvertRequest(textRequest model.GeneralOpenAIRequest) *Request {
+	claudeTools := make([]Tool, 0, len(textRequest.Tools))
+
+	for _, tool := range textRequest.Tools {
+		if params, ok := tool.Function.Parameters.(map[string]any); ok {
+			claudeTools = append(claudeTools, Tool{
+				Name:        tool.Function.Name,
+				Description: tool.Function.Description,
+				InputSchema: InputSchema{
+					Type:       params["type"].(string),
+					Properties: params["properties"],
+					Required:   params["required"],
+				},
+			})
+		}
+	}
+
 	claudeRequest := Request{
 		Model:       textRequest.Model,
 		MaxTokens:   textRequest.MaxTokens,
@@ -42,6 +60,24 @@ func ConvertRequest(textRequest model.GeneralOpenAIRequest) *Request {
 		TopP:        textRequest.TopP,
 		TopK:        textRequest.TopK,
 		Stream:      textRequest.Stream,
+		Tools:       claudeTools,
+	}
+	if len(claudeTools) > 0 {
+		claudeToolChoice := struct {
+			Type string `json:"type"`
+			Name string `json:"name,omitempty"`
+		}{Type: "auto"} // default value https://docs.anthropic.com/en/docs/build-with-claude/tool-use#controlling-claudes-output
+		if choice, ok := textRequest.ToolChoice.(map[string]any); ok {
+			if function, ok := choice["function"].(map[string]any); ok {
+				claudeToolChoice.Type = "tool"
+				claudeToolChoice.Name = function["name"].(string)
+			}
+		} else if toolChoiceType, ok := textRequest.ToolChoice.(string); ok {
+			if toolChoiceType == "any" {
+				claudeToolChoice.Type = toolChoiceType
+			}
+		}
+		claudeRequest.ToolChoice = claudeToolChoice
 	}
 	if claudeRequest.MaxTokens == 0 {
 		claudeRequest.MaxTokens = 4096
@@ -64,7 +100,24 @@ func ConvertRequest(textRequest model.GeneralOpenAIRequest) *Request {
 		if message.IsStringContent() {
 			content.Type = "text"
 			content.Text = message.StringContent()
+			if message.Role == "tool" {
+				claudeMessage.Role = "user"
+				content.Type = "tool_result"
+				content.Content = content.Text
+				content.Text = ""
+				content.ToolUseId = message.ToolCallId
+			}
 			claudeMessage.Content = append(claudeMessage.Content, content)
+			for i := range message.ToolCalls {
+				inputParam := make(map[string]any)
+				_ = json.Unmarshal([]byte(message.ToolCalls[i].Function.Arguments.(string)), &inputParam)
+				claudeMessage.Content = append(claudeMessage.Content, Content{
+					Type:  "tool_use",
+					Id:    message.ToolCalls[i].Id,
+					Name:  message.ToolCalls[i].Function.Name,
+					Input: inputParam,
+				})
+			}
 			claudeRequest.Messages = append(claudeRequest.Messages, claudeMessage)
 			continue
 		}
@@ -97,16 +150,35 @@ func StreamResponseClaude2OpenAI(claudeResponse *StreamResponse) (*openai.ChatCo
 	var response *Response
 	var responseText string
 	var stopReason string
+	tools := make([]model.Tool, 0)
+
 	switch claudeResponse.Type {
 	case "message_start":
 		return nil, claudeResponse.Message
 	case "content_block_start":
 		if claudeResponse.ContentBlock != nil {
 			responseText = claudeResponse.ContentBlock.Text
+			if claudeResponse.ContentBlock.Type == "tool_use" {
+				tools = append(tools, model.Tool{
+					Id:   claudeResponse.ContentBlock.Id,
+					Type: "function",
+					Function: model.Function{
+						Name:      claudeResponse.ContentBlock.Name,
+						Arguments: "",
+					},
+				})
+			}
 		}
 	case "content_block_delta":
 		if claudeResponse.Delta != nil {
 			responseText = claudeResponse.Delta.Text
+			if claudeResponse.Delta.Type == "input_json_delta" {
+				tools = append(tools, model.Tool{
+					Function: model.Function{
+						Arguments: claudeResponse.Delta.PartialJson,
+					},
+				})
+			}
 		}
 	case "message_delta":
 		if claudeResponse.Usage != nil {
@@ -120,6 +192,10 @@ func StreamResponseClaude2OpenAI(claudeResponse *StreamResponse) (*openai.ChatCo
 	}
 	var choice openai.ChatCompletionsStreamResponseChoice
 	choice.Delta.Content = responseText
+	if len(tools) > 0 {
+		choice.Delta.Content = nil // compatible with other OpenAI derivative applications, like LobeOpenAICompatibleFactory ...
+		choice.Delta.ToolCalls = tools
+	}
 	choice.Delta.Role = "assistant"
 	finishReason := stopReasonClaude2OpenAI(&stopReason)
 	if finishReason != "null" {
@@ -136,12 +212,27 @@ func ResponseClaude2OpenAI(claudeResponse *Response) *openai.TextResponse {
 	if len(claudeResponse.Content) > 0 {
 		responseText = claudeResponse.Content[0].Text
 	}
+	tools := make([]model.Tool, 0)
+	for _, v := range claudeResponse.Content {
+		if v.Type == "tool_use" {
+			args, _ := json.Marshal(v.Input)
+			tools = append(tools, model.Tool{
+				Id:   v.Id,
+				Type: "function", // compatible with other OpenAI derivative applications
+				Function: model.Function{
+					Name:      v.Name,
+					Arguments: string(args),
+				},
+			})
+		}
+	}
 	choice := openai.TextResponseChoice{
 		Index: 0,
 		Message: model.Message{
-			Role:    "assistant",
-			Content: responseText,
-			Name:    nil,
+			Role:      "assistant",
+			Content:   responseText,
+			Name:      nil,
+			ToolCalls: tools,
 		},
 		FinishReason: stopReasonClaude2OpenAI(claudeResponse.StopReason),
 	}
