@@ -130,7 +130,7 @@ func Handler(c *gin.Context, resp *http.Response, promptTokens int, modelName st
 		return ErrorWrapper(err, "close_response_body_failed", http.StatusInternalServerError), nil
 	}
 
-	if textResponse.Usage.TotalTokens == 0 {
+	if textResponse.Usage.TotalTokens == 0 || (textResponse.Usage.PromptTokens == 0 && textResponse.Usage.CompletionTokens == 0) {
 		completionTokens := 0
 		for _, choice := range textResponse.Choices {
 			completionTokens += CountTokenText(choice.Message.StringContent(), modelName)
