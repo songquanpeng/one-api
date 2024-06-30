@@ -50,7 +50,7 @@ jobs:
     steps:
     - uses: codecov/codecov-action@v4
       with:
-        use_oidc: true
+        token: ${{ secrets.CODECOV_TOKEN }}
 
   commit_lint:
     runs-on: ubuntu-latest
