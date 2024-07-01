@@ -36,21 +36,9 @@ jobs:
       # in the next step as well as the next job.
       - name: Test
         run: go test -cover -coverprofile=coverage.txt ./...
-
-      - name: Archive code coverage results
-        uses: actions/upload-artifact@v4
+      - uses: codecov/codecov-action@v4
         with:
-          name: code-coverage
-          path: coverage.txt # Make sure to use the same file name you chose for the "-coverprofile" in the "Test" step
-
-  code_coverage:
-    name: "Code coverage report"
-    runs-on: ubuntu-latest
-    needs: unit_tests # Depends on the artifact uploaded by the "unit_tests" job
-    steps:
-    - uses: codecov/codecov-action@v4
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }}
+          token: ${{ secrets.CODECOV_TOKEN }}
 
   commit_lint:
     runs-on: ubuntu-latest
