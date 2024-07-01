@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Button, Form, Grid, Header, Image, Message, Segment } from 'semantic-ui-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { API, getLogo, showError, showInfo, showSuccess } from '../helpers';
+import { BASE_URL } from '../config';
 import Turnstile from 'react-turnstile';
 
 const RegisterForm = () => {
@@ -101,7 +102,7 @@ const RegisterForm = () => {
     <Grid textAlign='center' style={{ marginTop: '48px' }}>
       <Grid.Column style={{ maxWidth: 450 }}>
         <Header as='h2' color='' textAlign='center'>
-          <Image src={logo} /> 新用户注册
+          <Image src={ BASE_URL + logo} /> 新用户注册
         </Header>
         <Form size='large'>
           <Segment>

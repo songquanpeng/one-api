@@ -11,13 +11,14 @@ import { UserProvider } from './context/User';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { StatusProvider } from './context/Status';
+import { BASE_URL } from './config';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
     <StatusProvider>
       <UserProvider>
-        <BrowserRouter>
+        <BrowserRouter basename={BASE_URL}>
           <Header />
           <Container className={'main-content'}>
             <App />
