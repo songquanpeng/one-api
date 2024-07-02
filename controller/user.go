@@ -3,14 +3,15 @@ package controller
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
+	"strconv"
+	"time"
+
 	"github.com/songquanpeng/one-api/common"
 	"github.com/songquanpeng/one-api/common/config"
 	"github.com/songquanpeng/one-api/common/ctxkey"
 	"github.com/songquanpeng/one-api/common/random"
 	"github.com/songquanpeng/one-api/model"
-	"net/http"
-	"strconv"
-	"time"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
@@ -83,6 +84,7 @@ func SetupLogin(user *model.User, c *gin.Context) {
 		DisplayName: user.DisplayName,
 		Role:        user.Role,
 		Status:      user.Status,
+		AccessToken: user.AccessToken,
 	}
 	c.JSON(http.StatusOK, gin.H{
 		"message": "",
