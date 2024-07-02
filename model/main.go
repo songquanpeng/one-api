@@ -1,6 +1,7 @@
 package model
 
 import (
+	"database/sql"
 	"fmt"
 	"github.com/songquanpeng/one-api/common"
 	"github.com/songquanpeng/one-api/common/config"
@@ -60,90 +61,156 @@ func CreateRootAccountIfNeed() error {
 }
 
 func chooseDB(envName string) (*gorm.DB, error) {
-	if os.Getenv(envName) != "" {
-		dsn := os.Getenv(envName)
-		if strings.HasPrefix(dsn, "postgres://") {
-			// Use PostgreSQL
-			logger.SysLog("using PostgreSQL as database")
-			common.UsingPostgreSQL = true
-			return gorm.Open(postgres.New(postgres.Config{
-				DSN:                  dsn,
-				PreferSimpleProtocol: true, // disables implicit prepared statement usage
-			}), &gorm.Config{
-				PrepareStmt: true, // precompile SQL
-			})
-		}
+	dsn := os.Getenv(envName)
+
+	switch {
+	case strings.HasPrefix(dsn, "postgres://"):
+		// Use PostgreSQL
+		return openPostgreSQL(dsn)
+	case dsn != "":
 		// Use MySQL
-		logger.SysLog("using MySQL as database")
-		common.UsingMySQL = true
-		return gorm.Open(mysql.Open(dsn), &gorm.Config{
-			PrepareStmt: true, // precompile SQL
-		})
+		return openMySQL(dsn)
+	default:
+		// Use SQLite
+		return openSQLite()
 	}
-	// Use SQLite
-	logger.SysLog("SQL_DSN not set, using SQLite as database")
-	common.UsingSQLite = true
-	config := fmt.Sprintf("?_busy_timeout=%d", common.SQLiteBusyTimeout)
-	return gorm.Open(sqlite.Open(common.SQLitePath+config), &gorm.Config{
+}
+
+func openPostgreSQL(dsn string) (*gorm.DB, error) {
+	logger.SysLog("using PostgreSQL as database")
+	common.UsingPostgreSQL = true
+	return gorm.Open(postgres.New(postgres.Config{
+		DSN:                  dsn,
+		PreferSimpleProtocol: true, // disables implicit prepared statement usage
+	}), &gorm.Config{
 		PrepareStmt: true, // precompile SQL
 	})
 }
 
-func InitDB(envName string) (db *gorm.DB, err error) {
-	db, err = chooseDB(envName)
-	if err == nil {
-		if config.DebugSQLEnabled {
-			db = db.Debug()
-		}
-		sqlDB, err := db.DB()
-		if err != nil {
-			return nil, err
-		}
-		sqlDB.SetMaxIdleConns(env.Int("SQL_MAX_IDLE_CONNS", 100))
-		sqlDB.SetMaxOpenConns(env.Int("SQL_MAX_OPEN_CONNS", 1000))
-		sqlDB.SetConnMaxLifetime(time.Second * time.Duration(env.Int("SQL_MAX_LIFETIME", 60)))
+func openMySQL(dsn string) (*gorm.DB, error) {
+	logger.SysLog("using MySQL as database")
+	common.UsingMySQL = true
+	return gorm.Open(mysql.Open(dsn), &gorm.Config{
+		PrepareStmt: true, // precompile SQL
+	})
+}
 
-		if !config.IsMasterNode {
-			return db, err
-		}
-		if common.UsingMySQL {
-			_, _ = sqlDB.Exec("DROP INDEX idx_channels_key ON channels;") // TODO: delete this line when most users have upgraded
-		}
-		logger.SysLog("database migration started")
-		err = db.AutoMigrate(&Channel{})
-		if err != nil {
-			return nil, err
-		}
-		err = db.AutoMigrate(&Token{})
-		if err != nil {
-			return nil, err
-		}
-		err = db.AutoMigrate(&User{})
-		if err != nil {
-			return nil, err
-		}
-		err = db.AutoMigrate(&Option{})
-		if err != nil {
-			return nil, err
-		}
-		err = db.AutoMigrate(&Redemption{})
-		if err != nil {
-			return nil, err
-		}
-		err = db.AutoMigrate(&Ability{})
-		if err != nil {
-			return nil, err
-		}
-		err = db.AutoMigrate(&Log{})
-		if err != nil {
-			return nil, err
-		}
-		logger.SysLog("database migrated")
-		return db, err
-	} else {
-		logger.FatalLog(err)
+func openSQLite() (*gorm.DB, error) {
+	logger.SysLog("SQL_DSN not set, using SQLite as database")
+	common.UsingSQLite = true
+	dsn := fmt.Sprintf("%s?_busy_timeout=%d", common.SQLitePath, common.SQLiteBusyTimeout)
+	return gorm.Open(sqlite.Open(dsn), &gorm.Config{
+		PrepareStmt: true, // precompile SQL
+	})
+}
+
+func InitDB() {
+	var err error
+	DB, err = chooseDB("SQL_DSN")
+	if err != nil {
+		logger.FatalLog("failed to initialize database: " + err.Error())
+		return
 	}
-	return db, err
+
+	sqlDB := setDBConns(DB)
+
+	if !config.IsMasterNode {
+		return
+	}
+
+	if common.UsingMySQL {
+		_, _ = sqlDB.Exec("DROP INDEX idx_channels_key ON channels;") // TODO: delete this line when most users have upgraded
+	}
+
+	logger.SysLog("database migration started")
+	if err = migrateDB(); err != nil {
+		logger.FatalLog("failed to migrate database: " + err.Error())
+		return
+	}
+	logger.SysLog("database migrated")
+}
+
+func migrateDB() error {
+	var err error
+	if err = DB.AutoMigrate(&Channel{}); err != nil {
+		return err
+	}
+	if err = DB.AutoMigrate(&Token{}); err != nil {
+		return err
+	}
+	if err = DB.AutoMigrate(&User{}); err != nil {
+		return err
+	}
+	if err = DB.AutoMigrate(&Option{}); err != nil {
+		return err
+	}
+	if err = DB.AutoMigrate(&Redemption{}); err != nil {
+		return err
+	}
+	if err = DB.AutoMigrate(&Ability{}); err != nil {
+		return err
+	}
+	if err = DB.AutoMigrate(&Log{}); err != nil {
+		return err
+	}
+	if err = DB.AutoMigrate(&Channel{}); err != nil {
+		return err
+	}
+	return nil
+}
+
+func InitLogDB() {
+	if os.Getenv("LOG_SQL_DSN") == "" {
+		LOG_DB = DB
+		return
+	}
+
+	logger.SysLog("using secondary database for table logs")
+	var err error
+	LOG_DB, err = chooseDB("LOG_SQL_DSN")
+	if err != nil {
+		logger.FatalLog("failed to initialize secondary database: " + err.Error())
+		return
+	}
+
+	setDBConns(LOG_DB)
+
+	if !config.IsMasterNode {
+		return
+	}
+
+	logger.SysLog("secondary database migration started")
+	err = migrateLOGDB()
+	if err != nil {
+		logger.FatalLog("failed to migrate secondary database: " + err.Error())
+		return
+	}
+	logger.SysLog("secondary database migrated")
+}
+
+func migrateLOGDB() error {
+	var err error
+	if err = LOG_DB.AutoMigrate(&Log{}); err != nil {
+		return err
+	}
+	return nil
+}
+
+func setDBConns(db *gorm.DB) *sql.DB {
+	if config.DebugSQLEnabled {
+		db = db.Debug()
+	}
+
+	sqlDB, err := db.DB()
+	if err != nil {
+		logger.FatalLog("failed to connect database: " + err.Error())
+		return nil
+	}
+
+	sqlDB.SetMaxIdleConns(env.Int("SQL_MAX_IDLE_CONNS", 100))
+	sqlDB.SetMaxOpenConns(env.Int("SQL_MAX_OPEN_CONNS", 1000))
+	sqlDB.SetConnMaxLifetime(time.Second * time.Duration(env.Int("SQL_MAX_LIFETIME", 60)))
+	return sqlDB
 }
 
 func closeDB(db *gorm.DB) error {
