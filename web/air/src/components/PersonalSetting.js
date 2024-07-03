@@ -344,7 +344,7 @@ const PersonalSetting = () => {
               }
             >
               <Typography.Title heading={6}>调用信息</Typography.Title>
-              <p>可用模型(可点击复制)</p>
+              <p>可用模型（可点击复制）</p>
               <div style={{ marginTop: 10 }}>
                 <Space wrap>
                   {models.map((model) => (
