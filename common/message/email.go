@@ -6,10 +6,15 @@ import (
 	"encoding/base64"
 	"fmt"
 	"github.com/songquanpeng/one-api/common/config"
+	"net"
 	"net/smtp"
 	"strings"
 	"time"
 )
+
+func shouldAuth() bool {
+	return config.SMTPAccount != "" || config.SMTPToken != ""
+}
 
 func SendEmail(subject string, receiver string, content string) error {
 	if receiver == "" {
@@ -41,16 +46,24 @@ func SendEmail(subject string, receiver string, content string) error {
 		"Date: %s\r\n"+
 		"Content-Type: text/html; charset=UTF-8\r\n\r\n%s\r\n",
 		receiver, config.SystemName, config.SMTPFrom, encodedSubject, messageId, time.Now().Format(time.RFC1123Z), content))
+
 	auth := smtp.PlainAuth("", config.SMTPAccount, config.SMTPToken, config.SMTPServer)
 	addr := fmt.Sprintf("%s:%d", config.SMTPServer, config.SMTPPort)
 	to := strings.Split(receiver, ";")
 
-	if config.SMTPPort == 465 {
-		tlsConfig := &tls.Config{
-			InsecureSkipVerify: true,
-			ServerName:         config.SMTPServer,
+	if config.SMTPPort == 465 || !shouldAuth() {
+		// need advanced client
+		var conn net.Conn
+		var err error
+		if config.SMTPPort == 465 {
+			tlsConfig := &tls.Config{
+				InsecureSkipVerify: true,
+				ServerName:         config.SMTPServer,
+			}
+			conn, err = tls.Dial("tcp", fmt.Sprintf("%s:%d", config.SMTPServer, config.SMTPPort), tlsConfig)
+		} else {
+			conn, err = net.Dial("tcp", fmt.Sprintf("%s:%d", config.SMTPServer, config.SMTPPort))
 		}
-		conn, err := tls.Dial("tcp", fmt.Sprintf("%s:%d", config.SMTPServer, config.SMTPPort), tlsConfig)
 		if err != nil {
 			return err
 		}
@@ -59,8 +72,10 @@ func SendEmail(subject string, receiver string, content string) error {
 			return err
 		}
 		defer client.Close()
-		if err = client.Auth(auth); err != nil {
-			return err
+		if shouldAuth() {
+			if err = client.Auth(auth); err != nil {
+				return err
+			}
 		}
 		if err = client.Mail(config.SMTPFrom); err != nil {
 			return err
