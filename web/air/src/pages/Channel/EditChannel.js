@@ -63,7 +63,7 @@ const EditChannel = (props) => {
             let localModels = [];
             switch (value) {
                 case 14:
-                    localModels = ["claude-instant-1.2", "claude-2", "claude-2.0", "claude-2.1", "claude-3-opus-20240229", "claude-3-sonnet-20240229", "claude-3-haiku-20240307"];
+                    localModels = ["claude-instant-1.2", "claude-2", "claude-2.0", "claude-2.1", "claude-3-opus-20240229", "claude-3-sonnet-20240229", "claude-3-haiku-20240307", "claude-3-5-sonnet-20240620"];
                     break;
                 case 11:
                     localModels = ['PaLM-2'];
@@ -78,7 +78,7 @@ const EditChannel = (props) => {
                     localModels = ['chatglm_pro', 'chatglm_std', 'chatglm_lite'];
                     break;
                 case 18:
-                    localModels = ['SparkDesk', 'SparkDesk-v1.1', 'SparkDesk-v2.1', 'SparkDesk-v3.1', 'SparkDesk-v3.5'];
+                    localModels = ['SparkDesk', 'SparkDesk-v1.1', 'SparkDesk-v2.1', 'SparkDesk-v3.1', 'SparkDesk-v3.5', 'SparkDesk-v4.0'];
                     break;
                 case 19:
                     localModels = ['360GPT_S2_V9', 'embedding-bert-512-v1', 'embedding_s1_v1', 'semantic_similarity_s1_v1'];

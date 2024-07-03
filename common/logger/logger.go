@@ -27,7 +27,12 @@ var setupLogOnce sync.Once
 func SetupLogger() {
 	setupLogOnce.Do(func() {
 		if LogDir != "" {
-			logPath := filepath.Join(LogDir, fmt.Sprintf("oneapi-%s.log", time.Now().Format("20060102")))
+			var logPath string
+			if config.OnlyOneLogFile {
+				logPath = filepath.Join(LogDir, "oneapi.log")
+			} else {
+				logPath = filepath.Join(LogDir, fmt.Sprintf("oneapi-%s.log", time.Now().Format("20060102")))
+			}
 			fd, err := os.OpenFile(logPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 			if err != nil {
 				log.Fatal("failed to open log file")
@@ -43,9 +48,17 @@ func SysLog(s string) {
 	_, _ = fmt.Fprintf(gin.DefaultWriter, "[SYS] %v | %s \n", t.Format("2006/01/02 - 15:04:05"), s)
 }
 
+func SysLogf(format string, a ...any) {
+	SysLog(fmt.Sprintf(format, a...))
+}
+
 func SysError(s string) {
 	t := time.Now()
 	_, _ = fmt.Fprintf(gin.DefaultErrorWriter, "[SYS] %v | %s \n", t.Format("2006/01/02 - 15:04:05"), s)
+}
+
+func SysErrorf(format string, a ...any) {
+	SysError(fmt.Sprintf(format, a...))
 }
 
 func Debug(ctx context.Context, msg string) {

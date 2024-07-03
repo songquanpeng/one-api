@@ -11,12 +11,18 @@ export const CHANNEL_OPTIONS = {
     value: 14,
     color: 'primary'
   },
-  // 33: {
-  //   key: 33,
-  //   text: 'AWS Claude',
-  //   value: 33,
-  //   color: 'primary'
-  // },
+  33: {
+    key: 33,
+    text: 'AWS Claude',
+    value: 33,
+    color: 'primary'
+  },
+  37: {
+    key: 37,
+    text: 'Cloudflare',
+    value: 37,
+    color: 'success'
+  },
   3: {
     key: 3,
     text: 'Azure OpenAI',
@@ -40,6 +46,12 @@ export const CHANNEL_OPTIONS = {
     text: 'Mistral AI',
     value: 28,
     color: 'warning'
+  },
+  40: {
+    key: 40,
+    text: '字节跳动豆包',
+    value: 40,
+    color: 'primary'
   },
   15: {
     key: 15,
@@ -119,12 +131,12 @@ export const CHANNEL_OPTIONS = {
     value: 32,
     color: 'primary'
   },
-  // 34: {
-  //   key: 34,
-  //   text: 'Coze',
-  //   value: 34,
-  //   color: 'primary'
-  // },
+  34: {
+    key: 34,
+    text: 'Coze',
+    value: 34,
+    color: 'primary'
+  },
   35: {
     key: 35,
     text: 'Cohere',

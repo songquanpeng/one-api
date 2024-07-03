@@ -2,6 +2,7 @@ package image_test
 
 import (
 	"encoding/base64"
+	"github.com/songquanpeng/one-api/common/client"
 	"image"
 	_ "image/gif"
 	_ "image/jpeg"
@@ -43,6 +44,11 @@ var (
 		{"https://upload.wikimedia.org/wikipedia/commons/6/62/102Cervus.jpg", "jpeg", 270, 230},
 	}
 )
+
+func TestMain(m *testing.M) {
+	client.Init()
+	m.Run()
+}
 
 func TestDecode(t *testing.T) {
 	// Bytes read: varies sometimes

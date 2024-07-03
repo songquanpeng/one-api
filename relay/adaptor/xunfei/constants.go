@@ -6,4 +6,5 @@ var ModelList = []string{
 	"SparkDesk-v2.1",
 	"SparkDesk-v3.1",
 	"SparkDesk-v3.5",
+	"SparkDesk-v4.0",
 }

@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/songquanpeng/one-api/common/ctxkey"
+	"github.com/songquanpeng/one-api/relay/adaptor/openai"
 	"io"
 	"net/http"
 
@@ -33,12 +34,13 @@ func wrapErr(err error) *relaymodel.ErrorWithStatusCode {
 
 // https://docs.aws.amazon.com/bedrock/latest/userguide/model-ids.html
 var awsModelIDMap = map[string]string{
-	"claude-instant-1.2":       "anthropic.claude-instant-v1",
-	"claude-2.0":               "anthropic.claude-v2",
-	"claude-2.1":               "anthropic.claude-v2:1",
-	"claude-3-sonnet-20240229": "anthropic.claude-3-sonnet-20240229-v1:0",
-	"claude-3-opus-20240229":   "anthropic.claude-3-opus-20240229-v1:0",
-	"claude-3-haiku-20240307":  "anthropic.claude-3-haiku-20240307-v1:0",
+	"claude-instant-1.2":         "anthropic.claude-instant-v1",
+	"claude-2.0":                 "anthropic.claude-v2",
+	"claude-2.1":                 "anthropic.claude-v2:1",
+	"claude-3-sonnet-20240229":   "anthropic.claude-3-sonnet-20240229-v1:0",
+	"claude-3-5-sonnet-20240620": "anthropic.claude-3-5-sonnet-20240620-v1:0",
+	"claude-3-opus-20240229":     "anthropic.claude-3-opus-20240229-v1:0",
+	"claude-3-haiku-20240307":    "anthropic.claude-3-haiku-20240307-v1:0",
 }
 
 func awsModelID(requestModel string) (string, error) {
@@ -142,6 +144,8 @@ func StreamHandler(c *gin.Context, awsCli *bedrockruntime.Client) (*relaymodel.E
 	c.Writer.Header().Set("Content-Type", "text/event-stream")
 	var usage relaymodel.Usage
 	var id string
+	var lastToolCallChoice openai.ChatCompletionsStreamResponseChoice
+
 	c.Stream(func(w io.Writer) bool {
 		event, ok := <-stream.Events()
 		if !ok {
@@ -162,8 +166,19 @@ func StreamHandler(c *gin.Context, awsCli *bedrockruntime.Client) (*relaymodel.E
 			if meta != nil {
 				usage.PromptTokens += meta.Usage.InputTokens
 				usage.CompletionTokens += meta.Usage.OutputTokens
-				id = fmt.Sprintf("chatcmpl-%s", meta.Id)
-				return true
+				if len(meta.Id) > 0 { // only message_start has an id, otherwise it's a finish_reason event.
+					id = fmt.Sprintf("chatcmpl-%s", meta.Id)
+					return true
+				} else { // finish_reason case
+					if len(lastToolCallChoice.Delta.ToolCalls) > 0 {
+						lastArgs := &lastToolCallChoice.Delta.ToolCalls[len(lastToolCallChoice.Delta.ToolCalls)-1].Function
+						if len(lastArgs.Arguments.(string)) == 0 { // compatible with OpenAI sending an empty object `{}` when no arguments.
+							lastArgs.Arguments = "{}"
+							response.Choices[len(response.Choices)-1].Delta.Content = nil
+							response.Choices[len(response.Choices)-1].Delta.ToolCalls = lastToolCallChoice.Delta.ToolCalls
+						}
+					}
+				}
 			}
 			if response == nil {
 				return true
@@ -171,6 +186,12 @@ func StreamHandler(c *gin.Context, awsCli *bedrockruntime.Client) (*relaymodel.E
 			response.Id = id
 			response.Model = c.GetString(ctxkey.OriginalModel)
 			response.Created = createdTime
+
+			for _, choice := range response.Choices {
+				if len(choice.Delta.ToolCalls) > 0 {
+					lastToolCallChoice = choice
+				}
+			}
 			jsonStr, err := json.Marshal(response)
 			if err != nil {
 				logger.SysError("error marshalling stream response: " + err.Error())
