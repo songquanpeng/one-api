@@ -85,7 +85,7 @@ func testChannel(channel *model.Channel) (err error, openaiErr *relaymodel.Error
 	}
 	request := buildTestRequest()
 	request.Model = modelName
-	meta.OriginModelName, meta.ActualModelName = modelName, modelName
+	meta.OriginModelName, meta.ActualModelName = modelName, strings.Split(channel.Models, ",")[0]
 	convertedRequest, err := adaptor.ConvertRequest(c, relaymode.ChatCompletions, request)
 	if err != nil {
 		return err, nil
