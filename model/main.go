@@ -29,13 +29,17 @@ func CreateRootAccountIfNeed() error {
 		if err != nil {
 			return err
 		}
+		accessToken := random.GetUUID()
+		if config.InitialRootAccessToken != "" {
+			accessToken = config.InitialRootAccessToken
+		}
 		rootUser := User{
 			Username:    "root",
 			Password:    hashedPassword,
 			Role:        RoleRootUser,
 			Status:      UserStatusEnabled,
 			DisplayName: "Root User",
-			AccessToken: random.GetUUID(),
+			AccessToken: accessToken,
 			Quota:       500000000000000,
 		}
 		DB.Create(&rootUser)
