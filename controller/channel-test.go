@@ -14,6 +14,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"github.com/songquanpeng/one-api/common/config"
 	"github.com/songquanpeng/one-api/common/ctxkey"
 	"github.com/songquanpeng/one-api/common/logger"
@@ -27,15 +28,15 @@ import (
 	"github.com/songquanpeng/one-api/relay/meta"
 	relaymodel "github.com/songquanpeng/one-api/relay/model"
 	"github.com/songquanpeng/one-api/relay/relaymode"
-
-	"github.com/gin-gonic/gin"
 )
 
-func buildTestRequest() *relaymodel.GeneralOpenAIRequest {
+func buildTestRequest(model string) *relaymodel.GeneralOpenAIRequest {
+	if model == "" {
+		model = "gpt-3.5-turbo"
+	}
 	testRequest := &relaymodel.GeneralOpenAIRequest{
 		MaxTokens: 2,
-		Stream:    false,
-		Model:     "gpt-3.5-turbo",
+		Model:     model,
 	}
 	testMessage := relaymodel.Message{
 		Role:    "user",
@@ -45,7 +46,7 @@ func buildTestRequest() *relaymodel.GeneralOpenAIRequest {
 	return testRequest
 }
 
-func testChannel(channel *model.Channel) (err error, openaiErr *relaymodel.Error) {
+func testChannel(channel *model.Channel, request *relaymodel.GeneralOpenAIRequest) (err error, openaiErr *relaymodel.Error) {
 	w := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(w)
 	c.Request = &http.Request{
@@ -68,12 +69,8 @@ func testChannel(channel *model.Channel) (err error, openaiErr *relaymodel.Error
 		return fmt.Errorf("invalid api type: %d, adaptor is nil", apiType), nil
 	}
 	adaptor.Init(meta)
-	var modelName string
-	modelList := adaptor.GetModelList()
+	modelName := request.Model
 	modelMap := channel.GetModelMapping()
-	if len(modelList) != 0 {
-		modelName = modelList[0]
-	}
 	if modelName == "" || !strings.Contains(channel.Models, modelName) {
 		modelNames := strings.Split(channel.Models, ",")
 		if len(modelNames) > 0 {
@@ -83,9 +80,8 @@ func testChannel(channel *model.Channel) (err error, openaiErr *relaymodel.Error
 			modelName = modelMap[modelName]
 		}
 	}
-	request := buildTestRequest()
+	meta.OriginModelName, meta.ActualModelName = request.Model, modelName
 	request.Model = modelName
-	meta.OriginModelName, meta.ActualModelName = modelName, modelName
 	convertedRequest, err := adaptor.ConvertRequest(c, relaymode.ChatCompletions, request)
 	if err != nil {
 		return err, nil
@@ -139,10 +135,15 @@ func TestChannel(c *gin.Context) {
 		})
 		return
 	}
+	model := c.Query("model")
+	testRequest := buildTestRequest(model)
 	tik := time.Now()
-	err, _ = testChannel(channel)
+	err, _ = testChannel(channel, testRequest)
 	tok := time.Now()
 	milliseconds := tok.Sub(tik).Milliseconds()
+	if err != nil {
+		milliseconds = 0
+	}
 	go channel.UpdateResponseTime(milliseconds)
 	consumedTime := float64(milliseconds) / 1000.0
 	if err != nil {
@@ -150,6 +151,7 @@ func TestChannel(c *gin.Context) {
 			"success": false,
 			"message": err.Error(),
 			"time":    consumedTime,
+			"model":   model,
 		})
 		return
 	}
@@ -157,6 +159,7 @@ func TestChannel(c *gin.Context) {
 		"success": true,
 		"message": "",
 		"time":    consumedTime,
+		"model":   model,
 	})
 	return
 }
@@ -187,11 +190,12 @@ func testChannels(notify bool, scope string) error {
 		for _, channel := range channels {
 			isChannelEnabled := channel.Status == model.ChannelStatusEnabled
 			tik := time.Now()
-			err, openaiErr := testChannel(channel)
+			testRequest := buildTestRequest("")
+			err, openaiErr := testChannel(channel, testRequest)
 			tok := time.Now()
 			milliseconds := tok.Sub(tik).Milliseconds()
 			if isChannelEnabled && milliseconds > disableThreshold {
-				err = errors.New(fmt.Sprintf("响应时间 %.2fs 超过阈值 %.2fs", float64(milliseconds)/1000.0, float64(disableThreshold)/1000.0))
+				err = fmt.Errorf("响应时间 %.2fs 超过阈值 %.2fs", float64(milliseconds)/1000.0, float64(disableThreshold)/1000.0)
 				if config.AutomaticDisableChannelEnabled {
 					monitor.DisableChannel(channel.Id, channel.Name, err.Error())
 				} else {
