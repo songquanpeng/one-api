@@ -47,7 +47,7 @@ const PersonalSetting = () => {
   const [countdown, setCountdown] = useState(30);
   const [affLink, setAffLink] = useState('');
   const [systemToken, setSystemToken] = useState('');
-  // const [models, setModels] = useState([]);
+  const [models, setModels] = useState([]);
   const [openTransfer, setOpenTransfer] = useState(false);
   const [transferAmount, setTransferAmount] = useState(0);
 
@@ -72,7 +72,7 @@ const PersonalSetting = () => {
         console.log(userState);
       }
     );
-    // loadModels().then();
+    loadModels().then();
     getAffLink().then();
     setTransferAmount(getQuotaPerUnit());
   }, []);
@@ -127,16 +127,16 @@ const PersonalSetting = () => {
     }
   };
 
-  // const loadModels = async () => {
-  //   let res = await API.get(`/api/user/models`);
-  //   const { success, message, data } = res.data;
-  //   if (success) {
-  //     setModels(data);
-  //     console.log(data);
-  //   } else {
-  //     showError(message);
-  //   }
-  // };
+  const loadModels = async () => {
+    let res = await API.get(`/api/user/available_models`);
+    const { success, message, data } = res.data;
+    if (success) {
+      setModels(data);
+      console.log(data);
+    } else {
+      showError(message);
+    }
+  };
 
   const handleAffLinkClick = async (e) => {
     e.target.select();
@@ -344,7 +344,7 @@ const PersonalSetting = () => {
               }
             >
               <Typography.Title heading={6}>调用信息</Typography.Title>
-              {/* <Typography.Title heading={6}>可用模型</Typography.Title>
+              <p>可用模型（可点击复制）</p>
               <div style={{ marginTop: 10 }}>
                 <Space wrap>
                   {models.map((model) => (
@@ -355,7 +355,7 @@ const PersonalSetting = () => {
                     </Tag>
                   ))}
                 </Space>
-              </div> */}
+              </div>
             </Card>
             {/* <Card
               footer={
