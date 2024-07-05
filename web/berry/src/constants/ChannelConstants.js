@@ -161,6 +161,12 @@ export const CHANNEL_OPTIONS = {
     value: 39,
     color: 'primary'
   },
+  41: {
+    key: 41,
+    text: 'Novita',
+    value: 41,
+    color: 'purple'
+  },
   8: {
     key: 8,
     text: '自定义渠道',
