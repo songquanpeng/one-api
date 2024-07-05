@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Form, Input, Label, Message, Pagination, Popup, Table } from 'semantic-ui-react';
+import { Button, Dropdown, Form, Input, Label, Message, Pagination, Popup, Table } from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
 import {
   API,
@@ -70,13 +70,33 @@ const ChannelsTable = () => {
     const res = await API.get(`/api/channel/?p=${startIdx}`);
     const { success, message, data } = res.data;
     if (success) {
-      if (startIdx === 0) {
-        setChannels(data);
-      } else {
-        let newChannels = [...channels];
-        newChannels.splice(startIdx * ITEMS_PER_PAGE, data.length, ...data);
-        setChannels(newChannels);
-      }
+        let localChannels = data.map((channel) => {
+            if (channel.models === '') {
+                channel.models = [];
+                channel.test_model = "";
+            } else {
+                channel.models = channel.models.split(',');
+                if (channel.models.length > 0) {
+                    channel.test_model = channel.models[0];
+                }
+                channel.model_options = channel.models.map((model) => {
+                    return {
+                        key: model,
+                        text: model,
+                        value: model,
+                    }
+                })
+                console.log('channel', channel)
+            }
+            return channel;
+        });
+        if (startIdx === 0) {
+            setChannels(localChannels);
+        } else {
+            let newChannels = [...channels];
+            newChannels.splice(startIdx * ITEMS_PER_PAGE, data.length, ...localChannels);
+            setChannels(newChannels);
+        }
     } else {
       showError(message);
     }
@@ -225,19 +245,31 @@ const ChannelsTable = () => {
     setSearching(false);
   };
 
-  const testChannel = async (id, name, idx) => {
-    const res = await API.get(`/api/channel/test/${id}/`);
-    const { success, message, time } = res.data;
+  const switchTestModel = async (idx, model) => {
+    let newChannels = [...channels];
+    let realIdx = (activePage - 1) * ITEMS_PER_PAGE + idx;
+    newChannels[realIdx].test_model = model;
+    setChannels(newChannels);
+  };
+
+  const testChannel = async (id, name, idx, m) => {
+    const res = await API.get(`/api/channel/test/${id}?model=${m}`);
+    const { success, message, time, model } = res.data;
     if (success) {
       let newChannels = [...channels];
       let realIdx = (activePage - 1) * ITEMS_PER_PAGE + idx;
       newChannels[realIdx].response_time = time * 1000;
       newChannels[realIdx].test_time = Date.now() / 1000;
       setChannels(newChannels);
-      showInfo(`渠道 ${name} 测试成功，耗时 ${time.toFixed(2)} 秒。`);
+      showInfo(`渠道 ${name} 测试成功，模型 ${model}，耗时 ${time.toFixed(2)} 秒。`);
     } else {
       showError(message);
     }
+    let newChannels = [...channels];
+    let realIdx = (activePage - 1) * ITEMS_PER_PAGE + idx;
+    newChannels[realIdx].response_time = time * 1000;
+    newChannels[realIdx].test_time = Date.now() / 1000;
+    setChannels(newChannels);
   };
 
   const testChannels = async (scope) => {
@@ -405,6 +437,7 @@ const ChannelsTable = () => {
             >
               优先级
             </Table.HeaderCell>
+            <Table.HeaderCell>测试模型</Table.HeaderCell>
             <Table.HeaderCell>操作</Table.HeaderCell>
           </Table.Row>
         </Table.Header>
@@ -460,12 +493,23 @@ const ChannelsTable = () => {
                     />
                   </Table.Cell>
                   <Table.Cell>
+                    <Dropdown
+                      placeholder='请选择测试模型'
+                      selection
+                      options={channel.model_options}
+                      defaultValue={channel.test_model}
+                      onChange={(event, data) => {
+                        switchTestModel(idx, data.value);
+                      }}
+                    />
+                  </Table.Cell>
+                  <Table.Cell>
                     <div>
                       <Button
                         size={'small'}
                         positive
                         onClick={() => {
-                          testChannel(channel.id, channel.name, idx);
+                          testChannel(channel.id, channel.name, idx, channel.test_model);
                         }}
                       >
                         测试
