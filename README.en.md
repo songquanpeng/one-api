@@ -245,16 +245,41 @@ If the channel ID is not provided, load balancing will be used to distribute the
     + Example: `LOG_SQL_DSN=root:123456@tcp(localhost:3306)/oneapi-logs`
 5. `FRONTEND_BASE_URL`: When set, the specified frontend address will be used instead of the backend address.
     + Example: `FRONTEND_BASE_URL=https://openai.justsong.cn`
-6. `SYNC_FREQUENCY`: When set, the system will periodically sync configurations from the database, with the unit in seconds. If not set, no sync will happen.
+6. 'MEMORY_CACHE_ENABLED': Enabling memory caching can cause a certain delay in updating user quotas, with optional values of 'true' and 'false'. If not set, it defaults to 'false'.
+7. `SYNC_FREQUENCY`: When set, the system will periodically sync configurations from the database, with the unit in seconds. If not set, no sync will happen.
     + Example: `SYNC_FREQUENCY=60`
-7. `NODE_TYPE`: When set, specifies the node type. Valid values are `master` and `slave`. If not set, it defaults to `master`.
+8. `NODE_TYPE`: When set, specifies the node type. Valid values are `master` and `slave`. If not set, it defaults to `master`.
     + Example: `NODE_TYPE=slave`
-8. `CHANNEL_UPDATE_FREQUENCY`: When set, it periodically updates the channel balances, with the unit in minutes. If not set, no update will happen.
+9. `CHANNEL_UPDATE_FREQUENCY`: When set, it periodically updates the channel balances, with the unit in minutes. If not set, no update will happen.
     + Example: `CHANNEL_UPDATE_FREQUENCY=1440`
-9. `CHANNEL_TEST_FREQUENCY`: When set, it periodically tests the channels, with the unit in minutes. If not set, no test will happen.
+10. `CHANNEL_TEST_FREQUENCY`: When set, it periodically tests the channels, with the unit in minutes. If not set, no test will happen.
     + Example: `CHANNEL_TEST_FREQUENCY=1440`
-10. `POLLING_INTERVAL`: The time interval (in seconds) between requests when updating channel balances and testing channel availability. Default is no interval.
+11. `POLLING_INTERVAL`: The time interval (in seconds) between requests when updating channel balances and testing channel availability. Default is no interval.
     + Example: `POLLING_INTERVAL=5`
+12. `BATCH_UPDATE_ENABLED`: Enabling batch database update aggregation can cause a certain delay in updating user quotas. The optional values are 'true' and 'false', but if not set, it defaults to 'false'.
+    +Example: ` BATCH_UPDATE_ENABLED=true`
+    +If you encounter an issue with too many database connections, you can try enabling this option.
+13. `BATCH_UPDATE_INTERVAL=5`: The time interval for batch updating aggregates, measured in seconds, defaults to '5'.
+    +Example: ` BATCH_UPDATE_INTERVAL=5`
+14. Request frequency limit:
+    + `GLOBAL_API_RATE_LIMIT`: Global API rate limit (excluding relay requests), the maximum number of requests within three minutes per IP, default to 180.
+    + `GLOBAL_WEL_RATE_LIMIT`: Global web speed limit, the maximum number of requests within three minutes per IP, default to 60.
+15. Encoder cache settings:
+    +`TIKTOKEN_CACHE_DIR`: By default, when the program starts, it will download the encoding of some common word elements online, such as' gpt-3.5 turbo '. In some unstable network environments or offline situations, it may cause startup problems. This directory can be configured to cache data and can be migrated to an offline environment.
+    +`DATA_GYM_CACHE_DIR`: Currently, this configuration has the same function as' TIKTOKEN-CACHE-DIR ', but its priority is not as high as it.
+16. `RELAY_TIMEOUT`: Relay timeout setting, measured in seconds, with no default timeout time set.
+17. `RELAY_PROXY`: After setting up, use this proxy to request APIs.
+18. `USER_CONTENT_REQUEST_TIMEOUT`: The timeout period for users to upload and download content, measured in seconds.
+19. `USER_CONTENT_REQUEST_PROXY`: After setting up, use this agent to request content uploaded by users, such as images.
+20. `SQLITE_BUSY_TIMEOUT`: SQLite lock wait timeout setting, measured in milliseconds, default to '3000'.
+21. `GEMINI_SAFETY_SETTING`: Gemini's security settings are set to 'BLOCK-NONE' by default.
+22. `GEMINI_VERSION`: The Gemini version used by the One API, which defaults to 'v1'.
+23. `THE`: The system's theme setting, default to 'default', specific optional values refer to [here] (./web/README. md).
+24. `ENABLE_METRIC`: Whether to disable channels based on request success rate, default not enabled, optional values are 'true' and 'false'.
+25. `METRIC_QUEUE_SIZE`: Request success rate statistics queue size, default to '10'.
+26. `METRIC_SUCCESS_RATE_THRESHOLD`: Request success rate threshold, default to '0.8'.
+27. `INITIAL_ROOT_TOKEN`: If this value is set, a root user token with the value of the environment variable will be automatically created when the system starts for the first time.
+28. `INITIAL_ROOT_ACCESS_TOKEN`: If this value is set, a system management token will be automatically created for the root user with a value of the environment variable when the system starts for the first time.
 
 ### Command Line Parameters
 1. `--port <port_number>`: Specifies the port number on which the server listens. Defaults to `3000`.
