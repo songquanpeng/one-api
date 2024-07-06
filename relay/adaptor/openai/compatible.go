@@ -10,6 +10,7 @@ import (
 	"github.com/songquanpeng/one-api/relay/adaptor/minimax"
 	"github.com/songquanpeng/one-api/relay/adaptor/mistral"
 	"github.com/songquanpeng/one-api/relay/adaptor/moonshot"
+	"github.com/songquanpeng/one-api/relay/adaptor/novita"
 	"github.com/songquanpeng/one-api/relay/adaptor/stepfun"
 	"github.com/songquanpeng/one-api/relay/adaptor/togetherai"
 	"github.com/songquanpeng/one-api/relay/channeltype"
@@ -28,6 +29,7 @@ var CompatibleChannels = []int{
 	channeltype.StepFun,
 	channeltype.DeepSeek,
 	channeltype.TogetherAI,
+	channeltype.Novita,
 }
 
 func GetCompatibleChannelMeta(channelType int) (string, []string) {
@@ -56,6 +58,8 @@ func GetCompatibleChannelMeta(channelType int) (string, []string) {
 		return "together.ai", togetherai.ModelList
 	case channeltype.Doubao:
 		return "doubao", doubao.ModelList
+	case channeltype.Novita:
+		return "novita", novita.ModelList
 	default:
 		return "openai", ModelList
 	}
