@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/songquanpeng/one-api/relay/adaptor"
@@ -28,14 +29,32 @@ func (a *Adaptor) Init(meta *meta.Meta) {
 	a.meta = meta
 }
 
+// WorkerAI cannot be used across accounts with AIGateWay
+// https://developers.cloudflare.com/ai-gateway/providers/workersai/#openai-compatible-endpoints
+// https://gateway.ai.cloudflare.com/v1/{account_id}/{gateway_id}/workers-ai
+func (a *Adaptor) isAIGateWay(baseURL string) bool {
+	return strings.HasPrefix(baseURL, "https://gateway.ai.cloudflare.com") && strings.HasSuffix(baseURL, "/workers-ai")
+}
+
 func (a *Adaptor) GetRequestURL(meta *meta.Meta) (string, error) {
+	isAIGateWay := a.isAIGateWay(meta.BaseURL)
+	var urlPrefix string
+	if isAIGateWay {
+		urlPrefix = meta.BaseURL
+	} else {
+		urlPrefix = fmt.Sprintf("%s/client/v4/accounts/%s/ai", meta.BaseURL, meta.Config.UserID)
+	}
+
 	switch meta.Mode {
 	case relaymode.ChatCompletions:
-		return fmt.Sprintf("%s/client/v4/accounts/%s/ai/v1/chat/completions", meta.BaseURL, meta.Config.UserID), nil
+		return fmt.Sprintf("%s/v1/chat/completions", urlPrefix), nil
 	case relaymode.Embeddings:
-		return fmt.Sprintf("%s/client/v4/accounts/%s/ai/v1/embeddings", meta.BaseURL, meta.Config.UserID), nil
+		return fmt.Sprintf("%s/v1/embeddings", urlPrefix), nil
 	default:
-		return fmt.Sprintf("%s/client/v4/accounts/%s/ai/run/%s", meta.BaseURL, meta.Config.UserID, meta.ActualModelName), nil
+		if isAIGateWay {
+			return fmt.Sprintf("%s/%s", urlPrefix, meta.ActualModelName), nil
+		}
+		return fmt.Sprintf("%s/run/%s", urlPrefix, meta.ActualModelName), nil
 	}
 }
 
