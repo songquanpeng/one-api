@@ -4,10 +4,11 @@ import (
 	"bufio"
 	"bytes"
 	"encoding/json"
-	"github.com/songquanpeng/one-api/common/render"
 	"io"
 	"net/http"
 	"strings"
+
+	"github.com/songquanpeng/one-api/common/render"
 
 	"github.com/gin-gonic/gin"
 	"github.com/songquanpeng/one-api/common"
@@ -31,6 +32,7 @@ func StreamHandler(c *gin.Context, resp *http.Response, relayMode int) (*model.E
 
 	common.SetEventStreamHeaders(c)
 
+	doneRendered := false
 	for scanner.Scan() {
 		data := scanner.Text()
 		if len(data) < dataPrefixLength { // ignore blank line or wrong format
@@ -41,6 +43,7 @@ func StreamHandler(c *gin.Context, resp *http.Response, relayMode int) (*model.E
 		}
 		if strings.HasPrefix(data[dataPrefixLength:], done) {
 			render.StringData(c, data)
+			doneRendered = true
 			continue
 		}
 		switch relayMode {
@@ -81,7 +84,9 @@ func StreamHandler(c *gin.Context, resp *http.Response, relayMode int) (*model.E
 		logger.SysError("error reading stream: " + err.Error())
 	}
 
-	render.Done(c)
+	if !doneRendered {
+		render.Done(c)
+	}
 
 	err := resp.Body.Close()
 	if err != nil {
