@@ -506,7 +506,7 @@ const EditChannel = () => {
               />)
           }
           {
-            inputs.type !== 33 && (batch ? <Form.Field>
+            inputs.type !== 33 && inputs.type !== 42 && (batch ? <Form.Field>
               <Form.TextArea
                 label='密钥'
                 name='key'
