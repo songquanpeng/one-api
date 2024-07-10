@@ -97,7 +97,11 @@ func CountTokenMessages(messages []model.Message, model string) int {
 				m := it.(map[string]any)
 				switch m["type"] {
 				case "text":
-					tokenNum += getTokenNum(tokenEncoder, m["text"].(string))
+					if textValue, ok := m["text"]; ok {
+						if textString, ok := textValue.(string); ok {
+							tokenNum += getTokenNum(tokenEncoder, textString)
+						}
+					}
 				case "image_url":
 					imageUrl, ok := m["image_url"].(map[string]any)
 					if ok {
