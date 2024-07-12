@@ -31,8 +31,8 @@ var Cache = cache.New(50*time.Minute, 55*time.Minute)
 
 const defaultScope = "https://www.googleapis.com/auth/cloud-platform"
 
-func getToken(ctx context.Context,  adcJson string) (string, error) {
-	cacheKey := "vertexai-token"
+func getToken(ctx context.Context, channelId int, adcJson string) (string, error) {
+	cacheKey := fmt.Sprintf("vertexai-token-%d", channelId)
 	if token, found := Cache.Get(cacheKey); found {
 		return token.(string), nil
 	}
