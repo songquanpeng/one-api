@@ -88,7 +88,7 @@ func main() {
 	if config.EnableMetric {
 		logger.SysLog("metric enabled, will disable channel if too much request failed")
 	}
-	openai.InitTokenEncoders()
+	go openai.InitTokenEncoders()
 	client.Init()
 
 	// Initialize HTTP server
