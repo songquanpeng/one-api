@@ -58,7 +58,9 @@ const EditChannel = () => {
     region: '',
     sk: '',
     ak: '',
-    user_id: ''
+    user_id: '',
+    vertex_ai_project_id: '',
+    vertex_ai_adc: ''
   });
   const handleInputChange = (e, { name, value }) => {
     setInputs((inputs) => ({ ...inputs, [name]: value }));
@@ -160,6 +162,8 @@ const EditChannel = () => {
     if (inputs.key === '') {
       if (config.ak !== '' && config.sk !== '' && config.region !== '') {
         inputs.key = `${config.ak}|${config.sk}|${config.region}`;
+      } else if (config.region !== '' && config.vertex_ai_project_id !== '' && config.vertex_ai_adc !== '') {
+        inputs.key = `${config.region}|${config.vertex_ai_project_id}|${config.vertex_ai_adc}`;
       }
     }
     if (!isEdit && (inputs.name === '' || inputs.key === '')) {
@@ -457,6 +461,39 @@ const EditChannel = () => {
             )
           }
           {
+            inputs.type === 42 && (
+              <Form.Field>
+                <Form.Input
+                  label='Region'
+                  name='region'
+                  required
+                  placeholder={'Vertex AI Region.g. us-east5'}
+                  onChange={handleConfigChange}
+                  value={config.region}
+                  autoComplete=''
+                />
+                <Form.Input
+                  label='Vertex AI Project ID'
+                  name='vertex_ai_project_id'
+                  required
+                  placeholder={'Vertex AI Project ID'}
+                  onChange={handleConfigChange}
+                  value={config.vertex_ai_project_id}
+                  autoComplete=''
+                />
+                <Form.Input
+                  label='Google Cloud Application Default Credentials JSON'
+                  name='vertex_ai_adc'
+                  required
+                  placeholder={'Google Cloud Application Default Credentials JSON'}
+                  onChange={handleConfigChange}
+                  value={config.vertex_ai_adc}
+                  autoComplete=''
+                />
+              </Form.Field>
+            )
+          }
+          {
             inputs.type === 34 && (
               <Form.Input
                 label='User ID'
@@ -469,7 +506,7 @@ const EditChannel = () => {
               />)
           }
           {
-            inputs.type !== 33 && (batch ? <Form.Field>
+            inputs.type !== 33 && inputs.type !== 42 && (batch ? <Form.Field>
               <Form.TextArea
                 label='密钥'
                 name='key'
