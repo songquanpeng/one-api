@@ -19,7 +19,7 @@ var _ adaptor.Adaptor = new(Adaptor)
 
 const channelName = "vertexai"
 
-type Adaptor struct {}
+type Adaptor struct{}
 
 func (a *Adaptor) Init(meta *meta.Meta) {
 }
@@ -75,8 +75,24 @@ func (a *Adaptor) GetRequestURL(meta *meta.Meta) (string, error) {
 		}
 	}
 
-	baseUrl := fmt.Sprintf("https://%s-aiplatform.googleapis.com/v1/projects/%s/locations/%s/publishers/google/models/%s:%s", meta.Config.Region, meta.Config.VertexAIProjectID, meta.Config.Region, meta.ActualModelName, suffix)
-	return baseUrl, nil
+	if meta.BaseURL != "" {
+		return fmt.Sprintf(
+			"%s/v1/projects/%s/locations/%s/publishers/google/models/%s:%s",
+			meta.BaseURL,
+			meta.Config.VertexAIProjectID,
+			meta.Config.Region,
+			meta.ActualModelName,
+			suffix,
+		), nil
+	}
+	return fmt.Sprintf(
+		"https://%s-aiplatform.googleapis.com/v1/projects/%s/locations/%s/publishers/google/models/%s:%s",
+		meta.Config.Region,
+		meta.Config.VertexAIProjectID,
+		meta.Config.Region,
+		meta.ActualModelName,
+		suffix,
+	), nil
 }
 
 func (a *Adaptor) SetupRequestHeader(c *gin.Context, req *http.Request, meta *meta.Meta) error {
