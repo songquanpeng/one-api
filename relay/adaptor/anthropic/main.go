@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
+	"github.com/songquanpeng/one-api/common/render"
 	"io"
 	"net/http"
 	"strings"
@@ -28,12 +29,30 @@ func stopReasonClaude2OpenAI(reason *string) string {
 		return "stop"
 	case "max_tokens":
 		return "length"
+	case "tool_use":
+		return "tool_calls"
 	default:
 		return *reason
 	}
 }
 
 func ConvertRequest(textRequest model.GeneralOpenAIRequest) *Request {
+	claudeTools := make([]Tool, 0, len(textRequest.Tools))
+
+	for _, tool := range textRequest.Tools {
+		if params, ok := tool.Function.Parameters.(map[string]any); ok {
+			claudeTools = append(claudeTools, Tool{
+				Name:        tool.Function.Name,
+				Description: tool.Function.Description,
+				InputSchema: InputSchema{
+					Type:       params["type"].(string),
+					Properties: params["properties"],
+					Required:   params["required"],
+				},
+			})
+		}
+	}
+
 	claudeRequest := Request{
 		Model:       textRequest.Model,
 		MaxTokens:   textRequest.MaxTokens,
@@ -41,6 +60,24 @@ func ConvertRequest(textRequest model.GeneralOpenAIRequest) *Request {
 		TopP:        textRequest.TopP,
 		TopK:        textRequest.TopK,
 		Stream:      textRequest.Stream,
+		Tools:       claudeTools,
+	}
+	if len(claudeTools) > 0 {
+		claudeToolChoice := struct {
+			Type string `json:"type"`
+			Name string `json:"name,omitempty"`
+		}{Type: "auto"} // default value https://docs.anthropic.com/en/docs/build-with-claude/tool-use#controlling-claudes-output
+		if choice, ok := textRequest.ToolChoice.(map[string]any); ok {
+			if function, ok := choice["function"].(map[string]any); ok {
+				claudeToolChoice.Type = "tool"
+				claudeToolChoice.Name = function["name"].(string)
+			}
+		} else if toolChoiceType, ok := textRequest.ToolChoice.(string); ok {
+			if toolChoiceType == "any" {
+				claudeToolChoice.Type = toolChoiceType
+			}
+		}
+		claudeRequest.ToolChoice = claudeToolChoice
 	}
 	if claudeRequest.MaxTokens == 0 {
 		claudeRequest.MaxTokens = 4096
@@ -63,7 +100,24 @@ func ConvertRequest(textRequest model.GeneralOpenAIRequest) *Request {
 		if message.IsStringContent() {
 			content.Type = "text"
 			content.Text = message.StringContent()
+			if message.Role == "tool" {
+				claudeMessage.Role = "user"
+				content.Type = "tool_result"
+				content.Content = content.Text
+				content.Text = ""
+				content.ToolUseId = message.ToolCallId
+			}
 			claudeMessage.Content = append(claudeMessage.Content, content)
+			for i := range message.ToolCalls {
+				inputParam := make(map[string]any)
+				_ = json.Unmarshal([]byte(message.ToolCalls[i].Function.Arguments.(string)), &inputParam)
+				claudeMessage.Content = append(claudeMessage.Content, Content{
+					Type:  "tool_use",
+					Id:    message.ToolCalls[i].Id,
+					Name:  message.ToolCalls[i].Function.Name,
+					Input: inputParam,
+				})
+			}
 			claudeRequest.Messages = append(claudeRequest.Messages, claudeMessage)
 			continue
 		}
@@ -96,16 +150,35 @@ func StreamResponseClaude2OpenAI(claudeResponse *StreamResponse) (*openai.ChatCo
 	var response *Response
 	var responseText string
 	var stopReason string
+	tools := make([]model.Tool, 0)
+
 	switch claudeResponse.Type {
 	case "message_start":
 		return nil, claudeResponse.Message
 	case "content_block_start":
 		if claudeResponse.ContentBlock != nil {
 			responseText = claudeResponse.ContentBlock.Text
+			if claudeResponse.ContentBlock.Type == "tool_use" {
+				tools = append(tools, model.Tool{
+					Id:   claudeResponse.ContentBlock.Id,
+					Type: "function",
+					Function: model.Function{
+						Name:      claudeResponse.ContentBlock.Name,
+						Arguments: "",
+					},
+				})
+			}
 		}
 	case "content_block_delta":
 		if claudeResponse.Delta != nil {
 			responseText = claudeResponse.Delta.Text
+			if claudeResponse.Delta.Type == "input_json_delta" {
+				tools = append(tools, model.Tool{
+					Function: model.Function{
+						Arguments: claudeResponse.Delta.PartialJson,
+					},
+				})
+			}
 		}
 	case "message_delta":
 		if claudeResponse.Usage != nil {
@@ -119,6 +192,10 @@ func StreamResponseClaude2OpenAI(claudeResponse *StreamResponse) (*openai.ChatCo
 	}
 	var choice openai.ChatCompletionsStreamResponseChoice
 	choice.Delta.Content = responseText
+	if len(tools) > 0 {
+		choice.Delta.Content = nil // compatible with other OpenAI derivative applications, like LobeOpenAICompatibleFactory ...
+		choice.Delta.ToolCalls = tools
+	}
 	choice.Delta.Role = "assistant"
 	finishReason := stopReasonClaude2OpenAI(&stopReason)
 	if finishReason != "null" {
@@ -135,12 +212,27 @@ func ResponseClaude2OpenAI(claudeResponse *Response) *openai.TextResponse {
 	if len(claudeResponse.Content) > 0 {
 		responseText = claudeResponse.Content[0].Text
 	}
+	tools := make([]model.Tool, 0)
+	for _, v := range claudeResponse.Content {
+		if v.Type == "tool_use" {
+			args, _ := json.Marshal(v.Input)
+			tools = append(tools, model.Tool{
+				Id:   v.Id,
+				Type: "function", // compatible with other OpenAI derivative applications
+				Function: model.Function{
+					Name:      v.Name,
+					Arguments: string(args),
+				},
+			})
+		}
+	}
 	choice := openai.TextResponseChoice{
 		Index: 0,
 		Message: model.Message{
-			Role:    "assistant",
-			Content: responseText,
-			Name:    nil,
+			Role:      "assistant",
+			Content:   responseText,
+			Name:      nil,
+			ToolCalls: tools,
 		},
 		FinishReason: stopReasonClaude2OpenAI(claudeResponse.StopReason),
 	}
@@ -169,64 +261,77 @@ func StreamHandler(c *gin.Context, resp *http.Response) (*model.ErrorWithStatusC
 		}
 		return 0, nil, nil
 	})
-	dataChan := make(chan string)
-	stopChan := make(chan bool)
-	go func() {
-		for scanner.Scan() {
-			data := scanner.Text()
-			if len(data) < 6 {
-				continue
-			}
-			if !strings.HasPrefix(data, "data:") {
-				continue
-			}
-			data = strings.TrimPrefix(data, "data:")
-			dataChan <- data
-		}
-		stopChan <- true
-	}()
+
 	common.SetEventStreamHeaders(c)
+
 	var usage model.Usage
 	var modelName string
 	var id string
-	c.Stream(func(w io.Writer) bool {
-		select {
-		case data := <-dataChan:
-			// some implementations may add \r at the end of data
-			data = strings.TrimSpace(data)
-			var claudeResponse StreamResponse
-			err := json.Unmarshal([]byte(data), &claudeResponse)
-			if err != nil {
-				logger.SysError("error unmarshalling stream response: " + err.Error())
-				return true
-			}
-			response, meta := StreamResponseClaude2OpenAI(&claudeResponse)
-			if meta != nil {
-				usage.PromptTokens += meta.Usage.InputTokens
-				usage.CompletionTokens += meta.Usage.OutputTokens
+	var lastToolCallChoice openai.ChatCompletionsStreamResponseChoice
+
+	for scanner.Scan() {
+		data := scanner.Text()
+		if len(data) < 6 || !strings.HasPrefix(data, "data:") {
+			continue
+		}
+		data = strings.TrimPrefix(data, "data:")
+		data = strings.TrimSpace(data)
+
+		var claudeResponse StreamResponse
+		err := json.Unmarshal([]byte(data), &claudeResponse)
+		if err != nil {
+			logger.SysError("error unmarshalling stream response: " + err.Error())
+			continue
+		}
+
+		response, meta := StreamResponseClaude2OpenAI(&claudeResponse)
+		if meta != nil {
+			usage.PromptTokens += meta.Usage.InputTokens
+			usage.CompletionTokens += meta.Usage.OutputTokens
+			if len(meta.Id) > 0 { // only message_start has an id, otherwise it's a finish_reason event.
 				modelName = meta.Model
 				id = fmt.Sprintf("chatcmpl-%s", meta.Id)
-				return true
+				continue
+			} else { // finish_reason case
+				if len(lastToolCallChoice.Delta.ToolCalls) > 0 {
+					lastArgs := &lastToolCallChoice.Delta.ToolCalls[len(lastToolCallChoice.Delta.ToolCalls)-1].Function
+					if len(lastArgs.Arguments.(string)) == 0 { // compatible with OpenAI sending an empty object `{}` when no arguments.
+						lastArgs.Arguments = "{}"
+						response.Choices[len(response.Choices)-1].Delta.Content = nil
+						response.Choices[len(response.Choices)-1].Delta.ToolCalls = lastToolCallChoice.Delta.ToolCalls
+					}
+				}
 			}
-			if response == nil {
-				return true
-			}
-			response.Id = id
-			response.Model = modelName
-			response.Created = createdTime
-			jsonStr, err := json.Marshal(response)
-			if err != nil {
-				logger.SysError("error marshalling stream response: " + err.Error())
-				return true
-			}
-			c.Render(-1, common.CustomEvent{Data: "data: " + string(jsonStr)})
-			return true
-		case <-stopChan:
-			c.Render(-1, common.CustomEvent{Data: "data: [DONE]"})
-			return false
 		}
-	})
-	_ = resp.Body.Close()
+		if response == nil {
+			continue
+		}
+
+		response.Id = id
+		response.Model = modelName
+		response.Created = createdTime
+
+		for _, choice := range response.Choices {
+			if len(choice.Delta.ToolCalls) > 0 {
+				lastToolCallChoice = choice
+			}
+		}
+		err = render.ObjectData(c, response)
+		if err != nil {
+			logger.SysError(err.Error())
+		}
+	}
+
+	if err := scanner.Err(); err != nil {
+		logger.SysError("error reading stream: " + err.Error())
+	}
+
+	render.Done(c)
+
+	err := resp.Body.Close()
+	if err != nil {
+		return openai.ErrorWrapper(err, "close_response_body_failed", http.StatusInternalServerError), nil
+	}
 	return nil, &usage
 }
 

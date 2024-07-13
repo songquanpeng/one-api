@@ -143,7 +143,11 @@ var MetricFailChanSize = env.Int("METRIC_FAIL_CHAN_SIZE", 128)
 
 var InitialRootToken = os.Getenv("INITIAL_ROOT_TOKEN")
 
+var InitialRootAccessToken = os.Getenv("INITIAL_ROOT_ACCESS_TOKEN")
+
 var GeminiVersion = env.String("GEMINI_VERSION", "v1")
+
+var OnlyOneLogFile = env.Bool("ONLY_ONE_LOG_FILE", false)
 
 var RelayProxy = env.String("RELAY_PROXY", "")
 var UserContentRequestProxy = env.String("USER_CONTENT_REQUEST_PROXY", "")

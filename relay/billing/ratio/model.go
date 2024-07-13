@@ -2,6 +2,7 @@ package ratio
 
 import (
 	"encoding/json"
+	"fmt"
 	"strings"
 
 	"github.com/songquanpeng/one-api/common/logger"
@@ -70,12 +71,13 @@ var ModelRatio = map[string]float64{
 	"dall-e-2":                0.02 * USD, // $0.016 - $0.020 / image
 	"dall-e-3":                0.04 * USD, // $0.040 - $0.120 / image
 	// https://www.anthropic.com/api#pricing
-	"claude-instant-1.2":       0.8 / 1000 * USD,
-	"claude-2.0":               8.0 / 1000 * USD,
-	"claude-2.1":               8.0 / 1000 * USD,
-	"claude-3-haiku-20240307":  0.25 / 1000 * USD,
-	"claude-3-sonnet-20240229": 3.0 / 1000 * USD,
-	"claude-3-opus-20240229":   15.0 / 1000 * USD,
+	"claude-instant-1.2":         0.8 / 1000 * USD,
+	"claude-2.0":                 8.0 / 1000 * USD,
+	"claude-2.1":                 8.0 / 1000 * USD,
+	"claude-3-haiku-20240307":    0.25 / 1000 * USD,
+	"claude-3-sonnet-20240229":   3.0 / 1000 * USD,
+	"claude-3-5-sonnet-20240620": 3.0 / 1000 * USD,
+	"claude-3-opus-20240229":     15.0 / 1000 * USD,
 	// https://cloud.baidu.com/doc/WENXINWORKSHOP/s/hlrk4akp7
 	"ERNIE-4.0-8K":       0.120 * RMB,
 	"ERNIE-3.5-8K":       0.012 * RMB,
@@ -124,6 +126,7 @@ var ModelRatio = map[string]float64{
 	"SparkDesk-v2.1":            1.2858, // ￥0.018 / 1k tokens
 	"SparkDesk-v3.1":            1.2858, // ￥0.018 / 1k tokens
 	"SparkDesk-v3.5":            1.2858, // ￥0.018 / 1k tokens
+	"SparkDesk-v4.0":            1.2858, // ￥0.018 / 1k tokens
 	"360GPT_S2_V9":              0.8572, // ¥0.012 / 1k tokens
 	"embedding-bert-512-v1":     0.0715, // ¥0.001 / 1k tokens
 	"embedding_s1_v1":           0.0715, // ¥0.001 / 1k tokens
@@ -167,6 +170,9 @@ var ModelRatio = map[string]float64{
 	"step-1v-32k": 0.024 * RMB,
 	"step-1-32k":  0.024 * RMB,
 	"step-1-200k": 0.15 * RMB,
+	// aws llama3 https://aws.amazon.com/cn/bedrock/pricing/
+	"llama3-8b-8192(33)":  0.0003 / 0.002,  // $0.0003 / 1K tokens
+	"llama3-70b-8192(33)": 0.00265 / 0.002, // $0.00265 / 1K tokens
 	// https://cohere.com/pricing
 	"command":               0.5,
 	"command-nightly":       0.5,
@@ -183,7 +189,11 @@ var ModelRatio = map[string]float64{
 	"deepl-ja": 25.0 / 1000 * USD,
 }
 
-var CompletionRatio = map[string]float64{}
+var CompletionRatio = map[string]float64{
+	// aws llama3
+	"llama3-8b-8192(33)":  0.0006 / 0.0003,
+	"llama3-70b-8192(33)": 0.0035 / 0.00265,
+}
 
 var DefaultModelRatio map[string]float64
 var DefaultCompletionRatio map[string]float64
@@ -232,22 +242,28 @@ func UpdateModelRatioByJSONString(jsonStr string) error {
 	return json.Unmarshal([]byte(jsonStr), &ModelRatio)
 }
 
-func GetModelRatio(name string) float64 {
+func GetModelRatio(name string, channelType int) float64 {
 	if strings.HasPrefix(name, "qwen-") && strings.HasSuffix(name, "-internet") {
 		name = strings.TrimSuffix(name, "-internet")
 	}
 	if strings.HasPrefix(name, "command-") && strings.HasSuffix(name, "-internet") {
 		name = strings.TrimSuffix(name, "-internet")
 	}
-	ratio, ok := ModelRatio[name]
-	if !ok {
-		ratio, ok = DefaultModelRatio[name]
+	model := fmt.Sprintf("%s(%d)", name, channelType)
+	if ratio, ok := ModelRatio[model]; ok {
+		return ratio
 	}
-	if !ok {
-		logger.SysError("model ratio not found: " + name)
-		return 30
+	if ratio, ok := DefaultModelRatio[model]; ok {
+		return ratio
 	}
-	return ratio
+	if ratio, ok := ModelRatio[name]; ok {
+		return ratio
+	}
+	if ratio, ok := DefaultModelRatio[name]; ok {
+		return ratio
+	}
+	logger.SysError("model ratio not found: " + name)
+	return 30
 }
 
 func CompletionRatio2JSONString() string {
@@ -263,7 +279,17 @@ func UpdateCompletionRatioByJSONString(jsonStr string) error {
 	return json.Unmarshal([]byte(jsonStr), &CompletionRatio)
 }
 
-func GetCompletionRatio(name string) float64 {
+func GetCompletionRatio(name string, channelType int) float64 {
+	if strings.HasPrefix(name, "qwen-") && strings.HasSuffix(name, "-internet") {
+		name = strings.TrimSuffix(name, "-internet")
+	}
+	model := fmt.Sprintf("%s(%d)", name, channelType)
+	if ratio, ok := CompletionRatio[model]; ok {
+		return ratio
+	}
+	if ratio, ok := DefaultCompletionRatio[model]; ok {
+		return ratio
+	}
 	if ratio, ok := CompletionRatio[name]; ok {
 		return ratio
 	}

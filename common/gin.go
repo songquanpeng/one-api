@@ -6,12 +6,11 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/pkg/errors"
+	"github.com/songquanpeng/one-api/common/ctxkey"
 )
 
-const KeyRequestBody = "key_request_body"
-
 func GetRequestBody(c *gin.Context) ([]byte, error) {
-	requestBody, _ := c.Get(KeyRequestBody)
+	requestBody, _ := c.Get(ctxkey.KeyRequestBody)
 	if requestBody != nil {
 		return requestBody.([]byte), nil
 	}
@@ -20,7 +19,7 @@ func GetRequestBody(c *gin.Context) ([]byte, error) {
 		return nil, err
 	}
 	_ = c.Request.Body.Close()
-	c.Set(KeyRequestBody, requestBody)
+	c.Set(ctxkey.KeyRequestBody, requestBody)
 	return requestBody.([]byte), nil
 }
 

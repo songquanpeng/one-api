@@ -45,7 +45,7 @@ func Relay(c *gin.Context) {
 	ctx := c.Request.Context()
 	relayMode := relaymode.GetByPath(c.Request.URL.Path)
 	channelId := c.GetInt(ctxkey.ChannelId)
-	userId := c.GetInt("id")
+	userId := c.GetInt(ctxkey.Id)
 	bizErr := relayHelper(c, relayMode)
 	if bizErr == nil {
 		monitor.Emit(channelId, true)
@@ -55,8 +55,8 @@ func Relay(c *gin.Context) {
 	channelName := c.GetString(ctxkey.ChannelName)
 	group := c.GetString(ctxkey.Group)
 	originalModel := c.GetString(ctxkey.OriginalModel)
-  
-  // BUG: bizErr is shared, should not run this function in goroutine to avoid race
+
+	// BUG: bizErr is shared, should not run this function in goroutine to avoid race
 	go processChannelRelayError(ctx, userId, channelId, channelName, bizErr)
 	requestId := c.GetString(helper.RequestIdKey)
 	retryTimes := config.RetryTimes
@@ -85,7 +85,7 @@ func Relay(c *gin.Context) {
 		lastFailedChannelId = channelId
 		channelName := c.GetString(ctxkey.ChannelName)
 
-    // BUG: bizErr is shared, should not run this function in goroutine to avoid race
+		// BUG: bizErr is shared, should not run this function in goroutine to avoid race
 		go processChannelRelayError(ctx, userId, channelId, channelName, bizErr)
 	}
 
