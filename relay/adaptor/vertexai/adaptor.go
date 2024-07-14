@@ -63,13 +63,13 @@ func (a *Adaptor) GetRequestURL(meta *meta.Meta) (string, error) {
 	suffix := ""
 	if strings.HasPrefix(meta.ActualModelName, "gemini") {
 		if meta.IsStream {
-			suffix = "streamGenerateContent"
+			suffix = "streamGenerateContent?alt=sse"
 		} else {
 			suffix = "generateContent"
 		}
 	} else {
 		if meta.IsStream {
-			suffix = "streamRawPredict"
+			suffix = "streamRawPredict?alt=sse"
 		} else {
 			suffix = "rawPredict"
 		}
