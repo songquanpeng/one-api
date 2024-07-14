@@ -3,11 +3,12 @@ package middleware
 import (
 	"context"
 	"fmt"
+	"net/http"
+	"time"
+
 	"github.com/gin-gonic/gin"
 	"github.com/songquanpeng/one-api/common"
 	"github.com/songquanpeng/one-api/common/config"
-	"net/http"
-	"time"
 )
 
 var timeFormat = "2006-01-02T15:04:05.000Z"
@@ -70,6 +71,11 @@ func memoryRateLimiter(c *gin.Context, maxRequestNum int, duration int64, mark s
 }
 
 func rateLimitFactory(maxRequestNum int, duration int64, mark string) func(c *gin.Context) {
+	if maxRequestNum == 0 {
+		return func(c *gin.Context) {
+			c.Next()
+		}
+	}
 	if common.RedisEnabled {
 		return func(c *gin.Context) {
 			redisRateLimiter(c, maxRequestNum, duration, mark)
