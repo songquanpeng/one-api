@@ -147,7 +147,6 @@ var InitialRootAccessToken = os.Getenv("INITIAL_ROOT_ACCESS_TOKEN")
 
 var GeminiVersion = env.String("GEMINI_VERSION", "v1")
 
-
 var OnlyOneLogFile = env.Bool("ONLY_ONE_LOG_FILE", false)
 
 var RelayProxy = env.String("RELAY_PROXY", "")

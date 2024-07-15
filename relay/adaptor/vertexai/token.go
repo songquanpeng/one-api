@@ -26,7 +26,6 @@ type ApplicationDefaultCredentials struct {
 	UniverseDomain          string `json:"universe_domain"`
 }
 
-
 var Cache = cache.New(50*time.Minute, 55*time.Minute)
 
 const defaultScope = "https://www.googleapis.com/auth/cloud-platform"
