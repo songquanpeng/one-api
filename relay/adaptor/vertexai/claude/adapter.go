@@ -30,13 +30,14 @@ func (a *Adaptor) ConvertRequest(c *gin.Context, relayMode int, request *model.G
 	req := Request{
 		AnthropicVersion: anthropicVersion,
 		// Model:            claudeReq.Model,
-		Messages:         claudeReq.Messages,
-		MaxTokens:        claudeReq.MaxTokens,
-		Temperature:      claudeReq.Temperature,
-		TopP:             claudeReq.TopP,
-		TopK:             claudeReq.TopK,
-		Stream:           claudeReq.Stream,
-		Tools:            claudeReq.Tools,
+		Messages:    claudeReq.Messages,
+		System:      claudeReq.System,
+		MaxTokens:   claudeReq.MaxTokens,
+		Temperature: claudeReq.Temperature,
+		TopP:        claudeReq.TopP,
+		TopK:        claudeReq.TopK,
+		Stream:      claudeReq.Stream,
+		Tools:       claudeReq.Tools,
 	}
 
 	c.Set(ctxkey.RequestModel, request.Model)
