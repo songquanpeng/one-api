@@ -71,7 +71,7 @@ func RelayAudioHelper(c *gin.Context, relayMode int) *relaymodel.ErrorWithStatus
 		return openai.ErrorWrapper(err, "get_user_quota_failed", http.StatusInternalServerError)
 	}
 
-	// Check if user quota is enough
+	// Check if user quota is enough Message prompts the user to use Chinese
 	if userQuota-preConsumedQuota < 0 {
 		return openai.ErrorWrapper(errors.New("请移步充值页面进行充值,可在日志中查阅使用明细"), "insufficient_user_quota", http.StatusForbidden)
 	}
