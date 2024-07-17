@@ -10,7 +10,9 @@ import (
 	"github.com/songquanpeng/one-api/common/logger"
 	"github.com/songquanpeng/one-api/common/random"
 	"gorm.io/gorm"
+	"log"
 	"strings"
+	"time"
 )
 
 const (
@@ -47,6 +49,7 @@ type User struct {
 	Group            string `json:"group" gorm:"type:varchar(32);default:'default'"`
 	AffCode          string `json:"aff_code" gorm:"type:varchar(32);column:aff_code;uniqueIndex"`
 	InviterId        int    `json:"inviter_id" gorm:"type:int;column:inviter_id;index"`
+	ExpirationDate   int64  `json:"expiration_date" gorm:"column:expiration_date"` // Expiration date of the user's subscription or account.
 }
 
 func GetMaxUserId() int {
@@ -209,6 +212,25 @@ func (user *User) ValidateAndFill() (err error) {
 	okay := common.ValidatePasswordAndHash(password, user.Password)
 	if !okay || user.Status != UserStatusEnabled {
 		return errors.New("用户名或密码错误，或用户已被封禁")
+	}
+	// 校验用户是不是非default,如果是非default,判断到期时间如果过期了降级为default
+	if user.ExpirationDate > 0 {
+		// 将时间戳转换为 time.Time 类型
+		expirationTime := time.Unix(user.ExpirationDate, 0)
+		// 获取当前时间
+		currentTime := time.Now()
+
+		// 比较当前时间和到期时间
+		if expirationTime.Before(currentTime) {
+			// 降级为 default
+			user.Group = "default"
+			err := DB.Model(user).Updates(user).Error
+			if err != nil {
+				fmt.Printf("用户: %s, 降级为 default 时发生错误: %v\n", user.Username, err)
+				return err
+			}
+			fmt.Printf("用户: %s, 特权组过期降为 default\n", user.Username)
+		}
 	}
 	return nil
 }
@@ -434,4 +456,41 @@ func updateUserRequestCount(id int, count int) {
 func GetUsernameById(id int) (username string) {
 	DB.Model(&User{}).Where("id = ?", id).Select("username").Find(&username)
 	return username
+}
+
+func checkAndDowngradeUsers() {
+	var users []User
+
+	// 查询所有 Group 不为 "default" 的用户
+	// 构建查询条件
+	query := DB.Where("`Group` <> ?", "default"). // Group 不等于 "default"
+							Where("`username` <> ?", "root").       // username 不等于 "root"
+							Where("`expiration_date` IS NOT NULL"). // expiration_date 不为空
+							Where("`expiration_date` != ?", -1)     // expiration_date 不等于 -1
+
+	// 执行查询并处理错误
+	if err := query.Find(&users).Error; err != nil {
+		log.Printf("查询用户失败: %v", err)
+		return
+	}
+
+	currentTime := time.Now()
+
+	for _, user := range users {
+		if user.Group != "default" {
+			// 将时间戳转换为 time.Time 类型
+			expirationTime := time.Unix(user.ExpirationDate, 0)
+
+			// 比较当前时间和到期时间
+			if expirationTime.Before(currentTime) {
+				// 降级为 default
+				user.Group = "default"
+				if err := DB.Model(&user).Updates(user).Error; err != nil {
+					log.Printf("更新用户 %s 失败: %v", user.Username, err)
+				} else {
+					fmt.Printf("用户: %s, 特权组过期降为 default\n", user.Username)
+				}
+			}
+		}
+	}
 }
