@@ -1,4 +1,4 @@
-FROM --platform=$BUILDPLATFORM node:16 as builder
+FROM node:16 as builder
 
 WORKDIR /web
 COPY ./VERSION .
