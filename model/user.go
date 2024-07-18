@@ -459,38 +459,21 @@ func GetUsernameById(id int) (username string) {
 }
 
 func checkAndDowngradeUsers() {
-	var users []User
+	// 获取当前时间的 Unix 时间戳
+	currentTime := time.Now().Unix()
 
-	// 查询所有 Group 不为 "default" 的用户
-	// 构建查询条件
-	query := DB.Where("`Group` <> ?", "default"). // Group 不等于 "default"
-							Where("`username` <> ?", "root").       // username 不等于 "root"
-							Where("`expiration_date` IS NOT NULL"). // expiration_date 不为空
-							Where("`expiration_date` != ?", -1)     // expiration_date 不等于 -1
+	// 构建更新条件并执行更新
+	result := DB.Model(&User{}).
+		Where("`Group` <> ?", "default").
+		Where("`username` <> ?", "root").
+		Where("`expiration_date` IS NOT NULL").
+		Where("`expiration_date` != ?", -1).
+		Where("`expiration_date` < ?", currentTime).
+		Update("Group", "default")
 
-	// 执行查询并处理错误
-	if err := query.Find(&users).Error; err != nil {
-		log.Printf("查询用户失败: %v", err)
+	// 处理错误
+	if result.Error != nil {
+		log.Printf("批量更新用户分组失败: %v", result.Error)
 		return
-	}
-
-	currentTime := time.Now()
-
-	for _, user := range users {
-		if user.Group != "default" {
-			// 将时间戳转换为 time.Time 类型
-			expirationTime := time.Unix(user.ExpirationDate, 0)
-
-			// 比较当前时间和到期时间
-			if expirationTime.Before(currentTime) {
-				// 降级为 default
-				user.Group = "default"
-				if err := DB.Model(&user).Updates(user).Error; err != nil {
-					log.Printf("更新用户 %s 失败: %v", user.Username, err)
-				} else {
-					fmt.Printf("用户: %s, 特权组过期降为 default\n", user.Username)
-				}
-			}
-		}
 	}
 }

@@ -78,6 +78,14 @@ func InitOptionMap() {
 	loadOptionsFromDatabase()
 }
 
+func ScheduleCheckAndDowngrade(intervalHours int) {
+	for {
+		logger.SysLog("Check user group levels.")
+		checkAndDowngradeUsers()
+		time.Sleep(time.Duration(intervalHours) * time.Hour)
+	}
+}
+
 func loadOptionsFromDatabase() {
 	options, _ := AllOption()
 	for _, option := range options {
@@ -95,9 +103,6 @@ func SyncOptions(frequency int) {
 	for {
 		time.Sleep(time.Duration(frequency) * time.Second)
 		logger.SysLog("syncing options from database")
-		if config.IsMasterNode {
-			checkAndDowngradeUsers()
-		}
 		loadOptionsFromDatabase()
 	}
 }
