@@ -128,7 +128,7 @@ const EditModal = ({ open, userId, onCancel, onOk }) => {
       // 将 Unix 时间戳转换为日期字符串
       if (data.expiration_date && data.expiration_date !== -1) {
         const date = new Date(data.expiration_date * 1000); // 转换为毫秒级的时间戳
-        data.expiration_date = format(date, 'yyyy-MM-dd\'T\'HH:mm:ss'); // 格式化为 datetime-local 格式
+        data.expiration_date = format(date, 'yyyy-MM-dd'); // 格式化为 date 格式
       }
 
       setInputs(data);
@@ -306,7 +306,7 @@ const EditModal = ({ open, userId, onCancel, onOk }) => {
                         <TextField
                             id="channel-expiration_date-label"
                             label="到期时间"
-                            type="datetime-local" // 修改为 datetime-local
+                            type="date" // 修改为 date
                             value={values.expiration_date}
                             name="expiration_date"
                             onBlur={handleBlur}
@@ -315,7 +315,7 @@ const EditModal = ({ open, userId, onCancel, onOk }) => {
                               shrink: true
                             }}
                             inputProps={{
-                              max: '9999-12-31T23:59:59' // 设置最大日期和时间
+                              max: '9999-12-31' // 设置最大日期
                             }}
                             aria-describedby="helper-text-channel-expiration_date-label"
                             disabled={values.expiration_date === -1}

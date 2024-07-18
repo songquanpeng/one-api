@@ -1,9 +1,11 @@
 package model
 
 import (
+	"github.com/go-co-op/gocron"
 	"github.com/songquanpeng/one-api/common/config"
 	"github.com/songquanpeng/one-api/common/logger"
 	billingratio "github.com/songquanpeng/one-api/relay/billing/ratio"
+	"log"
 	"strconv"
 	"strings"
 	"time"
@@ -78,12 +80,19 @@ func InitOptionMap() {
 	loadOptionsFromDatabase()
 }
 
-func ScheduleCheckAndDowngrade(intervalHours int) {
-	for {
-		logger.SysLog("Check user group levels.")
-		checkAndDowngradeUsers()
-		time.Sleep(time.Duration(intervalHours) * time.Hour)
+func ScheduleCheckAndDowngrade() {
+	s := gocron.NewScheduler(time.UTC)
+
+	// 设置每天0点执行
+	_, err := s.Every(1).Day().At("00:00").Do(checkAndDowngradeUsers)
+
+	if err != nil {
+		log.Fatalf("创建调度任务失败: %v", err)
 	}
+
+	// 开始调度
+	s.StartBlocking()
+	log.Printf("开始调度")
 }
 
 func loadOptionsFromDatabase() {
