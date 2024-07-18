@@ -25,7 +25,7 @@ jobs:
           REPO_URL=$(git config --get remote.origin.url)
           if [[ $REPO_URL == *"pro" ]]; then
             exit 1
-          fi        
+          fi
 
       - name: Save version info
         run: |
