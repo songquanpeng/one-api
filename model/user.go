@@ -459,35 +459,46 @@ func GetUsernameById(id int) (username string) {
 }
 
 func checkAndDowngradeUsers() {
-	// 获取当前时间的前一天的日期部分
-	//yesterday := time.Now().AddDate(0, 0, -1).Format("2006-01-02")
-
 	// 获取昨天的时间戳
 	yesterdayTimestamp := time.Now().AddDate(0, 0, -1).Unix()
-	// Construct the query
+
+	// 获取需要降级的用户ID列表
+	var userList []int
 	query := DB.Model(&User{}).
-		Where("`Group` != ?", "default"). // Use single quotes for string literal
+		Where("`Group` != ?", "default").
 		Where("`username` != ?", "root").
 		Where("`expiration_date` > 0").
-		Where("`expiration_date` <= ?", yesterdayTimestamp)
-	var userList []int
-	query.Select("id").Find(&userList)
-	// 降级更新操作
-	query.Update("Group", "default")
+		Where("`expiration_date` <= ?", yesterdayTimestamp).
+		Select("id").
+		Find(&userList)
 
-	// 处理错误
+	// 处理查询错误
 	if query.Error != nil {
-		log.Printf("批量更新用户分组失败: %v", query.Error)
+		log.Printf("查询用户列表失败: %v", query.Error)
 		return
 	}
+
+	// 如果没有用户需要降级，直接返回
+	if len(userList) == 0 {
+		return
+	}
+
+	// 批量降级用户
+	updateQuery := DB.Model(&User{}).Where("id IN ?", userList).Update("Group", "default")
+
+	// 处理更新错误
+	if updateQuery.Error != nil {
+		log.Printf("批量更新用户分组失败: %v", updateQuery.Error)
+		return
+	}
+
 	// 删除已过期用户的Redis缓存
 	if common.RedisEnabled {
 		for _, userId := range userList {
 			err := common.RedisSet(fmt.Sprintf("user_group:%d", userId), "default", time.Duration(UserId2GroupCacheSeconds)*time.Second)
 			if err != nil {
-				log.Printf("更新用户: %d,权益缓存失败, Error: %v", userId, query.Error)
+				log.Printf("更新用户: %d, 权益缓存失败, Error: %v", userId, err)
 			}
 		}
 	}
-
 }
