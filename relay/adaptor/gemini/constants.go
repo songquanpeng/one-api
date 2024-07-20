@@ -3,6 +3,5 @@ package gemini
 // https://ai.google.dev/models/gemini
 
 var ModelList = []string{
-	"gemini-pro", "gemini-1.0-pro-001", "gemini-1.5-pro",
-	"gemini-pro-vision", "gemini-1.0-pro-vision-001", "embedding-001", "text-embedding-004",
+	"gemini-pro", "gemini-1.0-pro", "gemini-1.5-flash", "gemini-1.5-pro", "text-embedding-004", "aqa",
 }
