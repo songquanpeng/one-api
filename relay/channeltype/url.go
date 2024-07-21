@@ -44,6 +44,7 @@ var ChannelBaseURLs = []string{
 	"https://ark.cn-beijing.volces.com",         // 40
 	"https://api.novita.ai/v3/openai",           // 41
 	"",                                          // 42
+	"",                                          // 43
 }
 
 func init() {
