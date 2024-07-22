@@ -18,11 +18,12 @@ type Meta struct {
 	UserId       int
 	Group        string
 	ModelMapping map[string]string
-	BaseURL      string
-	APIKey       string
-	APIType      int
-	Config       model.ChannelConfig
-	IsStream     bool
+	// BaseURL is the proxy url set in the channel config
+	BaseURL  string
+	APIKey   string
+	APIType  int
+	Config   model.ChannelConfig
+	IsStream bool
 	// OriginModelName is the model name from the raw user request
 	OriginModelName string
 	// ActualModelName is the model name after mapping

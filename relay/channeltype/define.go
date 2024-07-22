@@ -44,5 +44,6 @@ const (
 	Doubao
 	Novita
 	VertextAI
+	Proxy
 	Dummy
 )
