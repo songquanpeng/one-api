@@ -28,15 +28,17 @@ var ModelRatio = map[string]float64{
 	"gpt-4-32k":               30,
 	"gpt-4-32k-0314":          30,
 	"gpt-4-32k-0613":          30,
-	"gpt-4-1106-preview":      5,    // $0.01 / 1K tokens
-	"gpt-4-0125-preview":      5,    // $0.01 / 1K tokens
-	"gpt-4-turbo-preview":     5,    // $0.01 / 1K tokens
-	"gpt-4-turbo":             5,    // $0.01 / 1K tokens
-	"gpt-4-turbo-2024-04-09":  5,    // $0.01 / 1K tokens
-	"gpt-4o":                  2.5,  // $0.005 / 1K tokens
-	"gpt-4o-2024-05-13":       2.5,  // $0.005 / 1K tokens
-	"gpt-4-vision-preview":    5,    // $0.01 / 1K tokens
-	"gpt-3.5-turbo":           0.25, // $0.0005 / 1K tokens
+	"gpt-4-1106-preview":      5,     // $0.01 / 1K tokens
+	"gpt-4-0125-preview":      5,     // $0.01 / 1K tokens
+	"gpt-4-turbo-preview":     5,     // $0.01 / 1K tokens
+	"gpt-4-turbo":             5,     // $0.01 / 1K tokens
+	"gpt-4-turbo-2024-04-09":  5,     // $0.01 / 1K tokens
+	"gpt-4o":                  2.5,   // $0.005 / 1K tokens
+	"gpt-4o-2024-05-13":       2.5,   // $0.005 / 1K tokens
+	"gpt-4o-mini":             0.075, // $0.00015 / 1K tokens
+	"gpt-4o-mini-2024-07-18":  0.075, // $0.00015 / 1K tokens
+	"gpt-4-vision-preview":    5,     // $0.01 / 1K tokens
+	"gpt-3.5-turbo":           0.25,  // $0.0005 / 1K tokens
 	"gpt-3.5-turbo-0301":      0.75,
 	"gpt-3.5-turbo-0613":      0.75,
 	"gpt-3.5-turbo-16k":       1.5, // $0.003 / 1K tokens
@@ -308,6 +310,9 @@ func GetCompletionRatio(name string, channelType int) float64 {
 		return 4.0 / 3.0
 	}
 	if strings.HasPrefix(name, "gpt-4") {
+		if strings.HasPrefix(name, "gpt-4o-mini") {
+			return 4
+		}
 		if strings.HasPrefix(name, "gpt-4-turbo") ||
 			strings.HasPrefix(name, "gpt-4o") ||
 			strings.HasSuffix(name, "preview") {
