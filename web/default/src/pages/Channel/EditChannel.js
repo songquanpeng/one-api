@@ -58,7 +58,9 @@ const EditChannel = () => {
     region: '',
     sk: '',
     ak: '',
-    user_id: ''
+    user_id: '',
+    vertex_ai_project_id: '',
+    vertex_ai_adc: ''
   });
   const handleInputChange = (e, { name, value }) => {
     setInputs((inputs) => ({ ...inputs, [name]: value }));
@@ -160,13 +162,15 @@ const EditChannel = () => {
     if (inputs.key === '') {
       if (config.ak !== '' && config.sk !== '' && config.region !== '') {
         inputs.key = `${config.ak}|${config.sk}|${config.region}`;
+      } else if (config.region !== '' && config.vertex_ai_project_id !== '' && config.vertex_ai_adc !== '') {
+        inputs.key = `${config.region}|${config.vertex_ai_project_id}|${config.vertex_ai_adc}`;
       }
     }
     if (!isEdit && (inputs.name === '' || inputs.key === '')) {
       showInfo('请填写渠道名称和渠道密钥！');
       return;
     }
-    if (inputs.models.length === 0) {
+    if (inputs.type !== 43 && inputs.models.length === 0) {
       showInfo('请至少选择一个模型！');
       return;
     }
@@ -366,63 +370,75 @@ const EditChannel = () => {
               </Message>
             )
           }
-          <Form.Field>
-            <Form.Dropdown
-              label='模型'
-              placeholder={'请选择该渠道所支持的模型'}
-              name='models'
-              required
-              fluid
-              multiple
-              search
-              onLabelClick={(e, { value }) => {
-                copy(value).then();
-              }}
-              selection
-              onChange={handleInputChange}
-              value={inputs.models}
-              autoComplete='new-password'
-              options={modelOptions}
-            />
-          </Form.Field>
-          <div style={{ lineHeight: '40px', marginBottom: '12px' }}>
-            <Button type={'button'} onClick={() => {
-              handleInputChange(null, { name: 'models', value: basicModels });
-            }}>填入相关模型</Button>
-            <Button type={'button'} onClick={() => {
-              handleInputChange(null, { name: 'models', value: fullModels });
-            }}>填入所有模型</Button>
-            <Button type={'button'} onClick={() => {
-              handleInputChange(null, { name: 'models', value: [] });
-            }}>清除所有模型</Button>
-            <Input
-              action={
-                <Button type={'button'} onClick={addCustomModel}>填入</Button>
-              }
-              placeholder='输入自定义模型名称'
-              value={customModel}
-              onChange={(e, { value }) => {
-                setCustomModel(value);
-              }}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  addCustomModel();
-                  e.preventDefault();
-                }
-              }}
-            />
-          </div>
-          <Form.Field>
-            <Form.TextArea
-              label='模型重定向'
-              placeholder={`此项可选，用于修改请求体中的模型名称，为一个 JSON 字符串，键为请求中模型名称，值为要替换的模型名称，例如：\n${JSON.stringify(MODEL_MAPPING_EXAMPLE, null, 2)}`}
-              name='model_mapping'
-              onChange={handleInputChange}
-              value={inputs.model_mapping}
-              style={{ minHeight: 150, fontFamily: 'JetBrains Mono, Consolas' }}
-              autoComplete='new-password'
-            />
-          </Form.Field>
+          {
+            inputs.type !== 43 && (
+              <Form.Field>
+                <Form.Dropdown
+                  label='模型'
+                  placeholder={'请选择该渠道所支持的模型'}
+                  name='models'
+                  required
+                  fluid
+                  multiple
+                  search
+                  onLabelClick={(e, { value }) => {
+                    copy(value).then();
+                  }}
+                  selection
+                  onChange={handleInputChange}
+                  value={inputs.models}
+                  autoComplete='new-password'
+                  options={modelOptions}
+                />
+              </Form.Field>
+            )
+          }
+          {
+            inputs.type !== 43 && (
+              <div style={{ lineHeight: '40px', marginBottom: '12px' }}>
+                <Button type={'button'} onClick={() => {
+                  handleInputChange(null, { name: 'models', value: basicModels });
+                }}>填入相关模型</Button>
+                <Button type={'button'} onClick={() => {
+                  handleInputChange(null, { name: 'models', value: fullModels });
+                }}>填入所有模型</Button>
+                <Button type={'button'} onClick={() => {
+                  handleInputChange(null, { name: 'models', value: [] });
+                }}>清除所有模型</Button>
+                <Input
+                  action={
+                    <Button type={'button'} onClick={addCustomModel}>填入</Button>
+                  }
+                  placeholder='输入自定义模型名称'
+                  value={customModel}
+                  onChange={(e, { value }) => {
+                    setCustomModel(value);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      addCustomModel();
+                      e.preventDefault();
+                    }
+                  }}
+                />
+              </div>
+            )
+          }
+          {
+          inputs.type !== 43 && (
+              <Form.Field>
+                <Form.TextArea
+                  label='模型重定向'
+                  placeholder={`此项可选，用于修改请求体中的模型名称，为一个 JSON 字符串，键为请求中模型名称，值为要替换的模型名称，例如：\n${JSON.stringify(MODEL_MAPPING_EXAMPLE, null, 2)}`}
+                  name='model_mapping'
+                  onChange={handleInputChange}
+                  value={inputs.model_mapping}
+                  style={{ minHeight: 150, fontFamily: 'JetBrains Mono, Consolas' }}
+                  autoComplete='new-password'
+                />
+              </Form.Field>
+            )
+          }
           {
             inputs.type === 33 && (
               <Form.Field>
@@ -457,6 +473,39 @@ const EditChannel = () => {
             )
           }
           {
+            inputs.type === 42 && (
+              <Form.Field>
+                <Form.Input
+                  label='Region'
+                  name='region'
+                  required
+                  placeholder={'Vertex AI Region.g. us-east5'}
+                  onChange={handleConfigChange}
+                  value={config.region}
+                  autoComplete=''
+                />
+                <Form.Input
+                  label='Vertex AI Project ID'
+                  name='vertex_ai_project_id'
+                  required
+                  placeholder={'Vertex AI Project ID'}
+                  onChange={handleConfigChange}
+                  value={config.vertex_ai_project_id}
+                  autoComplete=''
+                />
+                <Form.Input
+                  label='Google Cloud Application Default Credentials JSON'
+                  name='vertex_ai_adc'
+                  required
+                  placeholder={'Google Cloud Application Default Credentials JSON'}
+                  onChange={handleConfigChange}
+                  value={config.vertex_ai_adc}
+                  autoComplete=''
+                />
+              </Form.Field>
+            )
+          }
+          {
             inputs.type === 34 && (
               <Form.Input
                 label='User ID'
@@ -469,7 +518,7 @@ const EditChannel = () => {
               />)
           }
           {
-            inputs.type !== 33 && (batch ? <Form.Field>
+            inputs.type !== 33 && inputs.type !== 42 && (batch ? <Form.Field>
               <Form.TextArea
                 label='密钥'
                 name='key'

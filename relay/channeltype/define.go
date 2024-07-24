@@ -43,5 +43,7 @@ const (
 	TogetherAI
 	Doubao
 	Novita
+	VertextAI
+	Proxy
 	Dummy
 )

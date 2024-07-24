@@ -161,6 +161,18 @@ export const CHANNEL_OPTIONS = {
     value: 39,
     color: 'primary'
   },
+  42: {
+    key: 42,
+    text: 'VertexAI',
+    value: 42,
+    color: 'primary'
+  },
+  43: {
+    key: 43,
+    text: 'Proxy',
+    value: 43,
+    color: 'primary'
+  },
   41: {
     key: 41,
     text: 'Novita',

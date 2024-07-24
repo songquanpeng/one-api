@@ -43,6 +43,8 @@ var ChannelBaseURLs = []string{
 	"https://api.together.xyz",                  // 39
 	"https://ark.cn-beijing.volces.com",         // 40
 	"https://api.novita.ai/v3/openai",           // 41
+	"",                                          // 42
+	"",                                          // 43
 }
 
 func init() {

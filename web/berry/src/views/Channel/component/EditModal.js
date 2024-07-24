@@ -165,6 +165,8 @@ const EditModal = ({ open, channelId, onCancel, onOk }) => {
     if (values.key === '') {
       if (values.config.ak && values.config.sk && values.config.region) {
         values.key = `${values.config.ak}|${values.config.sk}|${values.config.region}`;
+      } else if (values.config.region && values.config.vertex_ai_project_id && values.config.vertex_ai_adc) {
+        values.key = `${values.config.region}|${values.config.vertex_ai_project_id}|${values.config.vertex_ai_adc}`;
       }
     }
 

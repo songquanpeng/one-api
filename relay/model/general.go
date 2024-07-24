@@ -13,6 +13,7 @@ type GeneralOpenAIRequest struct {
 	PresencePenalty  float64         `json:"presence_penalty,omitempty"`
 	ResponseFormat   *ResponseFormat `json:"response_format,omitempty"`
 	Seed             float64         `json:"seed,omitempty"`
+	Stop             any             `json:"stop,omitempty"`
 	Stream           bool            `json:"stream,omitempty"`
 	Temperature      float64         `json:"temperature,omitempty"`
 	TopP             float64         `json:"top_p,omitempty"`

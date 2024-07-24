@@ -140,6 +140,12 @@ func TokenAuth() func(c *gin.Context) {
 				return
 			}
 		}
+
+		// set channel id for proxy relay
+		if channelId := c.Param("channelid"); channelId != "" {
+			c.Set(ctxkey.SpecificChannelId, channelId)
+		}
+
 		c.Next()
 	}
 }

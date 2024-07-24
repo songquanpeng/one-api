@@ -203,7 +203,26 @@ const typeConfig = {
       }
     },
     modelGroup: 'Coze'
-  }
+  },
+  42: {
+    inputLabel: {
+      key: '',
+      config: {
+        region: 'Vertex AI Region',
+        vertex_ai_project_id: 'Vertex AI Project ID',
+        vertex_ai_adc: 'Google Cloud Application Default Credentials JSON'
+      }
+    },
+    prompt: {
+      key: '',
+      config: {
+        region: 'Vertex AI Region.g. us-east5',
+        vertex_ai_project_id: 'Vertex AI Project ID',
+        vertex_ai_adc: 'Google Cloud Application Default Credentials JSON: https://cloud.google.com/docs/authentication/application-default-credentials'
+      }
+    },
+    modelGroup: 'anthropic'
+  },
 };
 
 export { defaultConfig, typeConfig };

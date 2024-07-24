@@ -35,6 +35,8 @@ func relayHelper(c *gin.Context, relayMode int) *model.ErrorWithStatusCode {
 		fallthrough
 	case relaymode.AudioTranscription:
 		err = controller.RelayAudioHelper(c, relayMode)
+	case relaymode.Proxy:
+		err = controller.RelayProxyHelper(c, relayMode)
 	default:
 		err = controller.RelayTextHelper(c)
 	}
@@ -84,8 +86,7 @@ func Relay(c *gin.Context) {
 		channelId := c.GetInt(ctxkey.ChannelId)
 		lastFailedChannelId = channelId
 		channelName := c.GetString(ctxkey.ChannelName)
-
-		// BUG: bizErr is shared, should not run this function in goroutine to avoid race
+		// BUG: bizErr is in race condition
 		go processChannelRelayError(ctx, userId, channelId, channelName, bizErr)
 	}
 
@@ -93,6 +94,8 @@ func Relay(c *gin.Context) {
 		if bizErr.StatusCode == http.StatusTooManyRequests {
 			bizErr.Error.Message = "当前分组上游负载已饱和，请稍后再试"
 		}
+
+		// BUG: bizErr is in race condition
 		bizErr.Error.Message = helper.MessageWithRequestId(bizErr.Error.Message, requestId)
 		c.JSON(bizErr.StatusCode, gin.H{
 			"error": bizErr.Error,
