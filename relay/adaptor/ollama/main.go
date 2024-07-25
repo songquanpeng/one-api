@@ -119,6 +119,8 @@ func StreamHandler(c *gin.Context, resp *http.Response) (*model.ErrorWithStatusC
 	common.SetEventStreamHeaders(c)
 
 	for scanner.Scan() {
+		line := scanner.Text()
+		fmt.Println("Scanned line:", line)
 		data := strings.TrimPrefix(scanner.Text(), "}")
 		data = data + "}"
 
