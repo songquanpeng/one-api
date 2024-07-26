@@ -31,7 +31,8 @@ func ConvertRequest(request model.GeneralOpenAIRequest) *ChatRequest {
 			TopP:             request.TopP,
 			FrequencyPenalty: request.FrequencyPenalty,
 			PresencePenalty:  request.PresencePenalty,
-			NumPredict:  request.MaxTokens,
+			NumPredict:  	  request.MaxTokens,
+			NumCtx:  	  request.NumCtx,
 		},
 		Stream: request.Stream,
 	}
