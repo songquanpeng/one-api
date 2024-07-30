@@ -119,7 +119,9 @@ func StreamHandler(c *gin.Context, resp *http.Response) (*model.ErrorWithStatusC
 
 	for scanner.Scan() {
 		data := strings.TrimPrefix(scanner.Text(), "}")
-		data = data + "}"
+	        if !strings.HasSuffix(data, "}") {
+		    data = data + "}"
+		}
 
 		var ollamaResponse ChatResponse
 		err := json.Unmarshal([]byte(data), &ollamaResponse)
