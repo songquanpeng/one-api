@@ -58,12 +58,12 @@ func GetCompatibleChannelMeta(channelType int) (string, []string) {
 		return "deepseek", deepseek.ModelList
 	case channeltype.TogetherAI:
 		return "together.ai", togetherai.ModelList
-	case channeltype.SiliconFlow:
-		return "siliconflow", siliconflow.ModelList
 	case channeltype.Doubao:
 		return "doubao", doubao.ModelList
 	case channeltype.Novita:
 		return "novita", novita.ModelList
+	case channeltype.SiliconFlow:
+		return "siliconflow", siliconflow.ModelList
 	default:
 		return "openai", ModelList
 	}
