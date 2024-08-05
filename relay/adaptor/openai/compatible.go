@@ -13,6 +13,7 @@ import (
 	"github.com/songquanpeng/one-api/relay/adaptor/novita"
 	"github.com/songquanpeng/one-api/relay/adaptor/stepfun"
 	"github.com/songquanpeng/one-api/relay/adaptor/togetherai"
+	"github.com/songquanpeng/one-api/relay/adaptor/siliconflow"
 	"github.com/songquanpeng/one-api/relay/channeltype"
 )
 
@@ -30,6 +31,7 @@ var CompatibleChannels = []int{
 	channeltype.DeepSeek,
 	channeltype.TogetherAI,
 	channeltype.Novita,
+	channeltype.SiliconFlow,
 }
 
 func GetCompatibleChannelMeta(channelType int) (string, []string) {
@@ -56,6 +58,8 @@ func GetCompatibleChannelMeta(channelType int) (string, []string) {
 		return "deepseek", deepseek.ModelList
 	case channeltype.TogetherAI:
 		return "together.ai", togetherai.ModelList
+	case channeltype.SiliconFlow:
+		return "siliconflow", siliconflow.ModelList
 	case channeltype.Doubao:
 		return "doubao", doubao.ModelList
 	case channeltype.Novita:
