@@ -161,16 +161,16 @@ export const CHANNEL_OPTIONS = {
     value: 39,
     color: 'primary'
   },
-  44: {
-    key: 44,
-    text: 'SiliconFlow',
-    value: 44,
-    color: 'primary'
-  },
   42: {
     key: 42,
     text: 'VertexAI',
     value: 42,
+    color: 'primary'
+  },
+  44: {
+    key: 44,
+    text: 'SiliconFlow',
+    value: 44,
     color: 'primary'
   },
   43: {
