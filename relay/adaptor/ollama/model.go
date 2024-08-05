@@ -37,11 +37,15 @@ type ChatResponse struct {
 }
 
 type EmbeddingRequest struct {
-	Model  string `json:"model"`
-	Prompt string `json:"prompt"`
+	Model string   `json:"model"`
+	Input []string `json:"input"`
+	// Truncate  bool     `json:"truncate,omitempty"`
+	Options *Options `json:"options,omitempty"`
+	// KeepAlive string   `json:"keep_alive,omitempty"`
 }
 
 type EmbeddingResponse struct {
-	Error     string    `json:"error,omitempty"`
-	Embedding []float64 `json:"embedding,omitempty"`
+	Error      string      `json:"error,omitempty"`
+	Model      string      `json:"model"`
+	Embeddings [][]float64 `json:"embeddings"`
 }

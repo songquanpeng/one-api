@@ -157,8 +157,15 @@ func StreamHandler(c *gin.Context, resp *http.Response) (*model.ErrorWithStatusC
 
 func ConvertEmbeddingRequest(request model.GeneralOpenAIRequest) *EmbeddingRequest {
 	return &EmbeddingRequest{
-		Model:  request.Model,
-		Prompt: strings.Join(request.ParseInput(), " "),
+		Model: request.Model,
+		Input: request.ParseInput(),
+		Options: &Options{
+			Seed:             int(request.Seed),
+			Temperature:      request.Temperature,
+			TopP:             request.TopP,
+			FrequencyPenalty: request.FrequencyPenalty,
+			PresencePenalty:  request.PresencePenalty,
+		},
 	}
 }
 
@@ -201,15 +208,17 @@ func embeddingResponseOllama2OpenAI(response *EmbeddingResponse) *openai.Embeddi
 	openAIEmbeddingResponse := openai.EmbeddingResponse{
 		Object: "list",
 		Data:   make([]openai.EmbeddingResponseItem, 0, 1),
-		Model:  "text-embedding-v1",
+		Model:  response.Model,
 		Usage:  model.Usage{TotalTokens: 0},
 	}
 
-	openAIEmbeddingResponse.Data = append(openAIEmbeddingResponse.Data, openai.EmbeddingResponseItem{
-		Object:    `embedding`,
-		Index:     0,
-		Embedding: response.Embedding,
-	})
+	for i, embedding := range response.Embeddings {
+		openAIEmbeddingResponse.Data = append(openAIEmbeddingResponse.Data, openai.EmbeddingResponseItem{
+			Object:    `embedding`,
+			Index:     i,
+			Embedding: embedding,
+		})
+	}
 	return &openAIEmbeddingResponse
 }
 
