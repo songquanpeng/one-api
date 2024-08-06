@@ -173,6 +173,12 @@ export const CHANNEL_OPTIONS = {
     value: 43,
     color: 'primary'
   },
+  44: {
+    key: 44,
+    text: 'SiliconFlow',
+    value: 44,
+    color: 'primary'
+  },
   41: {
     key: 41,
     text: 'Novita',
