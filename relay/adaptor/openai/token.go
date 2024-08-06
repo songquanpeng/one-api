@@ -97,7 +97,11 @@ func CountTokenMessages(messages []model.Message, model string) int {
 				m := it.(map[string]any)
 				switch m["type"] {
 				case "text":
-					tokenNum += getTokenNum(tokenEncoder, m["text"].(string))
+					if textValue, ok := m["text"]; ok {
+						if textString, ok := textValue.(string); ok {
+							tokenNum += getTokenNum(tokenEncoder, textString)
+						}
+					}
 				case "image_url":
 					imageUrl, ok := m["image_url"].(map[string]any)
 					if ok {
@@ -106,7 +110,7 @@ func CountTokenMessages(messages []model.Message, model string) int {
 						if imageUrl["detail"] != nil {
 							detail = imageUrl["detail"].(string)
 						}
-						imageTokens, err := countImageTokens(url, detail)
+						imageTokens, err := countImageTokens(url, detail, model)
 						if err != nil {
 							logger.SysError("error counting image tokens: " + err.Error())
 						} else {
@@ -130,11 +134,15 @@ const (
 	lowDetailCost         = 85
 	highDetailCostPerTile = 170
 	additionalCost        = 85
+	// gpt-4o-mini cost higher than other model
+	gpt4oMiniLowDetailCost  = 2833
+	gpt4oMiniHighDetailCost = 5667
+	gpt4oMiniAdditionalCost = 2833
 )
 
 // https://platform.openai.com/docs/guides/vision/calculating-costs
 // https://github.com/openai/openai-cookbook/blob/05e3f9be4c7a2ae7ecf029a7c32065b024730ebe/examples/How_to_count_tokens_with_tiktoken.ipynb
-func countImageTokens(url string, detail string) (_ int, err error) {
+func countImageTokens(url string, detail string, model string) (_ int, err error) {
 	var fetchSize = true
 	var width, height int
 	// Reference: https://platform.openai.com/docs/guides/vision/low-or-high-fidelity-image-understanding
@@ -168,6 +176,9 @@ func countImageTokens(url string, detail string) (_ int, err error) {
 	}
 	switch detail {
 	case "low":
+		if strings.HasPrefix(model, "gpt-4o-mini") {
+			return gpt4oMiniLowDetailCost, nil
+		}
 		return lowDetailCost, nil
 	case "high":
 		if fetchSize {
@@ -187,6 +198,9 @@ func countImageTokens(url string, detail string) (_ int, err error) {
 			height = int(float64(height) * ratio)
 		}
 		numSquares := int(math.Ceil(float64(width)/512) * math.Ceil(float64(height)/512))
+		if strings.HasPrefix(model, "gpt-4o-mini") {
+			return numSquares*gpt4oMiniHighDetailCost + gpt4oMiniAdditionalCost, nil
+		}
 		result := numSquares*highDetailCostPerTile + additionalCost
 		return result, nil
 	default:

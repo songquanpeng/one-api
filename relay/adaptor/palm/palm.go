@@ -3,6 +3,10 @@ package palm
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/songquanpeng/one-api/common/render"
+	"io"
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	"github.com/songquanpeng/one-api/common"
 	"github.com/songquanpeng/one-api/common/helper"
@@ -11,8 +15,6 @@ import (
 	"github.com/songquanpeng/one-api/relay/adaptor/openai"
 	"github.com/songquanpeng/one-api/relay/constant"
 	"github.com/songquanpeng/one-api/relay/model"
-	"io"
-	"net/http"
 )
 
 // https://developers.generativeai.google/api/rest/generativelanguage/models/generateMessage#request-body
@@ -77,58 +79,51 @@ func StreamHandler(c *gin.Context, resp *http.Response) (*model.ErrorWithStatusC
 	responseText := ""
 	responseId := fmt.Sprintf("chatcmpl-%s", random.GetUUID())
 	createdTime := helper.GetTimestamp()
-	dataChan := make(chan string)
-	stopChan := make(chan bool)
-	go func() {
-		responseBody, err := io.ReadAll(resp.Body)
-		if err != nil {
-			logger.SysError("error reading stream response: " + err.Error())
-			stopChan <- true
-			return
-		}
-		err = resp.Body.Close()
-		if err != nil {
-			logger.SysError("error closing stream response: " + err.Error())
-			stopChan <- true
-			return
-		}
-		var palmResponse ChatResponse
-		err = json.Unmarshal(responseBody, &palmResponse)
-		if err != nil {
-			logger.SysError("error unmarshalling stream response: " + err.Error())
-			stopChan <- true
-			return
-		}
-		fullTextResponse := streamResponsePaLM2OpenAI(&palmResponse)
-		fullTextResponse.Id = responseId
-		fullTextResponse.Created = createdTime
-		if len(palmResponse.Candidates) > 0 {
-			responseText = palmResponse.Candidates[0].Content
-		}
-		jsonResponse, err := json.Marshal(fullTextResponse)
-		if err != nil {
-			logger.SysError("error marshalling stream response: " + err.Error())
-			stopChan <- true
-			return
-		}
-		dataChan <- string(jsonResponse)
-		stopChan <- true
-	}()
+
 	common.SetEventStreamHeaders(c)
-	c.Stream(func(w io.Writer) bool {
-		select {
-		case data := <-dataChan:
-			c.Render(-1, common.CustomEvent{Data: "data: " + data})
-			return true
-		case <-stopChan:
-			c.Render(-1, common.CustomEvent{Data: "data: [DONE]"})
-			return false
+
+	responseBody, err := io.ReadAll(resp.Body)
+	if err != nil {
+		logger.SysError("error reading stream response: " + err.Error())
+		err := resp.Body.Close()
+		if err != nil {
+			return openai.ErrorWrapper(err, "close_response_body_failed", http.StatusInternalServerError), ""
 		}
-	})
-	err := resp.Body.Close()
+		return openai.ErrorWrapper(err, "read_response_body_failed", http.StatusInternalServerError), ""
+	}
+
+	err = resp.Body.Close()
 	if err != nil {
 		return openai.ErrorWrapper(err, "close_response_body_failed", http.StatusInternalServerError), ""
 	}
+
+	var palmResponse ChatResponse
+	err = json.Unmarshal(responseBody, &palmResponse)
+	if err != nil {
+		logger.SysError("error unmarshalling stream response: " + err.Error())
+		return openai.ErrorWrapper(err, "unmarshal_response_body_failed", http.StatusInternalServerError), ""
+	}
+
+	fullTextResponse := streamResponsePaLM2OpenAI(&palmResponse)
+	fullTextResponse.Id = responseId
+	fullTextResponse.Created = createdTime
+	if len(palmResponse.Candidates) > 0 {
+		responseText = palmResponse.Candidates[0].Content
+	}
+
+	jsonResponse, err := json.Marshal(fullTextResponse)
+	if err != nil {
+		logger.SysError("error marshalling stream response: " + err.Error())
+		return openai.ErrorWrapper(err, "marshal_response_body_failed", http.StatusInternalServerError), ""
+	}
+
+	err = render.ObjectData(c, string(jsonResponse))
+	if err != nil {
+		logger.SysError(err.Error())
+	}
+
+	render.Done(c)
+
 	return nil, responseText
 }
 

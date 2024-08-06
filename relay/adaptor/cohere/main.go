@@ -2,9 +2,9 @@ package cohere
 
 import (
 	"bufio"
-	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/songquanpeng/one-api/common/render"
 	"io"
 	"net/http"
 	"strings"
@@ -134,66 +134,53 @@ func ResponseCohere2OpenAI(cohereResponse *Response) *openai.TextResponse {
 func StreamHandler(c *gin.Context, resp *http.Response) (*model.ErrorWithStatusCode, *model.Usage) {
 	createdTime := helper.GetTimestamp()
 	scanner := bufio.NewScanner(resp.Body)
-	scanner.Split(func(data []byte, atEOF bool) (advance int, token []byte, err error) {
-		if atEOF && len(data) == 0 {
-			return 0, nil, nil
-		}
-		if i := bytes.IndexByte(data, '\n'); i >= 0 {
-			return i + 1, data[0:i], nil
-		}
-		if atEOF {
-			return len(data), data, nil
-		}
-		return 0, nil, nil
-	})
+	scanner.Split(bufio.ScanLines)
 
-	dataChan := make(chan string)
-	stopChan := make(chan bool)
-	go func() {
-		for scanner.Scan() {
-			data := scanner.Text()
-			dataChan <- data
-		}
-		stopChan <- true
-	}()
 	common.SetEventStreamHeaders(c)
 	var usage model.Usage
-	c.Stream(func(w io.Writer) bool {
-		select {
-		case data := <-dataChan:
-			// some implementations may add \r at the end of data
-			data = strings.TrimSuffix(data, "\r")
-			var cohereResponse StreamResponse
-			err := json.Unmarshal([]byte(data), &cohereResponse)
-			if err != nil {
-				logger.SysError("error unmarshalling stream response: " + err.Error())
-				return true
-			}
-			response, meta := StreamResponseCohere2OpenAI(&cohereResponse)
-			if meta != nil {
-				usage.PromptTokens += meta.Meta.Tokens.InputTokens
-				usage.CompletionTokens += meta.Meta.Tokens.OutputTokens
-				return true
-			}
-			if response == nil {
-				return true
-			}
-			response.Id = fmt.Sprintf("chatcmpl-%d", createdTime)
-			response.Model = c.GetString("original_model")
-			response.Created = createdTime
-			jsonStr, err := json.Marshal(response)
-			if err != nil {
-				logger.SysError("error marshalling stream response: " + err.Error())
-				return true
-			}
-			c.Render(-1, common.CustomEvent{Data: "data: " + string(jsonStr)})
-			return true
-		case <-stopChan:
-			c.Render(-1, common.CustomEvent{Data: "data: [DONE]"})
-			return false
+
+	for scanner.Scan() {
+		data := scanner.Text()
+		data = strings.TrimSuffix(data, "\r")
+
+		var cohereResponse StreamResponse
+		err := json.Unmarshal([]byte(data), &cohereResponse)
+		if err != nil {
+			logger.SysError("error unmarshalling stream response: " + err.Error())
+			continue
 		}
-	})
-	_ = resp.Body.Close()
+
+		response, meta := StreamResponseCohere2OpenAI(&cohereResponse)
+		if meta != nil {
+			usage.PromptTokens += meta.Meta.Tokens.InputTokens
+			usage.CompletionTokens += meta.Meta.Tokens.OutputTokens
+			continue
+		}
+		if response == nil {
+			continue
+		}
+
+		response.Id = fmt.Sprintf("chatcmpl-%d", createdTime)
+		response.Model = c.GetString("original_model")
+		response.Created = createdTime
+
+		err = render.ObjectData(c, response)
+		if err != nil {
+			logger.SysError(err.Error())
+		}
+	}
+
+	if err := scanner.Err(); err != nil {
+		logger.SysError("error reading stream: " + err.Error())
+	}
+
+	render.Done(c)
+
+	err := resp.Body.Close()
+	if err != nil {
+		return openai.ErrorWrapper(err, "close_response_body_failed", http.StatusInternalServerError), nil
+	}
+
 	return nil, &usage
 }
 

@@ -91,7 +91,7 @@ const typeConfig = {
       other: '版本号'
     },
     input: {
-      models: ['SparkDesk', 'SparkDesk-v1.1', 'SparkDesk-v2.1', 'SparkDesk-v3.1', 'SparkDesk-v3.5']
+      models: ['SparkDesk', 'SparkDesk-v1.1', 'SparkDesk-v2.1', 'SparkDesk-v3.1', 'SparkDesk-v3.5', 'SparkDesk-v4.0']
     },
     prompt: {
       key: '按照如下格式输入：APPID|APISecret|APIKey',
@@ -203,7 +203,26 @@ const typeConfig = {
       }
     },
     modelGroup: 'Coze'
-  }
+  },
+  42: {
+    inputLabel: {
+      key: '',
+      config: {
+        region: 'Vertex AI Region',
+        vertex_ai_project_id: 'Vertex AI Project ID',
+        vertex_ai_adc: 'Google Cloud Application Default Credentials JSON'
+      }
+    },
+    prompt: {
+      key: '',
+      config: {
+        region: 'Vertex AI Region.g. us-east5',
+        vertex_ai_project_id: 'Vertex AI Project ID',
+        vertex_ai_adc: 'Google Cloud Application Default Credentials JSON: https://cloud.google.com/docs/authentication/application-default-credentials'
+      }
+    },
+    modelGroup: 'anthropic'
+  },
 };
 
 export { defaultConfig, typeConfig };

@@ -3,15 +3,17 @@ package ali
 import (
 	"bufio"
 	"encoding/json"
+	"github.com/songquanpeng/one-api/common/render"
+	"io"
+	"net/http"
+	"strings"
+
 	"github.com/gin-gonic/gin"
 	"github.com/songquanpeng/one-api/common"
 	"github.com/songquanpeng/one-api/common/helper"
 	"github.com/songquanpeng/one-api/common/logger"
 	"github.com/songquanpeng/one-api/relay/adaptor/openai"
 	"github.com/songquanpeng/one-api/relay/model"
-	"io"
-	"net/http"
-	"strings"
 )
 
 // https://help.aliyun.com/document_detail/613695.html?spm=a2c4g.2399480.0.0.1adb778fAdzP9w#341800c0f8w0r
@@ -181,56 +183,43 @@ func StreamHandler(c *gin.Context, resp *http.Response) (*model.ErrorWithStatusC
 		}
 		return 0, nil, nil
 	})
-	dataChan := make(chan string)
-	stopChan := make(chan bool)
-	go func() {
-		for scanner.Scan() {
-			data := scanner.Text()
-			if len(data) < 5 { // ignore blank line or wrong format
-				continue
-			}
-			if data[:5] != "data:" {
-				continue
-			}
-			data = data[5:]
-			dataChan <- data
-		}
-		stopChan <- true
-	}()
+
 	common.SetEventStreamHeaders(c)
-	//lastResponseText := ""
-	c.Stream(func(w io.Writer) bool {
-		select {
-		case data := <-dataChan:
-			var aliResponse ChatResponse
-			err := json.Unmarshal([]byte(data), &aliResponse)
-			if err != nil {
-				logger.SysError("error unmarshalling stream response: " + err.Error())
-				return true
-			}
-			if aliResponse.Usage.OutputTokens != 0 {
-				usage.PromptTokens = aliResponse.Usage.InputTokens
-				usage.CompletionTokens = aliResponse.Usage.OutputTokens
-				usage.TotalTokens = aliResponse.Usage.InputTokens + aliResponse.Usage.OutputTokens
-			}
-			response := streamResponseAli2OpenAI(&aliResponse)
-			if response == nil {
-				return true
-			}
-			//response.Choices[0].Delta.Content = strings.TrimPrefix(response.Choices[0].Delta.Content, lastResponseText)
-			//lastResponseText = aliResponse.Output.Text
-			jsonResponse, err := json.Marshal(response)
-			if err != nil {
-				logger.SysError("error marshalling stream response: " + err.Error())
-				return true
-			}
-			c.Render(-1, common.CustomEvent{Data: "data: " + string(jsonResponse)})
-			return true
-		case <-stopChan:
-			c.Render(-1, common.CustomEvent{Data: "data: [DONE]"})
-			return false
+
+	for scanner.Scan() {
+		data := scanner.Text()
+		if len(data) < 5 || data[:5] != "data:" {
+			continue
 		}
-	})
+		data = data[5:]
+
+		var aliResponse ChatResponse
+		err := json.Unmarshal([]byte(data), &aliResponse)
+		if err != nil {
+			logger.SysError("error unmarshalling stream response: " + err.Error())
+			continue
+		}
+		if aliResponse.Usage.OutputTokens != 0 {
+			usage.PromptTokens = aliResponse.Usage.InputTokens
+			usage.CompletionTokens = aliResponse.Usage.OutputTokens
+			usage.TotalTokens = aliResponse.Usage.InputTokens + aliResponse.Usage.OutputTokens
+		}
+		response := streamResponseAli2OpenAI(&aliResponse)
+		if response == nil {
+			continue
+		}
+		err = render.ObjectData(c, response)
+		if err != nil {
+			logger.SysError(err.Error())
+		}
+	}
+
+	if err := scanner.Err(); err != nil {
+		logger.SysError("error reading stream: " + err.Error())
+	}
+
+	render.Done(c)
+
 	err := resp.Body.Close()
 	if err != nil {
 		return openai.ErrorWrapper(err, "close_response_body_failed", http.StatusInternalServerError), nil

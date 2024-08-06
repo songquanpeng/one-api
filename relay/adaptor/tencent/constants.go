@@ -1,7 +1,8 @@
 package tencent
 
 var ModelList = []string{
-	"ChatPro",
-	"ChatStd",
-	"hunyuan",
+	"hunyuan-lite",
+	"hunyuan-standard",
+	"hunyuan-standard-256K",
+	"hunyuan-pro",
 }
