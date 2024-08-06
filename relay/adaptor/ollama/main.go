@@ -31,6 +31,8 @@ func ConvertRequest(request model.GeneralOpenAIRequest) *ChatRequest {
 			TopP:             request.TopP,
 			FrequencyPenalty: request.FrequencyPenalty,
 			PresencePenalty:  request.PresencePenalty,
+			NumPredict:  	  request.MaxTokens,
+			NumCtx:  	  request.NumCtx,
 		},
 		Stream: request.Stream,
 	}
@@ -118,8 +120,10 @@ func StreamHandler(c *gin.Context, resp *http.Response) (*model.ErrorWithStatusC
 	common.SetEventStreamHeaders(c)
 
 	for scanner.Scan() {
-		data := strings.TrimPrefix(scanner.Text(), "}")
-		data = data + "}"
+		data := scanner.Text()
+		if strings.HasPrefix(data, "}") {
+		    data = strings.TrimPrefix(data, "}") + "}"
+		}
 
 		var ollamaResponse ChatResponse
 		err := json.Unmarshal([]byte(data), &ollamaResponse)

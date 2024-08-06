@@ -7,6 +7,8 @@ type Options struct {
 	TopP             float64 `json:"top_p,omitempty"`
 	FrequencyPenalty float64 `json:"frequency_penalty,omitempty"`
 	PresencePenalty  float64 `json:"presence_penalty,omitempty"`
+	NumPredict  	 int 	 `json:"num_predict,omitempty"`
+	NumCtx  	 int 	 `json:"num_ctx,omitempty"`
 }
 
 type Message struct {
