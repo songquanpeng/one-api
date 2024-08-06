@@ -7,7 +7,7 @@ import (
 	"github.com/songquanpeng/one-api/middleware"
 )
 
-func SetDashboardRouter(router *gin.Engine) {
+func SetDashboardRouter(router *gin.RouterGroup) {
 	apiRouter := router.Group("/")
 	apiRouter.Use(middleware.CORS())
 	apiRouter.Use(gzip.Gzip(gzip.DefaultCompression))

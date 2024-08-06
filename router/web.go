@@ -14,13 +14,15 @@ import (
 	"strings"
 )
 
-func SetWebRouter(router *gin.Engine, buildFS embed.FS) {
-	indexPageData, _ := buildFS.ReadFile(fmt.Sprintf("web/build/%s/index.html", config.Theme))
-	router.Use(gzip.Gzip(gzip.DefaultCompression))
-	router.Use(middleware.GlobalWebRateLimit())
-	router.Use(middleware.Cache())
-	router.Use(static.Serve("/", common.EmbedFolder(buildFS, fmt.Sprintf("web/build/%s", config.Theme))))
-	router.NoRoute(func(c *gin.Context) {
+func SetWebRouter(engine *gin.Engine, baseUrl string, buildFS embed.FS) {
+	basePath := fmt.Sprintf("web/build/%s", config.Theme)
+	indexPageData, _ := buildFS.ReadFile(fmt.Sprintf("%s/index.html", basePath))
+	engine.Use(gzip.Gzip(gzip.DefaultCompression))
+	engine.Use(middleware.GlobalWebRateLimit())
+	engine.Use(middleware.Cache())
+	engine.Use(static.Serve(baseUrl, common.EmbedFolder(buildFS, basePath)))
+
+	engine.NoRoute(func(c *gin.Context) {
 		if strings.HasPrefix(c.Request.RequestURI, "/v1") || strings.HasPrefix(c.Request.RequestURI, "/api") {
 			controller.RelayNotFound(c)
 			return

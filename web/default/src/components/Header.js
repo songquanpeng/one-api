@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { UserContext } from '../context/User';
-
+import { BASE_URL } from "../config";
 import { Button, Container, Dropdown, Icon, Menu, Segment } from 'semantic-ui-react';
 import { API, getLogo, getSystemName, isAdmin, isMobile, showSuccess } from '../helpers';
 import '../index.css';
@@ -119,19 +119,14 @@ const Header = () => {
           size='large'
           style={
             showSidebar
-              ? {
-                borderBottom: 'none',
-                marginBottom: '0',
-                borderTop: 'none',
-                height: '51px'
-              }
+              ? { borderBottom: 'none', marginBottom: '0', borderTop: 'none', height: '51px' }
               : { borderTop: 'none', height: '52px' }
           }
         >
           <Container>
             <Menu.Item as={Link} to='/'>
               <img
-                src={logo}
+                src={ BASE_URL + logo}
                 alt='logo'
                 style={{ marginRight: '0.75em' }}
               />
@@ -188,7 +183,7 @@ const Header = () => {
       <Menu borderless style={{ borderTop: 'none' }}>
         <Container>
           <Menu.Item as={Link} to='/' className={'hide-on-mobile'}>
-            <img src={logo} alt='logo' style={{ marginRight: '0.75em' }} />
+            <img src={ BASE_URL + logo} alt='logo' style={{ marginRight: '0.75em' }} />
             <div style={{ fontSize: '20px' }}>
               <b>{systemName}</b>
             </div>
