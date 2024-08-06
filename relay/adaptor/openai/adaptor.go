@@ -50,6 +50,11 @@ func (a *Adaptor) GetRequestURL(meta *meta.Meta) (string, error) {
 		return minimax.GetRequestURL(meta)
 	case channeltype.Doubao:
 		return doubao.GetRequestURL(meta)
+	case channeltype.AIProxy:
+		if strings.HasSuffix(meta.APIKey, "#vip") {
+			return GetFullRequestURL("https://apivip.aiproxy.io", meta.RequestURLPath, meta.ChannelType), nil
+		}
+		fallthrough
 	case channeltype.Novita:
 		return novita.GetRequestURL(meta)
 	default:
@@ -63,7 +68,11 @@ func (a *Adaptor) SetupRequestHeader(c *gin.Context, req *http.Request, meta *me
 		req.Header.Set("api-key", meta.APIKey)
 		return nil
 	}
-	req.Header.Set("Authorization", "Bearer "+meta.APIKey)
+	apiKey := meta.APIKey
+	if meta.ChannelType == channeltype.AIProxy {
+		apiKey = strings.TrimSuffix(apiKey, "#vip")
+	}
+	req.Header.Set("Authorization", "Bearer "+apiKey)
 	if meta.ChannelType == channeltype.OpenRouter {
 		req.Header.Set("HTTP-Referer", "https://github.com/songquanpeng/one-api")
 		req.Header.Set("X-Title", "One API")
