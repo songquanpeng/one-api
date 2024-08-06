@@ -98,12 +98,11 @@ var ModelRatio = map[string]float64{
 	"bge-large-en":       0.002 * RMB,
 	"tao-8k":             0.002 * RMB,
 	// https://ai.google.dev/pricing
-	"PaLM-2":                    1,
-	"gemini-pro":                1, // $0.00025 / 1k characters -> $0.001 / 1k tokens
-	"gemini-pro-vision":         1, // $0.00025 / 1k characters -> $0.001 / 1k tokens
-	"gemini-1.0-pro-vision-001": 1,
-	"gemini-1.0-pro-001":        1,
-	"gemini-1.5-pro":            1,
+	"gemini-pro":       1, // $0.00025 / 1k characters -> $0.001 / 1k tokens
+	"gemini-1.0-pro":   1,
+	"gemini-1.5-flash": 1,
+	"gemini-1.5-pro":   1,
+	"aqa":              1,
 	// https://open.bigmodel.cn/pricing
 	"glm-4":         0.1 * RMB,
 	"glm-4v":        0.1 * RMB,
@@ -158,12 +157,16 @@ var ModelRatio = map[string]float64{
 	"mistral-large-latest":  8.0 / 1000 * USD,
 	"mistral-embed":         0.1 / 1000 * USD,
 	// https://wow.groq.com/#:~:text=inquiries%C2%A0here.-,Model,-Current%20Speed
-	"llama3-70b-8192":    0.59 / 1000 * USD,
-	"mixtral-8x7b-32768": 0.27 / 1000 * USD,
-	"llama3-8b-8192":     0.05 / 1000 * USD,
-	"gemma-7b-it":        0.1 / 1000 * USD,
-	"llama2-70b-4096":    0.64 / 1000 * USD,
-	"llama2-7b-2048":     0.1 / 1000 * USD,
+	"gemma-7b-it":                           0.07 / 1000000 * USD,
+	"mixtral-8x7b-32768":                    0.24 / 1000000 * USD,
+	"llama3-8b-8192":                        0.05 / 1000000 * USD,
+	"llama3-70b-8192":                       0.59 / 1000000 * USD,
+	"gemma2-9b-it":                          0.20 / 1000000 * USD,
+	"llama-3.1-405b-reasoning":              0.89 / 1000000 * USD,
+	"llama-3.1-70b-versatile":               0.59 / 1000000 * USD,
+	"llama-3.1-8b-instant":                  0.05 / 1000000 * USD,
+	"llama3-groq-70b-8192-tool-use-preview": 0.89 / 1000000 * USD,
+	"llama3-groq-8b-8192-tool-use-preview":  0.19 / 1000000 * USD,
 	// https://platform.lingyiwanwu.com/docs#-计费单元
 	"yi-34b-chat-0205": 2.5 / 1000 * RMB,
 	"yi-34b-chat-200k": 12.0 / 1000 * RMB,
