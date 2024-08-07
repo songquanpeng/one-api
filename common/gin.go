@@ -2,11 +2,11 @@ package common
 
 import (
 	"bytes"
-	"encoding/json"
-	"github.com/gin-gonic/gin"
-	"github.com/songquanpeng/one-api/common/ctxkey"
 	"io"
-	"strings"
+
+	"github.com/gin-gonic/gin"
+	"github.com/pkg/errors"
+	"github.com/songquanpeng/one-api/common/ctxkey"
 )
 
 func GetRequestBody(c *gin.Context) ([]byte, error) {
@@ -28,18 +28,16 @@ func UnmarshalBodyReusable(c *gin.Context, v any) error {
 	if err != nil {
 		return err
 	}
-	contentType := c.Request.Header.Get("Content-Type")
-	if strings.HasPrefix(contentType, "application/json") {
-		err = json.Unmarshal(requestBody, &v)
-	} else {
-		// skip for now
-		// TODO: someday non json request have variant model, we will need to implementation this
-	}
-	if err != nil {
-		return err
-	}
 	// Reset request body
 	c.Request.Body = io.NopCloser(bytes.NewBuffer(requestBody))
+	defer func() {
+		c.Request.Body = io.NopCloser(bytes.NewBuffer(requestBody))
+	}()
+
+	if err = c.Bind(v); err != nil {
+		return errors.Wrap(err, "bind request body failed")
+	}
+
 	return nil
 }
 
