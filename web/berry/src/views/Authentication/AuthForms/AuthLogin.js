@@ -36,7 +36,7 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import Github from 'assets/images/icons/github.svg';
 import Wechat from 'assets/images/icons/wechat.svg';
 import Lark from 'assets/images/icons/lark.svg';
-import { onGitHubOAuthClicked, onLarkOAuthClicked } from 'utils/common';
+import { onGitHubOAuthClicked, onLarkOAuthClicked, onOAuth2Clicked } from 'utils/common';
 
 // ============================|| FIREBASE - LOGIN ||============================ //
 
@@ -50,7 +50,7 @@ const LoginForm = ({ ...others }) => {
   // const [checked, setChecked] = useState(true);
 
   let tripartiteLogin = false;
-  if (siteInfo.github_oauth || siteInfo.wechat_login || siteInfo.lark_client_id) {
+  if (siteInfo.github_oauth || siteInfo.wechat_login || siteInfo.lark_client_id || siteInfo.oauth2) {
     tripartiteLogin = true;
   }
 
@@ -141,6 +141,29 @@ const LoginForm = ({ ...others }) => {
                     <img src={Lark} alt="Lark" width={25} height={25} style={{ marginRight: matchDownSM ? 8 : 16 }} />
                   </Box>
                   使用飞书登录
+                </Button>
+              </AnimateButton>
+            </Grid>
+          )}
+          {siteInfo.oauth2 && (
+            <Grid item xs={12}>
+              <AnimateButton>
+                <Button
+                  disableElevation
+                  fullWidth
+                  onClick={() => onOAuth2Clicked(siteInfo.oauth2_authorization_endpoint,siteInfo.oauth2_app_id)}
+                  size="large"
+                  variant="outlined"
+                  sx={{
+                    color: 'grey.700',
+                    backgroundColor: theme.palette.grey[50],
+                    borderColor: theme.palette.grey[100]
+                  }}
+                >
+                  <Box sx={{ mr: { xs: 1, sm: 2, width: 20 }, display: 'flex', alignItems: 'center' }}>
+                    <img src={Wechat} alt="Lark" width={25} height={25} style={{ marginRight: matchDownSM ? 8 : 16 }} />
+                  </Box>
+                  使用 OAuth 2.0 登录
                 </Button>
               </AnimateButton>
             </Grid>
