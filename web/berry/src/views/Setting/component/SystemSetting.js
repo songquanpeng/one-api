@@ -38,6 +38,7 @@ const SystemSetting = () => {
     OAuth2AppSecret: '',
     OAuth2AuthorizationEndpoint: '',
     OAuth2TokenEndpoint: '',
+    OAuth2UserinfoEndpoint: '',
     Notice: '',
     SMTPServer: '',
     SMTPPort: '',
@@ -152,7 +153,8 @@ const SystemSetting = () => {
       name === 'OAuth2AppId' ||
       name === 'OAuth2AppSecret' ||
       name === 'OAuth2AuthorizationEndpoint' ||
-      name === 'OAuth2TokenEndpoint'
+      name === 'OAuth2TokenEndpoint' ||
+      name === 'OAuth2UserinfoEndpoint'
     )
     {
       setInputs((inputs) => ({ ...inputs, [name]: value }));
@@ -241,7 +243,8 @@ const SystemSetting = () => {
       OAuth2AppId: inputs.OAuth2AppId,
       OAuth2AppSecret: inputs.OAuth2AppSecret,
       OAuth2AuthorizationEndpoint: inputs.OAuth2AuthorizationEndpoint,
-      OAuth2TokenEndpoint: inputs.OAuth2TokenEndpoint
+      OAuth2TokenEndpoint: inputs.OAuth2TokenEndpoint,
+      OAuth2UserinfoEndpoint: inputs.OAuth2UserinfoEndpoint
     };
     console.log(OAuth2Config);
     if (originInputs['OAuth2AppId'] !== inputs.OAuth2AppId) {
@@ -255,6 +258,9 @@ const SystemSetting = () => {
     }
     if (originInputs['OAuth2TokenEndpoint'] !== inputs.OAuth2TokenEndpoint) {
       await updateOption('OAuth2TokenEndpoint', inputs.OAuth2TokenEndpoint);
+    }
+    if (originInputs['OAuth2UserinfoEndpoint'] !== inputs.OAuth2UserinfoEndpoint) {
+      await updateOption('OAuth2UserinfoEndpoint', inputs.OAuth2UserinfoEndpoint);
     }
   };
 
@@ -720,6 +726,20 @@ const SystemSetting = () => {
                   id="OAuth2TokenEndpoint"
                   name="OAuth2TokenEndpoint"
                   value={ inputs.OAuth2TokenEndpoint || '' }
+                  onChange={ handleInputChange }
+                  label="认证地址"
+                  placeholder="输入 OAuth 2.0 的 认证地址"
+                  disabled={ loading }
+                />
+              </FormControl>
+            </Grid>
+            <Grid xs={ 12 } md={ 6 }>
+              <FormControl fullWidth>
+                <InputLabel htmlFor="OAuth2UserinfoEndpoint">用户地址</InputLabel>
+                <OutlinedInput
+                  id="OAuth2UserinfoEndpoint"
+                  name="OAuth2UserinfoEndpoint"
+                  value={ inputs.OAuth2UserinfoEndpoint || '' }
                   onChange={ handleInputChange }
                   label="认证地址"
                   placeholder="输入 OAuth 2.0 的 认证地址"

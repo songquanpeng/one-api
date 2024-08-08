@@ -27,6 +27,7 @@ const config = {
     oauth2_app_id: '',
     oauth2_authorization_endpoint: '',
     oauth2_token_endpoint: '',
+    oauth2_userinfo_endpoint: '',
   }
 };
 
