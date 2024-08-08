@@ -33,6 +33,11 @@ const SystemSetting = () => {
     GitHubClientSecret: '',
     LarkClientId: '',
     LarkClientSecret: '',
+    OAuth2Enabled: '',
+    OAuth2AppId: '',
+    OAuth2AppSecret: '',
+    OAuth2AuthorizationEndpoint: '',
+    OAuth2TokenEndpoint: '',
     Notice: '',
     SMTPServer: '',
     SMTPPort: '',
@@ -142,8 +147,13 @@ const SystemSetting = () => {
       name === 'MessagePusherAddress' ||
       name === 'MessagePusherToken' ||
       name === 'LarkClientId' ||
-      name === 'LarkClientSecret'
-    ) {
+      name === 'LarkClientSecret' ||
+      name === 'OAuth2AppId' ||
+      name === 'OAuth2AppSecret' ||
+      name === 'OAuth2AuthorizationEndpoint' ||
+      name === 'OAuth2TokenEndpoint'
+    )
+    {
       setInputs((inputs) => ({ ...inputs, [name]: value }));
     } else {
       await updateOption(name, value);
@@ -222,6 +232,28 @@ const SystemSetting = () => {
     }
     if (originInputs['LarkClientSecret'] !== inputs.LarkClientSecret && inputs.LarkClientSecret !== '') {
       await updateOption('LarkClientSecret', inputs.LarkClientSecret);
+    }
+  };
+
+  const submitOAuth2 = async () => {
+    const OAuth2Config = {
+      OAuth2AppId: inputs.OAuth2AppId,
+      OAuth2AppSecret: inputs.OAuth2AppSecret,
+      OAuth2AuthorizationEndpoint: inputs.OAuth2AuthorizationEndpoint,
+      OAuth2TokenEndpoint: inputs.OAuth2TokenEndpoint
+    };
+    console.log(OAuth2Config);
+    if (originInputs['OAuth2AppId'] !== inputs.OAuth2AppId) {
+      await updateOption('OAuth2AppId', inputs.OAuth2AppId);
+    }
+    if (originInputs['OAuth2AppSecret'] !== inputs.OAuth2AppSecret && inputs.OAuth2AppSecret !== '') {
+      await updateOption('OAuth2AppSecret', inputs.OAuth2AppSecret);
+    }
+    if (originInputs['OAuth2AuthorizationEndpoint'] !== inputs.OAuth2AuthorizationEndpoint) {
+      await updateOption('OAuth2AuthorizationEndpoint', inputs.OAuth2AuthorizationEndpoint);
+    }
+    if (originInputs['OAuth2TokenEndpoint'] !== inputs.OAuth2TokenEndpoint) {
+      await updateOption('OAuth2TokenEndpoint', inputs.OAuth2TokenEndpoint);
     }
   };
 
@@ -616,6 +648,86 @@ const SystemSetting = () => {
             </Grid>
           </Grid>
         </SubCard>
+
+        <SubCard
+          title="配置第三方 OAuth 2.0"
+          subTitle={
+            <span>
+              用以支持通过第三方 OAuth2 登录，例如 Okta、Auth0 或自建的兼容 OAuth2.0 协议的 IdP 等
+            </span>
+          }
+        >
+          <Grid container spacing={ { xs: 3, sm: 2, md: 4 } }>
+            <Grid xs={ 12 } md={ 12 }>
+              <Alert severity="info" sx={ { wordWrap: 'break-word' } }>
+                主页链接填 <code>{ inputs.ServerAddress }</code>
+                ，重定向 URL 填 <code>{ `${ inputs.ServerAddress }/oauth/oidc` }</code>
+              </Alert>
+            </Grid>
+            <Grid xs={ 12 } md={ 6 }>
+              <FormControl fullWidth>
+                <InputLabel htmlFor="OAuth2AppId">App ID</InputLabel>
+                <OutlinedInput
+                  id="OAuth2AppId"
+                  name="OAuth2AppId"
+                  value={ inputs.OAuth2AppId || '' }
+                  onChange={ handleInputChange }
+                  label="App ID"
+                  placeholder="输入 OAuth 2.0 的 App ID"
+                  disabled={ loading }
+                />
+              </FormControl>
+            </Grid>
+            <Grid xs={ 12 } md={ 6 }>
+              <FormControl fullWidth>
+                <InputLabel htmlFor="OAuth2AppSecret">App Secret</InputLabel>
+                <OutlinedInput
+                  id="OAuth2AppSecret"
+                  name="OAuth2AppSecret"
+                  value={ inputs.OAuth2AppSecret || '' }
+                  onChange={ handleInputChange }
+                  label="App Secret"
+                  placeholder="敏感信息不会发送到前端显示"
+                  disabled={ loading }
+                />
+              </FormControl>
+            </Grid>
+            <Grid xs={ 12 } md={ 6 }>
+              <FormControl fullWidth>
+                <InputLabel htmlFor="OAuth2AuthorizationEndpoint">授权地址</InputLabel>
+                <OutlinedInput
+                  id="OAuth2AuthorizationEndpoint"
+                  name="OAuth2AuthorizationEndpoint"
+                  value={ inputs.OAuth2AuthorizationEndpoint || '' }
+                  onChange={ handleInputChange }
+                  label="授权地址"
+                  placeholder="输入 OAuth 2.0 的 授权地址"
+                  disabled={ loading }
+                />
+              </FormControl>
+            </Grid>
+            <Grid xs={ 12 } md={ 6 }>
+              <FormControl fullWidth>
+                <InputLabel htmlFor="OAuth2TokenEndpoint">认证地址</InputLabel>
+                <OutlinedInput
+                  id="OAuth2TokenEndpoint"
+                  name="OAuth2TokenEndpoint"
+                  value={ inputs.OAuth2TokenEndpoint || '' }
+                  onChange={ handleInputChange }
+                  label="认证地址"
+                  placeholder="输入 OAuth 2.0 的 认证地址"
+                  disabled={ loading }
+                />
+              </FormControl>
+            </Grid>
+            <Grid xs={ 12 }>
+              <Button variant="contained" onClick={ submitOAuth2 }>
+                保存第三方 OAuth 2.0 设置
+              </Button>
+            </Grid>
+          </Grid>
+        </SubCard>
+
         <SubCard
           title="配置 Message Pusher"
           subTitle={
