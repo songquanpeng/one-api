@@ -99,6 +99,7 @@ const SystemSetting = () => {
       case 'TurnstileCheckEnabled':
       case 'EmailDomainRestrictionEnabled':
       case 'RegisterEnabled':
+      case 'OAuth2Enabled':
         value = inputs[key] === 'true' ? 'false' : 'true';
         break;
       default:
@@ -321,6 +322,12 @@ const SystemSetting = () => {
               <FormControlLabel
                 label="允许通过 GitHub 账户登录 & 注册"
                 control={<Checkbox checked={inputs.GitHubOAuthEnabled === 'true'} onChange={handleInputChange} name="GitHubOAuthEnabled" />}
+              />
+            </Grid>
+            <Grid xs={12} md={3}>
+              <FormControlLabel
+                label="允许通过 OAuth 2.0 登录 & 注册"
+                control={<Checkbox checked={inputs.OAuth2Enabled === 'true'} onChange={handleInputChange} name="OAuth2Enabled" />}
               />
             </Grid>
             <Grid xs={12} md={3}>
