@@ -70,6 +70,28 @@ const useLogin = () => {
     }
   };
 
+  const oidcLogin = async (code, state) => {
+    try {
+      const res = await API.get(`/api/oauth/oidc?code=${code}&state=${state}`);
+      const { success, message, data } = res.data;
+      if (success) {
+        if (message === 'bind') {
+          showSuccess('绑定成功！');
+          navigate('/panel');
+        } else {
+          dispatch({ type: LOGIN, payload: data });
+          localStorage.setItem('user', JSON.stringify(data));
+          showSuccess('登录成功！');
+          navigate('/panel');
+        }
+      }
+      return { success, message };
+    } catch (err) {
+      // 请求失败，设置错误信息
+      return { success: false, message: '' };
+    }
+  }
+
   const wechatLogin = async (code) => {
     try {
       const res = await API.get(`/api/oauth/wechat?code=${code}`);
@@ -94,7 +116,7 @@ const useLogin = () => {
     navigate('/');
   };
 
-  return { login, logout, githubLogin, wechatLogin, larkLogin };
+  return { login, logout, githubLogin, wechatLogin, larkLogin,oidcLogin };
 };
 
 export default useLogin;

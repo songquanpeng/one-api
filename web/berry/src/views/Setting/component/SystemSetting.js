@@ -33,6 +33,12 @@ const SystemSetting = () => {
     GitHubClientSecret: '',
     LarkClientId: '',
     LarkClientSecret: '',
+    OidcEnabled: '',
+    OidcAppId: '',
+    OidcAppSecret: '',
+    OidcAuthorizationEndpoint: '',
+    OidcTokenEndpoint: '',
+    OidcUserinfoEndpoint: '',
     Notice: '',
     SMTPServer: '',
     SMTPPort: '',
@@ -94,6 +100,7 @@ const SystemSetting = () => {
       case 'TurnstileCheckEnabled':
       case 'EmailDomainRestrictionEnabled':
       case 'RegisterEnabled':
+      case 'OidcEnabled':
         value = inputs[key] === 'true' ? 'false' : 'true';
         break;
       default:
@@ -142,8 +149,14 @@ const SystemSetting = () => {
       name === 'MessagePusherAddress' ||
       name === 'MessagePusherToken' ||
       name === 'LarkClientId' ||
-      name === 'LarkClientSecret'
-    ) {
+      name === 'LarkClientSecret' ||
+      name === 'OidcAppId' ||
+      name === 'OidcAppSecret' ||
+      name === 'OidcAuthorizationEndpoint' ||
+      name === 'OidcTokenEndpoint' ||
+      name === 'OidcUserinfoEndpoint'
+    )
+    {
       setInputs((inputs) => ({ ...inputs, [name]: value }));
     } else {
       await updateOption(name, value);
@@ -225,6 +238,32 @@ const SystemSetting = () => {
     }
   };
 
+  const submitOidc = async () => {
+    const OidcConfig = {
+      OidcAppId: inputs.OidcAppId,
+      OidcAppSecret: inputs.OidcAppSecret,
+      OidcAuthorizationEndpoint: inputs.OidcAuthorizationEndpoint,
+      OidcTokenEndpoint: inputs.OidcTokenEndpoint,
+      OidcUserinfoEndpoint: inputs.OidcUserinfoEndpoint
+    };
+    console.log(OidcConfig);
+    if (originInputs['OidcAppId'] !== inputs.OidcAppId) {
+      await updateOption('OidcAppId', inputs.OidcAppId);
+    }
+    if (originInputs['OidcAppSecret'] !== inputs.OidcAppSecret && inputs.OidcAppSecret !== '') {
+      await updateOption('OidcAppSecret', inputs.OidcAppSecret);
+    }
+    if (originInputs['OidcAuthorizationEndpoint'] !== inputs.OidcAuthorizationEndpoint) {
+      await updateOption('OidcAuthorizationEndpoint', inputs.OidcAuthorizationEndpoint);
+    }
+    if (originInputs['OidcTokenEndpoint'] !== inputs.OidcTokenEndpoint) {
+      await updateOption('OidcTokenEndpoint', inputs.OidcTokenEndpoint);
+    }
+    if (originInputs['OidcUserinfoEndpoint'] !== inputs.OidcUserinfoEndpoint) {
+      await updateOption('OidcUserinfoEndpoint', inputs.OidcUserinfoEndpoint);
+    }
+  };
+
   return (
     <>
       <Stack spacing={2}>
@@ -289,6 +328,12 @@ const SystemSetting = () => {
               <FormControlLabel
                 label="允许通过 GitHub 账户登录 & 注册"
                 control={<Checkbox checked={inputs.GitHubOAuthEnabled === 'true'} onChange={handleInputChange} name="GitHubOAuthEnabled" />}
+              />
+            </Grid>
+            <Grid xs={12} md={3}>
+              <FormControlLabel
+                label="允许通过 Oidc 登录 & 注册"
+                control={<Checkbox checked={inputs.OidcEnabled === 'true'} onChange={handleInputChange} name="OidcEnabled" />}
               />
             </Grid>
             <Grid xs={12} md={3}>
@@ -616,6 +661,100 @@ const SystemSetting = () => {
             </Grid>
           </Grid>
         </SubCard>
+
+        <SubCard
+          title="配置 OIDC"
+          subTitle={
+            <span>
+              用以支持通过 OIDC 登录，例如 Okta、Auth0 等兼容 OIDC 协议的 IdP
+            </span>
+          }
+        >
+          <Grid container spacing={ { xs: 3, sm: 2, md: 4 } }>
+            <Grid xs={ 12 } md={ 12 }>
+              <Alert severity="info" sx={ { wordWrap: 'break-word' } }>
+                主页链接填 <code>{ inputs.ServerAddress }</code>
+                ，重定向 URL 填 <code>{ `${ inputs.ServerAddress }/oauth/oidc` }</code>
+              </Alert>
+            </Grid>
+            <Grid xs={ 12 } md={ 6 }>
+              <FormControl fullWidth>
+                <InputLabel htmlFor="OidcAppId">App ID</InputLabel>
+                <OutlinedInput
+                  id="OidcAppId"
+                  name="OidcAppId"
+                  value={ inputs.OidcAppId || '' }
+                  onChange={ handleInputChange }
+                  label="App ID"
+                  placeholder="输入 OAuth 2.0 的 App ID"
+                  disabled={ loading }
+                />
+              </FormControl>
+            </Grid>
+            <Grid xs={ 12 } md={ 6 }>
+              <FormControl fullWidth>
+                <InputLabel htmlFor="OidcAppSecret">App Secret</InputLabel>
+                <OutlinedInput
+                  id="OidcAppSecret"
+                  name="OidcAppSecret"
+                  value={ inputs.OidcAppSecret || '' }
+                  onChange={ handleInputChange }
+                  label="App Secret"
+                  placeholder="敏感信息不会发送到前端显示"
+                  disabled={ loading }
+                />
+              </FormControl>
+            </Grid>
+            <Grid xs={ 12 } md={ 6 }>
+              <FormControl fullWidth>
+                <InputLabel htmlFor="OidcAuthorizationEndpoint">授权地址</InputLabel>
+                <OutlinedInput
+                  id="OidcAuthorizationEndpoint"
+                  name="OidcAuthorizationEndpoint"
+                  value={ inputs.OidcAuthorizationEndpoint || '' }
+                  onChange={ handleInputChange }
+                  label="授权地址"
+                  placeholder="输入 OAuth 2.0 的 授权地址"
+                  disabled={ loading }
+                />
+              </FormControl>
+            </Grid>
+            <Grid xs={ 12 } md={ 6 }>
+              <FormControl fullWidth>
+                <InputLabel htmlFor="OidcTokenEndpoint">认证地址</InputLabel>
+                <OutlinedInput
+                  id="OidcTokenEndpoint"
+                  name="OidcTokenEndpoint"
+                  value={ inputs.OidcTokenEndpoint || '' }
+                  onChange={ handleInputChange }
+                  label="认证地址"
+                  placeholder="输入 OAuth 2.0 的 认证地址"
+                  disabled={ loading }
+                />
+              </FormControl>
+            </Grid>
+            <Grid xs={ 12 } md={ 6 }>
+              <FormControl fullWidth>
+                <InputLabel htmlFor="OidcUserinfoEndpoint">用户地址</InputLabel>
+                <OutlinedInput
+                  id="OidcUserinfoEndpoint"
+                  name="OidcUserinfoEndpoint"
+                  value={ inputs.OidcUserinfoEndpoint || '' }
+                  onChange={ handleInputChange }
+                  label="认证地址"
+                  placeholder="输入 OAuth 2.0 的 认证地址"
+                  disabled={ loading }
+                />
+              </FormControl>
+            </Grid>
+            <Grid xs={ 12 }>
+              <Button variant="contained" onClick={ submitOidc }>
+                保存第三方 OAuth 2.0 设置
+              </Button>
+            </Grid>
+          </Grid>
+        </SubCard>
+
         <SubCard
           title="配置 Message Pusher"
           subTitle={
