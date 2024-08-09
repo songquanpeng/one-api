@@ -98,12 +98,12 @@ export async function onLarkOAuthClicked(lark_client_id) {
   window.open(`https://open.feishu.cn/open-apis/authen/v1/index?redirect_uri=${redirect_uri}&app_id=${lark_client_id}&state=${state}`);
 }
 
-export async function onOAuth2Clicked(auth_url, client_id, openInNewTab = false) {
+export async function onOidcClicked(auth_url, client_id, openInNewTab = false) {
   const state = await getOAuthState();
   if (!state) return;
   const redirect_uri = `${window.location.origin}/oauth/oidc`;
   const response_type = "code";
-  const scope = "profile email";
+  const scope = "openid profile email";
   const url = `${auth_url}?client_id=${client_id}&redirect_uri=${redirect_uri}&response_type=${response_type}&scope=${scope}&state=${state}`;
   if (openInNewTab) {
     window.open(url);

@@ -23,11 +23,11 @@ const config = {
     version: '',
     wechat_login: false,
     wechat_qrcode: '',
-    oauth2: false,
-    oauth2_app_id: '',
-    oauth2_authorization_endpoint: '',
-    oauth2_token_endpoint: '',
-    oauth2_userinfo_endpoint: '',
+    oidc: false,
+    oidc_app_id: '',
+    oidc_authorization_endpoint: '',
+    oidc_token_endpoint: '',
+    oidc_userinfo_endpoint: '',
   }
 };
 

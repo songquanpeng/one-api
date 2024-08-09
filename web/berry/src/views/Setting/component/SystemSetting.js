@@ -33,12 +33,12 @@ const SystemSetting = () => {
     GitHubClientSecret: '',
     LarkClientId: '',
     LarkClientSecret: '',
-    OAuth2Enabled: '',
-    OAuth2AppId: '',
-    OAuth2AppSecret: '',
-    OAuth2AuthorizationEndpoint: '',
-    OAuth2TokenEndpoint: '',
-    OAuth2UserinfoEndpoint: '',
+    OidcEnabled: '',
+    OidcAppId: '',
+    OidcAppSecret: '',
+    OidcAuthorizationEndpoint: '',
+    OidcTokenEndpoint: '',
+    OidcUserinfoEndpoint: '',
     Notice: '',
     SMTPServer: '',
     SMTPPort: '',
@@ -100,7 +100,7 @@ const SystemSetting = () => {
       case 'TurnstileCheckEnabled':
       case 'EmailDomainRestrictionEnabled':
       case 'RegisterEnabled':
-      case 'OAuth2Enabled':
+      case 'OidcEnabled':
         value = inputs[key] === 'true' ? 'false' : 'true';
         break;
       default:
@@ -150,11 +150,11 @@ const SystemSetting = () => {
       name === 'MessagePusherToken' ||
       name === 'LarkClientId' ||
       name === 'LarkClientSecret' ||
-      name === 'OAuth2AppId' ||
-      name === 'OAuth2AppSecret' ||
-      name === 'OAuth2AuthorizationEndpoint' ||
-      name === 'OAuth2TokenEndpoint' ||
-      name === 'OAuth2UserinfoEndpoint'
+      name === 'OidcAppId' ||
+      name === 'OidcAppSecret' ||
+      name === 'OidcAuthorizationEndpoint' ||
+      name === 'OidcTokenEndpoint' ||
+      name === 'OidcUserinfoEndpoint'
     )
     {
       setInputs((inputs) => ({ ...inputs, [name]: value }));
@@ -238,29 +238,29 @@ const SystemSetting = () => {
     }
   };
 
-  const submitOAuth2 = async () => {
-    const OAuth2Config = {
-      OAuth2AppId: inputs.OAuth2AppId,
-      OAuth2AppSecret: inputs.OAuth2AppSecret,
-      OAuth2AuthorizationEndpoint: inputs.OAuth2AuthorizationEndpoint,
-      OAuth2TokenEndpoint: inputs.OAuth2TokenEndpoint,
-      OAuth2UserinfoEndpoint: inputs.OAuth2UserinfoEndpoint
+  const submitOidc = async () => {
+    const OidcConfig = {
+      OidcAppId: inputs.OidcAppId,
+      OidcAppSecret: inputs.OidcAppSecret,
+      OidcAuthorizationEndpoint: inputs.OidcAuthorizationEndpoint,
+      OidcTokenEndpoint: inputs.OidcTokenEndpoint,
+      OidcUserinfoEndpoint: inputs.OidcUserinfoEndpoint
     };
-    console.log(OAuth2Config);
-    if (originInputs['OAuth2AppId'] !== inputs.OAuth2AppId) {
-      await updateOption('OAuth2AppId', inputs.OAuth2AppId);
+    console.log(OidcConfig);
+    if (originInputs['OidcAppId'] !== inputs.OidcAppId) {
+      await updateOption('OidcAppId', inputs.OidcAppId);
     }
-    if (originInputs['OAuth2AppSecret'] !== inputs.OAuth2AppSecret && inputs.OAuth2AppSecret !== '') {
-      await updateOption('OAuth2AppSecret', inputs.OAuth2AppSecret);
+    if (originInputs['OidcAppSecret'] !== inputs.OidcAppSecret && inputs.OidcAppSecret !== '') {
+      await updateOption('OidcAppSecret', inputs.OidcAppSecret);
     }
-    if (originInputs['OAuth2AuthorizationEndpoint'] !== inputs.OAuth2AuthorizationEndpoint) {
-      await updateOption('OAuth2AuthorizationEndpoint', inputs.OAuth2AuthorizationEndpoint);
+    if (originInputs['OidcAuthorizationEndpoint'] !== inputs.OidcAuthorizationEndpoint) {
+      await updateOption('OidcAuthorizationEndpoint', inputs.OidcAuthorizationEndpoint);
     }
-    if (originInputs['OAuth2TokenEndpoint'] !== inputs.OAuth2TokenEndpoint) {
-      await updateOption('OAuth2TokenEndpoint', inputs.OAuth2TokenEndpoint);
+    if (originInputs['OidcTokenEndpoint'] !== inputs.OidcTokenEndpoint) {
+      await updateOption('OidcTokenEndpoint', inputs.OidcTokenEndpoint);
     }
-    if (originInputs['OAuth2UserinfoEndpoint'] !== inputs.OAuth2UserinfoEndpoint) {
-      await updateOption('OAuth2UserinfoEndpoint', inputs.OAuth2UserinfoEndpoint);
+    if (originInputs['OidcUserinfoEndpoint'] !== inputs.OidcUserinfoEndpoint) {
+      await updateOption('OidcUserinfoEndpoint', inputs.OidcUserinfoEndpoint);
     }
   };
 
@@ -332,8 +332,8 @@ const SystemSetting = () => {
             </Grid>
             <Grid xs={12} md={3}>
               <FormControlLabel
-                label="允许通过 OAuth 2.0 登录 & 注册"
-                control={<Checkbox checked={inputs.OAuth2Enabled === 'true'} onChange={handleInputChange} name="OAuth2Enabled" />}
+                label="允许通过 Oidc 登录 & 注册"
+                control={<Checkbox checked={inputs.OidcEnabled === 'true'} onChange={handleInputChange} name="OidcEnabled" />}
               />
             </Grid>
             <Grid xs={12} md={3}>
@@ -663,10 +663,10 @@ const SystemSetting = () => {
         </SubCard>
 
         <SubCard
-          title="配置第三方 OAuth 2.0"
+          title="配置 OIDC"
           subTitle={
             <span>
-              用以支持通过第三方 OAuth2 登录，例如 Okta、Auth0 或自建的兼容 OAuth2.0 协议的 IdP 等
+              用以支持通过 OIDC 登录，例如 Okta、Auth0 等兼容 OIDC 协议的 IdP
             </span>
           }
         >
@@ -679,11 +679,11 @@ const SystemSetting = () => {
             </Grid>
             <Grid xs={ 12 } md={ 6 }>
               <FormControl fullWidth>
-                <InputLabel htmlFor="OAuth2AppId">App ID</InputLabel>
+                <InputLabel htmlFor="OidcAppId">App ID</InputLabel>
                 <OutlinedInput
-                  id="OAuth2AppId"
-                  name="OAuth2AppId"
-                  value={ inputs.OAuth2AppId || '' }
+                  id="OidcAppId"
+                  name="OidcAppId"
+                  value={ inputs.OidcAppId || '' }
                   onChange={ handleInputChange }
                   label="App ID"
                   placeholder="输入 OAuth 2.0 的 App ID"
@@ -693,11 +693,11 @@ const SystemSetting = () => {
             </Grid>
             <Grid xs={ 12 } md={ 6 }>
               <FormControl fullWidth>
-                <InputLabel htmlFor="OAuth2AppSecret">App Secret</InputLabel>
+                <InputLabel htmlFor="OidcAppSecret">App Secret</InputLabel>
                 <OutlinedInput
-                  id="OAuth2AppSecret"
-                  name="OAuth2AppSecret"
-                  value={ inputs.OAuth2AppSecret || '' }
+                  id="OidcAppSecret"
+                  name="OidcAppSecret"
+                  value={ inputs.OidcAppSecret || '' }
                   onChange={ handleInputChange }
                   label="App Secret"
                   placeholder="敏感信息不会发送到前端显示"
@@ -707,11 +707,11 @@ const SystemSetting = () => {
             </Grid>
             <Grid xs={ 12 } md={ 6 }>
               <FormControl fullWidth>
-                <InputLabel htmlFor="OAuth2AuthorizationEndpoint">授权地址</InputLabel>
+                <InputLabel htmlFor="OidcAuthorizationEndpoint">授权地址</InputLabel>
                 <OutlinedInput
-                  id="OAuth2AuthorizationEndpoint"
-                  name="OAuth2AuthorizationEndpoint"
-                  value={ inputs.OAuth2AuthorizationEndpoint || '' }
+                  id="OidcAuthorizationEndpoint"
+                  name="OidcAuthorizationEndpoint"
+                  value={ inputs.OidcAuthorizationEndpoint || '' }
                   onChange={ handleInputChange }
                   label="授权地址"
                   placeholder="输入 OAuth 2.0 的 授权地址"
@@ -721,11 +721,11 @@ const SystemSetting = () => {
             </Grid>
             <Grid xs={ 12 } md={ 6 }>
               <FormControl fullWidth>
-                <InputLabel htmlFor="OAuth2TokenEndpoint">认证地址</InputLabel>
+                <InputLabel htmlFor="OidcTokenEndpoint">认证地址</InputLabel>
                 <OutlinedInput
-                  id="OAuth2TokenEndpoint"
-                  name="OAuth2TokenEndpoint"
-                  value={ inputs.OAuth2TokenEndpoint || '' }
+                  id="OidcTokenEndpoint"
+                  name="OidcTokenEndpoint"
+                  value={ inputs.OidcTokenEndpoint || '' }
                   onChange={ handleInputChange }
                   label="认证地址"
                   placeholder="输入 OAuth 2.0 的 认证地址"
@@ -735,11 +735,11 @@ const SystemSetting = () => {
             </Grid>
             <Grid xs={ 12 } md={ 6 }>
               <FormControl fullWidth>
-                <InputLabel htmlFor="OAuth2UserinfoEndpoint">用户地址</InputLabel>
+                <InputLabel htmlFor="OidcUserinfoEndpoint">用户地址</InputLabel>
                 <OutlinedInput
-                  id="OAuth2UserinfoEndpoint"
-                  name="OAuth2UserinfoEndpoint"
-                  value={ inputs.OAuth2UserinfoEndpoint || '' }
+                  id="OidcUserinfoEndpoint"
+                  name="OidcUserinfoEndpoint"
+                  value={ inputs.OidcUserinfoEndpoint || '' }
                   onChange={ handleInputChange }
                   label="认证地址"
                   placeholder="输入 OAuth 2.0 的 认证地址"
@@ -748,7 +748,7 @@ const SystemSetting = () => {
               </FormControl>
             </Grid>
             <Grid xs={ 12 }>
-              <Button variant="contained" onClick={ submitOAuth2 }>
+              <Button variant="contained" onClick={ submitOidc }>
                 保存第三方 OAuth 2.0 设置
               </Button>
             </Grid>
