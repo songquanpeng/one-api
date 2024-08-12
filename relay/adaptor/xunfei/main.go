@@ -272,9 +272,9 @@ func xunfeiMakeRequest(textRequest model.GeneralOpenAIRequest, domain, authUrl, 
 }
 
 func parseAPIVersionByModelName(modelName string) string {
-	parts := strings.Split(modelName, "-")
-	if len(parts) == 2 {
-		return parts[1]
+	index := strings.IndexAny(modelName, "-")
+	if index != -1 {
+		return modelName[index+1:]
 	}
 	return ""
 }
