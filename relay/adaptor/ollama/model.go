@@ -7,6 +7,8 @@ type Options struct {
 	TopP             float64 `json:"top_p,omitempty"`
 	FrequencyPenalty float64 `json:"frequency_penalty,omitempty"`
 	PresencePenalty  float64 `json:"presence_penalty,omitempty"`
+	NumPredict  	 int 	 `json:"num_predict,omitempty"`
+	NumCtx  	 int 	 `json:"num_ctx,omitempty"`
 }
 
 type Message struct {
@@ -37,11 +39,15 @@ type ChatResponse struct {
 }
 
 type EmbeddingRequest struct {
-	Model  string `json:"model"`
-	Prompt string `json:"prompt"`
+	Model string   `json:"model"`
+	Input []string `json:"input"`
+	// Truncate  bool     `json:"truncate,omitempty"`
+	Options *Options `json:"options,omitempty"`
+	// KeepAlive string   `json:"keep_alive,omitempty"`
 }
 
 type EmbeddingResponse struct {
-	Error     string    `json:"error,omitempty"`
-	Embedding []float64 `json:"embedding,omitempty"`
+	Error      string      `json:"error,omitempty"`
+	Model      string      `json:"model"`
+	Embeddings [][]float64 `json:"embeddings"`
 }

@@ -24,7 +24,7 @@ func (a *Adaptor) GetRequestURL(meta *meta.Meta) (string, error) {
 	// https://github.com/ollama/ollama/blob/main/docs/api.md
 	fullRequestURL := fmt.Sprintf("%s/api/chat", meta.BaseURL)
 	if meta.Mode == relaymode.Embeddings {
-		fullRequestURL = fmt.Sprintf("%s/api/embeddings", meta.BaseURL)
+		fullRequestURL = fmt.Sprintf("%s/api/embed", meta.BaseURL)
 	}
 	return fullRequestURL, nil
 }
