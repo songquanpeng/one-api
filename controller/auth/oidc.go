@@ -38,8 +38,8 @@ func getOidcUserInfoByCode(code string) (*OidcUser, error) {
 		return nil, errors.New("无效的参数")
 	}
 	values := map[string]string{
-		"client_id":     config.OidcAppId,
-		"client_secret": config.OidcAppSecret,
+		"client_id":     config.OidcClientId,
+		"client_secret": config.OidcClientSecret,
 		"code":          code,
 		"grant_type":    "authorization_code",
 		"redirect_uri":  fmt.Sprintf("%s/oauth/oidc", config.ServerAddress),

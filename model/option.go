@@ -179,10 +179,12 @@ func updateOptionMap(key string, value string) (err error) {
 		config.LarkClientId = value
 	case "LarkClientSecret":
 		config.LarkClientSecret = value
-	case "OidcAppId":
-		config.OidcAppId = value
-	case "OidcAppSecret":
-		config.OidcAppSecret = value
+	case "OidcClientId":
+		config.OidcClientId = value
+	case "OidcClientSecret":
+		config.OidcClientSecret = value
+	case "OidcWellKnown":
+		config.OidcWellKnown = value
 	case "OidcAuthorizationEndpoint":
 		config.OidcAuthorizationEndpoint = value
 	case "OidcTokenEndpoint":
