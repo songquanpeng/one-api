@@ -24,7 +24,7 @@ const config = {
     wechat_login: false,
     wechat_qrcode: '',
     oidc: false,
-    oidc_app_id: '',
+    oidc_client_id: '',
     oidc_authorization_endpoint: '',
     oidc_token_endpoint: '',
     oidc_userinfo_endpoint: '',

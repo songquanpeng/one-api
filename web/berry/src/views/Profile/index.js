@@ -231,7 +231,7 @@ export default function Profile() {
                 )}
                 {status.oidc && !inputs.oidc_id && (
                   <Grid xs={12} md={4}>
-                    <Button variant="contained" onClick={() => onOidcClicked(status.oidc_authorization_endpoint,status.oidc_app_id,true)}>
+                    <Button variant="contained" onClick={() => onOidcClicked(status.oidc_authorization_endpoint,status.oidc_client_id,true)}>
                       绑定 OIDC 账号
                     </Button>
                   </Grid>

@@ -34,8 +34,8 @@ const SystemSetting = () => {
     LarkClientId: '',
     LarkClientSecret: '',
     OidcEnabled: '',
-    OidcAppId: '',
-    OidcAppSecret: '',
+    OidcClientId: '',
+    OidcClientSecret: '',
     OidcAuthorizationEndpoint: '',
     OidcTokenEndpoint: '',
     OidcUserinfoEndpoint: '',
@@ -240,18 +240,18 @@ const SystemSetting = () => {
 
   const submitOidc = async () => {
     const OidcConfig = {
-      OidcAppId: inputs.OidcAppId,
-      OidcAppSecret: inputs.OidcAppSecret,
+      OidcClientId: inputs.OidcClientId,
+      OidcClientSecret: inputs.OidcClientSecret,
       OidcAuthorizationEndpoint: inputs.OidcAuthorizationEndpoint,
       OidcTokenEndpoint: inputs.OidcTokenEndpoint,
       OidcUserinfoEndpoint: inputs.OidcUserinfoEndpoint
     };
     console.log(OidcConfig);
-    if (originInputs['OidcAppId'] !== inputs.OidcAppId) {
-      await updateOption('OidcAppId', inputs.OidcAppId);
+    if (originInputs['OidcClientId'] !== inputs.OidcClientId) {
+      await updateOption('OidcClientId', inputs.OidcClientId);
     }
-    if (originInputs['OidcAppSecret'] !== inputs.OidcAppSecret && inputs.OidcAppSecret !== '') {
-      await updateOption('OidcAppSecret', inputs.OidcAppSecret);
+    if (originInputs['OidcClientSecret'] !== inputs.OidcClientSecret && inputs.OidcClientSecret !== '') {
+      await updateOption('OidcClientSecret', inputs.OidcClientSecret);
     }
     if (originInputs['OidcAuthorizationEndpoint'] !== inputs.OidcAuthorizationEndpoint) {
       await updateOption('OidcAuthorizationEndpoint', inputs.OidcAuthorizationEndpoint);
@@ -332,7 +332,7 @@ const SystemSetting = () => {
             </Grid>
             <Grid xs={12} md={3}>
               <FormControlLabel
-                label="允许通过 Oidc 登录 & 注册"
+                label="允许通过 OIDC 登录 & 注册"
                 control={<Checkbox checked={inputs.OidcEnabled === 'true'} onChange={handleInputChange} name="OidcEnabled" />}
               />
             </Grid>
@@ -679,27 +679,27 @@ const SystemSetting = () => {
             </Grid>
             <Grid xs={ 12 } md={ 6 }>
               <FormControl fullWidth>
-                <InputLabel htmlFor="OidcAppId">App ID</InputLabel>
+                <InputLabel htmlFor="OidcClientId">Client ID</InputLabel>
                 <OutlinedInput
-                  id="OidcAppId"
-                  name="OidcAppId"
-                  value={ inputs.OidcAppId || '' }
+                  id="OidcClientId"
+                  name="OidcClientId"
+                  value={ inputs.OidcClientId || '' }
                   onChange={ handleInputChange }
-                  label="App ID"
-                  placeholder="输入 OAuth 2.0 的 App ID"
+                  label="Client ID"
+                  placeholder="输入 OIDC 的 Client ID"
                   disabled={ loading }
                 />
               </FormControl>
             </Grid>
             <Grid xs={ 12 } md={ 6 }>
               <FormControl fullWidth>
-                <InputLabel htmlFor="OidcAppSecret">App Secret</InputLabel>
+                <InputLabel htmlFor="OidcClientSecret">Client Secret</InputLabel>
                 <OutlinedInput
-                  id="OidcAppSecret"
-                  name="OidcAppSecret"
-                  value={ inputs.OidcAppSecret || '' }
+                  id="OidcClientSecret"
+                  name="OidcClientSecret"
+                  value={ inputs.OidcClientSecret || '' }
                   onChange={ handleInputChange }
-                  label="App Secret"
+                  label="Client Secret"
                   placeholder="敏感信息不会发送到前端显示"
                   disabled={ loading }
                 />
@@ -707,49 +707,49 @@ const SystemSetting = () => {
             </Grid>
             <Grid xs={ 12 } md={ 6 }>
               <FormControl fullWidth>
-                <InputLabel htmlFor="OidcAuthorizationEndpoint">授权地址</InputLabel>
+                <InputLabel htmlFor="OidcAuthorizationEndpoint">Authorization Endpoint</InputLabel>
                 <OutlinedInput
                   id="OidcAuthorizationEndpoint"
                   name="OidcAuthorizationEndpoint"
                   value={ inputs.OidcAuthorizationEndpoint || '' }
                   onChange={ handleInputChange }
-                  label="授权地址"
-                  placeholder="输入 OAuth 2.0 的 授权地址"
+                  label="Authorization Endpoint"
+                  placeholder="输入 OIDC 的 Authorization Endpoint"
                   disabled={ loading }
                 />
               </FormControl>
             </Grid>
             <Grid xs={ 12 } md={ 6 }>
               <FormControl fullWidth>
-                <InputLabel htmlFor="OidcTokenEndpoint">认证地址</InputLabel>
+                <InputLabel htmlFor="OidcTokenEndpoint">Token Endpoint</InputLabel>
                 <OutlinedInput
                   id="OidcTokenEndpoint"
                   name="OidcTokenEndpoint"
                   value={ inputs.OidcTokenEndpoint || '' }
                   onChange={ handleInputChange }
-                  label="认证地址"
-                  placeholder="输入 OAuth 2.0 的 认证地址"
+                  label="Token Endpoint"
+                  placeholder="输入 OIDC 的 Token Endpoint"
                   disabled={ loading }
                 />
               </FormControl>
             </Grid>
             <Grid xs={ 12 } md={ 6 }>
               <FormControl fullWidth>
-                <InputLabel htmlFor="OidcUserinfoEndpoint">用户地址</InputLabel>
+                <InputLabel htmlFor="OidcUserinfoEndpoint">Userinfo Endpoint</InputLabel>
                 <OutlinedInput
                   id="OidcUserinfoEndpoint"
                   name="OidcUserinfoEndpoint"
                   value={ inputs.OidcUserinfoEndpoint || '' }
                   onChange={ handleInputChange }
                   label="认证地址"
-                  placeholder="输入 OAuth 2.0 的 认证地址"
+                  placeholder="输入 OIDC 的 Userinfo Endpoint"
                   disabled={ loading }
                 />
               </FormControl>
             </Grid>
             <Grid xs={ 12 }>
               <Button variant="contained" onClick={ submitOidc }>
-                保存第三方 OAuth 2.0 设置
+                保存 OIDC 设置
               </Button>
             </Grid>
           </Grid>

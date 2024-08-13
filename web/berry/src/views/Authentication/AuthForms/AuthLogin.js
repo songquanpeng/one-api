@@ -152,7 +152,7 @@ const LoginForm = ({ ...others }) => {
                 <Button
                   disableElevation
                   fullWidth
-                  onClick={() => onOidcClicked(siteInfo.oidc_authorization_endpoint,siteInfo.oidc_app_id)}
+                  onClick={() => onOidcClicked(siteInfo.oidc_authorization_endpoint,siteInfo.oidc_client_id)}
                   size="large"
                   variant="outlined"
                   sx={{
