@@ -34,6 +34,7 @@ const SystemSetting = () => {
     LarkClientId: '',
     LarkClientSecret: '',
     OidcEnabled: '',
+    OidcWellKnown: '',
     OidcClientId: '',
     OidcClientSecret: '',
     OidcAuthorizationEndpoint: '',
@@ -150,8 +151,9 @@ const SystemSetting = () => {
       name === 'MessagePusherToken' ||
       name === 'LarkClientId' ||
       name === 'LarkClientSecret' ||
-      name === 'OidcAppId' ||
-      name === 'OidcAppSecret' ||
+      name === 'OidcClientId' ||
+      name === 'OidcClientSecret' ||
+      name === 'OidcWellKnown' ||
       name === 'OidcAuthorizationEndpoint' ||
       name === 'OidcTokenEndpoint' ||
       name === 'OidcUserinfoEndpoint'
@@ -239,14 +241,25 @@ const SystemSetting = () => {
   };
 
   const submitOidc = async () => {
-    const OidcConfig = {
-      OidcClientId: inputs.OidcClientId,
-      OidcClientSecret: inputs.OidcClientSecret,
-      OidcAuthorizationEndpoint: inputs.OidcAuthorizationEndpoint,
-      OidcTokenEndpoint: inputs.OidcTokenEndpoint,
-      OidcUserinfoEndpoint: inputs.OidcUserinfoEndpoint
-    };
-    console.log(OidcConfig);
+    if (inputs.OidcWellKnown !== '') {
+      if (!inputs.OidcWellKnown.startsWith('http://') && !inputs.OidcWellKnown.startsWith('https://')) {
+        showError('Well-Known URL 必须以 http:// 或 https:// 开头');
+        return;
+      }
+      try {
+        const res = await API.get(inputs.OidcWellKnown);
+        inputs.OidcAuthorizationEndpoint = res.data['authorization_endpoint'];
+        inputs.OidcTokenEndpoint = res.data['token_endpoint'];
+        inputs.OidcUserinfoEndpoint = res.data['userinfo_endpoint'];
+        showSuccess('获取 OIDC 配置成功！');
+      } catch (err) {
+        showError("获取 OIDC 配置失败，请检查网络状况和 Well-Known URL 是否正确");
+      }
+    }
+
+    if (originInputs['OidcWellKnown'] !== inputs.OidcWellKnown) {
+      await updateOption('OidcWellKnown', inputs.OidcWellKnown);
+    }
     if (originInputs['OidcClientId'] !== inputs.OidcClientId) {
       await updateOption('OidcClientId', inputs.OidcClientId);
     }
@@ -675,6 +688,9 @@ const SystemSetting = () => {
               <Alert severity="info" sx={ { wordWrap: 'break-word' } }>
                 主页链接填 <code>{ inputs.ServerAddress }</code>
                 ，重定向 URL 填 <code>{ `${ inputs.ServerAddress }/oauth/oidc` }</code>
+              </Alert> <br />
+              <Alert severity="info" sx={ { wordWrap: 'break-word' } }>
+                若你的 OIDC Provider 支持 Discovery Endpoint，你可以仅填写 OIDC Well-Known URL，系统会自动获取 OIDC 配置
               </Alert>
             </Grid>
             <Grid xs={ 12 } md={ 6 }>
@@ -701,6 +717,20 @@ const SystemSetting = () => {
                   onChange={ handleInputChange }
                   label="Client Secret"
                   placeholder="敏感信息不会发送到前端显示"
+                  disabled={ loading }
+                />
+              </FormControl>
+            </Grid>
+            <Grid xs={ 12 } md={ 6 }>
+              <FormControl fullWidth>
+                <InputLabel htmlFor="OidcWellKnown">Well-Known URL</InputLabel>
+                <OutlinedInput
+                  id="OidcWellKnown"
+                  name="OidcWellKnown"
+                  value={ inputs.OidcWellKnown || '' }
+                  onChange={ handleInputChange }
+                  label="Well-Known URL"
+                  placeholder="请输入 OIDC 的 Well-Known URL"
                   disabled={ loading }
                 />
               </FormControl>
@@ -741,7 +771,7 @@ const SystemSetting = () => {
                   name="OidcUserinfoEndpoint"
                   value={ inputs.OidcUserinfoEndpoint || '' }
                   onChange={ handleInputChange }
-                  label="认证地址"
+                  label="Userinfo Endpoint"
                   placeholder="输入 OIDC 的 Userinfo Endpoint"
                   disabled={ loading }
                 />
