@@ -171,10 +171,15 @@ var ModelRatio = map[string]float64{
 	"yi-34b-chat-0205": 2.5 / 1000 * RMB,
 	"yi-34b-chat-200k": 12.0 / 1000 * RMB,
 	"yi-vl-plus":       6.0 / 1000 * RMB,
-	// stepfun todo
-	"step-1v-32k": 0.024 * RMB,
-	"step-1-32k":  0.024 * RMB,
-	"step-1-200k": 0.15 * RMB,
+	// https://platform.stepfun.com/docs/pricing/details
+	"step-1-8k":    0.005 / 1000 * RMB,
+	"step-1-32k":   0.015 / 1000 * RMB,
+	"step-1-128k":  0.040 / 1000 * RMB,
+	"step-1-256k":  0.095 / 1000 * RMB,
+	"step-1-flash": 0.001 / 1000 * RMB,
+	"step-2-16k":   0.038 / 1000 * RMB,
+	"step-1v-8k":   0.005 / 1000 * RMB,
+	"step-1v-32k":  0.015 / 1000 * RMB,
 	// aws llama3 https://aws.amazon.com/cn/bedrock/pricing/
 	"llama3-8b-8192(33)":  0.0003 / 0.002,  // $0.0003 / 1K tokens
 	"llama3-70b-8192(33)": 0.00265 / 0.002, // $0.00265 / 1K tokens
@@ -200,8 +205,10 @@ var CompletionRatio = map[string]float64{
 	"llama3-70b-8192(33)": 0.0035 / 0.00265,
 }
 
-var DefaultModelRatio map[string]float64
-var DefaultCompletionRatio map[string]float64
+var (
+	DefaultModelRatio      map[string]float64
+	DefaultCompletionRatio map[string]float64
+)
 
 func init() {
 	DefaultModelRatio = make(map[string]float64)
