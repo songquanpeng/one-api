@@ -30,7 +30,7 @@ type Token struct {
 	RemainQuota    int64   `json:"remain_quota" gorm:"bigint;default:0"`
 	UnlimitedQuota bool    `json:"unlimited_quota" gorm:"default:false"`
 	UsedQuota      int64   `json:"used_quota" gorm:"bigint;default:0"` // used quota
-	Models         *string `json:"models" gorm:"default:''"`           // allowed models
+	Models         *string `json:"models" gorm:"type:text"`           // allowed models
 	Subnet         *string `json:"subnet" gorm:"default:''"`           // allowed subnet
 }
 
