@@ -15,7 +15,7 @@ func ShouldDisableChannel(err *model.Error, statusCode int) bool {
 	if err == nil {
 		return false
 	}
-	if statusCode == http.StatusUnauthorized || statusCode == http.StatusTooManyRequests {
+	if statusCode == http.StatusUnauthorized{
 		return true
 	}
 	switch err.Type {
