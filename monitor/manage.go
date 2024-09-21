@@ -1,10 +1,11 @@
 package monitor
 
 import (
-	"github.com/songquanpeng/one-api/common/config"
-	"github.com/songquanpeng/one-api/relay/model"
 	"net/http"
 	"strings"
+
+	"github.com/songquanpeng/one-api/common/config"
+	"github.com/songquanpeng/one-api/relay/model"
 )
 
 func ShouldDisableChannel(err *model.Error, statusCode int) bool {
@@ -18,34 +19,23 @@ func ShouldDisableChannel(err *model.Error, statusCode int) bool {
 		return true
 	}
 	switch err.Type {
-	case "insufficient_quota":
-		return true
-	// https://docs.anthropic.com/claude/reference/errors
-	case "authentication_error":
-		return true
-	case "permission_error":
-		return true
-	case "forbidden":
+	case "insufficient_quota", "authentication_error", "permission_error", "forbidden":
 		return true
 	}
 	if err.Code == "invalid_api_key" || err.Code == "account_deactivated" {
 		return true
 	}
-	if strings.HasPrefix(err.Message, "Your credit balance is too low") { // anthropic
-		return true
-	} else if strings.HasPrefix(err.Message, "This organization has been disabled.") {
-		return true
-	}
-	//if strings.Contains(err.Message, "quota") {
-	//	return true
-	//}
-	if strings.Contains(err.Message, "credit") {
-		return true
-	}
-	if strings.Contains(err.Message, "balance") {
-		return true
-	}
-	if strings.Contains(err.Message, "Organization has been restricted") { // groq
+
+	lowerMessage := strings.ToLower(err.Message)
+	if strings.Contains(lowerMessage, "your access was terminated") ||
+		strings.Contains(lowerMessage, "violation of our policies") ||
+		strings.Contains(lowerMessage, "your credit balance is too low") ||
+		strings.Contains(lowerMessage, "organization has been disabled") ||
+		strings.Contains(lowerMessage, "credit") ||
+		strings.Contains(lowerMessage, "balance") ||
+		strings.Contains(lowerMessage, "permission denied") ||
+  	strings.Contains(lowerMessage, "organization has been restricted") || // groq
+		strings.Contains(lowerMessage, "已欠费") {
 		return true
 	}
 	return false
