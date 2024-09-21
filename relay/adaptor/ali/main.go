@@ -3,6 +3,7 @@ package ali
 import (
 	"bufio"
 	"encoding/json"
+	"github.com/songquanpeng/one-api/common/ctxkey"
 	"github.com/songquanpeng/one-api/common/render"
 	"io"
 	"net/http"
@@ -59,7 +60,7 @@ func ConvertRequest(request model.GeneralOpenAIRequest) *ChatRequest {
 
 func ConvertEmbeddingRequest(request model.GeneralOpenAIRequest) *EmbeddingRequest {
 	return &EmbeddingRequest{
-		Model: "text-embedding-v1",
+		Model: request.Model,
 		Input: struct {
 			Texts []string `json:"texts"`
 		}{
@@ -102,8 +103,9 @@ func EmbeddingHandler(c *gin.Context, resp *http.Response) (*model.ErrorWithStat
 			StatusCode: resp.StatusCode,
 		}, nil
 	}
-
+	requestModel := c.GetString(ctxkey.RequestModel)
 	fullTextResponse := embeddingResponseAli2OpenAI(&aliResponse)
+	fullTextResponse.Model = requestModel
 	jsonResponse, err := json.Marshal(fullTextResponse)
 	if err != nil {
 		return openai.ErrorWrapper(err, "marshal_response_body_failed", http.StatusInternalServerError), nil
