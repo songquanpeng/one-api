@@ -33,6 +33,13 @@ const SystemSetting = () => {
     GitHubClientSecret: '',
     LarkClientId: '',
     LarkClientSecret: '',
+    OidcEnabled: '',
+    OidcWellKnown: '',
+    OidcClientId: '',
+    OidcClientSecret: '',
+    OidcAuthorizationEndpoint: '',
+    OidcTokenEndpoint: '',
+    OidcUserinfoEndpoint: '',
     Notice: '',
     SMTPServer: '',
     SMTPPort: '',
@@ -94,6 +101,7 @@ const SystemSetting = () => {
       case 'TurnstileCheckEnabled':
       case 'EmailDomainRestrictionEnabled':
       case 'RegisterEnabled':
+      case 'OidcEnabled':
         value = inputs[key] === 'true' ? 'false' : 'true';
         break;
       default:
@@ -142,8 +150,15 @@ const SystemSetting = () => {
       name === 'MessagePusherAddress' ||
       name === 'MessagePusherToken' ||
       name === 'LarkClientId' ||
-      name === 'LarkClientSecret'
-    ) {
+      name === 'LarkClientSecret' ||
+      name === 'OidcClientId' ||
+      name === 'OidcClientSecret' ||
+      name === 'OidcWellKnown' ||
+      name === 'OidcAuthorizationEndpoint' ||
+      name === 'OidcTokenEndpoint' ||
+      name === 'OidcUserinfoEndpoint'
+    )
+    {
       setInputs((inputs) => ({ ...inputs, [name]: value }));
     } else {
       await updateOption(name, value);
@@ -225,6 +240,43 @@ const SystemSetting = () => {
     }
   };
 
+  const submitOidc = async () => {
+    if (inputs.OidcWellKnown !== '') {
+      if (!inputs.OidcWellKnown.startsWith('http://') && !inputs.OidcWellKnown.startsWith('https://')) {
+        showError('Well-Known URL 必须以 http:// 或 https:// 开头');
+        return;
+      }
+      try {
+        const res = await API.get(inputs.OidcWellKnown);
+        inputs.OidcAuthorizationEndpoint = res.data['authorization_endpoint'];
+        inputs.OidcTokenEndpoint = res.data['token_endpoint'];
+        inputs.OidcUserinfoEndpoint = res.data['userinfo_endpoint'];
+        showSuccess('获取 OIDC 配置成功！');
+      } catch (err) {
+        showError("获取 OIDC 配置失败，请检查网络状况和 Well-Known URL 是否正确");
+      }
+    }
+
+    if (originInputs['OidcWellKnown'] !== inputs.OidcWellKnown) {
+      await updateOption('OidcWellKnown', inputs.OidcWellKnown);
+    }
+    if (originInputs['OidcClientId'] !== inputs.OidcClientId) {
+      await updateOption('OidcClientId', inputs.OidcClientId);
+    }
+    if (originInputs['OidcClientSecret'] !== inputs.OidcClientSecret && inputs.OidcClientSecret !== '') {
+      await updateOption('OidcClientSecret', inputs.OidcClientSecret);
+    }
+    if (originInputs['OidcAuthorizationEndpoint'] !== inputs.OidcAuthorizationEndpoint) {
+      await updateOption('OidcAuthorizationEndpoint', inputs.OidcAuthorizationEndpoint);
+    }
+    if (originInputs['OidcTokenEndpoint'] !== inputs.OidcTokenEndpoint) {
+      await updateOption('OidcTokenEndpoint', inputs.OidcTokenEndpoint);
+    }
+    if (originInputs['OidcUserinfoEndpoint'] !== inputs.OidcUserinfoEndpoint) {
+      await updateOption('OidcUserinfoEndpoint', inputs.OidcUserinfoEndpoint);
+    }
+  };
+
   return (
     <>
       <Stack spacing={2}>
@@ -289,6 +341,12 @@ const SystemSetting = () => {
               <FormControlLabel
                 label="允许通过 GitHub 账户登录 & 注册"
                 control={<Checkbox checked={inputs.GitHubOAuthEnabled === 'true'} onChange={handleInputChange} name="GitHubOAuthEnabled" />}
+              />
+            </Grid>
+            <Grid xs={12} md={3}>
+              <FormControlLabel
+                label="允许通过 OIDC 登录 & 注册"
+                control={<Checkbox checked={inputs.OidcEnabled === 'true'} onChange={handleInputChange} name="OidcEnabled" />}
               />
             </Grid>
             <Grid xs={12} md={3}>
@@ -616,6 +674,117 @@ const SystemSetting = () => {
             </Grid>
           </Grid>
         </SubCard>
+
+        <SubCard
+          title="配置 OIDC"
+          subTitle={
+            <span>
+              用以支持通过 OIDC 登录，例如 Okta、Auth0 等兼容 OIDC 协议的 IdP
+            </span>
+          }
+        >
+          <Grid container spacing={ { xs: 3, sm: 2, md: 4 } }>
+            <Grid xs={ 12 } md={ 12 }>
+              <Alert severity="info" sx={ { wordWrap: 'break-word' } }>
+                主页链接填 <code>{ inputs.ServerAddress }</code>
+                ，重定向 URL 填 <code>{ `${ inputs.ServerAddress }/oauth/oidc` }</code>
+              </Alert> <br />
+              <Alert severity="info" sx={ { wordWrap: 'break-word' } }>
+                若你的 OIDC Provider 支持 Discovery Endpoint，你可以仅填写 OIDC Well-Known URL，系统会自动获取 OIDC 配置
+              </Alert>
+            </Grid>
+            <Grid xs={ 12 } md={ 6 }>
+              <FormControl fullWidth>
+                <InputLabel htmlFor="OidcClientId">Client ID</InputLabel>
+                <OutlinedInput
+                  id="OidcClientId"
+                  name="OidcClientId"
+                  value={ inputs.OidcClientId || '' }
+                  onChange={ handleInputChange }
+                  label="Client ID"
+                  placeholder="输入 OIDC 的 Client ID"
+                  disabled={ loading }
+                />
+              </FormControl>
+            </Grid>
+            <Grid xs={ 12 } md={ 6 }>
+              <FormControl fullWidth>
+                <InputLabel htmlFor="OidcClientSecret">Client Secret</InputLabel>
+                <OutlinedInput
+                  id="OidcClientSecret"
+                  name="OidcClientSecret"
+                  value={ inputs.OidcClientSecret || '' }
+                  onChange={ handleInputChange }
+                  label="Client Secret"
+                  placeholder="敏感信息不会发送到前端显示"
+                  disabled={ loading }
+                />
+              </FormControl>
+            </Grid>
+            <Grid xs={ 12 } md={ 6 }>
+              <FormControl fullWidth>
+                <InputLabel htmlFor="OidcWellKnown">Well-Known URL</InputLabel>
+                <OutlinedInput
+                  id="OidcWellKnown"
+                  name="OidcWellKnown"
+                  value={ inputs.OidcWellKnown || '' }
+                  onChange={ handleInputChange }
+                  label="Well-Known URL"
+                  placeholder="请输入 OIDC 的 Well-Known URL"
+                  disabled={ loading }
+                />
+              </FormControl>
+            </Grid>
+            <Grid xs={ 12 } md={ 6 }>
+              <FormControl fullWidth>
+                <InputLabel htmlFor="OidcAuthorizationEndpoint">Authorization Endpoint</InputLabel>
+                <OutlinedInput
+                  id="OidcAuthorizationEndpoint"
+                  name="OidcAuthorizationEndpoint"
+                  value={ inputs.OidcAuthorizationEndpoint || '' }
+                  onChange={ handleInputChange }
+                  label="Authorization Endpoint"
+                  placeholder="输入 OIDC 的 Authorization Endpoint"
+                  disabled={ loading }
+                />
+              </FormControl>
+            </Grid>
+            <Grid xs={ 12 } md={ 6 }>
+              <FormControl fullWidth>
+                <InputLabel htmlFor="OidcTokenEndpoint">Token Endpoint</InputLabel>
+                <OutlinedInput
+                  id="OidcTokenEndpoint"
+                  name="OidcTokenEndpoint"
+                  value={ inputs.OidcTokenEndpoint || '' }
+                  onChange={ handleInputChange }
+                  label="Token Endpoint"
+                  placeholder="输入 OIDC 的 Token Endpoint"
+                  disabled={ loading }
+                />
+              </FormControl>
+            </Grid>
+            <Grid xs={ 12 } md={ 6 }>
+              <FormControl fullWidth>
+                <InputLabel htmlFor="OidcUserinfoEndpoint">Userinfo Endpoint</InputLabel>
+                <OutlinedInput
+                  id="OidcUserinfoEndpoint"
+                  name="OidcUserinfoEndpoint"
+                  value={ inputs.OidcUserinfoEndpoint || '' }
+                  onChange={ handleInputChange }
+                  label="Userinfo Endpoint"
+                  placeholder="输入 OIDC 的 Userinfo Endpoint"
+                  disabled={ loading }
+                />
+              </FormControl>
+            </Grid>
+            <Grid xs={ 12 }>
+              <Button variant="contained" onClick={ submitOidc }>
+                保存 OIDC 设置
+              </Button>
+            </Grid>
+          </Grid>
+        </SubCard>
+
         <SubCard
           title="配置 Message Pusher"
           subTitle={

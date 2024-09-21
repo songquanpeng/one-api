@@ -35,6 +35,7 @@ var PasswordLoginEnabled = true
 var PasswordRegisterEnabled = true
 var EmailVerificationEnabled = false
 var GitHubOAuthEnabled = false
+var OidcEnabled = false
 var WeChatAuthEnabled = false
 var TurnstileCheckEnabled = false
 var RegisterEnabled = true
@@ -69,6 +70,13 @@ var GitHubClientSecret = ""
 
 var LarkClientId = ""
 var LarkClientSecret = ""
+
+var OidcClientId = ""
+var OidcClientSecret = ""
+var OidcWellKnown = ""
+var OidcAuthorizationEndpoint = ""
+var OidcTokenEndpoint = ""
+var OidcUserinfoEndpoint = ""
 
 var WeChatServerAddress = ""
 var WeChatServerToken = ""
