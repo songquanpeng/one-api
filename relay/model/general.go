@@ -1,11 +1,11 @@
 package model
 
 type ResponseFormat struct {
-	Type       string                    `json:"type,omitempty"`
-	JsonSchema *ResponseFormatJsonSchema `json:"json_schema,omitempty"`
+	Type       string      `json:"type,omitempty"`
+	JsonSchema *JSONSchema `json:"json_schema,omitempty"`
 }
 
-type ResponseFormatJsonSchema struct {
+type JSONSchema struct {
 	Description string                 `json:"description,omitempty"`
 	Name        string                 `json:"name"`
 	Schema      map[string]interface{} `json:"schema,omitempty"`
