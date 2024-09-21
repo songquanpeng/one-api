@@ -45,6 +45,9 @@ func ShouldDisableChannel(err *model.Error, statusCode int) bool {
 	if strings.Contains(err.Message, "balance") {
 		return true
 	}
+	if strings.Contains(err.Message, "Organization has been restricted") { // groq
+		return true
+	}
 	return false
 }
 
