@@ -11,12 +11,14 @@ import EditToken from '../pages/Token/EditToken';
 const COPY_OPTIONS = [
   { key: 'next', text: 'ChatGPT Next Web', value: 'next' },
   { key: 'ama', text: 'ChatGPT Web & Midjourney', value: 'ama' },
-  { key: 'opencat', text: 'OpenCat', value: 'opencat' }
+  { key: 'opencat', text: 'OpenCat', value: 'opencat' },
+  { key: 'lobechat', text: 'LobeChat', value: 'lobechat' },
 ];
 
 const OPEN_LINK_OPTIONS = [
   { key: 'ama', text: 'ChatGPT Web & Midjourney', value: 'ama' },
-  { key: 'opencat', text: 'OpenCat', value: 'opencat' }
+  { key: 'opencat', text: 'OpenCat', value: 'opencat' },
+  { key: 'lobechat', text: 'LobeChat', value: 'lobechat' }
 ];
 
 function renderTimestamp(timestamp) {
@@ -60,7 +62,12 @@ const TokensTable = () => {
         onOpenLink('next-mj');
       }
     },
-    { node: 'item', key: 'opencat', name: 'OpenCat', value: 'opencat' }
+    { node: 'item', key: 'opencat', name: 'OpenCat', value: 'opencat' },
+    {
+      node: 'item', key: 'lobechat', name: 'LobeChat', onClick: () => {
+        onOpenLink('lobechat');
+      }
+    }
   ];
 
   const columns = [
@@ -176,6 +183,11 @@ const TokensTable = () => {
                 {
                   node: 'item', key: 'opencat', name: 'OpenCat', onClick: () => {
                     onOpenLink('opencat', record.key);
+                  }
+                },
+                {
+                  node: 'item', key: 'lobechat', name: 'LobeChat', onClick: () => {
+                    onOpenLink('lobechat');
                   }
                 }
               ]
@@ -381,6 +393,9 @@ const TokensTable = () => {
         break;
       case 'next-mj':
         url = mjLink + `/#/?settings={"key":"sk-${key}","url":"${serverAddress}"}`;
+        break;
+      case 'lobechat':
+        url = chatLink + `/?settings={"keyVaults":{"openai":{"apiKey":"sk-${key}","baseURL":"${serverAddress}"/v1"}}}`;
         break;
       default:
         if (!chatLink) {
