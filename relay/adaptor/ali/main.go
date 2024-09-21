@@ -3,6 +3,7 @@ package ali
 import (
 	"bufio"
 	"encoding/json"
+	"github.com/songquanpeng/one-api/common/ctxkey"
 	"github.com/songquanpeng/one-api/common/render"
 	"io"
 	"net/http"
@@ -102,9 +103,9 @@ func EmbeddingHandler(c *gin.Context, resp *http.Response) (*model.ErrorWithStat
 			StatusCode: resp.StatusCode,
 		}, nil
 	}
-	reqeustModel := c.Keys["request_model"]
+	requestModel := c.GetString(ctxkey.RequestModel)
 	fullTextResponse := embeddingResponseAli2OpenAI(&aliResponse)
-	fullTextResponse.Model = reqeustModel.(string)
+	fullTextResponse.Model = requestModel
 	jsonResponse, err := json.Marshal(fullTextResponse)
 	if err != nil {
 		return openai.ErrorWrapper(err, "marshal_response_body_failed", http.StatusInternalServerError), nil
