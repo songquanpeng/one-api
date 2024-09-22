@@ -24,30 +24,16 @@ func GetRequestBody(c *gin.Context) ([]byte, error) {
 	return requestBody.([]byte), nil
 }
 
-type ModelRequest struct {
-	Model string `json:"model" form:"model"`
-}
-
 func UnmarshalBodyReusable(c *gin.Context, v any) error {
-	var requestBody []byte
-	var err error
+	requestBody, err := GetRequestBody(c)
+	if err != nil {
+		return err
+	}
 	contentType := c.Request.Header.Get("Content-Type")
 	if strings.HasPrefix(contentType, "application/json") {
-		requestBody, err = GetRequestBody(c)
-		if err != nil {
-			return err
-		}
-		err = json.Unmarshal(requestBody, &v)
-	}
-	if strings.HasPrefix(contentType, "multipart/form-data") {
-		var model ModelRequest
-		err = c.Bind(&model)
-		requestBody, err = json.Marshal(model)
 		err = json.Unmarshal(requestBody, &v)
 	} else {
-
-		// skip for now
-		// TODO: someday non json request have variant model, we will need to implementation this
+		err = c.ShouldBind(&v)
 	}
 	if err != nil {
 		return err
