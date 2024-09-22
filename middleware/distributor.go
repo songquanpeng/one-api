@@ -12,7 +12,7 @@ import (
 )
 
 type ModelRequest struct {
-	Model string `json:"model"`
+	Model string `json:"model" form:"model"`
 }
 
 func Distribute() func(c *gin.Context) {
