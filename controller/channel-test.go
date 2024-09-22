@@ -70,15 +70,14 @@ func testChannel(channel *model.Channel, request *relaymodel.GeneralOpenAIReques
 	}
 	adaptor.Init(meta)
 	modelName := request.Model
-	modelMap := channel.GetModelMapping()
 	if modelName == "" || !strings.Contains(channel.Models, modelName) {
 		modelNames := strings.Split(channel.Models, ",")
 		if len(modelNames) > 0 {
 			modelName = modelNames[0]
 		}
-		if modelMap != nil && modelMap[modelName] != "" {
-			modelName = modelMap[modelName]
-		}
+	}
+	if modelMap := channel.GetModelMapping(); modelMap != nil && modelMap[modelName] != "" {
+		modelName = modelMap[modelName]
 	}
 	meta.OriginModelName, meta.ActualModelName = request.Model, modelName
 	request.Model = modelName
