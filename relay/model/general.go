@@ -1,7 +1,15 @@
 package model
 
 type ResponseFormat struct {
-	Type string `json:"type,omitempty"`
+	Type       string      `json:"type,omitempty"`
+	JsonSchema *JSONSchema `json:"json_schema,omitempty"`
+}
+
+type JSONSchema struct {
+	Description string                 `json:"description,omitempty"`
+	Name        string                 `json:"name"`
+	Schema      map[string]interface{} `json:"schema,omitempty"`
+	Strict      *bool                  `json:"strict,omitempty"`
 }
 
 type GeneralOpenAIRequest struct {

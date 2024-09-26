@@ -30,7 +30,7 @@ type Token struct {
 	RemainQuota    int64   `json:"remain_quota" gorm:"bigint;default:0"`
 	UnlimitedQuota bool    `json:"unlimited_quota" gorm:"default:false"`
 	UsedQuota      int64   `json:"used_quota" gorm:"bigint;default:0"` // used quota
-	Models         *string `json:"models" gorm:"default:''"`           // allowed models
+	Models         *string `json:"models" gorm:"type:text"`            // allowed models
 	Subnet         *string `json:"subnet" gorm:"default:''"`           // allowed subnet
 }
 
@@ -121,28 +121,38 @@ func GetTokenById(id int) (*Token, error) {
 	return &token, err
 }
 
-func (token *Token) Insert() error {
+func (t *Token) Insert() error {
 	var err error
-	err = DB.Create(token).Error
+	err = DB.Create(t).Error
 	return err
 }
 
 // Update Make sure your token's fields is completed, because this will update non-zero values
-func (token *Token) Update() error {
+func (t *Token) Update() error {
 	var err error
-	err = DB.Model(token).Select("name", "status", "expired_time", "remain_quota", "unlimited_quota", "models", "subnet").Updates(token).Error
+	err = DB.Model(t).Select("name", "status", "expired_time", "remain_quota", "unlimited_quota", "models", "subnet").Updates(t).Error
 	return err
 }
 
-func (token *Token) SelectUpdate() error {
+func (t *Token) SelectUpdate() error {
 	// This can update zero values
-	return DB.Model(token).Select("accessed_time", "status").Updates(token).Error
+	return DB.Model(t).Select("accessed_time", "status").Updates(t).Error
 }
 
-func (token *Token) Delete() error {
+func (t *Token) Delete() error {
 	var err error
-	err = DB.Delete(token).Error
+	err = DB.Delete(t).Error
 	return err
+}
+
+func (t *Token) GetModels() string {
+	if t == nil {
+		return ""
+	}
+	if t.Models == nil {
+		return ""
+	}
+	return *t.Models
 }
 
 func DeleteTokenById(id int, userId int) (err error) {
@@ -254,13 +264,13 @@ func PreConsumeTokenQuota(tokenId int, quota int64) (err error) {
 
 func PostConsumeTokenQuota(tokenId int, quota int64) (err error) {
 	token, err := GetTokenById(tokenId)
+	if err != nil {
+		return err
+	}
 	if quota > 0 {
 		err = DecreaseUserQuota(token.UserId, quota)
 	} else {
 		err = IncreaseUserQuota(token.UserId, -quota)
-	}
-	if err != nil {
-		return err
 	}
 	if !token.UnlimitedQuota {
 		if quota > 0 {

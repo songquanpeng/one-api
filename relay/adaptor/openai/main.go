@@ -55,8 +55,8 @@ func StreamHandler(c *gin.Context, resp *http.Response, relayMode int) (*model.E
 				render.StringData(c, data) // if error happened, pass the data to client
 				continue                   // just ignore the error
 			}
-			if len(streamResponse.Choices) == 0 {
-				// but for empty choice, we should not pass it to client, this is for azure
+			if len(streamResponse.Choices) == 0 && streamResponse.Usage == nil {
+				// but for empty choice and no usage, we should not pass it to client, this is for azure
 				continue // just ignore empty choice
 			}
 			render.StringData(c, data)
