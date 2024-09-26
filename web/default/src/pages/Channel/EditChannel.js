@@ -178,6 +178,10 @@ const EditChannel = () => {
       showInfo('模型映射必须是合法的 JSON 格式！');
       return;
     }
+    if (inputs.default_params_override !== '' && !verifyJSON(inputs.default_params_override)) {
+      showInfo('默认参数Override必须是合法的 JSON 格式！');
+      return;
+    }
     let localInputs = {...inputs};
     if (localInputs.base_url && localInputs.base_url.endsWith('/')) {
       localInputs.base_url = localInputs.base_url.slice(0, localInputs.base_url.length - 1);
@@ -425,7 +429,7 @@ const EditChannel = () => {
             )
           }
           {
-          inputs.type !== 43 && (
+            inputs.type !== 43 && (
               <Form.Field>
                 <Form.TextArea
                   label='模型重定向'
@@ -433,6 +437,21 @@ const EditChannel = () => {
                   name='model_mapping'
                   onChange={handleInputChange}
                   value={inputs.model_mapping}
+                  style={{ minHeight: 150, fontFamily: 'JetBrains Mono, Consolas' }}
+                  autoComplete='new-password'
+                />
+              </Form.Field>
+            )
+          }
+          {
+            inputs.type !== 43 && (
+              <Form.Field>
+                <Form.TextArea
+                  label='默认参数Override'
+                  placeholder={`此项可选，用于修改请求体中的默认参数，为一个 JSON 字符串，键为请求中模型名称，值为要替换的默认参数，例如：\n${JSON.stringify({ 'llama3:70b': { 'num_ctx': 11520, 'temperature': 0.2 }, 'qwen2:72b': { 'num_ctx': 11520, 'temperature': 0.8 } }, null, 2)}`}
+                  name='default_params_override'
+                  onChange={handleInputChange}
+                  value={inputs.default_params_override}
                   style={{ minHeight: 150, fontFamily: 'JetBrains Mono, Consolas' }}
                   autoComplete='new-password'
                 />
