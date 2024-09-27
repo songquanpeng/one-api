@@ -302,6 +302,17 @@ Render 可以直接部署 docker 镜像，不需要 fork 仓库：https://dashbo
 </div>
 </details>
 
+<details>
+<summary><strong>部署到阿里云</strong></summary>
+<div>
+
+> 阿里云支持一键部署到专属VPC。
+
+阿里云支持快速一键部署，[部署链接](https://computenest.console.aliyun.com/service/instance/create/cn-hangzhou?type=user&ServiceName=One%20API%20%E7%A4%BE%E5%8C%BA%E7%89%88)
+
+</div>
+</details>
+
 ## 配置
 系统本身开箱即用。
 
