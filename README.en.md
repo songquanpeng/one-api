@@ -210,7 +210,7 @@ If you encounter a blank page after deployment, refer to [#97](https://github.co
 
 > Aliyun support one-click deployment to a dedicated VPC.。
 
-Aliyun support the fast deployment，[Deployment Link](https://computenest.console.aliyun.com/service/instance/create/cn-hangzhou?type=user&ServiceName=One%20API%20%E7%A4%BE%E5%8C%BA%E7%89%88)
+Aliyun support the fast deployment，[Deployment Link](https://computenest.console.aliyun.com/service/instance/create/default?type=user&ServiceName=One%20API%20%E7%A4%BE%E5%8C%BA%E7%89%88)
 
 </div>
 </details>
