@@ -199,6 +199,20 @@ func StreamHandler(c *gin.Context, resp *http.Response) (*model.ErrorWithStatusC
 			logger.SysError("error unmarshalling stream response: " + err.Error())
 			continue
 		}
+
+		// Check for known error codes and handle accordingly
+		if aliResponse.Code != "" {
+			return &model.ErrorWithStatusCode{
+				Error: model.Error{
+					Message: aliResponse.Message,
+					Type:    aliResponse.Code,
+					Param:   aliResponse.RequestId,
+					Code:    aliResponse.Code,
+				},
+				StatusCode: resp.StatusCode,
+			}, nil
+		}
+
 		if aliResponse.Usage.OutputTokens != 0 {
 			usage.PromptTokens = aliResponse.Usage.InputTokens
 			usage.CompletionTokens = aliResponse.Usage.OutputTokens
@@ -243,6 +257,8 @@ func Handler(c *gin.Context, resp *http.Response) (*model.ErrorWithStatusCode, *
 	if err != nil {
 		return openai.ErrorWrapper(err, "unmarshal_response_body_failed", http.StatusInternalServerError), nil
 	}
+
+	// Check for known error codes and handle accordingly
 	if aliResponse.Code != "" {
 		return &model.ErrorWithStatusCode{
 			Error: model.Error{
@@ -254,6 +270,7 @@ func Handler(c *gin.Context, resp *http.Response) (*model.ErrorWithStatusCode, *
 			StatusCode: resp.StatusCode,
 		}, nil
 	}
+
 	fullTextResponse := responseAli2OpenAI(&aliResponse)
 	fullTextResponse.Model = "qwen"
 	jsonResponse, err := json.Marshal(fullTextResponse)
