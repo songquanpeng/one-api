@@ -202,7 +202,8 @@ func StreamHandler(c *gin.Context, resp *http.Response) (*model.ErrorWithStatusC
 
 		// Check for known error codes and handle accordingly
 		if aliResponse.Code != "" {
-			return &model.ErrorWithStatusCode{
+
+			errorResponse := &model.ErrorWithStatusCode{
 				Error: model.Error{
 					Message: aliResponse.Message,
 					Type:    aliResponse.Code,
@@ -210,7 +211,14 @@ func StreamHandler(c *gin.Context, resp *http.Response) (*model.ErrorWithStatusC
 					Code:    aliResponse.Code,
 				},
 				StatusCode: resp.StatusCode,
-			}, nil
+			}
+
+			err = render.ObjectData(c, errorResponse)
+			if err != nil {
+				logger.SysError(err.Error())
+			}
+			render.Done(c)
+			return nil, nil
 		}
 
 		if aliResponse.Usage.OutputTokens != 0 {
