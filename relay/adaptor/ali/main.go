@@ -147,7 +147,24 @@ func responseAli2OpenAI(response *ChatResponse) *openai.TextResponse {
 	return &fullTextResponse
 }
 
-func streamResponseAli2OpenAI(aliResponse *ChatResponse) *openai.ChatCompletionsStreamResponse {
+func streamResponseAli2OpenAI(aliResponse *ChatResponse) interface{} {
+	if aliResponse.Code != "" {
+		var choice openai.ChatCompletionsStreamResponseChoice
+		choice.Index = 0
+		choice.Delta = model.Message{
+			Role:    "assistant",
+			Content: "",
+		}
+		response := openai.ChatCompletionsErrorStreamResponse{
+			Id:        aliResponse.RequestId,
+			Object:    "chat.completion.chunk",
+			Created:   helper.GetTimestamp(),
+			Model:     "qwen",
+			ErrorCode: aliResponse.Code,
+			Choices:   []openai.ChatCompletionsStreamResponseChoice{choice},
+		}
+		return &response
+	}
 	if len(aliResponse.Output.Choices) == 0 {
 		return nil
 	}
@@ -202,18 +219,9 @@ func StreamHandler(c *gin.Context, resp *http.Response) (*model.ErrorWithStatusC
 
 		// Check for known error codes and handle accordingly
 		if aliResponse.Code != "" {
+			response := streamResponseAli2OpenAI(&aliResponse)
 
-			errorResponse := &model.ErrorWithStatusCode{
-				Error: model.Error{
-					Message: aliResponse.Message,
-					Type:    aliResponse.Code,
-					Param:   aliResponse.RequestId,
-					Code:    aliResponse.Code,
-				},
-				StatusCode: resp.StatusCode,
-			}
-
-			err = render.ObjectData(c, errorResponse)
+			err = render.ObjectData(c, response)
 			if err != nil {
 				logger.SysError(err.Error())
 			}
