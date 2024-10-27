@@ -395,7 +395,7 @@ const TokensTable = () => {
         url = mjLink + `/#/?settings={"key":"sk-${key}","url":"${serverAddress}"}`;
         break;
       case 'lobechat':
-        url = chatLink + `/?settings={"keyVaults":{"openai":{"apiKey":"sk-${key}","baseURL":"${serverAddress}"/v1"}}}`;
+        url = chatLink + `/?settings={"keyVaults":{"openai":{"apiKey":"sk-${key}","baseURL":"${serverAddress}/v1"}}}`;
         break;
       default:
         if (!chatLink) {
