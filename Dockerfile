@@ -5,15 +5,15 @@ COPY ./VERSION .
 COPY ./web .
 
 WORKDIR /web/default
-RUN npm install
+RUN npm config set registry https://mirrors.huaweicloud.com/repository/npm/ && npm install
 RUN DISABLE_ESLINT_PLUGIN='true' REACT_APP_VERSION=$(cat VERSION) npm run build
 
 WORKDIR /web/berry
-RUN npm install
+RUN npm config set registry https://mirrors.huaweicloud.com/repository/npm/ && npm install
 RUN DISABLE_ESLINT_PLUGIN='true' REACT_APP_VERSION=$(cat VERSION) npm run build
 
 WORKDIR /web/air
-RUN npm install
+RUN npm config set registry https://mirrors.huaweicloud.com/repository/npm/ && npm install
 RUN DISABLE_ESLINT_PLUGIN='true' REACT_APP_VERSION=$(cat VERSION) npm run build
 
 FROM golang:alpine AS builder2
