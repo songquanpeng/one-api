@@ -292,6 +292,8 @@ func apiVersion2domain(apiVersion string) string {
 		return "pro-128k"
 	case "v3.5":
 		return "generalv3.5"
+	case "v3.5-32K":
+		return "max-32k"
 	case "v4.0":
 		return "4.0Ultra"
 	}
@@ -303,7 +305,10 @@ func getXunfeiAuthUrl(apiVersion string, apiKey string, apiSecret string) (strin
 	domain := apiVersion2domain(apiVersion)
 	switch apiVersion {
 	case "v3.1-128K":
-		authUrl = buildXunfeiAuthUrl(fmt.Sprintf("wss://spark-api.xf-yun.com/%s/pro-128k", apiVersion), apiKey, apiSecret)
+		authUrl = buildXunfeiAuthUrl(fmt.Sprintf("wss://spark-api.xf-yun.com/chat/pro-128k"), apiKey, apiSecret)
+		break
+	case "v3.5-32K":
+		authUrl = buildXunfeiAuthUrl(fmt.Sprintf("wss://spark-api.xf-yun.com/chat/max-32k"), apiKey, apiSecret)
 		break
 	default:
 		authUrl = buildXunfeiAuthUrl(fmt.Sprintf("wss://spark-api.xf-yun.com/%s/chat", apiVersion), apiKey, apiSecret)
