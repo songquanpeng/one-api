@@ -14,6 +14,7 @@ const (
 	OriginalModel     = "original_model"
 	Group             = "group"
 	ModelMapping      = "model_mapping"
+	ParamsOverride    = "params_override"
 	ChannelName       = "channel_name"
 	TokenId           = "token_id"
 	TokenName         = "token_name"

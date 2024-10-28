@@ -18,6 +18,7 @@ type Meta struct {
 	UserId       int
 	Group        string
 	ModelMapping map[string]string
+	ParamsOverride  map[string]map[string]interface{}
 	// BaseURL is the proxy url set in the channel config
 	BaseURL  string
 	APIKey   string
@@ -47,6 +48,11 @@ func GetByContext(c *gin.Context) *Meta {
 		APIKey:          strings.TrimPrefix(c.Request.Header.Get("Authorization"), "Bearer "),
 		RequestURLPath:  c.Request.URL.String(),
 	}
+	// Retrieve ParamsOverride
+    paramsOverride, exists := c.Get(ctxkey.ParamsOverride)
+    if exists && paramsOverride != nil {
+        meta.ParamsOverride = paramsOverride.(map[string]map[string]interface{})
+    }
 	cfg, ok := c.Get(ctxkey.Config)
 	if ok {
 		meta.Config = cfg.(model.ChannelConfig)

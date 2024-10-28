@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+    "io/ioutil"
+    "context"
 
 	"github.com/gin-gonic/gin"
 	"github.com/songquanpeng/one-api/common/logger"
@@ -23,13 +25,34 @@ import (
 func RelayTextHelper(c *gin.Context) *model.ErrorWithStatusCode {
 	ctx := c.Request.Context()
 	meta := meta.GetByContext(c)
-	// get & validate textRequest
-	textRequest, err := getAndValidateTextRequest(c, meta.Mode)
-	if err != nil {
-		logger.Errorf(ctx, "getAndValidateTextRequest failed: %s", err.Error())
-		return openai.ErrorWrapper(err, "invalid_text_request", http.StatusBadRequest)
-	}
-	meta.IsStream = textRequest.Stream
+
+    // Read the original request body
+    bodyBytes, err := ioutil.ReadAll(c.Request.Body)
+    if err != nil {
+        logger.Errorf(ctx, "Failed to read request body: %s", err.Error())
+        return openai.ErrorWrapper(err, "invalid_request_body", http.StatusBadRequest)
+    }
+
+    // Restore the request body for `getAndValidateTextRequest`
+    c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
+
+    // Call `getAndValidateTextRequest`
+    textRequest, err := getAndValidateTextRequest(c, meta.Mode)
+    if err != nil {
+        logger.Errorf(ctx, "getAndValidateTextRequest failed: %s", err.Error())
+        return openai.ErrorWrapper(err, "invalid_text_request", http.StatusBadRequest)
+    }
+    meta.IsStream = textRequest.Stream
+
+    // Parse the request body into a map
+    var rawRequest map[string]interface{}
+    if err := json.Unmarshal(bodyBytes, &rawRequest); err != nil {
+        logger.Errorf(ctx, "Failed to parse request body into map: %s", err.Error())
+        return openai.ErrorWrapper(err, "invalid_json", http.StatusBadRequest)
+    }
+
+    // Apply parameter overrides
+    applyParameterOverrides(ctx, meta, textRequest, rawRequest)
 
 	// map model name
 	meta.OriginModelName = textRequest.Model
@@ -104,4 +127,71 @@ func getRequestBody(c *gin.Context, meta *meta.Meta, textRequest *model.GeneralO
 	logger.Debugf(c.Request.Context(), "converted request: \n%s", string(jsonData))
 	requestBody = bytes.NewBuffer(jsonData)
 	return requestBody, nil
+}
+
+func applyParameterOverrides(ctx context.Context, meta *meta.Meta, textRequest *model.GeneralOpenAIRequest, rawRequest map[string]interface{}) {
+    if meta.ParamsOverride != nil {
+        modelName := meta.OriginModelName
+        if overrideParams, exists := meta.ParamsOverride[modelName]; exists {
+            logger.Infof(ctx, "Applying parameter overrides for model %s on channel %d", modelName, meta.ChannelId)
+            for key, value := range overrideParams {
+                if _, userSpecified := rawRequest[key]; !userSpecified {
+                    // Apply the override since the user didn't specify this parameter
+                    switch key {
+                    case "temperature":
+                        if v, ok := value.(float64); ok {
+                            textRequest.Temperature = v
+                        } else if v, ok := value.(int); ok {
+                            textRequest.Temperature = float64(v)
+                        }
+                    case "max_tokens":
+                        if v, ok := value.(float64); ok {
+                            textRequest.MaxTokens = int(v)
+                        } else if v, ok := value.(int); ok {
+                            textRequest.MaxTokens = v
+                        }
+                    case "top_p":
+                        if v, ok := value.(float64); ok {
+                            textRequest.TopP = v
+                        } else if v, ok := value.(int); ok {
+                            textRequest.TopP = float64(v)
+                        }
+                    case "frequency_penalty":
+                        if v, ok := value.(float64); ok {
+                            textRequest.FrequencyPenalty = v
+                        } else if v, ok := value.(int); ok {
+                            textRequest.FrequencyPenalty = float64(v)
+                        }
+                    case "presence_penalty":
+                        if v, ok := value.(float64); ok {
+                            textRequest.PresencePenalty = v
+                        } else if v, ok := value.(int); ok {
+                            textRequest.PresencePenalty = float64(v)
+                        }
+                    case "stop":
+                        textRequest.Stop = value
+                    case "n":
+                        if v, ok := value.(float64); ok {
+                            textRequest.N = int(v)
+                        } else if v, ok := value.(int); ok {
+                            textRequest.N = v
+                        }
+                    case "stream":
+                        if v, ok := value.(bool); ok {
+                            textRequest.Stream = v
+                        }
+                    case "num_ctx":
+                        if v, ok := value.(float64); ok {
+                            textRequest.NumCtx = int(v)
+                        } else if v, ok := value.(int); ok {
+                            textRequest.NumCtx = v
+                        }
+                    // Handle other parameters as needed
+                    default:
+                        logger.Warnf(ctx, "Unknown parameter override key: %s", key)
+                    }
+                }
+            }
+        }
+    }
 }

@@ -35,6 +35,7 @@ type Channel struct {
 	Group              string  `json:"group" gorm:"type:varchar(32);default:'default'"`
 	UsedQuota          int64   `json:"used_quota" gorm:"bigint;default:0"`
 	ModelMapping       *string `json:"model_mapping" gorm:"type:varchar(1024);default:''"`
+	ParamsOverride     *string `json:"default_params_override" gorm:"type:text;default:''"`
 	Priority           *int64  `json:"priority" gorm:"bigint;default:0"`
 	Config             string  `json:"config"`
 }
@@ -122,6 +123,20 @@ func (channel *Channel) GetModelMapping() map[string]string {
 	}
 	return modelMapping
 }
+
+func (channel *Channel) GetParamsOverride() map[string]map[string]interface{} {
+    if channel.ParamsOverride == nil || *channel.ParamsOverride == "" || *channel.ParamsOverride == "{}" {
+        return nil
+    }
+    paramsOverride := make(map[string]map[string]interface{})
+    err := json.Unmarshal([]byte(*channel.ParamsOverride), &paramsOverride)
+    if err != nil {
+        logger.SysError(fmt.Sprintf("failed to unmarshal params override for channel %d, error: %s", channel.Id, err.Error()))
+        return nil
+    }
+    return paramsOverride
+}
+
 
 func (channel *Channel) Insert() error {
 	var err error
