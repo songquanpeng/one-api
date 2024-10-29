@@ -5,15 +5,16 @@ COPY ./VERSION .
 COPY ./web .
 
 WORKDIR /web/default
+RUN npm config set registry https://registry.npmmirror.com
 RUN npm install
 RUN DISABLE_ESLINT_PLUGIN='true' REACT_APP_VERSION=$(cat VERSION) npm run build
 
 WORKDIR /web/berry
-RUN npm install
+RUN npm install --force
 RUN DISABLE_ESLINT_PLUGIN='true' REACT_APP_VERSION=$(cat VERSION) npm run build
 
 WORKDIR /web/air
-RUN npm install
+RUN npm install --force
 RUN DISABLE_ESLINT_PLUGIN='true' REACT_APP_VERSION=$(cat VERSION) npm run build
 
 FROM golang:alpine AS builder2
@@ -22,7 +23,8 @@ RUN apk add --no-cache g++
 
 ENV GO111MODULE=on \
     CGO_ENABLED=1 \
-    GOOS=linux
+    GOOS=linux \
+    GOPROXY=https://goproxy.cn,direct
 
 WORKDIR /build
 ADD go.mod go.sum ./

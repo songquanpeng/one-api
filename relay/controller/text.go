@@ -4,13 +4,13 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/songquanpeng/one-api/relay/adaptor"
 	"io"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/songquanpeng/one-api/common/logger"
 	"github.com/songquanpeng/one-api/relay"
-	"github.com/songquanpeng/one-api/relay/adaptor"
 	"github.com/songquanpeng/one-api/relay/adaptor/openai"
 	"github.com/songquanpeng/one-api/relay/apitype"
 	"github.com/songquanpeng/one-api/relay/billing"
@@ -54,7 +54,6 @@ func RelayTextHelper(c *gin.Context) *model.ErrorWithStatusCode {
 	}
 	adaptor.Init(meta)
 
-	// get request body
 	requestBody, err := getRequestBody(c, meta, textRequest, adaptor)
 	if err != nil {
 		return openai.ErrorWrapper(err, "convert_request_failed", http.StatusInternalServerError)

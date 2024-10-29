@@ -61,6 +61,4 @@ var ImagePromptLengthLimitations = map[string]int{
 }
 
 var ImageOriginModelName = map[string]string{
-	"ali-stable-diffusion-xl":   "stable-diffusion-xl",
-	"ali-stable-diffusion-v1.5": "stable-diffusion-v1.5",
 }
