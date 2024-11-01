@@ -12,9 +12,20 @@ type JSONSchema struct {
 	Strict      *bool                  `json:"strict,omitempty"`
 }
 
+type Audio struct {
+	Voice  string `json:"voice,omitempty"`
+	Format string `json:"format,omitempty"`
+}
+
+type StreamOptions struct {
+	IncludeUsage bool `json:"include_usage,omitempty"`
+}
+
 type GeneralOpenAIRequest struct {
 	Messages         []Message       `json:"messages,omitempty"`
 	Model            string          `json:"model,omitempty"`
+	Modalities       []string        `json:"modalities,omitempty"`
+	Audio            *Audio          `json:"audio,omitempty"`
 	FrequencyPenalty float64         `json:"frequency_penalty,omitempty"`
 	MaxTokens        int             `json:"max_tokens,omitempty"`
 	N                int             `json:"n,omitempty"`
@@ -23,6 +34,7 @@ type GeneralOpenAIRequest struct {
 	Seed             float64         `json:"seed,omitempty"`
 	Stop             any             `json:"stop,omitempty"`
 	Stream           bool            `json:"stream,omitempty"`
+	StreamOptions    *StreamOptions  `json:"stream_options,omitempty"`
 	Temperature      float64         `json:"temperature,omitempty"`
 	TopP             float64         `json:"top_p,omitempty"`
 	TopK             int             `json:"top_k,omitempty"`
@@ -37,7 +49,7 @@ type GeneralOpenAIRequest struct {
 	Dimensions       int             `json:"dimensions,omitempty"`
 	Instruction      string          `json:"instruction,omitempty"`
 	Size             string          `json:"size,omitempty"`
-	NumCtx           int         	 `json:"num_ctx,omitempty"`
+	NumCtx           int             `json:"num_ctx,omitempty"`
 }
 
 func (r GeneralOpenAIRequest) ParseInput() []string {

@@ -2,7 +2,7 @@ import React from 'react';
 import { Header, Segment } from 'semantic-ui-react';
 import ChannelsTable from '../../components/ChannelsTable';
 
-const File = () => (
+const Channel = () => (
   <>
     <Segment>
       <Header as='h3'>管理渠道</Header>
@@ -11,4 +11,4 @@ const File = () => (
   </>
 );
 
-export default File;
+export default Channel;
