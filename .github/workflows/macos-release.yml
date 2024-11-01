@@ -23,7 +23,7 @@ jobs:
       - name: Check repository URL
         run: |
           REPO_URL=$(git config --get remote.origin.url)
-          if [[ $REPO_URL == *"pro" ]]; then
+          if [[ $REPO_URL == *"pro"* ]]; then
             exit 1
           fi
       - uses: actions/setup-node@v3
@@ -41,15 +41,21 @@ jobs:
         uses: actions/setup-go@v3
         with:
           go-version: '>=1.18.0'
-      - name: Build Backend
+      - name: Build Backend (x86_64)
         run: |
           go mod download
-          go build -ldflags "-X 'github.com/songquanpeng/one-api/common.Version=$(git describe --tags)'" -o one-api-macos
+          GOOS=darwin GOARCH=amd64 go build -ldflags "-X 'github.com/songquanpeng/one-api/common.Version=$(git describe --tags)'" -o one-api-macos-x86_64
+      - name: Build Backend (arm64)
+        run: |
+          go mod download
+          GOOS=darwin GOARCH=arm64 go build -ldflags "-X 'github.com/songquanpeng/one-api/common.Version=$(git describe --tags)'" -o one-api-macos-arm64
       - name: Release
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
         with:
-          files: one-api-macos
+          files: |
+            one-api-macos-x86_64
+            one-api-macos-arm64
           draft: true
           generate_release_notes: true
         env:
