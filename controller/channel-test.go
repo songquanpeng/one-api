@@ -76,9 +76,9 @@ func testChannel(channel *model.Channel, request *relaymodel.GeneralOpenAIReques
 		if len(modelNames) > 0 {
 			modelName = modelNames[0]
 		}
-		if modelMap != nil && modelMap[modelName] != "" {
-			modelName = modelMap[modelName]
-		}
+	}
+	if modelMap != nil && modelMap[modelName] != "" {
+		modelName = modelMap[modelName]
 	}
 	meta.OriginModelName, meta.ActualModelName = request.Model, modelName
 	request.Model = modelName

@@ -59,6 +59,12 @@ function renderBalance(type, balance) {
   }
 }
 
+function isShowDetail() {
+  return localStorage.getItem("show_detail") === "true";
+}
+
+const promptID = "detail"
+
 const ChannelsTable = () => {
   const [channels, setChannels] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -66,7 +72,8 @@ const ChannelsTable = () => {
   const [searchKeyword, setSearchKeyword] = useState('');
   const [searching, setSearching] = useState(false);
   const [updatingBalance, setUpdatingBalance] = useState(false);
-  const [showPrompt, setShowPrompt] = useState(shouldShowPrompt("channel-test"));
+  const [showPrompt, setShowPrompt] = useState(shouldShowPrompt(promptID));
+  const [showDetail, setShowDetail] = useState(isShowDetail());
 
   const loadChannels = async (startIdx) => {
     const res = await API.get(`/api/channel/?p=${startIdx}`);
@@ -119,6 +126,11 @@ const ChannelsTable = () => {
     setLoading(true);
     await loadChannels(activePage - 1);
   };
+
+  const toggleShowDetail = () => {
+    setShowDetail(!showDetail);
+    localStorage.setItem("show_detail", (!showDetail).toString());
+  }
 
   useEffect(() => {
     loadChannels(0)
@@ -364,11 +376,13 @@ const ChannelsTable = () => {
         showPrompt && (
           <Message onDismiss={() => {
             setShowPrompt(false);
-            setPromptShown("channel-test");
+            setPromptShown(promptID);
           }}>
             OpenAI 渠道已经不再支持通过 key 获取余额，因此余额显示为 0。对于支持的渠道类型，请点击余额进行刷新。
             <br/>
             渠道测试仅支持 chat 模型，优先使用 gpt-3.5-turbo，如果该模型不可用则使用你所配置的模型列表中的第一个模型。
+            <br/>
+            点击下方详情按钮可以显示余额以及设置额外的测试模型。
           </Message>
         )
       }
@@ -428,6 +442,7 @@ const ChannelsTable = () => {
               onClick={() => {
                 sortChannel('balance');
               }}
+              hidden={!showDetail}
             >
               余额
             </Table.HeaderCell>
@@ -439,7 +454,7 @@ const ChannelsTable = () => {
             >
               优先级
             </Table.HeaderCell>
-            <Table.HeaderCell>测试模型</Table.HeaderCell>
+            <Table.HeaderCell hidden={!showDetail}>测试模型</Table.HeaderCell>
             <Table.HeaderCell>操作</Table.HeaderCell>
           </Table.Row>
         </Table.Header>
@@ -467,7 +482,7 @@ const ChannelsTable = () => {
                       basic
                     />
                   </Table.Cell>
-                  <Table.Cell>
+                  <Table.Cell hidden={!showDetail}>
                     <Popup
                       trigger={<span onClick={() => {
                         updateChannelBalance(channel.id, channel.name, idx);
@@ -494,7 +509,7 @@ const ChannelsTable = () => {
                       basic
                     />
                   </Table.Cell>
-                  <Table.Cell>
+                  <Table.Cell hidden={!showDetail}>
                     <Dropdown
                       placeholder='请选择测试模型'
                       selection
@@ -573,7 +588,7 @@ const ChannelsTable = () => {
 
         <Table.Footer>
           <Table.Row>
-            <Table.HeaderCell colSpan='9'>
+            <Table.HeaderCell colSpan={showDetail ? "10" : "8"}>
               <Button size='small' as={Link} to='/channel/add' loading={loading}>
                 添加新的渠道
               </Button>
@@ -611,6 +626,7 @@ const ChannelsTable = () => {
                 }
               />
               <Button size='small' onClick={refresh} loading={loading}>刷新</Button>
+              <Button size='small' onClick={toggleShowDetail}>{showDetail ? "隐藏详情" : "详情"}</Button>
             </Table.HeaderCell>
           </Table.Row>
         </Table.Footer>
