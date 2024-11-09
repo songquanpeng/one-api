@@ -45,7 +45,8 @@ var ChannelBaseURLs = []string{
 	"https://api.novita.ai/v3/openai",           // 41
 	"",                                          // 42
 	"",                                          // 43
-	"https://api.siliconflow.cn",                 // 44
+	"https://api.siliconflow.cn",                // 44
+	"https://api.x.ai",                          // 45
 }
 
 func init() {
