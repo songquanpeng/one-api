@@ -137,3 +137,23 @@ func String2Int(str string) int {
 	}
 	return num
 }
+
+func Float64PtrMax(p *float64, maxValue float64) *float64 {
+	if p == nil {
+		return nil
+	}
+	if *p > maxValue {
+		return &maxValue
+	}
+	return p
+}
+
+func Float64PtrMin(p *float64, minValue float64) *float64 {
+	if p == nil {
+		return nil
+	}
+	if *p < minValue {
+		return &minValue
+	}
+	return p
+}

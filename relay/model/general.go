@@ -26,17 +26,17 @@ type GeneralOpenAIRequest struct {
 	Model            string          `json:"model,omitempty"`
 	Modalities       []string        `json:"modalities,omitempty"`
 	Audio            *Audio          `json:"audio,omitempty"`
-	FrequencyPenalty float64         `json:"frequency_penalty,omitempty"`
+	FrequencyPenalty *float64        `json:"frequency_penalty,omitempty"`
 	MaxTokens        int             `json:"max_tokens,omitempty"`
 	N                int             `json:"n,omitempty"`
-	PresencePenalty  float64         `json:"presence_penalty,omitempty"`
+	PresencePenalty  *float64        `json:"presence_penalty,omitempty"`
 	ResponseFormat   *ResponseFormat `json:"response_format,omitempty"`
 	Seed             float64         `json:"seed,omitempty"`
 	Stop             any             `json:"stop,omitempty"`
 	Stream           bool            `json:"stream,omitempty"`
 	StreamOptions    *StreamOptions  `json:"stream_options,omitempty"`
-	Temperature      float64         `json:"temperature,omitempty"`
-	TopP             float64         `json:"top_p,omitempty"`
+	Temperature      *float64        `json:"temperature,omitempty"`
+	TopP             *float64        `json:"top_p,omitempty"`
 	TopK             int             `json:"top_k,omitempty"`
 	Tools            []Tool          `json:"tools,omitempty"`
 	ToolChoice       any             `json:"tool_choice,omitempty"`

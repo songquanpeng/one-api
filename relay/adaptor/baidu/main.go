@@ -35,9 +35,9 @@ type Message struct {
 
 type ChatRequest struct {
 	Messages        []Message `json:"messages"`
-	Temperature     float64   `json:"temperature,omitempty"`
-	TopP            float64   `json:"top_p,omitempty"`
-	PenaltyScore    float64   `json:"penalty_score,omitempty"`
+	Temperature     *float64  `json:"temperature,omitempty"`
+	TopP            *float64  `json:"top_p,omitempty"`
+	PenaltyScore    *float64  `json:"penalty_score,omitempty"`
 	Stream          bool      `json:"stream,omitempty"`
 	System          string    `json:"system,omitempty"`
 	DisableSearch   bool      `json:"disable_search,omitempty"`
