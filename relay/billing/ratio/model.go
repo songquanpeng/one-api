@@ -79,6 +79,7 @@ var ModelRatio = map[string]float64{
 	"claude-2.0":                 8.0 / 1000 * USD,
 	"claude-2.1":                 8.0 / 1000 * USD,
 	"claude-3-haiku-20240307":    0.25 / 1000 * USD,
+	"claude-3-5-haiku-20241022":  1.0 / 1000 * USD,
 	"claude-3-sonnet-20240229":   3.0 / 1000 * USD,
 	"claude-3-5-sonnet-20240620": 3.0 / 1000 * USD,
 	"claude-3-5-sonnet-20241022": 3.0 / 1000 * USD,
@@ -208,6 +209,8 @@ var ModelRatio = map[string]float64{
 	"deepl-zh": 25.0 / 1000 * USD,
 	"deepl-en": 25.0 / 1000 * USD,
 	"deepl-ja": 25.0 / 1000 * USD,
+	// https://console.x.ai/
+	"grok-beta": 5.0 / 1000 * USD,
 }
 
 var CompletionRatio = map[string]float64{
@@ -372,6 +375,8 @@ func GetCompletionRatio(name string, channelType int) float64 {
 		return 3
 	case "command-r-plus":
 		return 5
+	case "grok-beta":
+		return 3
 	}
 	return 1
 }
