@@ -223,9 +223,6 @@ const typeConfig = {
     },
     modelGroup: 'anthropic'
   },
-  45: {
-    modelGroup: 'xai'
-  },
 };
 
 export { defaultConfig, typeConfig };
