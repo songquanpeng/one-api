@@ -179,12 +179,6 @@ export const CHANNEL_OPTIONS = {
     value: 44,
     color: 'primary'
   },
-  45: {
-    key: 45,
-    text: 'xAI',
-    value: 45,
-    color: 'primary'
-  },
   41: {
     key: 41,
     text: 'Novita',
