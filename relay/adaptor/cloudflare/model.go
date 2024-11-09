@@ -9,5 +9,5 @@ type Request struct {
 	Prompt      string          `json:"prompt,omitempty"`
 	Raw         bool            `json:"raw,omitempty"`
 	Stream      bool            `json:"stream,omitempty"`
-	Temperature float64         `json:"temperature,omitempty"`
+	Temperature *float64        `json:"temperature,omitempty"`
 }

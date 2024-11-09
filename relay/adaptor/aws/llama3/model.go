@@ -4,10 +4,10 @@ package aws
 //
 // https://docs.aws.amazon.com/bedrock/latest/userguide/model-parameters-meta.html
 type Request struct {
-	Prompt      string  `json:"prompt"`
-	MaxGenLen   int     `json:"max_gen_len,omitempty"`
-	Temperature float64 `json:"temperature,omitempty"`
-	TopP        float64 `json:"top_p,omitempty"`
+	Prompt      string   `json:"prompt"`
+	MaxGenLen   int      `json:"max_gen_len,omitempty"`
+	Temperature *float64 `json:"temperature,omitempty"`
+	TopP        *float64 `json:"top_p,omitempty"`
 }
 
 // Response is the response from AWS Llama3

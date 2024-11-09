@@ -36,9 +36,7 @@ func ConvertRequest(request model.GeneralOpenAIRequest) *ChatRequest {
 		enableSearch = true
 		aliModel = strings.TrimSuffix(aliModel, EnableSearchModelSuffix)
 	}
-	if request.TopP >= 1 {
-		request.TopP = 0.9999
-	}
+	request.TopP = helper.Float64PtrMax(request.TopP, 0.9999)
 	return &ChatRequest{
 		Model: aliModel,
 		Input: Input{

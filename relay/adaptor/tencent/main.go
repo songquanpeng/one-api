@@ -39,8 +39,8 @@ func ConvertRequest(request model.GeneralOpenAIRequest) *ChatRequest {
 		Model:       &request.Model,
 		Stream:      &request.Stream,
 		Messages:    messages,
-		TopP:        &request.TopP,
-		Temperature: &request.Temperature,
+		TopP:        request.TopP,
+		Temperature: request.Temperature,
 	}
 }
 

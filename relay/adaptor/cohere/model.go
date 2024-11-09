@@ -10,15 +10,15 @@ type Request struct {
 	PromptTruncation string        `json:"prompt_truncation,omitempty"` // 默认值为"AUTO"
 	Connectors       []Connector   `json:"connectors,omitempty"`
 	Documents        []Document    `json:"documents,omitempty"`
-	Temperature      float64       `json:"temperature,omitempty"` // 默认值为0.3
+	Temperature      *float64      `json:"temperature,omitempty"` // 默认值为0.3
 	MaxTokens        int           `json:"max_tokens,omitempty"`
 	MaxInputTokens   int           `json:"max_input_tokens,omitempty"`
 	K                int           `json:"k,omitempty"` // 默认值为0
-	P                float64       `json:"p,omitempty"` // 默认值为0.75
+	P                *float64      `json:"p,omitempty"` // 默认值为0.75
 	Seed             int           `json:"seed,omitempty"`
 	StopSequences    []string      `json:"stop_sequences,omitempty"`
-	FrequencyPenalty float64       `json:"frequency_penalty,omitempty"` // 默认值为0.0
-	PresencePenalty  float64       `json:"presence_penalty,omitempty"`  // 默认值为0.0
+	FrequencyPenalty *float64      `json:"frequency_penalty,omitempty"` // 默认值为0.0
+	PresencePenalty  *float64      `json:"presence_penalty,omitempty"`  // 默认值为0.0
 	Tools            []Tool        `json:"tools,omitempty"`
 	ToolResults      []ToolResult  `json:"tool_results,omitempty"`
 }

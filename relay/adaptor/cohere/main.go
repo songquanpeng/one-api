@@ -43,7 +43,7 @@ func ConvertRequest(textRequest model.GeneralOpenAIRequest) *Request {
 		K:                textRequest.TopK,
 		Stream:           textRequest.Stream,
 		FrequencyPenalty: textRequest.FrequencyPenalty,
-		PresencePenalty:  textRequest.FrequencyPenalty,
+		PresencePenalty:  textRequest.PresencePenalty,
 		Seed:             int(textRequest.Seed),
 	}
 	if cohereRequest.Model == "" {
