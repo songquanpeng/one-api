@@ -9,6 +9,7 @@ import (
 	"github.com/songquanpeng/one-api/relay/model"
 	"io"
 	"net/http"
+	"strings"
 )
 
 type Adaptor struct {
@@ -20,12 +21,18 @@ func (a *Adaptor) Init(meta *meta.Meta) {
 }
 
 func (a *Adaptor) GetRequestURL(meta *meta.Meta) (string, error) {
-	return fmt.Sprintf("%s/api/library/ask", meta.BaseURL), nil
+	baseURL := meta.BaseURL
+	if strings.HasSuffix(meta.APIKey, "#vip") {
+		baseURL = "https://apivip.aiproxy.io"
+	}
+	return fmt.Sprintf("%s/api/library/ask", baseURL), nil
 }
 
 func (a *Adaptor) SetupRequestHeader(c *gin.Context, req *http.Request, meta *meta.Meta) error {
 	adaptor.SetupCommonRequestHeader(c, req, meta)
-	req.Header.Set("Authorization", "Bearer "+meta.APIKey)
+	apiKey := meta.APIKey
+	apiKey = strings.TrimSuffix(apiKey, "#vip")
+	req.Header.Set("Authorization", "Bearer "+apiKey)
 	return nil
 }
 
