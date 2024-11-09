@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/songquanpeng/one-api/common/config"
 	"io"
 	"net/http"
 
@@ -84,7 +85,7 @@ func RelayTextHelper(c *gin.Context) *model.ErrorWithStatusCode {
 }
 
 func getRequestBody(c *gin.Context, meta *meta.Meta, textRequest *model.GeneralOpenAIRequest, adaptor adaptor.Adaptor) (io.Reader, error) {
-	if meta.APIType == apitype.OpenAI && meta.OriginModelName == meta.ActualModelName && meta.ChannelType != channeltype.Baichuan {
+	if !config.EnforceIncludeUsage && meta.APIType == apitype.OpenAI && meta.OriginModelName == meta.ActualModelName && meta.ChannelType != channeltype.Baichuan {
 		// no need to convert request for openai
 		return c.Request.Body, nil
 	}
