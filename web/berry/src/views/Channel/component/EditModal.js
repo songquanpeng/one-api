@@ -595,6 +595,28 @@ const EditModal = ({ open, channelId, onCancel, onOk }) => {
                   <FormHelperText id="helper-tex-channel-model_mapping-label"> {inputPrompt.model_mapping} </FormHelperText>
                 )}
               </FormControl>
+              <FormControl fullWidth error={Boolean(touched.system_prompt && errors.system_prompt)} sx={{ ...theme.typography.otherInput }}>
+                {/* <InputLabel htmlFor="channel-model_mapping-label">{inputLabel.model_mapping}</InputLabel> */}
+                <TextField
+                  multiline
+                  id="channel-system_prompt-label"
+                  label={inputLabel.system_prompt}
+                  value={values.system_prompt}
+                  name="system_prompt"
+                  onBlur={handleBlur}
+                  onChange={handleChange}
+                  aria-describedby="helper-text-channel-system_prompt-label"
+                  minRows={5}
+                  placeholder={inputPrompt.system_prompt}
+                />
+                {touched.system_prompt && errors.system_prompt ? (
+                  <FormHelperText error id="helper-tex-channel-system_prompt-label">
+                    {errors.system_prompt}
+                  </FormHelperText>
+                ) : (
+                  <FormHelperText id="helper-tex-channel-system_prompt-label"> {inputPrompt.system_prompt} </FormHelperText>
+                )}
+              </FormControl>
               <DialogActions>
                 <Button onClick={onCancel}>取消</Button>
                 <Button disableElevation disabled={isSubmitting} type="submit" variant="contained" color="primary">
