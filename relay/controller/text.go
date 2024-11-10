@@ -36,6 +36,8 @@ func RelayTextHelper(c *gin.Context) *model.ErrorWithStatusCode {
 	meta.OriginModelName = textRequest.Model
 	textRequest.Model, _ = getMappedModelName(textRequest.Model, meta.ModelMapping)
 	meta.ActualModelName = textRequest.Model
+	// set system prompt if not empty
+	setSystemPrompt(ctx, textRequest, meta.SystemPrompt)
 	// get model ratio & group ratio
 	modelRatio := billingratio.GetModelRatio(textRequest.Model, meta.ChannelType)
 	groupRatio := billingratio.GetGroupRatio(meta.Group)

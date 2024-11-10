@@ -43,6 +43,7 @@ const EditChannel = () => {
     base_url: '',
     other: '',
     model_mapping: '',
+    system_prompt: '',
     models: [],
     groups: ['default']
   };
@@ -425,7 +426,7 @@ const EditChannel = () => {
             )
           }
           {
-          inputs.type !== 43 && (
+          inputs.type !== 43 && (<>
               <Form.Field>
                 <Form.TextArea
                   label='模型重定向'
@@ -437,6 +438,18 @@ const EditChannel = () => {
                   autoComplete='new-password'
                 />
               </Form.Field>
+            <Form.Field>
+                <Form.TextArea
+                  label='系统提示词'
+                  placeholder={`此项可选，用于强制设置给定的系统提示词，请配合自定义模型 & 模型重定向使用，首先创建一个唯一的自定义模型名称并在上面填入，之后将该自定义模型重定向映射到该渠道一个原生支持的模型`}
+                  name='system_prompt'
+                  onChange={handleInputChange}
+                  value={inputs.system_prompt}
+                  style={{ minHeight: 150, fontFamily: 'JetBrains Mono, Consolas' }}
+                  autoComplete='new-password'
+                />
+              </Form.Field>
+              </>
             )
           }
           {

@@ -37,6 +37,7 @@ type Channel struct {
 	ModelMapping       *string `json:"model_mapping" gorm:"type:varchar(1024);default:''"`
 	Priority           *int64  `json:"priority" gorm:"bigint;default:0"`
 	Config             string  `json:"config"`
+	SystemPrompt       *string `json:"system_prompt" gorm:"type:text"`
 }
 
 type ChannelConfig struct {

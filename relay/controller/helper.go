@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/songquanpeng/one-api/relay/constant/role"
 	"math"
 	"net/http"
 	"strings"
@@ -153,4 +154,23 @@ func isErrorHappened(meta *meta.Meta, resp *http.Response) bool {
 		return true
 	}
 	return false
+}
+
+func setSystemPrompt(ctx context.Context, request *relaymodel.GeneralOpenAIRequest, prompt string) {
+	if prompt == "" {
+		return
+	}
+	if len(request.Messages) == 0 {
+		return
+	}
+	if request.Messages[0].Role == role.System {
+		request.Messages[0].Content = prompt
+		logger.Infof(ctx, "rewrite system prompt")
+		return
+	}
+	request.Messages = append([]relaymodel.Message{{
+		Role:    role.System,
+		Content: prompt,
+	}}, request.Messages...)
+	logger.Infof(ctx, "add system prompt")
 }

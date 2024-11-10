@@ -30,6 +30,7 @@ type Meta struct {
 	ActualModelName string
 	RequestURLPath  string
 	PromptTokens    int // only for DoResponse
+	SystemPrompt    string
 }
 
 func GetByContext(c *gin.Context) *Meta {
@@ -46,6 +47,7 @@ func GetByContext(c *gin.Context) *Meta {
 		BaseURL:         c.GetString(ctxkey.BaseURL),
 		APIKey:          strings.TrimPrefix(c.Request.Header.Get("Authorization"), "Bearer "),
 		RequestURLPath:  c.Request.URL.String(),
+		SystemPrompt:    c.GetString(ctxkey.SystemPrompt),
 	}
 	cfg, ok := c.Get(ctxkey.Config)
 	if ok {
