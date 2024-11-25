@@ -312,10 +312,10 @@ func getXunfeiAuthUrl(apiVersion string, apiKey string, apiSecret string, modelN
 		break
 	case "maas":
 		domain = modelName
-		authUrl = buildXunfeiAuthUrl(fmt.Sprintf("wss://maas-api.cn-huabei-1.xf-yun.com/%s/chat", apiVersion), apiKey, apiSecret)
+		authUrl = buildXunfeiAuthUrl(fmt.Sprintf("wss://maas-api.cn-huabei-1.xf-yun.com/v1.1/chat"), apiKey, apiSecret)
 	case "xingchen":
 		domain = modelName
-		authUrl = buildXunfeiAuthUrl(fmt.Sprintf("wss://xingcheng-api.cn-huabei-1.xf-yun.com/%s/chat", apiVersion), apiKey, apiSecret)
+		authUrl = buildXunfeiAuthUrl(fmt.Sprintf("wss://xingcheng-api.cn-huabei-1.xf-yun.com/v1.1/chat"), apiKey, apiSecret)
 
 	default:
 		authUrl = buildXunfeiAuthUrl(fmt.Sprintf("wss://spark-api.xf-yun.com/%s/chat", apiVersion), apiKey, apiSecret)
