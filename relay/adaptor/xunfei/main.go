@@ -97,7 +97,7 @@ func responseXunfei2OpenAI(response *ChatResponse) *openai.TextResponse {
 		FinishReason: constant.StopFinishReason,
 	}
 	fullTextResponse := openai.TextResponse{
-		Id:      fmt.Sprintf("chatcmpl-%s", random.GetUUID()),
+		Id:      response.Header.Sid,
 		Object:  "chat.completion",
 		Created: helper.GetTimestamp(),
 		Choices: []openai.TextResponseChoice{choice},
