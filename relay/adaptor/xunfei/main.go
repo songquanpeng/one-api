@@ -153,7 +153,7 @@ func buildXunfeiAuthUrl(hostUrl string, apiKey, apiSecret string) string {
 }
 
 func StreamHandler(c *gin.Context, meta *meta.Meta, textRequest model.GeneralOpenAIRequest, appId string, apiSecret string, apiKey string) (*model.ErrorWithStatusCode, *model.Usage) {
-	domain, authUrl := getXunfeiAuthUrl(meta.Config.APIVersion, apiKey, apiSecret)
+	domain, authUrl := getXunfeiAuthUrl(meta.Config.APIVersion, apiKey, apiSecret, textRequest.Model)
 	dataChan, stopChan, err := xunfeiMakeRequest(textRequest, domain, authUrl, appId)
 	if err != nil {
 		return openai.ErrorWrapper(err, "xunfei_request_failed", http.StatusInternalServerError), nil
@@ -183,7 +183,7 @@ func StreamHandler(c *gin.Context, meta *meta.Meta, textRequest model.GeneralOpe
 }
 
 func Handler(c *gin.Context, meta *meta.Meta, textRequest model.GeneralOpenAIRequest, appId string, apiSecret string, apiKey string) (*model.ErrorWithStatusCode, *model.Usage) {
-	domain, authUrl := getXunfeiAuthUrl(meta.Config.APIVersion, apiKey, apiSecret)
+	domain, authUrl := getXunfeiAuthUrl(meta.Config.APIVersion, apiKey, apiSecret, textRequest.Model)
 	dataChan, stopChan, err := xunfeiMakeRequest(textRequest, domain, authUrl, appId)
 	if err != nil {
 		return openai.ErrorWrapper(err, "xunfei_request_failed", http.StatusInternalServerError), nil
@@ -300,7 +300,7 @@ func apiVersion2domain(apiVersion string) string {
 	return "general" + apiVersion
 }
 
-func getXunfeiAuthUrl(apiVersion string, apiKey string, apiSecret string) (string, string) {
+func getXunfeiAuthUrl(apiVersion string, apiKey string, apiSecret string, modelName string) (string, string) {
 	var authUrl string
 	domain := apiVersion2domain(apiVersion)
 	switch apiVersion {
@@ -310,6 +310,13 @@ func getXunfeiAuthUrl(apiVersion string, apiKey string, apiSecret string) (strin
 	case "v3.5-32K":
 		authUrl = buildXunfeiAuthUrl(fmt.Sprintf("wss://spark-api.xf-yun.com/chat/max-32k"), apiKey, apiSecret)
 		break
+	case "maas":
+		domain = modelName
+		authUrl = buildXunfeiAuthUrl(fmt.Sprintf("wss://maas-api.cn-huabei-1.xf-yun.com/%s/chat", apiVersion), apiKey, apiSecret)
+	case "xingchen":
+		domain = modelName
+		authUrl = buildXunfeiAuthUrl(fmt.Sprintf("wss://xingcheng-api.cn-huabei-1.xf-yun.com/%s/chat", apiVersion), apiKey, apiSecret)
+
 	default:
 		authUrl = buildXunfeiAuthUrl(fmt.Sprintf("wss://spark-api.xf-yun.com/%s/chat", apiVersion), apiKey, apiSecret)
 	}
