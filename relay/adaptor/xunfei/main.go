@@ -10,6 +10,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
 	"time"
 
@@ -205,6 +206,10 @@ func Handler(c *gin.Context, meta *meta.Meta, textRequest model.GeneralOpenAIReq
 			usage.TotalTokens += xunfeiResponse.Payload.Usage.Text.TotalTokens
 		case stop = <-stopChan:
 		}
+	}
+	if xunfeiResponse.Header.Code != 0 {
+		return openai.ErrorWrapper(errors.New("xunfei response error: sid: "+xunfeiResponse.Header.Sid), strconv.Itoa(xunfeiResponse.Header.Code), http.StatusInternalServerError), nil
+
 	}
 	if len(xunfeiResponse.Payload.Choices.Text) == 0 {
 		return openai.ErrorWrapper(errors.New("xunfei empty response detected"), "xunfei_empty_response_detected", http.StatusInternalServerError), nil
