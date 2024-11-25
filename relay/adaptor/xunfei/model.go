@@ -15,7 +15,8 @@ type Functions struct {
 
 type ChatRequest struct {
 	Header struct {
-		AppId string `json:"app_id"`
+		AppId   string `json:"app_id"`
+		PatchId string `json:"patch_id,omitempty"`
 	} `json:"header"`
 	Parameter struct {
 		Chat struct {
