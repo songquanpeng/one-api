@@ -39,7 +39,9 @@ func requestOpenAI2Xunfei(request model.GeneralOpenAIRequest, xunfeiAppId string
 	}
 	xunfeiRequest := ChatRequest{}
 	xunfeiRequest.Header.AppId = xunfeiAppId
-	xunfeiRequest.Header.PatchId = xunfeiPatchId
+	if xunfeiPatchId != "" {
+		xunfeiRequest.Header.PatchId = []string{xunfeiPatchId}
+	}
 	xunfeiRequest.Parameter.Chat.Domain = domain
 	xunfeiRequest.Parameter.Chat.Temperature = request.Temperature
 	xunfeiRequest.Parameter.Chat.TopK = request.N
