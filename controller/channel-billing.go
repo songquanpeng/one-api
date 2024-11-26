@@ -109,7 +109,7 @@ type DeepSeekUsageResponse struct {
 		TotalBalance    string `json:"total_balance"`
 		GrantedBalance  string `json:"granted_balance"`
 		ToppedUpBalance string `json:"topped_up_balance"`
-	}
+	} `json:"balance_infos"`
 }
 
 // GetAuthHeader get auth header
@@ -267,7 +267,17 @@ func updateChannelDeepSeekBalance(channel *model.Channel) (float64, error) {
 	if err != nil {
 		return 0, err
 	}
-	balance, err := strconv.ParseFloat(response.BalanceInfos[0].TotalBalance, 64)
+	index := -1
+	for i, balanceInfo := range response.BalanceInfos {
+		if balanceInfo.Currency == "CNY" {
+			index = i
+			break
+		}
+	}
+	if index == -1 {
+		return 0, errors.New("currency CNY not found")
+	}
+	balance, err := strconv.ParseFloat(response.BalanceInfos[index].TotalBalance, 64)
 	if err != nil {
 		return 0, err
 	}
