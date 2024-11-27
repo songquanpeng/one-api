@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/songquanpeng/one-api/common/config"
 	"github.com/songquanpeng/one-api/relay/adaptor"
 	"github.com/songquanpeng/one-api/relay/adaptor/doubao"
 	"github.com/songquanpeng/one-api/relay/adaptor/minimax"
@@ -75,13 +76,29 @@ func (a *Adaptor) ConvertRequest(c *gin.Context, relayMode int, request *model.G
 	if request == nil {
 		return nil, errors.New("request is nil")
 	}
-	if request.Stream {
+
+	if config.EnforceIncludeUsage && request.Stream {
 		// always return usage in stream mode
 		if request.StreamOptions == nil {
 			request.StreamOptions = &model.StreamOptions{}
 		}
 		request.StreamOptions.IncludeUsage = true
 	}
+
+	// o1 do not support system prompt and max_tokens
+	if strings.HasPrefix(request.Model, "o1-mini") || strings.HasPrefix(request.Model, "o1-preview") {
+		request.MaxTokens = 0
+		request.Messages = func(raw []model.Message) (filtered []model.Message) {
+			for i := range raw {
+				if raw[i].Role != "system" {
+					filtered = append(filtered, raw[i])
+				}
+			}
+
+			return
+		}(request.Messages)
+	}
+
 	return request, nil
 }
 
