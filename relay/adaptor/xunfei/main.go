@@ -121,11 +121,12 @@ func streamResponseXunfei2OpenAI(xunfeiResponse *ChatResponse) *openai.ChatCompl
 		choice.FinishReason = &constant.StopFinishReason
 	}
 	response := openai.ChatCompletionsStreamResponse{
-		Id:      fmt.Sprintf("chatcmpl-%s", random.GetUUID()),
+		Id:      xunfeiResponse.Header.Sid,
 		Object:  "chat.completion.chunk",
 		Created: helper.GetTimestamp(),
 		Model:   "SparkDesk",
 		Choices: []openai.ChatCompletionsStreamResponseChoice{choice},
+		Usage:   &xunfeiResponse.Payload.Usage.Text,
 	}
 	return &response
 }
