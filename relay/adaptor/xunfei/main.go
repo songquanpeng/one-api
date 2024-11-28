@@ -106,7 +106,7 @@ func responseXunfei2OpenAI(response *ChatResponse) *openai.TextResponse {
 	return &fullTextResponse
 }
 
-func streamResponseXunfei2OpenAI(xunfeiResponse *ChatResponse) *openai.ChatCompletionsStreamResponse {
+func streamResponseXunfei2OpenAI(xunfeiResponse *ChatResponse, usage *model.Usage) *openai.ChatCompletionsStreamResponse {
 	if len(xunfeiResponse.Payload.Choices.Text) == 0 {
 		xunfeiResponse.Payload.Choices.Text = []ChatResponseTextItem{
 			{
@@ -126,7 +126,7 @@ func streamResponseXunfei2OpenAI(xunfeiResponse *ChatResponse) *openai.ChatCompl
 		Created: helper.GetTimestamp(),
 		Model:   "SparkDesk",
 		Choices: []openai.ChatCompletionsStreamResponseChoice{choice},
-		Usage:   &xunfeiResponse.Payload.Usage.Text,
+		Usage:   usage,
 	}
 	return &response
 }
@@ -171,7 +171,7 @@ func StreamHandler(c *gin.Context, meta *meta.Meta, textRequest model.GeneralOpe
 			usage.PromptTokens += xunfeiResponse.Payload.Usage.Text.PromptTokens
 			usage.CompletionTokens += xunfeiResponse.Payload.Usage.Text.CompletionTokens
 			usage.TotalTokens += xunfeiResponse.Payload.Usage.Text.TotalTokens
-			response := streamResponseXunfei2OpenAI(&xunfeiResponse)
+			response := streamResponseXunfei2OpenAI(&xunfeiResponse, &usage)
 			jsonResponse, err := json.Marshal(response)
 			if err != nil {
 				logger.SysError("error marshalling stream response: " + err.Error())
