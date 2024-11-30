@@ -106,7 +106,7 @@ func responseXunfei2OpenAI(response *ChatResponse) *openai.TextResponse {
 	return &fullTextResponse
 }
 
-func streamResponseXunfei2OpenAI(xunfeiResponse *ChatResponse) *openai.ChatCompletionsStreamResponse {
+func streamResponseXunfei2OpenAI(xunfeiResponse *ChatResponse, usage *model.Usage) *openai.ChatCompletionsStreamResponse {
 	if len(xunfeiResponse.Payload.Choices.Text) == 0 {
 		xunfeiResponse.Payload.Choices.Text = []ChatResponseTextItem{
 			{
@@ -126,6 +126,7 @@ func streamResponseXunfei2OpenAI(xunfeiResponse *ChatResponse) *openai.ChatCompl
 		Created: helper.GetTimestamp(),
 		Model:   "SparkDesk",
 		Choices: []openai.ChatCompletionsStreamResponseChoice{choice},
+		Usage:   usage,
 	}
 	return &response
 }
@@ -162,6 +163,7 @@ func StreamHandler(c *gin.Context, meta *meta.Meta, textRequest model.GeneralOpe
 	if err != nil {
 		return openai.ErrorWrapper(err, "xunfei_request_failed", http.StatusInternalServerError), nil
 	}
+
 	common.SetEventStreamHeaders(c)
 	var usage model.Usage
 	c.Stream(func(w io.Writer) bool {
@@ -170,7 +172,23 @@ func StreamHandler(c *gin.Context, meta *meta.Meta, textRequest model.GeneralOpe
 			usage.PromptTokens += xunfeiResponse.Payload.Usage.Text.PromptTokens
 			usage.CompletionTokens += xunfeiResponse.Payload.Usage.Text.CompletionTokens
 			usage.TotalTokens += xunfeiResponse.Payload.Usage.Text.TotalTokens
-			response := streamResponseXunfei2OpenAI(&xunfeiResponse)
+			if xunfeiResponse.Header.Code != 0 {
+				errMessage := fmt.Sprintf("Xunfei request failed with Sid: %s code: %d, msg: %s", xunfeiResponse.Header.Sid, xunfeiResponse.Header.Code, xunfeiResponse.Header.Message)
+				logger.SysError(errMessage)
+				mStr, err := json.Marshal(map[string]interface{}{
+					"error": map[string]interface{}{
+						"message": errMessage,
+						"code":    xunfeiResponse.Header.Code,
+					},
+				})
+				if err != nil {
+					logger.SysError("error marshalling stream response: " + err.Error())
+					return true
+				}
+				c.Render(-1, common.CustomEvent{Data: "data: " + string(mStr), Event: "error"})
+				return false // 停止流式响应
+			}
+			response := streamResponseXunfei2OpenAI(&xunfeiResponse, &usage)
 			jsonResponse, err := json.Marshal(response)
 			if err != nil {
 				logger.SysError("error marshalling stream response: " + err.Error())
