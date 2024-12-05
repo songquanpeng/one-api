@@ -237,7 +237,7 @@ func updateChannelSiliconFlowBalance(channel *model.Channel) (float64, error) {
 	if response.Code != 20000 {
 		return 0, fmt.Errorf("code: %d, message: %s", response.Code, response.Message)
 	}
-	balance, err := strconv.ParseFloat(response.Data.Balance, 64)
+	balance, err := strconv.ParseFloat(response.Data.TotalBalance, 64)
 	if err != nil {
 		return 0, err
 	}
