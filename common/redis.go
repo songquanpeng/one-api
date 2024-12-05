@@ -2,13 +2,15 @@ package common
 
 import (
 	"context"
+	"os"
+	"strings"
+	"time"
+
 	"github.com/go-redis/redis/v8"
 	"github.com/songquanpeng/one-api/common/logger"
-	"os"
-	"time"
 )
 
-var RDB *redis.Client
+var RDB redis.Cmdable
 var RedisEnabled = true
 
 // InitRedisClient This function is called after init()
@@ -24,11 +26,17 @@ func InitRedisClient() (err error) {
 		return nil
 	}
 	logger.SysLog("Redis is enabled")
-	opt, err := redis.ParseURL(os.Getenv("REDIS_CONN_STRING"))
-	if err != nil {
-		logger.FatalLog("failed to parse Redis connection string: " + err.Error())
+	redisConnString := os.Getenv("REDIS_CONN_STRING")
+	opt, err := redis.ParseURL(redisConnString)
+	if err == nil {
+		RDB = redis.NewClient(opt)
+	} else {
+		RDB = redis.NewUniversalClient(&redis.UniversalOptions{
+			Addrs:      strings.Split(redisConnString, ","),
+			Password:   os.Getenv("REDIS_PASSWORD"),
+			MasterName: os.Getenv("REDIS_MASTER_NAME"),
+		})
 	}
-	RDB = redis.NewClient(opt)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()

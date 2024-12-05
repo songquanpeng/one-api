@@ -218,7 +218,7 @@ docker-compose ps
 3. 所有从服务器必须设置 `NODE_TYPE` 为 `slave`，不设置则默认为主服务器。
 4. 设置 `SYNC_FREQUENCY` 后服务器将定期从数据库同步配置，在使用远程数据库的情况下，推荐设置该项并启用 Redis，无论主从。
 5. 从服务器可以选择设置 `FRONTEND_BASE_URL`，以重定向页面请求到主服务器。
-6. 从服务器上**分别**装好 Redis，设置好 `REDIS_CONN_STRING`，这样可以做到在缓存未过期的情况下数据库零访问，可以减少延迟。
+6. 从服务器上**分别**装好 Redis，设置好 `REDIS_CONN_STRING`，这样可以做到在缓存未过期的情况下数据库零访问，可以减少延迟（Redis集群或者哨兵模式，参考环境变量说明）。
 7. 如果主服务器访问数据库延迟也比较高，则也需要启用 Redis，并设置 `SYNC_FREQUENCY`，以定期从数据库同步配置。
 
 环境变量的具体使用方法详见[此处](#环境变量)。
@@ -347,6 +347,8 @@ graph LR
 1. `REDIS_CONN_STRING`：设置之后将使用 Redis 作为缓存使用。
    + 例子：`REDIS_CONN_STRING=redis://default:redispw@localhost:49153`
    + 如果数据库访问延迟很低，没有必要启用 Redis，启用后反而会出现数据滞后的问题。
+   + 哨兵或者集群模式例子：`localhost:49153,localhost:49154,localhost:49155`
+   + 哨兵或者集群模式密码参考环境变量`REDIS_PASSWORD`，设置`REDIS_MASTER_NAME`开启哨兵模式。
 2. `SESSION_SECRET`：设置之后将使用固定的会话密钥，这样系统重新启动后已登录用户的 cookie 将依旧有效。
    + 例子：`SESSION_SECRET=random_string`
 3. `SQL_DSN`：设置之后将使用指定数据库而非 SQLite，请使用 MySQL 或 PostgreSQL。
@@ -401,6 +403,8 @@ graph LR
 27. `INITIAL_ROOT_TOKEN`：如果设置了该值，则在系统首次启动时会自动创建一个值为该环境变量值的 root 用户令牌。
 28. `INITIAL_ROOT_ACCESS_TOKEN`：如果设置了该值，则在系统首次启动时会自动创建一个值为该环境变量的 root 用户创建系统管理令牌。
 29. `ENFORCE_INCLUDE_USAGE`：是否强制在 stream 模型下返回 usage，默认不开启，可选值为 `true` 和 `false`。
+30. `REDIS_PASSWORD`：支持Redis集群或者哨兵模式下的密码设置
+31. `REDIS_MASTER_NAME`：是否启用Redis哨兵模式。
 
 ### 命令行参数
 1. `--port <port_number>`: 指定服务器监听的端口号，默认为 `3000`。
