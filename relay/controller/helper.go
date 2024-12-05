@@ -69,8 +69,10 @@ func preConsumeQuota(ctx context.Context, textRequest *relaymodel.GeneralOpenAIR
 	if err != nil {
 		return preConsumedQuota, openai.ErrorWrapper(err, "get_user_quota_failed", http.StatusInternalServerError)
 	}
+	// Check if user quota is enough Message prompts the user to use Chinese
 	if userQuota-preConsumedQuota < 0 {
-		return preConsumedQuota, openai.ErrorWrapper(errors.New("user quota is not enough"), "insufficient_user_quota", http.StatusForbidden)
+		return preConsumedQuota, openai.ErrorWrapper(errors.New("请移步充值页面进行充值,可在日志中查阅使用明细"), "insufficient_user_quota", http.StatusForbidden)
+
 	}
 	err = model.CacheDecreaseUserQuota(meta.UserId, preConsumedQuota)
 	if err != nil {
