@@ -211,6 +211,31 @@ var ModelRatio = map[string]float64{
 	"deepl-ja": 25.0 / 1000 * USD,
 	// https://console.x.ai/
 	"grok-beta": 5.0 / 1000 * USD,
+	// replicate charges based on the number of generated images
+	// https://replicate.com/pricing
+	"black-forest-labs/flux-1.1-pro":                0.04 * USD,
+	"black-forest-labs/flux-1.1-pro-ultra":          0.06 * USD,
+	"black-forest-labs/flux-canny-dev":              0.025 * USD,
+	"black-forest-labs/flux-canny-pro":              0.05 * USD,
+	"black-forest-labs/flux-depth-dev":              0.025 * USD,
+	"black-forest-labs/flux-depth-pro":              0.05 * USD,
+	"black-forest-labs/flux-dev":                    0.025 * USD,
+	"black-forest-labs/flux-dev-lora":               0.032 * USD,
+	"black-forest-labs/flux-fill-dev":               0.04 * USD,
+	"black-forest-labs/flux-fill-pro":               0.05 * USD,
+	"black-forest-labs/flux-pro":                    0.055 * USD,
+	"black-forest-labs/flux-redux-dev":              0.025 * USD,
+	"black-forest-labs/flux-redux-schnell":          0.003 * USD,
+	"black-forest-labs/flux-schnell":                0.003 * USD,
+	"black-forest-labs/flux-schnell-lora":           0.02 * USD,
+	"ideogram-ai/ideogram-v2":                       0.08 * USD,
+	"ideogram-ai/ideogram-v2-turbo":                 0.05 * USD,
+	"recraft-ai/recraft-v3":                         0.04 * USD,
+	"recraft-ai/recraft-v3-svg":                     0.08 * USD,
+	"stability-ai/stable-diffusion-3":               0.035 * USD,
+	"stability-ai/stable-diffusion-3.5-large":       0.065 * USD,
+	"stability-ai/stable-diffusion-3.5-large-turbo": 0.04 * USD,
+	"stability-ai/stable-diffusion-3.5-medium":      0.035 * USD,
 }
 
 var CompletionRatio = map[string]float64{
