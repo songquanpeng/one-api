@@ -107,6 +107,7 @@ var requestInterval, _ = strconv.Atoi(os.Getenv("POLLING_INTERVAL"))
 var RequestInterval = time.Duration(requestInterval) * time.Second
 
 var SyncFrequency = env.Int("SYNC_FREQUENCY", 10*60) // unit is second
+var TimerFrequency = env.Int("TIMER_FREQUENCY", 24)  // unit is hour
 
 var BatchUpdateEnabled = false
 var BatchUpdateInterval = env.Int("BATCH_UPDATE_INTERVAL", 5)
