@@ -7,9 +7,7 @@ var ModelList = []string{
 	"gpt-4", "gpt-4-0314", "gpt-4-0613", "gpt-4-1106-preview", "gpt-4-0125-preview",
 	"gpt-4-32k", "gpt-4-32k-0314", "gpt-4-32k-0613",
 	"gpt-4-turbo-preview", "gpt-4-turbo", "gpt-4-turbo-2024-04-09",
-	"gpt-4o", "gpt-4o-2024-05-13",
-	"gpt-4o-2024-08-06",
-	"chatgpt-4o-latest",
+	"gpt-4o", "gpt-4o-2024-05-13", "gpt-4o-2024-08-06", "gpt-4o-2024-11-20", "chatgpt-4o-latest",
 	"gpt-4o-mini", "gpt-4o-mini-2024-07-18",
 	"gpt-4-vision-preview",
 	"text-embedding-ada-002", "text-embedding-3-small", "text-embedding-3-large",
@@ -20,4 +18,6 @@ var ModelList = []string{
 	"dall-e-2", "dall-e-3",
 	"whisper-1",
 	"tts-1", "tts-1-1106", "tts-1-hd", "tts-1-hd-1106",
+	"o1-preview", "o1-preview-2024-09-12",
+	"o1-mini", "o1-mini-2024-09-12",
 }

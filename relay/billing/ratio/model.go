@@ -37,6 +37,7 @@ var ModelRatio = map[string]float64{
 	"chatgpt-4o-latest":       2.5,   // $0.005 / 1K tokens
 	"gpt-4o-2024-05-13":       2.5,   // $0.005 / 1K tokens
 	"gpt-4o-2024-08-06":       1.25,  // $0.0025 / 1K tokens
+	"gpt-4o-2024-11-20":       1.25,  // $0.0025 / 1K tokens
 	"gpt-4o-mini":             0.075, // $0.00015 / 1K tokens
 	"gpt-4o-mini-2024-07-18":  0.075, // $0.00015 / 1K tokens
 	"gpt-4-vision-preview":    5,     // $0.01 / 1K tokens
@@ -48,8 +49,12 @@ var ModelRatio = map[string]float64{
 	"gpt-3.5-turbo-instruct":  0.75, // $0.0015 / 1K tokens
 	"gpt-3.5-turbo-1106":      0.5,  // $0.001 / 1K tokens
 	"gpt-3.5-turbo-0125":      0.25, // $0.0005 / 1K tokens
-	"davinci-002":             1,    // $0.002 / 1K tokens
-	"babbage-002":             0.2,  // $0.0004 / 1K tokens
+	"o1-preview":              7.5,  // $15.00 / 1M input tokens
+	"o1-preview-2024-09-12":   7.5,
+	"o1-mini":                 1.5, // $3.00 / 1M input tokens
+	"o1-mini-2024-09-12":      1.5,
+	"davinci-002":             1,   // $0.002 / 1K tokens
+	"babbage-002":             0.2, // $0.0004 / 1K tokens
 	"text-ada-001":            0.2,
 	"text-babbage-001":        0.25,
 	"text-curie-001":          1,
@@ -343,6 +348,12 @@ func GetCompletionRatio(name string, channelType int) float64 {
 			return 3
 		}
 		return 2
+	}
+	if strings.HasPrefix(name, "o1-preview") {
+		return 4
+	}
+	if strings.HasPrefix(name, "o1-mini") {
+		return 4
 	}
 	if name == "chatgpt-4o-latest" {
 		return 3
