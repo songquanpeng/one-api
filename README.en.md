@@ -204,6 +204,17 @@ If you encounter a blank page after deployment, refer to [#97](https://github.co
 </div>
 </details>
 
+<details>
+<summary><strong>Deployment on Aliyun</strong></summary>
+<div>
+
+> Aliyun support one-click deployment to a dedicated VPC.。
+
+Aliyun support the fast deployment，[Deployment Link](https://computenest.console.aliyun.com/service/instance/create/default?type=user&ServiceName=One%20API%20%E7%A4%BE%E5%8C%BA%E7%89%88)
+
+</div>
+</details>
+
 ## Configuration
 The system is ready to use out of the box.
 
