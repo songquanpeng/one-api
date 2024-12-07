@@ -2,6 +2,9 @@ package controller
 
 import (
 	"fmt"
+	"net/http"
+	"strconv"
+
 	"github.com/gin-gonic/gin"
 	"github.com/songquanpeng/one-api/common/config"
 	"github.com/songquanpeng/one-api/common/ctxkey"
@@ -9,8 +12,6 @@ import (
 	"github.com/songquanpeng/one-api/common/network"
 	"github.com/songquanpeng/one-api/common/random"
 	"github.com/songquanpeng/one-api/model"
-	"net/http"
-	"strconv"
 )
 
 func GetAllTokens(c *gin.Context) {
@@ -213,22 +214,37 @@ func UpdateToken(c *gin.Context) {
 		})
 		return
 	}
-	if token.Status == model.TokenStatusEnabled {
-		if cleanToken.Status == model.TokenStatusExpired && cleanToken.ExpiredTime <= helper.GetTimestamp() && cleanToken.ExpiredTime != -1 {
+
+	switch token.Status {
+	case model.TokenStatusEnabled:
+		if cleanToken.Status == model.TokenStatusExpired &&
+			cleanToken.ExpiredTime <= helper.GetTimestamp() && cleanToken.ExpiredTime != -1 &&
+			token.ExpiredTime != -1 && token.ExpiredTime < helper.GetTimestamp() {
 			c.JSON(http.StatusOK, gin.H{
 				"success": false,
 				"message": "令牌已过期，无法启用，请先修改令牌过期时间，或者设置为永不过期",
 			})
 			return
 		}
-		if cleanToken.Status == model.TokenStatusExhausted && cleanToken.RemainQuota <= 0 && !cleanToken.UnlimitedQuota {
+		if cleanToken.Status == model.TokenStatusExhausted &&
+			cleanToken.RemainQuota <= 0 && !cleanToken.UnlimitedQuota &&
+			token.RemainQuota <= 0 && !token.UnlimitedQuota {
 			c.JSON(http.StatusOK, gin.H{
 				"success": false,
 				"message": "令牌可用额度已用尽，无法启用，请先修改令牌剩余额度，或者设置为无限额度",
 			})
 			return
 		}
+	case model.TokenStatusExhausted:
+		if token.RemainQuota > 0 || token.UnlimitedQuota {
+			token.Status = model.TokenStatusEnabled
+		}
+	case model.TokenStatusExpired:
+		if token.ExpiredTime == -1 || token.ExpiredTime > helper.GetTimestamp() {
+			token.Status = model.TokenStatusEnabled
+		}
 	}
+
 	if statusOnly != "" {
 		cleanToken.Status = token.Status
 	} else {
@@ -239,6 +255,8 @@ func UpdateToken(c *gin.Context) {
 		cleanToken.UnlimitedQuota = token.UnlimitedQuota
 		cleanToken.Models = token.Models
 		cleanToken.Subnet = token.Subnet
+		cleanToken.RemainQuota = token.RemainQuota
+		cleanToken.Status = token.Status
 	}
 	err = cleanToken.Update()
 	if err != nil {
