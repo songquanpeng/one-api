@@ -102,11 +102,14 @@ var ModelRatio = map[string]float64{
 	"bge-large-en":       0.002 * RMB,
 	"tao-8k":             0.002 * RMB,
 	// https://ai.google.dev/pricing
-	"gemini-pro":       1, // $0.00025 / 1k characters -> $0.001 / 1k tokens
-	"gemini-1.0-pro":   1,
-	"gemini-1.5-flash": 1,
-	"gemini-1.5-pro":   1,
-	"aqa":              1,
+	"gemini-pro":           1, // $0.00025 / 1k characters -> $0.001 / 1k tokens
+	"gemini-1.0-pro":       1,
+	"gemini-1.5-pro":       1,
+	"gemini-1.5-pro-001":   1,
+	"gemini-1.5-flash":     1,
+	"gemini-1.5-flash-001": 1,
+	"gemini-2.0-flash-exp": 1,
+	"aqa":                  1,
 	// https://open.bigmodel.cn/pricing
 	"glm-4":         0.1 * RMB,
 	"glm-4v":        0.1 * RMB,
