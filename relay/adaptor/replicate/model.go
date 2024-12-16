@@ -1,10 +1,128 @@
 package replicate
 
 import (
+	"bytes"
+	"encoding/base64"
+	"image"
+	"image/png"
+	"io"
+	"mime/multipart"
 	"time"
 
 	"github.com/pkg/errors"
 )
+
+type OpenaiImageEditRequest struct {
+	Image          *multipart.FileHeader `json:"image" form:"image" binding:"required"`
+	Prompt         string                `json:"prompt" form:"prompt" binding:"required"`
+	Mask           *multipart.FileHeader `json:"mask" form:"mask" binding:"required"`
+	Model          string                `json:"model" form:"model" binding:"required"`
+	N              int                   `json:"n" form:"n" binding:"min=0,max=10"`
+	Size           string                `json:"size" form:"size"`
+	ResponseFormat string                `json:"response_format" form:"response_format"`
+}
+
+// toFluxRemixRequest convert OpenAI's image edit request to Flux's remix request.
+//
+// Note that the mask formats of OpenAI and Flux are different:
+// OpenAI's mask sets the parts to be modified as transparent (0, 0, 0, 0),
+// while Flux sets the parts to be modified as black (255, 255, 255, 255),
+// so we need to convert the format here.
+//
+// Both OpenAI's Image and Mask are browser-native ImageData,
+// which need to be converted to base64 dataURI format.
+func (r *OpenaiImageEditRequest) toFluxRemixRequest() (*InpaintingImageByFlusReplicateRequest, error) {
+	if r.ResponseFormat != "b64_json" {
+		return nil, errors.New("response_format must be b64_json for replicate models")
+	}
+
+	fluxReq := &InpaintingImageByFlusReplicateRequest{
+		Input: FluxInpaintingInput{
+			Prompt:           r.Prompt,
+			Seed:             int(time.Now().UnixNano()),
+			Steps:            30,
+			Guidance:         3,
+			SafetyTolerance:  5,
+			PromptUnsampling: false,
+			OutputFormat:     "png",
+		},
+	}
+
+	imgFile, err := r.Image.Open()
+	if err != nil {
+		return nil, errors.Wrap(err, "open image file")
+	}
+	defer imgFile.Close()
+	imgData, err := io.ReadAll(imgFile)
+	if err != nil {
+		return nil, errors.Wrap(err, "read image file")
+	}
+
+	maskFile, err := r.Mask.Open()
+	if err != nil {
+		return nil, errors.Wrap(err, "open mask file")
+	}
+	defer maskFile.Close()
+
+	// Convert image to base64
+	imageBase64 := "data:image/png;base64," + base64.StdEncoding.EncodeToString(imgData)
+	fluxReq.Input.Image = imageBase64
+
+	// Convert mask data to RGBA
+	maskPNG, err := png.Decode(maskFile)
+	if err != nil {
+		return nil, errors.Wrap(err, "decode mask file")
+	}
+
+	// convert mask to RGBA
+	var maskRGBA *image.RGBA
+	switch converted := maskPNG.(type) {
+	case *image.RGBA:
+		maskRGBA = converted
+	default:
+		// Convert to RGBA
+		bounds := maskPNG.Bounds()
+		maskRGBA = image.NewRGBA(bounds)
+		for y := bounds.Min.Y; y < bounds.Max.Y; y++ {
+			for x := bounds.Min.X; x < bounds.Max.X; x++ {
+				maskRGBA.Set(x, y, maskPNG.At(x, y))
+			}
+		}
+	}
+
+	maskData := maskRGBA.Pix
+	invertedMask := make([]byte, len(maskData))
+	for i := 0; i+4 <= len(maskData); i += 4 {
+		// If pixel is transparent (alpha = 0), make it black (255)
+		if maskData[i+3] == 0 {
+			invertedMask[i] = 255   // R
+			invertedMask[i+1] = 255 // G
+			invertedMask[i+2] = 255 // B
+			invertedMask[i+3] = 255 // A
+		} else {
+			// Copy original pixel
+			copy(invertedMask[i:i+4], maskData[i:i+4])
+		}
+	}
+
+	// Convert inverted mask to base64 encoded png image
+	invertedMaskRGBA := &image.RGBA{
+		Pix:    invertedMask,
+		Stride: maskRGBA.Stride,
+		Rect:   maskRGBA.Rect,
+	}
+
+	var buf bytes.Buffer
+	err = png.Encode(&buf, invertedMaskRGBA)
+	if err != nil {
+		return nil, errors.Wrap(err, "encode inverted mask to png")
+	}
+
+	invertedMaskBase64 := "data:image/png;base64," + base64.StdEncoding.EncodeToString(buf.Bytes())
+	fluxReq.Input.Mask = invertedMaskBase64
+
+	return fluxReq, nil
+}
 
 // DrawImageRequest draw image by fluxpro
 //

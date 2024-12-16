@@ -22,9 +22,9 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-// ImagesEditsHandler just copy response body to client
-//
-// https://replicate.com/black-forest-labs/flux-fill-pro
+// // ImagesEditsHandler just copy response body to client
+// //
+// // https://replicate.com/black-forest-labs/flux-fill-pro
 // func ImagesEditsHandler(c *gin.Context, resp *http.Response) (*model.ErrorWithStatusCode, *model.Usage) {
 // 	c.Writer.WriteHeader(resp.StatusCode)
 // 	for k, v := range resp.Header {
@@ -32,7 +32,7 @@ import (
 // 	}
 
 // 	if _, err := io.Copy(c.Writer, resp.Body); err != nil {
-// 		return ErrorWrapper(err, "copy_response_body_failed", http.StatusInternalServerError), nil
+// 		return openai.ErrorWrapper(err, "copy_response_body_failed", http.StatusInternalServerError), nil
 // 	}
 // 	defer resp.Body.Close()
 
@@ -41,7 +41,8 @@ import (
 
 var errNextLoop = errors.New("next_loop")
 
-func ImageHandler(c *gin.Context, resp *http.Response) (*model.ErrorWithStatusCode, *model.Usage) {
+func ImageHandler(c *gin.Context, resp *http.Response) (
+	*model.ErrorWithStatusCode, *model.Usage) {
 	if resp.StatusCode != http.StatusCreated {
 		payload, _ := io.ReadAll(resp.Body)
 		return openai.ErrorWrapper(
@@ -95,7 +96,7 @@ func ImageHandler(c *gin.Context, resp *http.Response) (*model.ErrorWithStatusCo
 			switch taskData.Status {
 			case "succeeded":
 			case "failed", "canceled":
-				return errors.Errorf("task failed: %s", taskData.Status)
+				return errors.Errorf("task failed, [%s]%s", taskData.Status, taskData.Error)
 			default:
 				time.Sleep(time.Second * 3)
 				return errNextLoop

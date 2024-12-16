@@ -57,9 +57,7 @@ func Relay(c *gin.Context) {
 	channelName := c.GetString(ctxkey.ChannelName)
 	group := c.GetString(ctxkey.Group)
 	originalModel := c.GetString(ctxkey.OriginalModel)
-
-	// BUG: bizErr is shared, should not run this function in goroutine to avoid race
-	go processChannelRelayError(ctx, userId, channelId, channelName, bizErr)
+	go processChannelRelayError(ctx, userId, channelId, channelName, *bizErr)
 	requestId := c.GetString(helper.RequestIdKey)
 	retryTimes := config.RetryTimes
 	if !shouldRetry(c, bizErr.StatusCode) {
@@ -86,8 +84,7 @@ func Relay(c *gin.Context) {
 		channelId := c.GetInt(ctxkey.ChannelId)
 		lastFailedChannelId = channelId
 		channelName := c.GetString(ctxkey.ChannelName)
-		// BUG: bizErr is in race condition
-		go processChannelRelayError(ctx, userId, channelId, channelName, bizErr)
+		go processChannelRelayError(ctx, userId, channelId, channelName, *bizErr)
 	}
 
 	if bizErr != nil {
@@ -122,7 +119,10 @@ func shouldRetry(c *gin.Context, statusCode int) bool {
 	return true
 }
 
-func processChannelRelayError(ctx context.Context, userId int, channelId int, channelName string, err *model.ErrorWithStatusCode) {
+func processChannelRelayError(ctx context.Context,
+	userId int, channelId int, channelName string,
+	// FIX: err should not use a pointer to avoid data race in concurrent situations
+	err model.ErrorWithStatusCode) {
 	logger.Errorf(ctx, "relay error (channel id %d, user id: %d): %s", channelId, userId, err.Message)
 	// https://platform.openai.com/docs/guides/error-codes/api-errors
 	if monitor.ShouldDisableChannel(&err.Error, err.StatusCode) {

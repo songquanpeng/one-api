@@ -4,19 +4,20 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/pkg/errors"
 	"github.com/songquanpeng/one-api/common"
 	"github.com/songquanpeng/one-api/common/ctxkey"
 	"github.com/songquanpeng/one-api/common/logger"
 	"github.com/songquanpeng/one-api/model"
 	"github.com/songquanpeng/one-api/relay"
 	"github.com/songquanpeng/one-api/relay/adaptor/openai"
+	"github.com/songquanpeng/one-api/relay/adaptor/replicate"
 	billingratio "github.com/songquanpeng/one-api/relay/billing/ratio"
 	"github.com/songquanpeng/one-api/relay/channeltype"
 	"github.com/songquanpeng/one-api/relay/meta"
@@ -27,7 +28,7 @@ func getImageRequest(c *gin.Context, relayMode int) (*relaymodel.ImageRequest, e
 	imageRequest := &relaymodel.ImageRequest{}
 	err := common.UnmarshalBodyReusable(c, imageRequest)
 	if err != nil {
-		return nil, err
+		return nil, errors.WithStack(err)
 	}
 	if imageRequest.N == 0 {
 		imageRequest.N = 1
@@ -156,9 +157,18 @@ func RelayImageHelper(c *gin.Context, relayMode int) *relaymodel.ErrorWithStatus
 	switch meta.ChannelType {
 	case channeltype.Zhipu,
 		channeltype.Ali,
-		channeltype.Replicate,
 		channeltype.Baidu:
 		finalRequest, err := adaptor.ConvertImageRequest(imageRequest)
+		if err != nil {
+			return openai.ErrorWrapper(err, "convert_image_request_failed", http.StatusInternalServerError)
+		}
+		jsonStr, err := json.Marshal(finalRequest)
+		if err != nil {
+			return openai.ErrorWrapper(err, "marshal_image_request_failed", http.StatusInternalServerError)
+		}
+		requestBody = bytes.NewBuffer(jsonStr)
+	case channeltype.Replicate:
+		finalRequest, err := replicate.ConvertImageRequest(c, imageRequest)
 		if err != nil {
 			return openai.ErrorWrapper(err, "convert_image_request_failed", http.StatusInternalServerError)
 		}

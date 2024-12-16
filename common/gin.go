@@ -4,24 +4,26 @@ import (
 	"bytes"
 	"encoding/json"
 	"io"
+	"reflect"
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/pkg/errors"
 	"github.com/songquanpeng/one-api/common/ctxkey"
 )
 
-func GetRequestBody(c *gin.Context) ([]byte, error) {
-	requestBody, _ := c.Get(ctxkey.KeyRequestBody)
-	if requestBody != nil {
-		return requestBody.([]byte), nil
+func GetRequestBody(c *gin.Context) (requestBody []byte, err error) {
+	if requestBodyCache, _ := c.Get(ctxkey.KeyRequestBody); requestBodyCache != nil {
+		return requestBodyCache.([]byte), nil
 	}
-	requestBody, err := io.ReadAll(c.Request.Body)
+	requestBody, err = io.ReadAll(c.Request.Body)
 	if err != nil {
 		return nil, err
 	}
 	_ = c.Request.Body.Close()
 	c.Set(ctxkey.KeyRequestBody, requestBody)
-	return requestBody.([]byte), nil
+
+	return requestBody, nil
 }
 
 func UnmarshalBodyReusable(c *gin.Context, v any) error {
@@ -29,18 +31,25 @@ func UnmarshalBodyReusable(c *gin.Context, v any) error {
 	if err != nil {
 		return err
 	}
+
+	// check v should be a pointer
+	if v == nil || reflect.TypeOf(v).Kind() != reflect.Ptr {
+		return errors.Errorf("UnmarshalBodyReusable only accept pointer, got %v", reflect.TypeOf(v))
+	}
+
 	contentType := c.Request.Header.Get("Content-Type")
 	if strings.HasPrefix(contentType, "application/json") {
-		err = json.Unmarshal(requestBody, &v)
-		c.Request.Body = io.NopCloser(bytes.NewBuffer(requestBody))
+		err = json.Unmarshal(requestBody, v)
 	} else {
 		c.Request.Body = io.NopCloser(bytes.NewBuffer(requestBody))
-		err = c.ShouldBind(&v)
+		err = c.ShouldBind(v)
 	}
 	if err != nil {
-		return err
+		return errors.Wrap(err, "unmarshal request body failed")
 	}
 	// Reset request body
+	c.Request.Body = io.NopCloser(bytes.NewBuffer(requestBody))
+
 	return nil
 }
 
