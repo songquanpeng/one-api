@@ -4,18 +4,20 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/pkg/errors"
 	"github.com/songquanpeng/one-api/common"
 	"github.com/songquanpeng/one-api/common/ctxkey"
 	"github.com/songquanpeng/one-api/common/logger"
 	"github.com/songquanpeng/one-api/model"
 	"github.com/songquanpeng/one-api/relay"
 	"github.com/songquanpeng/one-api/relay/adaptor/openai"
+	"github.com/songquanpeng/one-api/relay/adaptor/replicate"
 	billingratio "github.com/songquanpeng/one-api/relay/billing/ratio"
 	"github.com/songquanpeng/one-api/relay/channeltype"
 	"github.com/songquanpeng/one-api/relay/meta"
@@ -26,7 +28,7 @@ func getImageRequest(c *gin.Context, relayMode int) (*relaymodel.ImageRequest, e
 	imageRequest := &relaymodel.ImageRequest{}
 	err := common.UnmarshalBodyReusable(c, imageRequest)
 	if err != nil {
-		return nil, err
+		return nil, errors.WithStack(err)
 	}
 	if imageRequest.N == 0 {
 		imageRequest.N = 1
@@ -134,7 +136,8 @@ func RelayImageHelper(c *gin.Context, relayMode int) *relaymodel.ErrorWithStatus
 	c.Set("response_format", imageRequest.ResponseFormat)
 
 	var requestBody io.Reader
-	if isModelMapped || meta.ChannelType == channeltype.Azure { // make Azure channel request body
+	if strings.ToLower(c.GetString(ctxkey.ContentType)) == "application/json" &&
+		isModelMapped || meta.ChannelType == channeltype.Azure { // make Azure channel request body
 		jsonStr, err := json.Marshal(imageRequest)
 		if err != nil {
 			return openai.ErrorWrapper(err, "marshal_image_request_failed", http.StatusInternalServerError)
@@ -150,13 +153,22 @@ func RelayImageHelper(c *gin.Context, relayMode int) *relaymodel.ErrorWithStatus
 	}
 	adaptor.Init(meta)
 
+	// these adaptors need to convert the request
 	switch meta.ChannelType {
-	case channeltype.Ali:
-		fallthrough
-	case channeltype.Baidu:
-		fallthrough
-	case channeltype.Zhipu:
+	case channeltype.Zhipu,
+		channeltype.Ali,
+		channeltype.Baidu:
 		finalRequest, err := adaptor.ConvertImageRequest(imageRequest)
+		if err != nil {
+			return openai.ErrorWrapper(err, "convert_image_request_failed", http.StatusInternalServerError)
+		}
+		jsonStr, err := json.Marshal(finalRequest)
+		if err != nil {
+			return openai.ErrorWrapper(err, "marshal_image_request_failed", http.StatusInternalServerError)
+		}
+		requestBody = bytes.NewBuffer(jsonStr)
+	case channeltype.Replicate:
+		finalRequest, err := replicate.ConvertImageRequest(c, imageRequest)
 		if err != nil {
 			return openai.ErrorWrapper(err, "convert_image_request_failed", http.StatusInternalServerError)
 		}
@@ -172,7 +184,14 @@ func RelayImageHelper(c *gin.Context, relayMode int) *relaymodel.ErrorWithStatus
 	ratio := modelRatio * groupRatio
 	userQuota, err := model.CacheGetUserQuota(ctx, meta.UserId)
 
-	quota := int64(ratio*imageCostRatio*1000) * int64(imageRequest.N)
+	var quota int64
+	switch meta.ChannelType {
+	case channeltype.Replicate:
+		// replicate always return 1 image
+		quota = int64(ratio * imageCostRatio * 1000)
+	default:
+		quota = int64(ratio*imageCostRatio*1000) * int64(imageRequest.N)
+	}
 
 	if userQuota-quota < 0 {
 		return openai.ErrorWrapper(errors.New("user quota is not enough"), "insufficient_user_quota", http.StatusForbidden)
@@ -186,7 +205,9 @@ func RelayImageHelper(c *gin.Context, relayMode int) *relaymodel.ErrorWithStatus
 	}
 
 	defer func(ctx context.Context) {
-		if resp != nil && resp.StatusCode != http.StatusOK {
+		if resp != nil &&
+			resp.StatusCode != http.StatusCreated && // replicate returns 201
+			resp.StatusCode != http.StatusOK {
 			return
 		}
 
