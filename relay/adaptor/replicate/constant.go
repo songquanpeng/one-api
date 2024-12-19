@@ -33,24 +33,24 @@ var ModelList = []string{
 	// -------------------------------------
 	// language model
 	// -------------------------------------
-	// "ibm-granite/granite-20b-code-instruct-8k",  // TODO: implement the adaptor
-	// "ibm-granite/granite-3.0-2b-instruct",  // TODO: implement the adaptor
-	// "ibm-granite/granite-3.0-8b-instruct",  // TODO: implement the adaptor
-	// "ibm-granite/granite-8b-code-instruct-128k",  // TODO: implement the adaptor
-	// "meta/llama-2-13b",  // TODO: implement the adaptor
-	// "meta/llama-2-13b-chat",  // TODO: implement the adaptor
-	// "meta/llama-2-70b",  // TODO: implement the adaptor
-	// "meta/llama-2-70b-chat",  // TODO: implement the adaptor
-	// "meta/llama-2-7b",  // TODO: implement the adaptor
-	// "meta/llama-2-7b-chat",  // TODO: implement the adaptor
-	// "meta/meta-llama-3.1-405b-instruct",  // TODO: implement the adaptor
-	// "meta/meta-llama-3-70b",  // TODO: implement the adaptor
-	// "meta/meta-llama-3-70b-instruct",  // TODO: implement the adaptor
-	// "meta/meta-llama-3-8b",  // TODO: implement the adaptor
-	// "meta/meta-llama-3-8b-instruct",  // TODO: implement the adaptor
-	// "mistralai/mistral-7b-instruct-v0.2",  // TODO: implement the adaptor
-	// "mistralai/mistral-7b-v0.1",  // TODO: implement the adaptor
-	// "mistralai/mixtral-8x7b-instruct-v0.1",  // TODO: implement the adaptor
+	"ibm-granite/granite-20b-code-instruct-8k",
+	"ibm-granite/granite-3.0-2b-instruct",
+	"ibm-granite/granite-3.0-8b-instruct",
+	"ibm-granite/granite-8b-code-instruct-128k",
+	"meta/llama-2-13b",
+	"meta/llama-2-13b-chat",
+	"meta/llama-2-70b",
+	"meta/llama-2-70b-chat",
+	"meta/llama-2-7b",
+	"meta/llama-2-7b-chat",
+	"meta/meta-llama-3.1-405b-instruct",
+	"meta/meta-llama-3-70b",
+	"meta/meta-llama-3-70b-instruct",
+	"meta/meta-llama-3-8b",
+	"meta/meta-llama-3-8b-instruct",
+	"mistralai/mistral-7b-instruct-v0.2",
+	"mistralai/mistral-7b-v0.1",
+	"mistralai/mixtral-8x7b-instruct-v0.1",
 	// -------------------------------------
 	// video model
 	// -------------------------------------

@@ -109,3 +109,51 @@ type FluxURLs struct {
 	Get    string `json:"get"`
 	Cancel string `json:"cancel"`
 }
+
+type ReplicateChatRequest struct {
+	Input ChatInput `json:"input" form:"input" binding:"required"`
+}
+
+// ChatInput is input of ChatByReplicateRequest
+//
+// https://replicate.com/meta/meta-llama-3.1-405b-instruct/api/schema
+type ChatInput struct {
+	TopK             int     `json:"top_k"`
+	TopP             float64 `json:"top_p"`
+	Prompt           string  `json:"prompt"`
+	MaxTokens        int     `json:"max_tokens"`
+	MinTokens        int     `json:"min_tokens"`
+	Temperature      float64 `json:"temperature"`
+	SystemPrompt     string  `json:"system_prompt"`
+	StopSequences    string  `json:"stop_sequences"`
+	PromptTemplate   string  `json:"prompt_template"`
+	PresencePenalty  float64 `json:"presence_penalty"`
+	FrequencyPenalty float64 `json:"frequency_penalty"`
+}
+
+// ChatResponse is response of ChatByReplicateRequest
+//
+// https://replicate.com/meta/meta-llama-3.1-405b-instruct/examples?input=http&output=json
+type ChatResponse struct {
+	CompletedAt time.Time   `json:"completed_at"`
+	CreatedAt   time.Time   `json:"created_at"`
+	DataRemoved bool        `json:"data_removed"`
+	Error       string      `json:"error"`
+	ID          string      `json:"id"`
+	Input       ChatInput   `json:"input"`
+	Logs        string      `json:"logs"`
+	Metrics     FluxMetrics `json:"metrics"`
+	// Output could be `string` or `[]string`
+	Output    []string        `json:"output"`
+	StartedAt time.Time       `json:"started_at"`
+	Status    string          `json:"status"`
+	URLs      ChatResponseUrl `json:"urls"`
+	Version   string          `json:"version"`
+}
+
+// ChatResponseUrl is task urls of ChatResponse
+type ChatResponseUrl struct {
+	Stream string `json:"stream"`
+	Get    string `json:"get"`
+	Cancel string `json:"cancel"`
+}

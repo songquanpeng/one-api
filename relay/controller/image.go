@@ -22,7 +22,7 @@ import (
 	relaymodel "github.com/songquanpeng/one-api/relay/model"
 )
 
-func getImageRequest(c *gin.Context, relayMode int) (*relaymodel.ImageRequest, error) {
+func getImageRequest(c *gin.Context, _ int) (*relaymodel.ImageRequest, error) {
 	imageRequest := &relaymodel.ImageRequest{}
 	err := common.UnmarshalBodyReusable(c, imageRequest)
 	if err != nil {
@@ -65,7 +65,7 @@ func getImageSizeRatio(model string, size string) float64 {
 	return 1
 }
 
-func validateImageRequest(imageRequest *relaymodel.ImageRequest, meta *meta.Meta) *relaymodel.ErrorWithStatusCode {
+func validateImageRequest(imageRequest *relaymodel.ImageRequest, _ *meta.Meta) *relaymodel.ErrorWithStatusCode {
 	// check prompt length
 	if imageRequest.Prompt == "" {
 		return openai.ErrorWrapper(errors.New("prompt is required"), "prompt_missing", http.StatusBadRequest)
