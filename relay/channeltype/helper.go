@@ -37,6 +37,8 @@ func ToAPIType(channelType int) int {
 		apiType = apitype.DeepL
 	case VertextAI:
 		apiType = apitype.VertexAI
+	case Replicate:
+		apiType = apitype.Replicate
 	case Proxy:
 		apiType = apitype.Proxy
 	}
