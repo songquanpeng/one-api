@@ -48,8 +48,14 @@ var ModelRatio = map[string]float64{
 	"gpt-3.5-turbo-instruct":  0.75, // $0.0015 / 1K tokens
 	"gpt-3.5-turbo-1106":      0.5,  // $0.001 / 1K tokens
 	"gpt-3.5-turbo-0125":      0.25, // $0.0005 / 1K tokens
-	"davinci-002":             1,    // $0.002 / 1K tokens
-	"babbage-002":             0.2,  // $0.0004 / 1K tokens
+	"o1":                      7.5,  // $15.00 / 1M input tokens
+	"o1-2024-12-17":           7.5,
+	"o1-preview":              7.5, // $15.00 / 1M input tokens
+	"o1-preview-2024-09-12":   7.5,
+	"o1-mini":                 1.5, // $3.00 / 1M input tokens
+	"o1-mini-2024-09-12":      1.5,
+	"davinci-002":             1,   // $0.002 / 1K tokens
+	"babbage-002":             0.2, // $0.0004 / 1K tokens
 	"text-ada-001":            0.2,
 	"text-babbage-001":        0.25,
 	"text-curie-001":          1,
@@ -343,6 +349,10 @@ func GetCompletionRatio(name string, channelType int) float64 {
 			return 3
 		}
 		return 2
+	}
+	// including o1, o1-preview, o1-mini
+	if strings.HasPrefix(name, "o1") {
+		return 4
 	}
 	if name == "chatgpt-4o-latest" {
 		return 3
