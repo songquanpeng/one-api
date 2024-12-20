@@ -20,4 +20,7 @@ var ModelList = []string{
 	"dall-e-2", "dall-e-3",
 	"whisper-1",
 	"tts-1", "tts-1-1106", "tts-1-hd", "tts-1-hd-1106",
+	"o1", "o1-2024-12-17",
+	"o1-preview", "o1-preview-2024-09-12",
+	"o1-mini", "o1-mini-2024-09-12",
 }
