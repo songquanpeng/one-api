@@ -47,5 +47,6 @@ const (
 	Proxy
 	SiliconFlow
 	XAI
+	Replicate
 	Dummy
 )

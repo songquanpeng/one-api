@@ -31,6 +31,7 @@ export const CHANNEL_OPTIONS = [
     { key: 43, text: 'Proxy', value: 43, color: 'blue' },
     { key: 44, text: 'SiliconFlow', value: 44, color: 'blue' },
     { key: 45, text: 'xAI', value: 45, color: 'blue' },
+    { key: 46, text: 'Replicate', value: 46, color: 'blue' },
     { key: 8, text: '自定义渠道', value: 8, color: 'pink' },
     { key: 22, text: '知识库：FastGPT', value: 22, color: 'blue' },
     { key: 21, text: '知识库：AI Proxy', value: 21, color: 'purple' },
