@@ -40,7 +40,7 @@ func getLarkUserInfoByCode(code string) (*LarkUser, error) {
 	if err != nil {
 		return nil, err
 	}
-	req, err := http.NewRequest("POST", "https://passport.feishu.cn/suite/passport/oauth/token", bytes.NewBuffer(jsonData))
+	req, err := http.NewRequest("POST", "https://open.feishu.cn/open-apis/authen/v2/oauth/token", bytes.NewBuffer(jsonData))
 	if err != nil {
 		return nil, err
 	}
