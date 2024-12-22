@@ -4,16 +4,17 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
+	"net/http"
+	"strconv"
+	"time"
+
 	"github.com/songquanpeng/one-api/common/client"
 	"github.com/songquanpeng/one-api/common/config"
 	"github.com/songquanpeng/one-api/common/logger"
 	"github.com/songquanpeng/one-api/model"
 	"github.com/songquanpeng/one-api/monitor"
 	"github.com/songquanpeng/one-api/relay/channeltype"
-	"io"
-	"net/http"
-	"strconv"
-	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -99,6 +100,16 @@ type SiliconFlowUsageResponse struct {
 		TotalBalance  string `json:"totalBalance"`
 		Category      string `json:"category"`
 	} `json:"data"`
+}
+
+type DeepSeekUsageResponse struct {
+	IsAvailable  bool `json:"is_available"`
+	BalanceInfos []struct {
+		Currency        string `json:"currency"`
+		TotalBalance    string `json:"total_balance"`
+		GrantedBalance  string `json:"granted_balance"`
+		ToppedUpBalance string `json:"topped_up_balance"`
+	} `json:"balance_infos"`
 }
 
 // GetAuthHeader get auth header
@@ -245,6 +256,35 @@ func updateChannelSiliconFlowBalance(channel *model.Channel) (float64, error) {
 	return balance, nil
 }
 
+func updateChannelDeepSeekBalance(channel *model.Channel) (float64, error) {
+	url := "https://api.deepseek.com/user/balance"
+	body, err := GetResponseBody("GET", url, channel, GetAuthHeader(channel.Key))
+	if err != nil {
+		return 0, err
+	}
+	response := DeepSeekUsageResponse{}
+	err = json.Unmarshal(body, &response)
+	if err != nil {
+		return 0, err
+	}
+	index := -1
+	for i, balanceInfo := range response.BalanceInfos {
+		if balanceInfo.Currency == "CNY" {
+			index = i
+			break
+		}
+	}
+	if index == -1 {
+		return 0, errors.New("currency CNY not found")
+	}
+	balance, err := strconv.ParseFloat(response.BalanceInfos[index].TotalBalance, 64)
+	if err != nil {
+		return 0, err
+	}
+	channel.UpdateBalance(balance)
+	return balance, nil
+}
+
 func updateChannelBalance(channel *model.Channel) (float64, error) {
 	baseURL := channeltype.ChannelBaseURLs[channel.Type]
 	if channel.GetBaseURL() == "" {
@@ -271,6 +311,8 @@ func updateChannelBalance(channel *model.Channel) (float64, error) {
 		return updateChannelAIGC2DBalance(channel)
 	case channeltype.SiliconFlow:
 		return updateChannelSiliconFlowBalance(channel)
+	case channeltype.DeepSeek:
+		return updateChannelDeepSeekBalance(channel)
 	default:
 		return 0, errors.New("尚未实现")
 	}
