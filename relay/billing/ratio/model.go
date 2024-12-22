@@ -127,29 +127,94 @@ var ModelRatio = map[string]float64{
 	"chatglm_lite":  0.1429, // ￥0.002 / 1k tokens
 	"cogview-3":     0.25 * RMB,
 	// https://help.aliyun.com/zh/dashscope/developer-reference/tongyi-thousand-questions-metering-and-billing
-	"qwen-turbo":                0.5715, // ￥0.008 / 1k tokens
-	"qwen-plus":                 1.4286, // ￥0.02 / 1k tokens
-	"qwen-max":                  1.4286, // ￥0.02 / 1k tokens
-	"qwen-max-longcontext":      1.4286, // ￥0.02 / 1k tokens
-	"text-embedding-v1":         0.05,   // ￥0.0007 / 1k tokens
-	"ali-stable-diffusion-xl":   8,
-	"ali-stable-diffusion-v1.5": 8,
-	"wanx-v1":                   8,
-	"SparkDesk":                 1.2858, // ￥0.018 / 1k tokens
-	"SparkDesk-v1.1":            1.2858, // ￥0.018 / 1k tokens
-	"SparkDesk-v2.1":            1.2858, // ￥0.018 / 1k tokens
-	"SparkDesk-v3.1":            1.2858, // ￥0.018 / 1k tokens
-	"SparkDesk-v3.1-128K":       1.2858, // ￥0.018 / 1k tokens
-	"SparkDesk-v3.5":            1.2858, // ￥0.018 / 1k tokens
-	"SparkDesk-v3.5-32K":        1.2858, // ￥0.018 / 1k tokens
-	"SparkDesk-v4.0":            1.2858, // ￥0.018 / 1k tokens
-	"360GPT_S2_V9":              0.8572, // ¥0.012 / 1k tokens
-	"embedding-bert-512-v1":     0.0715, // ¥0.001 / 1k tokens
-	"embedding_s1_v1":           0.0715, // ¥0.001 / 1k tokens
-	"semantic_similarity_s1_v1": 0.0715, // ¥0.001 / 1k tokens
-	"hunyuan":                   7.143,  // ¥0.1 / 1k tokens  // https://cloud.tencent.com/document/product/1729/97731#e0e6be58-60c8-469f-bdeb-6c264ce3b4d0
-	"ChatStd":                   0.01 * RMB,
-	"ChatPro":                   0.1 * RMB,
+	"qwen-turbo":                  1.4286, // ￥0.02 / 1k tokens
+	"qwen-turbo-latest":           1.4286,
+	"qwen-plus":                   1.4286,
+	"qwen-plus-latest":            1.4286,
+	"qwen-max":                    1.4286,
+	"qwen-max-latest":             1.4286,
+	"qwen-max-longcontext":        1.4286,
+	"qwen-vl-max":                 1.4286,
+	"qwen-vl-max-latest":          1.4286,
+	"qwen-vl-plus":                1.4286,
+	"qwen-vl-plus-latest":         1.4286,
+	"qwen-vl-ocr":                 1.4286,
+	"qwen-vl-ocr-latest":          1.4286,
+	"qwen-audio-turbo":            1.4286,
+	"qwen-math-plus":              1.4286,
+	"qwen-math-plus-latest":       1.4286,
+	"qwen-math-turbo":             1.4286,
+	"qwen-math-turbo-latest":      1.4286,
+	"qwen-coder-plus":             1.4286,
+	"qwen-coder-plus-latest":      1.4286,
+	"qwen-coder-turbo":            1.4286,
+	"qwen-coder-turbo-latest":     1.4286,
+	"qwq-32b-preview":             1.4286,
+	"qwen2.5-72b-instruct":        1.4286,
+	"qwen2.5-32b-instruct":        1.4286,
+	"qwen2.5-14b-instruct":        1.4286,
+	"qwen2.5-7b-instruct":         1.4286,
+	"qwen2.5-3b-instruct":         1.4286,
+	"qwen2.5-1.5b-instruct":       1.4286,
+	"qwen2.5-0.5b-instruct":       1.4286,
+	"qwen2-72b-instruct":          1.4286,
+	"qwen2-57b-a14b-instruct":     1.4286,
+	"qwen2-7b-instruct":           1.4286,
+	"qwen2-1.5b-instruct":         1.4286,
+	"qwen2-0.5b-instruct":         1.4286,
+	"qwen1.5-110b-chat":           1.4286,
+	"qwen1.5-72b-chat":            1.4286,
+	"qwen1.5-32b-chat":            1.4286,
+	"qwen1.5-14b-chat":            1.4286,
+	"qwen1.5-7b-chat":             1.4286,
+	"qwen1.5-1.8b-chat":           1.4286,
+	"qwen1.5-0.5b-chat":           1.4286,
+	"qwen-72b-chat":               1.4286,
+	"qwen-14b-chat":               1.4286,
+	"qwen-7b-chat":                1.4286,
+	"qwen-1.8b-chat":              1.4286,
+	"qwen-1.8b-longcontext-chat":  1.4286,
+	"qwen2-vl-7b-instruct":        1.4286,
+	"qwen2-vl-2b-instruct":        1.4286,
+	"qwen-vl-v1":                  1.4286,
+	"qwen-vl-chat-v1":             1.4286,
+	"qwen2-audio-instruct":        1.4286,
+	"qwen-audio-chat":             1.4286,
+	"qwen2.5-math-72b-instruct":   1.4286,
+	"qwen2.5-math-7b-instruct":    1.4286,
+	"qwen2.5-math-1.5b-instruct":  1.4286,
+	"qwen2-math-72b-instruct":     1.4286,
+	"qwen2-math-7b-instruct":      1.4286,
+	"qwen2-math-1.5b-instruct":    1.4286,
+	"qwen2.5-coder-32b-instruct":  1.4286,
+	"qwen2.5-coder-14b-instruct":  1.4286,
+	"qwen2.5-coder-7b-instruct":   1.4286,
+	"qwen2.5-coder-3b-instruct":   1.4286,
+	"qwen2.5-coder-1.5b-instruct": 1.4286,
+	"qwen2.5-coder-0.5b-instruct": 1.4286,
+	"text-embedding-v1":           0.05, // ￥0.0007 / 1k tokens
+	"text-embedding-v3":           0.05,
+	"text-embedding-v2":           0.05,
+	"text-embedding-async-v2":     0.05,
+	"text-embedding-async-v1":     0.05,
+	"ali-stable-diffusion-xl":     8.00,
+	"ali-stable-diffusion-v1.5":   8.00,
+	"wanx-v1":                     8.00,
+	"SparkDesk":                   1.2858, // ￥0.018 / 1k tokens
+	"SparkDesk-v1.1":              1.2858, // ￥0.018 / 1k tokens
+	"SparkDesk-v2.1":              1.2858, // ￥0.018 / 1k tokens
+	"SparkDesk-v3.1":              1.2858, // ￥0.018 / 1k tokens
+	"SparkDesk-v3.1-128K":         1.2858, // ￥0.018 / 1k tokens
+	"SparkDesk-v3.5":              1.2858, // ￥0.018 / 1k tokens
+	"SparkDesk-v3.5-32K":          1.2858, // ￥0.018 / 1k tokens
+	"SparkDesk-v4.0":              1.2858, // ￥0.018 / 1k tokens
+	"360GPT_S2_V9":                0.8572, // ¥0.012 / 1k tokens
+	"embedding-bert-512-v1":       0.0715, // ¥0.001 / 1k tokens
+	"embedding_s1_v1":             0.0715, // ¥0.001 / 1k tokens
+	"semantic_similarity_s1_v1":   0.0715, // ¥0.001 / 1k tokens
+	"hunyuan":                     7.143,  // ¥0.1 / 1k tokens  // https://cloud.tencent.com/document/product/1729/97731#e0e6be58-60c8-469f-bdeb-6c264ce3b4d0
+	"ChatStd":                     0.01 * RMB,
+	"ChatPro":                     0.1 * RMB,
 	// https://platform.moonshot.cn/pricing
 	"moonshot-v1-8k":   0.012 * RMB,
 	"moonshot-v1-32k":  0.024 * RMB,
