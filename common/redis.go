@@ -25,19 +25,23 @@ func InitRedisClient() (err error) {
 		logger.SysLog("SYNC_FREQUENCY not set, Redis is disabled")
 		return nil
 	}
-	logger.SysLog("Redis is enabled")
 	redisConnString := os.Getenv("REDIS_CONN_STRING")
-	opt, err := redis.ParseURL(redisConnString)
-	if err == nil {
+	if os.Getenv("REDIS_MASTER_NAME") == "" {
+		logger.SysLog("Redis is enabled")
+		opt, err := redis.ParseURL(redisConnString)
+		if err != nil {
+			logger.FatalLog("failed to parse Redis connection string: " + err.Error())
+		}
 		RDB = redis.NewClient(opt)
 	} else {
+		// cluster mode
+		logger.SysLog("Redis cluster mode enabled")
 		RDB = redis.NewUniversalClient(&redis.UniversalOptions{
 			Addrs:      strings.Split(redisConnString, ","),
 			Password:   os.Getenv("REDIS_PASSWORD"),
 			MasterName: os.Getenv("REDIS_MASTER_NAME"),
 		})
 	}
-
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
