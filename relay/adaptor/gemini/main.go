@@ -116,7 +116,6 @@ func ConvertRequest(textRequest model.GeneralOpenAIRequest) *ChatRequest {
 			}
 		}
 	}
-	shouldAddDummyModelMessage := false
 	for _, message := range textRequest.Messages {
 		content := ChatContent{
 			Role: message.Role,
@@ -154,25 +153,12 @@ func ConvertRequest(textRequest model.GeneralOpenAIRequest) *ChatRequest {
 		if content.Role == "assistant" {
 			content.Role = "model"
 		}
-		// Converting system prompt to prompt from user for the same reason
+		// Converting system prompt to SystemInstructions
 		if content.Role == "system" {
-			content.Role = "user"
-			shouldAddDummyModelMessage = true
+			geminiRequest.SystemInstruction = &content
+			continue
 		}
 		geminiRequest.Contents = append(geminiRequest.Contents, content)
-
-		// If a system message is the last message, we need to add a dummy model message to make gemini happy
-		if shouldAddDummyModelMessage {
-			geminiRequest.Contents = append(geminiRequest.Contents, ChatContent{
-				Role: "model",
-				Parts: []Part{
-					{
-						Text: "Okay",
-					},
-				},
-			})
-			shouldAddDummyModelMessage = false
-		}
 	}
 
 	return &geminiRequest
