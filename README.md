@@ -125,7 +125,7 @@ _✨ 通过标准的 OpenAI API 格式访问所有的大模型，开箱即用 �
 ### 基于 Docker 进行部署
 ```shell
 # 使用 SQLite 的部署命令：
-docker run --name one-api -d --restart always -p 3000:3000 -e TZ=Asia/Shanghai -v /home/ubuntu/data/one-api:/data justsong/one-api
+docker run --name one-api -d --restart always -p 3000:3000 -e TZ=Asia/Shanghai -v /home/ubuntu/data/one-api:/data ghcr.io/songquanpeng/one-api
 # 使用 MySQL 的部署命令，在上面的基础上添加 `-e SQL_DSN="root:123456@tcp(localhost:3306)/oneapi"`，请自行修改数据库连接参数，不清楚如何修改请参见下面环境变量一节。
 # 例如：
 docker run --name one-api -d --restart always -p 3000:3000 -e SQL_DSN="root:123456@tcp(localhost:3306)/oneapi" -e TZ=Asia/Shanghai -v /home/ubuntu/data/one-api:/data justsong/one-api
@@ -137,7 +137,7 @@ docker run --name one-api -d --restart always -p 3000:3000 -e SQL_DSN="root:1234
 
 如果启动失败，请添加 `--privileged=true`，具体参考 https://github.com/songquanpeng/one-api/issues/482 。
 
-如果上面的镜像无法拉取，可以尝试使用 GitHub 的 Docker 镜像，将上面的 `justsong/one-api` 替换为 `ghcr.io/songquanpeng/one-api` 即可。
+<!-- 如果上面的镜像无法拉取，可以尝试使用 GitHub 的 Docker 镜像，将上面的 `justsong/one-api` 替换为 `ghcr.io/songquanpeng/one-api` 即可。 -->
 
 如果你的并发量较大，**务必**设置 `SQL_DSN`，详见下面[环境变量](#环境变量)一节。
 
