@@ -4,6 +4,8 @@ permissions:
 
 on:
   push:
+    branches:
+      - main
     tags:
       - 'v*.*.*'
       - '!*-alpha*'

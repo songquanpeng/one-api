@@ -12,8 +12,6 @@ name: CI
 # would trigger our jobs twice on pull requests (once from "push" event and once
 # from "pull_request->synchronize")
 on:
-  pull_request:
-    types: [opened, reopened, synchronize]
   push:
     branches:
       - 'main'
