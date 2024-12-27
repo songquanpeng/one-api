@@ -15,7 +15,6 @@ on:
 jobs:
   release:
     runs-on: windows-latest
-    if: github.ref == 'refs/heads/main'
     defaults:
       run:
         shell: bash
