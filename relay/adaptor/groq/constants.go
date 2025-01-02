@@ -11,7 +11,6 @@ var ModelList = []string{
 	"llama-3.2-11b-vision-preview",
 	"llama-3.2-1b-preview",
 	"llama-3.2-3b-preview",
-	"llama-3.2-11b-vision-preview",
 	"llama-3.2-90b-text-preview",
 	"llama-3.2-90b-vision-preview",
 	"llama-guard-3-8b",
