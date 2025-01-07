@@ -214,9 +214,19 @@ var ModelRatio = map[string]float64{
 	"embedding-bert-512-v1":       0.0715, // ¥0.001 / 1k tokens
 	"embedding_s1_v1":             0.0715, // ¥0.001 / 1k tokens
 	"semantic_similarity_s1_v1":   0.0715, // ¥0.001 / 1k tokens
-	"hunyuan":                     7.143,  // ¥0.1 / 1k tokens  // https://cloud.tencent.com/document/product/1729/97731#e0e6be58-60c8-469f-bdeb-6c264ce3b4d0
-	"ChatStd":                     0.01 * RMB,
-	"ChatPro":                     0.1 * RMB,
+	// https://cloud.tencent.com/document/product/1729/97731#e0e6be58-60c8-469f-bdeb-6c264ce3b4d0
+	"hunyuan-turbo":             0.015 * RMB,
+	"hunyuan-large":             0.004 * RMB,
+	"hunyuan-large-longcontext": 0.006 * RMB,
+	"hunyuan-standard":          0.0008 * RMB,
+	"hunyuan-standard-256K":     0.0005 * RMB,
+	"hunyuan-translation-lite":  0.005 * RMB,
+	"hunyuan-role":              0.004 * RMB,
+	"hunyuan-functioncall":      0.004 * RMB,
+	"hunyuan-code":              0.004 * RMB,
+	"hunyuan-turbo-vision":      0.08 * RMB,
+	"hunyuan-vision":            0.018 * RMB,
+	"hunyuan-embedding":         0.0007 * RMB,
 	// https://platform.moonshot.cn/pricing
 	"moonshot-v1-8k":   0.012 * RMB,
 	"moonshot-v1-32k":  0.024 * RMB,
