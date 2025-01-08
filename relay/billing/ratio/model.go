@@ -337,6 +337,8 @@ var CompletionRatio = map[string]float64{
 	// aws llama3
 	"llama3-8b-8192(33)":  0.0006 / 0.0003,
 	"llama3-70b-8192(33)": 0.0035 / 0.00265,
+	// whisper
+	"whisper-1": 0, // only count input tokens
 }
 
 var (
