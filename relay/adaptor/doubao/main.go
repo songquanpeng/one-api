@@ -7,9 +7,13 @@ import (
 )
 
 func GetRequestURL(meta *meta.Meta) (string, error) {
+	var context = ""
+	if meta.Cache {
+		context = "context/"
+	}
 	switch meta.Mode {
 	case relaymode.ChatCompletions:
-		return fmt.Sprintf("%s/api/v3/chat/completions", meta.BaseURL), nil
+		return fmt.Sprintf("%s/api/v3/%schat/completions", meta.BaseURL, context), nil
 	case relaymode.Embeddings:
 		return fmt.Sprintf("%s/api/v3/embeddings", meta.BaseURL), nil
 	default:

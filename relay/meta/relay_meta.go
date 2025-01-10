@@ -31,6 +31,7 @@ type Meta struct {
 	RequestURLPath  string
 	PromptTokens    int // only for DoResponse
 	SystemPrompt    string
+	Cache           bool
 }
 
 func GetByContext(c *gin.Context) *Meta {

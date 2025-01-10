@@ -65,6 +65,8 @@ type GeneralOpenAIRequest struct {
 	// Others
 	Instruction string `json:"instruction,omitempty"`
 	NumCtx      int    `json:"num_ctx,omitempty"`
+	// SessionCache or PrefixCache context id
+	ContextId string `json:"context_id,omitempty"`
 }
 
 func (r GeneralOpenAIRequest) ParseInput() []string {
