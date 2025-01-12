@@ -23,7 +23,29 @@ type Adaptor struct {
 }
 
 // ConvertImageRequest implements adaptor.Adaptor.
-func (*Adaptor) ConvertImageRequest(request *model.ImageRequest) (any, error) {
+func (a *Adaptor) ConvertImageRequest(_ *gin.Context, request *model.ImageRequest) (any, error) {
+	return nil, errors.New("should call replicate.ConvertImageRequest instead")
+}
+
+func ConvertImageRequest(c *gin.Context, request *model.ImageRequest) (any, error) {
+	meta := meta.GetByContext(c)
+
+	if request.ResponseFormat != "b64_json" {
+		return nil, errors.New("only support b64_json response format")
+	}
+	if request.N != 1 && request.N != 0 {
+		return nil, errors.New("only support N=1")
+	}
+
+	switch meta.Mode {
+	case relaymode.ImagesGenerations:
+		return convertImageCreateRequest(request)
+	default:
+		return nil, errors.New("not implemented")
+	}
+}
+
+func convertImageCreateRequest(request *model.ImageRequest) (any, error) {
 	return DrawImageRequest{
 		Input: ImageInput{
 			Steps:           25,
