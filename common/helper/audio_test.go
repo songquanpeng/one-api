@@ -35,3 +35,21 @@ func TestGetAudioDuration(t *testing.T) {
 		require.Error(t, err)
 	})
 }
+
+func TestGetAudioTokens(t *testing.T) {
+	t.Run("should return correct tokens for a valid audio file", func(t *testing.T) {
+		// download test audio file
+		resp, err := http.Get("https://s3.laisky.com/uploads/2025/01/audio-sample.m4a")
+		require.NoError(t, err)
+		defer resp.Body.Close()
+
+		tokens, err := GetAudioTokens(context.Background(), resp.Body, 50)
+		require.NoError(t, err)
+		require.Equal(t, tokens, 200)
+	})
+
+	t.Run("should return an error for a non-existent file", func(t *testing.T) {
+		_, err := GetAudioTokens(context.Background(), nil, 1)
+		require.Error(t, err)
+	})
+}

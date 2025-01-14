@@ -82,6 +82,27 @@ func (a *Adaptor) ConvertRequest(c *gin.Context, relayMode int, request *model.G
 		}
 		request.StreamOptions.IncludeUsage = true
 	}
+
+	// o1/o1-mini/o1-preview do not support system prompt and max_tokens
+	if strings.HasPrefix(request.Model, "o1") {
+		request.MaxTokens = 0
+		request.Messages = func(raw []model.Message) (filtered []model.Message) {
+			for i := range raw {
+				if raw[i].Role != "system" {
+					filtered = append(filtered, raw[i])
+				}
+			}
+
+			return
+		}(request.Messages)
+	}
+
+	if request.Stream && strings.HasPrefix(request.Model, "gpt-4o-audio") {
+		// TODO: Since it is not clear how to implement billing in stream mode,
+		// it is temporarily not supported
+		return nil, errors.New("stream mode is not supported for gpt-4o-audio")
+	}
+
 	return request, nil
 }
 

@@ -7,10 +7,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"math"
 	"mime/multipart"
 	"net/http"
-	"os"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -23,15 +21,12 @@ import (
 	"github.com/songquanpeng/one-api/model"
 	"github.com/songquanpeng/one-api/relay/adaptor/openai"
 	"github.com/songquanpeng/one-api/relay/billing"
+	"github.com/songquanpeng/one-api/relay/billing/ratio"
 	billingratio "github.com/songquanpeng/one-api/relay/billing/ratio"
 	"github.com/songquanpeng/one-api/relay/channeltype"
 	"github.com/songquanpeng/one-api/relay/meta"
 	relaymodel "github.com/songquanpeng/one-api/relay/model"
 	"github.com/songquanpeng/one-api/relay/relaymode"
-)
-
-const (
-	TokensPerSecond = 1000 / 20 // $0.006 / minute -> $0.002 / 20 seconds -> $0.002 / 1K tokens
 )
 
 type commonAudioRequest struct {
@@ -54,27 +49,13 @@ func countAudioTokens(c *gin.Context) (int, error) {
 	if err != nil {
 		return 0, errors.WithStack(err)
 	}
+	defer reqFp.Close()
 
-	tmpFp, err := os.CreateTemp("", "audio-*")
-	if err != nil {
-		return 0, errors.WithStack(err)
-	}
-	defer os.Remove(tmpFp.Name())
+	ctxMeta := meta.GetByContext(c)
 
-	_, err = io.Copy(tmpFp, reqFp)
-	if err != nil {
-		return 0, errors.WithStack(err)
-	}
-	if err = tmpFp.Close(); err != nil {
-		return 0, errors.WithStack(err)
-	}
-
-	duration, err := helper.GetAudioDuration(c.Request.Context(), tmpFp.Name())
-	if err != nil {
-		return 0, errors.WithStack(err)
-	}
-
-	return int(math.Ceil(duration)) * TokensPerSecond, nil
+	return helper.GetAudioTokens(c.Request.Context(),
+		reqFp,
+		ratio.GetAudioPromptTokensPerSecond(ctxMeta.ActualModelName))
 }
 
 func RelayAudioHelper(c *gin.Context, relayMode int) *relaymodel.ErrorWithStatusCode {
