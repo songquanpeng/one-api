@@ -6,19 +6,21 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/pkg/errors"
 	"github.com/songquanpeng/one-api/common/ctxkey"
+	"github.com/songquanpeng/one-api/relay/adaptor"
 	"github.com/songquanpeng/one-api/relay/adaptor/anthropic"
-
+	"github.com/songquanpeng/one-api/relay/billing/ratio"
 	"github.com/songquanpeng/one-api/relay/meta"
 	"github.com/songquanpeng/one-api/relay/model"
 )
 
-var ModelList = []string{
-	"claude-3-haiku@20240307",
-	"claude-3-sonnet@20240229",
-	"claude-3-opus@20240229",
-	"claude-3-5-sonnet@20240620",
-	"claude-3-5-sonnet-v2@20241022",
-	"claude-3-5-haiku@20241022",
+// https://cloud.google.com/vertex-ai/generative-ai/pricing?hl=zh-cn#claude-models
+var RatioMap = map[string]ratio.Ratio{
+	"claude-3-haiku@20240307":       {Input: 0.25 * ratio.MILLI_USD, Output: 1.25 * ratio.MILLI_USD},
+	"claude-3-sonnet@20240229":      {Input: 3 * ratio.MILLI_USD, Output: 15 * ratio.MILLI_USD},
+	"claude-3-opus@20240229":        {Input: 15 * ratio.MILLI_USD, Output: 75 * ratio.MILLI_USD},
+	"claude-3-5-sonnet@20240620":    {Input: 3 * ratio.MILLI_USD, Output: 15 * ratio.MILLI_USD},
+	"claude-3-5-sonnet-v2@20241022": {Input: 3 * ratio.MILLI_USD, Output: 15 * ratio.MILLI_USD},
+	"claude-3-5-haiku@20241022":     {Input: 0.80 * ratio.MILLI_USD, Output: 4 * ratio.MILLI_USD},
 }
 
 const anthropicVersion = "vertex-2023-10-16"
@@ -57,4 +59,8 @@ func (a *Adaptor) DoResponse(c *gin.Context, resp *http.Response, meta *meta.Met
 		err, usage = anthropic.Handler(c, resp, meta.PromptTokens, meta.ActualModelName)
 	}
 	return
+}
+
+func (a *Adaptor) GetRatio(meta *meta.Meta) *ratio.Ratio {
+	return adaptor.GetRatioHelper(meta, RatioMap)
 }

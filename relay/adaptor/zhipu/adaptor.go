@@ -3,16 +3,18 @@ package zhipu
 import (
 	"errors"
 	"fmt"
+	"io"
+	"net/http"
+	"strings"
+
 	"github.com/gin-gonic/gin"
 	"github.com/songquanpeng/one-api/common/helper"
 	"github.com/songquanpeng/one-api/relay/adaptor"
 	"github.com/songquanpeng/one-api/relay/adaptor/openai"
+	"github.com/songquanpeng/one-api/relay/billing/ratio"
 	"github.com/songquanpeng/one-api/relay/meta"
 	"github.com/songquanpeng/one-api/relay/model"
 	"github.com/songquanpeng/one-api/relay/relaymode"
-	"io"
-	"net/http"
-	"strings"
 )
 
 type Adaptor struct {
@@ -140,8 +142,12 @@ func ConvertEmbeddingRequest(request model.GeneralOpenAIRequest) (*EmbeddingRequ
 	}, nil
 }
 
+func (a *Adaptor) GetRatio(meta *meta.Meta) *ratio.Ratio {
+	return adaptor.GetRatioHelper(meta, RatioMap)
+}
+
 func (a *Adaptor) GetModelList() []string {
-	return ModelList
+	return adaptor.GetModelListHelper(RatioMap)
 }
 
 func (a *Adaptor) GetChannelName() string {

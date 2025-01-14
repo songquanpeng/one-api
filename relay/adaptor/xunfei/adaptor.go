@@ -2,14 +2,16 @@ package xunfei
 
 import (
 	"errors"
-	"github.com/gin-gonic/gin"
-	"github.com/songquanpeng/one-api/relay/adaptor"
-	"github.com/songquanpeng/one-api/relay/adaptor/openai"
-	"github.com/songquanpeng/one-api/relay/meta"
-	"github.com/songquanpeng/one-api/relay/model"
 	"io"
 	"net/http"
 	"strings"
+
+	"github.com/gin-gonic/gin"
+	"github.com/songquanpeng/one-api/relay/adaptor"
+	"github.com/songquanpeng/one-api/relay/adaptor/openai"
+	"github.com/songquanpeng/one-api/relay/billing/ratio"
+	"github.com/songquanpeng/one-api/relay/meta"
+	"github.com/songquanpeng/one-api/relay/model"
 )
 
 type Adaptor struct {
@@ -77,8 +79,12 @@ func (a *Adaptor) DoResponse(c *gin.Context, resp *http.Response, meta *meta.Met
 	return
 }
 
+func (a *Adaptor) GetRatio(meta *meta.Meta) *ratio.Ratio {
+	return adaptor.GetRatioHelper(meta, RatioMap)
+}
+
 func (a *Adaptor) GetModelList() []string {
-	return ModelList
+	return adaptor.GetModelListHelper(RatioMap)
 }
 
 func (a *Adaptor) GetChannelName() string {

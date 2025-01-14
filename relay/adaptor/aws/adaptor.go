@@ -10,7 +10,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/bedrockruntime"
 	"github.com/gin-gonic/gin"
 	"github.com/songquanpeng/one-api/relay/adaptor"
-	"github.com/songquanpeng/one-api/relay/adaptor/aws/utils"
+	"github.com/songquanpeng/one-api/relay/billing/ratio"
 	"github.com/songquanpeng/one-api/relay/meta"
 	"github.com/songquanpeng/one-api/relay/model"
 )
@@ -18,8 +18,6 @@ import (
 var _ adaptor.Adaptor = new(Adaptor)
 
 type Adaptor struct {
-	awsAdapter utils.AwsAdapter
-
 	Meta      *meta.Meta
 	AwsClient *bedrockruntime.Client
 }
@@ -42,15 +40,27 @@ func (a *Adaptor) ConvertRequest(c *gin.Context, relayMode int, request *model.G
 		return nil, errors.New("adaptor not found")
 	}
 
-	a.awsAdapter = adaptor
 	return adaptor.ConvertRequest(c, relayMode, request)
 }
 
 func (a *Adaptor) DoResponse(c *gin.Context, resp *http.Response, meta *meta.Meta) (usage *model.Usage, err *model.ErrorWithStatusCode) {
-	if a.awsAdapter == nil {
-		return nil, utils.WrapErr(errors.New("awsAdapter is nil"))
+	adaptor := GetAdaptor(meta.ActualModelName)
+	if adaptor == nil {
+		return nil, &model.ErrorWithStatusCode{
+			StatusCode: http.StatusInternalServerError,
+			Error:      model.Error{Message: "adaptor not found"},
+		}
 	}
-	return a.awsAdapter.DoResponse(c, a.AwsClient, meta)
+
+	return adaptor.DoResponse(c, a.AwsClient, meta)
+}
+
+func (a *Adaptor) GetRatio(meta *meta.Meta) *ratio.Ratio {
+	adaptor := GetAdaptor(meta.ActualModelName)
+	if adaptor == nil {
+		return nil
+	}
+	return adaptor.GetRatio(meta)
 }
 
 func (a *Adaptor) GetModelList() (models []string) {

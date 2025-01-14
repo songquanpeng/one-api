@@ -1,11 +1,15 @@
 package minimax
 
-// https://www.minimaxi.com/document/guides/chat-model/V2?id=65e0736ab2845de20908e2dd
+import "github.com/songquanpeng/one-api/relay/billing/ratio"
 
-var ModelList = []string{
-	"abab6.5-chat",
-	"abab6.5s-chat",
-	"abab6-chat",
-	"abab5.5-chat",
-	"abab5.5s-chat",
+// https://platform.minimaxi.com/document/Price
+// https://platform.minimaxi.com/document/ChatCompletion%20v2
+
+var RatioMap = map[string]ratio.Ratio{
+	"abab7-chat-preview": {Input: 0.01 * ratio.RMB, Output: 0.01 * ratio.RMB},
+	"abab6.5s-chat":      {Input: 0.001 * ratio.RMB, Output: 0.001 * ratio.RMB},
+	"abab6.5g-chat":      {Input: 0.005 * ratio.RMB, Output: 0.005 * ratio.RMB},
+	"abab6.5t-chat":      {Input: 0.005 * ratio.RMB, Output: 0.005 * ratio.RMB},
+	"abab5.5s-chat":      {Input: 0.005 * ratio.RMB, Output: 0.005 * ratio.RMB},
+	"abab5.5-chat":       {Input: 0.015 * ratio.RMB, Output: 0.015 * ratio.RMB},
 }

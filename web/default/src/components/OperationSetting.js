@@ -2,6 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { Divider, Form, Grid, Header } from 'semantic-ui-react';
 import { API, showError, showSuccess, timestamp2string, verifyJSON } from '../helpers';
 
+const RATIO_MAPPING_EXAMPLE = {
+    'gpt-4o-mini': {'input': 0.075, 'output': 0.3},
+    'llama3-8b-8192(33)': {'input': 0.15, 'output': 0.3},
+    'llama3-70b-8192(33)': {'input': 1.325, 'output': 1.749},
+};
+
 const OperationSetting = () => {
   let now = new Date();
   let [inputs, setInputs] = useState({
@@ -10,9 +16,10 @@ const OperationSetting = () => {
     QuotaForInvitee: 0,
     QuotaRemindThreshold: 0,
     PreConsumedQuota: 0,
-    ModelRatio: '',
-    CompletionRatio: '',
+    ModelRatio: '', // Deprecated
+    CompletionRatio: '', // Deprecated
     GroupRatio: '',
+    Ratio: '',
     TopUpLink: '',
     ChatLink: '',
     QuotaPerUnit: 0,
@@ -35,7 +42,7 @@ const OperationSetting = () => {
     if (success) {
       let newInputs = {};
       data.forEach((item) => {
-        if (item.key === 'ModelRatio' || item.key === 'GroupRatio' || item.key === 'CompletionRatio') {
+        if (item.key === 'ModelRatio' || item.key === 'GroupRatio' || item.key === 'CompletionRatio' || item.key === 'Ratio') {
           item.value = JSON.stringify(JSON.parse(item.value), null, 2);
         }
         if (item.value === '{}') {
@@ -111,6 +118,13 @@ const OperationSetting = () => {
             return;
           }
           await updateOption('CompletionRatio', inputs.CompletionRatio);
+        }
+        if (originInputs['Ratio'] !== inputs.Ratio) {
+          if (!verifyJSON(inputs.Ratio)) {
+            showError('倍率不是合法的 JSON 字符串');
+            return;
+          }
+          await updateOption('Ratio', inputs.Ratio);
         }
         break;
       case 'quota':
@@ -346,7 +360,18 @@ const OperationSetting = () => {
           </Header>
           <Form.Group widths='equal'>
             <Form.TextArea
-              label='模型倍率'
+              label='自定义倍率'
+              name='Ratio'
+              onChange={handleInputChange}
+              style={{ minHeight: 250, fontFamily: 'JetBrains Mono, Consolas' }}
+              autoComplete='new-password'
+              value={inputs.Ratio}
+              placeholder={`为一个 JSON 文本，键为模型名称，值为倍率结构，例如：\n${JSON.stringify(RATIO_MAPPING_EXAMPLE, null, 2)}`}
+            />
+          </Form.Group>
+          <Form.Group widths='equal'>
+            <Form.TextArea
+              label='模型倍率(已废弃)'
               name='ModelRatio'
               onChange={handleInputChange}
               style={{ minHeight: 250, fontFamily: 'JetBrains Mono, Consolas' }}
@@ -357,7 +382,7 @@ const OperationSetting = () => {
           </Form.Group>
           <Form.Group widths='equal'>
             <Form.TextArea
-              label='补全倍率'
+              label='补全倍率(已废弃)'
               name='CompletionRatio'
               onChange={handleInputChange}
               style={{ minHeight: 250, fontFamily: 'JetBrains Mono, Consolas' }}

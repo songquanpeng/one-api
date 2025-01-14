@@ -11,6 +11,7 @@ import (
 	"github.com/songquanpeng/one-api/common/helper"
 	channelhelper "github.com/songquanpeng/one-api/relay/adaptor"
 	"github.com/songquanpeng/one-api/relay/adaptor/openai"
+	"github.com/songquanpeng/one-api/relay/billing/ratio"
 	"github.com/songquanpeng/one-api/relay/meta"
 	"github.com/songquanpeng/one-api/relay/model"
 	"github.com/songquanpeng/one-api/relay/relaymode"
@@ -92,8 +93,12 @@ func (a *Adaptor) DoResponse(c *gin.Context, resp *http.Response, meta *meta.Met
 	return
 }
 
+func (a *Adaptor) GetRatio(meta *meta.Meta) *ratio.Ratio {
+	return channelhelper.GetRatioHelper(meta, RatioMap)
+}
+
 func (a *Adaptor) GetModelList() []string {
-	return ModelList
+	return channelhelper.GetModelListHelper(RatioMap)
 }
 
 func (a *Adaptor) GetChannelName() string {

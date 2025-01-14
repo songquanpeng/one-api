@@ -1,12 +1,13 @@
 package model
 
 import (
-	"github.com/songquanpeng/one-api/common/config"
-	"github.com/songquanpeng/one-api/common/logger"
-	billingratio "github.com/songquanpeng/one-api/relay/billing/ratio"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/songquanpeng/one-api/common/config"
+	"github.com/songquanpeng/one-api/common/logger"
+	billingratio "github.com/songquanpeng/one-api/relay/billing/ratio"
 )
 
 type Option struct {
@@ -70,6 +71,7 @@ func InitOptionMap() {
 	config.OptionMap["ModelRatio"] = billingratio.ModelRatio2JSONString()
 	config.OptionMap["GroupRatio"] = billingratio.GroupRatio2JSONString()
 	config.OptionMap["CompletionRatio"] = billingratio.CompletionRatio2JSONString()
+	config.OptionMap["Ratio"] = billingratio.Ratio2JSONString()
 	config.OptionMap["TopUpLink"] = config.TopUpLink
 	config.OptionMap["ChatLink"] = config.ChatLink
 	config.OptionMap["QuotaPerUnit"] = strconv.FormatFloat(config.QuotaPerUnit, 'f', -1, 64)
@@ -223,12 +225,14 @@ func updateOptionMap(key string, value string) (err error) {
 		config.PreConsumedQuota, _ = strconv.ParseInt(value, 10, 64)
 	case "RetryTimes":
 		config.RetryTimes, _ = strconv.Atoi(value)
-	case "ModelRatio":
+	case "ModelRatio": // Deprecated
 		err = billingratio.UpdateModelRatioByJSONString(value)
 	case "GroupRatio":
 		err = billingratio.UpdateGroupRatioByJSONString(value)
-	case "CompletionRatio":
+	case "CompletionRatio": // Deprecated
 		err = billingratio.UpdateCompletionRatioByJSONString(value)
+	case "Ratio":
+		err = billingratio.UpdateRatioByJSONString(value)
 	case "TopUpLink":
 		config.TopUpLink = value
 	case "ChatLink":

@@ -3,15 +3,16 @@ package baidu
 import (
 	"errors"
 	"fmt"
-	"github.com/songquanpeng/one-api/relay/meta"
-	"github.com/songquanpeng/one-api/relay/relaymode"
 	"io"
 	"net/http"
 	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/songquanpeng/one-api/relay/adaptor"
+	"github.com/songquanpeng/one-api/relay/billing/ratio"
+	"github.com/songquanpeng/one-api/relay/meta"
 	"github.com/songquanpeng/one-api/relay/model"
+	"github.com/songquanpeng/one-api/relay/relaymode"
 )
 
 type Adaptor struct {
@@ -120,6 +121,10 @@ func (a *Adaptor) DoRequest(c *gin.Context, meta *meta.Meta, requestBody io.Read
 	return adaptor.DoRequestHelper(a, c, meta, requestBody)
 }
 
+func (a *Adaptor) GetRatio(meta *meta.Meta) *ratio.Ratio {
+	return adaptor.GetRatioHelper(meta, RatioMap)
+}
+
 func (a *Adaptor) DoResponse(c *gin.Context, resp *http.Response, meta *meta.Meta) (usage *model.Usage, err *model.ErrorWithStatusCode) {
 	if meta.IsStream {
 		err, usage = StreamHandler(c, resp)
@@ -135,7 +140,7 @@ func (a *Adaptor) DoResponse(c *gin.Context, resp *http.Response, meta *meta.Met
 }
 
 func (a *Adaptor) GetModelList() []string {
-	return ModelList
+	return adaptor.GetModelListHelper(RatioMap)
 }
 
 func (a *Adaptor) GetChannelName() string {

@@ -18,6 +18,7 @@ import (
 	"github.com/songquanpeng/one-api/common/ctxkey"
 	"github.com/songquanpeng/one-api/common/logger"
 	"github.com/songquanpeng/one-api/model"
+	"github.com/songquanpeng/one-api/relay"
 	"github.com/songquanpeng/one-api/relay/adaptor/openai"
 	"github.com/songquanpeng/one-api/relay/billing"
 	billingratio "github.com/songquanpeng/one-api/relay/billing/ratio"
@@ -54,9 +55,16 @@ func RelayAudioHelper(c *gin.Context, relayMode int) *relaymodel.ErrorWithStatus
 		}
 	}
 
-	modelRatio := billingratio.GetModelRatio(audioModel, channelType)
+	adaptor := relay.GetAdaptor(meta.APIType)
+	if adaptor == nil {
+		return openai.ErrorWrapper(fmt.Errorf("invalid api type: %d", meta.APIType), "invalid_api_type", http.StatusBadRequest)
+	}
+	adaptor.Init(meta)
+
 	groupRatio := billingratio.GetGroupRatio(group)
-	ratio := modelRatio * groupRatio
+	adaptorRatio := GetRatio(meta, adaptor)
+	ratio := adaptorRatio.Input * groupRatio
+
 	var quota int64
 	var preConsumedQuota int64
 	switch relayMode {
@@ -216,7 +224,7 @@ func RelayAudioHelper(c *gin.Context, relayMode int) *relaymodel.ErrorWithStatus
 	succeed = true
 	quotaDelta := quota - preConsumedQuota
 	defer func(ctx context.Context) {
-		go billing.PostConsumeQuota(ctx, tokenId, quotaDelta, quota, userId, channelId, modelRatio, groupRatio, audioModel, tokenName)
+		go billing.PostConsumeQuota(ctx, tokenId, quotaDelta, quota, userId, channelId, adaptorRatio.Input, groupRatio, audioModel, tokenName, 0, 0)
 	}(c.Request.Context())
 
 	for k, v := range resp.Header {

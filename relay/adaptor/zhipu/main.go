@@ -3,12 +3,13 @@ package zhipu
 import (
 	"bufio"
 	"encoding/json"
-	"github.com/songquanpeng/one-api/common/render"
 	"io"
 	"net/http"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/songquanpeng/one-api/common/render"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
@@ -268,6 +269,9 @@ func EmbeddingsHandler(c *gin.Context, resp *http.Response) (*model.ErrorWithSta
 	c.Writer.Header().Set("Content-Type", "application/json")
 	c.Writer.WriteHeader(resp.StatusCode)
 	_, err = c.Writer.Write(jsonResponse)
+	if err != nil {
+		return openai.ErrorWrapper(err, "write_response_body_failed", http.StatusInternalServerError), nil
+	}
 	return nil, &fullTextResponse.Usage
 }
 
@@ -276,11 +280,7 @@ func embeddingResponseZhipu2OpenAI(response *EmbeddingResponse) *openai.Embeddin
 		Object: "list",
 		Data:   make([]openai.EmbeddingResponseItem, 0, len(response.Embeddings)),
 		Model:  response.Model,
-		Usage: model.Usage{
-			PromptTokens:     response.PromptTokens,
-			CompletionTokens: response.CompletionTokens,
-			TotalTokens:      response.Usage.TotalTokens,
-		},
+		Usage:  response.Usage,
 	}
 
 	for _, item := range response.Embeddings {

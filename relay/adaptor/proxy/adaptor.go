@@ -10,6 +10,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/songquanpeng/one-api/relay/adaptor"
 	channelhelper "github.com/songquanpeng/one-api/relay/adaptor"
+	"github.com/songquanpeng/one-api/relay/billing/ratio"
 	"github.com/songquanpeng/one-api/relay/meta"
 	"github.com/songquanpeng/one-api/relay/model"
 	relaymodel "github.com/songquanpeng/one-api/relay/model"
@@ -46,6 +47,10 @@ func (a *Adaptor) DoResponse(c *gin.Context, resp *http.Response, meta *meta.Met
 	}
 
 	return nil, nil
+}
+
+func (a *Adaptor) GetRatio(meta *meta.Meta) *ratio.Ratio {
+	return adaptor.GetRatioHelper(meta, nil)
 }
 
 func (a *Adaptor) GetModelList() (models []string) {

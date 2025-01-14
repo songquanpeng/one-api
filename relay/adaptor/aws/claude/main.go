@@ -38,6 +38,8 @@ var AwsModelIDMap = map[string]string{
 	"claude-3-5-haiku-20241022":  "anthropic.claude-3-5-haiku-20241022-v1:0",
 }
 
+var RatioMap = anthropic.RatioMap
+
 func awsModelID(requestModel string) (string, error) {
 	if awsModelID, ok := AwsModelIDMap[requestModel]; ok {
 		return awsModelID, nil

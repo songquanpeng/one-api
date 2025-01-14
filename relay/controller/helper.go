@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/songquanpeng/one-api/relay/constant/role"
 	"math"
 	"net/http"
 	"strings"
@@ -14,9 +13,12 @@ import (
 	"github.com/songquanpeng/one-api/common/config"
 	"github.com/songquanpeng/one-api/common/logger"
 	"github.com/songquanpeng/one-api/model"
+	"github.com/songquanpeng/one-api/relay/adaptor"
 	"github.com/songquanpeng/one-api/relay/adaptor/openai"
+	"github.com/songquanpeng/one-api/relay/billing/ratio"
 	billingratio "github.com/songquanpeng/one-api/relay/billing/ratio"
 	"github.com/songquanpeng/one-api/relay/channeltype"
+	"github.com/songquanpeng/one-api/relay/constant/role"
 	"github.com/songquanpeng/one-api/relay/controller/validator"
 	"github.com/songquanpeng/one-api/relay/meta"
 	relaymodel "github.com/songquanpeng/one-api/relay/model"
@@ -91,17 +93,26 @@ func preConsumeQuota(ctx context.Context, textRequest *relaymodel.GeneralOpenAIR
 	return preConsumedQuota, nil
 }
 
-func postConsumeQuota(ctx context.Context, usage *relaymodel.Usage, meta *meta.Meta, textRequest *relaymodel.GeneralOpenAIRequest, ratio float64, preConsumedQuota int64, modelRatio float64, groupRatio float64, systemPromptReset bool) {
+func postConsumeQuota(ctx context.Context, usage *relaymodel.Usage, meta *meta.Meta, textRequest *relaymodel.GeneralOpenAIRequest, ratio billingratio.Ratio, preConsumedQuota int64, groupRatio float64, systemPromptReset bool) {
 	if usage == nil {
 		logger.Error(ctx, "usage is nil, which is unexpected")
 		return
 	}
 	var quota int64
-	completionRatio := billingratio.GetCompletionRatio(textRequest.Model, meta.ChannelType)
+	// use meta.OriginalModelName instead of mapped model name, which may named randomly in azure
 	promptTokens := usage.PromptTokens
 	completionTokens := usage.CompletionTokens
-	quota = int64(math.Ceil((float64(promptTokens) + float64(completionTokens)*completionRatio) * ratio))
-	if ratio != 0 && quota <= 0 {
+	promptRatio := ratio.Input
+	completionRatio := ratio.Output
+
+	// for gemini, prompt longer than 128k will be charged as long input
+	if ratio.LongInput > 0 && promptTokens > ratio.LongThreshold {
+		promptRatio = ratio.LongInput
+		completionRatio = ratio.LongOutput
+	}
+	quota = int64(math.Ceil(groupRatio * (float64(promptTokens)*promptRatio + float64(completionTokens)*completionRatio)))
+
+	if quota <= 0 && (ratio.Input > 0 || ratio.Output > 0) {
 		quota = 1
 	}
 	totalTokens := promptTokens + completionTokens
@@ -123,8 +134,8 @@ func postConsumeQuota(ctx context.Context, usage *relaymodel.Usage, meta *meta.M
 	if systemPromptReset {
 		extraLog = " （注意系统提示词已被重置）"
 	}
-	logContent := fmt.Sprintf("模型倍率 %.2f，分组倍率 %.2f，补全倍率 %.2f%s", modelRatio, groupRatio, completionRatio, extraLog)
-	model.RecordConsumeLog(ctx, meta.UserId, meta.ChannelId, promptTokens, completionTokens, textRequest.Model, meta.TokenName, quota, logContent)
+	logContent := fmt.Sprintf("模型倍率 %.2f，分组倍率 %.2f，补全倍率 %.2f%s", promptRatio, groupRatio, completionRatio/promptRatio, extraLog)
+	model.RecordConsumeLog(ctx, meta.UserId, meta.ChannelId, promptTokens, completionTokens, meta.OriginModelName, meta.TokenName, quota, logContent)
 	model.UpdateUserUsedQuotaAndRequestCount(meta.UserId, quota)
 	model.UpdateChannelUsedQuota(meta.ChannelId, quota)
 }
@@ -184,4 +195,17 @@ func setSystemPrompt(ctx context.Context, request *relaymodel.GeneralOpenAIReque
 	}}, request.Messages...)
 	logger.Infof(ctx, "add system prompt")
 	return true
+}
+
+func GetRatio(meta *meta.Meta, adaptor adaptor.Adaptor) ratio.Ratio {
+	result := billingratio.GetRatio(meta.OriginModelName, meta.ChannelType)
+	if result != nil {
+		return *result
+	}
+	ratio := adaptor.GetRatio(meta)
+	if ratio != nil {
+		return *ratio
+	}
+	logger.SysError("model ratio not found: " + meta.OriginModelName)
+	return billingratio.FallbackRatio
 }

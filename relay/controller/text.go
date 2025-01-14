@@ -4,9 +4,10 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/songquanpeng/one-api/common/config"
 	"io"
 	"net/http"
+
+	"github.com/songquanpeng/one-api/common/config"
 
 	"github.com/gin-gonic/gin"
 	"github.com/songquanpeng/one-api/common/logger"
@@ -32,6 +33,12 @@ func RelayTextHelper(c *gin.Context) *model.ErrorWithStatusCode {
 	}
 	meta.IsStream = textRequest.Stream
 
+	adaptor := relay.GetAdaptor(meta.APIType)
+	if adaptor == nil {
+		return openai.ErrorWrapper(fmt.Errorf("invalid api type: %d", meta.APIType), "invalid_api_type", http.StatusBadRequest)
+	}
+	adaptor.Init(meta)
+
 	// map model name
 	meta.OriginModelName = textRequest.Model
 	textRequest.Model, _ = getMappedModelName(textRequest.Model, meta.ModelMapping)
@@ -39,9 +46,10 @@ func RelayTextHelper(c *gin.Context) *model.ErrorWithStatusCode {
 	// set system prompt if not empty
 	systemPromptReset := setSystemPrompt(ctx, textRequest, meta.SystemPrompt)
 	// get model ratio & group ratio
-	modelRatio := billingratio.GetModelRatio(textRequest.Model, meta.ChannelType)
 	groupRatio := billingratio.GetGroupRatio(meta.Group)
-	ratio := modelRatio * groupRatio
+	adaptorRatio := GetRatio(meta, adaptor)
+	ratio := adaptorRatio.Input * groupRatio
+
 	// pre-consume quota
 	promptTokens := getPromptTokens(textRequest, meta.Mode)
 	meta.PromptTokens = promptTokens
@@ -50,12 +58,6 @@ func RelayTextHelper(c *gin.Context) *model.ErrorWithStatusCode {
 		logger.Warnf(ctx, "preConsumeQuota failed: %+v", *bizErr)
 		return bizErr
 	}
-
-	adaptor := relay.GetAdaptor(meta.APIType)
-	if adaptor == nil {
-		return openai.ErrorWrapper(fmt.Errorf("invalid api type: %d", meta.APIType), "invalid_api_type", http.StatusBadRequest)
-	}
-	adaptor.Init(meta)
 
 	// get request body
 	requestBody, err := getRequestBody(c, meta, textRequest, adaptor)
@@ -82,7 +84,7 @@ func RelayTextHelper(c *gin.Context) *model.ErrorWithStatusCode {
 		return respErr
 	}
 	// post-consume quota
-	go postConsumeQuota(ctx, usage, meta, textRequest, ratio, preConsumedQuota, modelRatio, groupRatio, systemPromptReset)
+	go postConsumeQuota(ctx, usage, meta, textRequest, adaptorRatio, preConsumedQuota, groupRatio, systemPromptReset)
 	return nil
 }
 
