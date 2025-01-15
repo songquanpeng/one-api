@@ -1,6 +1,7 @@
 package tencent
 
 import (
+	"encoding/json"
 	"errors"
 	"github.com/gin-gonic/gin"
 	"github.com/songquanpeng/one-api/common/helper"
@@ -8,6 +9,7 @@ import (
 	"github.com/songquanpeng/one-api/relay/adaptor/openai"
 	"github.com/songquanpeng/one-api/relay/meta"
 	"github.com/songquanpeng/one-api/relay/model"
+	"github.com/songquanpeng/one-api/relay/relaymode"
 	"io"
 	"net/http"
 	"strconv"
@@ -52,10 +54,29 @@ func (a *Adaptor) ConvertRequest(c *gin.Context, relayMode int, request *model.G
 	if err != nil {
 		return nil, err
 	}
-	tencentRequest := ConvertRequest(*request)
-	// we have to calculate the sign here
-	a.Sign = GetSign(*tencentRequest, a, secretId, secretKey)
-	return tencentRequest, nil
+
+	switch relayMode {
+	case relaymode.Embeddings:
+		a.Action = "GetEmbedding"
+		tencentEmbeddingRequest := ConvertEmbeddingRequest(*request)
+		payload, err := json.Marshal(tencentEmbeddingRequest)
+		if err != nil {
+			return nil, err
+		}
+		// we have to calculate the sign here
+		a.Sign = GetSign(payload, a, secretId, secretKey)
+		return tencentEmbeddingRequest, nil
+	default:
+		a.Action = "ChatCompletions"
+		tencentRequest := ConvertRequest(*request)
+		payload, err := json.Marshal(tencentRequest)
+		if err != nil {
+			return nil, err
+		}
+		// we have to calculate the sign here
+		a.Sign = GetSign(payload, a, secretId, secretKey)
+		return tencentRequest, nil
+	}
 }
 
 func (a *Adaptor) ConvertImageRequest(request *model.ImageRequest) (any, error) {
@@ -75,7 +96,12 @@ func (a *Adaptor) DoResponse(c *gin.Context, resp *http.Response, meta *meta.Met
 		err, responseText = StreamHandler(c, resp)
 		usage = openai.ResponseText2Usage(responseText, meta.ActualModelName, meta.PromptTokens)
 	} else {
-		err, usage = Handler(c, resp)
+		switch meta.Mode {
+		case relaymode.Embeddings:
+			err, usage = EmbeddingHandler(c, resp)
+		default:
+			err, usage = Handler(c, resp)
+		}
 	}
 	return
 }
