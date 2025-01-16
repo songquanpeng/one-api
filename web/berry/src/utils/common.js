@@ -236,12 +236,24 @@ export function getChannelModels(type) {
 }
 
 export function copy(text, name = '') {
-  try {
-    navigator.clipboard.writeText(text);
-  } catch (error) {
-    text = `复制${name}失败，请手动复制：<br /><br />${text}`;
-    enqueueSnackbar(<SnackbarHTMLContent htmlContent={text} />, getSnackbarOptions('COPY'));
-    return;
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(() => {
+      showNotice(`复制${name}成功！`, true);
+    }, () => {
+      text = `复制${name}失败，请手动复制：<br /><br />${text}`;
+      enqueueSnackbar(<SnackbarHTMLContent htmlContent={text} />, getSnackbarOptions('COPY'));
+    });
+  } else {
+    const textArea = document.createElement("textarea");
+    textArea.value = text;
+    document.body.appendChild(textArea);
+    textArea.select();
+    try {
+      document.execCommand('copy');
+      showNotice(`复制${name}成功！`, true);
+    } catch (err) {
+      text = `复制${name}失败，请手动复制：<br /><br />${text}`;
+      enqueueSnackbar(<SnackbarHTMLContent htmlContent={text} />, getSnackbarOptions('COPY'));
+    }
+    document.body.removeChild(textArea);
   }
-  showSuccess(`复制${name}成功！`);
-}
