@@ -1,5 +1,7 @@
 package ctxkey
 
+import "github.com/gin-gonic/gin"
+
 const (
 	Config            = "config"
 	Id                = "id"
@@ -19,5 +21,6 @@ const (
 	TokenName         = "token_name"
 	BaseURL           = "base_url"
 	AvailableModels   = "available_models"
+	KeyRequestBody    = gin.BodyBytesKey
 	SystemPrompt      = "system_prompt"
 )
