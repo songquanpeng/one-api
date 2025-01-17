@@ -3,14 +3,14 @@ package common
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/gin-gonic/gin"
-	"github.com/songquanpeng/one-api/common/ctxkey"
 	"io"
 	"strings"
+
+	"github.com/gin-gonic/gin"
 )
 
 func GetRequestBody(c *gin.Context) ([]byte, error) {
-	requestBody, _ := c.Get(ctxkey.KeyRequestBody)
+	requestBody, _ := c.Get(gin.BodyBytesKey)
 	if requestBody != nil {
 		return requestBody.([]byte), nil
 	}
@@ -19,7 +19,7 @@ func GetRequestBody(c *gin.Context) ([]byte, error) {
 		return nil, err
 	}
 	_ = c.Request.Body.Close()
-	c.Set(ctxkey.KeyRequestBody, requestBody)
+	c.Set(gin.BodyBytesKey, requestBody)
 	return requestBody.([]byte), nil
 }
 
@@ -31,7 +31,6 @@ func UnmarshalBodyReusable(c *gin.Context, v any) error {
 	contentType := c.Request.Header.Get("Content-Type")
 	if strings.HasPrefix(contentType, "application/json") {
 		err = json.Unmarshal(requestBody, &v)
-		c.Request.Body = io.NopCloser(bytes.NewBuffer(requestBody))
 	} else {
 		c.Request.Body = io.NopCloser(bytes.NewBuffer(requestBody))
 		err = c.ShouldBind(&v)
@@ -40,6 +39,7 @@ func UnmarshalBodyReusable(c *gin.Context, v any) error {
 		return err
 	}
 	// Reset request body
+	c.Request.Body = io.NopCloser(bytes.NewBuffer(requestBody))
 	return nil
 }
 
