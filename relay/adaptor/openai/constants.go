@@ -52,10 +52,10 @@ var RatioMap = map[string]ratio.Ratio{
 	"text-embedding-3-small":     {Input: 0.01, Output: 0},             // $0.0002 / 1K tokens
 	"text-embedding-3-large":     {Input: 0.065, Output: 0},            // $0.0013 / 1K tokens
 	"text-search-ada-doc-001":    {Input: 10, Output: 0},               // $0.02 / 1K tokens
-	"text-moderation-stable":     {Input: 0.1, Output: 0},              // $0.002 / 1K tokens
-	"text-moderation-latest":     {Input: 0.1, Output: 0},              // $0.002 / 1K tokens
-	"omni-moderation-latest":     {Input: 0.1, Output: 0},              // $0.002 / 1K tokens
-	"omni-moderation-2024-09-26": {Input: 0.1, Output: 0},              // $0.002 / 1K tokens
+	"text-moderation-stable":     {Input: 0.1, Output: 0},              // currently free to use
+	"text-moderation-latest":     {Input: 0.1, Output: 0},              // currently free to use
+	"omni-moderation-latest":     {Input: 0.1, Output: 0},              // currently free to use
+	"omni-moderation-2024-09-26": {Input: 0.1, Output: 0},              // currently free to use
 	"dall-e-2":                   {Input: 0.02 * ratio.USD, Output: 0}, // $0.016 - $0.020 / image
 	"dall-e-3":                   {Input: 0.04 * ratio.USD, Output: 0}, // $0.040 - $0.120 / image
 }
