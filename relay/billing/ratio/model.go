@@ -3,6 +3,7 @@ package ratio
 import (
 	"encoding/json"
 	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/songquanpeng/one-api/common/logger"
@@ -394,6 +395,58 @@ func AddNewMissingRatio(oldRatio string) string {
 	return string(jsonBytes)
 }
 
+func AddOldRatio(oldRatio string, oldCompletionRatio string) string {
+	modelRatio := make(map[string]float64)
+	if oldRatio != "" {
+		err := json.Unmarshal([]byte(oldRatio), &modelRatio)
+		if err != nil {
+			logger.SysError("error unmarshalling old ratio: " + err.Error())
+			return oldRatio
+		}
+	}
+
+	completionRatio := make(map[string]float64)
+	if oldCompletionRatio != "" {
+		err := json.Unmarshal([]byte(oldCompletionRatio), &completionRatio)
+		if err != nil {
+			logger.SysError("error unmarshalling old completion ratio: " + err.Error())
+			return oldCompletionRatio
+		}
+	}
+
+	newRatio := make(map[string]Ratio)
+
+	for k, v := range DefaultRatio {
+		if _, ok := newRatio[k]; !ok {
+			newRatio[k] = v
+		}
+	}
+
+	for k, v := range modelRatio {
+		if _, ok := DefaultRatio[k]; ok {
+			continue
+		}
+		modelName, channelType := SplitModelName(k)
+		ratio := Ratio{}
+		ratio.Input = v
+
+		if val, ok := completionRatio[k]; ok {
+			ratio.Output = v * val
+		} else {
+			ratio.Output = v * GetCompletionRatio(modelName, channelType)
+		}
+
+		newRatio[k] = ratio
+	}
+
+	jsonBytes, err := json.Marshal(newRatio)
+	if err != nil {
+		logger.SysError("error marshalling new ratio: " + err.Error())
+		return oldRatio
+	}
+	return string(jsonBytes)
+}
+
 func ModelRatio2JSONString() string {
 	jsonBytes, err := json.Marshal(ModelRatio)
 	if err != nil {
@@ -442,6 +495,18 @@ func CompletionRatio2JSONString() string {
 func UpdateCompletionRatioByJSONString(jsonStr string) error {
 	CompletionRatio = make(map[string]float64)
 	return json.Unmarshal([]byte(jsonStr), &CompletionRatio)
+}
+
+func SplitModelName(name string) (string, int) {
+	model := strings.Split(name, "(")
+	modelName := model[0]
+	channelType := 0
+	if len(model) > 1 {
+		if v, err := strconv.Atoi(model[1]); err == nil {
+			channelType = v
+		}
+	}
+	return modelName, channelType
 }
 
 func GetCompletionRatio(name string, channelType int) float64 {

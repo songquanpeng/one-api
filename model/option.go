@@ -83,13 +83,33 @@ func InitOptionMap() {
 
 func loadOptionsFromDatabase() {
 	options, _ := AllOption()
+	var oldModelRatio string
+	var oldCompletionRatio string
 	for _, option := range options {
 		if option.Key == "ModelRatio" {
+			oldModelRatio = option.Value
 			option.Value = billingratio.AddNewMissingRatio(option.Value)
+		}
+		if option.Key == "CompletionRatio" {
+			oldCompletionRatio = option.Value
 		}
 		err := updateOptionMap(option.Key, option.Value)
 		if err != nil {
 			logger.SysError("failed to update option map: " + err.Error())
+		}
+	}
+	for _, option := range options {
+		if option.Key == "Ratio" {
+			option.Value = billingratio.AddOldRatio(oldModelRatio, oldCompletionRatio)
+			err := updateOptionMap(option.Key, option.Value)
+			if err != nil {
+				logger.SysError("failed to update option map: " + err.Error())
+			}
+			err = UpdateOption(option.Key, option.Value)
+			if err != nil {
+				logger.SysError("failed to update option map: " + err.Error())
+			}
+			logger.SysLog("ratio merged")
 		}
 	}
 }
