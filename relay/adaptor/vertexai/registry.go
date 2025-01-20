@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	claude "github.com/songquanpeng/one-api/relay/adaptor/vertexai/claude"
 	gemini "github.com/songquanpeng/one-api/relay/adaptor/vertexai/gemini"
+	"github.com/songquanpeng/one-api/relay/billing/ratio"
 	"github.com/songquanpeng/one-api/relay/meta"
 	"github.com/songquanpeng/one-api/relay/model"
 )
@@ -18,16 +19,13 @@ const (
 )
 
 var modelMapping = map[string]VertexAIModelType{}
-var modelList = []string{}
 
 func init() {
-	modelList = append(modelList, claude.ModelList...)
-	for _, model := range claude.ModelList {
+	for model := range claude.RatioMap {
 		modelMapping[model] = VerterAIClaude
 	}
 
-	modelList = append(modelList, gemini.ModelList...)
-	for _, model := range gemini.ModelList {
+	for model := range gemini.RatioMap {
 		modelMapping[model] = VerterAIGemini
 	}
 }
@@ -35,6 +33,7 @@ func init() {
 type innerAIAdapter interface {
 	ConvertRequest(c *gin.Context, relayMode int, request *model.GeneralOpenAIRequest) (any, error)
 	DoResponse(c *gin.Context, resp *http.Response, meta *meta.Meta) (usage *model.Usage, err *model.ErrorWithStatusCode)
+	GetRatio(meta *meta.Meta) *ratio.Ratio
 }
 
 func GetAdaptor(model string) innerAIAdapter {

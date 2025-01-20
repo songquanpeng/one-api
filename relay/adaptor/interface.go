@@ -2,6 +2,7 @@ package adaptor
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/songquanpeng/one-api/relay/billing/ratio"
 	"github.com/songquanpeng/one-api/relay/meta"
 	"github.com/songquanpeng/one-api/relay/model"
 	"io"
@@ -16,6 +17,7 @@ type Adaptor interface {
 	ConvertImageRequest(request *model.ImageRequest) (any, error)
 	DoRequest(c *gin.Context, meta *meta.Meta, requestBody io.Reader) (*http.Response, error)
 	DoResponse(c *gin.Context, resp *http.Response, meta *meta.Meta) (usage *model.Usage, err *model.ErrorWithStatusCode)
+	GetRatio(meta *meta.Meta) *ratio.Ratio
 	GetModelList() []string
 	GetChannelName() string
 }

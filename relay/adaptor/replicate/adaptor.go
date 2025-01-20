@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"slices"
 	"strings"
 	"time"
 
@@ -13,6 +12,7 @@ import (
 	"github.com/songquanpeng/one-api/common/logger"
 	"github.com/songquanpeng/one-api/relay/adaptor"
 	"github.com/songquanpeng/one-api/relay/adaptor/openai"
+	"github.com/songquanpeng/one-api/relay/billing/ratio"
 	"github.com/songquanpeng/one-api/relay/meta"
 	"github.com/songquanpeng/one-api/relay/model"
 	"github.com/songquanpeng/one-api/relay/relaymode"
@@ -96,7 +96,7 @@ func (a *Adaptor) Init(meta *meta.Meta) {
 }
 
 func (a *Adaptor) GetRequestURL(meta *meta.Meta) (string, error) {
-	if !slices.Contains(ModelList, meta.OriginModelName) {
+	if _, ok := RatioMap[meta.OriginModelName]; !ok {
 		return "", errors.Errorf("model %s not supported", meta.OriginModelName)
 	}
 
@@ -127,8 +127,12 @@ func (a *Adaptor) DoResponse(c *gin.Context, resp *http.Response, meta *meta.Met
 	return
 }
 
+func (a *Adaptor) GetRatio(meta *meta.Meta) *ratio.Ratio {
+	return adaptor.GetRatioHelper(meta, RatioMap)
+}
+
 func (a *Adaptor) GetModelList() []string {
-	return ModelList
+	return adaptor.GetModelListHelper(RatioMap)
 }
 
 func (a *Adaptor) GetChannelName() string {

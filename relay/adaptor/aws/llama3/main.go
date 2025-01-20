@@ -22,6 +22,7 @@ import (
 	"github.com/songquanpeng/one-api/common/logger"
 	"github.com/songquanpeng/one-api/relay/adaptor/aws/utils"
 	"github.com/songquanpeng/one-api/relay/adaptor/openai"
+	"github.com/songquanpeng/one-api/relay/billing/ratio"
 	relaymodel "github.com/songquanpeng/one-api/relay/model"
 )
 
@@ -30,6 +31,11 @@ import (
 var AwsModelIDMap = map[string]string{
 	"llama3-8b-8192":  "meta.llama3-8b-instruct-v1:0",
 	"llama3-70b-8192": "meta.llama3-70b-instruct-v1:0",
+}
+
+var RatioMap = map[string]ratio.Ratio{
+	"llama3-8b-8192":  {Input: 0.3 * ratio.MILLI_USD, Output: 0.6 * ratio.MILLI_USD},
+	"llama3-70b-8192": {Input: 2.65 * ratio.MILLI_USD, Output: 3.5 * ratio.MILLI_USD},
 }
 
 func awsModelID(requestModel string) (string, error) {

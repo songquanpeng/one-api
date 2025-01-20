@@ -1,9 +1,10 @@
 package deepl
 
-// https://developers.deepl.com/docs/api-reference/glossaries
+import "github.com/songquanpeng/one-api/relay/billing/ratio"
 
-var ModelList = []string{
-	"deepl-zh",
-	"deepl-en",
-	"deepl-ja",
+// https://developers.deepl.com/docs/api-reference/glossaries
+var RatioMap = map[string]ratio.Ratio{
+	"deepl-zh": {Input: 25.0 * ratio.MILLI_USD, Output: 0},
+	"deepl-en": {Input: 25.0 * ratio.MILLI_USD, Output: 0},
+	"deepl-ja": {Input: 25.0 * ratio.MILLI_USD, Output: 0},
 }

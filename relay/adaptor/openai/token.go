@@ -3,14 +3,14 @@ package openai
 import (
 	"errors"
 	"fmt"
+	"math"
+	"strings"
+
 	"github.com/pkoukk/tiktoken-go"
 	"github.com/songquanpeng/one-api/common/config"
 	"github.com/songquanpeng/one-api/common/image"
 	"github.com/songquanpeng/one-api/common/logger"
-	billingratio "github.com/songquanpeng/one-api/relay/billing/ratio"
 	"github.com/songquanpeng/one-api/relay/model"
-	"math"
-	"strings"
 )
 
 // tokenEncoderMap won't grow after initialization
@@ -32,7 +32,7 @@ func InitTokenEncoders() {
 	if err != nil {
 		logger.FatalLog(fmt.Sprintf("failed to get gpt-4 token encoder: %s", err.Error()))
 	}
-	for model := range billingratio.ModelRatio {
+	for model := range RatioMap {
 		if strings.HasPrefix(model, "gpt-3.5") {
 			tokenEncoderMap[model] = gpt35TokenEncoder
 		} else if strings.HasPrefix(model, "gpt-4o") {

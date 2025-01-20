@@ -10,9 +10,9 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/songquanpeng/one-api/relay/adaptor"
 	channelhelper "github.com/songquanpeng/one-api/relay/adaptor"
+	"github.com/songquanpeng/one-api/relay/billing/ratio"
 	"github.com/songquanpeng/one-api/relay/meta"
 	"github.com/songquanpeng/one-api/relay/model"
-	relaymodel "github.com/songquanpeng/one-api/relay/model"
 )
 
 var _ adaptor.Adaptor = new(Adaptor)
@@ -40,19 +40,29 @@ func (a *Adaptor) ConvertRequest(c *gin.Context, relayMode int, request *model.G
 func (a *Adaptor) DoResponse(c *gin.Context, resp *http.Response, meta *meta.Meta) (usage *model.Usage, err *model.ErrorWithStatusCode) {
 	adaptor := GetAdaptor(meta.ActualModelName)
 	if adaptor == nil {
-		return nil, &relaymodel.ErrorWithStatusCode{
+		return nil, &model.ErrorWithStatusCode{
 			StatusCode: http.StatusInternalServerError,
-			Error: relaymodel.Error{
-				Message: "adaptor not found",
-			},
+			Error:      model.Error{Message: "adaptor not found"},
 		}
 	}
+
 	return adaptor.DoResponse(c, resp, meta)
 }
 
-func (a *Adaptor) GetModelList() (models []string) {
-	models = modelList
-	return
+func (a *Adaptor) GetRatio(meta *meta.Meta) *ratio.Ratio {
+	adaptor := GetAdaptor(meta.ActualModelName)
+	if adaptor == nil {
+		return nil
+	}
+	return adaptor.GetRatio(meta)
+}
+
+func (a *Adaptor) GetModelList() []string {
+	var resp []string
+	for model := range modelMapping {
+		resp = append(resp, model)
+	}
+	return resp
 }
 
 func (a *Adaptor) GetChannelName() string {

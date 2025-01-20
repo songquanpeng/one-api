@@ -3,23 +3,42 @@ package ratio
 import (
 	"encoding/json"
 	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/songquanpeng/one-api/common/logger"
 )
 
 const (
-	USD2RMB = 7
-	USD     = 500 // $0.002 = 1 -> $1 = 500
-	RMB     = USD / USD2RMB
+	USD2RMB         = 7
+	USD             = 500           // $0.002 = 1 -> $1 = 500
+	RMB             = USD / USD2RMB // 1RMB = 1/7USD
+	MILLI_USD       = 1.0 / 1000 * USD
+	MILLI_RMB       = 1.0 / 1000 * RMB
+	TokensPerSecond = 1000 / 20 // $0.006 / minute -> $0.002 / 20 seconds -> $0.002 / 1K tokens
 )
 
+type Ratio struct {
+	Input         float64 `json:"input,omitempty"`          // input ratio
+	Output        float64 `json:"output,omitempty"`         // output ratio
+	LongThreshold int     `json:"long_threshold,omitempty"` // for gemini like models, prompt longer than threshold will be charged as long input
+	LongInput     float64 `json:"long_input,omitempty"`     // long input ratio
+	LongOutput    float64 `json:"long_output,omitempty"`    // long output ratio
+}
+
+var (
+	FallbackRatio = Ratio{Input: 30, Output: 30}
+)
+
+// Deprecated
+// TODO: remove this
 // ModelRatio
 // https://platform.openai.com/docs/models/model-endpoint-compatibility
 // https://cloud.baidu.com/doc/WENXINWORKSHOP/s/Blfmc9dlf
 // https://openai.com/pricing
 // 1 === $0.002 / 1K tokens
 // 1 === ￥0.014 / 1k tokens
+// 1 === $0.002 / 20 seconds (50 tokens per second)
 var ModelRatio = map[string]float64{
 	// https://openai.com/pricing
 	"gpt-4":                   15,
@@ -342,6 +361,7 @@ var CompletionRatio = map[string]float64{
 var (
 	DefaultModelRatio      map[string]float64
 	DefaultCompletionRatio map[string]float64
+	DefaultRatio           = make(map[string]Ratio)
 )
 
 func init() {
@@ -367,6 +387,58 @@ func AddNewMissingRatio(oldRatio string) string {
 			newRatio[k] = v
 		}
 	}
+	jsonBytes, err := json.Marshal(newRatio)
+	if err != nil {
+		logger.SysError("error marshalling new ratio: " + err.Error())
+		return oldRatio
+	}
+	return string(jsonBytes)
+}
+
+func AddOldRatio(oldRatio string, oldCompletionRatio string) string {
+	modelRatio := make(map[string]float64)
+	if oldRatio != "" {
+		err := json.Unmarshal([]byte(oldRatio), &modelRatio)
+		if err != nil {
+			logger.SysError("error unmarshalling old ratio: " + err.Error())
+			return oldRatio
+		}
+	}
+
+	completionRatio := make(map[string]float64)
+	if oldCompletionRatio != "" {
+		err := json.Unmarshal([]byte(oldCompletionRatio), &completionRatio)
+		if err != nil {
+			logger.SysError("error unmarshalling old completion ratio: " + err.Error())
+			return oldCompletionRatio
+		}
+	}
+
+	newRatio := make(map[string]Ratio)
+
+	for k, v := range DefaultRatio {
+		if _, ok := newRatio[k]; !ok {
+			newRatio[k] = v
+		}
+	}
+
+	for k, v := range modelRatio {
+		if _, ok := DefaultRatio[k]; ok {
+			continue
+		}
+		modelName, channelType := SplitModelName(k)
+		ratio := Ratio{}
+		ratio.Input = v
+
+		if val, ok := completionRatio[k]; ok {
+			ratio.Output = v * val
+		} else {
+			ratio.Output = v * GetCompletionRatio(modelName, channelType)
+		}
+
+		newRatio[k] = ratio
+	}
+
 	jsonBytes, err := json.Marshal(newRatio)
 	if err != nil {
 		logger.SysError("error marshalling new ratio: " + err.Error())
@@ -423,6 +495,18 @@ func CompletionRatio2JSONString() string {
 func UpdateCompletionRatioByJSONString(jsonStr string) error {
 	CompletionRatio = make(map[string]float64)
 	return json.Unmarshal([]byte(jsonStr), &CompletionRatio)
+}
+
+func SplitModelName(name string) (string, int) {
+	model := strings.Split(name, "(")
+	modelName := model[0]
+	channelType := 0
+	if len(model) > 1 {
+		if v, err := strconv.Atoi(model[1]); err == nil {
+			channelType = v
+		}
+	}
+	return modelName, channelType
 }
 
 func GetCompletionRatio(name string, channelType int) float64 {
@@ -535,4 +619,31 @@ func GetCompletionRatio(name string, channelType int) float64 {
 	}
 
 	return 1
+}
+
+func Ratio2JSONString() string {
+	jsonBytes, err := json.Marshal(DefaultRatio)
+	if err != nil {
+		logger.SysError("error marshalling ratio: " + err.Error())
+	}
+	return string(jsonBytes)
+}
+
+func UpdateRatioByJSONString(jsonStr string) error {
+	DefaultRatio = make(map[string]Ratio)
+	return json.Unmarshal([]byte(jsonStr), &DefaultRatio)
+}
+
+func GetRatio(name string, channelType int) *Ratio {
+	var result Ratio
+	model := fmt.Sprintf("%s(%d)", name, channelType)
+	if ratio, ok := DefaultRatio[model]; ok {
+		result = ratio
+		return &result
+	}
+	if ratio, ok := DefaultRatio[name]; ok {
+		result = ratio
+		return &result
+	}
+	return nil
 }

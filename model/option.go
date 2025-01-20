@@ -1,12 +1,13 @@
 package model
 
 import (
-	"github.com/songquanpeng/one-api/common/config"
-	"github.com/songquanpeng/one-api/common/logger"
-	billingratio "github.com/songquanpeng/one-api/relay/billing/ratio"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/songquanpeng/one-api/common/config"
+	"github.com/songquanpeng/one-api/common/logger"
+	billingratio "github.com/songquanpeng/one-api/relay/billing/ratio"
 )
 
 type Option struct {
@@ -70,6 +71,7 @@ func InitOptionMap() {
 	config.OptionMap["ModelRatio"] = billingratio.ModelRatio2JSONString()
 	config.OptionMap["GroupRatio"] = billingratio.GroupRatio2JSONString()
 	config.OptionMap["CompletionRatio"] = billingratio.CompletionRatio2JSONString()
+	config.OptionMap["Ratio"] = billingratio.Ratio2JSONString()
 	config.OptionMap["TopUpLink"] = config.TopUpLink
 	config.OptionMap["ChatLink"] = config.ChatLink
 	config.OptionMap["QuotaPerUnit"] = strconv.FormatFloat(config.QuotaPerUnit, 'f', -1, 64)
@@ -81,13 +83,33 @@ func InitOptionMap() {
 
 func loadOptionsFromDatabase() {
 	options, _ := AllOption()
+	var oldModelRatio string
+	var oldCompletionRatio string
 	for _, option := range options {
 		if option.Key == "ModelRatio" {
+			oldModelRatio = option.Value
 			option.Value = billingratio.AddNewMissingRatio(option.Value)
+		}
+		if option.Key == "CompletionRatio" {
+			oldCompletionRatio = option.Value
 		}
 		err := updateOptionMap(option.Key, option.Value)
 		if err != nil {
 			logger.SysError("failed to update option map: " + err.Error())
+		}
+	}
+	for _, option := range options {
+		if option.Key == "Ratio" {
+			option.Value = billingratio.AddOldRatio(oldModelRatio, oldCompletionRatio)
+			err := updateOptionMap(option.Key, option.Value)
+			if err != nil {
+				logger.SysError("failed to update option map: " + err.Error())
+			}
+			err = UpdateOption(option.Key, option.Value)
+			if err != nil {
+				logger.SysError("failed to update option map: " + err.Error())
+			}
+			logger.SysLog("ratio merged")
 		}
 	}
 }
@@ -223,12 +245,14 @@ func updateOptionMap(key string, value string) (err error) {
 		config.PreConsumedQuota, _ = strconv.ParseInt(value, 10, 64)
 	case "RetryTimes":
 		config.RetryTimes, _ = strconv.Atoi(value)
-	case "ModelRatio":
+	case "ModelRatio": // Deprecated
 		err = billingratio.UpdateModelRatioByJSONString(value)
 	case "GroupRatio":
 		err = billingratio.UpdateGroupRatioByJSONString(value)
-	case "CompletionRatio":
+	case "CompletionRatio": // Deprecated
 		err = billingratio.UpdateCompletionRatioByJSONString(value)
+	case "Ratio":
+		err = billingratio.UpdateRatioByJSONString(value)
 	case "TopUpLink":
 		config.TopUpLink = value
 	case "ChatLink":

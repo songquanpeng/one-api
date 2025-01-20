@@ -12,6 +12,7 @@ import (
 	"github.com/songquanpeng/one-api/relay/adaptor/doubao"
 	"github.com/songquanpeng/one-api/relay/adaptor/minimax"
 	"github.com/songquanpeng/one-api/relay/adaptor/novita"
+	"github.com/songquanpeng/one-api/relay/billing/ratio"
 	"github.com/songquanpeng/one-api/relay/channeltype"
 	"github.com/songquanpeng/one-api/relay/meta"
 	"github.com/songquanpeng/one-api/relay/model"
@@ -118,9 +119,14 @@ func (a *Adaptor) DoResponse(c *gin.Context, resp *http.Response, meta *meta.Met
 	return
 }
 
+func (a *Adaptor) GetRatio(meta *meta.Meta) *ratio.Ratio {
+	_, ratioMap := GetCompatibleChannelMeta(a.ChannelType)
+	return adaptor.GetRatioHelper(meta, ratioMap)
+}
+
 func (a *Adaptor) GetModelList() []string {
-	_, modelList := GetCompatibleChannelMeta(a.ChannelType)
-	return modelList
+	_, ratioMap := GetCompatibleChannelMeta(a.ChannelType)
+	return adaptor.GetModelListHelper(ratioMap)
 }
 
 func (a *Adaptor) GetChannelName() string {

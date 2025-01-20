@@ -15,6 +15,7 @@ import (
 	"github.com/songquanpeng/one-api/relay/adaptor/stepfun"
 	"github.com/songquanpeng/one-api/relay/adaptor/togetherai"
 	"github.com/songquanpeng/one-api/relay/adaptor/xai"
+	"github.com/songquanpeng/one-api/relay/billing/ratio"
 	"github.com/songquanpeng/one-api/relay/channeltype"
 )
 
@@ -36,39 +37,39 @@ var CompatibleChannels = []int{
 	channeltype.XAI,
 }
 
-func GetCompatibleChannelMeta(channelType int) (string, []string) {
+func GetCompatibleChannelMeta(channelType int) (string, map[string]ratio.Ratio) {
 	switch channelType {
 	case channeltype.Azure:
-		return "azure", ModelList
+		return "azure", RatioMap
 	case channeltype.AI360:
-		return "360", ai360.ModelList
+		return "360", ai360.RatioMap
 	case channeltype.Moonshot:
-		return "moonshot", moonshot.ModelList
+		return "moonshot", moonshot.RatioMap
 	case channeltype.Baichuan:
-		return "baichuan", baichuan.ModelList
+		return "baichuan", baichuan.RatioMap
 	case channeltype.Minimax:
-		return "minimax", minimax.ModelList
+		return "minimax", minimax.RatioMap
 	case channeltype.Mistral:
-		return "mistralai", mistral.ModelList
+		return "mistralai", mistral.RatioMap
 	case channeltype.Groq:
-		return "groq", groq.ModelList
+		return "groq", groq.RatioMap
 	case channeltype.LingYiWanWu:
-		return "lingyiwanwu", lingyiwanwu.ModelList
+		return "lingyiwanwu", lingyiwanwu.RatioMap
 	case channeltype.StepFun:
-		return "stepfun", stepfun.ModelList
+		return "stepfun", stepfun.RatioMap
 	case channeltype.DeepSeek:
-		return "deepseek", deepseek.ModelList
+		return "deepseek", deepseek.RatioMap
 	case channeltype.TogetherAI:
-		return "together.ai", togetherai.ModelList
+		return "together.ai", togetherai.RatioMap
 	case channeltype.Doubao:
-		return "doubao", doubao.ModelList
+		return "doubao", doubao.RatioMap
 	case channeltype.Novita:
-		return "novita", novita.ModelList
+		return "novita", novita.RatioMap
 	case channeltype.SiliconFlow:
-		return "siliconflow", siliconflow.ModelList
+		return "siliconflow", siliconflow.RatioMap
 	case channeltype.XAI:
-		return "xai", xai.ModelList
+		return "xai", xai.RatioMap
 	default:
-		return "openai", ModelList
+		return "openai", RatioMap
 	}
 }

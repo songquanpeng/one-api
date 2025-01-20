@@ -6,20 +6,16 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/pkg/errors"
 	"github.com/songquanpeng/one-api/common/ctxkey"
+	"github.com/songquanpeng/one-api/relay/adaptor"
 	"github.com/songquanpeng/one-api/relay/adaptor/gemini"
 	"github.com/songquanpeng/one-api/relay/adaptor/openai"
-	"github.com/songquanpeng/one-api/relay/relaymode"
-
+	"github.com/songquanpeng/one-api/relay/billing/ratio"
 	"github.com/songquanpeng/one-api/relay/meta"
 	"github.com/songquanpeng/one-api/relay/model"
+	"github.com/songquanpeng/one-api/relay/relaymode"
 )
 
-var ModelList = []string{
-	"gemini-pro", "gemini-pro-vision",
-	"gemini-1.5-pro-001", "gemini-1.5-flash-001",
-	"gemini-1.5-pro-002", "gemini-1.5-flash-002",
-	"gemini-2.0-flash-exp", "gemini-2.0-flash-thinking-exp",
-}
+var RatioMap = gemini.RatioMap
 
 type Adaptor struct {
 }
@@ -49,4 +45,8 @@ func (a *Adaptor) DoResponse(c *gin.Context, resp *http.Response, meta *meta.Met
 		}
 	}
 	return
+}
+
+func (a *Adaptor) GetRatio(meta *meta.Meta) *ratio.Ratio {
+	return adaptor.GetRatioHelper(meta, RatioMap)
 }

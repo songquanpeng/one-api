@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/songquanpeng/one-api/common/client"
+	"github.com/songquanpeng/one-api/relay/billing/ratio"
 	"github.com/songquanpeng/one-api/relay/meta"
 	"io"
 	"net/http"
@@ -49,4 +50,25 @@ func DoRequest(c *gin.Context, req *http.Request) (*http.Response, error) {
 	_ = req.Body.Close()
 	_ = c.Request.Body.Close()
 	return resp, nil
+}
+
+func GetRatioHelper(meta *meta.Meta, ratioMap map[string]ratio.Ratio) *ratio.Ratio {
+	var result ratio.Ratio
+	if ratio, ok := ratioMap[meta.OriginModelName]; ok {
+		result = ratio
+		return &result
+	}
+	if ratio, ok := ratioMap[meta.ActualModelName]; ok {
+		result = ratio
+		return &result
+	}
+	return nil
+}
+
+func GetModelListHelper(ratioMap map[string]ratio.Ratio) []string {
+	var modelList []string
+	for model := range ratioMap {
+		modelList = append(modelList, model)
+	}
+	return modelList
 }

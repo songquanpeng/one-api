@@ -1,58 +1,49 @@
 package replicate
 
-// ModelList is a list of models that can be used with Replicate.
-//
+import "github.com/songquanpeng/one-api/relay/billing/ratio"
+
 // https://replicate.com/pricing
-var ModelList = []string{
-	// -------------------------------------
-	// image model
-	// -------------------------------------
-	"black-forest-labs/flux-1.1-pro",
-	"black-forest-labs/flux-1.1-pro-ultra",
-	"black-forest-labs/flux-canny-dev",
-	"black-forest-labs/flux-canny-pro",
-	"black-forest-labs/flux-depth-dev",
-	"black-forest-labs/flux-depth-pro",
-	"black-forest-labs/flux-dev",
-	"black-forest-labs/flux-dev-lora",
-	"black-forest-labs/flux-fill-dev",
-	"black-forest-labs/flux-fill-pro",
-	"black-forest-labs/flux-pro",
-	"black-forest-labs/flux-redux-dev",
-	"black-forest-labs/flux-redux-schnell",
-	"black-forest-labs/flux-schnell",
-	"black-forest-labs/flux-schnell-lora",
-	"ideogram-ai/ideogram-v2",
-	"ideogram-ai/ideogram-v2-turbo",
-	"recraft-ai/recraft-v3",
-	"recraft-ai/recraft-v3-svg",
-	"stability-ai/stable-diffusion-3",
-	"stability-ai/stable-diffusion-3.5-large",
-	"stability-ai/stable-diffusion-3.5-large-turbo",
-	"stability-ai/stable-diffusion-3.5-medium",
-	// -------------------------------------
-	// language model
-	// -------------------------------------
-	"ibm-granite/granite-20b-code-instruct-8k",
-	"ibm-granite/granite-3.0-2b-instruct",
-	"ibm-granite/granite-3.0-8b-instruct",
-	"ibm-granite/granite-8b-code-instruct-128k",
-	"meta/llama-2-13b",
-	"meta/llama-2-13b-chat",
-	"meta/llama-2-70b",
-	"meta/llama-2-70b-chat",
-	"meta/llama-2-7b",
-	"meta/llama-2-7b-chat",
-	"meta/meta-llama-3.1-405b-instruct",
-	"meta/meta-llama-3-70b",
-	"meta/meta-llama-3-70b-instruct",
-	"meta/meta-llama-3-8b",
-	"meta/meta-llama-3-8b-instruct",
-	"mistralai/mistral-7b-instruct-v0.2",
-	"mistralai/mistral-7b-v0.1",
-	"mistralai/mixtral-8x7b-instruct-v0.1",
-	// -------------------------------------
-	// video model
-	// -------------------------------------
-	// "minimax/video-01",  // TODO: implement the adaptor
+var RatioMap = map[string]ratio.Ratio{
+	"black-forest-labs/flux-1.1-pro":                {Input: 0.04 * ratio.USD, Output: 0},
+	"black-forest-labs/flux-1.1-pro-ultra":          {Input: 0.06 * ratio.USD, Output: 0},
+	"black-forest-labs/flux-canny-dev":              {Input: 0.025 * ratio.USD, Output: 0},
+	"black-forest-labs/flux-canny-pro":              {Input: 0.05 * ratio.USD, Output: 0},
+	"black-forest-labs/flux-depth-dev":              {Input: 0.025 * ratio.USD, Output: 0},
+	"black-forest-labs/flux-depth-pro":              {Input: 0.05 * ratio.USD, Output: 0},
+	"black-forest-labs/flux-dev":                    {Input: 0.025 * ratio.USD, Output: 0},
+	"black-forest-labs/flux-dev-lora":               {Input: 0.032 * ratio.USD, Output: 0},
+	"black-forest-labs/flux-fill-dev":               {Input: 0.04 * ratio.USD, Output: 0},
+	"black-forest-labs/flux-fill-pro":               {Input: 0.05 * ratio.USD, Output: 0},
+	"black-forest-labs/flux-pro":                    {Input: 0.055 * ratio.USD, Output: 0},
+	"black-forest-labs/flux-redux-dev":              {Input: 0.025 * ratio.USD, Output: 0},
+	"black-forest-labs/flux-redux-schnell":          {Input: 0.003 * ratio.USD, Output: 0},
+	"black-forest-labs/flux-schnell":                {Input: 0.003 * ratio.USD, Output: 0},
+	"black-forest-labs/flux-schnell-lora":           {Input: 0.02 * ratio.USD, Output: 0},
+	"ideogram-ai/ideogram-v2":                       {Input: 0.08 * ratio.USD, Output: 0},
+	"ideogram-ai/ideogram-v2-turbo":                 {Input: 0.05 * ratio.USD, Output: 0},
+	"recraft-ai/recraft-v3":                         {Input: 0.04 * ratio.USD, Output: 0},
+	"recraft-ai/recraft-v3-svg":                     {Input: 0.08 * ratio.USD, Output: 0},
+	"stability-ai/stable-diffusion-3":               {Input: 0.035 * ratio.USD, Output: 0},
+	"stability-ai/stable-diffusion-3.5-large":       {Input: 0.065 * ratio.USD, Output: 0},
+	"stability-ai/stable-diffusion-3.5-large-turbo": {Input: 0.04 * ratio.USD, Output: 0},
+	"stability-ai/stable-diffusion-3.5-medium":      {Input: 0.035 * ratio.USD, Output: 0},
+	// replicate chat models
+	"ibm-granite/granite-20b-code-instruct-8k":  {Input: 0.100 * ratio.MILLI_USD, Output: 0.500 * ratio.MILLI_USD},
+	"ibm-granite/granite-3.0-2b-instruct":       {Input: 0.030 * ratio.MILLI_USD, Output: 0.250 * ratio.MILLI_USD},
+	"ibm-granite/granite-3.0-8b-instruct":       {Input: 0.050 * ratio.MILLI_USD, Output: 0.250 * ratio.MILLI_USD},
+	"ibm-granite/granite-8b-code-instruct-128k": {Input: 0.050 * ratio.MILLI_USD, Output: 0.250 * ratio.MILLI_USD},
+	"meta/llama-2-13b":                          {Input: 0.100 * ratio.MILLI_USD, Output: 0.500 * ratio.MILLI_USD},
+	"meta/llama-2-13b-chat":                     {Input: 0.100 * ratio.MILLI_USD, Output: 0.500 * ratio.MILLI_USD},
+	"meta/llama-2-70b":                          {Input: 0.650 * ratio.MILLI_USD, Output: 2.750 * ratio.MILLI_USD},
+	"meta/llama-2-70b-chat":                     {Input: 0.650 * ratio.MILLI_USD, Output: 2.750 * ratio.MILLI_USD},
+	"meta/llama-2-7b":                           {Input: 0.050 * ratio.MILLI_USD, Output: 0.250 * ratio.MILLI_USD},
+	"meta/llama-2-7b-chat":                      {Input: 0.050 * ratio.MILLI_USD, Output: 0.250 * ratio.MILLI_USD},
+	"meta/meta-llama-3.1-405b-instruct":         {Input: 9.500 * ratio.MILLI_USD, Output: 9.500 * ratio.MILLI_USD},
+	"meta/meta-llama-3-70b":                     {Input: 0.650 * ratio.MILLI_USD, Output: 2.750 * ratio.MILLI_USD},
+	"meta/meta-llama-3-70b-instruct":            {Input: 0.650 * ratio.MILLI_USD, Output: 2.750 * ratio.MILLI_USD},
+	"meta/meta-llama-3-8b":                      {Input: 0.050 * ratio.MILLI_USD, Output: 0.250 * ratio.MILLI_USD},
+	"meta/meta-llama-3-8b-instruct":             {Input: 0.050 * ratio.MILLI_USD, Output: 0.250 * ratio.MILLI_USD},
+	"mistralai/mistral-7b-instruct-v0.2":        {Input: 0.050 * ratio.MILLI_USD, Output: 0.250 * ratio.MILLI_USD},
+	"mistralai/mistral-7b-v0.1":                 {Input: 0.050 * ratio.MILLI_USD, Output: 0.250 * ratio.MILLI_USD},
+	"mistralai/mixtral-8x7b-instruct-v0.1":      {Input: 0.300 * ratio.MILLI_USD, Output: 1.000 * ratio.MILLI_USD},
 }

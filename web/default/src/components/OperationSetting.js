@@ -2,6 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { Divider, Form, Grid, Header } from 'semantic-ui-react';
 import { API, showError, showSuccess, timestamp2string, verifyJSON } from '../helpers';
 
+const RATIO_MAPPING_EXAMPLE = {
+    'gpt-4o-mini': {'input': 0.075, 'output': 0.3},
+    'llama3-8b-8192(33)': {'input': 0.15, 'output': 0.3},
+    'llama3-70b-8192(33)': {'input': 1.325, 'output': 1.749},
+};
+
 const OperationSetting = () => {
   let now = new Date();
   let [inputs, setInputs] = useState({
@@ -10,9 +16,8 @@ const OperationSetting = () => {
     QuotaForInvitee: 0,
     QuotaRemindThreshold: 0,
     PreConsumedQuota: 0,
-    ModelRatio: '',
-    CompletionRatio: '',
     GroupRatio: '',
+    Ratio: '',
     TopUpLink: '',
     ChatLink: '',
     QuotaPerUnit: 0,
@@ -35,7 +40,7 @@ const OperationSetting = () => {
     if (success) {
       let newInputs = {};
       data.forEach((item) => {
-        if (item.key === 'ModelRatio' || item.key === 'GroupRatio' || item.key === 'CompletionRatio') {
+        if (item.key === 'GroupRatio' || item.key === 'Ratio') {
           item.value = JSON.stringify(JSON.parse(item.value), null, 2);
         }
         if (item.value === '{}') {
@@ -91,13 +96,6 @@ const OperationSetting = () => {
         }
         break;
       case 'ratio':
-        if (originInputs['ModelRatio'] !== inputs.ModelRatio) {
-          if (!verifyJSON(inputs.ModelRatio)) {
-            showError('模型倍率不是合法的 JSON 字符串');
-            return;
-          }
-          await updateOption('ModelRatio', inputs.ModelRatio);
-        }
         if (originInputs['GroupRatio'] !== inputs.GroupRatio) {
           if (!verifyJSON(inputs.GroupRatio)) {
             showError('分组倍率不是合法的 JSON 字符串');
@@ -105,12 +103,12 @@ const OperationSetting = () => {
           }
           await updateOption('GroupRatio', inputs.GroupRatio);
         }
-        if (originInputs['CompletionRatio'] !== inputs.CompletionRatio) {
-          if (!verifyJSON(inputs.CompletionRatio)) {
-            showError('补全倍率不是合法的 JSON 字符串');
+        if (originInputs['Ratio'] !== inputs.Ratio) {
+          if (!verifyJSON(inputs.Ratio)) {
+            showError('倍率不是合法的 JSON 字符串');
             return;
           }
-          await updateOption('CompletionRatio', inputs.CompletionRatio);
+          await updateOption('Ratio', inputs.Ratio);
         }
         break;
       case 'quota':
@@ -346,24 +344,13 @@ const OperationSetting = () => {
           </Header>
           <Form.Group widths='equal'>
             <Form.TextArea
-              label='模型倍率'
-              name='ModelRatio'
+              label='自定义倍率'
+              name='Ratio'
               onChange={handleInputChange}
               style={{ minHeight: 250, fontFamily: 'JetBrains Mono, Consolas' }}
               autoComplete='new-password'
-              value={inputs.ModelRatio}
-              placeholder='为一个 JSON 文本，键为模型名称，值为倍率'
-            />
-          </Form.Group>
-          <Form.Group widths='equal'>
-            <Form.TextArea
-              label='补全倍率'
-              name='CompletionRatio'
-              onChange={handleInputChange}
-              style={{ minHeight: 250, fontFamily: 'JetBrains Mono, Consolas' }}
-              autoComplete='new-password'
-              value={inputs.CompletionRatio}
-              placeholder='为一个 JSON 文本，键为模型名称，值为倍率，此处的倍率设置是模型补全倍率相较于提示倍率的比例，使用该设置可强制覆盖 One API 的内部比例'
+              value={inputs.Ratio}
+              placeholder={`为一个 JSON 文本，键为模型名称，值为倍率结构，例如：\n${JSON.stringify(RATIO_MAPPING_EXAMPLE, null, 2)}`}
             />
           </Form.Group>
           <Form.Group widths='equal'>

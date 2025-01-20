@@ -6,6 +6,7 @@ import (
 	"github.com/songquanpeng/one-api/common/ctxkey"
 	"github.com/songquanpeng/one-api/model"
 	relay "github.com/songquanpeng/one-api/relay"
+	"github.com/songquanpeng/one-api/relay/adaptor"
 	"github.com/songquanpeng/one-api/relay/adaptor/openai"
 	"github.com/songquanpeng/one-api/relay/apitype"
 	"github.com/songquanpeng/one-api/relay/channeltype"
@@ -86,7 +87,8 @@ func init() {
 		if channelType == channeltype.Azure {
 			continue
 		}
-		channelName, channelModelList := openai.GetCompatibleChannelMeta(channelType)
+		channelName, channelRatioMap := openai.GetCompatibleChannelMeta(channelType)
+		channelModelList := adaptor.GetModelListHelper(channelRatioMap)
 		for _, modelName := range channelModelList {
 			models = append(models, OpenAIModels{
 				Id:         modelName,
