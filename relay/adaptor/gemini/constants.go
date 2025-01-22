@@ -7,5 +7,5 @@ var ModelList = []string{
 	"gemini-1.5-flash", "gemini-1.5-pro",
 	"text-embedding-004", "aqa",
 	"gemini-2.0-flash-exp",
-	"gemini-2.0-flash-thinking-exp",
+	"gemini-2.0-flash-thinking-exp", "gemini-2.0-flash-thinking-exp-01-21",
 }
