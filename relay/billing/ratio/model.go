@@ -9,9 +9,10 @@ import (
 )
 
 const (
-	USD2RMB = 7
-	USD     = 500 // $0.002 = 1 -> $1 = 500
-	RMB     = USD / USD2RMB
+	USD2RMB   = 7
+	USD       = 500 // $0.002 = 1 -> $1 = 500
+	MILLI_USD = 1.0 / 1000 * USD
+	RMB       = USD / USD2RMB
 )
 
 // ModelRatio
@@ -279,8 +280,8 @@ var ModelRatio = map[string]float64{
 	"command-r":             0.5 / 1000 * USD,
 	"command-r-plus":        3.0 / 1000 * USD,
 	// https://platform.deepseek.com/api-docs/pricing/
-	"deepseek-chat":  1.0 / 1000 * RMB,
-	"deepseek-coder": 1.0 / 1000 * RMB,
+	"deepseek-chat":     0.14 * MILLI_USD,
+	"deepseek-reasoner": 0.55 * MILLI_USD,
 	// https://www.deepl.com/pro?cta=header-prices
 	"deepl-zh": 25.0 / 1000 * USD,
 	"deepl-en": 25.0 / 1000 * USD,
@@ -337,6 +338,11 @@ var CompletionRatio = map[string]float64{
 	// aws llama3
 	"llama3-8b-8192(33)":  0.0006 / 0.0003,
 	"llama3-70b-8192(33)": 0.0035 / 0.00265,
+	// whisper
+	"whisper-1": 0, // only count input tokens
+	// deepseek
+	"deepseek-chat":     0.28 / 0.14,
+	"deepseek-reasoner": 2.19 / 0.55,
 }
 
 var (
