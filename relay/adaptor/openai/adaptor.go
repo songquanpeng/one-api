@@ -83,8 +83,10 @@ func (a *Adaptor) ConvertRequest(c *gin.Context, relayMode int, request *model.G
 		request.StreamOptions.IncludeUsage = true
 	}
 
-	// o1/o1-mini/o1-preview do not support system prompt and max_tokens
+	// o1/o1-mini/o1-preview do not support system prompt/max_tokens/temperature
 	if strings.HasPrefix(request.Model, "o1") {
+		temperature := float64(1)
+		request.Temperature = &temperature // Only the default (1) value is supported
 		request.MaxTokens = 0
 		request.Messages = func(raw []model.Message) (filtered []model.Message) {
 			for i := range raw {
