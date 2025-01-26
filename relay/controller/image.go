@@ -18,7 +18,7 @@ import (
 	"github.com/songquanpeng/one-api/relay/adaptor/openai"
 	billingratio "github.com/songquanpeng/one-api/relay/billing/ratio"
 	"github.com/songquanpeng/one-api/relay/channeltype"
-	"github.com/songquanpeng/one-api/relay/meta"
+	metalib "github.com/songquanpeng/one-api/relay/meta"
 	relaymodel "github.com/songquanpeng/one-api/relay/model"
 )
 
@@ -65,7 +65,7 @@ func getImageSizeRatio(model string, size string) float64 {
 	return 1
 }
 
-func validateImageRequest(imageRequest *relaymodel.ImageRequest, _ *meta.Meta) *relaymodel.ErrorWithStatusCode {
+func validateImageRequest(imageRequest *relaymodel.ImageRequest, _ *metalib.Meta) *relaymodel.ErrorWithStatusCode {
 	// check prompt length
 	if imageRequest.Prompt == "" {
 		return openai.ErrorWrapper(errors.New("prompt is required"), "prompt_missing", http.StatusBadRequest)
@@ -104,7 +104,7 @@ func getImageCostRatio(imageRequest *relaymodel.ImageRequest) (float64, error) {
 
 func RelayImageHelper(c *gin.Context, relayMode int) *relaymodel.ErrorWithStatusCode {
 	ctx := c.Request.Context()
-	meta := meta.GetByContext(c)
+	meta := metalib.GetByContext(c)
 	imageRequest, err := getImageRequest(c, meta.Mode)
 	if err != nil {
 		logger.Errorf(ctx, "getImageRequest failed: %s", err.Error())
@@ -114,7 +114,8 @@ func RelayImageHelper(c *gin.Context, relayMode int) *relaymodel.ErrorWithStatus
 	// map model name
 	var isModelMapped bool
 	meta.OriginModelName = imageRequest.Model
-	imageRequest.Model, isModelMapped = getMappedModelName(imageRequest.Model, meta.ModelMapping)
+	imageRequest.Model = meta.ActualModelName
+	isModelMapped = meta.OriginModelName != meta.ActualModelName
 	meta.ActualModelName = imageRequest.Model
 
 	// model validation
@@ -130,7 +131,7 @@ func RelayImageHelper(c *gin.Context, relayMode int) *relaymodel.ErrorWithStatus
 
 	imageModel := imageRequest.Model
 	// Convert the original image model
-	imageRequest.Model, _ = getMappedModelName(imageRequest.Model, billingratio.ImageOriginModelName)
+	imageRequest.Model = metalib.GetMappedModelName(imageRequest.Model, billingratio.ImageOriginModelName)
 	c.Set("response_format", imageRequest.ResponseFormat)
 
 	var requestBody io.Reader

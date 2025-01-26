@@ -129,17 +129,6 @@ func postConsumeQuota(ctx context.Context, usage *relaymodel.Usage, meta *meta.M
 	model.UpdateChannelUsedQuota(meta.ChannelId, quota)
 }
 
-func getMappedModelName(modelName string, mapping map[string]string) (string, bool) {
-	if mapping == nil {
-		return modelName, false
-	}
-	mappedModelName := mapping[modelName]
-	if mappedModelName != "" {
-		return mappedModelName, true
-	}
-	return modelName, false
-}
-
 func isErrorHappened(meta *meta.Meta, resp *http.Response) bool {
 	if resp == nil {
 		if meta.ChannelType == channeltype.AwsClaude {

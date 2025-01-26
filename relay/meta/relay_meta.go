@@ -1,12 +1,13 @@
 package meta
 
 import (
+	"strings"
+
 	"github.com/gin-gonic/gin"
 	"github.com/songquanpeng/one-api/common/ctxkey"
 	"github.com/songquanpeng/one-api/model"
 	"github.com/songquanpeng/one-api/relay/channeltype"
 	"github.com/songquanpeng/one-api/relay/relaymode"
-	"strings"
 )
 
 type Meta struct {
@@ -33,6 +34,20 @@ type Meta struct {
 	SystemPrompt    string
 }
 
+// GetMappedModelName returns the mapped model name and a bool indicating if the model name is mapped
+func GetMappedModelName(modelName string, mapping map[string]string) string {
+	if mapping == nil {
+		return modelName
+	}
+
+	mappedModelName := mapping[modelName]
+	if mappedModelName != "" {
+		return mappedModelName
+	}
+
+	return modelName
+}
+
 func GetByContext(c *gin.Context) *Meta {
 	meta := Meta{
 		Mode:            relaymode.GetByPath(c.Request.URL.Path),
@@ -44,6 +59,7 @@ func GetByContext(c *gin.Context) *Meta {
 		Group:           c.GetString(ctxkey.Group),
 		ModelMapping:    c.GetStringMapString(ctxkey.ModelMapping),
 		OriginModelName: c.GetString(ctxkey.RequestModel),
+		ActualModelName: c.GetString(ctxkey.RequestModel),
 		BaseURL:         c.GetString(ctxkey.BaseURL),
 		APIKey:          strings.TrimPrefix(c.Request.Header.Get("Authorization"), "Bearer "),
 		RequestURLPath:  c.Request.URL.String(),
@@ -57,5 +73,13 @@ func GetByContext(c *gin.Context) *Meta {
 		meta.BaseURL = channeltype.ChannelBaseURLs[meta.ChannelType]
 	}
 	meta.APIType = channeltype.ToAPIType(meta.ChannelType)
+
+	meta.ActualModelName = GetMappedModelName(meta.OriginModelName, meta.ModelMapping)
+
+	Set2Context(c, &meta)
 	return &meta
+}
+
+func Set2Context(c *gin.Context, meta *Meta) {
+	c.Set(ctxkey.Meta, meta)
 }
