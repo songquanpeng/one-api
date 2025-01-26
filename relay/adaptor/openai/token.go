@@ -93,7 +93,9 @@ func CountTokenMessages(ctx context.Context,
 		tokensPerMessage = 3
 		tokensPerName = 1
 	}
+
 	tokenNum := 0
+	var totalAudioTokens float64
 	for _, message := range messages {
 		tokenNum += tokensPerMessage
 		contents := message.ParseContent()
@@ -117,16 +119,18 @@ func CountTokenMessages(ctx context.Context,
 					logger.SysError("error decoding audio data: " + err.Error())
 				}
 
-				tokens, err := helper.GetAudioTokens(ctx,
+				audioTokens, err := helper.GetAudioTokens(ctx,
 					bytes.NewReader(audioData),
 					ratio.GetAudioPromptTokensPerSecond(actualModel))
 				if err != nil {
 					logger.SysError("error counting audio tokens: " + err.Error())
 				} else {
-					tokenNum += tokens
+					totalAudioTokens += audioTokens
 				}
 			}
 		}
+
+		tokenNum += int(math.Ceil(totalAudioTokens))
 
 		tokenNum += getTokenNum(tokenEncoder, message.Role)
 		if message.Name != nil {

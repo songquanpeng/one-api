@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"math"
 	"mime/multipart"
 	"net/http"
 	"strings"
@@ -33,7 +34,7 @@ type commonAudioRequest struct {
 	File *multipart.FileHeader `form:"file" binding:"required"`
 }
 
-func countAudioTokens(c *gin.Context) (int, error) {
+func countAudioTokens(c *gin.Context) (float64, error) {
 	body, err := common.GetRequestBody(c)
 	if err != nil {
 		return 0, errors.WithStack(err)
@@ -101,7 +102,7 @@ func RelayAudioHelper(c *gin.Context, relayMode int) *relaymodel.ErrorWithStatus
 			return openai.ErrorWrapper(err, "count_audio_tokens_failed", http.StatusInternalServerError)
 		}
 
-		preConsumedQuota = int64(float64(audioTokens) * ratio)
+		preConsumedQuota = int64(math.Ceil(audioTokens * ratio))
 		quota = preConsumedQuota
 	default:
 		return openai.ErrorWrapper(errors.New("unexpected_relay_mode"), "unexpected_relay_mode", http.StatusInternalServerError)

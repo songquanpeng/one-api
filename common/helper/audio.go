@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"io"
-	"math"
 	"os"
 	"os/exec"
 	"strconv"
@@ -33,7 +32,7 @@ func SaveTmpFile(filename string, data io.Reader) (string, error) {
 }
 
 // GetAudioTokens returns the number of tokens in an audio file.
-func GetAudioTokens(ctx context.Context, audio io.Reader, tokensPerSecond int) (int, error) {
+func GetAudioTokens(ctx context.Context, audio io.Reader, tokensPerSecond float64) (float64, error) {
 	filename, err := SaveTmpFile("audio", audio)
 	if err != nil {
 		return 0, errors.Wrap(err, "failed to save audio to temporary file")
@@ -45,7 +44,7 @@ func GetAudioTokens(ctx context.Context, audio io.Reader, tokensPerSecond int) (
 		return 0, errors.Wrap(err, "failed to get audio tokens")
 	}
 
-	return int(math.Ceil(duration)) * tokensPerSecond, nil
+	return duration * tokensPerSecond, nil
 }
 
 // GetAudioDuration returns the duration of an audio file in seconds.
