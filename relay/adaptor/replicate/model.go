@@ -19,7 +19,7 @@ type DrawImageRequest struct {
 type ImageInput struct {
 	Steps           int    `json:"steps" binding:"required,min=1"`
 	Prompt          string `json:"prompt" binding:"required,min=5"`
-	ImagePrompt     string `json:"image_prompt"`
+	ImagePrompt     string `json:"image_prompt,omitempty"`
 	Guidance        int    `json:"guidance" binding:"required,min=2,max=5"`
 	Interval        int    `json:"interval" binding:"required,min=1,max=4"`
 	AspectRatio     string `json:"aspect_ratio" binding:"required,oneof=1:1 16:9 2:3 3:2 4:5 5:4 9:16"`
