@@ -2,11 +2,12 @@ package middleware
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/gin-gonic/gin"
 	"github.com/songquanpeng/one-api/common"
 	"github.com/songquanpeng/one-api/common/helper"
 	"github.com/songquanpeng/one-api/common/logger"
-	"strings"
 )
 
 func abortWithMessage(c *gin.Context, statusCode int, message string) {
@@ -28,7 +29,7 @@ func getRequestModel(c *gin.Context) (string, error) {
 	}
 	if strings.HasPrefix(c.Request.URL.Path, "/v1/moderations") {
 		if modelRequest.Model == "" {
-			modelRequest.Model = "text-moderation-stable"
+			modelRequest.Model = "omni-moderation-latest"
 		}
 	}
 	if strings.HasSuffix(c.Request.URL.Path, "embeddings") {

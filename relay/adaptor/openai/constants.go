@@ -15,7 +15,7 @@ var ModelList = []string{
 	"gpt-4-vision-preview",
 	"text-embedding-ada-002", "text-embedding-3-small", "text-embedding-3-large",
 	"text-curie-001", "text-babbage-001", "text-ada-001", "text-davinci-002", "text-davinci-003",
-	"text-moderation-latest", "text-moderation-stable",
+	"text-moderation-latest", "text-moderation-stable", "omni-moderation-latest", "omni-moderation-2024-09-26",
 	"text-davinci-edit-001",
 	"davinci-002", "babbage-002",
 	"dall-e-2", "dall-e-3",

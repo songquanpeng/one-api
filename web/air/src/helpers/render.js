@@ -150,6 +150,8 @@ export const modelColorMap = {
     'text-embedding-v1': 'rgb(255,174,185)',  // 浅粉红色（略有区别）
     'text-moderation-latest': 'rgb(255,130,171)',  // 强粉色
     'text-moderation-stable': 'rgb(255,160,122)',  // 浅珊瑚色（与Babbage相同，表示同一类功能）
+    'omni-moderation-latest': 'rgb(255,130,171)',  // 强粉色
+    'omni-moderation-2024-09-26': 'rgb(255,130,171)',  // 强粉色
     'tts-1': 'rgb(255,140,0)',  // 深橙色
     'tts-1-1106': 'rgb(255,165,0)',  // 橙色
     'tts-1-hd': 'rgb(255,215,0)',  // 金色
