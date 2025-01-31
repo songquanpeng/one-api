@@ -1,19 +1,20 @@
 package tencent
 
 import (
-	"encoding/json"
 	"errors"
+	"io"
+	"net/http"
+	"strconv"
+	"strings"
+
 	"github.com/gin-gonic/gin"
+
 	"github.com/songquanpeng/one-api/common/helper"
 	"github.com/songquanpeng/one-api/relay/adaptor"
 	"github.com/songquanpeng/one-api/relay/adaptor/openai"
 	"github.com/songquanpeng/one-api/relay/meta"
 	"github.com/songquanpeng/one-api/relay/model"
 	"github.com/songquanpeng/one-api/relay/relaymode"
-	"io"
-	"net/http"
-	"strconv"
-	"strings"
 )
 
 // https://cloud.tencent.com/document/api/1729/101837
@@ -54,29 +55,18 @@ func (a *Adaptor) ConvertRequest(c *gin.Context, relayMode int, request *model.G
 	if err != nil {
 		return nil, err
 	}
-
+	var convertedRequest any
 	switch relayMode {
 	case relaymode.Embeddings:
 		a.Action = "GetEmbedding"
-		tencentEmbeddingRequest := ConvertEmbeddingRequest(*request)
-		payload, err := json.Marshal(tencentEmbeddingRequest)
-		if err != nil {
-			return nil, err
-		}
-		// we have to calculate the sign here
-		a.Sign = GetSign(payload, a, secretId, secretKey)
-		return tencentEmbeddingRequest, nil
+		convertedRequest = ConvertEmbeddingRequest(*request)
 	default:
 		a.Action = "ChatCompletions"
-		tencentRequest := ConvertRequest(*request)
-		payload, err := json.Marshal(tencentRequest)
-		if err != nil {
-			return nil, err
-		}
-		// we have to calculate the sign here
-		a.Sign = GetSign(payload, a, secretId, secretKey)
-		return tencentRequest, nil
+		convertedRequest = ConvertRequest(*request)
 	}
+	// we have to calculate the sign here
+	a.Sign = GetSign(convertedRequest, a, secretId, secretKey)
+	return convertedRequest, nil
 }
 
 func (a *Adaptor) ConvertImageRequest(request *model.ImageRequest) (any, error) {

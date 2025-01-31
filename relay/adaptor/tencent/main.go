@@ -8,8 +8,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/songquanpeng/one-api/common/ctxkey"
-	"github.com/songquanpeng/one-api/common/render"
 	"io"
 	"net/http"
 	"strconv"
@@ -17,11 +15,14 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+
 	"github.com/songquanpeng/one-api/common"
 	"github.com/songquanpeng/one-api/common/conv"
+	"github.com/songquanpeng/one-api/common/ctxkey"
 	"github.com/songquanpeng/one-api/common/helper"
 	"github.com/songquanpeng/one-api/common/logger"
 	"github.com/songquanpeng/one-api/common/random"
+	"github.com/songquanpeng/one-api/common/render"
 	"github.com/songquanpeng/one-api/relay/adaptor/openai"
 	"github.com/songquanpeng/one-api/relay/constant"
 	"github.com/songquanpeng/one-api/relay/model"
@@ -256,7 +257,7 @@ func hmacSha256(s, key string) string {
 	return string(hashed.Sum(nil))
 }
 
-func GetSign(payload []byte, adaptor *Adaptor, secId, secKey string) string {
+func GetSign(req any, adaptor *Adaptor, secId, secKey string) string {
 	// build canonical request string
 	host := "hunyuan.tencentcloudapi.com"
 	httpRequestMethod := "POST"
@@ -265,6 +266,7 @@ func GetSign(payload []byte, adaptor *Adaptor, secId, secKey string) string {
 	canonicalHeaders := fmt.Sprintf("content-type:%s\nhost:%s\nx-tc-action:%s\n",
 		"application/json", host, strings.ToLower(adaptor.Action))
 	signedHeaders := "content-type;host;x-tc-action"
+	payload, _ := json.Marshal(req)
 	hashedRequestPayload := sha256hex(string(payload))
 	canonicalRequest := fmt.Sprintf("%s\n%s\n%s\n%s\n%s\n%s",
 		httpRequestMethod,
