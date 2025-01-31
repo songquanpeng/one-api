@@ -205,7 +205,7 @@ const LoginForm = () => {
                     <div
                       style={{
                         background:
-                          'radial-gradient(circle, #FFFFFF, #FFFFFF, #00D6B9, #2F73FF, #0a3A9C)',
+                          'radial-gradient(circle, #FFFFFF, #FFFFFF, #FFFFFF, #FFFFFF, #FFFFFF)',
                         width: '36px',
                         height: '36px',
                         borderRadius: '10em',
@@ -218,8 +218,8 @@ const LoginForm = () => {
                         src={larkIcon}
                         avatar
                         style={{
-                          width: '16px',
-                          height: '16px',
+                          width: '36px',
+                          height: '36px',
                           cursor: 'pointer',
                           margin: 'auto',
                         }}
