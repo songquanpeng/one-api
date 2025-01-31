@@ -280,8 +280,8 @@ const EditChannel = () => {
             {inputs.type === 3 && (
               <>
                 <Message>
-                  注意，<strong>模型部署名称必须和模型名称保持一致</strong>，因为
-                  One API 会把请求体中的 model
+                  注意，<strong>模型部署名称必须和模型名称保持一致</strong>
+                  ，因为 One API 会把请求体中的 model
                   参数替换为你的部署名称（模型名称中的点会被剔除），
                   <a
                     target='_blank'
@@ -686,7 +686,11 @@ const EditChannel = () => {
               </Form.Field>
             )}
             <Button onClick={handleCancel}>取消</Button>
-            <Button type={isEdit ? 'button' : 'submit'} positive onClick={submit}>
+            <Button
+              type={isEdit ? 'button' : 'submit'}
+              positive
+              onClick={submit}
+            >
               提交
             </Button>
           </Form>
