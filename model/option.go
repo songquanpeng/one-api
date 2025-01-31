@@ -46,6 +46,7 @@ func InitOptionMap() {
 	config.OptionMap["SMTPPort"] = strconv.Itoa(config.SMTPPort)
 	config.OptionMap["SMTPAccount"] = ""
 	config.OptionMap["SMTPToken"] = ""
+	config.OptionMap["SMTPAuthLoginEnabled"] = strconv.FormatBool(config.SMTPAuthLoginEnabled)
 	config.OptionMap["Notice"] = ""
 	config.OptionMap["About"] = ""
 	config.OptionMap["HomePageContent"] = ""
@@ -153,6 +154,8 @@ func updateOptionMap(key string, value string) (err error) {
 			config.DisplayInCurrencyEnabled = boolValue
 		case "DisplayTokenStatEnabled":
 			config.DisplayTokenStatEnabled = boolValue
+		case "SMTPAuthLoginEnabled":
+			config.SMTPAuthLoginEnabled = boolValue
 		}
 	}
 	switch key {
