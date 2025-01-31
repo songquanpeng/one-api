@@ -32,7 +32,7 @@ func PostConsumeQuota(ctx context.Context, tokenId int, quotaDelta int64, totalQ
 	}
 	// totalQuota is total quota consumed
 	if totalQuota != 0 {
-		logContent := fmt.Sprintf("%.2f × %.2f", modelRatio, groupRatio)
+		logContent := fmt.Sprintf("倍率：%.2f × %.2f", modelRatio, groupRatio)
 		model.RecordConsumeLog(ctx, &model.Log{
 			UserId:           userId,
 			ChannelId:        channelId,
