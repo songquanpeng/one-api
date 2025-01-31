@@ -56,218 +56,222 @@ const Home = () => {
   }, []);
 
   return (
-    <div className='dashboard-container'>
-      <Card fluid className='chart-card'>
-        <Card.Content>
-          <Card.Header className='header'>欢迎使用 One API</Card.Header>
-          <Card.Description style={{ lineHeight: '1.6' }}>
-            <p>
-              One API 是一个 LLM API
-              接口管理和分发系统，可以帮助您更好地管理和使用各大厂商的 LLM API。
-            </p>
-            {!userState.user && (
-              <p>
-                如需使用，请先<Link to='/login'>登录</Link>或
-                <Link to='/register'>注册</Link>。
-              </p>
-            )}
-          </Card.Description>
-        </Card.Content>
-      </Card>
-
+    <>
       {homePageContentLoaded && homePageContent === '' ? (
-        <Card fluid className='chart-card'>
-          <Card.Content>
-            <Card.Header>
-              <Header as='h3'>系统状况</Header>
-            </Card.Header>
-            <Grid columns={2} stackable>
-              <Grid.Column>
-                <Card
-                  fluid
-                  className='chart-card'
-                  style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.12)' }}
-                >
-                  <Card.Content>
-                    <Card.Header>
-                      <Header as='h3' style={{ color: '#444' }}>
-                        系统信息
-                      </Header>
-                    </Card.Header>
-                    <Card.Description
-                      style={{ lineHeight: '2', marginTop: '1em' }}
-                    >
-                      <p
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '0.5em',
-                        }}
+        <div className='dashboard-container'>
+          <Card fluid className='chart-card'>
+            <Card.Content>
+              <Card.Header className='header'>欢迎使用 One API</Card.Header>
+              <Card.Description style={{ lineHeight: '1.6' }}>
+                <p>
+                  One API 是一个 LLM API
+                  接口管理和分发系统，可以帮助您更好地管理和使用各大厂商的 LLM
+                  API。
+                </p>
+                {!userState.user && (
+                  <p>
+                    如需使用，请先<Link to='/login'>登录</Link>或
+                    <Link to='/register'>注册</Link>。
+                  </p>
+                )}
+              </Card.Description>
+            </Card.Content>
+          </Card>
+          <Card fluid className='chart-card'>
+            <Card.Content>
+              <Card.Header>
+                <Header as='h3'>系统状况</Header>
+              </Card.Header>
+              <Grid columns={2} stackable>
+                <Grid.Column>
+                  <Card
+                    fluid
+                    className='chart-card'
+                    style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.12)' }}
+                  >
+                    <Card.Content>
+                      <Card.Header>
+                        <Header as='h3' style={{ color: '#444' }}>
+                          系统信息
+                        </Header>
+                      </Card.Header>
+                      <Card.Description
+                        style={{ lineHeight: '2', marginTop: '1em' }}
                       >
-                        <i className='info circle icon'></i>
-                        <span style={{ fontWeight: 'bold' }}>名称：</span>
-                        <span>{statusState?.status?.system_name}</span>
-                      </p>
-                      <p
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '0.5em',
-                        }}
-                      >
-                        <i className='code branch icon'></i>
-                        <span style={{ fontWeight: 'bold' }}>版本：</span>
-                        <span>{statusState?.status?.version || 'unknown'}</span>
-                      </p>
-                      <p
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '0.5em',
-                        }}
-                      >
-                        <i className='github icon'></i>
-                        <span style={{ fontWeight: 'bold' }}>源码：</span>
-                        <a
-                          href='https://github.com/songquanpeng/one-api'
-                          target='_blank'
-                          style={{ color: '#2185d0' }}
+                        <p
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.5em',
+                          }}
                         >
-                          GitHub 仓库
-                        </a>
-                      </p>
-                      <p
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '0.5em',
-                        }}
-                      >
-                        <i className='clock outline icon'></i>
-                        <span style={{ fontWeight: 'bold' }}>启动时间：</span>
-                        <span>{getStartTimeString()}</span>
-                      </p>
-                    </Card.Description>
-                  </Card.Content>
-                </Card>
-              </Grid.Column>
+                          <i className='info circle icon'></i>
+                          <span style={{ fontWeight: 'bold' }}>名称：</span>
+                          <span>{statusState?.status?.system_name}</span>
+                        </p>
+                        <p
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.5em',
+                          }}
+                        >
+                          <i className='code branch icon'></i>
+                          <span style={{ fontWeight: 'bold' }}>版本：</span>
+                          <span>
+                            {statusState?.status?.version || 'unknown'}
+                          </span>
+                        </p>
+                        <p
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.5em',
+                          }}
+                        >
+                          <i className='github icon'></i>
+                          <span style={{ fontWeight: 'bold' }}>源码：</span>
+                          <a
+                            href='https://github.com/songquanpeng/one-api'
+                            target='_blank'
+                            style={{ color: '#2185d0' }}
+                          >
+                            GitHub 仓库
+                          </a>
+                        </p>
+                        <p
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.5em',
+                          }}
+                        >
+                          <i className='clock outline icon'></i>
+                          <span style={{ fontWeight: 'bold' }}>启动时间：</span>
+                          <span>{getStartTimeString()}</span>
+                        </p>
+                      </Card.Description>
+                    </Card.Content>
+                  </Card>
+                </Grid.Column>
 
-              <Grid.Column>
-                <Card
-                  fluid
-                  className='chart-card'
-                  style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.12)' }}
-                >
-                  <Card.Content>
-                    <Card.Header>
-                      <Header as='h3' style={{ color: '#444' }}>
-                        系统配置
-                      </Header>
-                    </Card.Header>
-                    <Card.Description
-                      style={{ lineHeight: '2', marginTop: '1em' }}
-                    >
-                      <p
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '0.5em',
-                        }}
+                <Grid.Column>
+                  <Card
+                    fluid
+                    className='chart-card'
+                    style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.12)' }}
+                  >
+                    <Card.Content>
+                      <Card.Header>
+                        <Header as='h3' style={{ color: '#444' }}>
+                          系统配置
+                        </Header>
+                      </Card.Header>
+                      <Card.Description
+                        style={{ lineHeight: '2', marginTop: '1em' }}
                       >
-                        <i className='envelope icon'></i>
-                        <span style={{ fontWeight: 'bold' }}>邮箱验证：</span>
-                        <span
+                        <p
                           style={{
-                            color: statusState?.status?.email_verification
-                              ? '#21ba45'
-                              : '#db2828',
-                            fontWeight: '500',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.5em',
                           }}
                         >
-                          {statusState?.status?.email_verification
-                            ? '已启用'
-                            : '未启用'}
-                        </span>
-                      </p>
-                      <p
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '0.5em',
-                        }}
-                      >
-                        <i className='github icon'></i>
-                        <span style={{ fontWeight: 'bold' }}>
-                          GitHub 身份验证：
-                        </span>
-                        <span
+                          <i className='envelope icon'></i>
+                          <span style={{ fontWeight: 'bold' }}>邮箱验证：</span>
+                          <span
+                            style={{
+                              color: statusState?.status?.email_verification
+                                ? '#21ba45'
+                                : '#db2828',
+                              fontWeight: '500',
+                            }}
+                          >
+                            {statusState?.status?.email_verification
+                              ? '已启用'
+                              : '未启用'}
+                          </span>
+                        </p>
+                        <p
                           style={{
-                            color: statusState?.status?.github_oauth
-                              ? '#21ba45'
-                              : '#db2828',
-                            fontWeight: '500',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.5em',
                           }}
                         >
-                          {statusState?.status?.github_oauth
-                            ? '已启用'
-                            : '未启用'}
-                        </span>
-                      </p>
-                      <p
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '0.5em',
-                        }}
-                      >
-                        <i className='wechat icon'></i>
-                        <span style={{ fontWeight: 'bold' }}>
-                          微信身份验证：
-                        </span>
-                        <span
+                          <i className='github icon'></i>
+                          <span style={{ fontWeight: 'bold' }}>
+                            GitHub 身份验证：
+                          </span>
+                          <span
+                            style={{
+                              color: statusState?.status?.github_oauth
+                                ? '#21ba45'
+                                : '#db2828',
+                              fontWeight: '500',
+                            }}
+                          >
+                            {statusState?.status?.github_oauth
+                              ? '已启用'
+                              : '未启用'}
+                          </span>
+                        </p>
+                        <p
                           style={{
-                            color: statusState?.status?.wechat_login
-                              ? '#21ba45'
-                              : '#db2828',
-                            fontWeight: '500',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.5em',
                           }}
                         >
-                          {statusState?.status?.wechat_login
-                            ? '已启用'
-                            : '未启用'}
-                        </span>
-                      </p>
-                      <p
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '0.5em',
-                        }}
-                      >
-                        <i className='shield alternate icon'></i>
-                        <span style={{ fontWeight: 'bold' }}>
-                          Turnstile 校验：
-                        </span>
-                        <span
+                          <i className='wechat icon'></i>
+                          <span style={{ fontWeight: 'bold' }}>
+                            微信身份验证：
+                          </span>
+                          <span
+                            style={{
+                              color: statusState?.status?.wechat_login
+                                ? '#21ba45'
+                                : '#db2828',
+                              fontWeight: '500',
+                            }}
+                          >
+                            {statusState?.status?.wechat_login
+                              ? '已启用'
+                              : '未启用'}
+                          </span>
+                        </p>
+                        <p
                           style={{
-                            color: statusState?.status?.turnstile_check
-                              ? '#21ba45'
-                              : '#db2828',
-                            fontWeight: '500',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.5em',
                           }}
                         >
-                          {statusState?.status?.turnstile_check
-                            ? '已启用'
-                            : '未启用'}
-                        </span>
-                      </p>
-                    </Card.Description>
-                  </Card.Content>
-                </Card>
-              </Grid.Column>
-            </Grid>
-          </Card.Content>
-        </Card>
+                          <i className='shield alternate icon'></i>
+                          <span style={{ fontWeight: 'bold' }}>
+                            Turnstile 校验：
+                          </span>
+                          <span
+                            style={{
+                              color: statusState?.status?.turnstile_check
+                                ? '#21ba45'
+                                : '#db2828',
+                              fontWeight: '500',
+                            }}
+                          >
+                            {statusState?.status?.turnstile_check
+                              ? '已启用'
+                              : '未启用'}
+                          </span>
+                        </p>
+                      </Card.Description>
+                    </Card.Content>
+                  </Card>
+                </Grid.Column>
+              </Grid>
+            </Card.Content>
+          </Card>{' '}
+        </div>
       ) : (
         <>
           {homePageContent.startsWith('https://') ? (
@@ -283,7 +287,7 @@ const Home = () => {
           )}
         </>
       )}
-    </div>
+    </>
   );
 };
 
