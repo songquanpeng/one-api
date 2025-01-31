@@ -15,6 +15,31 @@ import {
 import axios from 'axios';
 import './Dashboard.css';
 
+// 在 Dashboard 组件内添加自定义配置
+const chartConfig = {
+  lineChart: {
+    style: {
+      background: '#fff',
+      borderRadius: '8px',
+    },
+    line: {
+      strokeWidth: 2,
+      dot: false,
+      activeDot: { r: 4 },
+    },
+    grid: {
+      vertical: false,
+      horizontal: true,
+      opacity: 0.1,
+    },
+  },
+  colors: {
+    requests: '#4318FF',
+    quota: '#00B5D8',
+    tokens: '#6C63FF',
+  },
+};
+
 const Dashboard = () => {
   const [data, setData] = useState([]);
   const [summaryData, setSummaryData] = useState({
@@ -164,15 +189,34 @@ const Dashboard = () => {
               <div className='chart-container'>
                 <ResponsiveContainer width='100%' height={120}>
                   <LineChart data={timeSeriesData}>
-                    <CartesianGrid strokeDasharray='3 3' />
-                    <XAxis dataKey='date' />
-                    <YAxis />
-                    <Tooltip />
+                    <CartesianGrid
+                      strokeDasharray='3 3'
+                      vertical={chartConfig.lineChart.grid.vertical}
+                      horizontal={chartConfig.lineChart.grid.horizontal}
+                      opacity={chartConfig.lineChart.grid.opacity}
+                    />
+                    <XAxis
+                      dataKey='date'
+                      axisLine={false}
+                      tickLine={false}
+                      tick={{ fontSize: 12, fill: '#A3AED0' }}
+                    />
+                    <YAxis hide={true} />
+                    <Tooltip
+                      contentStyle={{
+                        background: '#fff',
+                        border: 'none',
+                        borderRadius: '4px',
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                      }}
+                    />
                     <Line
                       type='monotone'
                       dataKey='requests'
-                      stroke='#2185d0'
-                      dot={false}
+                      stroke={chartConfig.colors.requests}
+                      strokeWidth={chartConfig.lineChart.line.strokeWidth}
+                      dot={chartConfig.lineChart.line.dot}
+                      activeDot={chartConfig.lineChart.line.activeDot}
                     />
                   </LineChart>
                 </ResponsiveContainer>
@@ -193,15 +237,34 @@ const Dashboard = () => {
               <div className='chart-container'>
                 <ResponsiveContainer width='100%' height={120}>
                   <LineChart data={timeSeriesData}>
-                    <CartesianGrid strokeDasharray='3 3' />
-                    <XAxis dataKey='date' />
-                    <YAxis />
-                    <Tooltip />
+                    <CartesianGrid
+                      strokeDasharray='3 3'
+                      vertical={chartConfig.lineChart.grid.vertical}
+                      horizontal={chartConfig.lineChart.grid.horizontal}
+                      opacity={chartConfig.lineChart.grid.opacity}
+                    />
+                    <XAxis
+                      dataKey='date'
+                      axisLine={false}
+                      tickLine={false}
+                      tick={{ fontSize: 12, fill: '#A3AED0' }}
+                    />
+                    <YAxis hide={true} />
+                    <Tooltip
+                      contentStyle={{
+                        background: '#fff',
+                        border: 'none',
+                        borderRadius: '4px',
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                      }}
+                    />
                     <Line
                       type='monotone'
                       dataKey='quota'
-                      stroke='#21ba45'
-                      dot={false}
+                      stroke={chartConfig.colors.quota}
+                      strokeWidth={chartConfig.lineChart.line.strokeWidth}
+                      dot={chartConfig.lineChart.line.dot}
+                      activeDot={chartConfig.lineChart.line.activeDot}
                     />
                   </LineChart>
                 </ResponsiveContainer>
@@ -220,15 +283,34 @@ const Dashboard = () => {
               <div className='chart-container'>
                 <ResponsiveContainer width='100%' height={120}>
                   <LineChart data={timeSeriesData}>
-                    <CartesianGrid strokeDasharray='3 3' />
-                    <XAxis dataKey='date' />
-                    <YAxis />
-                    <Tooltip />
+                    <CartesianGrid
+                      strokeDasharray='3 3'
+                      vertical={chartConfig.lineChart.grid.vertical}
+                      horizontal={chartConfig.lineChart.grid.horizontal}
+                      opacity={chartConfig.lineChart.grid.opacity}
+                    />
+                    <XAxis
+                      dataKey='date'
+                      axisLine={false}
+                      tickLine={false}
+                      tick={{ fontSize: 12, fill: '#A3AED0' }}
+                    />
+                    <YAxis hide={true} />
+                    <Tooltip
+                      contentStyle={{
+                        background: '#fff',
+                        border: 'none',
+                        borderRadius: '4px',
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                      }}
+                    />
                     <Line
                       type='monotone'
                       dataKey='tokens'
-                      stroke='#f2711c'
-                      dot={false}
+                      stroke={chartConfig.colors.tokens}
+                      strokeWidth={chartConfig.lineChart.line.strokeWidth}
+                      dot={chartConfig.lineChart.line.dot}
+                      activeDot={chartConfig.lineChart.line.activeDot}
                     />
                   </LineChart>
                 </ResponsiveContainer>
@@ -245,11 +327,35 @@ const Dashboard = () => {
           <div className='chart-container'>
             <ResponsiveContainer width='100%' height={300}>
               <BarChart data={modelData}>
-                <CartesianGrid strokeDasharray='3 3' />
-                <XAxis dataKey='date' />
-                <YAxis />
-                <Tooltip />
-                <Legend />
+                <CartesianGrid
+                  strokeDasharray='3 3'
+                  vertical={false}
+                  opacity={0.1}
+                />
+                <XAxis
+                  dataKey='date'
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fontSize: 12, fill: '#A3AED0' }}
+                />
+                <YAxis
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fontSize: 12, fill: '#A3AED0' }}
+                />
+                <Tooltip
+                  contentStyle={{
+                    background: '#fff',
+                    border: 'none',
+                    borderRadius: '4px',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                  }}
+                />
+                <Legend
+                  wrapperStyle={{
+                    paddingTop: '20px',
+                  }}
+                />
                 {models.map((model, index) => (
                   <Bar
                     key={model}
@@ -257,6 +363,7 @@ const Dashboard = () => {
                     stackId='a'
                     fill={getRandomColor(index)}
                     name={model}
+                    radius={[4, 4, 0, 0]}
                   />
                 ))}
               </BarChart>

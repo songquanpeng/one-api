@@ -1,6 +1,6 @@
 .dashboard-container {
     padding: 20px;
-    background-color: #f7f9fc;
+    background-color: #ffffff;
 }
 
 .stat-card {
@@ -31,29 +31,36 @@
 .chart-card {
     margin: 0 !important;
     height: 100%;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05) !important;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04) !important;
+    border: none !important;
+    border-radius: 16px !important;
 }
 
 .chart-container {
     margin-top: 20px;
-    padding: 10px;
+    padding: 16px;
     background-color: white;
-    border-radius: 4px;
+    border-radius: 12px;
 }
 
 .ui.card > .content > .header {
-    color: #1a1a1a;
+    color: #2B3674;
     font-size: 1.2em;
     margin-bottom: 15px;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    font-weight: 600;
+    padding: 0 8px;
 }
 
 .stat-value {
-    color: #2185d0;
+    color: #4318FF;
     font-weight: bold;
     font-size: 1.1em;
+    background: rgba(67, 24, 255, 0.1);
+    padding: 4px 12px;
+    border-radius: 8px;
 }
 
 /* 优化图表响应式布局 */
@@ -63,7 +70,7 @@
     }
     
     .chart-container {
-        padding: 5px;
+        padding: 12px;
     }
     
     .charts-grid .column {
