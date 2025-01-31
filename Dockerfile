@@ -17,6 +17,7 @@ RUN DISABLE_ESLINT_PLUGIN='true' REACT_APP_VERSION=$(cat /web/default/VERSION) n
 FROM golang:alpine AS builder2
 
 RUN apk add --no-cache g++
+RUN apk add --no-cache gcc musl-dev libc-dev sqlite-dev
 
 ENV GO111MODULE=on \
     CGO_ENABLED=1 \
