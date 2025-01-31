@@ -45,6 +45,15 @@
     color: #1a1a1a;
     font-size: 1.2em;
     margin-bottom: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.stat-value {
+    color: #2185d0;
+    font-weight: bold;
+    font-size: 1.1em;
 }
 
 /* 优化图表响应式布局 */

@@ -152,47 +152,15 @@ const Dashboard = () => {
 
   return (
     <div className='dashboard-container'>
-      <Grid columns={3} stackable>
-        <Grid.Column>
-          <Card fluid className='stat-card'>
-            <Card.Content>
-              <Statistic>
-                <Statistic.Value>{summaryData.todayRequests}</Statistic.Value>
-                <Statistic.Label>今日请求量</Statistic.Label>
-              </Statistic>
-            </Card.Content>
-          </Card>
-        </Grid.Column>
-        <Grid.Column>
-          <Card fluid className='stat-card'>
-            <Card.Content>
-              <Statistic>
-                <Statistic.Value>
-                  ${summaryData.todayQuota.toFixed(3)}
-                </Statistic.Value>
-                <Statistic.Label>今日消费</Statistic.Label>
-              </Statistic>
-            </Card.Content>
-          </Card>
-        </Grid.Column>
-        <Grid.Column>
-          <Card fluid className='stat-card'>
-            <Card.Content>
-              <Statistic>
-                <Statistic.Value>{summaryData.todayTokens}</Statistic.Value>
-                <Statistic.Label>今日 token</Statistic.Label>
-              </Statistic>
-            </Card.Content>
-          </Card>
-        </Grid.Column>
-      </Grid>
-
       {/* 三个并排的折线图 */}
       <Grid columns={3} stackable className='charts-grid'>
         <Grid.Column>
           <Card fluid className='chart-card'>
             <Card.Content>
-              <Card.Header>今日请求量</Card.Header>
+              <Card.Header>
+                模型请求趋势
+                <span className='stat-value'>{summaryData.todayRequests}</span>
+              </Card.Header>
               <div className='chart-container'>
                 <ResponsiveContainer width='100%' height={120}>
                   <LineChart data={timeSeriesData}>
@@ -216,7 +184,12 @@ const Dashboard = () => {
         <Grid.Column>
           <Card fluid className='chart-card'>
             <Card.Content>
-              <Card.Header>今日消费</Card.Header>
+              <Card.Header>
+                额度消费趋势
+                <span className='stat-value'>
+                  ${summaryData.todayQuota.toFixed(3)}
+                </span>
+              </Card.Header>
               <div className='chart-container'>
                 <ResponsiveContainer width='100%' height={120}>
                   <LineChart data={timeSeriesData}>
@@ -240,7 +213,10 @@ const Dashboard = () => {
         <Grid.Column>
           <Card fluid className='chart-card'>
             <Card.Content>
-              <Card.Header>今日 token</Card.Header>
+              <Card.Header>
+                Token 消费趋势
+                <span className='stat-value'>{summaryData.todayTokens}</span>
+              </Card.Header>
               <div className='chart-container'>
                 <ResponsiveContainer width='100%' height={120}>
                   <LineChart data={timeSeriesData}>
