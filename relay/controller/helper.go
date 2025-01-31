@@ -4,12 +4,14 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/songquanpeng/one-api/relay/constant/role"
 	"math"
 	"net/http"
 	"strings"
 
+	"github.com/songquanpeng/one-api/relay/constant/role"
+
 	"github.com/gin-gonic/gin"
+
 	"github.com/songquanpeng/one-api/common"
 	"github.com/songquanpeng/one-api/common/config"
 	"github.com/songquanpeng/one-api/common/logger"
@@ -123,7 +125,7 @@ func postConsumeQuota(ctx context.Context, usage *relaymodel.Usage, meta *meta.M
 	if systemPromptReset {
 		extraLog = " （注意系统提示词已被重置）"
 	}
-	logContent := fmt.Sprintf("模型倍率 %.2f，分组倍率 %.2f，补全倍率 %.2f%s", modelRatio, groupRatio, completionRatio, extraLog)
+	logContent := fmt.Sprintf("%.2f × %.2f × %.2f%s", modelRatio, groupRatio, completionRatio, extraLog)
 	model.RecordConsumeLog(ctx, meta.UserId, meta.ChannelId, promptTokens, completionTokens, textRequest.Model, meta.TokenName, quota, logContent)
 	model.UpdateUserUsedQuotaAndRequestCount(meta.UserId, quota)
 	model.UpdateChannelUsedQuota(meta.ChannelId, quota)
