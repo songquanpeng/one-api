@@ -20,7 +20,7 @@ const TopUp = () => {
 
   const topUp = async () => {
     if (redemptionCode === '') {
-      showInfo('请输入充值码！');
+      showInfo('请输入兑换码！');
       return;
     }
     setIsSubmitting(true);
