@@ -1,5 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Dropdown, Form, Input, Label, Message, Pagination, Popup, Table } from 'semantic-ui-react';
+import {
+  Button,
+  Dropdown,
+  Form,
+  Input,
+  Label,
+  Message,
+  Pagination,
+  Popup,
+  Table,
+} from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
 import {
   API,
@@ -9,31 +19,31 @@ import {
   showError,
   showInfo,
   showSuccess,
-  timestamp2string
+  timestamp2string,
 } from '../helpers';
 
 import { CHANNEL_OPTIONS, ITEMS_PER_PAGE } from '../constants';
 import { renderGroup, renderNumber } from '../helpers/render';
 
 function renderTimestamp(timestamp) {
-  return (
-    <>
-      {timestamp2string(timestamp)}
-    </>
-  );
+  return <>{timestamp2string(timestamp)}</>;
 }
 
 let type2label = undefined;
 
 function renderType(type) {
   if (!type2label) {
-    type2label = new Map;
+    type2label = new Map();
     for (let i = 0; i < CHANNEL_OPTIONS.length; i++) {
       type2label[CHANNEL_OPTIONS[i].value] = CHANNEL_OPTIONS[i];
     }
     type2label[0] = { value: 0, text: '未知类型', color: 'grey' };
   }
-  return <Label basic color={type2label[type]?.color}>{type2label[type] ? type2label[type].text : type}</Label>;
+  return (
+    <Label basic color={type2label[type]?.color}>
+      {type2label[type] ? type2label[type].text : type}
+    </Label>
+  );
 }
 
 function renderBalance(type, balance) {
@@ -62,10 +72,10 @@ function renderBalance(type, balance) {
 }
 
 function isShowDetail() {
-  return localStorage.getItem("show_detail") === "true";
+  return localStorage.getItem('show_detail') === 'true';
 }
 
-const promptID = "detail"
+const promptID = 'detail';
 
 const ChannelsTable = () => {
   const [channels, setChannels] = useState([]);
@@ -81,33 +91,37 @@ const ChannelsTable = () => {
     const res = await API.get(`/api/channel/?p=${startIdx}`);
     const { success, message, data } = res.data;
     if (success) {
-        let localChannels = data.map((channel) => {
-            if (channel.models === '') {
-                channel.models = [];
-                channel.test_model = "";
-            } else {
-                channel.models = channel.models.split(',');
-                if (channel.models.length > 0) {
-                    channel.test_model = channel.models[0];
-                }
-                channel.model_options = channel.models.map((model) => {
-                    return {
-                        key: model,
-                        text: model,
-                        value: model,
-                    }
-                })
-                console.log('channel', channel)
-            }
-            return channel;
-        });
-        if (startIdx === 0) {
-            setChannels(localChannels);
+      let localChannels = data.map((channel) => {
+        if (channel.models === '') {
+          channel.models = [];
+          channel.test_model = '';
         } else {
-            let newChannels = [...channels];
-            newChannels.splice(startIdx * ITEMS_PER_PAGE, data.length, ...localChannels);
-            setChannels(newChannels);
+          channel.models = channel.models.split(',');
+          if (channel.models.length > 0) {
+            channel.test_model = channel.models[0];
+          }
+          channel.model_options = channel.models.map((model) => {
+            return {
+              key: model,
+              text: model,
+              value: model,
+            };
+          });
+          console.log('channel', channel);
         }
+        return channel;
+      });
+      if (startIdx === 0) {
+        setChannels(localChannels);
+      } else {
+        let newChannels = [...channels];
+        newChannels.splice(
+          startIdx * ITEMS_PER_PAGE,
+          data.length,
+          ...localChannels
+        );
+        setChannels(newChannels);
+      }
     } else {
       showError(message);
     }
@@ -131,8 +145,8 @@ const ChannelsTable = () => {
 
   const toggleShowDetail = () => {
     setShowDetail(!showDetail);
-    localStorage.setItem("show_detail", (!showDetail).toString());
-  }
+    localStorage.setItem('show_detail', (!showDetail).toString());
+  };
 
   useEffect(() => {
     loadChannels(0)
@@ -196,13 +210,19 @@ const ChannelsTable = () => {
   const renderStatus = (status) => {
     switch (status) {
       case 1:
-        return <Label basic color='green'>已启用</Label>;
+        return (
+          <Label basic color='green'>
+            已启用
+          </Label>
+        );
       case 2:
         return (
           <Popup
-            trigger={<Label basic color='red'>
-              已禁用
-            </Label>}
+            trigger={
+              <Label basic color='red'>
+                已禁用
+              </Label>
+            }
             content='本渠道被手动禁用'
             basic
           />
@@ -210,9 +230,11 @@ const ChannelsTable = () => {
       case 3:
         return (
           <Popup
-            trigger={<Label basic color='yellow'>
-              已禁用
-            </Label>}
+            trigger={
+              <Label basic color='yellow'>
+                已禁用
+              </Label>
+            }
             content='本渠道被程序自动禁用'
             basic
           />
@@ -230,15 +252,35 @@ const ChannelsTable = () => {
     let time = responseTime / 1000;
     time = time.toFixed(2) + ' 秒';
     if (responseTime === 0) {
-      return <Label basic color='grey'>未测试</Label>;
+      return (
+        <Label basic color='grey'>
+          未测试
+        </Label>
+      );
     } else if (responseTime <= 1000) {
-      return <Label basic color='green'>{time}</Label>;
+      return (
+        <Label basic color='green'>
+          {time}
+        </Label>
+      );
     } else if (responseTime <= 3000) {
-      return <Label basic color='olive'>{time}</Label>;
+      return (
+        <Label basic color='olive'>
+          {time}
+        </Label>
+      );
     } else if (responseTime <= 5000) {
-      return <Label basic color='yellow'>{time}</Label>;
+      return (
+        <Label basic color='yellow'>
+          {time}
+        </Label>
+      );
     } else {
-      return <Label basic color='red'>{time}</Label>;
+      return (
+        <Label basic color='red'>
+          {time}
+        </Label>
+      );
     }
   };
 
@@ -277,7 +319,11 @@ const ChannelsTable = () => {
       newChannels[realIdx].response_time = time * 1000;
       newChannels[realIdx].test_time = Date.now() / 1000;
       setChannels(newChannels);
-      showInfo(`渠道 ${name} 测试成功，模型 ${model}，耗时 ${time.toFixed(2)} 秒。`);
+      showInfo(
+        `渠道 ${name} 测试成功，模型 ${model}，耗时 ${time.toFixed(
+          2
+        )} 秒，模型输出：${message}`
+      );
     } else {
       showError(message);
     }
@@ -360,7 +406,6 @@ const ChannelsTable = () => {
     setLoading(false);
   };
 
-
   return (
     <>
       <Form onSubmit={searchChannels}>
@@ -374,20 +419,22 @@ const ChannelsTable = () => {
           onChange={handleKeywordChange}
         />
       </Form>
-      {
-        showPrompt && (
-          <Message onDismiss={() => {
+      {showPrompt && (
+        <Message
+          onDismiss={() => {
             setShowPrompt(false);
             setPromptShown(promptID);
-          }}>
-            OpenAI 渠道已经不再支持通过 key 获取余额，因此余额显示为 0。对于支持的渠道类型，请点击余额进行刷新。
-            <br/>
-            渠道测试仅支持 chat 模型，优先使用 gpt-3.5-turbo，如果该模型不可用则使用你所配置的模型列表中的第一个模型。
-            <br/>
-            点击下方详情按钮可以显示余额以及设置额外的测试模型。
-          </Message>
-        )
-      }
+          }}
+        >
+          OpenAI 渠道已经不再支持通过 key 获取余额，因此余额显示为
+          0。对于支持的渠道类型，请点击余额进行刷新。
+          <br />
+          渠道测试仅支持 chat 模型，优先使用
+          gpt-3.5-turbo，如果该模型不可用则使用你所配置的模型列表中的第一个模型。
+          <br />
+          点击下方详情按钮可以显示余额以及设置额外的测试模型。
+        </Message>
+      )}
       <Table basic compact size='small'>
         <Table.Header>
           <Table.Row>
@@ -478,7 +525,11 @@ const ChannelsTable = () => {
                   <Table.Cell>{renderStatus(channel.status)}</Table.Cell>
                   <Table.Cell>
                     <Popup
-                      content={channel.test_time ? renderTimestamp(channel.test_time) : '未测试'}
+                      content={
+                        channel.test_time
+                          ? renderTimestamp(channel.test_time)
+                          : '未测试'
+                      }
                       key={channel.id}
                       trigger={renderResponseTime(channel.response_time)}
                       basic
@@ -486,27 +537,38 @@ const ChannelsTable = () => {
                   </Table.Cell>
                   <Table.Cell hidden={!showDetail}>
                     <Popup
-                      trigger={<span onClick={() => {
-                        updateChannelBalance(channel.id, channel.name, idx);
-                      }} style={{ cursor: 'pointer' }}>
-                      {renderBalance(channel.type, channel.balance)}
-                    </span>}
+                      trigger={
+                        <span
+                          onClick={() => {
+                            updateChannelBalance(channel.id, channel.name, idx);
+                          }}
+                          style={{ cursor: 'pointer' }}
+                        >
+                          {renderBalance(channel.type, channel.balance)}
+                        </span>
+                      }
                       content='点击更新'
                       basic
                     />
                   </Table.Cell>
                   <Table.Cell>
                     <Popup
-                      trigger={<Input type='number' defaultValue={channel.priority} onBlur={(event) => {
-                        manageChannel(
-                          channel.id,
-                          'priority',
-                          idx,
-                          event.target.value
-                        );
-                      }}>
-                        <input style={{ maxWidth: '60px' }} />
-                      </Input>}
+                      trigger={
+                        <Input
+                          type='number'
+                          defaultValue={channel.priority}
+                          onBlur={(event) => {
+                            manageChannel(
+                              channel.id,
+                              'priority',
+                              idx,
+                              event.target.value
+                            );
+                          }}
+                        >
+                          <input style={{ maxWidth: '60px' }} />
+                        </Input>
+                      }
                       content='渠道选择优先级，越高越优先'
                       basic
                     />
@@ -528,7 +590,12 @@ const ChannelsTable = () => {
                         size={'small'}
                         positive
                         onClick={() => {
-                          testChannel(channel.id, channel.name, idx, channel.test_model);
+                          testChannel(
+                            channel.id,
+                            channel.name,
+                            idx,
+                            channel.test_model
+                          );
                         }}
                       >
                         测试
@@ -590,14 +657,31 @@ const ChannelsTable = () => {
 
         <Table.Footer>
           <Table.Row>
-            <Table.HeaderCell colSpan={showDetail ? "10" : "8"}>
-              <Button size='small' as={Link} to='/channel/add' loading={loading}>
+            <Table.HeaderCell colSpan={showDetail ? '10' : '8'}>
+              <Button
+                size='small'
+                as={Link}
+                to='/channel/add'
+                loading={loading}
+              >
                 添加新的渠道
               </Button>
-              <Button size='small' loading={loading} onClick={()=>{testChannels("all")}}>
+              <Button
+                size='small'
+                loading={loading}
+                onClick={() => {
+                  testChannels('all');
+                }}
+              >
                 测试所有渠道
               </Button>
-              <Button size='small' loading={loading} onClick={()=>{testChannels("disabled")}}>
+              <Button
+                size='small'
+                loading={loading}
+                onClick={() => {
+                  testChannels('disabled');
+                }}
+              >
                 测试禁用渠道
               </Button>
               {/*<Button size='small' onClick={updateAllChannelsBalance}*/}
@@ -612,7 +696,12 @@ const ChannelsTable = () => {
                 flowing
                 hoverable
               >
-                <Button size='small' loading={loading} negative onClick={deleteAllDisabledChannels}>
+                <Button
+                  size='small'
+                  loading={loading}
+                  negative
+                  onClick={deleteAllDisabledChannels}
+                >
                   确认删除
                 </Button>
               </Popup>
@@ -627,8 +716,12 @@ const ChannelsTable = () => {
                   (channels.length % ITEMS_PER_PAGE === 0 ? 1 : 0)
                 }
               />
-              <Button size='small' onClick={refresh} loading={loading}>刷新</Button>
-              <Button size='small' onClick={toggleShowDetail}>{showDetail ? "隐藏详情" : "详情"}</Button>
+              <Button size='small' onClick={refresh} loading={loading}>
+                刷新
+              </Button>
+              <Button size='small' onClick={toggleShowDetail}>
+                {showDetail ? '隐藏详情' : '详情'}
+              </Button>
             </Table.HeaderCell>
           </Table.Row>
         </Table.Footer>

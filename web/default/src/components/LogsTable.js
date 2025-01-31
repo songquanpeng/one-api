@@ -21,6 +21,7 @@ import {
 
 import { ITEMS_PER_PAGE } from '../constants';
 import { renderColorLabel, renderQuota } from '../helpers/render';
+import { Link } from 'react-router-dom';
 
 function renderTimestamp(timestamp, request_id) {
   return (
@@ -50,6 +51,7 @@ const LOG_OPTIONS = [
   { key: '2', text: '消费', value: 2 },
   { key: '3', text: '管理', value: 3 },
   { key: '4', text: '系统', value: 4 },
+  { key: '5', text: '测试', value: 5 },
 ];
 
 function renderType(type) {
@@ -76,6 +78,12 @@ function renderType(type) {
       return (
         <Label basic color='purple'>
           系统
+        </Label>
+      );
+    case 5:
+      return (
+        <Label basic color='violet'>
+          测试
         </Label>
       );
     default:
@@ -201,6 +209,10 @@ const LogsTable = () => {
       }
     }
     setShowStat(!showStat);
+  };
+
+  const showUserTokenQuota = () => {
+    return logType !== 5;
   };
 
   const loadLogs = async (startIdx) => {
@@ -399,26 +411,6 @@ const LogsTable = () => {
                   渠道
                 </Table.HeaderCell>
               )}
-              {isAdminUser && (
-                <Table.HeaderCell
-                  style={{ cursor: 'pointer' }}
-                  onClick={() => {
-                    sortLog('username');
-                  }}
-                  width={1}
-                >
-                  用户
-                </Table.HeaderCell>
-              )}
-              <Table.HeaderCell
-                style={{ cursor: 'pointer' }}
-                onClick={() => {
-                  sortLog('token_name');
-                }}
-                width={1}
-              >
-                令牌
-              </Table.HeaderCell>
               <Table.HeaderCell
                 style={{ cursor: 'pointer' }}
                 onClick={() => {
@@ -437,33 +429,57 @@ const LogsTable = () => {
               >
                 模型
               </Table.HeaderCell>
-              <Table.HeaderCell
-                style={{ cursor: 'pointer' }}
-                onClick={() => {
-                  sortLog('prompt_tokens');
-                }}
-                width={1}
-              >
-                提示
-              </Table.HeaderCell>
-              <Table.HeaderCell
-                style={{ cursor: 'pointer' }}
-                onClick={() => {
-                  sortLog('completion_tokens');
-                }}
-                width={1}
-              >
-                补全
-              </Table.HeaderCell>
-              <Table.HeaderCell
-                style={{ cursor: 'pointer' }}
-                onClick={() => {
-                  sortLog('quota');
-                }}
-                width={1}
-              >
-                额度
-              </Table.HeaderCell>
+              {showUserTokenQuota() && (
+                <>
+                  {isAdminUser && (
+                    <Table.HeaderCell
+                      style={{ cursor: 'pointer' }}
+                      onClick={() => {
+                        sortLog('username');
+                      }}
+                      width={1}
+                    >
+                      用户
+                    </Table.HeaderCell>
+                  )}
+                  <Table.HeaderCell
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => {
+                      sortLog('token_name');
+                    }}
+                    width={1}
+                  >
+                    令牌
+                  </Table.HeaderCell>
+                  <Table.HeaderCell
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => {
+                      sortLog('prompt_tokens');
+                    }}
+                    width={1}
+                  >
+                    提示
+                  </Table.HeaderCell>
+                  <Table.HeaderCell
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => {
+                      sortLog('completion_tokens');
+                    }}
+                    width={1}
+                  >
+                    补全
+                  </Table.HeaderCell>
+                  <Table.HeaderCell
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => {
+                      sortLog('quota');
+                    }}
+                    width={1}
+                  >
+                    额度
+                  </Table.HeaderCell>
+                </>
+              )}
               <Table.HeaderCell
                 style={{ cursor: 'pointer' }}
                 onClick={() => {
@@ -491,34 +507,58 @@ const LogsTable = () => {
                     </Table.Cell>
                     {isAdminUser && (
                       <Table.Cell>
-                        {log.channel ? <Label basic>{log.channel}</Label> : ''}
-                      </Table.Cell>
-                    )}
-                    {isAdminUser && (
-                      <Table.Cell>
-                        {log.username ? (
-                          <Label basic>{log.username}</Label>
+                        {log.channel ? (
+                          <Label
+                            basic
+                            as={Link}
+                            to={`/channel/edit/${log.channel}`}
+                          >
+                            {log.channel}
+                          </Label>
                         ) : (
                           ''
                         )}
                       </Table.Cell>
                     )}
-                    <Table.Cell>
-                      {log.token_name ? renderColorLabel(log.token_name) : ''}
-                    </Table.Cell>
                     <Table.Cell>{renderType(log.type)}</Table.Cell>
                     <Table.Cell>
                       {log.model_name ? renderColorLabel(log.model_name) : ''}
                     </Table.Cell>
-                    <Table.Cell>
-                      {log.prompt_tokens ? log.prompt_tokens : ''}
-                    </Table.Cell>
-                    <Table.Cell>
-                      {log.completion_tokens ? log.completion_tokens : ''}
-                    </Table.Cell>
-                    <Table.Cell>
-                      {log.quota ? renderQuota(log.quota, 6) : ''}
-                    </Table.Cell>
+                    {showUserTokenQuota() && (
+                      <>
+                        {isAdminUser && (
+                          <Table.Cell>
+                            {log.username ? (
+                              <Label
+                                basic
+                                as={Link}
+                                to={`/user/edit/${log.user_id}`}
+                              >
+                                {log.username}
+                              </Label>
+                            ) : (
+                              ''
+                            )}
+                          </Table.Cell>
+                        )}
+                        <Table.Cell>
+                          {log.token_name
+                            ? renderColorLabel(log.token_name)
+                            : ''}
+                        </Table.Cell>
+
+                        <Table.Cell>
+                          {log.prompt_tokens ? log.prompt_tokens : ''}
+                        </Table.Cell>
+                        <Table.Cell>
+                          {log.completion_tokens ? log.completion_tokens : ''}
+                        </Table.Cell>
+                        <Table.Cell>
+                          {log.quota ? renderQuota(log.quota, 6) : ''}
+                        </Table.Cell>
+                      </>
+                    )}
+
                     <Table.Cell>{renderDetail(log)}</Table.Cell>
                   </Table.Row>
                 );

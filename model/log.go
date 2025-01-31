@@ -37,6 +37,7 @@ const (
 	LogTypeConsume
 	LogTypeManage
 	LogTypeSystem
+	LogTypeTest
 )
 
 func recordLogHelper(ctx context.Context, log *Log) {
@@ -83,6 +84,12 @@ func RecordConsumeLog(ctx context.Context, log *Log) {
 	log.Username = GetUsernameById(log.UserId)
 	log.CreatedAt = helper.GetTimestamp()
 	log.Type = LogTypeConsume
+	recordLogHelper(ctx, log)
+}
+
+func RecordTestLog(ctx context.Context, log *Log) {
+	log.CreatedAt = helper.GetTimestamp()
+	log.Type = LogTypeTest
 	recordLogHelper(ctx, log)
 }
 
