@@ -62,8 +62,8 @@ const Home = () => {
           <Card.Header className='header'>欢迎使用 One API</Card.Header>
           <Card.Description style={{ lineHeight: '1.6' }}>
             <p>
-              One API 是一个 OpenAI
-              接口管理和分发系统，可以帮助您更好地管理和使用 OpenAI 的 API。
+              One API 是一个 LLM API
+              接口管理和分发系统，可以帮助您更好地管理和使用各大厂商的 LLM API。
             </p>
             {!userState.user && (
               <p>
