@@ -97,6 +97,16 @@ type TextResponse struct {
 	model.Usage `json:"usage"`
 }
 
+type ErrorTextResponse struct {
+	Id          string               `json:"id"`
+	Model       string               `json:"model,omitempty"`
+	Object      string               `json:"object"`
+	ErrorCode   string               `json:"error_code"`
+	Created     int64                `json:"created"`
+	Choices     []TextResponseChoice `json:"choices"`
+	model.Usage `json:"usage"`
+}
+
 type EmbeddingResponseItem struct {
 	Object    string    `json:"object"`
 	Index     int       `json:"index"`
@@ -135,6 +145,16 @@ type ChatCompletionsStreamResponse struct {
 	Model   string                                `json:"model"`
 	Choices []ChatCompletionsStreamResponseChoice `json:"choices"`
 	Usage   *model.Usage                          `json:"usage,omitempty"`
+}
+
+type ChatCompletionsErrorStreamResponse struct {
+	Id        string                                `json:"id"`
+	Object    string                                `json:"object"`
+	Created   int64                                 `json:"created"`
+	ErrorCode string                                `json:"error_code"`
+	Model     string                                `json:"model"`
+	Choices   []ChatCompletionsStreamResponseChoice `json:"choices"`
+	Usage     *model.Usage                          `json:"usage,omitempty"`
 }
 
 type CompletionsStreamResponse struct {
