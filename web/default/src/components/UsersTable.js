@@ -1,10 +1,23 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Form, Label, Pagination, Popup, Table, Dropdown } from 'semantic-ui-react';
+import {
+  Button,
+  Form,
+  Label,
+  Pagination,
+  Popup,
+  Table,
+  Dropdown,
+} from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
 import { API, showError, showSuccess } from '../helpers';
 
 import { ITEMS_PER_PAGE } from '../constants';
-import { renderGroup, renderNumber, renderQuota, renderText } from '../helpers/render';
+import {
+  renderGroup,
+  renderNumber,
+  renderQuota,
+  renderText,
+} from '../helpers/render';
 
 function renderRole(role) {
   switch (role) {
@@ -66,7 +79,7 @@ const UsersTable = () => {
     (async () => {
       const res = await API.post('/api/user/manage', {
         username,
-        action
+        action,
       });
       const { success, message } = res.data;
       if (success) {
@@ -169,7 +182,7 @@ const UsersTable = () => {
         />
       </Form>
 
-      <Table basic compact size='small'>
+      <Table basic={'very'} compact size='small'>
         <Table.Header>
           <Table.Row>
             <Table.HeaderCell
@@ -239,7 +252,9 @@ const UsersTable = () => {
                     <Popup
                       content={user.email ? user.email : '未绑定邮箱地址'}
                       key={user.username}
-                      header={user.display_name ? user.display_name : user.username}
+                      header={
+                        user.display_name ? user.display_name : user.username
+                      }
                       trigger={<span>{renderText(user.username, 15)}</span>}
                       hoverable
                     />
@@ -249,9 +264,22 @@ const UsersTable = () => {
                   {/*  {user.email ? <Popup hoverable content={user.email} trigger={<span>{renderText(user.email, 24)}</span>} /> : '无'}*/}
                   {/*</Table.Cell>*/}
                   <Table.Cell>
-                    <Popup content='剩余额度' trigger={<Label basic>{renderQuota(user.quota)}</Label>} />
-                    <Popup content='已用额度' trigger={<Label basic>{renderQuota(user.used_quota)}</Label>} />
-                    <Popup content='请求次数' trigger={<Label basic>{renderNumber(user.request_count)}</Label>} />
+                    <Popup
+                      content='剩余额度'
+                      trigger={<Label basic>{renderQuota(user.quota)}</Label>}
+                    />
+                    <Popup
+                      content='已用额度'
+                      trigger={
+                        <Label basic>{renderQuota(user.used_quota)}</Label>
+                      }
+                    />
+                    <Popup
+                      content='请求次数'
+                      trigger={
+                        <Label basic>{renderNumber(user.request_count)}</Label>
+                      }
+                    />
                   </Table.Cell>
                   <Table.Cell>{renderRole(user.role)}</Table.Cell>
                   <Table.Cell>{renderStatus(user.status)}</Table.Cell>
@@ -279,7 +307,11 @@ const UsersTable = () => {
                       </Button>
                       <Popup
                         trigger={
-                          <Button size='small' negative disabled={user.role === 100}>
+                          <Button
+                            size='small'
+                            negative
+                            disabled={user.role === 100}
+                          >
                             删除
                           </Button>
                         }
@@ -335,8 +367,16 @@ const UsersTable = () => {
                 options={[
                   { key: '', text: '默认排序', value: '' },
                   { key: 'quota', text: '按剩余额度排序', value: 'quota' },
-                  { key: 'used_quota', text: '按已用额度排序', value: 'used_quota' },
-                  { key: 'request_count', text: '按请求次数排序', value: 'request_count' },
+                  {
+                    key: 'used_quota',
+                    text: '按已用额度排序',
+                    value: 'used_quota',
+                  },
+                  {
+                    key: 'request_count',
+                    text: '按请求次数排序',
+                    value: 'request_count',
+                  },
                 ]}
                 value={orderBy}
                 onChange={handleOrderByChange}

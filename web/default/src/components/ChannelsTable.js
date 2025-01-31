@@ -435,7 +435,7 @@ const ChannelsTable = () => {
           点击下方详情按钮可以显示余额以及设置额外的测试模型。
         </Message>
       )}
-      <Table basic compact size='small'>
+      <Table basic={'very'} compact size='small'>
         <Table.Header>
           <Table.Row>
             <Table.HeaderCell

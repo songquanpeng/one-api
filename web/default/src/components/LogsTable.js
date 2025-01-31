@@ -388,7 +388,7 @@ const LogsTable = () => {
             </>
           )}
         </Form>
-        <Table basic compact size='small'>
+        <Table basic={'very'} compact size='small'>
           <Table.Header>
             <Table.Row>
               <Table.HeaderCell
