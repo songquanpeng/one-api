@@ -82,7 +82,7 @@ export function renderColorLabel(text) {
   }
   let index = Math.abs(hash % colors.length);
   return (
-    <Label basic size={'tiny'} color={colors[index]}>
+    <Label basic color={colors[index]}>
       {text}
     </Label>
   );

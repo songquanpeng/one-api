@@ -497,9 +497,7 @@ const LogsTable = () => {
                     {isAdminUser && (
                       <Table.Cell>
                         {log.username ? (
-                          <Label basic size={'tiny'}>
-                            {log.username}
-                          </Label>
+                          <Label basic>{log.username}</Label>
                         ) : (
                           ''
                         )}
