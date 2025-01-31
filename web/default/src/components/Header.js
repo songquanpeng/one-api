@@ -177,7 +177,9 @@ const Header = () => {
               {renderButtons(true)}
               <Menu.Item>
                 {userState.user ? (
-                  <Button onClick={logout}>注销</Button>
+                  <Button onClick={logout} style={{ color: '#666666' }}>
+                    注销
+                  </Button>
                 ) : (
                   <>
                     <Button
@@ -250,6 +252,7 @@ const Header = () => {
                     style={{
                       fontSize: '15px',
                       fontWeight: '400',
+                      color: '#666',
                     }}
                   >
                     注销

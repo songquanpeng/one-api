@@ -29,7 +29,7 @@ const Footer = () => {
 
   return (
     <Segment vertical>
-      <Container textAlign='center'>
+      <Container textAlign='center' style={{ color: '#666666' }}>
         {footer ? (
           <div
             className='custom-footer'
@@ -37,10 +37,7 @@ const Footer = () => {
           ></div>
         ) : (
           <div className='custom-footer'>
-            <a
-              href='https://github.com/songquanpeng/one-api'
-              target='_blank'
-            >
+            <a href='https://github.com/songquanpeng/one-api' target='_blank'>
               {systemName} {process.env.REACT_APP_VERSION}{' '}
             </a>
             由{' '}
