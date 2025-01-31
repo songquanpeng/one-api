@@ -28,6 +28,8 @@ function renderType(type) {
       return <Tag color="orange" size="large"> 管理 </Tag>;
     case 4:
       return <Tag color="purple" size="large"> 系统 </Tag>;
+    case 5:
+      return <Tag color="violet" size="large"> 测试 </Tag>;
     default:
       return <Tag color="black" size="large"> 未知 </Tag>;
   }
