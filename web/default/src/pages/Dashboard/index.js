@@ -68,16 +68,27 @@ const Dashboard = () => {
     try {
       const response = await axios.get('/api/user/dashboard');
       if (response.data.success) {
-        const dashboardData = response.data.data;
+        const dashboardData = response.data.data || [];
         setData(dashboardData);
         calculateSummary(dashboardData);
       }
     } catch (error) {
       console.error('Failed to fetch dashboard data:', error);
+      setData([]);
+      calculateSummary([]);
     }
   };
 
   const calculateSummary = (dashboardData) => {
+    if (!Array.isArray(dashboardData) || dashboardData.length === 0) {
+      setSummaryData({
+        todayRequests: 0,
+        todayQuota: 0,
+        todayTokens: 0
+      });
+      return;
+    }
+
     const today = new Date().toISOString().split('T')[0];
     const todayData = dashboardData.filter((item) => item.Day === today);
 
@@ -87,7 +98,7 @@ const Dashboard = () => {
         0
       ),
       todayQuota:
-        todayData.reduce((sum, item) => sum + item.Quota, 0) / 1000000, // 转换为美元
+        todayData.reduce((sum, item) => sum + item.Quota, 0) / 1000000,
       todayTokens: todayData.reduce(
         (sum, item) => sum + item.PromptTokens + item.CompletionTokens,
         0
