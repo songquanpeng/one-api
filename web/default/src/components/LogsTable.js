@@ -99,7 +99,7 @@ function getColorByElapsedTime(elapsedTime) {
 function renderDetail(log) {
   return (
     <>
-      倍率：{log.content}
+      {log.content}
       <br />
       {log.elapsed_time && (
         <Label
