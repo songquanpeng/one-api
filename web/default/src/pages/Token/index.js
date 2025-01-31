@@ -6,7 +6,7 @@ const Token = () => (
   <>
     <Segment>
       <Header as='h3'>我的令牌</Header>
-      <TokensTable/>
+      <TokensTable />
     </Segment>
   </>
 );
