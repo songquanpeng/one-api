@@ -113,16 +113,16 @@ func logHelper(ctx context.Context, level loggerLevel, msg string) {
 	if level == loggerINFO {
 		writer = gin.DefaultWriter
 	}
-	var logId string
+	var requestId string
 	if ctx != nil {
-		rawLogId := ctx.Value(helper.RequestIdKey)
-		if rawLogId != nil {
-			logId = fmt.Sprintf(" | %s", rawLogId.(string))
+		rawRequestId := helper.GetRequestID(ctx)
+		if rawRequestId != "" {
+			requestId = fmt.Sprintf(" | %s", rawRequestId)
 		}
 	}
 	lineInfo, funcName := getLineInfo()
 	now := time.Now()
-	_, _ = fmt.Fprintf(writer, "[%s] %v%s%s %s%s \n", level, now.Format("2006/01/02 - 15:04:05"), logId, lineInfo, funcName, msg)
+	_, _ = fmt.Fprintf(writer, "[%s] %v%s%s %s%s \n", level, now.Format("2006/01/02 - 15:04:05"), requestId, lineInfo, funcName, msg)
 	SetupLogger()
 	if level == loggerFatal {
 		os.Exit(1)
