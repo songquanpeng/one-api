@@ -1,7 +1,10 @@
 .dashboard-container {
-    padding: 20px 40px 40px;
+    padding: 20px 24px 40px;
     background-color: #ffffff;
     margin-top: -15px; /* 减小与导航栏的间距 */
+    max-width: 1600px;        /* 设置最大宽度 */
+    margin-left: auto;        /* 水平居中 */
+    margin-right: auto;
 }
 
 .stat-card {
@@ -69,7 +72,8 @@
 /* 优化图表响应式布局 */
 @media (max-width: 768px) {
     .dashboard-container {
-        padding: 10px;
+        padding: 10px 16px;   /* 移动端也相应减小内边距 */
+        max-width: 100%;      /* 移动端占满全宽 */
     }
     
     .chart-container {
