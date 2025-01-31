@@ -88,10 +88,6 @@ const TopUp = () => {
         <Card.Content>
           <Card.Header>
             <Header as='h2' style={{ marginBottom: '1.5em' }}>
-              <i
-                className='money bill alternate outline icon'
-                style={{ color: '#2185d0' }}
-              ></i>
               充值中心
             </Header>
           </Card.Header>
@@ -105,34 +101,58 @@ const TopUp = () => {
                   boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
                 }}
               >
-                <Card.Content>
+                <Card.Content
+                  style={{
+                    height: '100%',
+                    display: 'flex',
+                    flexDirection: 'column',
+                  }}
+                >
                   <Card.Header>
                     <Header
                       as='h3'
                       style={{ color: '#2185d0', marginBottom: '1em' }}
                     >
-                      <i className='shopping cart icon'></i>
+                      <i className='credit card icon'></i>
                       在线充值
                     </Header>
                   </Card.Header>
-                  <Card.Description>
-                    <div style={{ textAlign: 'center', padding: '1em 0' }}>
-                      <Statistic>
-                        <Statistic.Value style={{ color: '#2185d0' }}>
-                          {renderQuota(userQuota)}
-                        </Statistic.Value>
-                        <Statistic.Label>当前可用额度</Statistic.Label>
-                      </Statistic>
+                  <Card.Description
+                    style={{
+                      flex: 1,
+                      display: 'flex',
+                      flexDirection: 'column',
+                    }}
+                  >
+                    <div
+                      style={{
+                        flex: 1,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'space-between',
+                      }}
+                    >
+                      <div style={{ textAlign: 'center', paddingTop: '1em' }}>
+                        <Statistic>
+                          <Statistic.Value style={{ color: '#2185d0' }}>
+                            {renderQuota(userQuota)}
+                          </Statistic.Value>
+                          <Statistic.Label>当前可用额度</Statistic.Label>
+                        </Statistic>
+                      </div>
 
-                      <Button
-                        primary
-                        size='large'
-                        onClick={openTopUpLink}
-                        style={{ marginTop: '2em', width: '80%' }}
+                      <div
+                        style={{ textAlign: 'center', paddingBottom: '1em' }}
                       >
-                        <i className='credit card icon'></i>
-                        立即充值
-                      </Button>
+                        <Button
+                          primary
+                          size='large'
+                          onClick={openTopUpLink}
+                          style={{ width: '80%' }}
+                        >
+                          立即充值
+                        </Button>
+                      </div>
                     </div>
                   </Card.Description>
                 </Card.Content>
@@ -147,7 +167,13 @@ const TopUp = () => {
                   boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
                 }}
               >
-                <Card.Content>
+                <Card.Content
+                  style={{
+                    height: '100%',
+                    display: 'flex',
+                    flexDirection: 'column',
+                  }}
+                >
                   <Card.Header>
                     <Header
                       as='h3'
@@ -157,8 +183,21 @@ const TopUp = () => {
                       兑换码充值
                     </Header>
                   </Card.Header>
-                  <Card.Description>
-                    <Form size='large'>
+                  <Card.Description
+                    style={{
+                      flex: 1,
+                      display: 'flex',
+                      flexDirection: 'column',
+                    }}
+                  >
+                    <div
+                      style={{
+                        flex: 1,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'space-between',
+                      }}
+                    >
                       <Form.Input
                         fluid
                         icon='key'
@@ -188,19 +227,21 @@ const TopUp = () => {
                             }}
                           />
                         }
-                        style={{ marginBottom: '1em' }}
                       />
-                      <Button
-                        color='green'
-                        fluid
-                        size='large'
-                        onClick={topUp}
-                        loading={isSubmitting}
-                        disabled={isSubmitting}
-                      >
-                        {isSubmitting ? '兑换中...' : '立即兑换'}
-                      </Button>
-                    </Form>
+
+                      <div style={{ paddingBottom: '1em' }}>
+                        <Button
+                          color='green'
+                          fluid
+                          size='large'
+                          onClick={topUp}
+                          loading={isSubmitting}
+                          disabled={isSubmitting}
+                        >
+                          {isSubmitting ? '兑换中...' : '立即兑换'}
+                        </Button>
+                      </div>
+                    </div>
                   </Card.Description>
                 </Card.Content>
               </Card>
