@@ -200,7 +200,14 @@ const Header = () => {
 
   return (
     <>
-      <Menu borderless style={{ borderTop: 'none' }}>
+      <Menu
+        borderless
+        style={{
+          borderTop: 'none',
+          boxShadow: 'rgba(0, 0, 0, 0.04) 0px 2px 12px 0px',
+          border: 'none',
+        }}
+      >
         <Container>
           <Menu.Item as={Link} to='/' className={'hide-on-mobile'}>
             <img src={logo} alt='logo' style={{ marginRight: '0.75em' }} />
