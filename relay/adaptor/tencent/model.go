@@ -35,16 +35,16 @@ type ChatRequest struct {
 	// 1. 影响输出文本的多样性，取值越大，生成文本的多样性越强。
 	// 2. 取值区间为 [0.0, 1.0]，未传值时使用各模型推荐值。
 	// 3. 非必要不建议使用，不合理的取值会影响效果。
-	TopP *float64 `json:"TopP"`
+	TopP *float64 `json:"TopP,omitempty"`
 	// 说明：
 	// 1. 较高的数值会使输出更加随机，而较低的数值会使其更加集中和确定。
 	// 2. 取值区间为 [0.0, 2.0]，未传值时使用各模型推荐值。
 	// 3. 非必要不建议使用，不合理的取值会影响效果。
-	Temperature *float64 `json:"Temperature"`
+	Temperature *float64 `json:"Temperature,omitempty"`
 }
 
 type Error struct {
-	Code    int    `json:"Code"`
+	Code    string `json:"Code"`
 	Message string `json:"Message"`
 }
 
@@ -61,15 +61,41 @@ type ResponseChoices struct {
 }
 
 type ChatResponse struct {
-	Choices []ResponseChoices `json:"Choices,omitempty"` // 结果
-	Created int64             `json:"Created,omitempty"` // unix 时间戳的字符串
-	Id      string            `json:"Id,omitempty"`      // 会话 id
-	Usage   Usage             `json:"Usage,omitempty"`   // token 数量
-	Error   Error             `json:"Error,omitempty"`   // 错误信息 注意：此字段可能返回 null，表示取不到有效值
-	Note    string            `json:"Note,omitempty"`    // 注释
-	ReqID   string            `json:"Req_id,omitempty"`  // 唯一请求 Id，每次请求都会返回。用于反馈接口入参
+	Choices []ResponseChoices `json:"Choices,omitempty"`   // 结果
+	Created int64             `json:"Created,omitempty"`   // unix 时间戳的字符串
+	Id      string            `json:"Id,omitempty"`        // 会话 id
+	Usage   Usage             `json:"Usage,omitempty"`     // token 数量
+	Error   Error             `json:"Error,omitempty"`     // 错误信息 注意：此字段可能返回 null，表示取不到有效值
+	Note    string            `json:"Note,omitempty"`      // 注释
+	ReqID   string            `json:"RequestId,omitempty"` // 唯一请求 Id，每次请求都会返回。用于反馈接口入参
 }
 
 type ChatResponseP struct {
 	Response ChatResponse `json:"Response,omitempty"`
+}
+
+type EmbeddingRequest struct {
+	InputList []string `json:"InputList"`
+}
+
+type EmbeddingData struct {
+	Embedding []float64 `json:"Embedding"`
+	Index     int       `json:"Index"`
+	Object    string    `json:"Object"`
+}
+
+type EmbeddingUsage struct {
+	PromptTokens int `json:"PromptTokens"`
+	TotalTokens  int `json:"TotalTokens"`
+}
+
+type EmbeddingResponse struct {
+	Data           []EmbeddingData `json:"Data"`
+	EmbeddingUsage EmbeddingUsage  `json:"Usage,omitempty"`
+	RequestId      string          `json:"RequestId,omitempty"`
+	Error          Error           `json:"Error,omitempty"`
+}
+
+type EmbeddingResponseP struct {
+	Response EmbeddingResponse `json:"Response,omitempty"`
 }
