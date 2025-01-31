@@ -4,6 +4,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { UserContext } from '../context/User';
 import { API, getLogo, showError, showSuccess, showWarning } from '../helpers';
 import { onGitHubOAuthClicked, onLarkOAuthClicked } from './utils';
+import { BASE_URL } from '../config';
 import larkIcon from '../images/lark.svg';
 
 const LoginForm = () => {
@@ -87,7 +88,7 @@ const LoginForm = () => {
     <Grid textAlign='center' style={{ marginTop: '48px' }}>
       <Grid.Column style={{ maxWidth: 450 }}>
         <Header as='h2' color='' textAlign='center'>
-          <Image src={logo} /> 用户登录
+          <Image src={ BASE_URL + logo} /> 用户登录
         </Header>
         <Form size='large'>
           <Segment>
@@ -151,13 +152,13 @@ const LoginForm = () => {
               )}
               {status.lark_client_id ? (
                 <div style={{
-                  background: "radial-gradient(circle, #FFFFFF, #FFFFFF, #00D6B9, #2F73FF, #0a3A9C)",
-                  width: "36px",
-                  height: "36px",
-                  borderRadius: "10em",
-                  display: "flex",
-                  cursor: "pointer"
-                }}
+                    background: "radial-gradient(circle, #FFFFFF, #FFFFFF, #00D6B9, #2F73FF, #0a3A9C)",
+                    width: "36px",
+                    height: "36px",
+                    borderRadius: "10em",
+                    display: "flex",
+                    cursor: "pointer"
+                  }}
                   onClick={() => onLarkOAuthClicked(status.lark_client_id)}
                 >
                   <Image

@@ -11,7 +11,13 @@ import (
 	"strings"
 )
 
-func SetRouter(router *gin.Engine, buildFS embed.FS) {
+func SetRouter(engine *gin.Engine, buildFS embed.FS) {
+	var baseUrl = os.Getenv("BASE_URL")
+	if baseUrl == "" {
+		baseUrl = "/"
+	}
+	router := engine.Group(baseUrl)
+
 	SetApiRouter(router)
 	SetDashboardRouter(router)
 	SetRelayRouter(router)
@@ -21,10 +27,10 @@ func SetRouter(router *gin.Engine, buildFS embed.FS) {
 		logger.SysLog("FRONTEND_BASE_URL is ignored on master node")
 	}
 	if frontendBaseUrl == "" {
-		SetWebRouter(router, buildFS)
+		SetWebRouter(engine, baseUrl, buildFS)
 	} else {
 		frontendBaseUrl = strings.TrimSuffix(frontendBaseUrl, "/")
-		router.NoRoute(func(c *gin.Context) {
+		engine.NoRoute(func(c *gin.Context) {
 			c.Redirect(http.StatusMovedPermanently, fmt.Sprintf("%s%s", frontendBaseUrl, c.Request.RequestURI))
 		})
 	}

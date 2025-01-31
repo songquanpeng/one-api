@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Form, Grid, Header, Image, Segment } from 'semantic-ui-react';
 import { API, showError, showInfo, showSuccess } from '../helpers';
+import { BASE_URL } from '../config';
 import Turnstile from 'react-turnstile';
 
 const PasswordResetForm = () => {
@@ -70,7 +71,7 @@ const PasswordResetForm = () => {
     <Grid textAlign='center' style={{ marginTop: '48px' }}>
       <Grid.Column style={{ maxWidth: 450 }}>
         <Header as='h2' color='' textAlign='center'>
-          <Image src='/logo.png' /> 密码重置
+          <Image src={ BASE_URL + '/logo.png'} /> 密码重置
         </Header>
         <Form size='large'>
           <Segment>
