@@ -87,9 +87,7 @@ const TopUp = () => {
       <Card fluid className='chart-card'>
         <Card.Content>
           <Card.Header>
-            <Header as='h2' style={{ marginBottom: '1.5em' }}>
-              充值中心
-            </Header>
+            <Header as='h2'>充值中心</Header>
           </Card.Header>
 
           <Grid columns={2} stackable>
@@ -109,12 +107,9 @@ const TopUp = () => {
                   }}
                 >
                   <Card.Header>
-                    <Header
-                      as='h3'
-                      style={{ color: '#2185d0', marginBottom: '1em' }}
-                    >
+                    <Header as='h3' style={{ color: '#2185d0', margin: '1em' }}>
                       <i className='credit card icon'></i>
-                      在线充值
+                      获取兑换码
                     </Header>
                   </Card.Header>
                   <Card.Description
@@ -150,7 +145,7 @@ const TopUp = () => {
                           onClick={openTopUpLink}
                           style={{ width: '80%' }}
                         >
-                          立即充值
+                          立即获取兑换码
                         </Button>
                       </div>
                     </div>
@@ -175,10 +170,7 @@ const TopUp = () => {
                   }}
                 >
                   <Card.Header>
-                    <Header
-                      as='h3'
-                      style={{ color: '#21ba45', marginBottom: '1em' }}
-                    >
+                    <Header as='h3' style={{ color: '#21ba45', margin: '1em' }}>
                       <i className='ticket alternate icon'></i>
                       兑换码充值
                     </Header>
