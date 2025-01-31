@@ -83,4 +83,28 @@
     .charts-grid .column {
         padding: 0.25rem !important;
     }
+}
+
+/* 设置页面的 Tab 样式 */
+.settings-tab {
+    margin-top: 1rem !important;
+    border-bottom: none !important;
+}
+
+.settings-tab .item {
+    color: #2B3674 !important;
+    font-weight: 500 !important;
+    padding: 0.8rem 1.2rem !important;
+}
+
+.settings-tab .active.item {
+    color: #4318FF !important;
+    font-weight: 600 !important;
+    border-color: #4318FF !important;
+}
+
+.ui.tab.segment {
+    border: none !important;
+    box-shadow: none !important;
+    padding: 1rem 0 !important;
 } 

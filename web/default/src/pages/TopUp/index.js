@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Form, Grid, Header, Segment, Statistic } from 'semantic-ui-react';
+import { Button, Form, Grid, Header, Card, Statistic } from 'semantic-ui-react';
 import { API, showError, showInfo, showSuccess } from '../../helpers';
 import { renderQuota } from '../../helpers/render';
 
@@ -12,13 +12,13 @@ const TopUp = () => {
 
   const topUp = async () => {
     if (redemptionCode === '') {
-      showInfo('请输入充值码！')
+      showInfo('请输入充值码！');
       return;
     }
     setIsSubmitting(true);
     try {
       const res = await API.post('/api/user/topup', {
-        key: redemptionCode
+        key: redemptionCode,
       });
       const { success, message, data } = res.data;
       if (success) {
@@ -33,7 +33,7 @@ const TopUp = () => {
     } catch (err) {
       showError('请求失败');
     } finally {
-      setIsSubmitting(false); 
+      setIsSubmitting(false);
     }
   };
 
@@ -45,23 +45,23 @@ const TopUp = () => {
     let url = new URL(topUpLink);
     let username = user.username;
     let user_id = user.id;
-    // add  username and user_id to the topup link
+    // add username and user_id to the topup link
     url.searchParams.append('username', username);
     url.searchParams.append('user_id', user_id);
     url.searchParams.append('transaction_id', crypto.randomUUID());
     window.open(url.toString(), '_blank');
   };
 
-  const getUserQuota = async ()=>{
-    let res  = await API.get(`/api/user/self`);
-    const {success, message, data} = res.data;
+  const getUserQuota = async () => {
+    let res = await API.get(`/api/user/self`);
+    const { success, message, data } = res.data;
     if (success) {
       setUserQuota(data.quota);
       setUser(data);
     } else {
       showError(message);
     }
-  }
+  };
 
   useEffect(() => {
     let status = localStorage.getItem('status');
@@ -75,37 +75,41 @@ const TopUp = () => {
   }, []);
 
   return (
-    <Segment>
-      <Header as='h3'>充值额度</Header>
-      <Grid columns={2} stackable>
-        <Grid.Column>
-          <Form>
-            <Form.Input
-              placeholder='兑换码'
-              name='redemptionCode'
-              value={redemptionCode}
-              onChange={(e) => {
-                setRedemptionCode(e.target.value);
-              }}
-            />
-            <Button color='green' onClick={openTopUpLink}>
-              充值
-            </Button>
-            <Button color='yellow' onClick={topUp} disabled={isSubmitting}>
-                {isSubmitting ? '兑换中...' : '兑换'}
-            </Button>
-          </Form>
-        </Grid.Column>
-        <Grid.Column>
-          <Statistic.Group widths='one'>
-            <Statistic>
-              <Statistic.Value>{renderQuota(userQuota)}</Statistic.Value>
-              <Statistic.Label>剩余额度</Statistic.Label>
-            </Statistic>
-          </Statistic.Group>
-        </Grid.Column>
-      </Grid>
-    </Segment>
+    <div className='dashboard-container'>
+      <Card fluid className='chart-card'>
+        <Card.Content>
+          <Card.Header className='header'>充值额度</Card.Header>
+          <Grid columns={2} stackable>
+            <Grid.Column>
+              <Form>
+                <Form.Input
+                  placeholder='兑换码'
+                  name='redemptionCode'
+                  value={redemptionCode}
+                  onChange={(e) => {
+                    setRedemptionCode(e.target.value);
+                  }}
+                />
+                <Button color='green' onClick={openTopUpLink}>
+                  充值
+                </Button>
+                <Button color='yellow' onClick={topUp} disabled={isSubmitting}>
+                  {isSubmitting ? '兑换中...' : '兑换'}
+                </Button>
+              </Form>
+            </Grid.Column>
+            <Grid.Column>
+              <Statistic.Group widths='one'>
+                <Statistic>
+                  <Statistic.Value>{renderQuota(userQuota)}</Statistic.Value>
+                  <Statistic.Label>剩余额度</Statistic.Label>
+                </Statistic>
+              </Statistic.Group>
+            </Grid.Column>
+          </Grid>
+        </Card.Content>
+      </Card>
+    </div>
   );
 };
 
