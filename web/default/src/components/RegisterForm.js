@@ -208,10 +208,14 @@ const RegisterForm = () => {
               )}
 
               <Button
-                color='blue'
                 fluid
                 size='large'
                 onClick={handleSubmit}
+                style={{
+                  background: '#2F73FF', // 使用更现代的蓝色
+                  color: 'white',
+                  marginBottom: '1.5em',
+                }}
                 loading={loading}
               >
                 注册

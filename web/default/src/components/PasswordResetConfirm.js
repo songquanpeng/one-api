@@ -133,7 +133,11 @@ const PasswordResetConfirm = () => {
                 onClick={handleSubmit}
                 loading={loading}
                 disabled={disableButton}
-                style={{ marginBottom: '1em' }}
+                style={{
+                  background: '#2F73FF', // 使用更现代的蓝色
+                  color: 'white',
+                  marginBottom: '1.5em',
+                }}
               >
                 {disableButton ? '密码重置完成' : '提交'}
               </Button>

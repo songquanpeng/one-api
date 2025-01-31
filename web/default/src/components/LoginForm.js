@@ -135,7 +135,16 @@ const LoginForm = () => {
                 onChange={handleChange}
                 style={{ marginBottom: '1.5em' }}
               />
-              <Button color='blue' fluid size='large' onClick={handleSubmit}>
+              <Button
+                fluid
+                size='large'
+                style={{
+                  background: '#2F73FF', // 使用更现代的蓝色
+                  color: 'white',
+                  marginBottom: '1.5em',
+                }}
+                onClick={handleSubmit}
+              >
                 登录
               </Button>
             </Form>
