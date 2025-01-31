@@ -13,16 +13,18 @@ export function renderGroup(group) {
   }
   let groups = group.split(',');
   groups.sort();
-  return <>
-    {groups.map((group) => {
-      if (group === 'vip' || group === 'pro') {
-        return <Label color='yellow'>{group}</Label>;
-      } else if (group === 'svip' || group === 'premium') {
-        return <Label color='red'>{group}</Label>;
-      }
-      return <Label>{group}</Label>;
-    })}
-  </>;
+  return (
+    <>
+      {groups.map((group) => {
+        if (group === 'vip' || group === 'pro') {
+          return <Label color='yellow'>{group}</Label>;
+        } else if (group === 'svip' || group === 'premium') {
+          return <Label color='red'>{group}</Label>;
+        }
+        return <Label>{group}</Label>;
+      })}
+    </>
+  );
 }
 
 export function renderNumber(num) {
@@ -55,4 +57,33 @@ export function renderQuotaWithPrompt(quota, digits) {
     return `（等价金额：${renderQuota(quota, digits)}）`;
   }
   return '';
+}
+
+const colors = [
+  'red',
+  'orange',
+  'yellow',
+  'olive',
+  'green',
+  'teal',
+  'blue',
+  'violet',
+  'purple',
+  'pink',
+  'brown',
+  'grey',
+  'black',
+];
+
+export function renderColorLabel(text) {
+  let hash = 0;
+  for (let i = 0; i < text.length; i++) {
+    hash = text.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  let index = Math.abs(hash % colors.length);
+  return (
+    <Label basic size={'tiny'} color={colors[index]}>
+      {text}
+    </Label>
+  );
 }

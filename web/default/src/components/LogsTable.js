@@ -9,13 +9,34 @@ import {
   Select,
   Table,
 } from 'semantic-ui-react';
-import { API, isAdmin, showError, timestamp2string } from '../helpers';
+import {
+  API,
+  copy,
+  isAdmin,
+  showError,
+  showSuccess,
+  showWarning,
+  timestamp2string,
+} from '../helpers';
 
 import { ITEMS_PER_PAGE } from '../constants';
-import { renderQuota } from '../helpers/render';
+import { renderColorLabel, renderQuota } from '../helpers/render';
 
-function renderTimestamp(timestamp) {
-  return <>{timestamp2string(timestamp)}</>;
+function renderTimestamp(timestamp, request_id) {
+  return (
+    <code
+      onClick={async () => {
+        if (await copy(request_id)) {
+          showSuccess(`已复制请求 ID：${request_id}`);
+        } else {
+          showWarning(`请求 ID 复制失败：${request_id}`);
+        }
+      }}
+      style={{ cursor: 'pointer' }}
+    >
+      {timestamp2string(timestamp)}
+    </code>
+  );
 }
 
 const MODE_OPTIONS = [
@@ -103,8 +124,6 @@ function renderDetail(log) {
           </Label>
         </>
       )}
-      <br />
-      <code>{log.request_id}</code>
     </>
   );
 }
@@ -467,7 +486,9 @@ const LogsTable = () => {
                 if (log.deleted) return <></>;
                 return (
                   <Table.Row key={log.id}>
-                    <Table.Cell>{renderTimestamp(log.created_at)}</Table.Cell>
+                    <Table.Cell>
+                      {renderTimestamp(log.created_at, log.request_id)}
+                    </Table.Cell>
                     {isAdminUser && (
                       <Table.Cell>
                         {log.channel ? <Label basic>{log.channel}</Label> : ''}
@@ -475,23 +496,21 @@ const LogsTable = () => {
                     )}
                     {isAdminUser && (
                       <Table.Cell>
-                        {log.username ? <Label>{log.username}</Label> : ''}
+                        {log.username ? (
+                          <Label basic size={'tiny'}>
+                            {log.username}
+                          </Label>
+                        ) : (
+                          ''
+                        )}
                       </Table.Cell>
                     )}
                     <Table.Cell>
-                      {log.token_name ? (
-                        <Label basic>{log.token_name}</Label>
-                      ) : (
-                        ''
-                      )}
+                      {log.token_name ? renderColorLabel(log.token_name) : ''}
                     </Table.Cell>
                     <Table.Cell>{renderType(log.type)}</Table.Cell>
                     <Table.Cell>
-                      {log.model_name ? (
-                        <Label basic>{log.model_name}</Label>
-                      ) : (
-                        ''
-                      )}
+                      {log.model_name ? renderColorLabel(log.model_name) : ''}
                     </Table.Cell>
                     <Table.Cell>
                       {log.prompt_tokens ? log.prompt_tokens : ''}
