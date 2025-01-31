@@ -38,6 +38,18 @@ const chartConfig = {
     quota: '#00B5D8',
     tokens: '#6C63FF',
   },
+  barColors: [
+    '#4318FF', // 深紫色
+    '#00B5D8', // 青色
+    '#6C63FF', // 紫色
+    '#05CD99', // 绿色
+    '#FFB547', // 橙色
+    '#FF5E7D', // 粉色
+    '#41B883', // 翠绿
+    '#7983FF', // 淡紫
+    '#FF8F6B', // 珊瑚色
+    '#49BEFF', // 天蓝
+  ],
 };
 
 const Dashboard = () => {
@@ -160,19 +172,7 @@ const Dashboard = () => {
 
   // 生成随机颜色
   const getRandomColor = (index) => {
-    const colors = [
-      '#1f77b4',
-      '#ff7f0e',
-      '#2ca02c',
-      '#d62728',
-      '#9467bd',
-      '#8c564b',
-      '#e377c2',
-      '#7f7f7f',
-      '#bcbd22',
-      '#17becf',
-    ];
-    return colors[index % colors.length];
+    return chartConfig.barColors[index % chartConfig.barColors.length];
   };
 
   return (

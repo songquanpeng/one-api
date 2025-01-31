@@ -1,6 +1,7 @@
 .dashboard-container {
-    padding: 20px;
+    padding: 20px 20px 40px;
     background-color: #ffffff;
+    margin-top: -15px; /* 减小与导航栏的间距 */
 }
 
 .stat-card {
@@ -20,7 +21,6 @@
 }
 
 .charts-grid {
-    margin-top: 1rem !important;
     margin-bottom: 1rem !important;
 }
 
@@ -29,15 +29,15 @@
 }
 
 .chart-card {
-    margin: 0 !important;
     height: 100%;
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04) !important;
     border: none !important;
     border-radius: 16px !important;
+    padding-top: 8px!important;
 }
 
 .chart-container {
-    margin-top: 20px;
+    margin-top: 2px;
     padding: 16px;
     background-color: white;
     border-radius: 12px;
@@ -52,6 +52,7 @@
     align-items: center;
     font-weight: 600;
     padding: 0 8px;
+    gap: 12px; /* 增加标题和数值之间的间距 */
 }
 
 .stat-value {
@@ -61,6 +62,8 @@
     background: rgba(67, 24, 255, 0.1);
     padding: 4px 12px;
     border-radius: 8px;
+    white-space: nowrap; /* 防止数值换行 */
+    margin-left: 16px;
 }
 
 /* 优化图表响应式布局 */
