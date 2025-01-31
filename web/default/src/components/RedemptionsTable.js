@@ -274,12 +274,14 @@ const RedemptionsTable = () => {
                     <div>
                       <Button
                         size={'small'}
-                        color='green'
+                        positive
                         onClick={async () => {
                           if (await copy(redemption.key)) {
                             showSuccess('已复制到剪贴板！');
                           } else {
-                            showWarning('无法复制到剪贴板，请手动复制');
+                            showWarning(
+                              '无法复制到剪贴板，请手动复制，已将兑换码填入搜索框。'
+                            );
                             setSearchKeyword(redemption.key);
                           }
                         }}
@@ -288,7 +290,7 @@ const RedemptionsTable = () => {
                       </Button>
                       <Popup
                         trigger={
-                          <Button size='small' color='red'>
+                          <Button size='small' negative>
                             删除
                           </Button>
                         }
@@ -307,9 +309,7 @@ const RedemptionsTable = () => {
                       </Popup>
                       <Button
                         size={'small'}
-                        color={redemption.status === 1 ? 'grey' : 'green'}
-                        basic={redemption.status === 1}
-                        disabled={redemption.status === 3}
+                        disabled={redemption.status === 3} // used
                         onClick={() => {
                           manageRedemption(
                             redemption.id,
@@ -322,7 +322,6 @@ const RedemptionsTable = () => {
                       </Button>
                       <Button
                         size={'small'}
-                        color='grey'
                         as={Link}
                         to={'/redemption/edit/' + redemption.id}
                       >
@@ -340,7 +339,6 @@ const RedemptionsTable = () => {
             <Table.HeaderCell colSpan='8'>
               <Button
                 size='small'
-                color='green'
                 as={Link}
                 to='/redemption/add'
                 loading={loading}

@@ -631,8 +631,6 @@ const ChannelsTable = () => {
                       </Popup>
                       <Button
                         size={'small'}
-                        color={channel.status === 1 ? 'grey' : 'green'}
-                        basic={channel.status === 1}
                         onClick={() => {
                           manageChannel(
                             channel.id,

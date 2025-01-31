@@ -442,7 +442,7 @@ const TokensTable = () => {
                       </Button.Group>{' '}
                       <Popup
                         trigger={
-                          <Button size='small' color='red'>
+                          <Button size='small' negative>
                             删除
                           </Button>
                         }
@@ -461,8 +461,6 @@ const TokensTable = () => {
                       </Popup>
                       <Button
                         size={'small'}
-                        color={token.status === 1 ? 'grey' : 'green'}
-                        basic={token.status === 1}
                         onClick={() => {
                           manageToken(
                             token.id,
@@ -475,7 +473,6 @@ const TokensTable = () => {
                       </Button>
                       <Button
                         size={'small'}
-                        color='grey'
                         as={Link}
                         to={'/token/edit/' + token.id}
                       >
@@ -491,10 +488,10 @@ const TokensTable = () => {
         <Table.Footer>
           <Table.Row>
             <Table.HeaderCell colSpan='7'>
-              <Button size='small' color='green' as={Link} to='/token/add' loading={loading}>
+              <Button size='small' as={Link} to='/token/add' loading={loading}>
                 添加新的令牌
               </Button>
-              <Button size='small' basic onClick={refresh} loading={loading}>
+              <Button size='small' onClick={refresh} loading={loading}>
                 刷新
               </Button>
               <Dropdown
