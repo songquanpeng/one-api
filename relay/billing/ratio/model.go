@@ -9,9 +9,10 @@ import (
 )
 
 const (
-	USD2RMB = 7
-	USD     = 500 // $0.002 = 1 -> $1 = 500
-	RMB     = USD / USD2RMB
+	USD2RMB   = 7
+	USD       = 500 // $0.002 = 1 -> $1 = 500
+	MILLI_USD = 1.0 / 1000 * USD
+	RMB       = USD / USD2RMB
 )
 
 // ModelRatio
@@ -115,15 +116,16 @@ var ModelRatio = map[string]float64{
 	"bge-large-en":       0.002 * RMB,
 	"tao-8k":             0.002 * RMB,
 	// https://ai.google.dev/pricing
-	"gemini-pro":                    1, // $0.00025 / 1k characters -> $0.001 / 1k tokens
-	"gemini-1.0-pro":                1,
-	"gemini-1.5-pro":                1,
-	"gemini-1.5-pro-001":            1,
-	"gemini-1.5-flash":              1,
-	"gemini-1.5-flash-001":          1,
-	"gemini-2.0-flash-exp":          1,
-	"gemini-2.0-flash-thinking-exp": 1,
-	"aqa":                           1,
+	"gemini-pro":                          1, // $0.00025 / 1k characters -> $0.001 / 1k tokens
+	"gemini-1.0-pro":                      1,
+	"gemini-1.5-pro":                      1,
+	"gemini-1.5-pro-001":                  1,
+	"gemini-1.5-flash":                    1,
+	"gemini-1.5-flash-001":                1,
+	"gemini-2.0-flash-exp":                1,
+	"gemini-2.0-flash-thinking-exp":       1,
+	"gemini-2.0-flash-thinking-exp-01-21": 1,
+	"aqa":                                 1,
 	// https://open.bigmodel.cn/pricing
 	"glm-4":         0.1 * RMB,
 	"glm-4v":        0.1 * RMB,
@@ -284,8 +286,8 @@ var ModelRatio = map[string]float64{
 	"command-r":             0.5 / 1000 * USD,
 	"command-r-plus":        3.0 / 1000 * USD,
 	// https://platform.deepseek.com/api-docs/pricing/
-	"deepseek-chat":  1.0 / 1000 * RMB,
-	"deepseek-coder": 1.0 / 1000 * RMB,
+	"deepseek-chat":     0.14 * MILLI_USD,
+	"deepseek-reasoner": 0.55 * MILLI_USD,
 	// https://www.deepl.com/pro?cta=header-prices
 	"deepl-zh": 25.0 / 1000 * USD,
 	"deepl-en": 25.0 / 1000 * USD,
@@ -407,6 +409,9 @@ var CompletionRatio = map[string]float64{
 	"llama3-70b-8192(33)": 0.0035 / 0.00265,
 	// whisper
 	"whisper-1": 0, // only count input tokens
+	// deepseek
+	"deepseek-chat":     0.28 / 0.14,
+	"deepseek-reasoner": 2.19 / 0.55,
 }
 
 var (
