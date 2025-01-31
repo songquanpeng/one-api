@@ -1,5 +1,5 @@
 .dashboard-container {
-    padding: 20px 20px 40px;
+    padding: 20px 40px 40px;
     background-color: #ffffff;
     margin-top: -15px; /* 减小与导航栏的间距 */
 }

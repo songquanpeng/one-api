@@ -17,11 +17,11 @@ const Home = () => {
     const { success, message, data } = res.data;
     if (success) {
       let oldNotice = localStorage.getItem('notice');
-        if (data !== oldNotice && data !== '') {
-            const htmlNotice = marked(data);
-            showNotice(htmlNotice, true);
-            localStorage.setItem('notice', data);
-        }
+      if (data !== oldNotice && data !== '') {
+        const htmlNotice = marked(data);
+        showNotice(htmlNotice, true);
+        localStorage.setItem('notice', data);
+      }
     } else {
       showError(message);
     }
@@ -59,12 +59,11 @@ const Home = () => {
     <div className='dashboard-container'>
       <Card fluid className='chart-card'>
         <Card.Content>
-          <Card.Header className='header'>
-            欢迎使用 One API
-          </Card.Header>
+          <Card.Header className='header'>欢迎使用 One API</Card.Header>
           <Card.Description style={{ lineHeight: '1.6' }}>
             <p>
-              One API 是一个 OpenAI 接口管理和分发系统，可以帮助您更好地管理和使用 OpenAI 的 API。
+              One API 是一个 OpenAI
+              接口管理和分发系统，可以帮助您更好地管理和使用 OpenAI 的 API。
             </p>
             {!userState.user && (
               <p>
@@ -80,9 +79,7 @@ const Home = () => {
         <Grid.Column>
           <Card fluid className='chart-card'>
             <Card.Content>
-              <Card.Header className='header'>
-                使用说明
-              </Card.Header>
+              <Card.Header className='header'>使用说明</Card.Header>
               <Card.Description style={{ lineHeight: '1.6' }}>
                 <p>1. 登录并获取令牌</p>
                 <p>2. 在您的应用中使用令牌</p>
@@ -95,9 +92,7 @@ const Home = () => {
         <Grid.Column>
           <Card fluid className='chart-card'>
             <Card.Content>
-              <Card.Header className='header'>
-                功能特点
-              </Card.Header>
+              <Card.Header className='header'>功能特点</Card.Header>
               <Card.Description style={{ lineHeight: '1.6' }}>
                 <p>• 多渠道接口管理</p>
                 <p>• 实时监控和统计</p>
@@ -110,9 +105,7 @@ const Home = () => {
         <Grid.Column>
           <Card fluid className='chart-card'>
             <Card.Content>
-              <Card.Header className='header'>
-                技术支持
-              </Card.Header>
+              <Card.Header className='header'>技术支持</Card.Header>
               <Card.Description style={{ lineHeight: '1.6' }}>
                 <p>• 完整的API文档</p>
                 <p>• 详细的使用教程</p>
@@ -136,10 +129,18 @@ const Home = () => {
                       <Card.Meta>系统信息总览</Card.Meta>
                       <Card.Description style={{ lineHeight: '1.6' }}>
                         <p>名称：{statusState?.status?.system_name}</p>
-                        <p>版本：{statusState?.status?.version ? statusState?.status?.version : "unknown"}</p>
+                        <p>
+                          版本：
+                          {statusState?.status?.version
+                            ? statusState?.status?.version
+                            : 'unknown'}
+                        </p>
                         <p>
                           源码：
-                          <a href='https://github.com/songquanpeng/one-api' target='_blank'>
+                          <a
+                            href='https://github.com/songquanpeng/one-api'
+                            target='_blank'
+                          >
                             https://github.com/songquanpeng/one-api
                           </a>
                         </p>
