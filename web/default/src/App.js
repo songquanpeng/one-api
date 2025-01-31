@@ -25,6 +25,7 @@ import TopUp from './pages/TopUp';
 import Log from './pages/Log';
 import Chat from './pages/Chat';
 import LarkOAuth from './components/LarkOAuth';
+import Dashboard from './pages/Dashboard';
 
 const Home = lazy(() => import('./pages/Home'));
 const About = lazy(() => import('./pages/About'));
@@ -261,11 +262,11 @@ function App() {
       <Route
         path='/topup'
         element={
-        <PrivateRoute>
-          <Suspense fallback={<Loading></Loading>}>
-            <TopUp />
-          </Suspense>
-        </PrivateRoute>
+          <PrivateRoute>
+            <Suspense fallback={<Loading></Loading>}>
+              <TopUp />
+            </Suspense>
+          </PrivateRoute>
         }
       />
       <Route
@@ -292,9 +293,15 @@ function App() {
           </Suspense>
         }
       />
-      <Route path='*' element={
-          <NotFound />
-      } />
+      <Route
+        path='/dashboard'
+        element={
+          <PrivateRoute>
+            <Dashboard />
+          </PrivateRoute>
+        }
+      />
+      <Route path='*' element={<NotFound />} />
     </Routes>
   );
 }

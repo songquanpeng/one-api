@@ -1,0 +1,63 @@
+.dashboard-container {
+    padding: 20px;
+    background-color: #f7f9fc;
+}
+
+.stat-card {
+    background: linear-gradient(135deg, #2185d0 0%, #1678c2 100%) !important;
+    color: white !important;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
+    transition: transform 0.2s ease !important;
+    margin-bottom: 1rem !important;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+}
+
+.stat-card .statistic {
+    color: white !important;
+}
+
+.charts-grid {
+    margin-top: 1rem !important;
+    margin-bottom: 1rem !important;
+}
+
+.charts-grid .column {
+    padding: 0.5rem !important;
+}
+
+.chart-card {
+    margin: 0 !important;
+    height: 100%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05) !important;
+}
+
+.chart-container {
+    margin-top: 20px;
+    padding: 10px;
+    background-color: white;
+    border-radius: 4px;
+}
+
+.ui.card > .content > .header {
+    color: #1a1a1a;
+    font-size: 1.2em;
+    margin-bottom: 15px;
+}
+
+/* 优化图表响应式布局 */
+@media (max-width: 768px) {
+    .dashboard-container {
+        padding: 10px;
+    }
+    
+    .chart-container {
+        padding: 5px;
+    }
+    
+    .charts-grid .column {
+        padding: 0.25rem !important;
+    }
+} 
