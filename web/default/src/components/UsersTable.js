@@ -287,7 +287,7 @@ const UsersTable = () => {
                     <div>
                       <Button
                         size={'small'}
-                        positive
+                        color='blue'
                         onClick={() => {
                           manageUser(user.username, 'promote', idx);
                         }}
@@ -297,7 +297,7 @@ const UsersTable = () => {
                       </Button>
                       <Button
                         size={'small'}
-                        color={'yellow'}
+                        color='orange'
                         onClick={() => {
                           manageUser(user.username, 'demote', idx);
                         }}
@@ -309,7 +309,7 @@ const UsersTable = () => {
                         trigger={
                           <Button
                             size='small'
-                            negative
+                            color='red'
                             disabled={user.role === 100}
                           >
                             删除
@@ -320,7 +320,7 @@ const UsersTable = () => {
                         hoverable
                       >
                         <Button
-                          negative
+                          color='red'
                           onClick={() => {
                             manageUser(user.username, 'delete', idx);
                           }}
@@ -330,6 +330,8 @@ const UsersTable = () => {
                       </Popup>
                       <Button
                         size={'small'}
+                        color={user.status === 1 ? 'grey' : 'green'}
+                        basic={user.status === 1}
                         onClick={() => {
                           manageUser(
                             user.username,
@@ -343,6 +345,7 @@ const UsersTable = () => {
                       </Button>
                       <Button
                         size={'small'}
+                        color='grey'
                         as={Link}
                         to={'/user/edit/' + user.id}
                       >
@@ -358,7 +361,7 @@ const UsersTable = () => {
         <Table.Footer>
           <Table.Row>
             <Table.HeaderCell colSpan='7'>
-              <Button size='small' as={Link} to='/user/add' loading={loading}>
+              <Button size='small' color='green' as={Link} to='/user/add' loading={loading}>
                 添加新的用户
               </Button>
               <Dropdown
