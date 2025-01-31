@@ -4,17 +4,15 @@ WORKDIR /web
 COPY ./VERSION .
 COPY ./web .
 
-WORKDIR /web/default
-RUN npm install
-RUN DISABLE_ESLINT_PLUGIN='true' REACT_APP_VERSION=$(cat VERSION) npm run build
+RUN npm install --prefix /web/default & \
+    npm install --prefix /web/berry & \
+    npm install --prefix /web/air & \
+    wait
 
-WORKDIR /web/berry
-RUN npm install
-RUN DISABLE_ESLINT_PLUGIN='true' REACT_APP_VERSION=$(cat VERSION) npm run build
-
-WORKDIR /web/air
-RUN npm install
-RUN DISABLE_ESLINT_PLUGIN='true' REACT_APP_VERSION=$(cat VERSION) npm run build
+RUN DISABLE_ESLINT_PLUGIN='true' REACT_APP_VERSION=$(cat /web/default/VERSION) npm run build --prefix /web/default & \
+    DISABLE_ESLINT_PLUGIN='true' REACT_APP_VERSION=$(cat /web/berry/VERSION) npm run build --prefix /web/berry & \
+    DISABLE_ESLINT_PLUGIN='true' REACT_APP_VERSION=$(cat /web/air/VERSION) npm run build --prefix /web/air & \
+    wait
 
 FROM golang:alpine AS builder2
 
