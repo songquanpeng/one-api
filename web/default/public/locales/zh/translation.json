@@ -429,5 +429,173 @@
         "value": "数值"
       }
     }
+  },
+  "setting": {
+    "title": "系统设置",
+    "tabs": {
+      "personal": "个人设置",
+      "operation": "运营设置",
+      "system": "系统设置",
+      "other": "其他设置"
+    },
+    "personal": {
+      "general": {
+        "title": "通用设置",
+        "system_token_notice": "注意，此处生成的令牌用于系统管理，而非用于请求 OpenAI 相关的服务，请知悉。",
+        "buttons": {
+          "update_profile": "更新个人信息",
+          "generate_token": "生成系统访问令牌",
+          "copy_invite": "复制邀请链接",
+          "delete_account": "删除个人账户"
+        }
+      },
+      "binding": {
+        "title": "账号绑定",
+        "buttons": {
+          "bind_wechat": "绑定微信账号",
+          "bind_github": "绑定 GitHub 账号",
+          "bind_email": "绑定邮箱地址",
+          "bind_lark": "绑定飞书账号"
+        },
+        "wechat": {
+          "title": "微信绑定",
+          "description": "微信扫码关注公众号，输入「验证码」获取验证码（三分钟内有效）",
+          "verification_code": "验证码",
+          "bind": "绑定"
+        },
+        "email": {
+          "title": "绑定邮箱地址",
+          "email_placeholder": "输入邮箱地址",
+          "code_placeholder": "验证码",
+          "get_code": "获取验证码",
+          "get_code_retry": "重新发送({{countdown}})",
+          "bind": "确认绑定",
+          "cancel": "取消"
+        }
+      },
+      "delete_account": {
+        "title": "危险操作",
+        "warning": "您正在删除自己的帐户，将清空所有数据且不可恢复",
+        "confirm_placeholder": "输入你的账户名 {{username}} 以确认删除",
+        "buttons": {
+          "confirm": "确认删除",
+          "cancel": "取消"
+        }
+      }
+    },
+    "system": {
+      "general": {
+        "title": "通用设置",
+        "server_address": "服务器地址",
+        "server_address_placeholder": "例如：https://yourdomain.com",
+        "buttons": {
+          "update": "更新服务器地址"
+        }
+      },
+      "login": {
+        "title": "配置登录注册",
+        "password_login": "允许通过密码进行登录",
+        "password_register": "允许通过密码进行注册",
+        "email_verification": "通过密码注册时需要进行邮箱验证",
+        "github_oauth": "允许通过 GitHub 账户登录 & 注册",
+        "wechat_login": "允许通过微信登录 & 注册",
+        "registration": "允许新用户注册（此项为否时，新用户将无法以任何方式进行注册）",
+        "turnstile": "启用 Turnstile 用户校验"
+      },
+      "email_restriction": {
+        "title": "配置邮箱域名白名单",
+        "subtitle": "用以防止恶意用户利用临时邮箱批量注册",
+        "enable": "启用邮箱域名白名单",
+        "allowed_domains": "允许的邮箱域名",
+        "add_domain": "添加新的允许的邮箱域名",
+        "add_domain_placeholder": "输入新的允许的邮箱域名",
+        "buttons": {
+          "fill": "填入",
+          "save": "保存邮箱域名白名单设置"
+        }
+      },
+      "smtp": {
+        "title": "配置 SMTP",
+        "subtitle": "用以支持系统的邮件发送",
+        "server": "SMTP 服务器地址",
+        "server_placeholder": "例如：smtp.qq.com",
+        "port": "SMTP 端口",
+        "port_placeholder": "默认: 587",
+        "account": "SMTP 账户",
+        "account_placeholder": "通常是邮箱地址",
+        "from": "SMTP 发送者邮箱",
+        "from_placeholder": "通常和邮箱地址保持一致",
+        "token": "SMTP 访问凭证",
+        "token_placeholder": "敏感信息不会发送到前端显示",
+        "buttons": {
+          "save": "保存 SMTP 设置"
+        }
+      },
+      "github": {
+        "title": "配置 GitHub OAuth App",
+        "subtitle": "用以支持通过 GitHub 进行登录注册",
+        "manage_link": "点击此处",
+        "manage_text": "管理你的 GitHub OAuth App",
+        "url_notice": "Homepage URL 填 {{server_url}}，Authorization callback URL 填 {{callback_url}}",
+        "client_id": "GitHub Client ID",
+        "client_id_placeholder": "输入你注册的 GitHub OAuth APP 的 ID",
+        "client_secret": "GitHub Client Secret",
+        "client_secret_placeholder": "敏感信息不会发送到前端显示",
+        "buttons": {
+          "save": "保存 GitHub OAuth 设置"
+        }
+      },
+      "lark": {
+        "title": "配置飞书授权登录",
+        "subtitle": "用以支持通过飞书进行登录注册",
+        "manage_link": "点击此处",
+        "manage_text": "管理你的飞书应用",
+        "url_notice": "主页链接填 {{server_url}}，重定向 URL 填 {{callback_url}}",
+        "client_id": "App ID",
+        "client_id_placeholder": "输入 App ID",
+        "client_secret": "App Secret",
+        "client_secret_placeholder": "敏感信息不会发送到前端显示",
+        "buttons": {
+          "save": "保存飞书 OAuth 设置"
+        }
+      },
+      "wechat": {
+        "title": "配置 WeChat Server",
+        "subtitle": "用以支持通过微信进行登录注册",
+        "learn_more": "了解 WeChat Server",
+        "server_address": "WeChat Server 服务器地址",
+        "server_address_placeholder": "例如：https://yourdomain.com",
+        "token": "WeChat Server 访问凭证",
+        "token_placeholder": "敏感信息不会发送到前端显示",
+        "qrcode": "微信公众号二维码图片链接",
+        "qrcode_placeholder": "输入一个图片链接",
+        "buttons": {
+          "save": "保存 WeChat Server 设置"
+        }
+      },
+      "turnstile": {
+        "title": "配置 Turnstile",
+        "subtitle": "用以支持用户校验",
+        "manage_link": "点击此处",
+        "manage_text": "管理你的 Turnstile Sites，推荐选择 Invisible Widget Type",
+        "site_key": "Turnstile Site Key",
+        "site_key_placeholder": "输入你注册的 Turnstile Site Key",
+        "secret_key": "Turnstile Secret Key",
+        "secret_key_placeholder": "敏感信息不会发送到前端显示",
+        "buttons": {
+          "save": "保存 Turnstile 设置"
+        }
+      },
+      "password_login": {
+        "warning": {
+          "title": "警告",
+          "content": "取消密码登录将导致所有未绑定其他登录方式的用户（包括管理员）无法通过密码登录，确认取消？",
+          "buttons": {
+            "confirm": "确定",
+            "cancel": "取消"
+          }
+        }
+      }
+    }
   }
 }

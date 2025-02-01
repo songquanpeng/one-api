@@ -429,5 +429,173 @@
         "value": "Value"
       }
     }
+  },
+  "setting": {
+    "title": "System Settings",
+    "tabs": {
+      "personal": "Personal Settings",
+      "operation": "Operation Settings", 
+      "system": "System Settings",
+      "other": "Other Settings"
+    },
+    "personal": {
+      "general": {
+        "title": "General Settings",
+        "system_token_notice": "Note: The token generated here is for system management, not for requesting OpenAI related services.",
+        "buttons": {
+          "update_profile": "Update Profile",
+          "generate_token": "Generate System Token",
+          "copy_invite": "Copy Invite Link",
+          "delete_account": "Delete Account"
+        }
+      },
+      "binding": {
+        "title": "Account Binding",
+        "buttons": {
+          "bind_wechat": "Bind WeChat Account",
+          "bind_github": "Bind GitHub Account",
+          "bind_email": "Bind Email Address",
+          "bind_lark": "Bind Lark Account"
+        },
+        "wechat": {
+          "title": "WeChat Binding",
+          "description": "Scan QR code to follow the official account, enter 'verification code' to get the code (valid for 3 minutes)",
+          "verification_code": "Verification Code",
+          "bind": "Bind"
+        },
+        "email": {
+          "title": "Bind Email Address",
+          "email_placeholder": "Enter email address",
+          "code_placeholder": "Verification code",
+          "get_code": "Get Code",
+          "get_code_retry": "Resend({{countdown}})",
+          "bind": "Confirm Binding",
+          "cancel": "Cancel"
+        }
+      },
+      "delete_account": {
+        "title": "Dangerous Operation",
+        "warning": "You are deleting your account. All data will be cleared and cannot be recovered",
+        "confirm_placeholder": "Enter your username {{username}} to confirm deletion",
+        "buttons": {
+          "confirm": "Confirm Delete",
+          "cancel": "Cancel"
+        }
+      }
+    },
+    "system": {
+      "general": {
+        "title": "General Settings",
+        "server_address": "Server Address",
+        "server_address_placeholder": "e.g.: https://yourdomain.com",
+        "buttons": {
+          "update": "Update Server Address"
+        }
+      },
+      "login": {
+        "title": "Login & Registration Settings",
+        "password_login": "Allow Password Login",
+        "password_register": "Allow Password Registration",
+        "email_verification": "Require Email Verification for Password Registration",
+        "github_oauth": "Allow GitHub OAuth Login & Registration",
+        "wechat_login": "Allow WeChat Login & Registration",
+        "registration": "Allow New User Registration (When disabled, new users cannot register by any means)",
+        "turnstile": "Enable Turnstile User Verification"
+      },
+      "email_restriction": {
+        "title": "Email Domain Whitelist",
+        "subtitle": "Used to prevent malicious users from batch registering using temporary emails",
+        "enable": "Enable Email Domain Whitelist",
+        "allowed_domains": "Allowed Email Domains",
+        "add_domain": "Add New Allowed Email Domain",
+        "add_domain_placeholder": "Enter new allowed email domain",
+        "buttons": {
+          "fill": "Fill",
+          "save": "Save Email Domain Whitelist Settings"
+        }
+      },
+      "smtp": {
+        "title": "SMTP Configuration",
+        "subtitle": "Used to support system email sending",
+        "server": "SMTP Server Address",
+        "server_placeholder": "e.g.: smtp.gmail.com",
+        "port": "SMTP Port",
+        "port_placeholder": "Default: 587",
+        "account": "SMTP Account",
+        "account_placeholder": "Usually your email address",
+        "from": "SMTP Sender Email",
+        "from_placeholder": "Usually same as email address",
+        "token": "SMTP Access Token",
+        "token_placeholder": "Sensitive information will not be sent to frontend",
+        "buttons": {
+          "save": "Save SMTP Settings"
+        }
+      },
+      "github": {
+        "title": "GitHub OAuth App Configuration",
+        "subtitle": "Used to support GitHub login and registration",
+        "manage_link": "Click here",
+        "manage_text": "to manage your GitHub OAuth Apps",
+        "url_notice": "Set Homepage URL to {{server_url}}, and Authorization callback URL to {{callback_url}}",
+        "client_id": "GitHub Client ID",
+        "client_id_placeholder": "Enter your registered GitHub OAuth APP ID",
+        "client_secret": "GitHub Client Secret",
+        "client_secret_placeholder": "Sensitive information will not be sent to frontend",
+        "buttons": {
+          "save": "Save GitHub OAuth Settings"
+        }
+      },
+      "lark": {
+        "title": "Lark OAuth Configuration",
+        "subtitle": "Used to support Lark login and registration",
+        "manage_link": "Click here",
+        "manage_text": "to manage your Lark applications",
+        "url_notice": "Set Homepage URL to {{server_url}}, and Redirect URL to {{callback_url}}",
+        "client_id": "App ID",
+        "client_id_placeholder": "Enter App ID",
+        "client_secret": "App Secret",
+        "client_secret_placeholder": "Sensitive information will not be sent to frontend",
+        "buttons": {
+          "save": "Save Lark OAuth Settings"
+        }
+      },
+      "wechat": {
+        "title": "WeChat Server Configuration",
+        "subtitle": "Used to support WeChat login and registration",
+        "learn_more": "Learn about WeChat Server",
+        "server_address": "WeChat Server Address",
+        "server_address_placeholder": "e.g.: https://yourdomain.com",
+        "token": "WeChat Server Access Token",
+        "token_placeholder": "Sensitive information will not be sent to frontend",
+        "qrcode": "WeChat Official Account QR Code Image URL",
+        "qrcode_placeholder": "Enter an image URL",
+        "buttons": {
+          "save": "Save WeChat Server Settings"
+        }
+      },
+      "turnstile": {
+        "title": "Turnstile Configuration",
+        "subtitle": "Used to support user verification",
+        "manage_link": "Click here",
+        "manage_text": "to manage your Turnstile Sites, Invisible Widget Type recommended",
+        "site_key": "Turnstile Site Key",
+        "site_key_placeholder": "Enter your registered Turnstile Site Key",
+        "secret_key": "Turnstile Secret Key",
+        "secret_key_placeholder": "Sensitive information will not be sent to frontend",
+        "buttons": {
+          "save": "Save Turnstile Settings"
+        }
+      },
+      "password_login": {
+        "warning": {
+          "title": "Warning",
+          "content": "Disabling password login will prevent all users (including administrators) who haven't bound other login methods from logging in via password. Confirm disable?",
+          "buttons": {
+            "confirm": "Confirm",
+            "cancel": "Cancel"
+          }
+        }
+      }
+    }
   }
 }
