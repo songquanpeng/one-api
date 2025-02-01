@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/songquanpeng/one-api/common/config"
 	"github.com/songquanpeng/one-api/relay/adaptor"
 	"github.com/songquanpeng/one-api/relay/adaptor/doubao"
 	"github.com/songquanpeng/one-api/relay/adaptor/minimax"
@@ -82,6 +83,33 @@ func (a *Adaptor) ConvertRequest(c *gin.Context, relayMode int, request *model.G
 		}
 		request.StreamOptions.IncludeUsage = true
 	}
+
+	// o1/o1-mini/o1-preview do not support system prompt/max_tokens/temperature
+	if strings.HasPrefix(request.Model, "o1") ||
+		strings.HasPrefix(request.Model, "o3") {
+		temperature := float64(1)
+		request.Temperature = &temperature // Only the default (1) value is supported
+
+		request.MaxTokens = 0
+		request.Messages = func(raw []model.Message) (filtered []model.Message) {
+			for i := range raw {
+				if raw[i].Role != "system" {
+					filtered = append(filtered, raw[i])
+				}
+			}
+
+			return
+		}(request.Messages)
+	}
+
+	if request.Stream && !config.EnforceIncludeUsage &&
+		(strings.HasPrefix(request.Model, "gpt-4o-audio") ||
+			strings.HasPrefix(request.Model, "gpt-4o-mini-audio")) {
+		// TODO: Since it is not clear how to implement billing in stream mode,
+		// it is temporarily not supported
+		return nil, errors.New("set ENFORCE_INCLUDE_USAGE=true to enable stream mode for gpt-4o-audio")
+	}
+
 	return request, nil
 }
 
