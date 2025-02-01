@@ -44,8 +44,9 @@ function App() {
   const loadStatus = async () => {
     try {
       const res = await API.get('/api/status');
-      const { success, message, data } = res.data || {};  // Add default empty object
-      if (success && data) {  // Check data exists
+      const { success, message, data } = res.data || {}; // Add default empty object
+      if (success && data) {
+        // Check data exists
         localStorage.setItem('status', JSON.stringify(data));
         statusDispatch({ type: 'set', payload: data });
         localStorage.setItem('system_name', data.system_name);

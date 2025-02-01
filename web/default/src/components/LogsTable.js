@@ -18,6 +18,7 @@ import {
   showWarning,
   timestamp2string,
 } from '../helpers';
+import { useTranslation } from 'react-i18next';
 
 import { ITEMS_PER_PAGE } from '../constants';
 import { renderColorLabel, renderQuota } from '../helpers/render';
@@ -137,6 +138,7 @@ function renderDetail(log) {
 }
 
 const LogsTable = () => {
+  const { t } = useTranslation();
   const [logs, setLogs] = useState([]);
   const [showStat, setShowStat] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -309,14 +311,14 @@ const LogsTable = () => {
     <>
       <>
         <Header as='h3'>
-          使用明细（总消耗额度：
-          {showStat && renderQuota(stat.quota)}
+          {t('log.usage_details')}（{t('log.total_quota')}：
+          {showStat && renderQuota(stat.quota, t)}
           {!showStat && (
             <span
               onClick={handleEyeClick}
               style={{ cursor: 'pointer', color: 'gray' }}
             >
-              点击查看
+              {t('log.click_to_view')}
             </span>
           )}
           ）
@@ -554,7 +556,7 @@ const LogsTable = () => {
                           {log.completion_tokens ? log.completion_tokens : ''}
                         </Table.Cell>
                         <Table.Cell>
-                          {log.quota ? renderQuota(log.quota, 6) : ''}
+                          {log.quota ? renderQuota(log.quota, t, 6) : ''}
                         </Table.Cell>
                       </>
                     )}

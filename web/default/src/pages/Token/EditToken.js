@@ -107,12 +107,12 @@ const EditToken = () => {
 
   useEffect(() => {
     if (isEdit) {
-      loadToken().catch(error => {
+      loadToken().catch((error) => {
         showError(error.message || 'Failed to load token');
         setLoading(false);
       });
     }
-    loadAvailableModels().catch(error => {
+    loadAvailableModels().catch((error) => {
       showError(error.message || 'Failed to load models');
     });
   }, []);
@@ -255,7 +255,10 @@ const EditToken = () => {
             <Message>{t('token.edit.quota_notice')}</Message>
             <Form.Field>
               <Form.Input
-                label={`${t('token.edit.quota')}${renderQuotaWithPrompt(remain_quota, t)}`}
+                label={`${t('token.edit.quota')}${renderQuotaWithPrompt(
+                  remain_quota,
+                  t
+                )}`}
                 name='remain_quota'
                 placeholder={t('token.edit.quota_placeholder')}
                 onChange={handleInputChange}

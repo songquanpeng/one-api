@@ -240,5 +240,36 @@
       "display_short": "${{amount}}",
       "unit": "$"
     }
+  },
+  "redemption": {
+    "title": "兑换管理",
+    "edit": {
+      "title_edit": "更新兑换码信息",
+      "title_create": "创建新的兑换码",
+      "name": "名称",
+      "name_placeholder": "请输入名称",
+      "quota": "额度",
+      "quota_placeholder": "请输入单个兑换码中包含的额度",
+      "count": "生成数量",
+      "count_placeholder": "请输入生成数量",
+      "buttons": {
+        "submit": "提交",
+        "cancel": "取消"
+      }
+    }
+  },
+  "log": {
+    "title": "操作日志",
+    "usage_details": "使用明细",
+    "total_quota": "总消耗额度",
+    "click_to_view": "点击查看",
+    "table": {
+      "id": "ID",
+      "username": "用户名",
+      "type": "类型",
+      "content": "内容",
+      "amount": "数量",
+      "time": "时间"
+    }
   }
 }

@@ -10,6 +10,7 @@ import {
 } from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
 import { API, showError, showSuccess } from '../helpers';
+import { useTranslation } from 'react-i18next';
 
 import { ITEMS_PER_PAGE } from '../constants';
 import {
@@ -33,6 +34,7 @@ function renderRole(role) {
 }
 
 const UsersTable = () => {
+  const { t } = useTranslation();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activePage, setActivePage] = useState(1);
@@ -266,12 +268,12 @@ const UsersTable = () => {
                   <Table.Cell>
                     <Popup
                       content='剩余额度'
-                      trigger={<Label basic>{renderQuota(user.quota)}</Label>}
+                      trigger={<Label basic>{renderQuota(user.quota, t)}</Label>}
                     />
                     <Popup
                       content='已用额度'
                       trigger={
-                        <Label basic>{renderQuota(user.used_quota)}</Label>
+                        <Label basic>{renderQuota(user.used_quota, t)}</Label>
                       }
                     />
                     <Popup

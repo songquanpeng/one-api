@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Button,
   Form,
@@ -25,39 +26,37 @@ function renderTimestamp(timestamp) {
   return <>{timestamp2string(timestamp)}</>;
 }
 
-function renderStatus(status) {
+function renderStatus(status, t) {
   switch (status) {
     case 1:
       return (
         <Label basic color='green'>
-          未使用
+          {t('redemption.status.unused')}
         </Label>
       );
     case 2:
       return (
         <Label basic color='red'>
-          {' '}
-          已禁用{' '}
+          {t('redemption.status.disabled')}
         </Label>
       );
     case 3:
       return (
         <Label basic color='grey'>
-          {' '}
-          已使用{' '}
+          {t('redemption.status.used')}
         </Label>
       );
     default:
       return (
         <Label basic color='black'>
-          {' '}
-          未知状态{' '}
+          {t('redemption.status.unknown')}
         </Label>
       );
   }
 }
 
 const RedemptionsTable = () => {
+  const { t } = useTranslation();
   const [redemptions, setRedemptions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activePage, setActivePage] = useState(1);
@@ -260,8 +259,8 @@ const RedemptionsTable = () => {
                   <Table.Cell>
                     {redemption.name ? redemption.name : '无'}
                   </Table.Cell>
-                  <Table.Cell>{renderStatus(redemption.status)}</Table.Cell>
-                  <Table.Cell>{renderQuota(redemption.quota)}</Table.Cell>
+                  <Table.Cell>{renderStatus(redemption.status, t)}</Table.Cell>
+                  <Table.Cell>{renderQuota(redemption.quota, t)}</Table.Cell>
                   <Table.Cell>
                     {renderTimestamp(redemption.created_time)}
                   </Table.Cell>

@@ -41,26 +41,32 @@ export function renderNumber(num) {
 }
 
 export function renderQuota(quota, t, precision = 2) {
-  const displayInCurrency = localStorage.getItem('display_in_currency') === 'true';
-  const quotaPerUnit = parseFloat(localStorage.getItem('quota_per_unit') || '1');
-  
+  const displayInCurrency =
+    localStorage.getItem('display_in_currency') === 'true';
+  const quotaPerUnit = parseFloat(
+    localStorage.getItem('quota_per_unit') || '1'
+  );
+
   if (displayInCurrency) {
     const amount = (quota / quotaPerUnit).toFixed(precision);
     return t('common.quota.display_short', { amount });
   }
-  
+
   return renderNumber(quota);
 }
 
 export function renderQuotaWithPrompt(quota, t) {
-  const displayInCurrency = localStorage.getItem('display_in_currency') === 'true';
-  const quotaPerUnit = parseFloat(localStorage.getItem('quota_per_unit') || '1');
-  
+  const displayInCurrency =
+    localStorage.getItem('display_in_currency') === 'true';
+  const quotaPerUnit = parseFloat(
+    localStorage.getItem('quota_per_unit') || '1'
+  );
+
   if (displayInCurrency) {
     const amount = (quota / quotaPerUnit).toFixed(2);
     return ` (${t('common.quota.display', { amount })})`;
   }
-  
+
   return '';
 }
 

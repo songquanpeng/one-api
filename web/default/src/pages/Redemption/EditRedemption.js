@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button, Form, Card } from 'semantic-ui-react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { API, downloadTextAsFile, showError, showSuccess } from '../../helpers';
 import { renderQuota, renderQuotaWithPrompt } from '../../helpers/render';
 
 const EditRedemption = () => {
+  const { t } = useTranslation();
   const params = useParams();
   const navigate = useNavigate();
   const redemptionId = params.id;
@@ -83,14 +85,14 @@ const EditRedemption = () => {
       <Card fluid className='chart-card'>
         <Card.Content>
           <Card.Header className='header'>
-            {isEdit ? '更新兑换码信息' : '创建新的兑换码'}
+            {isEdit ? t('redemption.edit.title_edit') : t('redemption.edit.title_create')}
           </Card.Header>
           <Form loading={loading} autoComplete='new-password'>
             <Form.Field>
               <Form.Input
-                label='名称'
+                label={t('redemption.edit.name')}
                 name='name'
-                placeholder={'请输入名称'}
+                placeholder={t('redemption.edit.name_placeholder')}
                 onChange={handleInputChange}
                 value={name}
                 autoComplete='new-password'
@@ -99,9 +101,9 @@ const EditRedemption = () => {
             </Form.Field>
             <Form.Field>
               <Form.Input
-                label={`额度${renderQuotaWithPrompt(quota)}`}
+                label={`${t('redemption.edit.quota')}${renderQuotaWithPrompt(quota, t)}`}
                 name='quota'
-                placeholder={'请输入单个兑换码中包含的额度'}
+                placeholder={t('redemption.edit.quota_placeholder')}
                 onChange={handleInputChange}
                 value={quota}
                 autoComplete='new-password'
@@ -112,9 +114,9 @@ const EditRedemption = () => {
               <>
                 <Form.Field>
                   <Form.Input
-                    label='生成数量'
+                    label={t('redemption.edit.count')}
                     name='count'
-                    placeholder={'请输入生成数量'}
+                    placeholder={t('redemption.edit.count_placeholder')}
                     onChange={handleInputChange}
                     value={count}
                     autoComplete='new-password'
@@ -124,9 +126,11 @@ const EditRedemption = () => {
               </>
             )}
             <Button positive onClick={submit}>
-              提交
+              {t('redemption.edit.buttons.submit')}
             </Button>
-            <Button onClick={handleCancel}>取消</Button>
+            <Button onClick={handleCancel}>
+              {t('redemption.edit.buttons.cancel')}
+            </Button>
           </Form>
         </Card.Content>
       </Card>

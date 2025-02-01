@@ -240,5 +240,36 @@
       "display_short": "${{amount}}",
       "unit": "$"
     }
+  },
+  "redemption": {
+    "title": "Redemption Management",
+    "edit": {
+      "title_edit": "Update Redemption Code",
+      "title_create": "Create New Redemption Code",
+      "name": "Name",
+      "name_placeholder": "Please enter name",
+      "quota": "Quota",
+      "quota_placeholder": "Please enter quota per redemption code",
+      "count": "Generate Count",
+      "count_placeholder": "Please enter number of codes to generate",
+      "buttons": {
+        "submit": "Submit",
+        "cancel": "Cancel"
+      }
+    }
+  },
+  "log": {
+    "title": "Operation Log",
+    "usage_details": "Usage Details",
+    "total_quota": "Total Quota Used",
+    "click_to_view": "Click to View",
+    "table": {
+      "id": "ID",
+      "username": "Username",
+      "type": "Type",
+      "content": "Content",
+      "amount": "Amount",
+      "time": "Time"
+    }
   }
 }

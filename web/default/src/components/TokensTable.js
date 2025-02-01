@@ -69,14 +69,14 @@ const TokensTable = () => {
     { key: 'next', text: t('token.copy_options.next'), value: 'next' },
     { key: 'ama', text: t('token.copy_options.ama'), value: 'ama' },
     { key: 'opencat', text: t('token.copy_options.opencat'), value: 'opencat' },
-    { key: 'lobe', text: t('token.copy_options.lobe'), value: 'lobechat' }
+    { key: 'lobe', text: t('token.copy_options.lobe'), value: 'lobechat' },
   ];
 
   const OPEN_LINK_OPTIONS = [
     { key: 'next', text: t('token.copy_options.next'), value: 'next' },
     { key: 'ama', text: t('token.copy_options.ama'), value: 'ama' },
     { key: 'opencat', text: t('token.copy_options.opencat'), value: 'opencat' },
-    { key: 'lobe', text: t('token.copy_options.lobe'), value: 'lobechat' }
+    { key: 'lobe', text: t('token.copy_options.lobe'), value: 'lobechat' },
   ];
 
   const [tokens, setTokens] = useState([]);
@@ -135,7 +135,8 @@ const TokensTable = () => {
     let nextUrl;
 
     if (nextLink) {
-      nextUrl = nextLink + `/#/?settings={"key":"sk-${key}","url":"${serverAddress}"}`;
+      nextUrl =
+        nextLink + `/#/?settings={"key":"sk-${key}","url":"${serverAddress}"}`;
     } else {
       nextUrl = `https://app.nextchat.dev/#/?settings={"key":"sk-${key}","url":"${serverAddress}"}`;
     }
@@ -152,7 +153,9 @@ const TokensTable = () => {
         url = nextUrl;
         break;
       case 'lobechat':
-        url = nextLink + `/?settings={"keyVaults":{"openai":{"apiKey":"sk-${key}","baseURL":"${serverAddress}/v1"}}}`;
+        url =
+          nextLink +
+          `/?settings={"keyVaults":{"openai":{"apiKey":"sk-${key}","baseURL":"${serverAddress}/v1"}}}`;
         break;
       default:
         url = `sk-${key}`;
@@ -376,19 +379,21 @@ const TokensTable = () => {
             .map((token, idx) => {
               if (token.deleted) return <></>;
 
-              const copyOptionsWithHandlers = COPY_OPTIONS.map(option => ({
+              const copyOptionsWithHandlers = COPY_OPTIONS.map((option) => ({
                 ...option,
                 onClick: async () => {
                   await onCopy(option.value, token.key);
-                }
+                },
               }));
 
-              const openLinkOptionsWithHandlers = OPEN_LINK_OPTIONS.map(option => ({
-                ...option,
-                onClick: async () => {
-                  await onOpenLink(option.value, token.key);
-                }
-              }));
+              const openLinkOptionsWithHandlers = OPEN_LINK_OPTIONS.map(
+                (option) => ({
+                  ...option,
+                  onClick: async () => {
+                    await onOpenLink(option.value, token.key);
+                  },
+                })
+              );
 
               return (
                 <Table.Row key={token.id}>
@@ -473,7 +478,11 @@ const TokensTable = () => {
                           ? t('token.buttons.disable')
                           : t('token.buttons.enable')}
                       </Button>
-                      <Button size={'small'} as={Link} to={'/token/edit/' + token.id}>
+                      <Button
+                        size={'small'}
+                        as={Link}
+                        to={'/token/edit/' + token.id}
+                      >
                         {t('token.buttons.edit')}
                       </Button>
                     </div>

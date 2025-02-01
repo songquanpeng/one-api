@@ -131,7 +131,7 @@ const TopUp = () => {
                       <div style={{ textAlign: 'center', paddingTop: '1em' }}>
                         <Statistic>
                           <Statistic.Value style={{ color: '#2185d0' }}>
-                            {renderQuota(userQuota)}
+                            {renderQuota(userQuota, t)}
                           </Statistic.Value>
                           <Statistic.Label>
                             {t('topup.get_code.current_quota')}
