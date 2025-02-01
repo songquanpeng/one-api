@@ -14,10 +14,7 @@ RUN DISABLE_ESLINT_PLUGIN='true' REACT_APP_VERSION=$(cat /web/default/VERSION) n
     DISABLE_ESLINT_PLUGIN='true' REACT_APP_VERSION=$(cat /web/air/VERSION) npm run build --prefix /web/air & \
     wait
 
-FROM golang:alpine AS builder2
-
-RUN apk add --no-cache g++
-RUN apk add --no-cache gcc musl-dev libc-dev sqlite-dev build-base
+FROM golang AS builder2
 
 ENV GO111MODULE=on \
     CGO_ENABLED=1 \
