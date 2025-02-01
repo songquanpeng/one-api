@@ -35,9 +35,7 @@ RUN go mod download
 COPY . .
 COPY --from=builder /web/build ./web/build
 
-RUN go build -trimpath \
-    -ldflags "-s -w -X 'github.com/songquanpeng/one-api/common.Version=$(cat VERSION)' \
-    -o one-api
+RUN go build -trimpath -ldflags "-s -w -X 'github.com/songquanpeng/one-api/common.Version=$(cat VERSION)'" -o one-api
 
 # Final runtime image
 FROM ubuntu:22.04
