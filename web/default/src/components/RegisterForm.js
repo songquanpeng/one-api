@@ -171,7 +171,7 @@ const RegisterForm = () => {
                       <Button
                         onClick={sendVerificationCode}
                         disabled={loading}
-                        style={{ backgroundColor: '#2185d0', color: 'white' }}
+                        // style={{ backgroundColor: '#2F73FF', color: 'white' }}
                       >
                         获取验证码
                       </Button>

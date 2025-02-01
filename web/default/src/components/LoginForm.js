@@ -240,6 +240,44 @@ const LoginForm = () => {
             )}
           </Card.Content>
         </Card>
+        <Modal
+          onClose={() => setShowWeChatLoginModal(false)}
+          onOpen={() => setShowWeChatLoginModal(true)}
+          open={showWeChatLoginModal}
+          size={'mini'}
+        >
+          <Modal.Content>
+            <Modal.Description>
+              <Image src={status.wechat_qrcode} fluid />
+              <div style={{ textAlign: 'center' }}>
+                <p>
+                  微信扫码关注公众号，输入「验证码」获取验证码（三分钟内有效）
+                </p>
+              </div>
+              <Form size='large'>
+                <Form.Input
+                  fluid
+                  placeholder='验证码'
+                  name='wechat_verification_code'
+                  value={inputs.wechat_verification_code}
+                  onChange={handleChange}
+                />
+                <Button
+                  fluid
+                  size='large'
+                  style={{
+                    background: '#2F73FF', // 使用更现代的蓝色
+                    color: 'white',
+                    marginBottom: '1.5em',
+                  }}
+                  onClick={onSubmitWeChatVerificationCode}
+                >
+                  登录
+                </Button>
+              </Form>
+            </Modal.Description>
+          </Modal.Content>
+        </Modal>
       </Grid.Column>
     </Grid>
   );
