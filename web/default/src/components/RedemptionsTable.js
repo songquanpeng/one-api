@@ -116,7 +116,7 @@ const RedemptionsTable = () => {
     }
     const { success, message } = res.data;
     if (success) {
-      showSuccess('操作成功完成！');
+      showSuccess(t('token.messages.operation_success'));
       let redemption = res.data.data;
       let newRedemptions = [...redemptions];
       let realIdx = (activePage - 1) * ITEMS_PER_PAGE + idx;
@@ -282,9 +282,9 @@ const RedemptionsTable = () => {
                         positive
                         onClick={async () => {
                           if (await copy(redemption.key)) {
-                            showSuccess(t('redemption.messages.copy_success'));
+                            showSuccess(t('token.messages.copy_success'));
                           } else {
-                            showWarning(t('redemption.messages.copy_failed'));
+                            showWarning(t('token.messages.copy_failed'));
                             setSearchKeyword(redemption.key);
                           }
                         }}
