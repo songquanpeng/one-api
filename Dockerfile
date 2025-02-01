@@ -40,7 +40,7 @@ RUN go build -trimpath \
     -o one-api
 
 # Final runtime image
-FROM ubuntu:minimal
+FROM ubuntu:22.04
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates tzdata bash \
