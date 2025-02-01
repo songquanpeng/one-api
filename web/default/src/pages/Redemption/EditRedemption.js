@@ -63,9 +63,9 @@ const EditRedemption = () => {
     const { success, message, data } = res.data;
     if (success) {
       if (isEdit) {
-        showSuccess('兑换码更新成功！');
+        showSuccess(t('redemption.messages.update_success'));
       } else {
-        showSuccess('兑换码创建成功！');
+        showSuccess(t('redemption.messages.create_success'));
         setInputs(originInputs);
       }
     } else {

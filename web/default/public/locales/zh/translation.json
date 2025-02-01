@@ -243,6 +243,34 @@
   },
   "redemption": {
     "title": "兑换管理",
+    "search": "搜索兑换码的 ID 和名称 ...",
+    "table": {
+      "id": "ID",
+      "name": "名称",
+      "status": "状态",
+      "quota": "额度",
+      "created_time": "创建时间",
+      "redeemed_time": "兑换时间",
+      "actions": "操作",
+      "no_name": "无",
+      "not_redeemed": "尚未兑换"
+    },
+    "buttons": {
+      "copy": "复制",
+      "delete": "删除",
+      "confirm_delete": "确认删除",
+      "enable": "启用",
+      "disable": "禁用",
+      "edit": "编辑",
+      "add": "添加新的兑换码",
+      "refresh": "刷新"
+    },
+    "status": {
+      "unused": "未使用",
+      "disabled": "已禁用",
+      "used": "已使用",
+      "unknown": "未知状态"
+    },
     "edit": {
       "title_edit": "更新兑换码信息",
       "title_create": "创建新的兑换码",
@@ -256,6 +284,10 @@
         "submit": "提交",
         "cancel": "取消"
       }
+    },
+    "messages": {
+      "update_success": "兑换码更新成功！",
+      "create_success": "兑换码创建成功！"
     }
   },
   "log": {

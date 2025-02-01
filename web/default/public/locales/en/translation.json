@@ -243,6 +243,34 @@
   },
   "redemption": {
     "title": "Redemption Management",
+    "search": "Search redemption codes by ID and name ...",
+    "table": {
+      "id": "ID",
+      "name": "Name",
+      "status": "Status",
+      "quota": "Quota",
+      "created_time": "Created Time",
+      "redeemed_time": "Redeemed Time",
+      "actions": "Actions",
+      "no_name": "None",
+      "not_redeemed": "Not Redeemed"
+    },
+    "buttons": {
+      "copy": "Copy",
+      "delete": "Delete",
+      "confirm_delete": "Confirm Delete",
+      "enable": "Enable",
+      "disable": "Disable",
+      "edit": "Edit",
+      "add": "Add New Code",
+      "refresh": "Refresh"
+    },
+    "status": {
+      "unused": "Unused",
+      "disabled": "Disabled",
+      "used": "Used",
+      "unknown": "Unknown"
+    },
     "edit": {
       "title_edit": "Update Redemption Code",
       "title_create": "Create New Redemption Code",
@@ -256,6 +284,10 @@
         "submit": "Submit",
         "cancel": "Cancel"
       }
+    },
+    "messages": {
+      "update_success": "Redemption code updated successfully!",
+      "create_success": "Redemption code created successfully!"
     }
   },
   "log": {
