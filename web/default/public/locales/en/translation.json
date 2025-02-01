@@ -379,5 +379,28 @@
       "promote": "Promote",
       "demote": "Demote"
     }
+  },
+  "dashboard": {
+    "charts": {
+      "requests": {
+        "title": "Model Request Trend",
+        "tooltip": "Request Count"
+      },
+      "quota": {
+        "title": "Quota Usage Trend",
+        "tooltip": "Quota Used"
+      },
+      "tokens": {
+        "title": "Token Usage Trend",
+        "tooltip": "Token Count"
+      }
+    },
+    "statistics": {
+      "title": "Statistics",
+      "tooltip": {
+        "date": "Date",
+        "value": "Value"
+      }
+    }
   }
 }

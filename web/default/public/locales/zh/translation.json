@@ -379,5 +379,28 @@
       "promote": "提升",
       "demote": "降级"
     }
+  },
+  "dashboard": {
+    "charts": {
+      "requests": {
+        "title": "模型请求趋势",
+        "tooltip": "请求次数"
+      },
+      "quota": {
+        "title": "额度消费趋势",
+        "tooltip": "消费额度"
+      },
+      "tokens": {
+        "title": "Token 消费趋势",
+        "tooltip": "Token 数量"
+      }
+    },
+    "statistics": {
+      "title": "统计",
+      "tooltip": {
+        "date": "日期",
+        "value": "数值"
+      }
+    }
   }
 }

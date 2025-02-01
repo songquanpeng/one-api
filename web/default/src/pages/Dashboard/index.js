@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, Grid, Statistic } from 'semantic-ui-react';
 import {
   LineChart,
@@ -53,6 +54,7 @@ const chartConfig = {
 };
 
 const Dashboard = () => {
+  const { t } = useTranslation();
   const [data, setData] = useState([]);
   const [summaryData, setSummaryData] = useState({
     todayRequests: 0,
@@ -194,7 +196,7 @@ const Dashboard = () => {
           <Card fluid className='chart-card'>
             <Card.Content>
               <Card.Header>
-                模型请求趋势
+                {t('dashboard.charts.requests.title')}
                 <span className='stat-value'>{summaryData.todayRequests}</span>
               </Card.Header>
               <div className='chart-container'>
@@ -220,6 +222,11 @@ const Dashboard = () => {
                         borderRadius: '4px',
                         boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
                       }}
+                      formatter={(value) => [
+                        value,
+                        t('dashboard.charts.requests.tooltip')
+                      ]}
+                      labelFormatter={(label) => `${t('dashboard.tooltip.date')}: ${label}`}
                     />
                     <Line
                       type='monotone'
@@ -240,7 +247,7 @@ const Dashboard = () => {
           <Card fluid className='chart-card'>
             <Card.Content>
               <Card.Header>
-                额度消费趋势
+                {t('dashboard.charts.quota.title')}
                 <span className='stat-value'>
                   ${summaryData.todayQuota.toFixed(3)}
                 </span>
@@ -268,6 +275,11 @@ const Dashboard = () => {
                         borderRadius: '4px',
                         boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
                       }}
+                      formatter={(value) => [
+                        value,
+                        t('dashboard.charts.quota.tooltip')
+                      ]}
+                      labelFormatter={(label) => `${t('dashboard.tooltip.date')}: ${label}`}
                     />
                     <Line
                       type='monotone'
@@ -288,7 +300,7 @@ const Dashboard = () => {
           <Card fluid className='chart-card'>
             <Card.Content>
               <Card.Header>
-                Token 消费趋势
+                {t('dashboard.charts.tokens.title')}
                 <span className='stat-value'>{summaryData.todayTokens}</span>
               </Card.Header>
               <div className='chart-container'>
@@ -314,6 +326,11 @@ const Dashboard = () => {
                         borderRadius: '4px',
                         boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
                       }}
+                      formatter={(value) => [
+                        value,
+                        t('dashboard.charts.tokens.tooltip')
+                      ]}
+                      labelFormatter={(label) => `${t('dashboard.tooltip.date')}: ${label}`}
                     />
                     <Line
                       type='monotone'
@@ -334,7 +351,7 @@ const Dashboard = () => {
       {/* 模型使用统计 */}
       <Card fluid className='chart-card'>
         <Card.Content>
-          <Card.Header>统计</Card.Header>
+          <Card.Header>{t('dashboard.statistics.title')}</Card.Header>
           <div className='chart-container'>
             <ResponsiveContainer width='100%' height={300}>
               <BarChart data={modelData}>
@@ -361,6 +378,7 @@ const Dashboard = () => {
                     borderRadius: '4px',
                     boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
                   }}
+                  labelFormatter={(label) => `${t('dashboard.tooltip.date')}: ${label}`}
                 />
                 <Legend
                   wrapperStyle={{
