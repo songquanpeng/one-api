@@ -303,5 +303,40 @@
       "amount": "数量",
       "time": "时间"
     }
+  },
+  "user": {
+    "edit": {
+      "title": "更新用户信息",
+      "username": "用户名",
+      "username_placeholder": "请输入新的用户名",
+      "password": "密码",
+      "password_placeholder": "请输入新的密码，最短 8 位",
+      "display_name": "显示名称",
+      "display_name_placeholder": "请输入新的显示名称",
+      "group": "分组",
+      "group_placeholder": "请选择分组",
+      "group_addition": "请在系统设置页面编辑分组倍率以添加新的分组：",
+      "quota": "剩余额度",
+      "quota_placeholder": "请输入新的剩余额度",
+      "github_id": "已绑定的 GitHub 账户",
+      "github_id_placeholder": "此项只读，需要用户通过个人设置页面的相关绑定按钮进行绑定，不可直接修改",
+      "wechat_id": "已绑定的微信账户",
+      "wechat_id_placeholder": "此项只读，需要用户通过个人设置页面的相关绑定按钮进行绑定，不可直接修改",
+      "email": "已绑定的邮箱账户",
+      "email_placeholder": "此项只读，需要用户通过个人设置页面的相关绑定按钮进行绑定，不可直接修改",
+      "buttons": {
+        "submit": "提交",
+        "cancel": "取消"
+      }
+    },
+    "messages": {
+      "update_success": "用户信息更新成功！"
+    },
+    "add": {
+      "title": "创建新用户账户"
+    },
+    "messages": {
+      "create_success": "用户账户创建成功！"
+    }
   }
 }

@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button, Form, Header, Segment } from 'semantic-ui-react';
 import { API, showError, showSuccess } from '../../helpers';
 
 const AddUser = () => {
+  const { t } = useTranslation();
   const originInputs = {
     username: '',
     display_name: '',
@@ -20,7 +22,7 @@ const AddUser = () => {
     const res = await API.post(`/api/user/`, inputs);
     const { success, message } = res.data;
     if (success) {
-      showSuccess('用户账户创建成功！');
+      showSuccess(t('user.messages.create_success'));
       setInputs(originInputs);
     } else {
       showError(message);
@@ -30,43 +32,43 @@ const AddUser = () => {
   return (
     <>
       <Segment>
-        <Header as="h3">创建新用户账户</Header>
-        <Form autoComplete="off">
+        <Header as='h3'>{t('user.add.title')}</Header>
+        <Form autoComplete='off'>
           <Form.Field>
             <Form.Input
-              label="用户名"
-              name="username"
-              placeholder={'请输入用户名'}
+              label={t('user.edit.username')}
+              name='username'
+              placeholder={t('user.edit.username_placeholder')}
               onChange={handleInputChange}
               value={username}
-              autoComplete="off"
+              autoComplete='off'
               required
             />
           </Form.Field>
           <Form.Field>
             <Form.Input
-              label="显示名称"
-              name="display_name"
-              placeholder={'请输入显示名称'}
+              label={t('user.edit.display_name')}
+              name='display_name'
+              placeholder={t('user.edit.display_name_placeholder')}
               onChange={handleInputChange}
               value={display_name}
-              autoComplete="off"
+              autoComplete='off'
             />
           </Form.Field>
           <Form.Field>
             <Form.Input
-              label="密码"
-              name="password"
+              label={t('user.edit.password')}
+              name='password'
               type={'password'}
-              placeholder={'请输入密码'}
+              placeholder={t('user.edit.password_placeholder')}
               onChange={handleInputChange}
               value={password}
-              autoComplete="off"
+              autoComplete='off'
               required
             />
           </Form.Field>
           <Button positive type={'submit'} onClick={submit}>
-            提交
+            {t('user.edit.buttons.submit')}
           </Button>
         </Form>
       </Segment>

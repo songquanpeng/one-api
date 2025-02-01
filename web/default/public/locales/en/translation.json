@@ -303,5 +303,40 @@
       "amount": "Amount",
       "time": "Time"
     }
+  },
+  "user": {
+    "edit": {
+      "title": "Update User Information",
+      "username": "Username",
+      "username_placeholder": "Please enter new username",
+      "password": "Password",
+      "password_placeholder": "Please enter new password, minimum 8 characters",
+      "display_name": "Display Name",
+      "display_name_placeholder": "Please enter new display name",
+      "group": "Group",
+      "group_placeholder": "Please select group",
+      "group_addition": "Please edit group multipliers in system settings to add new group:",
+      "quota": "Remaining Quota",
+      "quota_placeholder": "Please enter new remaining quota",
+      "github_id": "Linked GitHub Account",
+      "github_id_placeholder": "Read-only, user must link through personal settings page, cannot be modified directly",
+      "wechat_id": "Linked WeChat Account",
+      "wechat_id_placeholder": "Read-only, user must link through personal settings page, cannot be modified directly",
+      "email": "Linked Email Account",
+      "email_placeholder": "Read-only, user must link through personal settings page, cannot be modified directly",
+      "buttons": {
+        "submit": "Submit",
+        "cancel": "Cancel"
+      }
+    },
+    "messages": {
+      "update_success": "User information updated successfully!"
+    },
+    "add": {
+      "title": "Create New User Account"
+    },
+    "messages": {
+      "create_success": "User account created successfully!"
+    }
   }
 }
