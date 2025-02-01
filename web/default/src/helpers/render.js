@@ -1,4 +1,5 @@
 import { Label } from 'semantic-ui-react';
+import { useTranslation } from 'react-i18next';
 
 export function renderText(text, limit) {
   if (text.length > limit) {
@@ -39,23 +40,27 @@ export function renderNumber(num) {
   }
 }
 
-export function renderQuota(quota, digits = 2) {
-  let quotaPerUnit = localStorage.getItem('quota_per_unit');
-  let displayInCurrency = localStorage.getItem('display_in_currency');
-  quotaPerUnit = parseFloat(quotaPerUnit);
-  displayInCurrency = displayInCurrency === 'true';
+export function renderQuota(quota, t, precision = 2) {
+  const displayInCurrency = localStorage.getItem('display_in_currency') === 'true';
+  const quotaPerUnit = parseFloat(localStorage.getItem('quota_per_unit') || '1');
+  
   if (displayInCurrency) {
-    return '$' + (quota / quotaPerUnit).toFixed(digits);
+    const amount = (quota / quotaPerUnit).toFixed(precision);
+    return t('common.quota.display_short', { amount });
   }
+  
   return renderNumber(quota);
 }
 
-export function renderQuotaWithPrompt(quota, digits) {
-  let displayInCurrency = localStorage.getItem('display_in_currency');
-  displayInCurrency = displayInCurrency === 'true';
+export function renderQuotaWithPrompt(quota, t) {
+  const displayInCurrency = localStorage.getItem('display_in_currency') === 'true';
+  const quotaPerUnit = parseFloat(localStorage.getItem('quota_per_unit') || '1');
+  
   if (displayInCurrency) {
-    return `（等价金额：${renderQuota(quota, digits)}）`;
+    const amount = (quota / quotaPerUnit).toFixed(2);
+    return ` (${t('common.quota.display', { amount })})`;
   }
+  
   return '';
 }
 

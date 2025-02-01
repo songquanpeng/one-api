@@ -152,5 +152,93 @@
         "tencent": "Enter in format: AppId|SecretId|SecretKey"
       }
     }
+  },
+  "token": {
+    "title": "Token Management",
+    "search": "Search tokens by name ...",
+    "table": {
+      "name": "Name",
+      "status": "Status",
+      "used_quota": "Used Quota",
+      "remain_quota": "Remaining Quota",
+      "created_time": "Created Time",
+      "expired_time": "Expiry Time",
+      "actions": "Actions",
+      "no_name": "None",
+      "never_expire": "Never Expires",
+      "unlimited": "Unlimited",
+      "status_enabled": "Enabled",
+      "status_disabled": "Disabled",
+      "status_expired": "Expired",
+      "status_depleted": "Depleted",
+      "status_unknown": "Unknown Status"
+    },
+    "buttons": {
+      "copy": "Copy",
+      "chat": "Chat",
+      "delete": "Delete",
+      "confirm_delete": "Delete Token",
+      "enable": "Enable",
+      "disable": "Disable",
+      "edit": "Edit",
+      "add": "Add New Token",
+      "refresh": "Refresh"
+    },
+    "edit": {
+      "title_edit": "Update Token Information",
+      "title_create": "Create New Token",
+      "name": "Name",
+      "name_placeholder": "Please enter name",
+      "models": "Model Scope",
+      "models_placeholder": "Please select allowed models, leave empty for no restrictions",
+      "ip_limit": "IP Restriction",
+      "ip_limit_placeholder": "Please enter allowed subnets, e.g.: 192.168.0.0/24, use commas to separate multiple subnets",
+      "expire_time": "Expiry Time",
+      "expire_time_placeholder": "Please enter expiry time in yyyy-MM-dd HH:mm:ss format, -1 for no limit",
+      "quota_notice": "Note: Token quota only limits the maximum usage of the token itself, actual usage is subject to account remaining quota.",
+      "quota": "Quota",
+      "quota_placeholder": "Please enter quota",
+      "buttons": {
+        "never_expire": "Never Expire",
+        "expire_1_month": "Expire in 1 Month",
+        "expire_1_day": "Expire in 1 Day",
+        "expire_1_hour": "Expire in 1 Hour",
+        "expire_1_minute": "Expire in 1 Minute",
+        "unlimited_quota": "Set Unlimited Quota",
+        "cancel_unlimited": "Cancel Unlimited Quota",
+        "submit": "Submit",
+        "cancel": "Cancel"
+      },
+      "messages": {
+        "update_success": "Token updated successfully!",
+        "create_success": "Token created successfully, please copy it from the list page!",
+        "expire_time_invalid": "Invalid expiry time format!"
+      }
+    },
+    "copy_options": {
+      "raw": "Copy Raw Token",
+      "ama": "Copy AMA Link",
+      "opencat": "Copy OpenCat Link",
+      "next": "Copy NextChat Link",
+      "lobe": "Copy LobeChat Link"
+    },
+    "messages": {
+      "copy_success": "Copied to clipboard!",
+      "copy_failed": "Unable to copy to clipboard, please copy manually. Token has been filled in the search box.",
+      "operation_success": "Operation completed successfully!"
+    },
+    "sort": {
+      "placeholder": "Sort By",
+      "default": "Default Order",
+      "by_remain": "Sort by Remaining Quota",
+      "by_used": "Sort by Used Quota"
+    }
+  },
+  "common": {
+    "quota": {
+      "display": "Equivalent: ${{amount}}",
+      "display_short": "${{amount}}",
+      "unit": "$"
+    }
   }
 }

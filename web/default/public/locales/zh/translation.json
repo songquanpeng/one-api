@@ -152,5 +152,93 @@
         "tencent": "按照如下格式输入：AppId|SecretId|SecretKey"
       }
     }
+  },
+  "token": {
+    "title": "令牌管理",
+    "search": "搜索令牌的名称 ...",
+    "table": {
+      "name": "名称",
+      "status": "状态",
+      "used_quota": "已用额度",
+      "remain_quota": "剩余额度",
+      "created_time": "创建时间",
+      "expired_time": "过期时间",
+      "actions": "操作",
+      "no_name": "无",
+      "never_expire": "永不过期",
+      "unlimited": "无限制",
+      "status_enabled": "已启用",
+      "status_disabled": "已禁用",
+      "status_expired": "已过期",
+      "status_depleted": "已耗尽",
+      "status_unknown": "未知状态"
+    },
+    "buttons": {
+      "copy": "复制",
+      "chat": "聊天",
+      "delete": "删除",
+      "confirm_delete": "删除令牌",
+      "enable": "启用",
+      "disable": "禁用",
+      "edit": "编辑",
+      "add": "添加新的令牌",
+      "refresh": "刷新"
+    },
+    "edit": {
+      "title_edit": "更新令牌信息",
+      "title_create": "创建新的令牌",
+      "name": "名称",
+      "name_placeholder": "请输入名称",
+      "models": "模型范围",
+      "models_placeholder": "请选择允许使用的模型，留空则不进行限制",
+      "ip_limit": "IP 限制",
+      "ip_limit_placeholder": "请输入允许访问的网段，例如：192.168.0.0/24，请使用英文逗号分隔多个网段",
+      "expire_time": "过期时间",
+      "expire_time_placeholder": "请输入过期时间，格式为 yyyy-MM-dd HH:mm:ss，-1 表示无限制",
+      "quota_notice": "注意，令牌的额度仅用于限制令牌本身的最大额度使用量，实际的使用受到账户的剩余额度限制。",
+      "quota": "额度",
+      "quota_placeholder": "请输入额度",
+      "buttons": {
+        "never_expire": "永不过期",
+        "expire_1_month": "一个月后过期",
+        "expire_1_day": "一天后过期",
+        "expire_1_hour": "一小时后过期",
+        "expire_1_minute": "一分钟后过期",
+        "unlimited_quota": "设为无限额度",
+        "cancel_unlimited": "取消无限额度",
+        "submit": "提交",
+        "cancel": "取消"
+      },
+      "messages": {
+        "update_success": "令牌更新成功！",
+        "create_success": "令牌创建成功，请在列表页面点击复制获取令牌！",
+        "expire_time_invalid": "过期时间格式错误！"
+      }
+    },
+    "copy_options": {
+      "raw": "复制原始令牌",
+      "ama": "复制 AMA 链接",
+      "opencat": "复制 OpenCat 链接",
+      "next": "复制 NextChat 链接",
+      "lobe": "复制 LobeChat 链接"
+    },
+    "messages": {
+      "copy_success": "已复制到剪贴板！",
+      "copy_failed": "无法复制到剪贴板，请手动复制，已将令牌填入搜索框。",
+      "operation_success": "操作成功完成！"
+    },
+    "sort": {
+      "placeholder": "排序方式",
+      "default": "默认排序",
+      "by_remain": "按剩余额度排序",
+      "by_used": "按已用额度排序"
+    }
+  },
+  "common": {
+    "quota": {
+      "display": "等价金额：${{amount}}",
+      "display_short": "${{amount}}",
+      "unit": "$"
+    }
   }
 }

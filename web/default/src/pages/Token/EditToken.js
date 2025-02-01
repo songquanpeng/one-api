@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Button,
   Form,
@@ -18,6 +19,7 @@ import {
 import { renderQuotaWithPrompt } from '../../helpers/render';
 
 const EditToken = () => {
+  const { t } = useTranslation();
   const params = useParams();
   const tokenId = params.id;
   const isEdit = tokenId !== undefined;
@@ -60,46 +62,60 @@ const EditToken = () => {
   };
 
   const loadToken = async () => {
-    let res = await API.get(`/api/token/${tokenId}`);
-    const { success, message, data } = res.data;
-    if (success) {
-      if (data.expired_time !== -1) {
-        data.expired_time = timestamp2string(data.expired_time);
-      }
-      if (data.models === '') {
-        data.models = [];
+    try {
+      let res = await API.get(`/api/token/${tokenId}`);
+      const { success, message, data } = res.data || {};
+      if (success && data) {
+        if (data.expired_time !== -1) {
+          data.expired_time = timestamp2string(data.expired_time);
+        }
+        if (data.models === '') {
+          data.models = [];
+        } else {
+          data.models = data.models.split(',');
+        }
+        setInputs(data);
       } else {
-        data.models = data.models.split(',');
+        showError(message || 'Failed to load token');
       }
-      setInputs(data);
-    } else {
-      showError(message);
+    } catch (error) {
+      showError(error.message || 'Network error');
     }
     setLoading(false);
   };
-  useEffect(() => {
-    if (isEdit) {
-      loadToken().then();
-    }
-    loadAvailableModels().then();
-  }, []);
 
   const loadAvailableModels = async () => {
-    let res = await API.get(`/api/user/available_models`);
-    const { success, message, data } = res.data;
-    if (success) {
-      let options = data.map((model) => {
-        return {
-          key: model,
-          text: model,
-          value: model,
-        };
-      });
-      setModelOptions(options);
-    } else {
-      showError(message);
+    try {
+      let res = await API.get(`/api/user/available_models`);
+      const { success, message, data } = res.data || {};
+      if (success && data) {
+        let options = data.map((model) => {
+          return {
+            key: model,
+            text: model,
+            value: model,
+          };
+        });
+        setModelOptions(options);
+      } else {
+        showError(message || 'Failed to load models');
+      }
+    } catch (error) {
+      showError(error.message || 'Network error');
     }
   };
+
+  useEffect(() => {
+    if (isEdit) {
+      loadToken().catch(error => {
+        showError(error.message || 'Failed to load token');
+        setLoading(false);
+      });
+    }
+    loadAvailableModels().catch(error => {
+      showError(error.message || 'Failed to load models');
+    });
+  }, []);
 
   const submit = async () => {
     if (!isEdit && inputs.name === '') return;
@@ -108,7 +124,7 @@ const EditToken = () => {
     if (localInputs.expired_time !== -1) {
       let time = Date.parse(localInputs.expired_time);
       if (isNaN(time)) {
-        showError('过期时间格式错误！');
+        showError(t('token.edit.messages.expire_time_invalid'));
         return;
       }
       localInputs.expired_time = Math.ceil(time / 1000);
@@ -126,9 +142,9 @@ const EditToken = () => {
     const { success, message } = res.data;
     if (success) {
       if (isEdit) {
-        showSuccess('令牌更新成功！');
+        showSuccess(t('token.edit.messages.update_success'));
       } else {
-        showSuccess('令牌创建成功，请在列表页面点击复制获取令牌！');
+        showSuccess(t('token.edit.messages.create_success'));
         setInputs(originInputs);
       }
     } else {
@@ -141,14 +157,14 @@ const EditToken = () => {
       <Card fluid className='chart-card'>
         <Card.Content>
           <Card.Header className='header'>
-            {isEdit ? '更新令牌信息' : '创建新的令牌'}
+            {isEdit ? t('token.edit.title_edit') : t('token.edit.title_create')}
           </Card.Header>
           <Form loading={loading} autoComplete='new-password'>
             <Form.Field>
               <Form.Input
-                label='名称'
+                label={t('token.edit.name')}
                 name='name'
-                placeholder={'请输入名称'}
+                placeholder={t('token.edit.name_placeholder')}
                 onChange={handleInputChange}
                 value={name}
                 autoComplete='new-password'
@@ -157,8 +173,8 @@ const EditToken = () => {
             </Form.Field>
             <Form.Field>
               <Form.Dropdown
-                label='模型范围'
-                placeholder={'请选择允许使用的模型，留空则不进行限制'}
+                label={t('token.edit.models')}
+                placeholder={t('token.edit.models_placeholder')}
                 name='models'
                 fluid
                 multiple
@@ -175,11 +191,9 @@ const EditToken = () => {
             </Form.Field>
             <Form.Field>
               <Form.Input
-                label='IP 限制'
+                label={t('token.edit.ip_limit')}
                 name='subnet'
-                placeholder={
-                  '请输入允许访问的网段，例如：192.168.0.0/24，请使用英文逗号分隔多个网段'
-                }
+                placeholder={t('token.edit.ip_limit_placeholder')}
                 onChange={handleInputChange}
                 value={inputs.subnet}
                 autoComplete='new-password'
@@ -187,11 +201,9 @@ const EditToken = () => {
             </Form.Field>
             <Form.Field>
               <Form.Input
-                label='过期时间'
+                label={t('token.edit.expire_time')}
                 name='expired_time'
-                placeholder={
-                  '请输入过期时间，格式为 yyyy-MM-dd HH:mm:ss，-1 表示无限制'
-                }
+                placeholder={t('token.edit.expire_time_placeholder')}
                 onChange={handleInputChange}
                 value={expired_time}
                 autoComplete='new-password'
@@ -205,7 +217,7 @@ const EditToken = () => {
                   setExpiredTime(0, 0, 0, 0);
                 }}
               >
-                永不过期
+                {t('token.edit.buttons.never_expire')}
               </Button>
               <Button
                 type={'button'}
@@ -213,7 +225,7 @@ const EditToken = () => {
                   setExpiredTime(1, 0, 0, 0);
                 }}
               >
-                一个月后过期
+                {t('token.edit.buttons.expire_1_month')}
               </Button>
               <Button
                 type={'button'}
@@ -221,7 +233,7 @@ const EditToken = () => {
                   setExpiredTime(0, 1, 0, 0);
                 }}
               >
-                一天后过期
+                {t('token.edit.buttons.expire_1_day')}
               </Button>
               <Button
                 type={'button'}
@@ -229,7 +241,7 @@ const EditToken = () => {
                   setExpiredTime(0, 0, 1, 0);
                 }}
               >
-                一小时后过期
+                {t('token.edit.buttons.expire_1_hour')}
               </Button>
               <Button
                 type={'button'}
@@ -237,17 +249,15 @@ const EditToken = () => {
                   setExpiredTime(0, 0, 0, 1);
                 }}
               >
-                一分钟后过期
+                {t('token.edit.buttons.expire_1_minute')}
               </Button>
             </div>
-            <Message>
-              注意，令牌的额度仅用于限制令牌本身的最大额度使用量，实际的使用受到账户的剩余额度限制。
-            </Message>
+            <Message>{t('token.edit.quota_notice')}</Message>
             <Form.Field>
               <Form.Input
-                label={`额度${renderQuotaWithPrompt(remain_quota)}`}
+                label={`${t('token.edit.quota')}${renderQuotaWithPrompt(remain_quota, t)}`}
                 name='remain_quota'
-                placeholder={'请输入额度'}
+                placeholder={t('token.edit.quota_placeholder')}
                 onChange={handleInputChange}
                 value={remain_quota}
                 autoComplete='new-password'
@@ -261,13 +271,15 @@ const EditToken = () => {
                 setUnlimitedQuota();
               }}
             >
-              {unlimited_quota ? '取消无限额度' : '设为无限额度'}
+              {unlimited_quota
+                ? t('token.edit.buttons.cancel_unlimited')
+                : t('token.edit.buttons.unlimited_quota')}
             </Button>
             <Button floated='right' positive onClick={submit}>
-              提交
+              {t('token.edit.buttons.submit')}
             </Button>
             <Button floated='right' onClick={handleCancel}>
-              取消
+              {t('token.edit.buttons.cancel')}
             </Button>
           </Form>
         </Card.Content>
