@@ -596,6 +596,77 @@
           }
         }
       }
+    },
+    "operation": {
+      "quota": {
+        "title": "Quota Settings",
+        "new_user": "Initial Quota for New Users",
+        "new_user_placeholder": "e.g.: 100",
+        "pre_consume": "Pre-consumed Quota per Request",
+        "pre_consume_placeholder": "Refund or charge difference after request",
+        "inviter_reward": "Reward Quota for Inviter",
+        "inviter_reward_placeholder": "e.g.: 2000",
+        "invitee_reward": "Reward Quota for Using Invite Code",
+        "invitee_reward_placeholder": "e.g.: 1000",
+        "buttons": {
+          "save": "Save Quota Settings"
+        }
+      },
+      "ratio": {
+        "title": "Ratio Settings",
+        "model": {
+          "title": "Model Ratio",
+          "placeholder": "A JSON text where keys are model names and values are ratios"
+        },
+        "completion": {
+          "title": "Completion Ratio",
+          "placeholder": "A JSON text where keys are model names and values are ratios. These ratios are the proportion of completion to prompt ratio, which can override One API's internal ratios"
+        },
+        "group": {
+          "title": "Group Ratio",
+          "placeholder": "A JSON text where keys are group names and values are ratios"
+        },
+        "buttons": {
+          "save": "Save Ratio Settings"
+        }
+      },
+      "log": {
+        "title": "Log Settings",
+        "enable_consume": "Enable Quota Consumption Logging",
+        "target_time": "Target Time",
+        "buttons": {
+          "clean": "Clean Historical Logs"
+        }
+      },
+      "monitor": {
+        "title": "Monitor Settings",
+        "max_response_time": "Maximum Response Time",
+        "max_response_time_placeholder": "In seconds, channels exceeding this time during testing will be automatically disabled",
+        "quota_reminder": "Quota Reminder Threshold",
+        "quota_reminder_placeholder": "Users will receive email reminders when quota falls below this value",
+        "auto_disable": "Automatically Disable Channel on Failure",
+        "auto_enable": "Automatically Enable Channel on Success",
+        "buttons": {
+          "save": "Save Monitor Settings"
+        }
+      },
+      "general": {
+        "title": "General Settings",
+        "topup_link": "Top-up Link",
+        "topup_link_placeholder": "e.g.: Card selling website purchase link",
+        "chat_link": "Chat Page Link",
+        "chat_link_placeholder": "e.g.: ChatGPT Next Web deployment address",
+        "quota_per_unit": "Quota per Dollar",
+        "quota_per_unit_placeholder": "Quota exchangeable per unit of currency",
+        "retry_times": "Retry Times on Failure",
+        "retry_times_placeholder": "Number of retry attempts on failure",
+        "display_in_currency": "Display Quota in Currency Format",
+        "display_token_stat": "Show Token Quota Instead of User Quota in Billing APIs",
+        "approximate_token": "Use Approximate Method to Estimate Token Count",
+        "buttons": {
+          "save": "Save General Settings"
+        }
+      }
     }
   }
 }

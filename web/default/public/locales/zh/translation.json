@@ -596,6 +596,77 @@
           }
         }
       }
+    },
+    "operation": {
+      "quota": {
+        "title": "额度设置",
+        "new_user": "新用户初始额度",
+        "new_user_placeholder": "例如：100",
+        "pre_consume": "请求预扣费额度",
+        "pre_consume_placeholder": "请求结束后多退少补",
+        "inviter_reward": "邀请新用户奖励额度",
+        "inviter_reward_placeholder": "例如：2000",
+        "invitee_reward": "新用户使用邀请码奖励额度",
+        "invitee_reward_placeholder": "例如：1000",
+        "buttons": {
+          "save": "保存额度设置"
+        }
+      },
+      "ratio": {
+        "title": "倍率设置",
+        "model": {
+          "title": "模型倍率",
+          "placeholder": "为一个 JSON 文本，键为模型名称，值为倍率"
+        },
+        "completion": {
+          "title": "补全倍率",
+          "placeholder": "为一个 JSON 文本，键为模型名称，值为倍率，此处的倍率设置是模型补全倍率相较于提示倍率的比例，使用该设置可强制覆盖 One API 的内部比例"
+        },
+        "group": {
+          "title": "分组倍率",
+          "placeholder": "为一个 JSON 文本，键为分组名称，值为倍率"
+        },
+        "buttons": {
+          "save": "保存倍率设置"
+        }
+      },
+      "log": {
+        "title": "日志设置",
+        "enable_consume": "启用额度消费日志记录",
+        "target_time": "目标时间",
+        "buttons": {
+          "clean": "清理历史日志"
+        }
+      },
+      "monitor": {
+        "title": "监控设置",
+        "max_response_time": "最长响应时间",
+        "max_response_time_placeholder": "单位秒，当运行渠道全部测试时，超过此时间将自动禁用渠道",
+        "quota_reminder": "额度提醒阈值",
+        "quota_reminder_placeholder": "低于此额度时将发送邮件提醒用户",
+        "auto_disable": "失败时自动禁用渠道",
+        "auto_enable": "成功时自动启用渠道",
+        "buttons": {
+          "save": "保存监控设置"
+        }
+      },
+      "general": {
+        "title": "通用设置",
+        "topup_link": "充值链接",
+        "topup_link_placeholder": "例如发卡网站的购买链接",
+        "chat_link": "聊天页面链接",
+        "chat_link_placeholder": "例如 ChatGPT Next Web 的部署地址",
+        "quota_per_unit": "单位美元额度",
+        "quota_per_unit_placeholder": "一单位货币能兑换的额度",
+        "retry_times": "失败重试次数",
+        "retry_times_placeholder": "失败重试次数",
+        "display_in_currency": "以货币形式显示额度",
+        "display_token_stat": "Billing 相关 API 显示令牌额度而非用户额度",
+        "approximate_token": "使用近似的方式估算 token 数以减少计算量",
+        "buttons": {
+          "save": "保存通用设置"
+        }
+      }
     }
   }
 }
