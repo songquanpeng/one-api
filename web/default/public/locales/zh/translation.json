@@ -330,14 +330,13 @@
         "cancel": "取消"
       }
     },
-    "messages": {
-      "update_success": "用户信息更新成功！"
-    },
     "add": {
       "title": "创建新用户账户"
     },
     "messages": {
-      "create_success": "用户账户创建成功！"
+      "update_success": "用户信息更新成功！",
+      "create_success": "用户账户创建成功！",
+      "operation_success": "操作成功完成！"
     },
     "search": "搜索用户...",
     "table": {
@@ -379,9 +378,6 @@
       "edit": "编辑",
       "promote": "提升",
       "demote": "降级"
-    },
-    "messages": {
-      "operation_success": "操作成功完成！"
     }
   }
 }

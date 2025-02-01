@@ -330,14 +330,13 @@
         "cancel": "Cancel"
       }
     },
-    "messages": {
-      "update_success": "User information updated successfully!"
-    },
     "add": {
       "title": "Create New User Account"
     },
     "messages": {
-      "create_success": "User account created successfully!"
+      "update_success": "User information updated successfully!",
+      "create_success": "User account created successfully!",
+      "operation_success": "Operation completed successfully!"
     },
     "search": "Search users...",
     "table": {
@@ -379,9 +378,6 @@
       "edit": "Edit",
       "promote": "Promote",
       "demote": "Demote"
-    },
-    "messages": {
-      "operation_success": "Operation completed successfully!"
     }
   }
 }
