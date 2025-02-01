@@ -14,11 +14,15 @@ RUN DISABLE_ESLINT_PLUGIN='true' REACT_APP_VERSION=$(cat /web/default/VERSION) n
     DISABLE_ESLINT_PLUGIN='true' REACT_APP_VERSION=$(cat /web/air/VERSION) npm run build --prefix /web/air & \
     wait
 
-FROM golang AS builder2
+FROM golang:alpine AS builder2
+
+RUN apk add --no-cache g++ gcc musl-dev libc-dev sqlite-dev build-base
 
 ENV GO111MODULE=on \
     CGO_ENABLED=1 \
-    GOOS=linux
+    GOOS=linux \
+    CGO_CFLAGS="-I/usr/include" \
+    CGO_LDFLAGS="-L/usr/lib"
 
 WORKDIR /build
 ADD go.mod go.sum ./
