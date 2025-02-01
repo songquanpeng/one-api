@@ -292,16 +292,43 @@
   },
   "log": {
     "title": "Operation Log",
+    "search": "Search logs...",
     "usage_details": "Usage Details",
     "total_quota": "Total Quota Used",
     "click_to_view": "Click to View",
+    "type": {
+      "select": "Select Log Type",
+      "all": "All",
+      "topup": "Top Up",
+      "usage": "Usage",
+      "admin": "Admin",
+      "system": "System",
+      "test": "Test"
+    },
     "table": {
-      "id": "ID",
-      "username": "Username",
+      "time": "Time",
+      "channel": "Channel",
       "type": "Type",
-      "content": "Content",
-      "amount": "Amount",
-      "time": "Time"
+      "model": "Model",
+      "username": "Username",
+      "token_name": "Token Name",
+      "token_name_placeholder": "Optional",
+      "model_name": "Model Name",
+      "model_name_placeholder": "Optional",
+      "start_time": "Start Time",
+      "end_time": "End Time",
+      "channel_id": "Channel ID",
+      "channel_id_placeholder": "Optional",
+      "username_placeholder": "Optional",
+      "prompt_tokens": "Prompt Tokens",
+      "completion_tokens": "Completion Tokens",
+      "quota": "Quota",
+      "detail": "Detail"
+    },
+    "buttons": {
+      "query": "Action",
+      "submit": "Query",
+      "refresh": "Refresh"
     }
   },
   "user": {

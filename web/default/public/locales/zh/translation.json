@@ -292,16 +292,43 @@
   },
   "log": {
     "title": "操作日志",
+    "search": "搜索日志...",
     "usage_details": "使用明细",
     "total_quota": "总消耗额度",
     "click_to_view": "点击查看",
+    "type": {
+      "select": "选择明细分类",
+      "all": "全部",
+      "topup": "充值",
+      "usage": "消费",
+      "admin": "管理",
+      "system": "系统",
+      "test": "测试"
+    },
     "table": {
-      "id": "ID",
-      "username": "用户名",
+      "time": "时间",
+      "channel": "渠道",
       "type": "类型",
-      "content": "内容",
-      "amount": "数量",
-      "time": "时间"
+      "model": "模型",
+      "username": "用户名",
+      "token_name": "令牌名称",
+      "token_name_placeholder": "可选值",
+      "model_name": "模型名称",
+      "model_name_placeholder": "可选值",
+      "start_time": "起始时间",
+      "end_time": "结束时间",
+      "channel_id": "渠道 ID",
+      "channel_id_placeholder": "可选值",
+      "username_placeholder": "可选值",
+      "prompt_tokens": "提示词消耗",
+      "completion_tokens": "补全消耗",
+      "quota": "额度",
+      "detail": "详情"
+    },
+    "buttons": {
+      "query": "操作",
+      "submit": "查询",
+      "refresh": "刷新"
     }
   },
   "user": {

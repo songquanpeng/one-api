@@ -86,7 +86,7 @@ const Dashboard = () => {
       setSummaryData({
         todayRequests: 0,
         todayQuota: 0,
-        todayTokens: 0
+        todayTokens: 0,
       });
       return;
     }
@@ -224,9 +224,11 @@ const Dashboard = () => {
                       }}
                       formatter={(value) => [
                         value,
-                        t('dashboard.charts.requests.tooltip')
+                        t('dashboard.charts.requests.tooltip'),
                       ]}
-                      labelFormatter={(label) => `${t('dashboard.tooltip.date')}: ${label}`}
+                      labelFormatter={(label) =>
+                        `${t('dashboard.tooltip.date')}: ${label}`
+                      }
                     />
                     <Line
                       type='monotone'
@@ -277,9 +279,11 @@ const Dashboard = () => {
                       }}
                       formatter={(value) => [
                         value,
-                        t('dashboard.charts.quota.tooltip')
+                        t('dashboard.charts.quota.tooltip'),
                       ]}
-                      labelFormatter={(label) => `${t('dashboard.tooltip.date')}: ${label}`}
+                      labelFormatter={(label) =>
+                        `${t('dashboard.tooltip.date')}: ${label}`
+                      }
                     />
                     <Line
                       type='monotone'
@@ -328,9 +332,11 @@ const Dashboard = () => {
                       }}
                       formatter={(value) => [
                         value,
-                        t('dashboard.charts.tokens.tooltip')
+                        t('dashboard.charts.tokens.tooltip'),
                       ]}
-                      labelFormatter={(label) => `${t('dashboard.tooltip.date')}: ${label}`}
+                      labelFormatter={(label) =>
+                        `${t('dashboard.tooltip.date')}: ${label}`
+                      }
                     />
                     <Line
                       type='monotone'
@@ -378,7 +384,9 @@ const Dashboard = () => {
                     borderRadius: '4px',
                     boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
                   }}
-                  labelFormatter={(label) => `${t('dashboard.tooltip.date')}: ${label}`}
+                  labelFormatter={(label) =>
+                    `${t('dashboard.tooltip.date')}: ${label}`
+                  }
                 />
                 <Legend
                   wrapperStyle={{

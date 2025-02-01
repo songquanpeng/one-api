@@ -8,6 +8,7 @@ import {
   Segment,
   Select,
   Table,
+  Popup,
 } from 'semantic-ui-react';
 import {
   API,
@@ -44,15 +45,6 @@ function renderTimestamp(timestamp, request_id) {
 const MODE_OPTIONS = [
   { key: 'all', text: '全部用户', value: 'all' },
   { key: 'self', text: '当前用户', value: 'self' },
-];
-
-const LOG_OPTIONS = [
-  { key: '0', text: '全部', value: 0 },
-  { key: '1', text: '充值', value: 1 },
-  { key: '2', text: '消费', value: 2 },
-  { key: '3', text: '管理', value: 3 },
-  { key: '4', text: '系统', value: 4 },
-  { key: '5', text: '测试', value: 5 },
 ];
 
 function renderType(type) {
@@ -169,6 +161,15 @@ const LogsTable = () => {
     quota: 0,
     token: 0,
   });
+
+  const LOG_OPTIONS = [
+    { key: '0', text: t('log.type.all'), value: 0 },
+    { key: '1', text: t('log.type.topup'), value: 1 },
+    { key: '2', text: t('log.type.usage'), value: 2 },
+    { key: '3', text: t('log.type.admin'), value: 3 },
+    { key: '4', text: t('log.type.system'), value: 4 },
+    { key: '5', text: t('log.type.test'), value: 5 },
+  ];
 
   const handleInputChange = (e, { name, value }) => {
     setInputs((inputs) => ({ ...inputs, [name]: value }));
@@ -309,296 +310,295 @@ const LogsTable = () => {
 
   return (
     <>
-      <>
-        <Header as='h3'>
-          {t('log.usage_details')}（{t('log.total_quota')}：
-          {showStat && renderQuota(stat.quota, t)}
-          {!showStat && (
-            <span
-              onClick={handleEyeClick}
-              style={{ cursor: 'pointer', color: 'gray' }}
-            >
-              {t('log.click_to_view')}
-            </span>
-          )}
-          ）
-        </Header>
-        <Form>
-          <Form.Group>
-            <Form.Input
-              fluid
-              label={'令牌名称'}
-              width={3}
-              value={token_name}
-              placeholder={'可选值'}
-              name='token_name'
-              onChange={handleInputChange}
-            />
-            <Form.Input
-              fluid
-              label='模型名称'
-              width={3}
-              value={model_name}
-              placeholder='可选值'
-              name='model_name'
-              onChange={handleInputChange}
-            />
-            <Form.Input
-              fluid
-              label='起始时间'
-              width={4}
-              value={start_timestamp}
-              type='datetime-local'
-              name='start_timestamp'
-              onChange={handleInputChange}
-            />
-            <Form.Input
-              fluid
-              label='结束时间'
-              width={4}
-              value={end_timestamp}
-              type='datetime-local'
-              name='end_timestamp'
-              onChange={handleInputChange}
-            />
-            <Form.Button fluid label='操作' width={2} onClick={refresh}>
-              查询
-            </Form.Button>
-          </Form.Group>
-          {isAdminUser && (
-            <>
-              <Form.Group>
-                <Form.Input
-                  fluid
-                  label={'渠道 ID'}
-                  width={3}
-                  value={channel}
-                  placeholder='可选值'
-                  name='channel'
-                  onChange={handleInputChange}
-                />
-                <Form.Input
-                  fluid
-                  label={'用户名称'}
-                  width={3}
-                  value={username}
-                  placeholder={'可选值'}
-                  name='username'
-                  onChange={handleInputChange}
-                />
-              </Form.Group>
-            </>
-          )}
-        </Form>
-        <Table basic={'very'} compact size='small'>
-          <Table.Header>
-            <Table.Row>
-              <Table.HeaderCell
-                style={{ cursor: 'pointer' }}
-                onClick={() => {
-                  sortLog('created_time');
-                }}
+      <Header as='h3'>
+        {t('log.usage_details')}（{t('log.total_quota')}：
+        {showStat && renderQuota(stat.quota, t)}
+        {!showStat && (
+          <span
+            onClick={handleEyeClick}
+            style={{ cursor: 'pointer', color: 'gray' }}
+          >
+            {t('log.click_to_view')}
+          </span>
+        )}
+        ）
+      </Header>
+      <Form>
+        <Form.Group>
+          <Form.Input
+            fluid
+            label={t('log.table.token_name')}
+            width={3}
+            value={token_name}
+            placeholder={t('log.table.token_name_placeholder')}
+            name='token_name'
+            onChange={handleInputChange}
+          />
+          <Form.Input
+            fluid
+            label={t('log.table.model_name')}
+            width={3}
+            value={model_name}
+            placeholder={t('log.table.model_name_placeholder')}
+            name='model_name'
+            onChange={handleInputChange}
+          />
+          <Form.Input
+            fluid
+            label={t('log.table.start_time')}
+            width={4}
+            value={start_timestamp}
+            type='datetime-local'
+            name='start_timestamp'
+            onChange={handleInputChange}
+          />
+          <Form.Input
+            fluid
+            label={t('log.table.end_time')}
+            width={4}
+            value={end_timestamp}
+            type='datetime-local'
+            name='end_timestamp'
+            onChange={handleInputChange}
+          />
+          <Form.Button
+            fluid
+            label={t('log.buttons.query')}
+            width={2}
+            onClick={refresh}
+          >
+            {t('log.buttons.submit')}
+          </Form.Button>
+        </Form.Group>
+        {isAdminUser && (
+          <>
+            <Form.Group>
+              <Form.Input
+                fluid
+                label={t('log.table.channel_id')}
                 width={3}
-              >
-                时间
-              </Table.HeaderCell>
-              {isAdminUser && (
-                <Table.HeaderCell
-                  style={{ cursor: 'pointer' }}
-                  onClick={() => {
-                    sortLog('channel');
-                  }}
-                  width={1}
-                >
-                  渠道
-                </Table.HeaderCell>
-              )}
+                value={channel}
+                placeholder={t('log.table.channel_id_placeholder')}
+                name='channel'
+                onChange={handleInputChange}
+              />
+              <Form.Input
+                fluid
+                label={t('log.table.username')}
+                width={3}
+                value={username}
+                placeholder={t('log.table.username_placeholder')}
+                name='username'
+                onChange={handleInputChange}
+              />
+            </Form.Group>
+          </>
+        )}
+        <Form.Input
+          icon='search'
+          placeholder={t('log.search')}
+          value={searchKeyword}
+          onChange={(e, { value }) => setSearchKeyword(value)}
+        />
+      </Form>
+      <Table basic={'very'} compact size='small'>
+        <Table.Header>
+          <Table.Row>
+            <Table.HeaderCell
+              style={{ cursor: 'pointer' }}
+              onClick={() => {
+                sortLog('created_time');
+              }}
+              width={3}
+            >
+              {t('log.table.time')}
+            </Table.HeaderCell>
+            {isAdminUser && (
               <Table.HeaderCell
                 style={{ cursor: 'pointer' }}
                 onClick={() => {
-                  sortLog('type');
+                  sortLog('channel');
                 }}
                 width={1}
               >
-                类型
+                {t('log.table.channel')}
               </Table.HeaderCell>
-              <Table.HeaderCell
-                style={{ cursor: 'pointer' }}
-                onClick={() => {
-                  sortLog('model_name');
-                }}
-                width={2}
-              >
-                模型
-              </Table.HeaderCell>
-              {showUserTokenQuota() && (
-                <>
-                  {isAdminUser && (
-                    <Table.HeaderCell
-                      style={{ cursor: 'pointer' }}
-                      onClick={() => {
-                        sortLog('username');
-                      }}
-                      width={1}
-                    >
-                      用户
-                    </Table.HeaderCell>
-                  )}
+            )}
+            <Table.HeaderCell
+              style={{ cursor: 'pointer' }}
+              onClick={() => {
+                sortLog('type');
+              }}
+              width={1}
+            >
+              {t('log.table.type')}
+            </Table.HeaderCell>
+            <Table.HeaderCell
+              style={{ cursor: 'pointer' }}
+              onClick={() => {
+                sortLog('model_name');
+              }}
+              width={2}
+            >
+              {t('log.table.model')}
+            </Table.HeaderCell>
+            {showUserTokenQuota() && (
+              <>
+                {isAdminUser && (
                   <Table.HeaderCell
                     style={{ cursor: 'pointer' }}
                     onClick={() => {
-                      sortLog('token_name');
+                      sortLog('username');
                     }}
-                    width={1}
+                    width={2}
                   >
-                    令牌
+                    {t('log.table.username')}
                   </Table.HeaderCell>
-                  <Table.HeaderCell
-                    style={{ cursor: 'pointer' }}
-                    onClick={() => {
-                      sortLog('prompt_tokens');
-                    }}
-                    width={1}
-                  >
-                    提示
-                  </Table.HeaderCell>
-                  <Table.HeaderCell
-                    style={{ cursor: 'pointer' }}
-                    onClick={() => {
-                      sortLog('completion_tokens');
-                    }}
-                    width={1}
-                  >
-                    补全
-                  </Table.HeaderCell>
-                  <Table.HeaderCell
-                    style={{ cursor: 'pointer' }}
-                    onClick={() => {
-                      sortLog('quota');
-                    }}
-                    width={1}
-                  >
-                    额度
-                  </Table.HeaderCell>
-                </>
-              )}
-              <Table.HeaderCell
-                style={{ cursor: 'pointer' }}
-                onClick={() => {
-                  sortLog('content');
-                }}
-                width={isAdminUser ? 4 : 6}
-              >
-                详情
-              </Table.HeaderCell>
-            </Table.Row>
-          </Table.Header>
-
-          <Table.Body>
-            {logs
-              .slice(
-                (activePage - 1) * ITEMS_PER_PAGE,
-                activePage * ITEMS_PER_PAGE
-              )
-              .map((log, idx) => {
-                if (log.deleted) return <></>;
-                return (
-                  <Table.Row key={log.id}>
-                    <Table.Cell>
-                      {renderTimestamp(log.created_at, log.request_id)}
-                    </Table.Cell>
-                    {isAdminUser && (
-                      <Table.Cell>
-                        {log.channel ? (
-                          <Label
-                            basic
-                            as={Link}
-                            to={`/channel/edit/${log.channel}`}
-                          >
-                            {log.channel}
-                          </Label>
-                        ) : (
-                          ''
-                        )}
-                      </Table.Cell>
-                    )}
-                    <Table.Cell>{renderType(log.type)}</Table.Cell>
-                    <Table.Cell>
-                      {log.model_name ? renderColorLabel(log.model_name) : ''}
-                    </Table.Cell>
-                    {showUserTokenQuota() && (
-                      <>
-                        {isAdminUser && (
-                          <Table.Cell>
-                            {log.username ? (
-                              <Label
-                                basic
-                                as={Link}
-                                to={`/user/edit/${log.user_id}`}
-                              >
-                                {log.username}
-                              </Label>
-                            ) : (
-                              ''
-                            )}
-                          </Table.Cell>
-                        )}
-                        <Table.Cell>
-                          {log.token_name
-                            ? renderColorLabel(log.token_name)
-                            : ''}
-                        </Table.Cell>
-
-                        <Table.Cell>
-                          {log.prompt_tokens ? log.prompt_tokens : ''}
-                        </Table.Cell>
-                        <Table.Cell>
-                          {log.completion_tokens ? log.completion_tokens : ''}
-                        </Table.Cell>
-                        <Table.Cell>
-                          {log.quota ? renderQuota(log.quota, t, 6) : ''}
-                        </Table.Cell>
-                      </>
-                    )}
-
-                    <Table.Cell>{renderDetail(log)}</Table.Cell>
-                  </Table.Row>
-                );
-              })}
-          </Table.Body>
-
-          <Table.Footer>
-            <Table.Row>
-              <Table.HeaderCell colSpan={'10'}>
-                <Select
-                  placeholder='选择明细分类'
-                  options={LOG_OPTIONS}
-                  style={{ marginRight: '8px' }}
-                  name='logType'
-                  value={logType}
-                  onChange={(e, { name, value }) => {
-                    setLogType(value);
+                )}
+                <Table.HeaderCell
+                  style={{ cursor: 'pointer' }}
+                  onClick={() => {
+                    sortLog('token_name');
                   }}
-                />
-                <Button size='small' onClick={refresh} loading={loading}>
-                  刷新
-                </Button>
-                <Pagination
-                  floated='right'
-                  activePage={activePage}
-                  onPageChange={onPaginationChange}
-                  size='small'
-                  siblingRange={1}
-                  totalPages={
-                    Math.ceil(logs.length / ITEMS_PER_PAGE) +
-                    (logs.length % ITEMS_PER_PAGE === 0 ? 1 : 0)
-                  }
-                />
-              </Table.HeaderCell>
-            </Table.Row>
-          </Table.Footer>
-        </Table>
-      </>
+                  width={2}
+                >
+                  {t('log.table.token_name')}
+                </Table.HeaderCell>
+                <Table.HeaderCell
+                  style={{ cursor: 'pointer' }}
+                  onClick={() => {
+                    sortLog('prompt_tokens');
+                  }}
+                  width={1}
+                >
+                  {t('log.table.prompt_tokens')}
+                </Table.HeaderCell>
+                <Table.HeaderCell
+                  style={{ cursor: 'pointer' }}
+                  onClick={() => {
+                    sortLog('completion_tokens');
+                  }}
+                  width={1}
+                >
+                  {t('log.table.completion_tokens')}
+                </Table.HeaderCell>
+                <Table.HeaderCell
+                  style={{ cursor: 'pointer' }}
+                  onClick={() => {
+                    sortLog('quota');
+                  }}
+                  width={1}
+                >
+                  {t('log.table.quota')}
+                </Table.HeaderCell>
+              </>
+            )}
+            <Table.HeaderCell>{t('log.table.detail')}</Table.HeaderCell>
+          </Table.Row>
+        </Table.Header>
+
+        <Table.Body>
+          {logs
+            .slice(
+              (activePage - 1) * ITEMS_PER_PAGE,
+              activePage * ITEMS_PER_PAGE
+            )
+            .map((log, idx) => {
+              if (log.deleted) return <></>;
+              return (
+                <Table.Row key={log.id}>
+                  <Table.Cell>
+                    {renderTimestamp(log.created_at, log.request_id)}
+                  </Table.Cell>
+                  {isAdminUser && (
+                    <Table.Cell>
+                      {log.channel ? (
+                        <Label
+                          basic
+                          as={Link}
+                          to={`/channel/edit/${log.channel}`}
+                        >
+                          {log.channel}
+                        </Label>
+                      ) : (
+                        ''
+                      )}
+                    </Table.Cell>
+                  )}
+                  <Table.Cell>{renderType(log.type)}</Table.Cell>
+                  <Table.Cell>
+                    {log.model_name ? renderColorLabel(log.model_name) : ''}
+                  </Table.Cell>
+                  {showUserTokenQuota() && (
+                    <>
+                      {isAdminUser && (
+                        <Table.Cell>
+                          {log.username ? (
+                            <Label
+                              basic
+                              as={Link}
+                              to={`/user/edit/${log.user_id}`}
+                            >
+                              {log.username}
+                            </Label>
+                          ) : (
+                            ''
+                          )}
+                        </Table.Cell>
+                      )}
+                      <Table.Cell>
+                        {log.token_name ? renderColorLabel(log.token_name) : ''}
+                      </Table.Cell>
+
+                      <Table.Cell>
+                        {log.prompt_tokens ? log.prompt_tokens : ''}
+                      </Table.Cell>
+                      <Table.Cell>
+                        {log.completion_tokens ? log.completion_tokens : ''}
+                      </Table.Cell>
+                      <Table.Cell>
+                        {log.quota ? renderQuota(log.quota, t, 6) : ''}
+                      </Table.Cell>
+                    </>
+                  )}
+
+                  <Table.Cell>{renderDetail(log)}</Table.Cell>
+                </Table.Row>
+              );
+            })}
+        </Table.Body>
+
+        <Table.Footer>
+          <Table.Row>
+            <Table.HeaderCell colSpan={'10'}>
+              <Select
+                placeholder={t('log.type.select')}
+                options={LOG_OPTIONS}
+                style={{ marginRight: '8px' }}
+                name='logType'
+                value={logType}
+                onChange={(e, { name, value }) => {
+                  setLogType(value);
+                }}
+              />
+              <Button size='small' onClick={refresh} loading={loading}>
+                {t('log.buttons.refresh')}
+              </Button>
+              <Pagination
+                floated='right'
+                activePage={activePage}
+                onPageChange={onPaginationChange}
+                size='small'
+                siblingRange={1}
+                totalPages={
+                  Math.ceil(logs.length / ITEMS_PER_PAGE) +
+                  (logs.length % ITEMS_PER_PAGE === 0 ? 1 : 0)
+                }
+              />
+            </Table.HeaderCell>
+          </Table.Row>
+        </Table.Footer>
+      </Table>
     </>
   );
 };
