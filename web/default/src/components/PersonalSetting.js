@@ -1,8 +1,23 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Button, Divider, Form, Header, Image, Message, Modal } from 'semantic-ui-react';
+import {
+  Button,
+  Divider,
+  Form,
+  Header,
+  Image,
+  Message,
+  Modal,
+} from 'semantic-ui-react';
 import { Link, useNavigate } from 'react-router-dom';
-import { API, copy, showError, showInfo, showNotice, showSuccess } from '../helpers';
+import {
+  API,
+  copy,
+  showError,
+  showInfo,
+  showNotice,
+  showSuccess,
+} from '../helpers';
 import Turnstile from 'react-turnstile';
 import { UserContext } from '../context/User';
 import { onGitHubOAuthClicked, onLarkOAuthClicked } from './utils';
@@ -16,7 +31,7 @@ const PersonalSetting = () => {
     wechat_verification_code: '',
     email_verification_code: '',
     email: '',
-    self_account_deletion_confirmation: ''
+    self_account_deletion_confirmation: '',
   });
   const [status, setStatus] = useState({});
   const [showWeChatBindModal, setShowWeChatBindModal] = useState(false);
@@ -28,8 +43,8 @@ const PersonalSetting = () => {
   const [loading, setLoading] = useState(false);
   const [disableButton, setDisableButton] = useState(false);
   const [countdown, setCountdown] = useState(30);
-  const [affLink, setAffLink] = useState("");
-  const [systemToken, setSystemToken] = useState("");
+  const [affLink, setAffLink] = useState('');
+  const [systemToken, setSystemToken] = useState('');
 
   useEffect(() => {
     let status = localStorage.getItem('status');
@@ -65,7 +80,7 @@ const PersonalSetting = () => {
     const { success, message, data } = res.data;
     if (success) {
       setSystemToken(data);
-      setAffLink(""); 
+      setAffLink('');
       await copy(data);
       showSuccess(`令牌已重置并已复制到剪贴板`);
     } else {
@@ -79,7 +94,7 @@ const PersonalSetting = () => {
     if (success) {
       let link = `${window.location.origin}/register?aff=${data}`;
       setAffLink(link);
-      setSystemToken("");
+      setSystemToken('');
       await copy(link);
       showSuccess(`邀请链接已复制到剪切板`);
     } else {
@@ -172,9 +187,7 @@ const PersonalSetting = () => {
   return (
     <div style={{ lineHeight: '40px' }}>
       <Header as='h3'>{t('setting.personal.general.title')}</Header>
-      <Message>
-        {t('setting.personal.general.system_token_notice')}
-      </Message>
+      <Message>{t('setting.personal.general.system_token_notice')}</Message>
       <Button as={Link} to={`/user/edit/`}>
         {t('setting.personal.general.buttons.update_profile')}
       </Button>
@@ -184,26 +197,28 @@ const PersonalSetting = () => {
       <Button onClick={getAffLink}>
         {t('setting.personal.general.buttons.copy_invite')}
       </Button>
-      <Button onClick={() => {
-        setShowAccountDeleteModal(true);
-      }}>
+      <Button
+        onClick={() => {
+          setShowAccountDeleteModal(true);
+        }}
+      >
         {t('setting.personal.general.buttons.delete_account')}
       </Button>
-      
+
       {systemToken && (
-        <Form.Input 
-          fluid 
-          readOnly 
-          value={systemToken} 
+        <Form.Input
+          fluid
+          readOnly
+          value={systemToken}
           onClick={handleSystemTokenClick}
           style={{ marginTop: '10px' }}
         />
       )}
       {affLink && (
-        <Form.Input 
-          fluid 
-          readOnly 
-          value={affLink} 
+        <Form.Input
+          fluid
+          readOnly
+          value={affLink}
           onClick={handleAffLinkClick}
           style={{ marginTop: '10px' }}
         />
@@ -230,7 +245,9 @@ const PersonalSetting = () => {
             <Form size='large'>
               <Form.Input
                 fluid
-                placeholder={t('setting.personal.binding.wechat.verification_code')}
+                placeholder={t(
+                  'setting.personal.binding.wechat.verification_code'
+                )}
                 name='wechat_verification_code'
                 value={inputs.wechat_verification_code}
                 onChange={handleInputChange}
@@ -268,21 +285,30 @@ const PersonalSetting = () => {
             <Form size='large'>
               <Form.Input
                 fluid
-                placeholder={t('setting.personal.binding.email.email_placeholder')}
+                placeholder={t(
+                  'setting.personal.binding.email.email_placeholder'
+                )}
                 onChange={handleInputChange}
                 name='email'
                 type='email'
                 action={
-                  <Button onClick={sendVerificationCode} disabled={disableButton || loading}>
-                    {disableButton 
-                      ? t('setting.personal.binding.email.get_code_retry', { countdown })
+                  <Button
+                    onClick={sendVerificationCode}
+                    disabled={disableButton || loading}
+                  >
+                    {disableButton
+                      ? t('setting.personal.binding.email.get_code_retry', {
+                          countdown,
+                        })
                       : t('setting.personal.binding.email.get_code')}
                   </Button>
                 }
               />
               <Form.Input
                 fluid
-                placeholder={t('setting.personal.binding.email.code_placeholder')}
+                placeholder={t(
+                  'setting.personal.binding.email.code_placeholder'
+                )}
                 name='email_verification_code'
                 value={inputs.email_verification_code}
                 onChange={handleInputChange}
@@ -295,7 +321,13 @@ const PersonalSetting = () => {
                   }}
                 />
               )}
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '1rem' }}>
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  marginTop: '1rem',
+                }}
+              >
                 <Button
                   color=''
                   fluid
@@ -325,16 +357,21 @@ const PersonalSetting = () => {
         size={'tiny'}
         style={{ maxWidth: '450px' }}
       >
-        <Modal.Header>{t('setting.personal.delete_account.title')}</Modal.Header>
+        <Modal.Header>
+          {t('setting.personal.delete_account.title')}
+        </Modal.Header>
         <Modal.Content>
           <Message>{t('setting.personal.delete_account.warning')}</Message>
           <Modal.Description>
             <Form size='large'>
               <Form.Input
                 fluid
-                placeholder={t('setting.personal.delete_account.confirm_placeholder', {
-                  username: userState?.user?.username
-                })}
+                placeholder={t(
+                  'setting.personal.delete_account.confirm_placeholder',
+                  {
+                    username: userState?.user?.username,
+                  }
+                )}
                 name='self_account_deletion_confirmation'
                 value={inputs.self_account_deletion_confirmation}
                 onChange={handleInputChange}
@@ -347,7 +384,13 @@ const PersonalSetting = () => {
                   }}
                 />
               )}
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '1rem' }}>
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  marginTop: '1rem',
+                }}
+              >
                 <Button
                   color='red'
                   fluid

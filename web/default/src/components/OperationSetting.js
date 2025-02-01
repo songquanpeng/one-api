@@ -1,7 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Divider, Form, Grid, Header } from 'semantic-ui-react';
-import { API, showError, showSuccess, timestamp2string, verifyJSON } from '../helpers';
+import {
+  API,
+  showError,
+  showSuccess,
+  timestamp2string,
+  verifyJSON,
+} from '../helpers';
 
 const OperationSetting = () => {
   const { t } = useTranslation();
@@ -25,11 +31,13 @@ const OperationSetting = () => {
     DisplayInCurrencyEnabled: '',
     DisplayTokenStatEnabled: '',
     ApproximateTokenEnabled: '',
-    RetryTimes: 0
+    RetryTimes: 0,
   });
   const [originInputs, setOriginInputs] = useState({});
   let [loading, setLoading] = useState(false);
-  let [historyTimestamp, setHistoryTimestamp] = useState(timestamp2string(now.getTime() / 1000 - 30 * 24 * 3600)); // a month ago
+  let [historyTimestamp, setHistoryTimestamp] = useState(
+    timestamp2string(now.getTime() / 1000 - 30 * 24 * 3600)
+  ); // a month ago
 
   const getOptions = async () => {
     const res = await API.get('/api/option/');
@@ -37,7 +45,11 @@ const OperationSetting = () => {
     if (success) {
       let newInputs = {};
       data.forEach((item) => {
-        if (item.key === 'ModelRatio' || item.key === 'GroupRatio' || item.key === 'CompletionRatio') {
+        if (
+          item.key === 'ModelRatio' ||
+          item.key === 'GroupRatio' ||
+          item.key === 'CompletionRatio'
+        ) {
           item.value = JSON.stringify(JSON.parse(item.value), null, 2);
         }
         if (item.value === '{}') {
@@ -63,7 +75,7 @@ const OperationSetting = () => {
     }
     const res = await API.put('/api/option/', {
       key,
-      value
+      value,
     });
     const { success, message } = res.data;
     if (success) {
@@ -85,11 +97,22 @@ const OperationSetting = () => {
   const submitConfig = async (group) => {
     switch (group) {
       case 'monitor':
-        if (originInputs['ChannelDisableThreshold'] !== inputs.ChannelDisableThreshold) {
-          await updateOption('ChannelDisableThreshold', inputs.ChannelDisableThreshold);
+        if (
+          originInputs['ChannelDisableThreshold'] !==
+          inputs.ChannelDisableThreshold
+        ) {
+          await updateOption(
+            'ChannelDisableThreshold',
+            inputs.ChannelDisableThreshold
+          );
         }
-        if (originInputs['QuotaRemindThreshold'] !== inputs.QuotaRemindThreshold) {
-          await updateOption('QuotaRemindThreshold', inputs.QuotaRemindThreshold);
+        if (
+          originInputs['QuotaRemindThreshold'] !== inputs.QuotaRemindThreshold
+        ) {
+          await updateOption(
+            'QuotaRemindThreshold',
+            inputs.QuotaRemindThreshold
+          );
         }
         break;
       case 'ratio':
@@ -148,7 +171,9 @@ const OperationSetting = () => {
 
   const deleteHistoryLogs = async () => {
     console.log(inputs);
-    const res = await API.delete(`/api/log/?target_timestamp=${Date.parse(historyTimestamp) / 1000}`);
+    const res = await API.delete(
+      `/api/log/?target_timestamp=${Date.parse(historyTimestamp) / 1000}`
+    );
     const { success, message, data } = res.data;
     if (success) {
       showSuccess(`${data} 条日志已清理！`);
@@ -161,9 +186,7 @@ const OperationSetting = () => {
     <Grid columns={1}>
       <Grid.Column>
         <Form loading={loading}>
-          <Header as='h3'>
-            {t('setting.operation.quota.title')}
-          </Header>
+          <Header as='h3'>{t('setting.operation.quota.title')}</Header>
           <Form.Group widths='equal'>
             <Form.Input
               label={t('setting.operation.quota.new_user')}
@@ -193,7 +216,9 @@ const OperationSetting = () => {
               value={inputs.QuotaForInviter}
               type='number'
               min='0'
-              placeholder={t('setting.operation.quota.inviter_reward_placeholder')}
+              placeholder={t(
+                'setting.operation.quota.inviter_reward_placeholder'
+              )}
             />
             <Form.Input
               label={t('setting.operation.quota.invitee_reward')}
@@ -203,18 +228,20 @@ const OperationSetting = () => {
               value={inputs.QuotaForInvitee}
               type='number'
               min='0'
-              placeholder={t('setting.operation.quota.invitee_reward_placeholder')}
+              placeholder={t(
+                'setting.operation.quota.invitee_reward_placeholder'
+              )}
             />
           </Form.Group>
-          <Form.Button onClick={() => {
-            submitConfig('quota').then();
-          }}>
+          <Form.Button
+            onClick={() => {
+              submitConfig('quota').then();
+            }}
+          >
             {t('setting.operation.quota.buttons.save')}
           </Form.Button>
           <Divider />
-          <Header as='h3'>
-            {t('setting.operation.ratio.title')}
-          </Header>
+          <Header as='h3'>{t('setting.operation.ratio.title')}</Header>
           <Form.Group widths='equal'>
             <Form.TextArea
               label={t('setting.operation.ratio.model.title')}
@@ -248,9 +275,11 @@ const OperationSetting = () => {
               placeholder={t('setting.operation.ratio.group.placeholder')}
             />
           </Form.Group>
-          <Form.Button onClick={() => {
-            submitConfig('ratio').then();
-          }}>
+          <Form.Button
+            onClick={() => {
+              submitConfig('ratio').then();
+            }}
+          >
             {t('setting.operation.ratio.buttons.save')}
           </Form.Button>
           <Divider />
@@ -264,19 +293,21 @@ const OperationSetting = () => {
             />
           </Form.Group>
           <Form.Group widths={4}>
-            <Form.Input 
-              label={t('setting.operation.log.target_time')} 
-              value={historyTimestamp} 
+            <Form.Input
+              label={t('setting.operation.log.target_time')}
+              value={historyTimestamp}
               type='datetime-local'
               name='history_timestamp'
               onChange={(e, { name, value }) => {
                 setHistoryTimestamp(value);
-              }} 
+              }}
             />
           </Form.Group>
-          <Form.Button onClick={() => {
-            deleteHistoryLogs().then();
-          }}>
+          <Form.Button
+            onClick={() => {
+              deleteHistoryLogs().then();
+            }}
+          >
             {t('setting.operation.log.buttons.clean')}
           </Form.Button>
 
@@ -291,7 +322,9 @@ const OperationSetting = () => {
               value={inputs.ChannelDisableThreshold}
               type='number'
               min='0'
-              placeholder={t('setting.operation.monitor.max_response_time_placeholder')}
+              placeholder={t(
+                'setting.operation.monitor.max_response_time_placeholder'
+              )}
             />
             <Form.Input
               label={t('setting.operation.monitor.quota_reminder')}
@@ -301,7 +334,9 @@ const OperationSetting = () => {
               value={inputs.QuotaRemindThreshold}
               type='number'
               min='0'
-              placeholder={t('setting.operation.monitor.quota_reminder_placeholder')}
+              placeholder={t(
+                'setting.operation.monitor.quota_reminder_placeholder'
+              )}
             />
           </Form.Group>
           <Form.Group inline>
@@ -318,9 +353,11 @@ const OperationSetting = () => {
               onChange={handleInputChange}
             />
           </Form.Group>
-          <Form.Button onClick={() => {
-            submitConfig('monitor').then();
-          }}>
+          <Form.Button
+            onClick={() => {
+              submitConfig('monitor').then();
+            }}
+          >
             {t('setting.operation.monitor.buttons.save')}
           </Form.Button>
 
@@ -334,7 +371,9 @@ const OperationSetting = () => {
               autoComplete='new-password'
               value={inputs.TopUpLink}
               type='link'
-              placeholder={t('setting.operation.general.topup_link_placeholder')}
+              placeholder={t(
+                'setting.operation.general.topup_link_placeholder'
+              )}
             />
             <Form.Input
               label={t('setting.operation.general.chat_link')}
@@ -353,7 +392,9 @@ const OperationSetting = () => {
               value={inputs.QuotaPerUnit}
               type='number'
               step='0.01'
-              placeholder={t('setting.operation.general.quota_per_unit_placeholder')}
+              placeholder={t(
+                'setting.operation.general.quota_per_unit_placeholder'
+              )}
             />
             <Form.Input
               label={t('setting.operation.general.retry_times')}
@@ -364,7 +405,9 @@ const OperationSetting = () => {
               onChange={handleInputChange}
               autoComplete='new-password'
               value={inputs.RetryTimes}
-              placeholder={t('setting.operation.general.retry_times_placeholder')}
+              placeholder={t(
+                'setting.operation.general.retry_times_placeholder'
+              )}
             />
           </Form.Group>
           <Form.Group inline>
@@ -387,9 +430,11 @@ const OperationSetting = () => {
               onChange={handleInputChange}
             />
           </Form.Group>
-          <Form.Button onClick={() => {
-            submitConfig('general').then();
-          }}>
+          <Form.Button
+            onClick={() => {
+              submitConfig('general').then();
+            }}
+          >
             {t('setting.operation.general.buttons.save')}
           </Form.Button>
         </Form>

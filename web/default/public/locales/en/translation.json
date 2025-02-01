@@ -434,7 +434,7 @@
     "title": "System Settings",
     "tabs": {
       "personal": "Personal Settings",
-      "operation": "Operation Settings", 
+      "operation": "Operation Settings",
       "system": "System Settings",
       "other": "Other Settings"
     },
@@ -667,6 +667,64 @@
           "save": "Save General Settings"
         }
       }
+    },
+    "other": {
+      "notice": {
+        "title": "Notice Settings",
+        "content": "Notice Content",
+        "content_placeholder": "Enter new notice content here, supports Markdown & HTML code",
+        "buttons": {
+          "save": "Save Notice"
+        }
+      },
+      "system": {
+        "title": "System Settings",
+        "name": "System Name",
+        "name_placeholder": "Please enter system name",
+        "logo": "Logo Image URL",
+        "logo_placeholder": "Enter Logo image URL here",
+        "theme": {
+          "title": "Theme Name",
+          "link": "Available Themes",
+          "placeholder": "Please enter theme name"
+        },
+        "buttons": {
+          "save_name": "Set System Name",
+          "save_logo": "Set Logo",
+          "save_theme": "Set Theme (Restart Required)"
+        }
+      },
+      "content": {
+        "title": "Content Settings",
+        "homepage": {
+          "title": "Homepage Content",
+          "placeholder": "Enter homepage content here, supports Markdown & HTML code. Status information will not be shown after setting. If a link is entered, it will be used as the src attribute of an iframe, allowing you to set any webpage as homepage."
+        },
+        "about": {
+          "title": "About System",
+          "description": "You can set about content in settings page, supports HTML & Markdown",
+          "repository": "Project Repository:",
+          "loading_failed": "Failed to load about content..."
+        },
+        "footer": {
+          "title": "Footer",
+          "placeholder": "Enter new footer here, leave empty to use default footer, supports HTML code"
+        },
+        "buttons": {
+          "save_homepage": "Save Homepage Content",
+          "save_about": "Save About",
+          "save_footer": "Set Footer"
+        }
+      },
+      "copyright": {
+        "notice": "Removing One API's copyright notice requires authorization. Project maintenance requires significant effort, if this project is meaningful to you, please actively support it."
+      }
     }
+  },
+  "footer": {
+    "built_by": "built by",
+    "built_by_name": "JustSong",
+    "license": ", source code is licensed under the",
+    "mit": "MIT License"
   }
 }

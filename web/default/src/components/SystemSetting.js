@@ -1,6 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Button, Divider, Form, Grid, Header, Modal, Message } from 'semantic-ui-react';
+import {
+  Button,
+  Divider,
+  Form,
+  Grid,
+  Header,
+  Modal,
+  Message,
+} from 'semantic-ui-react';
 import { API, removeTrailingSlash, showError } from '../helpers';
 
 const SystemSetting = () => {
@@ -33,13 +41,14 @@ const SystemSetting = () => {
     TurnstileSecretKey: '',
     RegisterEnabled: '',
     EmailDomainRestrictionEnabled: '',
-    EmailDomainWhitelist: ''
+    EmailDomainWhitelist: '',
   });
   const [originInputs, setOriginInputs] = useState({});
   let [loading, setLoading] = useState(false);
   const [EmailDomainWhitelist, setEmailDomainWhitelist] = useState([]);
   const [restrictedDomainInput, setRestrictedDomainInput] = useState('');
-  const [showPasswordWarningModal, setShowPasswordWarningModal] = useState(false);
+  const [showPasswordWarningModal, setShowPasswordWarningModal] =
+    useState(false);
 
   const getOptions = async () => {
     const res = await API.get('/api/option/');
@@ -51,13 +60,15 @@ const SystemSetting = () => {
       });
       setInputs({
         ...newInputs,
-        EmailDomainWhitelist: newInputs.EmailDomainWhitelist.split(',')
+        EmailDomainWhitelist: newInputs.EmailDomainWhitelist.split(','),
       });
       setOriginInputs(newInputs);
 
-      setEmailDomainWhitelist(newInputs.EmailDomainWhitelist.split(',').map((item) => {
-        return { key: item, text: item, value: item };
-      }));
+      setEmailDomainWhitelist(
+        newInputs.EmailDomainWhitelist.split(',').map((item) => {
+          return { key: item, text: item, value: item };
+        })
+      );
     } else {
       showError(message);
     }
@@ -85,7 +96,7 @@ const SystemSetting = () => {
     }
     const res = await API.put('/api/option/', {
       key,
-      value
+      value,
     });
     const { success, message } = res.data;
     if (success) {
@@ -93,7 +104,8 @@ const SystemSetting = () => {
         value = value.split(',');
       }
       setInputs((inputs) => ({
-        ...inputs, [key]: value
+        ...inputs,
+        [key]: value,
       }));
     } else {
       showError(message);
@@ -157,13 +169,16 @@ const SystemSetting = () => {
     }
   };
 
-
   const submitEmailDomainWhitelist = async () => {
     if (
-      originInputs['EmailDomainWhitelist'] !== inputs.EmailDomainWhitelist.join(',') &&
+      originInputs['EmailDomainWhitelist'] !==
+        inputs.EmailDomainWhitelist.join(',') &&
       inputs.SMTPToken !== ''
     ) {
-      await updateOption('EmailDomainWhitelist', inputs.EmailDomainWhitelist.join(','));
+      await updateOption(
+        'EmailDomainWhitelist',
+        inputs.EmailDomainWhitelist.join(',')
+      );
     }
   };
 
@@ -218,7 +233,7 @@ const SystemSetting = () => {
     }
   };
 
-   const submitLarkOAuth = async () => {
+  const submitLarkOAuth = async () => {
     if (originInputs['LarkClientId'] !== inputs.LarkClientId) {
       await updateOption('LarkClientId', inputs.LarkClientId);
     }
@@ -244,19 +259,25 @@ const SystemSetting = () => {
 
   const submitNewRestrictedDomain = () => {
     const localDomainList = inputs.EmailDomainWhitelist;
-    if (restrictedDomainInput !== '' && !localDomainList.includes(restrictedDomainInput)) {
+    if (
+      restrictedDomainInput !== '' &&
+      !localDomainList.includes(restrictedDomainInput)
+    ) {
       setRestrictedDomainInput('');
       setInputs({
         ...inputs,
         EmailDomainWhitelist: [...localDomainList, restrictedDomainInput],
       });
-      setEmailDomainWhitelist([...EmailDomainWhitelist, {
-        key: restrictedDomainInput,
-        text: restrictedDomainInput,
-        value: restrictedDomainInput,
-      }]);
+      setEmailDomainWhitelist([
+        ...EmailDomainWhitelist,
+        {
+          key: restrictedDomainInput,
+          text: restrictedDomainInput,
+          value: restrictedDomainInput,
+        },
+      ]);
     }
-  }
+  };
 
   return (
     <Grid columns={1}>
@@ -266,7 +287,9 @@ const SystemSetting = () => {
           <Form.Group widths='equal'>
             <Form.Input
               label={t('setting.system.general.server_address')}
-              placeholder={t('setting.system.general.server_address_placeholder')}
+              placeholder={t(
+                'setting.system.general.server_address_placeholder'
+              )}
               value={inputs.ServerAddress}
               name='ServerAddress'
               onChange={handleInputChange}
@@ -291,7 +314,9 @@ const SystemSetting = () => {
                 size={'tiny'}
                 style={{ maxWidth: '450px' }}
               >
-                <Modal.Header>{t('setting.system.password_login.warning.title')}</Modal.Header>
+                <Modal.Header>
+                  {t('setting.system.password_login.warning.title')}
+                </Modal.Header>
                 <Modal.Content>
                   <p>{t('setting.system.password_login.warning.content')}</p>
                 </Modal.Content>
@@ -364,21 +389,28 @@ const SystemSetting = () => {
           <Form.Group widths={3}>
             <Form.Input
               label={t('setting.system.email_restriction.add_domain')}
-              placeholder={t('setting.system.email_restriction.add_domain_placeholder')}
+              placeholder={t(
+                'setting.system.email_restriction.add_domain_placeholder'
+              )}
               value={restrictedDomainInput}
               onChange={(e, { value }) => {
                 setRestrictedDomainInput(value);
               }}
               action={
-                <Button onClick={() => {
-                  if (restrictedDomainInput === '') return;
-                  setEmailDomainWhitelist([...EmailDomainWhitelist, {
-                    key: restrictedDomainInput,
-                    text: restrictedDomainInput,
-                    value: restrictedDomainInput
-                  }]);
-                  setRestrictedDomainInput('');
-                }}>
+                <Button
+                  onClick={() => {
+                    if (restrictedDomainInput === '') return;
+                    setEmailDomainWhitelist([
+                      ...EmailDomainWhitelist,
+                      {
+                        key: restrictedDomainInput,
+                        text: restrictedDomainInput,
+                        value: restrictedDomainInput,
+                      },
+                    ]);
+                    setRestrictedDomainInput('');
+                  }}
+                >
                   {t('setting.system.email_restriction.buttons.fill')}
                 </Button>
               }
@@ -392,14 +424,17 @@ const SystemSetting = () => {
             search
             selection
             allowAdditions
-            value={EmailDomainWhitelist.map(item => item.value)}
+            value={EmailDomainWhitelist.map((item) => item.value)}
             options={EmailDomainWhitelist}
             onAddItem={(e, { value }) => {
-              setEmailDomainWhitelist([...EmailDomainWhitelist, {
-                key: value,
-                text: value,
-                value: value
-              }]);
+              setEmailDomainWhitelist([
+                ...EmailDomainWhitelist,
+                {
+                  key: value,
+                  text: value,
+                  value: value,
+                },
+              ]);
             }}
             onChange={(e, { value }) => {
               let newEmailDomainWhitelist = [];
@@ -407,7 +442,7 @@ const SystemSetting = () => {
                 newEmailDomainWhitelist.push({
                   key: item,
                   text: item,
-                  value: item
+                  value: item,
                 });
               });
               setEmailDomainWhitelist(newEmailDomainWhitelist);
@@ -476,7 +511,7 @@ const SystemSetting = () => {
           <Message>
             {t('setting.system.github.url_notice', {
               server_url: originInputs.ServerAddress,
-              callback_url: `${originInputs.ServerAddress}/oauth/github`
+              callback_url: `${originInputs.ServerAddress}/oauth/github`,
             })}
           </Message>
           <Form.Group widths={3}>
@@ -514,7 +549,7 @@ const SystemSetting = () => {
           <Message>
             {t('setting.system.lark.url_notice', {
               server_url: inputs.ServerAddress,
-              callback_url: `${inputs.ServerAddress}/oauth/lark`
+              callback_url: `${inputs.ServerAddress}/oauth/lark`,
             })}
           </Message>
           <Form.Group widths={3}>
@@ -560,7 +595,9 @@ const SystemSetting = () => {
               onChange={handleInputChange}
               autoComplete='new-password'
               value={inputs.WeChatServerAddress}
-              placeholder={t('setting.system.wechat.server_address_placeholder')}
+              placeholder={t(
+                'setting.system.wechat.server_address_placeholder'
+              )}
             />
             <Form.Input
               label={t('setting.system.wechat.token')}

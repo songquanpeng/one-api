@@ -667,6 +667,68 @@
           "save": "保存通用设置"
         }
       }
+    },
+    "other": {
+      "notice": {
+        "title": "公告设置",
+        "content": "公告内容",
+        "content_placeholder": "在此输入新的公告内容，支持 Markdown & HTML 代码",
+        "buttons": {
+          "save": "保存公告"
+        }
+      },
+      "system": {
+        "title": "系统设置",
+        "name": "系统名称",
+        "name_placeholder": "请输入系统名称",
+        "logo": "Logo 图片地址",
+        "logo_placeholder": "在此输入 Logo 图片地址",
+        "theme": {
+          "title": "主题名称",
+          "link": "当前可用主题",
+          "placeholder": "请输入主题名称"
+        },
+        "buttons": {
+          "save_name": "设置系统名称",
+          "save_logo": "设置 Logo",
+          "save_theme": "设置主题（重启生效）"
+        }
+      },
+      "content": {
+        "title": "内容设置",
+        "homepage": {
+          "title": "首页内容",
+          "placeholder": "在此输入首页内容，支持 Markdown & HTML 代码，设置后首页的状态信息将不再显示。如果输入的是一个链接，则会使用该链接作为 iframe 的 src 属性，这允许你设置任意网页作为首页。"
+        },
+        "about": {
+          "title": "关于",
+          "placeholder": "在此输入新的关于内容，支持 Markdown & HTML 代码。如果输入的是一个链接，则会使用该链接作为 iframe 的 src 属性，这允许你设置任意网页作为关于页面。"
+        },
+        "footer": {
+          "title": "页脚",
+          "placeholder": "在此输入新的页脚，留空则使用默认页脚，支持 HTML 代码"
+        },
+        "buttons": {
+          "save_homepage": "保存首页内容",
+          "save_about": "保存关于",
+          "save_footer": "设置页脚"
+        }
+      },
+      "copyright": {
+        "notice": "移除 One API 的版权标识必须首先获得授权，项目维护需要花费大量精力，如果本项目对你有意义，请主动支持本项目。"
+      }
     }
+  },
+  "about": {
+    "title": "关于系统",
+    "description": "可在设置页面设置关于内容，支持 HTML & Markdown",
+    "repository": "项目仓库地址：",
+    "loading_failed": "加载关于内容失败..."
+  },
+  "footer": {
+    "built_by": "由",
+    "built_by_name": "JustSong",
+    "license": "构建，源代码遵循",
+    "mit": "MIT 协议"
   }
 }
