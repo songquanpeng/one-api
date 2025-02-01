@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Button,
   Form,
@@ -26,23 +27,23 @@ const MODEL_MAPPING_EXAMPLE = {
   'gpt-4-32k-0314': 'gpt-4-32k',
 };
 
-function type2secretPrompt(type) {
-  // inputs.type === 15 ? '按照如下格式输入：APIKey|SecretKey' : (inputs.type === 18 ? '按照如下格式输入：APPID|APISecret|APIKey' : '请输入渠道对应的鉴权密钥')
+function type2secretPrompt(type, t) {
   switch (type) {
     case 15:
-      return '按照如下格式输入：APIKey|SecretKey';
+      return t('channel.edit.key_prompts.zhipu');
     case 18:
-      return '按照如下格式输入：APPID|APISecret|APIKey';
+      return t('channel.edit.key_prompts.spark');
     case 22:
-      return '按照如下格式输入：APIKey-AppId，例如：fastgpt-0sp2gtvfdgyi4k30jwlgwf1i-64f335d84283f05518e9e041';
+      return t('channel.edit.key_prompts.fastgpt');
     case 23:
-      return '按照如下格式输入：AppId|SecretId|SecretKey';
+      return t('channel.edit.key_prompts.tencent');
     default:
-      return '请输入渠道对应的鉴权密钥';
+      return t('channel.edit.key_prompts.default');
   }
 }
 
 const EditChannel = () => {
+  const { t } = useTranslation();
   const params = useParams();
   const navigate = useNavigate();
   const channelId = params.id;
@@ -194,15 +195,15 @@ const EditChannel = () => {
       }
     }
     if (!isEdit && (inputs.name === '' || inputs.key === '')) {
-      showInfo('请填写渠道名称和渠道密钥！');
+      showInfo(t('channel.edit.messages.name_required'));
       return;
     }
     if (inputs.type !== 43 && inputs.models.length === 0) {
-      showInfo('请至少选择一个模型！');
+      showInfo(t('channel.edit.messages.models_required'));
       return;
     }
     if (inputs.model_mapping !== '' && !verifyJSON(inputs.model_mapping)) {
-      showInfo('模型映射必须是合法的 JSON 格式！');
+      showInfo(t('channel.edit.messages.model_mapping_invalid'));
       return;
     }
     let localInputs = { ...inputs };
@@ -230,9 +231,9 @@ const EditChannel = () => {
     const { success, message } = res.data;
     if (success) {
       if (isEdit) {
-        showSuccess('渠道更新成功！');
+        showSuccess(t('channel.edit.messages.update_success'));
       } else {
-        showSuccess('渠道创建成功！');
+        showSuccess(t('channel.edit.messages.create_success'));
         setInputs(originInputs);
       }
     } else {
@@ -263,12 +264,14 @@ const EditChannel = () => {
       <Card fluid className='chart-card'>
         <Card.Content>
           <Card.Header className='header'>
-            {isEdit ? '更新渠道信息' : '创建新的渠道'}
+            {isEdit
+              ? t('channel.edit.title_edit')
+              : t('channel.edit.title_create')}
           </Card.Header>
           <Form loading={loading} autoComplete='new-password'>
             <Form.Field>
               <Form.Select
-                label='类型'
+                label={t('channel.edit.type')}
                 name='type'
                 required
                 search
@@ -277,6 +280,35 @@ const EditChannel = () => {
                 onChange={handleInputChange}
               />
             </Form.Field>
+            <Form.Field>
+              <Form.Input
+                label={t('channel.edit.name')}
+                name='name'
+                placeholder={t('channel.edit.name_placeholder')}
+                onChange={handleInputChange}
+                value={inputs.name}
+                required
+              />
+            </Form.Field>
+            <Form.Field>
+              <Form.Dropdown
+                label={t('channel.edit.group')}
+                placeholder={t('channel.edit.group_placeholder')}
+                name='groups'
+                required
+                fluid
+                multiple
+                selection
+                allowAdditions
+                additionLabel={t('channel.edit.group_addition')}
+                onChange={handleInputChange}
+                value={inputs.groups}
+                autoComplete='new-password'
+                options={groupOptions}
+              />
+            </Form.Field>
+
+            {/* Azure OpenAI specific fields */}
             {inputs.type === 3 && (
               <>
                 <Message>
@@ -295,9 +327,7 @@ const EditChannel = () => {
                   <Form.Input
                     label='AZURE_OPENAI_ENDPOINT'
                     name='base_url'
-                    placeholder={
-                      '请输入 AZURE_OPENAI_ENDPOINT，例如：https://docs-test-001.openai.azure.com'
-                    }
+                    placeholder='请输入 AZURE_OPENAI_ENDPOINT，例如：https://docs-test-001.openai.azure.com'
                     onChange={handleInputChange}
                     value={inputs.base_url}
                     autoComplete='new-password'
@@ -307,9 +337,7 @@ const EditChannel = () => {
                   <Form.Input
                     label='默认 API 版本'
                     name='other'
-                    placeholder={
-                      '请输入默认 API 版本，例如：2024-03-01-preview，该配置可以被实际的请求查询参数所覆盖'
-                    }
+                    placeholder='请输入默认 API 版本，例如：2024-03-01-preview，该配置可以被实际的请求查询参数所覆盖'
                     onChange={handleInputChange}
                     value={inputs.other}
                     autoComplete='new-password'
@@ -317,55 +345,27 @@ const EditChannel = () => {
                 </Form.Field>
               </>
             )}
+
+            {/* Custom base URL field */}
             {inputs.type === 8 && (
               <Form.Field>
                 <Form.Input
-                  label='Base URL'
+                  label={t('channel.edit.base_url')}
                   name='base_url'
-                  placeholder={
-                    '请输入自定义渠道的 Base URL，例如：https://openai.justsong.cn'
-                  }
+                  placeholder={t('channel.edit.base_url_placeholder')}
                   onChange={handleInputChange}
                   value={inputs.base_url}
                   autoComplete='new-password'
                 />
               </Form.Field>
             )}
-            <Form.Field>
-              <Form.Input
-                label='名称'
-                name='name'
-                placeholder={'请输入名称'}
-                onChange={handleInputChange}
-                value={inputs.name}
-                required
-              />
-            </Form.Field>
-            <Form.Field>
-              <Form.Dropdown
-                label='分组'
-                placeholder={'请选择可以使用该渠道的分组'}
-                name='groups'
-                required
-                fluid
-                multiple
-                selection
-                allowAdditions
-                additionLabel={'请在系统设置页面编辑分组倍率以添加新的分组：'}
-                onChange={handleInputChange}
-                value={inputs.groups}
-                autoComplete='new-password'
-                options={groupOptions}
-              />
-            </Form.Field>
+
             {inputs.type === 18 && (
               <Form.Field>
                 <Form.Input
-                  label='模型版本'
+                  label={t('channel.edit.spark_version')}
                   name='other'
-                  placeholder={
-                    '请输入星火大模型版本，注意是接口地址中的版本号，例如：v2.1'
-                  }
+                  placeholder={t('channel.edit.spark_version_placeholder')}
                   onChange={handleInputChange}
                   value={inputs.other}
                   autoComplete='new-password'
@@ -375,9 +375,9 @@ const EditChannel = () => {
             {inputs.type === 21 && (
               <Form.Field>
                 <Form.Input
-                  label='知识库 ID'
+                  label={t('channel.edit.knowledge_id')}
                   name='other'
-                  placeholder={'请输入知识库 ID，例如：123456'}
+                  placeholder={t('channel.edit.knowledge_id_placeholder')}
                   onChange={handleInputChange}
                   value={inputs.other}
                   autoComplete='new-password'
@@ -387,11 +387,9 @@ const EditChannel = () => {
             {inputs.type === 17 && (
               <Form.Field>
                 <Form.Input
-                  label='插件参数'
+                  label={t('channel.edit.plugin_param')}
                   name='other'
-                  placeholder={
-                    '请输入插件参数，即 X-DashScope-Plugin 请求头的取值'
-                  }
+                  placeholder={t('channel.edit.plugin_param_placeholder')}
                   onChange={handleInputChange}
                   value={inputs.other}
                   autoComplete='new-password'
@@ -399,28 +397,25 @@ const EditChannel = () => {
               </Form.Field>
             )}
             {inputs.type === 34 && (
-              <Message>
-                对于 Coze 而言，模型名称即 Bot ID，你可以添加一个前缀
-                `bot-`，例如：`bot-123456`。
-              </Message>
+              <Message>{t('channel.edit.coze_notice')}</Message>
             )}
             {inputs.type === 40 && (
               <Message>
-                对于豆包而言，需要手动去{' '}
+                {t('channel.edit.douban_notice')}
                 <a
                   target='_blank'
                   href='https://console.volcengine.com/ark/region:ark+cn-beijing/endpoint'
                 >
-                  模型推理页面
-                </a>{' '}
-                创建推理接入点，以接入点名称作为模型名称，例如：`ep-20240608051426-tkxvl`。
+                  {t('channel.edit.douban_notice_link')}
+                </a>
+                {t('channel.edit.douban_notice_2')}
               </Message>
             )}
             {inputs.type !== 43 && (
               <Form.Field>
                 <Form.Dropdown
-                  label='模型'
-                  placeholder={'请选择该渠道所支持的模型'}
+                  label={t('channel.edit.models')}
+                  placeholder={t('channel.edit.models_placeholder')}
                   name='models'
                   required
                   fluid
@@ -448,7 +443,7 @@ const EditChannel = () => {
                     });
                   }}
                 >
-                  填入相关模型
+                  {t('channel.edit.buttons.fill_models')}
                 </Button>
                 <Button
                   type={'button'}
@@ -459,7 +454,7 @@ const EditChannel = () => {
                     });
                   }}
                 >
-                  填入所有模型
+                  {t('channel.edit.buttons.fill_all')}
                 </Button>
                 <Button
                   type={'button'}
@@ -467,15 +462,15 @@ const EditChannel = () => {
                     handleInputChange(null, { name: 'models', value: [] });
                   }}
                 >
-                  清除所有模型
+                  {t('channel.edit.buttons.clear')}
                 </Button>
                 <Input
                   action={
                     <Button type={'button'} onClick={addCustomModel}>
-                      填入
+                      {t('channel.edit.buttons.add_custom')}
                     </Button>
                   }
-                  placeholder='输入自定义模型名称'
+                  placeholder={t('channel.edit.buttons.custom_placeholder')}
                   value={customModel}
                   onChange={(e, { value }) => {
                     setCustomModel(value);
@@ -493,12 +488,10 @@ const EditChannel = () => {
               <>
                 <Form.Field>
                   <Form.TextArea
-                    label='模型重定向'
-                    placeholder={`此项可选，用于修改请求体中的模型名称，为一个 JSON 字符串，键为请求中模型名称，值为要替换的模型名称，例如：\n${JSON.stringify(
-                      MODEL_MAPPING_EXAMPLE,
-                      null,
-                      2
-                    )}`}
+                    label={t('channel.edit.model_mapping')}
+                    placeholder={`${t(
+                      'channel.edit.model_mapping_placeholder'
+                    )}\n${JSON.stringify(MODEL_MAPPING_EXAMPLE, null, 2)}`}
                     name='model_mapping'
                     onChange={handleInputChange}
                     value={inputs.model_mapping}
@@ -511,8 +504,8 @@ const EditChannel = () => {
                 </Form.Field>
                 <Form.Field>
                   <Form.TextArea
-                    label='系统提示词'
-                    placeholder={`此项可选，用于强制设置给定的系统提示词，请配合自定义模型 & 模型重定向使用，首先创建一个唯一的自定义模型名称并在上面填入，之后将该自定义模型重定向映射到该渠道一个原生支持的模型`}
+                    label={t('channel.edit.system_prompt')}
+                    placeholder={t('channel.edit.system_prompt_placeholder')}
                     name='system_prompt'
                     onChange={handleInputChange}
                     value={inputs.system_prompt}
@@ -531,7 +524,7 @@ const EditChannel = () => {
                   label='Region'
                   name='region'
                   required
-                  placeholder={'region，e.g. us-west-2'}
+                  placeholder={t('channel.edit.aws_region_placeholder')}
                   onChange={handleConfigChange}
                   value={config.region}
                   autoComplete=''
@@ -540,7 +533,7 @@ const EditChannel = () => {
                   label='AK'
                   name='ak'
                   required
-                  placeholder={'AWS IAM Access Key'}
+                  placeholder={t('channel.edit.aws_ak_placeholder')}
                   onChange={handleConfigChange}
                   value={config.ak}
                   autoComplete=''
@@ -549,7 +542,7 @@ const EditChannel = () => {
                   label='SK'
                   name='sk'
                   required
-                  placeholder={'AWS IAM Secret Key'}
+                  placeholder={t('channel.edit.aws_sk_placeholder')}
                   onChange={handleConfigChange}
                   value={config.sk}
                   autoComplete=''
@@ -562,27 +555,25 @@ const EditChannel = () => {
                   label='Region'
                   name='region'
                   required
-                  placeholder={'Vertex AI Region.g. us-east5'}
+                  placeholder={t('channel.edit.vertex_region_placeholder')}
                   onChange={handleConfigChange}
                   value={config.region}
                   autoComplete=''
                 />
                 <Form.Input
-                  label='Vertex AI Project ID'
+                  label={t('channel.edit.vertex_project_id')}
                   name='vertex_ai_project_id'
                   required
-                  placeholder={'Vertex AI Project ID'}
+                  placeholder={t('channel.edit.vertex_project_id_placeholder')}
                   onChange={handleConfigChange}
                   value={config.vertex_ai_project_id}
                   autoComplete=''
                 />
                 <Form.Input
-                  label='Google Cloud Application Default Credentials JSON'
+                  label={t('channel.edit.vertex_credentials')}
                   name='vertex_ai_adc'
                   required
-                  placeholder={
-                    'Google Cloud Application Default Credentials JSON'
-                  }
+                  placeholder={t('channel.edit.vertex_credentials_placeholder')}
                   onChange={handleConfigChange}
                   value={config.vertex_ai_adc}
                   autoComplete=''
@@ -591,10 +582,10 @@ const EditChannel = () => {
             )}
             {inputs.type === 34 && (
               <Form.Input
-                label='User ID'
+                label={t('channel.edit.user_id')}
                 name='user_id'
                 required
-                placeholder={'生成该密钥的用户 ID'}
+                placeholder={t('channel.edit.user_id_placeholder')}
                 onChange={handleConfigChange}
                 value={config.user_id}
                 autoComplete=''
@@ -605,10 +596,10 @@ const EditChannel = () => {
               (batch ? (
                 <Form.Field>
                   <Form.TextArea
-                    label='密钥'
+                    label={t('channel.edit.key')}
                     name='key'
                     required
-                    placeholder={'请输入密钥，一行一个'}
+                    placeholder={t('channel.edit.batch_placeholder')}
                     onChange={handleInputChange}
                     value={inputs.key}
                     style={{
@@ -621,35 +612,20 @@ const EditChannel = () => {
               ) : (
                 <Form.Field>
                   <Form.Input
-                    label='密钥'
+                    label={t('channel.edit.key')}
                     name='key'
                     required
-                    placeholder={type2secretPrompt(inputs.type)}
+                    placeholder={type2secretPrompt(inputs.type, t)}
                     onChange={handleInputChange}
                     value={inputs.key}
                     autoComplete='new-password'
                   />
                 </Form.Field>
               ))}
-            {inputs.type === 37 && (
-              <Form.Field>
-                <Form.Input
-                  label='Account ID'
-                  name='user_id'
-                  required
-                  placeholder={
-                    '请输入 Account ID，例如：d8d7c61dbc334c32d3ced580e4bf42b4'
-                  }
-                  onChange={handleConfigChange}
-                  value={config.user_id}
-                  autoComplete=''
-                />
-              </Form.Field>
-            )}
             {inputs.type !== 33 && !isEdit && (
               <Form.Checkbox
                 checked={batch}
-                label='批量创建'
+                label={t('channel.edit.batch')}
                 name='batch'
                 onChange={() => setBatch(!batch)}
               />
@@ -660,11 +636,9 @@ const EditChannel = () => {
               inputs.type !== 22 && (
                 <Form.Field>
                   <Form.Input
-                    label='代理'
+                    label={t('channel.edit.base_url')}
                     name='base_url'
-                    placeholder={
-                      '此项可选，用于通过代理站来进行 API 调用，请输入代理站地址，格式为：https://domain.com'
-                    }
+                    placeholder={t('channel.edit.base_url_placeholder')}
                     onChange={handleInputChange}
                     value={inputs.base_url}
                     autoComplete='new-password'
@@ -685,13 +659,15 @@ const EditChannel = () => {
                 />
               </Form.Field>
             )}
-            <Button onClick={handleCancel}>取消</Button>
+            <Button onClick={handleCancel}>
+              {t('channel.edit.buttons.cancel')}
+            </Button>
             <Button
               type={isEdit ? 'button' : 'submit'}
               positive
               onClick={submit}
             >
-              提交
+              {t('channel.edit.buttons.submit')}
             </Button>
           </Form>
         </Card.Content>
