@@ -1,6 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { UserContext } from '../context/User';
+import { useTranslation } from 'react-i18next';
 
 import {
   Button,
@@ -23,55 +24,55 @@ import '../index.css';
 // Header Buttons
 let headerButtons = [
   {
-    name: '首页',
+    name: 'header.home',
     to: '/',
     icon: 'home',
   },
   {
-    name: '渠道',
+    name: 'header.channel',
     to: '/channel',
     icon: 'sitemap',
     admin: true,
   },
   {
-    name: '令牌',
+    name: 'header.token',
     to: '/token',
     icon: 'key',
   },
   {
-    name: '兑换',
+    name: 'header.redemption',
     to: '/redemption',
     icon: 'dollar sign',
     admin: true,
   },
   {
-    name: '充值',
+    name: 'header.topup',
     to: '/topup',
     icon: 'cart',
   },
   {
-    name: '用户',
+    name: 'header.user',
     to: '/user',
     icon: 'user',
     admin: true,
   },
   {
-    name: '总览',
+    name: 'header.dashboard',
     to: '/dashboard',
     icon: 'chart bar',
   },
   {
-    name: '日志',
+    name: 'header.log',
     to: '/log',
     icon: 'book',
   },
   {
-    name: '设置',
+    name: 'header.setting',
     to: '/setting',
     icon: 'setting',
   },
   {
-    name: '关于',
+    name: 'header.about',
     to: '/about',
     icon: 'info circle',
   },
@@ -79,13 +80,14 @@ let headerButtons = [
 
 if (localStorage.getItem('chat_link')) {
   headerButtons.splice(1, 0, {
-    name: '聊天',
+    name: 'header.chat',
     to: '/chat',
     icon: 'comments',
   });
 }
 
 const Header = () => {
+  const { t, i18n } = useTranslation();
   const [userState, userDispatch] = useContext(UserContext);
   let navigate = useNavigate();
 
@@ -112,13 +114,14 @@ const Header = () => {
       if (isMobile) {
         return (
           <Menu.Item
+            key={button.name}
             onClick={() => {
               navigate(button.to);
               setShowSidebar(false);
             }}
             style={{ fontSize: '15px' }}
           >
-            {button.name}
+            {t(button.name)}
           </Menu.Item>
         );
       }
@@ -134,10 +137,20 @@ const Header = () => {
           }}
         >
           <Icon name={button.icon} style={{ marginRight: '4px' }} />
-          {button.name}
+          {t(button.name)}
         </Menu.Item>
       );
     });
+  };
+
+  // Add language switcher dropdown
+  const languageOptions = [
+    { key: 'zh', text: '中文', value: 'zh' },
+    { key: 'en', text: 'English', value: 'en' },
+  ];
+
+  const changeLanguage = (language) => {
+    i18n.changeLanguage(language);
   };
 
   if (isMobile()) {
@@ -176,9 +189,17 @@ const Header = () => {
             <Menu secondary vertical style={{ width: '100%', margin: 0 }}>
               {renderButtons(true)}
               <Menu.Item>
+                <Dropdown
+                  selection
+                  options={languageOptions}
+                  value={i18n.language}
+                  onChange={(_, { value }) => changeLanguage(value)}
+                />
+              </Menu.Item>
+              <Menu.Item>
                 {userState.user ? (
                   <Button onClick={logout} style={{ color: '#666666' }}>
-                    注销
+                    {t('header.logout')}
                   </Button>
                 ) : (
                   <>
@@ -188,7 +209,7 @@ const Header = () => {
                         navigate('/login');
                       }}
                     >
-                      登录
+                      {t('header.login')}
                     </Button>
                     <Button
                       onClick={() => {
@@ -196,7 +217,7 @@ const Header = () => {
                         navigate('/register');
                       }}
                     >
-                      注册
+                      {t('header.register')}
                     </Button>
                   </>
                 )}
@@ -235,6 +256,17 @@ const Header = () => {
           </Menu.Item>
           {renderButtons(false)}
           <Menu.Menu position='right'>
+            <Dropdown
+              item
+              options={languageOptions}
+              value={i18n.language}
+              onChange={(_, { value }) => changeLanguage(value)}
+              style={{
+                fontSize: '15px',
+                fontWeight: '400',
+                color: '#666',
+              }}
+            />
             {userState.user ? (
               <Dropdown
                 text={userState.user.username}
@@ -255,13 +287,13 @@ const Header = () => {
                       color: '#666',
                     }}
                   >
-                    注销
+                    {t('header.logout')}
                   </Dropdown.Item>
                 </Dropdown.Menu>
               </Dropdown>
             ) : (
               <Menu.Item
-                name='登录'
+                name={t('header.login')}
                 as={Link}
                 to='/login'
                 className='btn btn-link'

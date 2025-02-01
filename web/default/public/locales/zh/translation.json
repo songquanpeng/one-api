@@ -1,0 +1,38 @@
+{
+  "header": {
+    "home": "首页",
+    "channel": "渠道",
+    "token": "令牌",
+    "redemption": "兑换",
+    "topup": "充值",
+    "user": "用户",
+    "dashboard": "总览",
+    "log": "日志",
+    "setting": "设置",
+    "about": "关于",
+    "chat": "聊天",
+    "login": "登录",
+    "logout": "注销",
+    "register": "注册"
+  },
+  "topup": {
+    "title": "充值中心",
+    "get_code": {
+      "title": "获取兑换码",
+      "current_quota": "当前可用额度",
+      "button": "立即获取兑换码"
+    },
+    "redeem_code": {
+      "title": "兑换码充值",
+      "placeholder": "请输入兑换码",
+      "paste": "粘贴",
+      "paste_error": "无法访问剪贴板，请手动粘贴",
+      "submit": "立即兑换",
+      "submitting": "兑换中...",
+      "empty_code": "请输入兑换码！",
+      "success": "充值成功！",
+      "request_failed": "请求失败",
+      "no_link": "超级管理员未设置充值链接！"
+    }
+  }
+}

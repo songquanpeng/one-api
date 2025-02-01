@@ -1,0 +1,38 @@
+{
+  "header": {
+    "home": "Home",
+    "channel": "Channel",
+    "token": "Token",
+    "redemption": "Redemption",
+    "topup": "Top Up",
+    "user": "User",
+    "dashboard": "Dashboard",
+    "log": "Log",
+    "setting": "Settings",
+    "about": "About",
+    "chat": "Chat",
+    "login": "Login",
+    "logout": "Logout",
+    "register": "Register"
+  },
+  "topup": {
+    "title": "Top Up Center",
+    "get_code": {
+      "title": "Get Redemption Code",
+      "current_quota": "Current Available Quota",
+      "button": "Get Code Now"
+    },
+    "redeem_code": {
+      "title": "Redeem Code",
+      "placeholder": "Please enter redemption code",
+      "paste": "Paste",
+      "paste_error": "Cannot access clipboard, please paste manually",
+      "submit": "Redeem Now",
+      "submitting": "Redeeming...",
+      "empty_code": "Please enter the redemption code!",
+      "success": "Top up successful!",
+      "request_failed": "Request failed",
+      "no_link": "Admin has not set up the top-up link!"
+    }
+  }
+}

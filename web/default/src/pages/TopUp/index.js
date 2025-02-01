@@ -10,8 +10,10 @@ import {
 } from 'semantic-ui-react';
 import { API, showError, showInfo, showSuccess } from '../../helpers';
 import { renderQuota } from '../../helpers/render';
+import { useTranslation } from 'react-i18next';
 
 const TopUp = () => {
+  const { t } = useTranslation();
   const [redemptionCode, setRedemptionCode] = useState('');
   const [topUpLink, setTopUpLink] = useState('');
   const [userQuota, setUserQuota] = useState(0);
@@ -20,7 +22,7 @@ const TopUp = () => {
 
   const topUp = async () => {
     if (redemptionCode === '') {
-      showInfo('请输入兑换码！');
+      showInfo(t('topup.redeem_code.empty_code'));
       return;
     }
     setIsSubmitting(true);
@@ -30,7 +32,7 @@ const TopUp = () => {
       });
       const { success, message, data } = res.data;
       if (success) {
-        showSuccess('充值成功！');
+        showSuccess(t('topup.redeem_code.success'));
         setUserQuota((quota) => {
           return quota + data;
         });
@@ -39,7 +41,7 @@ const TopUp = () => {
         showError(message);
       }
     } catch (err) {
-      showError('请求失败');
+      showError(t('topup.redeem_code.request_failed'));
     } finally {
       setIsSubmitting(false);
     }
@@ -47,13 +49,12 @@ const TopUp = () => {
 
   const openTopUpLink = () => {
     if (!topUpLink) {
-      showError('超级管理员未设置充值链接！');
+      showError(t('topup.redeem_code.no_link'));
       return;
     }
     let url = new URL(topUpLink);
     let username = user.username;
     let user_id = user.id;
-    // add username and user_id to the topup link
     url.searchParams.append('username', username);
     url.searchParams.append('user_id', user_id);
     url.searchParams.append('transaction_id', crypto.randomUUID());
@@ -87,7 +88,7 @@ const TopUp = () => {
       <Card fluid className='chart-card'>
         <Card.Content>
           <Card.Header>
-            <Header as='h2'>充值中心</Header>
+            <Header as='h2'>{t('topup.title')}</Header>
           </Card.Header>
 
           <Grid columns={2} stackable>
@@ -109,7 +110,7 @@ const TopUp = () => {
                   <Card.Header>
                     <Header as='h3' style={{ color: '#2185d0', margin: '1em' }}>
                       <i className='credit card icon'></i>
-                      获取兑换码
+                      {t('topup.get_code.title')}
                     </Header>
                   </Card.Header>
                   <Card.Description
@@ -132,7 +133,9 @@ const TopUp = () => {
                           <Statistic.Value style={{ color: '#2185d0' }}>
                             {renderQuota(userQuota)}
                           </Statistic.Value>
-                          <Statistic.Label>当前可用额度</Statistic.Label>
+                          <Statistic.Label>
+                            {t('topup.get_code.current_quota')}
+                          </Statistic.Label>
                         </Statistic>
                       </div>
 
@@ -145,7 +148,7 @@ const TopUp = () => {
                           onClick={openTopUpLink}
                           style={{ width: '80%' }}
                         >
-                          立即获取兑换码
+                          {t('topup.get_code.button')}
                         </Button>
                       </div>
                     </div>
@@ -172,7 +175,7 @@ const TopUp = () => {
                   <Card.Header>
                     <Header as='h3' style={{ color: '#21ba45', margin: '1em' }}>
                       <i className='ticket alternate icon'></i>
-                      兑换码充值
+                      {t('topup.redeem_code.title')}
                     </Header>
                   </Card.Header>
                   <Card.Description
@@ -194,7 +197,7 @@ const TopUp = () => {
                         fluid
                         icon='key'
                         iconPosition='left'
-                        placeholder='请输入兑换码'
+                        placeholder={t('topup.redeem_code.placeholder')}
                         value={redemptionCode}
                         onChange={(e) => {
                           setRedemptionCode(e.target.value);
@@ -207,14 +210,14 @@ const TopUp = () => {
                         action={
                           <Button
                             icon='paste'
-                            content='粘贴'
+                            content={t('topup.redeem_code.paste')}
                             onClick={async () => {
                               try {
                                 const text =
                                   await navigator.clipboard.readText();
                                 setRedemptionCode(text.trim());
                               } catch (err) {
-                                showError('无法访问剪贴板，请手动粘贴');
+                                showError(t('topup.redeem_code.paste_error'));
                               }
                             }}
                           />
@@ -230,7 +233,9 @@ const TopUp = () => {
                           loading={isSubmitting}
                           disabled={isSubmitting}
                         >
-                          {isSubmitting ? '兑换中...' : '立即兑换'}
+                          {isSubmitting
+                            ? t('topup.redeem_code.submitting')
+                            : t('topup.redeem_code.submit')}
                         </Button>
                       </div>
                     </div>
