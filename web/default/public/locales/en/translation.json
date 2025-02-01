@@ -81,10 +81,10 @@
       "hide_detail": "Hide Details"
     },
     "messages": {
-      "test_success": "Channel ${name} test successful, model ${model}, time ${time}s, output: ${message}",
+      "test_success": "Channel {{name}} test successful, model {{model}}, time {{time}}s, output: {{message}}",
       "test_all_started": "Channel testing started successfully, please refresh page to see results.",
-      "delete_disabled_success": "Deleted all disabled channels, total: ${count}",
-      "balance_update_success": "Channel ${name} balance updated successfully!",
+      "delete_disabled_success": "Deleted all disabled channels, total: {{count}}",
+      "balance_update_success": "Channel {{name}} balance updated successfully!",
       "all_balance_updated": "All enabled channel balances have been updated!"
     },
     "edit": {

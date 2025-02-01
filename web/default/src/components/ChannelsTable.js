@@ -198,7 +198,7 @@ const ChannelsTable = () => {
     }
     const { success, message } = res.data;
     if (success) {
-      showSuccess('操作成功完成！');
+      showSuccess(t('channel.messages.operation_success'));
       let channel = res.data.data;
       let newChannels = [...channels];
       let realIdx = (activePage - 1) * ITEMS_PER_PAGE + idx;
@@ -325,14 +325,7 @@ const ChannelsTable = () => {
       newChannels[realIdx].response_time = time * 1000;
       newChannels[realIdx].test_time = Date.now() / 1000;
       setChannels(newChannels);
-      showInfo(
-        t('channel.messages.test_success', {
-          name: name,
-          model: model,
-          time: time.toFixed(2),
-          message: message,
-        })
-      );
+      showSuccess(t('channel.messages.test_success', { name, model, time, message }));
     } else {
       showError(message);
     }
@@ -357,9 +350,7 @@ const ChannelsTable = () => {
     const res = await API.delete(`/api/channel/disabled`);
     const { success, message, data } = res.data;
     if (success) {
-      showSuccess(
-        t('channel.messages.delete_disabled_success', { count: data })
-      );
+      showSuccess(t('channel.messages.delete_disabled_success', { count: data }));
       await refresh();
     } else {
       showError(message);
@@ -375,7 +366,7 @@ const ChannelsTable = () => {
       newChannels[realIdx].balance = balance;
       newChannels[realIdx].balance_updated_time = Date.now() / 1000;
       setChannels(newChannels);
-      showInfo(t('channel.messages.balance_update_success', { name: name }));
+      showSuccess(t('channel.messages.balance_update_success', { name }));
     } else {
       showError(message);
     }
