@@ -20,16 +20,18 @@ import {
   renderText,
 } from '../helpers/render';
 
-function renderRole(role) {
+function renderRole(role, t) {
   switch (role) {
     case 1:
-      return <Label>普通用户</Label>;
+      return <Label>{t('user.table.role_types.normal')}</Label>;
     case 10:
-      return <Label color='yellow'>管理员</Label>;
+      return <Label color='yellow'>{t('user.table.role_types.admin')}</Label>;
     case 100:
-      return <Label color='orange'>超级管理员</Label>;
+      return (
+        <Label color='orange'>{t('user.table.role_types.super_admin')}</Label>
+      );
     default:
-      return <Label color='red'>未知身份</Label>;
+      return <Label color='red'>{t('user.table.role_types.unknown')}</Label>;
   }
 }
 
@@ -85,7 +87,7 @@ const UsersTable = () => {
       });
       const { success, message } = res.data;
       if (success) {
-        showSuccess('操作成功完成！');
+        showSuccess(t('user.messages.operation_success'));
         let user = res.data.data;
         let newUsers = [...users];
         let realIdx = (activePage - 1) * ITEMS_PER_PAGE + idx;
@@ -105,17 +107,17 @@ const UsersTable = () => {
   const renderStatus = (status) => {
     switch (status) {
       case 1:
-        return <Label basic>已激活</Label>;
+        return <Label basic>{t('user.table.status_types.activated')}</Label>;
       case 2:
         return (
           <Label basic color='red'>
-            已封禁
+            {t('user.table.status_types.banned')}
           </Label>
         );
       default:
         return (
           <Label basic color='grey'>
-            未知状态
+            {t('user.table.status_types.unknown')}
           </Label>
         );
     }
@@ -177,7 +179,7 @@ const UsersTable = () => {
           icon='search'
           fluid
           iconPosition='left'
-          placeholder='搜索用户的 ID，用户名，显示名称，以及邮箱地址 ...'
+          placeholder={t('user.search')}
           value={searchKeyword}
           loading={searching}
           onChange={handleKeywordChange}
@@ -193,7 +195,7 @@ const UsersTable = () => {
                 sortUser('id');
               }}
             >
-              ID
+              {t('user.table.id')}
             </Table.HeaderCell>
             <Table.HeaderCell
               style={{ cursor: 'pointer' }}
@@ -201,7 +203,7 @@ const UsersTable = () => {
                 sortUser('username');
               }}
             >
-              用户名
+              {t('user.table.username')}
             </Table.HeaderCell>
             <Table.HeaderCell
               style={{ cursor: 'pointer' }}
@@ -209,7 +211,7 @@ const UsersTable = () => {
                 sortUser('group');
               }}
             >
-              分组
+              {t('user.table.group')}
             </Table.HeaderCell>
             <Table.HeaderCell
               style={{ cursor: 'pointer' }}
@@ -217,7 +219,7 @@ const UsersTable = () => {
                 sortUser('quota');
               }}
             >
-              统计信息
+              {t('user.table.quota')}
             </Table.HeaderCell>
             <Table.HeaderCell
               style={{ cursor: 'pointer' }}
@@ -225,7 +227,7 @@ const UsersTable = () => {
                 sortUser('role');
               }}
             >
-              用户角色
+              {t('user.table.role_text')}
             </Table.HeaderCell>
             <Table.HeaderCell
               style={{ cursor: 'pointer' }}
@@ -233,9 +235,9 @@ const UsersTable = () => {
                 sortUser('status');
               }}
             >
-              状态
+              {t('user.table.status_text')}
             </Table.HeaderCell>
-            <Table.HeaderCell>操作</Table.HeaderCell>
+            <Table.HeaderCell>{t('user.table.actions')}</Table.HeaderCell>
           </Table.Row>
         </Table.Header>
 
@@ -267,23 +269,25 @@ const UsersTable = () => {
                   {/*</Table.Cell>*/}
                   <Table.Cell>
                     <Popup
-                      content='剩余额度'
-                      trigger={<Label basic>{renderQuota(user.quota, t)}</Label>}
+                      content={t('user.table.remaining_quota')}
+                      trigger={
+                        <Label basic>{renderQuota(user.quota, t)}</Label>
+                      }
                     />
                     <Popup
-                      content='已用额度'
+                      content={t('user.table.used_quota')}
                       trigger={
                         <Label basic>{renderQuota(user.used_quota, t)}</Label>
                       }
                     />
                     <Popup
-                      content='请求次数'
+                      content={t('user.table.request_count')}
                       trigger={
                         <Label basic>{renderNumber(user.request_count)}</Label>
                       }
                     />
                   </Table.Cell>
-                  <Table.Cell>{renderRole(user.role)}</Table.Cell>
+                  <Table.Cell>{renderRole(user.role, t)}</Table.Cell>
                   <Table.Cell>{renderStatus(user.status)}</Table.Cell>
                   <Table.Cell>
                     <div>
@@ -295,7 +299,7 @@ const UsersTable = () => {
                         }}
                         disabled={user.role === 100}
                       >
-                        提升
+                        {t('user.buttons.promote')}
                       </Button>
                       <Button
                         size={'small'}
@@ -305,7 +309,7 @@ const UsersTable = () => {
                         }}
                         disabled={user.role === 100}
                       >
-                        降级
+                        {t('user.buttons.demote')}
                       </Button>
                       <Popup
                         trigger={
@@ -314,7 +318,7 @@ const UsersTable = () => {
                             negative
                             disabled={user.role === 100}
                           >
-                            删除
+                            {t('user.buttons.delete')}
                           </Button>
                         }
                         on='click'
@@ -327,7 +331,7 @@ const UsersTable = () => {
                             manageUser(user.username, 'delete', idx);
                           }}
                         >
-                          删除用户 {user.username}
+                          {t('user.buttons.delete_user')} {user.username}
                         </Button>
                       </Popup>
                       <Button
@@ -341,14 +345,16 @@ const UsersTable = () => {
                         }}
                         disabled={user.role === 100}
                       >
-                        {user.status === 1 ? '禁用' : '启用'}
+                        {user.status === 1
+                          ? t('user.buttons.disable')
+                          : t('user.buttons.enable')}
                       </Button>
                       <Button
                         size={'small'}
                         as={Link}
                         to={'/user/edit/' + user.id}
                       >
-                        编辑
+                        {t('user.buttons.edit')}
                       </Button>
                     </div>
                   </Table.Cell>
@@ -361,22 +367,26 @@ const UsersTable = () => {
           <Table.Row>
             <Table.HeaderCell colSpan='7'>
               <Button size='small' as={Link} to='/user/add' loading={loading}>
-                添加新的用户
+                {t('user.buttons.add')}
               </Button>
               <Dropdown
-                placeholder='排序方式'
+                placeholder={t('user.table.sort_by')}
                 selection
                 options={[
-                  { key: '', text: '默认排序', value: '' },
-                  { key: 'quota', text: '按剩余额度排序', value: 'quota' },
+                  { key: '', text: t('user.table.sort.default'), value: '' },
+                  {
+                    key: 'quota',
+                    text: t('user.table.sort.by_quota'),
+                    value: 'quota',
+                  },
                   {
                     key: 'used_quota',
-                    text: '按已用额度排序',
+                    text: t('user.table.sort.by_used_quota'),
                     value: 'used_quota',
                   },
                   {
                     key: 'request_count',
-                    text: '按请求次数排序',
+                    text: t('user.table.sort.by_request_count'),
                     value: 'request_count',
                   },
                 ]}

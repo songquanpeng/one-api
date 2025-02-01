@@ -305,6 +305,7 @@
     }
   },
   "user": {
+    "title": "用户管理",
     "edit": {
       "title": "更新用户信息",
       "username": "用户名",
@@ -337,6 +338,50 @@
     },
     "messages": {
       "create_success": "用户账户创建成功！"
+    },
+    "search": "搜索用户...",
+    "table": {
+      "id": "ID",
+      "username": "用户名",
+      "group": "分组",
+      "quota": "额度",
+      "role_text": "角色",
+      "status_text": "状态",
+      "actions": "操作",
+      "remaining_quota": "剩余额度",
+      "used_quota": "已用额度",
+      "request_count": "请求次数",
+      "role_types": {
+        "normal": "普通用户",
+        "admin": "管理员",
+        "super_admin": "超级管理员",
+        "unknown": "未知身份"
+      },
+      "status_types": {
+        "activated": "已激活",
+        "banned": "已封禁",
+        "unknown": "未知状态"
+      },
+      "sort": {
+        "default": "默认排序",
+        "by_quota": "按剩余额度排序",
+        "by_used_quota": "按已用额度排序",
+        "by_request_count": "按请求次数排序"
+      },
+      "sort_by": "排序方式"
+    },
+    "buttons": {
+      "add": "添加新的用户",
+      "delete": "删除",
+      "delete_user": "删除用户",
+      "enable": "启用",
+      "disable": "禁用",
+      "edit": "编辑",
+      "promote": "提升",
+      "demote": "降级"
+    },
+    "messages": {
+      "operation_success": "操作成功完成！"
     }
   }
 }

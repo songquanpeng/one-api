@@ -305,6 +305,7 @@
     }
   },
   "user": {
+    "title": "User Management",
     "edit": {
       "title": "Update User Information",
       "username": "Username",
@@ -337,6 +338,50 @@
     },
     "messages": {
       "create_success": "User account created successfully!"
+    },
+    "search": "Search users...",
+    "table": {
+      "id": "ID",
+      "username": "Username",
+      "group": "Group",
+      "quota": "Quota",
+      "role_text": "Role",
+      "status_text": "Status",
+      "actions": "Actions",
+      "remaining_quota": "Remaining Quota",
+      "used_quota": "Used Quota",
+      "request_count": "Request Count",
+      "role_types": {
+        "normal": "Normal User",
+        "admin": "Admin",
+        "super_admin": "Super Admin",
+        "unknown": "Unknown Role"
+      },
+      "status_types": {
+        "activated": "Activated",
+        "banned": "Banned",
+        "unknown": "Unknown Status"
+      },
+      "sort": {
+        "default": "Default Order",
+        "by_quota": "Sort by Remaining Quota",
+        "by_used_quota": "Sort by Used Quota",
+        "by_request_count": "Sort by Request Count"
+      },
+      "sort_by": "Sort By"
+    },
+    "buttons": {
+      "add": "Add New User",
+      "delete": "Delete",
+      "delete_user": "Delete User",
+      "enable": "Enable",
+      "disable": "Disable",
+      "edit": "Edit",
+      "promote": "Promote",
+      "demote": "Demote"
+    },
+    "messages": {
+      "operation_success": "Operation completed successfully!"
     }
   }
 }
