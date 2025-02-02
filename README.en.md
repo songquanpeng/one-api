@@ -52,8 +52,6 @@ _✨ Access all LLM through the standard OpenAI API format, easy to deploy & use
 
 > **Warning**: This README is translated by ChatGPT. Please feel free to submit a PR if you find any translation errors.
 
-> **Warning**: The Docker image for English version is `justsong/one-api-en`.
-
 > **Note**: The latest image pulled from Docker may be an `alpha` release. Specify the version manually if you require stability.
 
 ## Features
@@ -89,7 +87,9 @@ _✨ Access all LLM through the standard OpenAI API format, easy to deploy & use
 
 ## Deployment
 ### Docker Deployment
-Deployment command: `docker run --name one-api -d --restart always -p 3000:3000 -e TZ=Asia/Shanghai -v /home/ubuntu/data/one-api:/data justsong/one-api-en`
+
+Deployment command:
+`docker run --name one-api -d --restart always -p 3000:3000 -e TZ=Asia/Shanghai -v /home/ubuntu/data/one-api:/data justsong/one-api`
 
 Update command: `docker run --rm -v /var/run/docker.sock:/var/run/docker.sock containrrr/watchtower -cR`
 
