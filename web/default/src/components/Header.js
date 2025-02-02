@@ -24,11 +24,6 @@ import '../index.css';
 // Header Buttons
 let headerButtons = [
   {
-    name: 'header.home',
-    to: '/',
-    icon: 'home',
-  },
-  {
     name: 'header.channel',
     to: '/channel',
     icon: 'sitemap',
