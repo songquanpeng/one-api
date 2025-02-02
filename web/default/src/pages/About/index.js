@@ -54,10 +54,16 @@ const About = () => {
               style={{ width: '100%', height: '100vh', border: 'none' }}
             />
           ) : (
-            <div
-              style={{ fontSize: 'larger' }}
-              dangerouslySetInnerHTML={{ __html: about }}
-            ></div>
+            <div className='dashboard-container'>
+              <Card fluid className='chart-card'>
+                <Card.Content>
+                  <div
+                    style={{ fontSize: 'larger' }}
+                    dangerouslySetInnerHTML={{ __html: about }}
+                  ></div>
+                </Card.Content>
+              </Card>
+            </div>
           )}
         </>
       )}
