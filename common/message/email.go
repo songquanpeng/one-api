@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/songquanpeng/one-api/common/config"
+	"github.com/songquanpeng/one-api/common/logger"
 )
 
 func shouldAuth() bool {
@@ -102,5 +103,9 @@ func SendEmail(subject string, receiver string, content string) error {
 		return nil
 	}
 	err = smtp.SendMail(addr, auth, config.SMTPAccount, to, mail)
+	if err != nil && strings.Contains(err.Error(), "short response") { // 部分提供商返回该错误，但实际上邮件已经发送成功
+		logger.SysWarnf("short response from SMTP server, return nil instead of error: %s", err.Error())
+		return nil
+	}
 	return err
 }

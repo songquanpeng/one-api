@@ -57,6 +57,14 @@ func SysLogf(format string, a ...any) {
 	logHelper(nil, loggerINFO, fmt.Sprintf(format, a...))
 }
 
+func SysWarn(s string) {
+	logHelper(nil, loggerWarn, s)
+}
+
+func SysWarnf(format string, a ...any) {
+	logHelper(nil, loggerWarn, fmt.Sprintf(format, a...))
+}
+
 func SysError(s string) {
 	logHelper(nil, loggerError, s)
 }
