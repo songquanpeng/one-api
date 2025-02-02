@@ -5,15 +5,16 @@ import (
 	"bytes"
 	"encoding/json"
 	"io"
+	"math"
 	"net/http"
 	"strings"
-
-	"github.com/songquanpeng/one-api/common/render"
 
 	"github.com/gin-gonic/gin"
 	"github.com/songquanpeng/one-api/common"
 	"github.com/songquanpeng/one-api/common/conv"
 	"github.com/songquanpeng/one-api/common/logger"
+	"github.com/songquanpeng/one-api/common/render"
+	"github.com/songquanpeng/one-api/relay/billing/ratio"
 	"github.com/songquanpeng/one-api/relay/model"
 	"github.com/songquanpeng/one-api/relay/relaymode"
 )
@@ -96,6 +97,7 @@ func StreamHandler(c *gin.Context, resp *http.Response, relayMode int) (*model.E
 	return nil, responseText, usage
 }
 
+// Handler handles the non-stream response from OpenAI API
 func Handler(c *gin.Context, resp *http.Response, promptTokens int, modelName string) (*model.ErrorWithStatusCode, *model.Usage) {
 	var textResponse SlimTextResponse
 	responseBody, err := io.ReadAll(resp.Body)
@@ -116,8 +118,10 @@ func Handler(c *gin.Context, resp *http.Response, promptTokens int, modelName st
 			StatusCode: resp.StatusCode,
 		}, nil
 	}
+
 	// Reset response body
 	resp.Body = io.NopCloser(bytes.NewBuffer(responseBody))
+	logger.Debugf(c.Request.Context(), "handler response: %s", string(responseBody))
 
 	// We shouldn't set the header before we parse the response body, because the parse part may fail.
 	// And then we will have to send an error response, but in this case, the header has already been set.
@@ -146,6 +150,24 @@ func Handler(c *gin.Context, resp *http.Response, promptTokens int, modelName st
 			CompletionTokens: completionTokens,
 			TotalTokens:      promptTokens + completionTokens,
 		}
+	} else if textResponse.PromptTokensDetails.AudioTokens+textResponse.CompletionTokensDetails.AudioTokens > 0 {
+		// Convert the more expensive audio tokens to uniformly priced text tokens.
+		// Note that when there are no audio tokens in prompt and completion,
+		// OpenAI will return empty PromptTokensDetails and CompletionTokensDetails, which can be misleading.
+		textResponse.Usage.PromptTokens = textResponse.PromptTokensDetails.TextTokens +
+			int(math.Ceil(
+				float64(textResponse.PromptTokensDetails.AudioTokens)*
+					ratio.GetAudioPromptRatio(modelName),
+			))
+		textResponse.Usage.CompletionTokens = textResponse.CompletionTokensDetails.TextTokens +
+			int(math.Ceil(
+				float64(textResponse.CompletionTokensDetails.AudioTokens)*
+					ratio.GetAudioPromptRatio(modelName)*ratio.GetAudioCompletionRatio(modelName),
+			))
+
+		textResponse.Usage.TotalTokens = textResponse.Usage.PromptTokens +
+			textResponse.Usage.CompletionTokens
 	}
+
 	return nil, &textResponse.Usage
 }

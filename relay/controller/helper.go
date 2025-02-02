@@ -20,6 +20,7 @@ import (
 	"github.com/songquanpeng/one-api/relay/adaptor/openai"
 	billingratio "github.com/songquanpeng/one-api/relay/billing/ratio"
 	"github.com/songquanpeng/one-api/relay/channeltype"
+	"github.com/songquanpeng/one-api/relay/constant/role"
 	"github.com/songquanpeng/one-api/relay/controller/validator"
 	"github.com/songquanpeng/one-api/relay/meta"
 	relaymodel "github.com/songquanpeng/one-api/relay/model"
@@ -45,10 +46,10 @@ func getAndValidateTextRequest(c *gin.Context, relayMode int) (*relaymodel.Gener
 	return textRequest, nil
 }
 
-func getPromptTokens(textRequest *relaymodel.GeneralOpenAIRequest, relayMode int) int {
+func getPromptTokens(ctx context.Context, textRequest *relaymodel.GeneralOpenAIRequest, relayMode int) int {
 	switch relayMode {
 	case relaymode.ChatCompletions:
-		return openai.CountTokenMessages(textRequest.Messages, textRequest.Model)
+		return openai.CountTokenMessages(ctx, textRequest.Messages, textRequest.Model)
 	case relaymode.Completions:
 		return openai.CountTokenInput(textRequest.Prompt, textRequest.Model)
 	case relaymode.Moderations:
@@ -138,17 +139,6 @@ func postConsumeQuota(ctx context.Context, usage *relaymodel.Usage, meta *meta.M
 	})
 	model.UpdateUserUsedQuotaAndRequestCount(meta.UserId, quota)
 	model.UpdateChannelUsedQuota(meta.ChannelId, quota)
-}
-
-func getMappedModelName(modelName string, mapping map[string]string) (string, bool) {
-	if mapping == nil {
-		return modelName, false
-	}
-	mappedModelName := mapping[modelName]
-	if mappedModelName != "" {
-		return mappedModelName, true
-	}
-	return modelName, false
 }
 
 func isErrorHappened(meta *meta.Meta, resp *http.Response) bool {

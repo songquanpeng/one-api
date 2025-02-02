@@ -8,11 +8,14 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+
+	"github.com/songquanpeng/one-api/common/config"
 	"github.com/songquanpeng/one-api/relay/adaptor"
 	"github.com/songquanpeng/one-api/relay/adaptor/doubao"
 	"github.com/songquanpeng/one-api/relay/adaptor/minimax"
 	"github.com/songquanpeng/one-api/relay/adaptor/novita"
 	"github.com/songquanpeng/one-api/relay/channeltype"
+	"github.com/songquanpeng/one-api/relay/constant/role"
 	"github.com/songquanpeng/one-api/relay/meta"
 	"github.com/songquanpeng/one-api/relay/model"
 	"github.com/songquanpeng/one-api/relay/relaymode"
@@ -82,6 +85,28 @@ func (a *Adaptor) ConvertRequest(c *gin.Context, relayMode int, request *model.G
 		}
 		request.StreamOptions.IncludeUsage = true
 	}
+
+	// o1/o1-mini/o1-preview do not support system prompt and max_tokens
+	// refer: https://platform.openai.com/docs/api-reference/chat/create#chat-create-messages
+	if strings.HasPrefix(request.Model, "o1") {
+		request.MaxTokens = 0
+		request.Messages = func(raw []model.Message) (filtered []model.Message) {
+			for i := range raw {
+				if raw[i].Role != role.System {
+					filtered = append(filtered, raw[i])
+				}
+			}
+
+			return
+		}(request.Messages)
+	}
+
+	if request.Stream && strings.HasPrefix(request.Model, "gpt-4o-audio") && !config.EnforceIncludeUsage {
+		// TODO: Since it is not clear how to implement billing in stream mode,
+		// it is temporarily not supported
+		return nil, errors.New("set ENFORCE_INCLUDE_USAGE=true to enable stream mode for gpt-4o-audio")
+	}
+
 	return request, nil
 }
 

@@ -37,11 +37,11 @@ COPY --from=builder /web/build ./web/build
 
 RUN go build -trimpath -ldflags "-s -w -X 'github.com/songquanpeng/one-api/common.Version=$(cat VERSION)'" -o one-api
 
-# Final runtime image
+
 FROM ubuntu:22.04
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    ca-certificates tzdata bash \
+    ca-certificates tzdata bash ffmpeg \
     && rm -rf /var/lib/apt/lists/*
 
 COPY --from=builder2 /build/one-api /
