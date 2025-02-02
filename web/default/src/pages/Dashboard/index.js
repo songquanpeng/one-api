@@ -271,7 +271,7 @@ const Dashboard = () => {
                         t('dashboard.charts.requests.tooltip'),
                       ]}
                       labelFormatter={(label) =>
-                        `${t('dashboard.tooltip.date')}: ${formatDate(label)}`
+                        `${t('dashboard.statistics.tooltip.date')}: ${formatDate(label)}`
                       }
                     />
                     <Line
@@ -325,7 +325,7 @@ const Dashboard = () => {
                         t('dashboard.charts.quota.tooltip'),
                       ]}
                       labelFormatter={(label) =>
-                        `${t('dashboard.tooltip.date')}: ${formatDate(label)}`
+                        `${t('dashboard.statistics.tooltip.date')}: ${formatDate(label)}`
                       }
                     />
                     <Line
@@ -377,7 +377,7 @@ const Dashboard = () => {
                         t('dashboard.charts.tokens.tooltip'),
                       ]}
                       labelFormatter={(label) =>
-                        `${t('dashboard.tooltip.date')}: ${formatDate(label)}`
+                        `${t('dashboard.statistics.tooltip.date')}: ${formatDate(label)}`
                       }
                     />
                     <Line
@@ -422,7 +422,7 @@ const Dashboard = () => {
                     boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
                   }}
                   labelFormatter={(label) =>
-                    `${t('dashboard.tooltip.date')}: ${formatDate(label)}`
+                    `${t('dashboard.statistics.tooltip.date')}: ${formatDate(label)}`
                   }
                 />
                 <Legend
