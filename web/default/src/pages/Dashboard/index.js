@@ -1,19 +1,17 @@
-import React, { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { Card, Grid, Header, Segment, Statistic } from 'semantic-ui-react';
-import { API, showError } from '../../helpers';
-import moment from 'moment';
+import React, {useEffect, useState} from 'react';
+import {useTranslation} from 'react-i18next';
+import {Card, Grid} from 'semantic-ui-react';
 import {
-  LineChart,
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Legend,
   Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
   XAxis,
   YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  BarChart,
-  Bar,
-  Legend,
 } from 'recharts';
 import axios from 'axios';
 import './Dashboard.css';
@@ -244,7 +242,7 @@ const Dashboard = () => {
             <Card.Content>
               <Card.Header>
                 {t('dashboard.charts.requests.title')}
-                <span className='stat-value'>{summaryData.todayRequests}</span>
+                  {/* <span className='stat-value'>{summaryData.todayRequests}</span> */}
               </Card.Header>
               <div className='chart-container'>
                 <ResponsiveContainer
@@ -296,9 +294,9 @@ const Dashboard = () => {
             <Card.Content>
               <Card.Header>
                 {t('dashboard.charts.quota.title')}
-                <span className='stat-value'>
+                  {/* <span className='stat-value'>
                   ${summaryData.todayQuota.toFixed(3)}
-                </span>
+                </span> */}
               </Card.Header>
               <div className='chart-container'>
                 <ResponsiveContainer
@@ -350,7 +348,7 @@ const Dashboard = () => {
             <Card.Content>
               <Card.Header>
                 {t('dashboard.charts.tokens.title')}
-                <span className='stat-value'>{summaryData.todayTokens}</span>
+                  {/* <span className='stat-value'>{summaryData.todayTokens}</span> */}
               </Card.Header>
               <div className='chart-container'>
                 <ResponsiveContainer
