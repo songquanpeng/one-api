@@ -82,15 +82,17 @@ var ModelRatio = map[string]float64{
 	"text-moderation-latest":  0.1,
 	"dall-e-2":                0.02 * USD, // $0.016 - $0.020 / image
 	"dall-e-3":                0.04 * USD, // $0.040 - $0.120 / image
-	// https://www.anthropic.com/api#pricing
+	// https://docs.anthropic.com/en/docs/about-claude/models
 	"claude-instant-1.2":         0.8 / 1000 * USD,
 	"claude-2.0":                 8.0 / 1000 * USD,
 	"claude-2.1":                 8.0 / 1000 * USD,
 	"claude-3-haiku-20240307":    0.25 / 1000 * USD,
 	"claude-3-5-haiku-20241022":  1.0 / 1000 * USD,
+	"claude-3-5-haiku-latest":    1.0 / 1000 * USD,	
 	"claude-3-sonnet-20240229":   3.0 / 1000 * USD,
 	"claude-3-5-sonnet-20240620": 3.0 / 1000 * USD,
 	"claude-3-5-sonnet-20241022": 3.0 / 1000 * USD,
+	"claude-3-5-sonnet-latest"  : 3.0 / 1000 * USD,	
 	"claude-3-opus-20240229":     15.0 / 1000 * USD,
 	// https://cloud.baidu.com/doc/WENXINWORKSHOP/s/hlrk4akp7
 	"ERNIE-4.0-8K":       0.120 * RMB,
