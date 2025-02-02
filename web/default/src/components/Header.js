@@ -192,6 +192,12 @@ const Header = () => {
               <Menu.Item>
                 <Dropdown
                   selection
+                  trigger={
+                    <Icon
+                      name='language'
+                      style={{ margin: 0, fontSize: '18px' }}
+                    />
+                  }
                   options={languageOptions}
                   value={i18n.language}
                   onChange={(_, { value }) => changeLanguage(value)}
@@ -265,13 +271,17 @@ const Header = () => {
           <Menu.Menu position='right'>
             <Dropdown
               item
+              trigger={
+                <Icon name='language' style={{ margin: 0, fontSize: '18px' }} />
+              }
               options={languageOptions}
               value={i18n.language}
               onChange={(_, { value }) => changeLanguage(value)}
               style={{
-                fontSize: '15px',
+                fontSize: '16px',
                 fontWeight: '400',
                 color: '#666',
+                padding: '0 10px',
               }}
             />
             {userState.user ? (
