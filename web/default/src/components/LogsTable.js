@@ -328,6 +328,7 @@ const LogsTable = () => {
           <Form.Input
             fluid
             label={t('log.table.token_name')}
+            size={'small'}
             width={3}
             value={token_name}
             placeholder={t('log.table.token_name_placeholder')}
@@ -337,6 +338,7 @@ const LogsTable = () => {
           <Form.Input
             fluid
             label={t('log.table.model_name')}
+            size={'small'}
             width={3}
             value={model_name}
             placeholder={t('log.table.model_name_placeholder')}
@@ -346,6 +348,7 @@ const LogsTable = () => {
           <Form.Input
             fluid
             label={t('log.table.start_time')}
+            size={'small'}
             width={4}
             value={start_timestamp}
             type='datetime-local'
@@ -355,6 +358,7 @@ const LogsTable = () => {
           <Form.Input
             fluid
             label={t('log.table.end_time')}
+            size={'small'}
             width={4}
             value={end_timestamp}
             type='datetime-local'
@@ -364,6 +368,7 @@ const LogsTable = () => {
           <Form.Button
             fluid
             label={t('log.buttons.query')}
+            size={'small'}
             width={2}
             onClick={refresh}
           >
@@ -376,6 +381,7 @@ const LogsTable = () => {
               <Form.Input
                 fluid
                 label={t('log.table.channel_id')}
+                size={'small'}
                 width={3}
                 value={channel}
                 placeholder={t('log.table.channel_id_placeholder')}
@@ -385,6 +391,7 @@ const LogsTable = () => {
               <Form.Input
                 fluid
                 label={t('log.table.username')}
+                size={'small'}
                 width={3}
                 value={username}
                 placeholder={t('log.table.username_placeholder')}
