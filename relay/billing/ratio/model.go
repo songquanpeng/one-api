@@ -23,6 +23,10 @@ const (
 // 1 === ￥0.014 / 1k tokens
 var ModelRatio = map[string]float64{
 	// https://openai.com/pricing
+	"o1-preview":              15,
+	"o1-preview-2024-09-12":   15,
+	"o1-mini":                 3,
+	"o1-mini-2024-09-12":      3,
 	"gpt-4":                   15,
 	"gpt-4-0314":              15,
 	"gpt-4-0613":              15,
