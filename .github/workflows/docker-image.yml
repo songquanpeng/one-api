@@ -55,8 +55,8 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: |
-            justsong/one-api
-            ghcr.io/${{ github.repository }}
+            ${{ contains(github.ref, 'alpha') && 'justsong/one-api-alpha' || 'justsong/one-api' }}
+            ${{ contains(github.ref, 'alpha') && 'ghcr.io/${{ github.repository }}-alpha' || 'ghcr.io/${{ github.repository }}' }}
 
       - name: Build and push Docker images
         uses: docker/build-push-action@v3
