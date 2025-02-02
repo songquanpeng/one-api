@@ -137,7 +137,9 @@ const PasswordResetForm = () => {
                   marginBottom: '1.5em',
                 }}
               >
-                {disableButton ? t('auth.register.get_code_retry', { countdown }) : t('auth.reset.button')}
+                {disableButton
+                  ? t('auth.register.get_code_retry', { countdown })
+                  : t('auth.reset.button')}
               </Button>
             </Form>
             <Message style={{ background: 'transparent', boxShadow: 'none' }}>

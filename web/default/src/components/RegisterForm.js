@@ -187,11 +187,8 @@ const RegisterForm = () => {
                     name='email'
                     type='email'
                     action={
-                      <Button
-                        onClick={sendVerificationCode}
-                        disabled={loading}
-                      >
-                        {disableButton 
+                      <Button onClick={sendVerificationCode} disabled={loading}>
+                        {disableButton
                           ? t('auth.register.get_code_retry', { countdown })
                           : t('auth.register.get_code')}
                       </Button>
@@ -252,7 +249,10 @@ const RegisterForm = () => {
                 }}
               >
                 {t('auth.register.has_account')}
-                <Link to='/login' style={{ color: '#2185d0' }}>
+                <Link
+                  to='/login'
+                  style={{ color: '#2185d0', marginLeft: '2px' }}
+                >
                   {t('auth.register.login')}
                 </Link>
               </div>

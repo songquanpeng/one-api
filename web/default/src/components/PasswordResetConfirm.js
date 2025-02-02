@@ -132,7 +132,9 @@ const PasswordResetConfirm = () => {
                   marginBottom: '1.5em',
                 }}
               >
-                {disableButton ? t('auth.reset.confirm.button_disabled') : t('auth.reset.confirm.button')}
+                {disableButton
+                  ? t('auth.reset.confirm.button_disabled')
+                  : t('auth.reset.confirm.button')}
               </Button>
             </Form>
             {newPassword && (
