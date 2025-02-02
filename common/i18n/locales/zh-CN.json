@@ -1,0 +1,11 @@
+{
+  "success": "成功",
+  "unauthorized": "未授权",
+  "forbidden": "禁止访问",
+  "invalid_token": "无效的令牌",
+  "channel_not_found": "未找到渠道",
+  "invalid_request": "无效的请求",
+  "internal_error": "服务器内部错误",
+  "quota_exceeded": "配额已用尽",
+  "invalid_input": "无效的输入，请检查您的输入"
+}

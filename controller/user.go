@@ -3,17 +3,19 @@ package controller
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/songquanpeng/one-api/common"
-	"github.com/songquanpeng/one-api/common/config"
-	"github.com/songquanpeng/one-api/common/ctxkey"
-	"github.com/songquanpeng/one-api/common/random"
-	"github.com/songquanpeng/one-api/model"
 	"net/http"
 	"strconv"
 	"time"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
+
+	"github.com/songquanpeng/one-api/common"
+	"github.com/songquanpeng/one-api/common/config"
+	"github.com/songquanpeng/one-api/common/ctxkey"
+	"github.com/songquanpeng/one-api/common/i18n"
+	"github.com/songquanpeng/one-api/common/random"
+	"github.com/songquanpeng/one-api/model"
 )
 
 type LoginRequest struct {
@@ -136,7 +138,7 @@ func Register(c *gin.Context) {
 	if err := common.Validate.Struct(&user); err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
-			"message": "输入不合法 " + err.Error(),
+			"message": i18n.Translate(c, "invalid_input"),
 		})
 		return
 	}
@@ -379,7 +381,7 @@ func UpdateUser(c *gin.Context) {
 	if err := common.Validate.Struct(&updatedUser); err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
-			"message": "输入不合法 " + err.Error(),
+			"message": i18n.Translate(c, "invalid_input"),
 		})
 		return
 	}
@@ -550,7 +552,7 @@ func CreateUser(c *gin.Context) {
 	if err := common.Validate.Struct(&user); err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
-			"message": "输入不合法 " + err.Error(),
+			"message": i18n.Translate(c, "invalid_input"),
 		})
 		return
 	}
