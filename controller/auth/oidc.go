@@ -5,15 +5,17 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net/http"
+	"strconv"
+	"time"
+
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
+
 	"github.com/songquanpeng/one-api/common/config"
 	"github.com/songquanpeng/one-api/common/logger"
 	"github.com/songquanpeng/one-api/controller"
 	"github.com/songquanpeng/one-api/model"
-	"net/http"
-	"strconv"
-	"time"
 )
 
 type OidcResponse struct {
@@ -87,6 +89,7 @@ func getOidcUserInfoByCode(code string) (*OidcUser, error) {
 }
 
 func OidcAuth(c *gin.Context) {
+	ctx := c.Request.Context()
 	session := sessions.Default(c)
 	state := c.Query("state")
 	if state == "" || session.Get("oauth_state") == nil || state != session.Get("oauth_state").(string) {
@@ -142,7 +145,7 @@ func OidcAuth(c *gin.Context) {
 			} else {
 				user.DisplayName = "OIDC User"
 			}
-			err := user.Insert(0)
+			err := user.Insert(ctx, 0)
 			if err != nil {
 				c.JSON(http.StatusOK, gin.H{
 					"success": false,

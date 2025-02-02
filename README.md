@@ -56,8 +56,12 @@ _✨ 通过标准的 OpenAI API 格式访问所有的大模型，开箱即用 �
 >
 > 根据[《生成式人工智能服务管理暂行办法》](http://www.cac.gov.cn/2023-07/13/c_1690898327029107.htm)的要求，请勿对中国地区公众提供一切未经备案的生成式人工智能服务。
 
-> [!WARNING]
-> 使用 Docker 拉取的最新镜像可能是 `alpha` 版本，如果追求稳定性请手动指定版本。
+> [!NOTE]
+> 稳定版镜像地址：[justsong/one-api](https://hub.docker.com/repository/docker/justsong/one-api)
+> 或者 [ghcr.io/songquanpeng/one-api](https://github.com/songquanpeng/one-api/pkgs/container/one-api)
+>
+> 预览版镜像地址：[justsong/one-api-alpha](https://hub.docker.com/repository/docker/justsong/one-api-alpha)
+> 或者 [ghcr.io/songquanpeng/one-api-alpha](https://github.com/songquanpeng/one-api/pkgs/container/one-api-alpha)
 
 > [!WARNING]
 > 使用 root 用户初次登录系统后，务必修改默认密码 `123456`！
@@ -410,6 +414,7 @@ graph LR
 27. `INITIAL_ROOT_TOKEN`：如果设置了该值，则在系统首次启动时会自动创建一个值为该环境变量值的 root 用户令牌。
 28. `INITIAL_ROOT_ACCESS_TOKEN`：如果设置了该值，则在系统首次启动时会自动创建一个值为该环境变量的 root 用户创建系统管理令牌。
 29. `ENFORCE_INCLUDE_USAGE`：是否强制在 stream 模型下返回 usage，默认不开启，可选值为 `true` 和 `false`。
+30. `TEST_PROMPT`：测试模型时的用户 prompt，默认为 `Print your model name exactly and do not output without any other text.`。
 
 ### 命令行参数
 1. `--port <port_number>`: 指定服务器监听的端口号，默认为 `3000`。

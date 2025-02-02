@@ -1,12 +1,13 @@
 package config
 
 import (
-	"github.com/songquanpeng/one-api/common/env"
 	"os"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/songquanpeng/one-api/common/env"
 
 	"github.com/google/uuid"
 )
@@ -125,10 +126,10 @@ var ValidThemes = map[string]bool{
 // All duration's unit is seconds
 // Shouldn't larger then RateLimitKeyExpirationDuration
 var (
-	GlobalApiRateLimitNum            = env.Int("GLOBAL_API_RATE_LIMIT", 240)
+	GlobalApiRateLimitNum            = env.Int("GLOBAL_API_RATE_LIMIT", 480)
 	GlobalApiRateLimitDuration int64 = 3 * 60
 
-	GlobalWebRateLimitNum            = env.Int("GLOBAL_WEB_RATE_LIMIT", 120)
+	GlobalWebRateLimitNum            = env.Int("GLOBAL_WEB_RATE_LIMIT", 240)
 	GlobalWebRateLimitDuration int64 = 3 * 60
 
 	UploadRateLimitNum            = 10
@@ -163,3 +164,4 @@ var UserContentRequestTimeout = env.Int("USER_CONTENT_REQUEST_TIMEOUT", 30)
 
 // EnforceIncludeUsage is used to determine whether to include usage in the response
 var EnforceIncludeUsage = env.Bool("ENFORCE_INCLUDE_USAGE", false)
+var TestPrompt = env.String("TEST_PROMPT", "Print your model name exactly and do not output without any other text.")

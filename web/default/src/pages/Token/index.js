@@ -1,14 +1,21 @@
 import React from 'react';
-import { Segment, Header } from 'semantic-ui-react';
+import { Card } from 'semantic-ui-react';
 import TokensTable from '../../components/TokensTable';
+import { useTranslation } from 'react-i18next';
 
-const Token = () => (
-  <>
-    <Segment>
-      <Header as='h3'>我的令牌</Header>
-      <TokensTable/>
-    </Segment>
-  </>
-);
+const Token = () => {
+  const { t } = useTranslation();
+
+  return (
+    <div className='dashboard-container'>
+      <Card fluid className='chart-card'>
+        <Card.Content>
+          <Card.Header className='header'>{t('token.title')}</Card.Header>
+          <TokensTable />
+        </Card.Content>
+      </Card>
+    </div>
+  );
+};
 
 export default Token;

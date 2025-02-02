@@ -10,6 +10,7 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/pkoukk/tiktoken-go"
+
 	"github.com/songquanpeng/one-api/common/config"
 	"github.com/songquanpeng/one-api/common/helper"
 	"github.com/songquanpeng/one-api/common/image"
@@ -27,7 +28,8 @@ func InitTokenEncoders() {
 	logger.SysLog("initializing token encoders")
 	gpt35TokenEncoder, err := tiktoken.EncodingForModel("gpt-3.5-turbo")
 	if err != nil {
-		logger.FatalLog(fmt.Sprintf("failed to get gpt-3.5-turbo token encoder: %s", err.Error()))
+		logger.FatalLog(fmt.Sprintf("failed to get gpt-3.5-turbo token encoder: %s, "+
+			"if you are using in offline environment, please set TIKTOKEN_CACHE_DIR to use exsited files, check this link for more information: https://stackoverflow.com/questions/76106366/how-to-use-tiktoken-in-offline-mode-computer ", err.Error()))
 	}
 	defaultTokenEncoder = gpt35TokenEncoder
 	gpt4oTokenEncoder, err := tiktoken.EncodingForModel("gpt-4o")

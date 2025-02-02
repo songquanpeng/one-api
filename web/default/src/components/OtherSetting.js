@@ -1,10 +1,20 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Divider, Form, Grid, Header, Message, Modal } from 'semantic-ui-react';
-import { API, showError, showSuccess } from '../helpers';
-import { marked } from 'marked';
+import { useTranslation } from 'react-i18next';
+import {
+  Button,
+  Divider,
+  Form,
+  Grid,
+  Header,
+  Message,
+  Modal,
+} from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
+import { API, showError, showSuccess, verifyJSON } from '../helpers';
+import { marked } from 'marked';
 
 const OtherSetting = () => {
+  const { t } = useTranslation();
   let [inputs, setInputs] = useState({
     Footer: '',
     Notice: '',
@@ -12,13 +22,13 @@ const OtherSetting = () => {
     SystemName: '',
     Logo: '',
     HomePageContent: '',
-    Theme: ''
+    Theme: '',
   });
   let [loading, setLoading] = useState(false);
   const [showUpdateModal, setShowUpdateModal] = useState(false);
   const [updateData, setUpdateData] = useState({
     tag_name: '',
-    content: ''
+    content: '',
   });
 
   const getOptions = async () => {
@@ -45,7 +55,7 @@ const OtherSetting = () => {
     setLoading(true);
     const res = await API.put('/api/option/', {
       key,
-      value
+      value,
     });
     const { success, message } = res.data;
     if (success) {
@@ -62,10 +72,6 @@ const OtherSetting = () => {
 
   const submitNotice = async () => {
     await updateOption('Notice', inputs.Notice);
-  };
-
-  const submitFooter = async () => {
-    await updateOption('Footer', inputs.Footer);
   };
 
   const submitSystemName = async () => {
@@ -89,8 +95,7 @@ const OtherSetting = () => {
   };
 
   const openGitHubRelease = () => {
-    window.location =
-      'https://github.com/songquanpeng/one-api/releases/latest';
+    window.location = 'https://github.com/songquanpeng/one-api/releases/latest';
   };
 
   const checkUpdate = async () => {
@@ -103,7 +108,7 @@ const OtherSetting = () => {
     } else {
       setUpdateData({
         tag_name: tag_name,
-        content: marked.parse(body)
+        content: marked.parse(body),
       });
       setShowUpdateModal(true);
     }
@@ -113,87 +118,110 @@ const OtherSetting = () => {
     <Grid columns={1}>
       <Grid.Column>
         <Form loading={loading}>
-          <Header as='h3'>通用设置</Header>
-          <Form.Button onClick={checkUpdate}>检查更新</Form.Button>
+          <Header as='h3'>{t('setting.other.notice.title')}</Header>
           <Form.Group widths='equal'>
             <Form.TextArea
-              label='公告'
-              placeholder='在此输入新的公告内容，支持 Markdown & HTML 代码'
+              label={t('setting.other.notice.content')}
+              placeholder={t('setting.other.notice.content_placeholder')}
               value={inputs.Notice}
               name='Notice'
               onChange={handleInputChange}
-              style={{ minHeight: 150, fontFamily: 'JetBrains Mono, Consolas' }}
+              style={{ minHeight: 100, fontFamily: 'JetBrains Mono, Consolas' }}
             />
           </Form.Group>
-          <Form.Button onClick={submitNotice}>保存公告</Form.Button>
+          <Form.Button onClick={submitNotice}>
+            {t('setting.other.notice.buttons.save')}
+          </Form.Button>
+
           <Divider />
-          <Header as='h3'>个性化设置</Header>
+          <Header as='h3'>{t('setting.other.system.title')}</Header>
           <Form.Group widths='equal'>
             <Form.Input
-              label='系统名称'
-              placeholder='在此输入系统名称'
+              label={t('setting.other.system.name')}
+              placeholder={t('setting.other.system.name_placeholder')}
               value={inputs.SystemName}
               name='SystemName'
               onChange={handleInputChange}
             />
           </Form.Group>
-          <Form.Button onClick={submitSystemName}>设置系统名称</Form.Button>
+          <Form.Button onClick={submitSystemName}>
+            {t('setting.other.system.buttons.save_name')}
+          </Form.Button>
           <Form.Group widths='equal'>
             <Form.Input
-              label={<label>主题名称（<Link
-                to='https://github.com/songquanpeng/one-api/blob/main/web/README.md'>当前可用主题</Link>）</label>}
-              placeholder='请输入主题名称'
+              label={
+                <label>
+                  {t('setting.other.system.theme.title')}（
+                  <Link to='https://github.com/songquanpeng/one-api/blob/main/web/README.md'>
+                    {t('setting.other.system.theme.link')}
+                  </Link>
+                  ）
+                </label>
+              }
+              placeholder={t('setting.other.system.theme.placeholder')}
               value={inputs.Theme}
               name='Theme'
               onChange={handleInputChange}
             />
           </Form.Group>
-          <Form.Button onClick={submitTheme}>设置主题（重启生效）</Form.Button>
+          <Form.Button onClick={submitTheme}>
+            {t('setting.other.system.buttons.save_theme')}
+          </Form.Button>
           <Form.Group widths='equal'>
             <Form.Input
-              label='Logo 图片地址'
-              placeholder='在此输入 Logo 图片地址'
+              label={t('setting.other.system.logo')}
+              placeholder={t('setting.other.system.logo_placeholder')}
               value={inputs.Logo}
               name='Logo'
               type='url'
               onChange={handleInputChange}
             />
           </Form.Group>
-          <Form.Button onClick={submitLogo}>设置 Logo</Form.Button>
+          <Form.Button onClick={submitLogo}>
+            {t('setting.other.system.buttons.save_logo')}
+          </Form.Button>
+
+          <Divider />
+          <Header as='h3'>{t('setting.other.content.title')}</Header>
           <Form.Group widths='equal'>
             <Form.TextArea
-              label='首页内容'
-              placeholder='在此输入首页内容，支持 Markdown & HTML 代码，设置后首页的状态信息将不再显示。如果输入的是一个链接，则会使用该链接作为 iframe 的 src 属性，这允许你设置任意网页作为首页。'
+              label={t('setting.other.content.homepage.title')}
+              placeholder={t('setting.other.content.homepage.placeholder')}
               value={inputs.HomePageContent}
               name='HomePageContent'
               onChange={handleInputChange}
               style={{ minHeight: 150, fontFamily: 'JetBrains Mono, Consolas' }}
             />
           </Form.Group>
-          <Form.Button onClick={() => submitOption('HomePageContent')}>保存首页内容</Form.Button>
+          <Form.Button onClick={() => submitOption('HomePageContent')}>
+            {t('setting.other.content.buttons.save_homepage')}
+          </Form.Button>
           <Form.Group widths='equal'>
             <Form.TextArea
-              label='关于'
-              placeholder='在此输入新的关于内容，支持 Markdown & HTML 代码。如果输入的是一个链接，则会使用该链接作为 iframe 的 src 属性，这允许你设置任意网页作为关于页面。'
+              label={t('setting.other.content.about.title')}
+              placeholder={t('setting.other.content.about.placeholder')}
               value={inputs.About}
               name='About'
               onChange={handleInputChange}
               style={{ minHeight: 150, fontFamily: 'JetBrains Mono, Consolas' }}
             />
           </Form.Group>
-          <Form.Button onClick={submitAbout}>保存关于</Form.Button>
-          <Message>移除 One API
-            的版权标识必须首先获得授权，项目维护需要花费大量精力，如果本项目对你有意义，请主动支持本项目。</Message>
+          <Form.Button onClick={submitAbout}>
+            {t('setting.other.content.buttons.save_about')}
+          </Form.Button>
+          <Message>{t('setting.other.copyright.notice')}</Message>
           <Form.Group widths='equal'>
             <Form.Input
-              label='页脚'
-              placeholder='在此输入新的页脚，留空则使用默认页脚，支持 HTML 代码'
+              label={t('setting.other.content.footer.title')}
+              placeholder={t('setting.other.content.footer.placeholder')}
               value={inputs.Footer}
               name='Footer'
               onChange={handleInputChange}
             />
           </Form.Group>
-          <Form.Button onClick={submitFooter}>设置页脚</Form.Button>
+          <Form.Button onClick={() => submitOption('Footer')}>
+            {t('setting.other.content.buttons.save_footer')}
+          </Form.Button>
         </Form>
       </Grid.Column>
       <Modal

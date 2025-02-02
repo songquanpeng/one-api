@@ -1,10 +1,25 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Form, Header, Message, Segment } from 'semantic-ui-react';
+import { useTranslation } from 'react-i18next';
+import {
+  Button,
+  Form,
+  Header,
+  Message,
+  Segment,
+  Card,
+} from 'semantic-ui-react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { API, copy, showError, showSuccess, timestamp2string } from '../../helpers';
+import {
+  API,
+  copy,
+  showError,
+  showSuccess,
+  timestamp2string,
+} from '../../helpers';
 import { renderQuotaWithPrompt } from '../../helpers/render';
 
 const EditToken = () => {
+  const { t } = useTranslation();
   const params = useParams();
   const tokenId = params.id;
   const isEdit = tokenId !== undefined;
@@ -16,7 +31,7 @@ const EditToken = () => {
     expired_time: -1,
     unlimited_quota: false,
     models: [],
-    subnet: "",
+    subnet: '',
   };
   const [inputs, setInputs] = useState(originInputs);
   const { name, remain_quota, expired_time, unlimited_quota } = inputs;
@@ -47,46 +62,60 @@ const EditToken = () => {
   };
 
   const loadToken = async () => {
-    let res = await API.get(`/api/token/${tokenId}`);
-    const { success, message, data } = res.data;
-    if (success) {
-      if (data.expired_time !== -1) {
-        data.expired_time = timestamp2string(data.expired_time);
-      }
-      if (data.models === '') {
-        data.models = [];
+    try {
+      let res = await API.get(`/api/token/${tokenId}`);
+      const { success, message, data } = res.data || {};
+      if (success && data) {
+        if (data.expired_time !== -1) {
+          data.expired_time = timestamp2string(data.expired_time);
+        }
+        if (data.models === '') {
+          data.models = [];
+        } else {
+          data.models = data.models.split(',');
+        }
+        setInputs(data);
       } else {
-        data.models = data.models.split(',');
+        showError(message || 'Failed to load token');
       }
-      setInputs(data);
-    } else {
-      showError(message);
+    } catch (error) {
+      showError(error.message || 'Network error');
     }
     setLoading(false);
   };
-  useEffect(() => {
-    if (isEdit) {
-      loadToken().then();
-    }
-    loadAvailableModels().then();
-  }, []);
 
   const loadAvailableModels = async () => {
-    let res = await API.get(`/api/user/available_models`);
-    const { success, message, data } = res.data;
-    if (success) {
-      let options = data.map((model) => {
-        return {
-          key: model,
-          text: model,
-          value: model
-        };
-      });
-      setModelOptions(options);
-    } else {
-      showError(message);
+    try {
+      let res = await API.get(`/api/user/available_models`);
+      const { success, message, data } = res.data || {};
+      if (success && data) {
+        let options = data.map((model) => {
+          return {
+            key: model,
+            text: model,
+            value: model,
+          };
+        });
+        setModelOptions(options);
+      } else {
+        showError(message || 'Failed to load models');
+      }
+    } catch (error) {
+      showError(error.message || 'Network error');
     }
   };
+
+  useEffect(() => {
+    if (isEdit) {
+      loadToken().catch((error) => {
+        showError(error.message || 'Failed to load token');
+        setLoading(false);
+      });
+    }
+    loadAvailableModels().catch((error) => {
+      showError(error.message || 'Failed to load models');
+    });
+  }, []);
 
   const submit = async () => {
     if (!isEdit && inputs.name === '') return;
@@ -95,7 +124,7 @@ const EditToken = () => {
     if (localInputs.expired_time !== -1) {
       let time = Date.parse(localInputs.expired_time);
       if (isNaN(time)) {
-        showError('过期时间格式错误！');
+        showError(t('token.edit.messages.expire_time_invalid'));
         return;
       }
       localInputs.expired_time = Math.ceil(time / 1000);
@@ -103,16 +132,19 @@ const EditToken = () => {
     localInputs.models = localInputs.models.join(',');
     let res;
     if (isEdit) {
-      res = await API.put(`/api/token/`, { ...localInputs, id: parseInt(tokenId) });
+      res = await API.put(`/api/token/`, {
+        ...localInputs,
+        id: parseInt(tokenId),
+      });
     } else {
       res = await API.post(`/api/token/`, localInputs);
     }
     const { success, message } = res.data;
     if (success) {
       if (isEdit) {
-        showSuccess('令牌更新成功！');
+        showSuccess(t('token.edit.messages.update_success'));
       } else {
-        showSuccess('令牌创建成功，请在列表页面点击复制获取令牌！');
+        showSuccess(t('token.edit.messages.create_success'));
         setInputs(originInputs);
       }
     } else {
@@ -121,98 +153,141 @@ const EditToken = () => {
   };
 
   return (
-    <>
-      <Segment loading={loading}>
-        <Header as='h3'>{isEdit ? '更新令牌信息' : '创建新的令牌'}</Header>
-        <Form autoComplete='new-password'>
-          <Form.Field>
-            <Form.Input
-              label='名称'
-              name='name'
-              placeholder={'请输入名称'}
-              onChange={handleInputChange}
-              value={name}
-              autoComplete='new-password'
-              required={!isEdit}
-            />
-          </Form.Field>
-          <Form.Field>
-            <Form.Dropdown
-              label='模型范围'
-              placeholder={'请选择允许使用的模型，留空则不进行限制'}
-              name='models'
-              fluid
-              multiple
-              search
-              onLabelClick={(e, { value }) => {
-                copy(value).then();
+    <div className='dashboard-container'>
+      <Card fluid className='chart-card'>
+        <Card.Content>
+          <Card.Header className='header'>
+            {isEdit ? t('token.edit.title_edit') : t('token.edit.title_create')}
+          </Card.Header>
+          <Form loading={loading} autoComplete='new-password'>
+            <Form.Field>
+              <Form.Input
+                label={t('token.edit.name')}
+                name='name'
+                placeholder={t('token.edit.name_placeholder')}
+                onChange={handleInputChange}
+                value={name}
+                autoComplete='new-password'
+                required={!isEdit}
+              />
+            </Form.Field>
+            <Form.Field>
+              <Form.Dropdown
+                label={t('token.edit.models')}
+                placeholder={t('token.edit.models_placeholder')}
+                name='models'
+                fluid
+                multiple
+                search
+                onLabelClick={(e, { value }) => {
+                  copy(value).then();
+                }}
+                selection
+                onChange={handleInputChange}
+                value={inputs.models}
+                autoComplete='new-password'
+                options={modelOptions}
+              />
+            </Form.Field>
+            <Form.Field>
+              <Form.Input
+                label={t('token.edit.ip_limit')}
+                name='subnet'
+                placeholder={t('token.edit.ip_limit_placeholder')}
+                onChange={handleInputChange}
+                value={inputs.subnet}
+                autoComplete='new-password'
+              />
+            </Form.Field>
+            <Form.Field>
+              <Form.Input
+                label={t('token.edit.expire_time')}
+                name='expired_time'
+                placeholder={t('token.edit.expire_time_placeholder')}
+                onChange={handleInputChange}
+                value={expired_time}
+                autoComplete='new-password'
+                type='datetime-local'
+              />
+            </Form.Field>
+            <div style={{ lineHeight: '40px' }}>
+              <Button
+                type={'button'}
+                onClick={() => {
+                  setExpiredTime(0, 0, 0, 0);
+                }}
+              >
+                {t('token.edit.buttons.never_expire')}
+              </Button>
+              <Button
+                type={'button'}
+                onClick={() => {
+                  setExpiredTime(1, 0, 0, 0);
+                }}
+              >
+                {t('token.edit.buttons.expire_1_month')}
+              </Button>
+              <Button
+                type={'button'}
+                onClick={() => {
+                  setExpiredTime(0, 1, 0, 0);
+                }}
+              >
+                {t('token.edit.buttons.expire_1_day')}
+              </Button>
+              <Button
+                type={'button'}
+                onClick={() => {
+                  setExpiredTime(0, 0, 1, 0);
+                }}
+              >
+                {t('token.edit.buttons.expire_1_hour')}
+              </Button>
+              <Button
+                type={'button'}
+                onClick={() => {
+                  setExpiredTime(0, 0, 0, 1);
+                }}
+              >
+                {t('token.edit.buttons.expire_1_minute')}
+              </Button>
+            </div>
+            <Message>{t('token.edit.quota_notice')}</Message>
+            <Form.Field>
+              <Form.Input
+                label={`${t('token.edit.quota')}${renderQuotaWithPrompt(
+                  remain_quota,
+                  t
+                )}`}
+                name='remain_quota'
+                placeholder={t('token.edit.quota_placeholder')}
+                onChange={handleInputChange}
+                value={remain_quota}
+                autoComplete='new-password'
+                type='number'
+                disabled={unlimited_quota}
+              />
+            </Form.Field>
+            <Button
+              type={'button'}
+              onClick={() => {
+                setUnlimitedQuota();
               }}
-              selection
-              onChange={handleInputChange}
-              value={inputs.models}
-              autoComplete='new-password'
-              options={modelOptions}
-            />
-          </Form.Field>
-          <Form.Field>
-            <Form.Input
-              label='IP 限制'
-              name='subnet'
-              placeholder={'请输入允许访问的网段，例如：192.168.0.0/24，请使用英文逗号分隔多个网段'}
-              onChange={handleInputChange}
-              value={inputs.subnet}
-              autoComplete='new-password'
-            />
-          </Form.Field>
-          <Form.Field>
-            <Form.Input
-              label='过期时间'
-              name='expired_time'
-              placeholder={'请输入过期时间，格式为 yyyy-MM-dd HH:mm:ss，-1 表示无限制'}
-              onChange={handleInputChange}
-              value={expired_time}
-              autoComplete='new-password'
-              type='datetime-local'
-            />
-          </Form.Field>
-          <div style={{ lineHeight: '40px' }}>
-            <Button type={'button'} onClick={() => {
-              setExpiredTime(0, 0, 0, 0);
-            }}>永不过期</Button>
-            <Button type={'button'} onClick={() => {
-              setExpiredTime(1, 0, 0, 0);
-            }}>一个月后过期</Button>
-            <Button type={'button'} onClick={() => {
-              setExpiredTime(0, 1, 0, 0);
-            }}>一天后过期</Button>
-            <Button type={'button'} onClick={() => {
-              setExpiredTime(0, 0, 1, 0);
-            }}>一小时后过期</Button>
-            <Button type={'button'} onClick={() => {
-              setExpiredTime(0, 0, 0, 1);
-            }}>一分钟后过期</Button>
-          </div>
-          <Message>注意，令牌的额度仅用于限制令牌本身的最大额度使用量，实际的使用受到账户的剩余额度限制。</Message>
-          <Form.Field>
-            <Form.Input
-              label={`额度${renderQuotaWithPrompt(remain_quota)}`}
-              name='remain_quota'
-              placeholder={'请输入额度'}
-              onChange={handleInputChange}
-              value={remain_quota}
-              autoComplete='new-password'
-              type='number'
-              disabled={unlimited_quota}
-            />
-          </Form.Field>
-          <Button type={'button'} onClick={() => {
-            setUnlimitedQuota();
-          }}>{unlimited_quota ? '取消无限额度' : '设为无限额度'}</Button>
-          <Button floated='right' positive onClick={submit}>提交</Button>
-          <Button floated='right' onClick={handleCancel}>取消</Button>
-        </Form>
-      </Segment>
-    </>
+            >
+              {unlimited_quota
+                ? t('token.edit.buttons.cancel_unlimited')
+                : t('token.edit.buttons.unlimited_quota')}
+            </Button>
+            <Button floated='right' positive onClick={submit}>
+              {t('token.edit.buttons.submit')}
+            </Button>
+            <Button floated='right' onClick={handleCancel}>
+              {t('token.edit.buttons.cancel')}
+            </Button>
+          </Form>
+        </Card.Content>
+      </Card>
+    </div>
   );
 };
 

@@ -3,21 +3,24 @@ package main
 import (
 	"embed"
 	"fmt"
+	"os"
+	"strconv"
+
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
 	_ "github.com/joho/godotenv/autoload"
+
 	"github.com/songquanpeng/one-api/common"
 	"github.com/songquanpeng/one-api/common/client"
 	"github.com/songquanpeng/one-api/common/config"
+	"github.com/songquanpeng/one-api/common/i18n"
 	"github.com/songquanpeng/one-api/common/logger"
 	"github.com/songquanpeng/one-api/controller"
 	"github.com/songquanpeng/one-api/middleware"
 	"github.com/songquanpeng/one-api/model"
 	"github.com/songquanpeng/one-api/relay/adaptor/openai"
 	"github.com/songquanpeng/one-api/router"
-	"os"
-	"strconv"
 )
 
 //go:embed web/build/*
@@ -91,12 +94,18 @@ func main() {
 	openai.InitTokenEncoders()
 	client.Init()
 
+	// Initialize i18n
+	if err := i18n.Init(); err != nil {
+		logger.FatalLog("failed to initialize i18n: " + err.Error())
+	}
+
 	// Initialize HTTP server
 	server := gin.New()
 	server.Use(gin.Recovery())
 	// This will cause SSE not to work!!!
 	//server.Use(gzip.Gzip(gzip.DefaultCompression))
 	server.Use(middleware.RequestId())
+	server.Use(middleware.Language())
 	middleware.SetUpLogger(server)
 	// Initialize session store
 	store := cookie.NewStore([]byte(config.SessionSecret))

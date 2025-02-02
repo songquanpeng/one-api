@@ -2,8 +2,10 @@ package meta
 
 import (
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
+
 	"github.com/songquanpeng/one-api/common/ctxkey"
 	"github.com/songquanpeng/one-api/model"
 	"github.com/songquanpeng/one-api/relay/channeltype"
@@ -32,6 +34,7 @@ type Meta struct {
 	RequestURLPath  string
 	PromptTokens    int // only for DoResponse
 	SystemPrompt    string
+	StartTime       time.Time
 }
 
 // GetMappedModelName returns the mapped model name and a bool indicating if the model name is mapped
@@ -64,6 +67,7 @@ func GetByContext(c *gin.Context) *Meta {
 		APIKey:          strings.TrimPrefix(c.Request.Header.Get("Authorization"), "Bearer "),
 		RequestURLPath:  c.Request.URL.String(),
 		SystemPrompt:    c.GetString(ctxkey.SystemPrompt),
+		StartTime:       time.Now(),
 	}
 	cfg, ok := c.Get(ctxkey.Config)
 	if ok {

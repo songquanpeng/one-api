@@ -55,14 +55,15 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: |
-            justsong/one-api
-            ghcr.io/${{ github.repository }}
+            ${{ contains(github.ref, 'alpha') && 'justsong/one-api-alpha' || 'justsong/one-api' }}
+            ${{ contains(github.ref, 'alpha') && format('ghcr.io/{0}-alpha', github.repository) || format('ghcr.io/{0}', github.repository) }}
 
       - name: Build and push Docker images
         uses: docker/build-push-action@v3
         with:
           context: .
-          platforms: linux/amd64,linux/arm64
+          #          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64 # TODO disable arm64 for now, because it cause error
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}

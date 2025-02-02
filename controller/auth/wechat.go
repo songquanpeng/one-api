@@ -4,14 +4,16 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net/http"
+	"strconv"
+	"time"
+
 	"github.com/gin-gonic/gin"
+
 	"github.com/songquanpeng/one-api/common/config"
 	"github.com/songquanpeng/one-api/common/ctxkey"
 	"github.com/songquanpeng/one-api/controller"
 	"github.com/songquanpeng/one-api/model"
-	"net/http"
-	"strconv"
-	"time"
 )
 
 type wechatLoginResponse struct {
@@ -52,6 +54,7 @@ func getWeChatIdByCode(code string) (string, error) {
 }
 
 func WeChatAuth(c *gin.Context) {
+	ctx := c.Request.Context()
 	if !config.WeChatAuthEnabled {
 		c.JSON(http.StatusOK, gin.H{
 			"message": "管理员未开启通过微信登录以及注册",
@@ -87,7 +90,7 @@ func WeChatAuth(c *gin.Context) {
 			user.Role = model.RoleCommonUser
 			user.Status = model.UserStatusEnabled
 
-			if err := user.Insert(0); err != nil {
+			if err := user.Insert(ctx, 0); err != nil {
 				c.JSON(http.StatusOK, gin.H{
 					"success": false,
 					"message": err.Error(),

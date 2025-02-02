@@ -33,3 +33,85 @@ code {
         display: none !important;
     }
 }
+
+@media screen and (max-width: 768px) {
+  .ui.container {
+    width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding: 0 10px !important;
+  }
+
+  .ui.card, 
+  .ui.cards,
+  .ui.segment {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+
+  .ui.table {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+}
+
+/* 小屏笔记本 (13-14寸) */
+@media screen and (min-width: 769px) and (max-width: 1366px) {
+  .ui.container {
+    width: auto !important;
+    max-width: 100% !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    padding: 0 24px !important;
+  }
+
+  /* 调整表格显示 */
+  .ui.table {
+    font-size: 0.9em;
+  }
+
+  /* 调整卡片布局 */
+  .ui.cards {
+    margin-left: -0.5em !important;
+    margin-right: -0.5em !important;
+  }
+
+  .ui.cards > .card {
+    margin: 0.5em !important;
+    width: calc(50% - 1em) !important;
+  }
+}
+
+/* 大屏幕 */
+@media screen and (min-width: 1367px) {
+  .ui.container {
+    width: 1200px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    padding: 0 !important;
+  }
+}
+
+/* 优化 Dashboard 网格布局 */
+@media screen and (max-width: 1366px) {
+  .charts-grid {
+    margin: 0 -0.5em !important;
+  }
+
+  .charts-grid .column {
+    padding: 0.5em !important;
+  }
+
+  .chart-card {
+    margin: 0 !important;
+  }
+
+  /* 调整字体大小 */
+  .ui.header {
+    font-size: 1.1em !important;
+  }
+
+  .stat-value {
+    font-size: 0.9em !important;
+  }
+}

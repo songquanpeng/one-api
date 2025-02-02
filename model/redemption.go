@@ -1,11 +1,14 @@
 package model
 
 import (
+	"context"
 	"errors"
 	"fmt"
+
+	"gorm.io/gorm"
+
 	"github.com/songquanpeng/one-api/common"
 	"github.com/songquanpeng/one-api/common/helper"
-	"gorm.io/gorm"
 )
 
 const (
@@ -48,7 +51,7 @@ func GetRedemptionById(id int) (*Redemption, error) {
 	return &redemption, err
 }
 
-func Redeem(key string, userId int) (quota int64, err error) {
+func Redeem(ctx context.Context, key string, userId int) (quota int64, err error) {
 	if key == "" {
 		return 0, errors.New("未提供兑换码")
 	}
@@ -82,7 +85,7 @@ func Redeem(key string, userId int) (quota int64, err error) {
 	if err != nil {
 		return 0, errors.New("兑换失败，" + err.Error())
 	}
-	RecordLog(userId, LogTypeTopup, fmt.Sprintf("通过兑换码充值 %s", common.LogQuota(redemption.Quota)))
+	RecordLog(ctx, userId, LogTypeTopup, fmt.Sprintf("通过兑换码充值 %s", common.LogQuota(redemption.Quota)))
 	return redemption.Quota, nil
 }
 
