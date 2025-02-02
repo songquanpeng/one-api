@@ -292,7 +292,7 @@ const UsersTable = () => {
                   <Table.Cell>
                     <div>
                       <Button
-                        size={'small'}
+                        size={'tiny'}
                         positive
                         onClick={() => {
                           manageUser(user.username, 'promote', idx);
@@ -302,7 +302,7 @@ const UsersTable = () => {
                         {t('user.buttons.promote')}
                       </Button>
                       <Button
-                        size={'small'}
+                        size={'tiny'}
                         color={'yellow'}
                         onClick={() => {
                           manageUser(user.username, 'demote', idx);
@@ -314,7 +314,7 @@ const UsersTable = () => {
                       <Popup
                         trigger={
                           <Button
-                            size='small'
+                            size='tiny'
                             negative
                             disabled={user.role === 100}
                           >
@@ -327,6 +327,7 @@ const UsersTable = () => {
                       >
                         <Button
                           negative
+                          size={'tiny'}
                           onClick={() => {
                             manageUser(user.username, 'delete', idx);
                           }}
@@ -335,7 +336,7 @@ const UsersTable = () => {
                         </Button>
                       </Popup>
                       <Button
-                        size={'small'}
+                        size={'tiny'}
                         onClick={() => {
                           manageUser(
                             user.username,
@@ -350,7 +351,7 @@ const UsersTable = () => {
                           : t('user.buttons.enable')}
                       </Button>
                       <Button
-                        size={'small'}
+                        size={'tiny'}
                         as={Link}
                         to={'/user/edit/' + user.id}
                       >

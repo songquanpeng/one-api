@@ -415,9 +415,9 @@ const TokensTable = () => {
                   </Table.Cell>
                   <Table.Cell>
                     <div>
-                      <Button.Group color='green' size={'small'}>
+                      <Button.Group color='green' size={'mini'}>
                         <Button
-                          size={'small'}
+                          size={'mini'}
                           positive
                           onClick={async () => await onCopy('', token.key)}
                         >
@@ -430,9 +430,9 @@ const TokensTable = () => {
                           trigger={<></>}
                         />
                       </Button.Group>{' '}
-                      <Button.Group color='blue' size={'small'}>
+                      <Button.Group color='blue' size={'mini'}>
                         <Button
-                          size={'small'}
+                          size={'mini'}
                           positive
                           onClick={() => onOpenLink('', token.key)}
                         >
@@ -447,7 +447,7 @@ const TokensTable = () => {
                       </Button.Group>{' '}
                       <Popup
                         trigger={
-                          <Button size='small' negative>
+                          <Button size='mini' negative>
                             {t('token.buttons.delete')}
                           </Button>
                         }
@@ -456,6 +456,7 @@ const TokensTable = () => {
                         hoverable
                       >
                         <Button
+                          size={'mini'}
                           negative
                           onClick={() => {
                             manageToken(token.id, 'delete', idx);
@@ -465,7 +466,7 @@ const TokensTable = () => {
                         </Button>
                       </Popup>
                       <Button
-                        size={'small'}
+                        size={'mini'}
                         onClick={() => {
                           manageToken(
                             token.id,
@@ -479,7 +480,7 @@ const TokensTable = () => {
                           : t('token.buttons.enable')}
                       </Button>
                       <Button
-                        size={'small'}
+                        size={'mini'}
                         as={Link}
                         to={'/token/edit/' + token.id}
                       >

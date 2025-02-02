@@ -278,7 +278,7 @@ const RedemptionsTable = () => {
                   <Table.Cell>
                     <div>
                       <Button
-                        size={'small'}
+                        size={'tiny'}
                         positive
                         onClick={async () => {
                           if (await copy(redemption.key)) {
@@ -293,7 +293,7 @@ const RedemptionsTable = () => {
                       </Button>
                       <Popup
                         trigger={
-                          <Button size='small' negative>
+                          <Button size='tiny' negative>
                             {t('redemption.buttons.delete')}
                           </Button>
                         }
@@ -311,7 +311,7 @@ const RedemptionsTable = () => {
                         </Button>
                       </Popup>
                       <Button
-                        size={'small'}
+                        size={'tiny'}
                         disabled={redemption.status === 3} // used
                         onClick={() => {
                           manageRedemption(
@@ -326,7 +326,7 @@ const RedemptionsTable = () => {
                           : t('redemption.buttons.enable')}
                       </Button>
                       <Button
-                        size={'small'}
+                        size={'tiny'}
                         as={Link}
                         to={'/redemption/edit/' + redemption.id}
                       >
@@ -342,7 +342,12 @@ const RedemptionsTable = () => {
         <Table.Footer>
           <Table.Row>
             <Table.HeaderCell colSpan='7'>
-              <Button size='small' as={Link} to='/redemption/add' loading={loading}>
+              <Button
+                size='small'
+                as={Link}
+                to='/redemption/add'
+                loading={loading}
+              >
                 {t('redemption.buttons.add')}
               </Button>
               <Button size='small' onClick={refresh} loading={loading}>
