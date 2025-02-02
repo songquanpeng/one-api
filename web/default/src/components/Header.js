@@ -165,7 +165,13 @@ const Header = () => {
               : { borderTop: 'none', height: '52px' }
           }
         >
-          <Container>
+          <Container
+            style={{
+              width: '100%',
+              maxWidth: isMobile() ? '100%' : '1200px',
+              padding: isMobile() ? '0 10px' : '0 20px',
+            }}
+          >
             <Menu.Item as={Link} to='/'>
               <img src={logo} alt='logo' style={{ marginRight: '0.75em' }} />
               <div style={{ fontSize: '20px' }}>
@@ -236,7 +242,13 @@ const Header = () => {
           border: 'none',
         }}
       >
-        <Container>
+        <Container
+          style={{
+            width: '100%',
+            maxWidth: isMobile() ? '100%' : '1200px',
+            padding: isMobile() ? '0 10px' : '0 20px',
+          }}
+        >
           <Menu.Item as={Link} to='/' className={'hide-on-mobile'}>
             <img src={logo} alt='logo' style={{ marginRight: '0.75em' }} />
             <div
