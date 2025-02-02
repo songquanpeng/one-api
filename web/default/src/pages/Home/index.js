@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Card, Grid, Header, Segment } from 'semantic-ui-react';
+import { useTranslation } from 'react-i18next';
+import { Card, Grid, Header } from 'semantic-ui-react';
 import { API, showError, showNotice, timestamp2string } from '../../helpers';
 import { StatusContext } from '../../context/Status';
 import { marked } from 'marked';
@@ -7,6 +8,7 @@ import { UserContext } from '../../context/User';
 import { Link } from 'react-router-dom';
 
 const Home = () => {
+  const { t } = useTranslation();
   const [statusState, statusDispatch] = useContext(StatusContext);
   const [homePageContentLoaded, setHomePageContentLoaded] = useState(false);
   const [homePageContent, setHomePageContent] = useState('');
@@ -40,7 +42,7 @@ const Home = () => {
       localStorage.setItem('home_page_content', content);
     } else {
       showError(message);
-      setHomePageContent('加载首页内容失败...');
+      setHomePageContent(t('home.loading_failed'));
     }
     setHomePageContentLoaded(true);
   };
@@ -61,17 +63,14 @@ const Home = () => {
         <div className='dashboard-container'>
           <Card fluid className='chart-card'>
             <Card.Content>
-              <Card.Header className='header'>欢迎使用 One API</Card.Header>
+              <Card.Header className='header'>
+                {t('home.welcome.title')}
+              </Card.Header>
               <Card.Description style={{ lineHeight: '1.6' }}>
-                <p>
-                  One API 是一个 LLM API
-                  接口管理和分发系统，可以帮助您更好地管理和使用各大厂商的 LLM
-                  API。
-                </p>
+                <p>{t('home.welcome.description')}</p>
                 {!userState.user && (
                   <p>
-                    如需使用，请先<Link to='/login'>登录</Link>或
-                    <Link to='/register'>注册</Link>。
+                    {t('home.welcome.login_notice')}
                   </p>
                 )}
               </Card.Description>
@@ -80,7 +79,7 @@ const Home = () => {
           <Card fluid className='chart-card'>
             <Card.Content>
               <Card.Header>
-                <Header as='h3'>系统状况</Header>
+                <Header as='h3'>{t('home.system_status.title')}</Header>
               </Card.Header>
               <Grid columns={2} stackable>
                 <Grid.Column>
@@ -92,7 +91,7 @@ const Home = () => {
                     <Card.Content>
                       <Card.Header>
                         <Header as='h3' style={{ color: '#444' }}>
-                          系统信息
+                          {t('home.system_status.info.title')}
                         </Header>
                       </Card.Header>
                       <Card.Description
@@ -106,7 +105,9 @@ const Home = () => {
                           }}
                         >
                           <i className='info circle icon'></i>
-                          <span style={{ fontWeight: 'bold' }}>名称：</span>
+                          <span style={{ fontWeight: 'bold' }}>
+                            {t('home.system_status.info.name')}
+                          </span>
                           <span>{statusState?.status?.system_name}</span>
                         </p>
                         <p
@@ -117,7 +118,9 @@ const Home = () => {
                           }}
                         >
                           <i className='code branch icon'></i>
-                          <span style={{ fontWeight: 'bold' }}>版本：</span>
+                          <span style={{ fontWeight: 'bold' }}>
+                            {t('home.system_status.info.version')}
+                          </span>
                           <span>
                             {statusState?.status?.version || 'unknown'}
                           </span>
@@ -130,13 +133,15 @@ const Home = () => {
                           }}
                         >
                           <i className='github icon'></i>
-                          <span style={{ fontWeight: 'bold' }}>源码：</span>
+                          <span style={{ fontWeight: 'bold' }}>
+                            {t('home.system_status.info.source')}
+                          </span>
                           <a
                             href='https://github.com/songquanpeng/one-api'
                             target='_blank'
                             style={{ color: '#2185d0' }}
                           >
-                            GitHub 仓库
+                            {t('home.system_status.info.source_link')}
                           </a>
                         </p>
                         <p
@@ -147,7 +152,9 @@ const Home = () => {
                           }}
                         >
                           <i className='clock outline icon'></i>
-                          <span style={{ fontWeight: 'bold' }}>启动时间：</span>
+                          <span style={{ fontWeight: 'bold' }}>
+                            {t('home.system_status.info.start_time')}
+                          </span>
                           <span>{getStartTimeString()}</span>
                         </p>
                       </Card.Description>
@@ -164,7 +171,7 @@ const Home = () => {
                     <Card.Content>
                       <Card.Header>
                         <Header as='h3' style={{ color: '#444' }}>
-                          系统配置
+                          {t('home.system_status.config.title')}
                         </Header>
                       </Card.Header>
                       <Card.Description
@@ -178,7 +185,9 @@ const Home = () => {
                           }}
                         >
                           <i className='envelope icon'></i>
-                          <span style={{ fontWeight: 'bold' }}>邮箱验证：</span>
+                          <span style={{ fontWeight: 'bold' }}>
+                            {t('home.system_status.config.email_verify')}
+                          </span>
                           <span
                             style={{
                               color: statusState?.status?.email_verification
@@ -188,8 +197,8 @@ const Home = () => {
                             }}
                           >
                             {statusState?.status?.email_verification
-                              ? '已启用'
-                              : '未启用'}
+                              ? t('home.system_status.config.enabled')
+                              : t('home.system_status.config.disabled')}
                           </span>
                         </p>
                         <p
@@ -201,7 +210,7 @@ const Home = () => {
                         >
                           <i className='github icon'></i>
                           <span style={{ fontWeight: 'bold' }}>
-                            GitHub 身份验证：
+                            {t('home.system_status.config.github_oauth')}
                           </span>
                           <span
                             style={{
@@ -212,8 +221,8 @@ const Home = () => {
                             }}
                           >
                             {statusState?.status?.github_oauth
-                              ? '已启用'
-                              : '未启用'}
+                              ? t('home.system_status.config.enabled')
+                              : t('home.system_status.config.disabled')}
                           </span>
                         </p>
                         <p
@@ -225,7 +234,7 @@ const Home = () => {
                         >
                           <i className='wechat icon'></i>
                           <span style={{ fontWeight: 'bold' }}>
-                            微信身份验证：
+                            {t('home.system_status.config.wechat_login')}
                           </span>
                           <span
                             style={{
@@ -236,8 +245,8 @@ const Home = () => {
                             }}
                           >
                             {statusState?.status?.wechat_login
-                              ? '已启用'
-                              : '未启用'}
+                              ? t('home.system_status.config.enabled')
+                              : t('home.system_status.config.disabled')}
                           </span>
                         </p>
                         <p
@@ -249,7 +258,7 @@ const Home = () => {
                         >
                           <i className='shield alternate icon'></i>
                           <span style={{ fontWeight: 'bold' }}>
-                            Turnstile 校验：
+                            {t('home.system_status.config.turnstile')}
                           </span>
                           <span
                             style={{
@@ -260,8 +269,8 @@ const Home = () => {
                             }}
                           >
                             {statusState?.status?.turnstile_check
-                              ? '已启用'
-                              : '未启用'}
+                              ? t('home.system_status.config.enabled')
+                              : t('home.system_status.config.disabled')}
                           </span>
                         </p>
                       </Card.Description>
@@ -270,7 +279,7 @@ const Home = () => {
                 </Grid.Column>
               </Grid>
             </Card.Content>
-          </Card>{' '}
+          </Card>
         </div>
       ) : (
         <>

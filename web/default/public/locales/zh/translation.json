@@ -730,5 +730,33 @@
     "built_by_name": "JustSong",
     "license": "构建，源代码遵循",
     "mit": "MIT 协议"
+  },
+  "home": {
+    "welcome": {
+      "title": "欢迎使用 One API",
+      "description": "One API 是一个 LLM API 接口管理和分发系统，可以帮助您更好地管理和使用各大厂商的 LLM API。",
+      "login_notice": "如需使用，请先登录或注册。"
+    },
+    "system_status": {
+      "title": "系统状况",
+      "info": {
+        "title": "系统信息",
+        "name": "名称：",
+        "version": "版本：",
+        "source": "源码：",
+        "source_link": "GitHub 仓库",
+        "start_time": "启动时间："
+      },
+      "config": {
+        "title": "系统配置",
+        "email_verify": "邮箱验证：",
+        "github_oauth": "GitHub 身份验证：",
+        "wechat_login": "微信身份验证：",
+        "turnstile": "Turnstile 校验：",
+        "enabled": "已启用",
+        "disabled": "未启用"
+      }
+    },
+    "loading_failed": "加载首页内容失败..."
   }
 }

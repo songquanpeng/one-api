@@ -726,5 +726,33 @@
     "built_by_name": "JustSong",
     "license": ", source code is licensed under the",
     "mit": "MIT License"
+  },
+  "home": {
+    "welcome": {
+      "title": "Welcome to One API",
+      "description": "One API is a LLM API management and distribution system that helps you better manage and use LLM APIs from various providers.",
+      "login_notice": "To use the service, please login or register first."
+    },
+    "system_status": {
+      "title": "System Status",
+      "info": {
+        "title": "System Information",
+        "name": "Name: ",
+        "version": "Version: ",
+        "source": "Source: ",
+        "source_link": "GitHub Repository",
+        "start_time": "Start Time: "
+      },
+      "config": {
+        "title": "System Configuration",
+        "email_verify": "Email Verification: ",
+        "github_oauth": "GitHub OAuth: ",
+        "wechat_login": "WeChat Login: ",
+        "turnstile": "Turnstile Check: ",
+        "enabled": "Enabled",
+        "disabled": "Disabled"
+      }
+    },
+    "loading_failed": "Failed to load homepage content..."
   }
 }
