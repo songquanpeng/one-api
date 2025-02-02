@@ -118,11 +118,17 @@ const Dashboard = () => {
 
     // 获取日期范围
     const dates = data.map((item) => item.Day);
-    const minDate =
-      dates.length > 0
-        ? new Date(Math.min(...dates.map((d) => new Date(d))))
-        : new Date();
     const maxDate = new Date(); // 总是使用今天作为最后一天
+    let minDate = dates.length > 0
+      ? new Date(Math.min(...dates.map((d) => new Date(d))))
+      : new Date();
+    
+    // 确保至少显示5天的数据
+    const fiveDaysAgo = new Date();
+    fiveDaysAgo.setDate(fiveDaysAgo.getDate() - 4); // -4是因为包含今天
+    if (minDate > fiveDaysAgo) {
+      minDate = fiveDaysAgo;
+    }
 
     // 生成所有日期
     for (let d = new Date(minDate); d <= maxDate; d.setDate(d.getDate() + 1)) {
@@ -153,11 +159,17 @@ const Dashboard = () => {
 
     // 获取日期范围
     const dates = data.map((item) => item.Day);
-    const minDate =
-      dates.length > 0
-        ? new Date(Math.min(...dates.map((d) => new Date(d))))
-        : new Date();
     const maxDate = new Date(); // 总是使用今天作为最后一天
+    let minDate = dates.length > 0
+      ? new Date(Math.min(...dates.map((d) => new Date(d))))
+      : new Date();
+    
+    // 确保至少显示5天的数据
+    const fiveDaysAgo = new Date();
+    fiveDaysAgo.setDate(fiveDaysAgo.getDate() - 4); // -4是因为包含今天
+    if (minDate > fiveDaysAgo) {
+      minDate = fiveDaysAgo;
+    }
 
     // 生成所有日期
     for (let d = new Date(minDate); d <= maxDate; d.setDate(d.getDate() + 1)) {
@@ -196,6 +208,28 @@ const Dashboard = () => {
     return chartConfig.barColors[index % chartConfig.barColors.length];
   };
 
+  // 添加一个日期格式化函数
+  const formatDate = (dateStr) => {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('zh-CN', { month: 'numeric', day: 'numeric' });
+  };
+
+  // 修改所有 XAxis 配置
+  const xAxisConfig = {
+    dataKey: 'date',
+    axisLine: false,
+    tickLine: false,
+    tick: { 
+      fontSize: 12, 
+      fill: '#A3AED0',
+      dx: 15  // 向右偏移文本
+    },
+    tickFormatter: formatDate,
+    interval: 0,
+    minTickGap: 5,
+    padding: { left: 20, right: 20 }  // 增加两侧的内边距
+  };
+
   return (
     <div className='dashboard-container'>
       {/* 三个并排的折线图 */}
@@ -208,7 +242,7 @@ const Dashboard = () => {
                 <span className='stat-value'>{summaryData.todayRequests}</span>
               </Card.Header>
               <div className='chart-container'>
-                <ResponsiveContainer width='100%' height={120}>
+                <ResponsiveContainer width='100%' height={120} margin={{ left: 20, right: 20 }}>
                   <LineChart data={timeSeriesData}>
                     <CartesianGrid
                       strokeDasharray='3 3'
@@ -216,12 +250,7 @@ const Dashboard = () => {
                       horizontal={chartConfig.lineChart.grid.horizontal}
                       opacity={chartConfig.lineChart.grid.opacity}
                     />
-                    <XAxis
-                      dataKey='date'
-                      axisLine={false}
-                      tickLine={false}
-                      tick={{ fontSize: 12, fill: '#A3AED0' }}
-                    />
+                    <XAxis {...xAxisConfig} />
                     <YAxis hide={true} />
                     <Tooltip
                       contentStyle={{
@@ -235,7 +264,7 @@ const Dashboard = () => {
                         t('dashboard.charts.requests.tooltip'),
                       ]}
                       labelFormatter={(label) =>
-                        `${t('dashboard.tooltip.date')}: ${label}`
+                        `${t('dashboard.tooltip.date')}: ${formatDate(label)}`
                       }
                     />
                     <Line
@@ -263,7 +292,7 @@ const Dashboard = () => {
                 </span>
               </Card.Header>
               <div className='chart-container'>
-                <ResponsiveContainer width='100%' height={120}>
+                <ResponsiveContainer width='100%' height={120} margin={{ left: 20, right: 20 }}>
                   <LineChart data={timeSeriesData}>
                     <CartesianGrid
                       strokeDasharray='3 3'
@@ -271,12 +300,7 @@ const Dashboard = () => {
                       horizontal={chartConfig.lineChart.grid.horizontal}
                       opacity={chartConfig.lineChart.grid.opacity}
                     />
-                    <XAxis
-                      dataKey='date'
-                      axisLine={false}
-                      tickLine={false}
-                      tick={{ fontSize: 12, fill: '#A3AED0' }}
-                    />
+                    <XAxis {...xAxisConfig} />
                     <YAxis hide={true} />
                     <Tooltip
                       contentStyle={{
@@ -290,7 +314,7 @@ const Dashboard = () => {
                         t('dashboard.charts.quota.tooltip'),
                       ]}
                       labelFormatter={(label) =>
-                        `${t('dashboard.tooltip.date')}: ${label}`
+                        `${t('dashboard.tooltip.date')}: ${formatDate(label)}`
                       }
                     />
                     <Line
@@ -316,7 +340,7 @@ const Dashboard = () => {
                 <span className='stat-value'>{summaryData.todayTokens}</span>
               </Card.Header>
               <div className='chart-container'>
-                <ResponsiveContainer width='100%' height={120}>
+                <ResponsiveContainer width='100%' height={120} margin={{ left: 20, right: 20 }}>
                   <LineChart data={timeSeriesData}>
                     <CartesianGrid
                       strokeDasharray='3 3'
@@ -324,12 +348,7 @@ const Dashboard = () => {
                       horizontal={chartConfig.lineChart.grid.horizontal}
                       opacity={chartConfig.lineChart.grid.opacity}
                     />
-                    <XAxis
-                      dataKey='date'
-                      axisLine={false}
-                      tickLine={false}
-                      tick={{ fontSize: 12, fill: '#A3AED0' }}
-                    />
+                    <XAxis {...xAxisConfig} />
                     <YAxis hide={true} />
                     <Tooltip
                       contentStyle={{
@@ -343,7 +362,7 @@ const Dashboard = () => {
                         t('dashboard.charts.tokens.tooltip'),
                       ]}
                       labelFormatter={(label) =>
-                        `${t('dashboard.tooltip.date')}: ${label}`
+                        `${t('dashboard.tooltip.date')}: ${formatDate(label)}`
                       }
                     />
                     <Line
@@ -374,12 +393,7 @@ const Dashboard = () => {
                   vertical={false}
                   opacity={0.1}
                 />
-                <XAxis
-                  dataKey='date'
-                  axisLine={false}
-                  tickLine={false}
-                  tick={{ fontSize: 12, fill: '#A3AED0' }}
-                />
+                <XAxis {...xAxisConfig} />
                 <YAxis
                   axisLine={false}
                   tickLine={false}
@@ -393,7 +407,7 @@ const Dashboard = () => {
                     boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
                   }}
                   labelFormatter={(label) =>
-                    `${t('dashboard.tooltip.date')}: ${label}`
+                    `${t('dashboard.tooltip.date')}: ${formatDate(label)}`
                   }
                 />
                 <Legend
