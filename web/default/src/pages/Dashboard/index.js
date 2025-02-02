@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Card, Grid, Statistic } from 'semantic-ui-react';
+import { Card, Grid, Header, Segment, Statistic } from 'semantic-ui-react';
+import { API, showError } from '../../helpers';
+import moment from 'moment';
 import {
   LineChart,
   Line,
@@ -116,8 +118,11 @@ const Dashboard = () => {
 
     // 获取日期范围
     const dates = data.map((item) => item.Day);
-    const minDate = new Date(Math.min(...dates.map((d) => new Date(d))));
-    const maxDate = new Date(Math.max(...dates.map((d) => new Date(d))));
+    const minDate =
+      dates.length > 0
+        ? new Date(Math.min(...dates.map((d) => new Date(d))))
+        : new Date();
+    const maxDate = new Date(); // 总是使用今天作为最后一天
 
     // 生成所有日期
     for (let d = new Date(minDate); d <= maxDate; d.setDate(d.getDate() + 1)) {
@@ -148,8 +153,11 @@ const Dashboard = () => {
 
     // 获取日期范围
     const dates = data.map((item) => item.Day);
-    const minDate = new Date(Math.min(...dates.map((d) => new Date(d))));
-    const maxDate = new Date(Math.max(...dates.map((d) => new Date(d))));
+    const minDate =
+      dates.length > 0
+        ? new Date(Math.min(...dates.map((d) => new Date(d))))
+        : new Date();
+    const maxDate = new Date(); // 总是使用今天作为最后一天
 
     // 生成所有日期
     for (let d = new Date(minDate); d <= maxDate; d.setDate(d.getDate() + 1)) {

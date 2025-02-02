@@ -68,11 +68,7 @@ const Home = () => {
               </Card.Header>
               <Card.Description style={{ lineHeight: '1.6' }}>
                 <p>{t('home.welcome.description')}</p>
-                {!userState.user && (
-                  <p>
-                    {t('home.welcome.login_notice')}
-                  </p>
-                )}
+                {!userState.user && <p>{t('home.welcome.login_notice')}</p>}
               </Card.Description>
             </Card.Content>
           </Card>
