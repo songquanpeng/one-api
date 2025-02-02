@@ -1,11 +1,5 @@
 {
-  "success": "Success",
-  "unauthorized": "Unauthorized",
-  "forbidden": "Forbidden",
-  "invalid_token": "Invalid token",
-  "channel_not_found": "Channel not found",
-  "invalid_request": "Invalid request",
-  "internal_error": "Internal server error",
-  "quota_exceeded": "Quota exceeded",
-  "invalid_input": "Invalid input, please check your input"
+  "invalid_input": "Invalid input, please check your input",
+  "send_email_failed": "failed to send email: ",
+  "invalid_parameter": "invalid parameter"
 }

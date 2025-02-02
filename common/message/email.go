@@ -5,11 +5,12 @@ import (
 	"crypto/tls"
 	"encoding/base64"
 	"fmt"
-	"github.com/songquanpeng/one-api/common/config"
 	"net"
 	"net/smtp"
 	"strings"
 	"time"
+
+	"github.com/songquanpeng/one-api/common/config"
 )
 
 func shouldAuth() bool {
@@ -98,8 +99,8 @@ func SendEmail(subject string, receiver string, content string) error {
 		if err != nil {
 			return err
 		}
-	} else {
-		err = smtp.SendMail(addr, auth, config.SMTPAccount, to, mail)
+		return nil
 	}
+	err = smtp.SendMail(addr, auth, config.SMTPAccount, to, mail)
 	return err
 }
