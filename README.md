@@ -56,8 +56,14 @@ _✨ 通过标准的 OpenAI API 格式访问所有的大模型，开箱即用 �
 >
 > 根据[《生成式人工智能服务管理暂行办法》](http://www.cac.gov.cn/2023-07/13/c_1690898327029107.htm)的要求，请勿对中国地区公众提供一切未经备案的生成式人工智能服务。
 
-> [!WARNING]
-> 使用 Docker 拉取的最新镜像可能是 `alpha` 版本，如果追求稳定性请手动指定版本。
+> [!NOTE]
+> 稳定版镜像地址：
+> 1. [justsong/one-api](https://hub.docker.com/repository/docker/justsong/one-api)
+> 2. [ghcr.io/songquanpeng/one-api](https://github.com/songquanpeng/one-api/pkgs/container/one-api)
+>
+> alpha 版本镜像地址：
+> 1. [justsong/one-api-alpha](https://hub.docker.com/repository/docker/justsong/one-api-alpha)
+> 2. [ghcr.io/songquanpeng/one-api-alpha](https://github.com/songquanpeng/one-api/pkgs/container/one-api-alpha)
 
 > [!WARNING]
 > 使用 root 用户初次登录系统后，务必修改默认密码 `123456`！
