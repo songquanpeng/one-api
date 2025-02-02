@@ -263,7 +263,7 @@ const RedemptionsTable = () => {
                 <Table.Row key={redemption.id}>
                   <Table.Cell>{redemption.id}</Table.Cell>
                   <Table.Cell>
-                    {redemption.name ? redemption.name : '无'}
+                    {redemption.name ? redemption.name : t('redemption.table.no_name')}
                   </Table.Cell>
                   <Table.Cell>{renderStatus(redemption.status, t)}</Table.Cell>
                   <Table.Cell>{renderQuota(redemption.quota, t)}</Table.Cell>
@@ -273,7 +273,7 @@ const RedemptionsTable = () => {
                   <Table.Cell>
                     {redemption.redeemed_time
                       ? renderTimestamp(redemption.redeemed_time)
-                      : '尚未兑换'}{' '}
+                      : t('redemption.table.not_redeemed')}{' '}
                   </Table.Cell>
                   <Table.Cell>
                     <div>
