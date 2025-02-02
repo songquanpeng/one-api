@@ -56,7 +56,7 @@ jobs:
         with:
           images: |
             ${{ contains(github.ref, 'alpha') && 'justsong/one-api-alpha' || 'justsong/one-api' }}
-            ${{ contains(github.ref, 'alpha') && 'ghcr.io/${{ github.repository }}-alpha' || 'ghcr.io/${{ github.repository }}' }}
+            ${{ contains(github.ref, 'alpha') && format('ghcr.io/{0}-alpha', github.repository) || format('ghcr.io/{0}', github.repository) }}
 
       - name: Build and push Docker images
         uses: docker/build-push-action@v3
