@@ -97,9 +97,9 @@
 }
 
 .settings-tab .active.item {
-    color: #4318FF !important;
+    color: #000 !important;
     font-weight: 600 !important;
-    border-color: #4318FF !important;
+    border-color: #000 !important;
 }
 
 .ui.tab.segment {
