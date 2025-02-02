@@ -3,10 +3,11 @@ package common
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/gin-gonic/gin"
-	"github.com/songquanpeng/one-api/common/ctxkey"
 	"io"
 	"strings"
+
+	"github.com/gin-gonic/gin"
+	"github.com/songquanpeng/one-api/common/ctxkey"
 )
 
 func GetRequestBody(c *gin.Context) ([]byte, error) {
@@ -31,7 +32,6 @@ func UnmarshalBodyReusable(c *gin.Context, v any) error {
 	contentType := c.Request.Header.Get("Content-Type")
 	if strings.HasPrefix(contentType, "application/json") {
 		err = json.Unmarshal(requestBody, &v)
-		c.Request.Body = io.NopCloser(bytes.NewBuffer(requestBody))
 	} else {
 		c.Request.Body = io.NopCloser(bytes.NewBuffer(requestBody))
 		err = c.ShouldBind(&v)
@@ -40,6 +40,7 @@ func UnmarshalBodyReusable(c *gin.Context, v any) error {
 		return err
 	}
 	// Reset request body
+	c.Request.Body = io.NopCloser(bytes.NewBuffer(requestBody))
 	return nil
 }
 
