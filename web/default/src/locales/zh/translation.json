@@ -134,7 +134,7 @@
       "coze_notice": "对于 Coze 而言，模型名称即 Bot ID，你可以添加一个前缀 `bot-`，例如：`bot-123456`。",
       "douban_notice": "对于豆包而言，需要手动去",
       "douban_notice_link": "模型推理页面",
-      "douban_notice_2": "创建推理接入点，以接入点名称作为模型名称，例如：`ep-20240608051426-tkxvl`。",
+      "douban_notice_2": "创建推理接入点，以接入点名称作为模型名称，例如：`ep-20240608051426-tkxvl`。你可以结合模型重定向功能将其转换为常规的模型名称，例如：doubao-lite-4k -> ep-20240608051426-tkxvl（前者作为 JSON 的 key，后者作为 value）。注意，doubao-lite-4k 和 ep-20240608051426-tkxvl 都需要通过自定义模型的方式填入到本渠道的模型列表中。",
       "aws_region_placeholder": "region，例如：us-west-2",
       "aws_ak_placeholder": "AWS IAM Access Key",
       "aws_sk_placeholder": "AWS IAM Secret Key",
