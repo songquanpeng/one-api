@@ -85,7 +85,8 @@
       "test_all_started": "Channel testing started successfully, please refresh page to see results.",
       "delete_disabled_success": "Deleted all disabled channels, total: {{count}}",
       "balance_update_success": "Channel {{name}} balance updated successfully!",
-      "all_balance_updated": "All enabled channel balances have been updated!"
+      "all_balance_updated": "All enabled channel balances have been updated!",
+      "operation_success": "Operation completed successfully!"
     },
     "edit": {
       "title_edit": "Update Channel Information",

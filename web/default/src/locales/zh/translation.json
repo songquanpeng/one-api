@@ -85,7 +85,8 @@
       "test_all_started": "已成功开始测试渠道，请刷新页面查看结果。",
       "delete_disabled_success": "已删除所有禁用渠道，共计 {{count}} 个",
       "balance_update_success": "渠道 {{name}} 余额更新成功！",
-      "all_balance_updated": "已更新完毕所有已启用渠道余额！"
+      "all_balance_updated": "已更新完毕所有已启用渠道余额！",
+      "operation_success": "操作成功完成！"
     },
     "edit": {
       "title_edit": "更新渠道信息",
