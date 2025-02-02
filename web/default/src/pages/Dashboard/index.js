@@ -119,10 +119,11 @@ const Dashboard = () => {
     // 获取日期范围
     const dates = data.map((item) => item.Day);
     const maxDate = new Date(); // 总是使用今天作为最后一天
-    let minDate = dates.length > 0
-      ? new Date(Math.min(...dates.map((d) => new Date(d))))
-      : new Date();
-    
+    let minDate =
+      dates.length > 0
+        ? new Date(Math.min(...dates.map((d) => new Date(d))))
+        : new Date();
+
     // 确保至少显示5天的数据
     const fiveDaysAgo = new Date();
     fiveDaysAgo.setDate(fiveDaysAgo.getDate() - 4); // -4是因为包含今天
@@ -160,10 +161,11 @@ const Dashboard = () => {
     // 获取日期范围
     const dates = data.map((item) => item.Day);
     const maxDate = new Date(); // 总是使用今天作为最后一天
-    let minDate = dates.length > 0
-      ? new Date(Math.min(...dates.map((d) => new Date(d))))
-      : new Date();
-    
+    let minDate =
+      dates.length > 0
+        ? new Date(Math.min(...dates.map((d) => new Date(d))))
+        : new Date();
+
     // 确保至少显示5天的数据
     const fiveDaysAgo = new Date();
     fiveDaysAgo.setDate(fiveDaysAgo.getDate() - 4); // -4是因为包含今天
@@ -211,7 +213,10 @@ const Dashboard = () => {
   // 添加一个日期格式化函数
   const formatDate = (dateStr) => {
     const date = new Date(dateStr);
-    return date.toLocaleDateString('zh-CN', { month: 'numeric', day: 'numeric' });
+    return date.toLocaleDateString('zh-CN', {
+      month: 'numeric',
+      day: 'numeric',
+    });
   };
 
   // 修改所有 XAxis 配置
@@ -219,15 +224,15 @@ const Dashboard = () => {
     dataKey: 'date',
     axisLine: false,
     tickLine: false,
-    tick: { 
-      fontSize: 12, 
+    tick: {
+      fontSize: 12,
       fill: '#A3AED0',
-      dx: 15  // 向右偏移文本
+      textAnchor: 'middle', // 文本居中对齐
     },
     tickFormatter: formatDate,
     interval: 0,
     minTickGap: 5,
-    padding: { left: 20, right: 20 }  // 增加两侧的内边距
+    padding: { left: 30, right: 30 }, // 增加两侧的内边距，确保首尾标签完整显示
   };
 
   return (
@@ -242,7 +247,11 @@ const Dashboard = () => {
                 <span className='stat-value'>{summaryData.todayRequests}</span>
               </Card.Header>
               <div className='chart-container'>
-                <ResponsiveContainer width='100%' height={120} margin={{ left: 20, right: 20 }}>
+                <ResponsiveContainer
+                  width='100%'
+                  height={120}
+                  margin={{ left: 10, right: 10 }} // 调整容器边距
+                >
                   <LineChart data={timeSeriesData}>
                     <CartesianGrid
                       strokeDasharray='3 3'
@@ -292,7 +301,11 @@ const Dashboard = () => {
                 </span>
               </Card.Header>
               <div className='chart-container'>
-                <ResponsiveContainer width='100%' height={120} margin={{ left: 20, right: 20 }}>
+                <ResponsiveContainer
+                  width='100%'
+                  height={120}
+                  margin={{ left: 10, right: 10 }} // 调整容器边距
+                >
                   <LineChart data={timeSeriesData}>
                     <CartesianGrid
                       strokeDasharray='3 3'
@@ -340,7 +353,11 @@ const Dashboard = () => {
                 <span className='stat-value'>{summaryData.todayTokens}</span>
               </Card.Header>
               <div className='chart-container'>
-                <ResponsiveContainer width='100%' height={120} margin={{ left: 20, right: 20 }}>
+                <ResponsiveContainer
+                  width='100%'
+                  height={120}
+                  margin={{ left: 10, right: 10 }} // 调整容器边距
+                >
                   <LineChart data={timeSeriesData}>
                     <CartesianGrid
                       strokeDasharray='3 3'
