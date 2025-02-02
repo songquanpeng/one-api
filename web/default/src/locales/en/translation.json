@@ -165,7 +165,7 @@
       "expired_time": "Expiry Time",
       "actions": "Actions",
       "no_name": "None",
-      "never_expire": "Never Expires",
+      "never_expire": "never",
       "unlimited": "Unlimited",
       "status_enabled": "Enabled",
       "status_disabled": "Disabled",

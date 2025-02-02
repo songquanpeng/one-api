@@ -415,9 +415,9 @@ const TokensTable = () => {
                   </Table.Cell>
                   <Table.Cell>
                     <div>
-                      <Button.Group color='green' size={'mini'}>
+                      <Button.Group color='green' size={'tiny'}>
                         <Button
-                          size={'mini'}
+                          size={'tiny'}
                           positive
                           onClick={async () => await onCopy('', token.key)}
                         >
@@ -430,9 +430,9 @@ const TokensTable = () => {
                           trigger={<></>}
                         />
                       </Button.Group>{' '}
-                      <Button.Group color='blue' size={'mini'}>
+                      <Button.Group color='olive' size={'tiny'}>
                         <Button
-                          size={'mini'}
+                          size={'tiny'}
                           positive
                           onClick={() => onOpenLink('', token.key)}
                         >
@@ -456,7 +456,7 @@ const TokensTable = () => {
                         hoverable
                       >
                         <Button
-                          size={'mini'}
+                          size={'tiny'}
                           negative
                           onClick={() => {
                             manageToken(token.id, 'delete', idx);
@@ -466,7 +466,7 @@ const TokensTable = () => {
                         </Button>
                       </Popup>
                       <Button
-                        size={'mini'}
+                        size={'tiny'}
                         onClick={() => {
                           manageToken(
                             token.id,
@@ -480,7 +480,7 @@ const TokensTable = () => {
                           : t('token.buttons.enable')}
                       </Button>
                       <Button
-                        size={'mini'}
+                        size={'tiny'}
                         as={Link}
                         to={'/token/edit/' + token.id}
                       >
