@@ -116,10 +116,17 @@ func SendEmailVerification(c *gin.Context) {
 	}
 	code := common.GenerateVerificationCode(6)
 	common.RegisterVerificationCodeWithKey(email, code, common.EmailVerificationPurpose)
-	subject := fmt.Sprintf("%s邮箱验证邮件", config.SystemName)
-	content := fmt.Sprintf("<p>您好，你正在进行%s邮箱验证。</p>"+
-		"<p>您的验证码为: <strong>%s</strong></p>"+
-		"<p>验证码 %d 分钟内有效，如果不是本人操作，请忽略。</p>", config.SystemName, code, common.VerificationValidMinutes)
+	subject := fmt.Sprintf("%s 邮箱验证邮件", config.SystemName)
+	content := message.EmailTemplate(
+		subject,
+		fmt.Sprintf(`
+			<p>您好！</p>
+			<p>您正在进行 %s 邮箱验证。</p>
+			<p>您的验证码为：</p>
+			<p style="font-size: 24px; font-weight: bold; color: #333; background-color: #f8f8f8; padding: 10px; text-align: center; border-radius: 4px;">%s</p>
+			<p style="color: #666;">验证码 %d 分钟内有效，如果不是本人操作，请忽略。</p>
+		`, config.SystemName, code, common.VerificationValidMinutes),
+	)
 	err := message.SendEmail(subject, email, content)
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
@@ -154,11 +161,21 @@ func SendPasswordResetEmail(c *gin.Context) {
 	code := common.GenerateVerificationCode(0)
 	common.RegisterVerificationCodeWithKey(email, code, common.PasswordResetPurpose)
 	link := fmt.Sprintf("%s/user/reset?email=%s&token=%s", config.ServerAddress, email, code)
-	subject := fmt.Sprintf("%s密码重置", config.SystemName)
-	content := fmt.Sprintf("<p>您好，你正在进行%s密码重置。</p>"+
-		"<p>点击 <a href='%s'>此处</a> 进行密码重置。</p>"+
-		"<p>如果链接无法点击，请尝试点击下面的链接或将其复制到浏览器中打开：<br> %s </p>"+
-		"<p>重置链接 %d 分钟内有效，如果不是本人操作，请忽略。</p>", config.SystemName, link, link, common.VerificationValidMinutes)
+	subject := fmt.Sprintf("%s 密码重置", config.SystemName)
+	content := message.EmailTemplate(
+		subject,
+		fmt.Sprintf(`
+			<p>您好！</p>
+			<p>您正在进行 %s 密码重置。</p>
+			<p>请点击下面的按钮进行密码重置：</p>
+			<p style="text-align: center; margin: 30px 0;">
+				<a href="%s" style="background-color: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block;">重置密码</a>
+			</p>
+			<p style="color: #666;">如果按钮无法点击，请复制以下链接到浏览器中打开：</p>
+			<p style="background-color: #f8f8f8; padding: 10px; border-radius: 4px; word-break: break-all;">%s</p>
+			<p style="color: #666;">重置链接 %d 分钟内有效，如果不是本人操作，请忽略。</p>
+		`, config.SystemName, link, link, common.VerificationValidMinutes),
+	)
 	err := message.SendEmail(subject, email, content)
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
