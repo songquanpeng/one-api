@@ -3,12 +3,13 @@ package controller
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
+	"strings"
+
 	"github.com/songquanpeng/one-api/common"
 	"github.com/songquanpeng/one-api/common/config"
 	"github.com/songquanpeng/one-api/common/message"
 	"github.com/songquanpeng/one-api/model"
-	"net/http"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -120,6 +121,7 @@ func SendEmailVerification(c *gin.Context) {
 		"<p>验证码 %d 分钟内有效，如果不是本人操作，请忽略。</p>", config.SystemName, code, common.VerificationValidMinutes)
 	err := message.SendEmail(subject, email, content)
 	if err != nil {
+
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
 			"message": err.Error(),

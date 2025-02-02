@@ -12,12 +12,14 @@ import {
   Card,
 } from 'semantic-ui-react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { UserContext } from '../context/User';
 import { API, getLogo, showError, showSuccess, showWarning } from '../helpers';
 import { onGitHubOAuthClicked, onLarkOAuthClicked } from './utils';
 import larkIcon from '../images/lark.svg';
 
 const LoginForm = () => {
+  const { t } = useTranslation();
   const [inputs, setInputs] = useState({
     username: '',
     password: '',
@@ -33,7 +35,7 @@ const LoginForm = () => {
 
   useEffect(() => {
     if (searchParams.get('expired')) {
-      showError('未登录或登录已过期，请重新登录！');
+      showError(t('messages.error.login_expired'));
     }
     let status = localStorage.getItem('status');
     if (status) {
@@ -57,7 +59,7 @@ const LoginForm = () => {
       userDispatch({ type: 'login', payload: data });
       localStorage.setItem('user', JSON.stringify(data));
       navigate('/');
-      showSuccess('登录成功！');
+      showSuccess(t('messages.success.login'));
       setShowWeChatLoginModal(false);
     } else {
       showError(message);
@@ -82,11 +84,11 @@ const LoginForm = () => {
         localStorage.setItem('user', JSON.stringify(data));
         if (username === 'root' && password === '123456') {
           navigate('/user/edit');
-          showSuccess('登录成功！');
-          showWarning('请立刻修改默认密码！');
+          showSuccess(t('messages.success.login'));
+          showWarning(t('messages.error.root_password'));
         } else {
           navigate('/token');
-          showSuccess('登录成功！');
+          showSuccess(t('messages.success.login'));
         }
       } else {
         showError(message);
@@ -110,7 +112,7 @@ const LoginForm = () => {
                 style={{ marginBottom: '1.5em' }}
               >
                 <Image src={logo} style={{ marginBottom: '10px' }} />
-                <Header.Content>用户登录</Header.Content>
+                <Header.Content>{t('auth.login.title')}</Header.Content>
               </Header>
             </Card.Header>
             <Form size='large'>
@@ -118,7 +120,7 @@ const LoginForm = () => {
                 fluid
                 icon='user'
                 iconPosition='left'
-                placeholder='用户名 / 邮箱地址'
+                placeholder={t('auth.login.username')}
                 name='username'
                 value={username}
                 onChange={handleChange}
@@ -128,7 +130,7 @@ const LoginForm = () => {
                 fluid
                 icon='lock'
                 iconPosition='left'
-                placeholder='密码'
+                placeholder={t('auth.login.password')}
                 name='password'
                 type='password'
                 value={password}
@@ -145,7 +147,7 @@ const LoginForm = () => {
                 }}
                 onClick={handleSubmit}
               >
-                登录
+                {t('auth.login.button')}
               </Button>
             </Form>
 
@@ -160,15 +162,15 @@ const LoginForm = () => {
                 }}
               >
                 <div>
-                  忘记密码？
+                  {t('auth.login.forgot_password')}
                   <Link to='/reset' style={{ color: '#2185d0' }}>
-                    点击重置
+                    {t('auth.login.reset_password')}
                   </Link>
                 </div>
                 <div>
-                  没有账户？
+                  {t('auth.login.no_account')}
                   <Link to='/register' style={{ color: '#2185d0' }}>
-                    点击注册
+                    {t('auth.login.register')}
                   </Link>
                 </div>
               </div>
@@ -182,7 +184,7 @@ const LoginForm = () => {
                   horizontal
                   style={{ color: '#666', fontSize: '0.9em' }}
                 >
-                  使用其他方式登录
+                  {t('auth.login.other_methods')}
                 </Divider>
                 <div
                   style={{
@@ -250,14 +252,12 @@ const LoginForm = () => {
             <Modal.Description>
               <Image src={status.wechat_qrcode} fluid />
               <div style={{ textAlign: 'center' }}>
-                <p>
-                  微信扫码关注公众号，输入「验证码」获取验证码（三分钟内有效）
-                </p>
+                <p>{t('auth.login.wechat.scan_tip')}</p>
               </div>
               <Form size='large'>
                 <Form.Input
                   fluid
-                  placeholder='验证码'
+                  placeholder={t('auth.login.wechat.code_placeholder')}
                   name='wechat_verification_code'
                   value={inputs.wechat_verification_code}
                   onChange={handleChange}
@@ -266,13 +266,13 @@ const LoginForm = () => {
                   fluid
                   size='large'
                   style={{
-                    background: '#2F73FF', // 使用更现代的蓝色
+                    background: '#2F73FF',
                     color: 'white',
                     marginBottom: '1.5em',
                   }}
                   onClick={onSubmitWeChatVerificationCode}
                 >
-                  登录
+                  {t('auth.login.button')}
                 </Button>
               </Form>
             </Modal.Description>

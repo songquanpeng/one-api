@@ -8,29 +8,23 @@ import {
   Card,
   Message,
 } from 'semantic-ui-react';
-import {
-  API,
-  copy,
-  showError,
-  showInfo,
-  showNotice,
-  showSuccess,
-} from '../helpers';
+import { useTranslation } from 'react-i18next';
+import { API, copy, getLogo, showError, showNotice } from '../helpers';
 import { useSearchParams } from 'react-router-dom';
 
 const PasswordResetConfirm = () => {
+  const { t } = useTranslation();
   const [inputs, setInputs] = useState({
     email: '',
     token: '',
   });
   const { email, token } = inputs;
-
   const [loading, setLoading] = useState(false);
-
   const [disableButton, setDisableButton] = useState(false);
-  const [countdown, setCountdown] = useState(30);
-
   const [newPassword, setNewPassword] = useState('');
+  const logo = getLogo();
+
+  const [countdown, setCountdown] = useState(30);
 
   const [searchParams, setSearchParams] = useSearchParams();
   useEffect(() => {
@@ -68,7 +62,7 @@ const PasswordResetConfirm = () => {
       let password = res.data.data;
       setNewPassword(password);
       await copy(password);
-      showNotice(`新密码已复制到剪贴板：${password}`);
+      showNotice(t('messages.notice.password_copied', { password }));
     } else {
       showError(message);
     }
@@ -90,8 +84,8 @@ const PasswordResetConfirm = () => {
                 textAlign='center'
                 style={{ marginBottom: '1.5em' }}
               >
-                <Image src='/logo.png' style={{ marginBottom: '10px' }} />
-                <Header.Content>密码重置确认</Header.Content>
+                <Image src={logo} style={{ marginBottom: '10px' }} />
+                <Header.Content>{t('auth.reset.confirm.title')}</Header.Content>
               </Header>
             </Card.Header>
             <Form size='large'>
@@ -99,7 +93,7 @@ const PasswordResetConfirm = () => {
                 fluid
                 icon='mail'
                 iconPosition='left'
-                placeholder='邮箱地址'
+                placeholder={t('auth.reset.email')}
                 name='email'
                 value={email}
                 readOnly
@@ -110,7 +104,7 @@ const PasswordResetConfirm = () => {
                   fluid
                   icon='lock'
                   iconPosition='left'
-                  placeholder='新密码'
+                  placeholder={t('auth.reset.confirm.new_password')}
                   name='newPassword'
                   value={newPassword}
                   readOnly
@@ -122,30 +116,29 @@ const PasswordResetConfirm = () => {
                   onClick={(e) => {
                     e.target.select();
                     navigator.clipboard.writeText(newPassword);
-                    showNotice(`密码已复制到剪贴板：${newPassword}`);
+                    showNotice(t('auth.reset.confirm.notice'));
                   }}
                 />
               )}
               <Button
-                color='blue'
                 fluid
                 size='large'
                 onClick={handleSubmit}
                 loading={loading}
                 disabled={disableButton}
                 style={{
-                  background: '#2F73FF', // 使用更现代的蓝色
+                  background: '#2F73FF',
                   color: 'white',
                   marginBottom: '1.5em',
                 }}
               >
-                {disableButton ? '密码重置完成' : '提交'}
+                {disableButton ? t('auth.reset.confirm.button_disabled') : t('auth.reset.confirm.button')}
               </Button>
             </Form>
             {newPassword && (
               <Message style={{ background: 'transparent', boxShadow: 'none' }}>
                 <p style={{ fontSize: '0.9em', color: '#666' }}>
-                  新密码已生成，请点击密码框或上方按钮复制。请及时登录并修改密码！
+                  {t('auth.reset.confirm.notice')}
                 </p>
               </Message>
             )}

@@ -720,10 +720,10 @@
     }
   },
   "about": {
-    "title": "关于系统",
-    "description": "可在设置页面设置关于内容，支持 HTML & Markdown",
-    "repository": "项目仓库地址：",
-    "loading_failed": "加载关于内容失败..."
+    "title": "关于",
+    "description": "One API 是一个开源的接口管理和代理平台。",
+    "repository": "项目地址：",
+    "loading_failed": "加载失败"
   },
   "footer": {
     "built_by": "由",
@@ -758,5 +758,66 @@
       }
     },
     "loading_failed": "加载首页内容失败..."
+  },
+  "auth": {
+    "login": {
+      "title": "用户登录",
+      "username": "用户名 / 邮箱地址",
+      "password": "密码",
+      "button": "登录",
+      "forgot_password": "忘记密码？",
+      "reset_password": "点击重置",
+      "no_account": "没有账户？",
+      "register": "点击注册",
+      "other_methods": "使用其他方式登录",
+      "wechat": {
+        "scan_tip": "微信扫码关注公众号，输入「验证码」获取验证码（三分钟内有效）",
+        "code_placeholder": "验证码"
+      }
+    },
+    "register": {
+      "title": "新用户注册",
+      "username": "输入用户名，最长 12 位",
+      "password": "输入密码，最短 8 位，最长 20 位",
+      "confirm_password": "再次输入密码",
+      "email": "输入邮箱地址",
+      "verification_code": "输入验证码",
+      "get_code": "获取验证码",
+      "get_code_retry": "重试 ({{countdown}})",
+      "button": "注册",
+      "has_account": "已有账户？",
+      "login": "点击登录"
+    },
+    "reset": {
+      "title": "密码重置",
+      "email": "邮箱地址",
+      "button": "提交",
+      "notice": "系统将向您的邮箱发送一封包含重置链接的邮件，请注意查收。",
+      "confirm": {
+        "title": "密码重置确认",
+        "new_password": "新密码",
+        "button": "提交",
+        "button_disabled": "密码重置完成",
+        "notice": "新密码已生成，请点击密码框或上方按钮复制。请及时登录并修改密码！"
+      }
+    }
+  },
+  "messages": {
+    "success": {
+      "login": "登录成功！",
+      "register": "注册成功！",
+      "verification_code": "验证码发送成功，请检查你的邮箱！",
+      "password_reset": "重置邮件发送成功，请检查邮箱！"
+    },
+    "error": {
+      "login_expired": "未登录或登录已过期，请重新登录！",
+      "password_length": "密码长度不得小于 8 位！",
+      "password_mismatch": "两次输入的密码不一致",
+      "turnstile_wait": "请稍后几秒重试，Turnstile 正在检查用户环境！",
+      "root_password": "请立刻修改默认密码！"
+    },
+    "notice": {
+      "password_copied": "新密码已复制到剪贴板：{{password}}"
+    }
   }
 }

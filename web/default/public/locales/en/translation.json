@@ -571,7 +571,9 @@
         "qrcode_placeholder": "Enter an image URL",
         "buttons": {
           "save": "Save WeChat Server Settings"
-        }
+        },
+        "scan_tip": "Scan QR code to follow WeChat Official Account, enter 'code' to get verification code (valid for 3 minutes)",
+        "code_placeholder": "Verification code"
       },
       "turnstile": {
         "title": "Turnstile Configuration",
@@ -754,5 +756,72 @@
       }
     },
     "loading_failed": "Failed to load homepage content..."
+  },
+  "auth": {
+    "login": {
+      "title": "User Login",
+      "username": "Username / Email",
+      "password": "Password",
+      "button": "Login",
+      "forgot_password": "Forgot password?",
+      "reset_password": "Reset",
+      "no_account": "No account?",
+      "register": "Register",
+      "other_methods": "Other login methods",
+      "wechat": {
+        "scan_tip": "Scan QR code to follow WeChat Official Account, enter 'code' to get verification code (valid for 3 minutes)",
+        "code_placeholder": "Verification code"
+      }
+    },
+    "register": {
+      "title": "New User Registration",
+      "username": "Username (max 12 characters)",
+      "password": "Password (8-20 characters)",
+      "confirm_password": "Confirm password",
+      "email": "Email address",
+      "verification_code": "Verification code",
+      "get_code": "Get code",
+      "get_code_retry": "Retry ({{countdown}})",
+      "button": "Register",
+      "has_account": "Have an account?",
+      "login": "Login"
+    },
+    "reset": {
+      "title": "Password Reset",
+      "email": "Email address",
+      "button": "Submit",
+      "notice": "The system will send an email containing a reset link to your mailbox. Please check your email.",
+      "confirm": {
+        "title": "Password Reset Confirmation",
+        "new_password": "New password",
+        "button": "Submit",
+        "button_disabled": "Password reset completed",
+        "notice": "New password has been generated, please click the password field or button above to copy. Please login and change your password as soon as possible!"
+      }
+    }
+  },
+  "about": {
+    "title": "About",
+    "description": "One API is an open-source API management and proxy platform.",
+    "repository": "Repository: ",
+    "loading_failed": "Loading failed"
+  },
+  "messages": {
+    "success": {
+      "login": "Login successful!",
+      "register": "Registration successful!",
+      "verification_code": "Verification code sent, please check your email!",
+      "password_reset": "Reset email sent, please check your inbox!"
+    },
+    "error": {
+      "login_expired": "Not logged in or session expired, please login again!",
+      "password_length": "Password must be at least 8 characters!",
+      "password_mismatch": "Passwords do not match",
+      "turnstile_wait": "Please wait a few seconds, Turnstile is checking the environment!",
+      "root_password": "Please change the default password immediately!"
+    },
+    "notice": {
+      "password_copied": "New password copied to clipboard: {{password}}"
+    }
   }
 }
