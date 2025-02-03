@@ -62,7 +62,8 @@
       "not_tested": "未测试",
       "priority_tip": "渠道选择优先级，越高越优先",
       "select_test_model": "请选择测试模型",
-      "click_to_update": "点击更新"
+      "click_to_update": "点击更新",
+      "balance_not_supported": "-"
     },
     "buttons": {
       "test": "测试",

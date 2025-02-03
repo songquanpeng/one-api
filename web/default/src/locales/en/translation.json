@@ -62,7 +62,8 @@
       "not_tested": "Not Tested",
       "priority_tip": "Channel selection priority, higher is preferred",
       "select_test_model": "Please select test model",
-      "click_to_update": "Click to update"
+      "click_to_update": "Click to update",
+      "balance_not_supported": "-"
     },
     "buttons": {
       "test": "Test",
