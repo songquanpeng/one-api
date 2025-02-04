@@ -93,7 +93,7 @@ _✨ 通过标准的 OpenAI API 格式访问所有的大模型，开箱即用 �
    + [x] [DeepL](https://www.deepl.com/)
    + [x] [together.ai](https://www.together.ai/)
    + [x] [novita.ai](https://www.novita.ai/)
-   + [x] [硅基流动 SiliconCloud](https://siliconflow.cn/siliconcloud)
+   + [x] [硅基流动 SiliconCloud](https://cloud.siliconflow.cn/i/rKXmRobW)
    + [x] [xAI](https://x.ai/)
 2. 支持配置镜像以及众多[第三方代理服务](https://iamazing.cn/page/openai-api-third-party-services)。
 3. 支持通过**负载均衡**的方式访问多个渠道。
