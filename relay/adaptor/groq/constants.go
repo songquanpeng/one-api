@@ -3,7 +3,6 @@ package groq
 // https://console.groq.com/docs/models
 
 var ModelList = []string{
-	"gemma-7b-it",
 	"gemma2-9b-it",
 	"llama-3.1-70b-versatile",
 	"llama-3.1-8b-instant",
@@ -23,4 +22,6 @@ var ModelList = []string{
 	"distil-whisper-large-v3-en",
 	"whisper-large-v3",
 	"whisper-large-v3-turbo",
+	"deepseek-r1-distill-llama-70b-specdec",
+	"deepseek-r1-distill-llama-70b",
 }
