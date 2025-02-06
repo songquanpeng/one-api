@@ -315,6 +315,7 @@ If the channel ID is not provided, load balancing will be used to distribute the
 * [FastGPT](https://github.com/labring/FastGPT): Knowledge question answering system based on the LLM
 * [VChart](https://github.com/VisActor/VChart):  More than just a cross-platform charting library, but also an expressive data storyteller.
 * [VMind](https://github.com/VisActor/VMind):  Not just automatic, but also fantastic. Open-source solution for intelligent visualization.
+* * [CherryStudio](https://github.com/CherryHQ/cherry-studio):  A cross-platform AI client that integrates multiple service providers and supports local knowledge base management.
 
 ## Note
 This project is an open-source project. Please use it in compliance with OpenAI's [Terms of Use](https://openai.com/policies/terms-of-use) and **applicable laws and regulations**. It must not be used for illegal purposes.
