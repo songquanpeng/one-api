@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/songquanpeng/one-api/common/config"
 	"github.com/songquanpeng/one-api/common/helper"
 	channelhelper "github.com/songquanpeng/one-api/relay/adaptor"
 	"github.com/songquanpeng/one-api/relay/adaptor/openai"
@@ -19,15 +21,11 @@ type Adaptor struct {
 }
 
 func (a *Adaptor) Init(meta *meta.Meta) {
-
 }
 
 func (a *Adaptor) GetRequestURL(meta *meta.Meta) (string, error) {
-	var defaultVersion string
-	switch meta.ActualModelName {
-	case "gemini-2.0-flash-exp",
-		"gemini-2.0-flash-thinking-exp",
-		"gemini-2.0-flash-thinking-exp-01-21":
+	defaultVersion := config.GeminiVersion
+	if strings.Contains(meta.ActualModelName, "-2.0") {
 		defaultVersion = "v1beta"
 	}
 

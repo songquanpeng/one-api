@@ -1,10 +1,11 @@
 package gemini
 
 type ChatRequest struct {
-	Contents         []ChatContent        `json:"contents"`
-	SafetySettings   []ChatSafetySettings `json:"safety_settings,omitempty"`
-	GenerationConfig ChatGenerationConfig `json:"generation_config,omitempty"`
-	Tools            []ChatTools          `json:"tools,omitempty"`
+	Contents          []ChatContent        `json:"contents"`
+	SafetySettings    []ChatSafetySettings `json:"safety_settings,omitempty"`
+	GenerationConfig  ChatGenerationConfig `json:"generation_config,omitempty"`
+	Tools             []ChatTools          `json:"tools,omitempty"`
+	SystemInstruction *ChatContent         `json:"system_instruction,omitempty"`
 }
 
 type EmbeddingRequest struct {
