@@ -62,8 +62,9 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           context: .
-          #          platforms: linux/amd64,linux/arm64
           platforms: ${{ contains(github.ref, 'alpha') && 'linux/amd64' || 'linux/amd64,linux/arm64' }}
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            TARGETARCH=${{ startsWith(matrix.platform, 'linux/arm64') && 'arm64' || 'amd64' }}
