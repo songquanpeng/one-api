@@ -1,6 +1,6 @@
-import React, {useEffect, useState} from 'react';
-import {useTranslation} from 'react-i18next';
-import {Card, Grid} from 'semantic-ui-react';
+import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Card, Grid } from 'semantic-ui-react';
 import {
   Bar,
   BarChart,
@@ -242,7 +242,7 @@ const Dashboard = () => {
             <Card.Content>
               <Card.Header>
                 {t('dashboard.charts.requests.title')}
-                  {/* <span className='stat-value'>{summaryData.todayRequests}</span> */}
+                {/* <span className='stat-value'>{summaryData.todayRequests}</span> */}
               </Card.Header>
               <div className='chart-container'>
                 <ResponsiveContainer
@@ -271,7 +271,9 @@ const Dashboard = () => {
                         t('dashboard.charts.requests.tooltip'),
                       ]}
                       labelFormatter={(label) =>
-                        `${t('dashboard.statistics.tooltip.date')}: ${formatDate(label)}`
+                        `${t(
+                          'dashboard.statistics.tooltip.date'
+                        )}: ${formatDate(label)}`
                       }
                     />
                     <Line
@@ -294,7 +296,7 @@ const Dashboard = () => {
             <Card.Content>
               <Card.Header>
                 {t('dashboard.charts.quota.title')}
-                  {/* <span className='stat-value'>
+                {/* <span className='stat-value'>
                   ${summaryData.todayQuota.toFixed(3)}
                 </span> */}
               </Card.Header>
@@ -321,11 +323,13 @@ const Dashboard = () => {
                         boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
                       }}
                       formatter={(value) => [
-                        value,
+                        value.toFixed(6),
                         t('dashboard.charts.quota.tooltip'),
                       ]}
                       labelFormatter={(label) =>
-                        `${t('dashboard.statistics.tooltip.date')}: ${formatDate(label)}`
+                        `${t(
+                          'dashboard.statistics.tooltip.date'
+                        )}: ${formatDate(label)}`
                       }
                     />
                     <Line
@@ -348,7 +352,7 @@ const Dashboard = () => {
             <Card.Content>
               <Card.Header>
                 {t('dashboard.charts.tokens.title')}
-                  {/* <span className='stat-value'>{summaryData.todayTokens}</span> */}
+                {/* <span className='stat-value'>{summaryData.todayTokens}</span> */}
               </Card.Header>
               <div className='chart-container'>
                 <ResponsiveContainer
@@ -377,7 +381,9 @@ const Dashboard = () => {
                         t('dashboard.charts.tokens.tooltip'),
                       ]}
                       labelFormatter={(label) =>
-                        `${t('dashboard.statistics.tooltip.date')}: ${formatDate(label)}`
+                        `${t(
+                          'dashboard.statistics.tooltip.date'
+                        )}: ${formatDate(label)}`
                       }
                     />
                     <Line
@@ -422,7 +428,9 @@ const Dashboard = () => {
                     boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
                   }}
                   labelFormatter={(label) =>
-                    `${t('dashboard.statistics.tooltip.date')}: ${formatDate(label)}`
+                    `${t('dashboard.statistics.tooltip.date')}: ${formatDate(
+                      label
+                    )}`
                   }
                 />
                 <Legend

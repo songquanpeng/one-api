@@ -49,7 +49,7 @@ export const CHANNEL_OPTIONS = {
   },
   40: {
     key: 40,
-    text: '字节跳动豆包',
+    text: '火山引擎',
     value: 40,
     color: 'primary'
   },
