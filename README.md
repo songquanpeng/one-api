@@ -469,6 +469,7 @@ https://openai.justsong.cn
 * [ChatGPT Next Web](https://github.com/Yidadaa/ChatGPT-Next-Web):  一键拥有你自己的跨平台 ChatGPT 应用
 * [VChart](https://github.com/VisActor/VChart):  不只是开箱即用的多端图表库，更是生动灵活的数据故事讲述者。
 * [VMind](https://github.com/VisActor/VMind):  不仅自动，还很智能。开源智能可视化解决方案。
+* [CherryStudio](https://github.com/CherryHQ/cherry-studio):  全平台支持的AI客户端, 多服务商集成管理、本地知识库支持。
 
 ## 注意
 
