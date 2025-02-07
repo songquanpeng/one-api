@@ -25,7 +25,8 @@ func (a *Adaptor) Init(meta *meta.Meta) {
 
 func (a *Adaptor) GetRequestURL(meta *meta.Meta) (string, error) {
 	defaultVersion := config.GeminiVersion
-	if strings.Contains(meta.ActualModelName, "-2.0") {
+	if strings.Contains(meta.ActualModelName, "gemini-2.0") ||
+		strings.Contains(meta.ActualModelName, "gemini-1.5") {
 		defaultVersion = "v1beta"
 	}
 
