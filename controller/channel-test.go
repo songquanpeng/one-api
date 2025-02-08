@@ -131,24 +131,28 @@ func testChannel(ctx context.Context, channel *model.Channel, request *relaymode
 	logger.SysLog(string(jsonData))
 	requestBody := bytes.NewBuffer(jsonData)
 	c.Request.Body = io.NopCloser(requestBody)
-	resp, err := adaptor.DoRequest(c, meta, requestBody)
+	var resp *http.Response
+	resp, err = adaptor.DoRequest(c, meta, requestBody)
 	if err != nil {
 		return "", err, nil
 	}
 	if resp != nil && resp.StatusCode != http.StatusOK {
-		err := controller.RelayErrorHandler(resp)
-		errorMessage := err.Error.Message
+		wrappedErr := controller.RelayErrorHandler(resp)
+		errorMessage := wrappedErr.Error.Message
 		if errorMessage != "" {
 			errorMessage = ", error message: " + errorMessage
 		}
-		return "", fmt.Errorf("http status code: %d%s", resp.StatusCode, errorMessage), &err.Error
+		err = fmt.Errorf("http status code: %d%s", resp.StatusCode, errorMessage)
+		return "", err, &wrappedErr.Error
 	}
 	usage, respErr := adaptor.DoResponse(c, resp, meta)
 	if respErr != nil {
-		return "", fmt.Errorf("%s", respErr.Error.Message), &respErr.Error
+		err = fmt.Errorf("%s", respErr.Error.Message)
+		return "", err, &respErr.Error
 	}
 	if usage == nil {
-		return "", errors.New("usage is nil"), nil
+		err = errors.New("usage is nil")
+		return "", err, nil
 	}
 	rawResponse := w.Body.String()
 	_, responseMessage, err = parseTestResponse(rawResponse)
@@ -157,7 +161,8 @@ func testChannel(ctx context.Context, channel *model.Channel, request *relaymode
 	}
 	result := w.Result()
 	// print result.Body
-	respBody, err := io.ReadAll(result.Body)
+	var respBody []byte
+	respBody, err = io.ReadAll(result.Body)
 	if err != nil {
 		return "", err, nil
 	}
