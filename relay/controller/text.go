@@ -32,6 +32,7 @@ func RelayTextHelper(c *gin.Context) *model.ErrorWithStatusCode {
 		return openai.ErrorWrapper(err, "invalid_text_request", http.StatusBadRequest)
 	}
 	meta.IsStream = textRequest.Stream
+	meta.Cache = len(textRequest.ContextId) > 0
 
 	// map model name
 	meta.OriginModelName = textRequest.Model
