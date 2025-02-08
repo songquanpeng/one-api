@@ -52,8 +52,6 @@ _✨ Access all LLM through the standard OpenAI API format, easy to deploy & use
 
 > **Warning**: This README is translated by ChatGPT. Please feel free to submit a PR if you find any translation errors.
 
-> **Warning**: The Docker image for English version is `justsong/one-api-en`.
-
 > **Note**: The latest image pulled from Docker may be an `alpha` release. Specify the version manually if you require stability.
 
 ## Features
@@ -89,7 +87,9 @@ _✨ Access all LLM through the standard OpenAI API format, easy to deploy & use
 
 ## Deployment
 ### Docker Deployment
-Deployment command: `docker run --name one-api -d --restart always -p 3000:3000 -e TZ=Asia/Shanghai -v /home/ubuntu/data/one-api:/data justsong/one-api-en`
+
+Deployment command:
+`docker run --name one-api -d --restart always -p 3000:3000 -e TZ=Asia/Shanghai -v /home/ubuntu/data/one-api:/data justsong/one-api`
 
 Update command: `docker run --rm -v /var/run/docker.sock:/var/run/docker.sock containrrr/watchtower -cR`
 
@@ -315,6 +315,7 @@ If the channel ID is not provided, load balancing will be used to distribute the
 * [FastGPT](https://github.com/labring/FastGPT): Knowledge question answering system based on the LLM
 * [VChart](https://github.com/VisActor/VChart):  More than just a cross-platform charting library, but also an expressive data storyteller.
 * [VMind](https://github.com/VisActor/VMind):  Not just automatic, but also fantastic. Open-source solution for intelligent visualization.
+* * [CherryStudio](https://github.com/CherryHQ/cherry-studio):  A cross-platform AI client that integrates multiple service providers and supports local knowledge base management.
 
 ## Note
 This project is an open-source project. Please use it in compliance with OpenAI's [Terms of Use](https://openai.com/policies/terms-of-use) and **applicable laws and regulations**. It must not be used for illegal purposes.

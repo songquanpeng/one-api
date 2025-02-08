@@ -1,0 +1,829 @@
+{
+  "header": {
+    "home": "Home",
+    "channel": "Channel",
+    "token": "Token",
+    "redemption": "Redemption",
+    "topup": "Top Up",
+    "user": "User",
+    "dashboard": "Dashboard",
+    "log": "Log",
+    "setting": "Settings",
+    "about": "About",
+    "chat": "Chat",
+    "login": "Login",
+    "logout": "Logout",
+    "register": "Register"
+  },
+  "topup": {
+    "title": "Top Up Center",
+    "get_code": {
+      "title": "Get Redemption Code",
+      "current_quota": "Current Available Quota",
+      "button": "Get Code Now"
+    },
+    "redeem_code": {
+      "title": "Redeem Code",
+      "placeholder": "Please enter redemption code",
+      "paste": "Paste",
+      "paste_error": "Cannot access clipboard, please paste manually",
+      "submit": "Redeem Now",
+      "submitting": "Redeeming...",
+      "empty_code": "Please enter the redemption code!",
+      "success": "Top up successful!",
+      "request_failed": "Request failed",
+      "no_link": "Admin has not set up the top-up link!"
+    }
+  },
+  "channel": {
+    "title": "Channel Management",
+    "search": "Search channels by ID, name and key...",
+    "balance_notice": "OpenAI channels no longer support getting balance via key, so balance shows as 0. For supported channel types, click balance to refresh.",
+    "test_notice": "Channel testing only supports chat models, preferring gpt-3.5-turbo. If unavailable, uses the first model in your configured list.",
+    "detail_notice": "Click the detail button below to show balance and set additional test models.",
+    "table": {
+      "id": "ID",
+      "name": "Name",
+      "group": "Group",
+      "type": "Type",
+      "status": "Status",
+      "response_time": "Response Time",
+      "balance": "Balance",
+      "priority": "Priority",
+      "test_model": "Test Model",
+      "actions": "Actions",
+      "no_name": "None",
+      "status_enabled": "Enabled",
+      "status_disabled": "Disabled",
+      "status_auto_disabled": "Disabled",
+      "status_disabled_tip": "This channel is manually disabled",
+      "status_auto_disabled_tip": "This channel is automatically disabled",
+      "status_unknown": "Unknown Status",
+      "not_tested": "Not Tested",
+      "priority_tip": "Channel selection priority, higher is preferred",
+      "select_test_model": "Please select test model",
+      "click_to_update": "Click to update",
+      "balance_not_supported": "-"
+    },
+    "buttons": {
+      "test": "Test",
+      "delete": "Delete",
+      "confirm_delete": "Delete Channel",
+      "enable": "Enable",
+      "disable": "Disable",
+      "edit": "Edit",
+      "add": "Add New Channel",
+      "test_all": "Test All Channels",
+      "test_disabled": "Test Disabled Channels",
+      "delete_disabled": "Delete Disabled Channels",
+      "confirm_delete_disabled": "Confirm Delete",
+      "refresh": "Refresh",
+      "show_detail": "Details",
+      "hide_detail": "Hide Details"
+    },
+    "messages": {
+      "test_success": "Channel {{name}} test successful, model {{model}}, time {{time}}s, output: {{message}}",
+      "test_all_started": "Channel testing started successfully, please refresh page to see results.",
+      "delete_disabled_success": "Deleted all disabled channels, total: {{count}}",
+      "balance_update_success": "Channel {{name}} balance updated successfully!",
+      "all_balance_updated": "All enabled channel balances have been updated!",
+      "operation_success": "Operation completed successfully!"
+    },
+    "edit": {
+      "title_edit": "Update Channel Information",
+      "title_create": "Create New Channel",
+      "type": "Type",
+      "name": "Name",
+      "name_placeholder": "Please enter name",
+      "group": "Group",
+      "group_placeholder": "Please select groups that can use this channel",
+      "group_addition": "Please edit group multipliers in system settings to add new group:",
+      "models": "Models",
+      "models_placeholder": "Please select models supported by this channel",
+      "model_mapping": "Model Mapping",
+      "model_mapping_placeholder": "Optional, used to modify model names in request body. A JSON string where keys are request model names and values are target model names",
+      "system_prompt": "System Prompt",
+      "system_prompt_placeholder": "Optional, used to force set system prompt. Use with custom model & model mapping. First create a unique custom model name above, then map it to a natively supported model",
+      "base_url": "Proxy",
+      "base_url_placeholder": "Optional, used for API calls through proxy. Enter proxy address in format: https://domain.com",
+      "key": "Key",
+      "key_placeholder": "Please enter key",
+      "batch": "Batch Create",
+      "batch_placeholder": "Please enter keys, one per line",
+      "buttons": {
+        "cancel": "Cancel",
+        "submit": "Submit",
+        "fill_models": "Fill Related Models",
+        "fill_all": "Fill All Models",
+        "clear": "Clear All Models",
+        "add_custom": "Add",
+        "custom_placeholder": "Enter custom model name"
+      },
+      "messages": {
+        "name_required": "Please enter channel name and key!",
+        "models_required": "Please select at least one model!",
+        "model_mapping_invalid": "Model mapping must be valid JSON format!",
+        "update_success": "Channel updated successfully!",
+        "create_success": "Channel created successfully!"
+      },
+      "spark_version": "Model Version",
+      "spark_version_placeholder": "Please enter Spark model version from API URL, e.g.: v2.1",
+      "knowledge_id": "Knowledge Base ID",
+      "knowledge_id_placeholder": "Please enter knowledge base ID, e.g.: 123456",
+      "plugin_param": "Plugin Parameter",
+      "plugin_param_placeholder": "Please enter plugin parameter (X-DashScope-Plugin header value)",
+      "coze_notice": "For Coze, model name is the Bot ID. You can add prefix `bot-`, e.g.: `bot-123456`.",
+      "douban_notice": "For Douban, you need to go to",
+      "douban_notice_link": "Model Inference Page",
+      "douban_notice_2": "to create an inference endpoint, and use the endpoint name as model name, e.g.: `ep-20240608051426-tkxvl`.",
+      "aws_region_placeholder": "region, e.g.: us-west-2",
+      "aws_ak_placeholder": "AWS IAM Access Key",
+      "aws_sk_placeholder": "AWS IAM Secret Key",
+      "vertex_region_placeholder": "Vertex AI Region, e.g.: us-east5",
+      "vertex_project_id": "Vertex AI Project ID",
+      "vertex_project_id_placeholder": "Vertex AI Project ID",
+      "vertex_credentials": "Google Cloud Application Default Credentials JSON",
+      "vertex_credentials_placeholder": "Google Cloud Application Default Credentials JSON",
+      "user_id": "User ID",
+      "user_id_placeholder": "User ID who generated this key",
+      "key_prompts": {
+        "default": "Please enter the authentication key for this channel",
+        "zhipu": "Enter in format: APIKey|SecretKey",
+        "spark": "Enter in format: APPID|APISecret|APIKey",
+        "fastgpt": "Enter in format: APIKey-AppId, e.g.: fastgpt-0sp2gtvfdgyi4k30jwlgwf1i-64f335d84283f05518e9e041",
+        "tencent": "Enter in format: AppId|SecretId|SecretKey"
+      }
+    }
+  },
+  "token": {
+    "title": "Token Management",
+    "search": "Search tokens by name ...",
+    "table": {
+      "name": "Name",
+      "status": "Status",
+      "used_quota": "Used Quota",
+      "remain_quota": "Remaining Quota",
+      "created_time": "Created Time",
+      "expired_time": "Expiry Time",
+      "actions": "Actions",
+      "no_name": "None",
+      "never_expire": "never",
+      "unlimited": "Unlimited",
+      "status_enabled": "Enabled",
+      "status_disabled": "Disabled",
+      "status_expired": "Expired",
+      "status_depleted": "Depleted",
+      "status_unknown": "Unknown Status"
+    },
+    "buttons": {
+      "copy": "Copy",
+      "chat": "Chat",
+      "delete": "Delete",
+      "confirm_delete": "Delete Token",
+      "enable": "Enable",
+      "disable": "Disable",
+      "edit": "Edit",
+      "add": "Add New Token",
+      "refresh": "Refresh"
+    },
+    "edit": {
+      "title_edit": "Update Token Information",
+      "title_create": "Create New Token",
+      "name": "Name",
+      "name_placeholder": "Please enter name",
+      "models": "Model Scope",
+      "models_placeholder": "Please select allowed models, leave empty for no restrictions",
+      "ip_limit": "IP Restriction",
+      "ip_limit_placeholder": "Please enter allowed subnets, e.g.: 192.168.0.0/24, use commas to separate multiple subnets",
+      "expire_time": "Expiry Time",
+      "expire_time_placeholder": "Please enter expiry time in yyyy-MM-dd HH:mm:ss format, -1 for no limit",
+      "quota_notice": "Note: Token quota only limits the maximum usage of the token itself, actual usage is subject to account remaining quota.",
+      "quota": "Quota",
+      "quota_placeholder": "Please enter quota",
+      "buttons": {
+        "never_expire": "Never Expire",
+        "expire_1_month": "Expire in 1 Month",
+        "expire_1_day": "Expire in 1 Day",
+        "expire_1_hour": "Expire in 1 Hour",
+        "expire_1_minute": "Expire in 1 Minute",
+        "unlimited_quota": "Set Unlimited Quota",
+        "cancel_unlimited": "Cancel Unlimited Quota",
+        "submit": "Submit",
+        "cancel": "Cancel"
+      },
+      "messages": {
+        "update_success": "Token updated successfully!",
+        "create_success": "Token created successfully, please copy it from the list page!",
+        "expire_time_invalid": "Invalid expiry time format!"
+      }
+    },
+    "copy_options": {
+      "raw": "Copy Raw Token",
+      "ama": "Copy AMA Link",
+      "opencat": "Copy OpenCat Link",
+      "next": "Copy NextChat Link",
+      "lobe": "Copy LobeChat Link"
+    },
+    "messages": {
+      "copy_success": "Copied to clipboard!",
+      "copy_failed": "Unable to copy to clipboard, please copy manually. Token has been filled in the search box.",
+      "operation_success": "Operation completed successfully!"
+    },
+    "sort": {
+      "placeholder": "Sort By",
+      "default": "Default Order",
+      "by_remain": "Sort by Remaining Quota",
+      "by_used": "Sort by Used Quota"
+    }
+  },
+  "common": {
+    "quota": {
+      "display": "Equivalent: ${{amount}}",
+      "display_short": "${{amount}}",
+      "unit": "$"
+    }
+  },
+  "redemption": {
+    "title": "Redemption Management",
+    "search": "Search redemption codes by ID and name ...",
+    "table": {
+      "id": "ID",
+      "name": "Name",
+      "status": "Status",
+      "quota": "Quota",
+      "created_time": "Created Time",
+      "redeemed_time": "Redeemed Time",
+      "actions": "Actions",
+      "no_name": "None",
+      "not_redeemed": "Not Redeemed"
+    },
+    "buttons": {
+      "copy": "Copy",
+      "delete": "Delete",
+      "confirm_delete": "Confirm Delete",
+      "enable": "Enable",
+      "disable": "Disable",
+      "edit": "Edit",
+      "add": "Add New Code",
+      "refresh": "Refresh"
+    },
+    "status": {
+      "unused": "Unused",
+      "disabled": "Disabled",
+      "used": "Used",
+      "unknown": "Unknown"
+    },
+    "edit": {
+      "title_edit": "Update Redemption Code",
+      "title_create": "Create New Redemption Code",
+      "name": "Name",
+      "name_placeholder": "Please enter name",
+      "quota": "Quota",
+      "quota_placeholder": "Please enter quota per redemption code",
+      "count": "Generate Count",
+      "count_placeholder": "Please enter number of codes to generate",
+      "buttons": {
+        "submit": "Submit",
+        "cancel": "Cancel"
+      }
+    },
+    "messages": {
+      "update_success": "Redemption code updated successfully!",
+      "create_success": "Redemption code created successfully!"
+    }
+  },
+  "log": {
+    "title": "Operation Log",
+    "search": "Search logs...",
+    "usage_details": "Usage Details",
+    "total_quota": "Total Quota Used",
+    "click_to_view": "Click to View",
+    "type": {
+      "select": "Select Log Type",
+      "all": "All",
+      "topup": "Top Up",
+      "usage": "Usage",
+      "admin": "Admin",
+      "system": "System",
+      "test": "Test"
+    },
+    "table": {
+      "time": "Time",
+      "channel": "Channel",
+      "type": "Type",
+      "model": "Model",
+      "username": "Username",
+      "token_name": "Token Name",
+      "token_name_placeholder": "Optional",
+      "model_name": "Model Name",
+      "model_name_placeholder": "Optional",
+      "start_time": "Start Time",
+      "end_time": "End Time",
+      "channel_id": "Channel ID",
+      "channel_id_placeholder": "Optional",
+      "username_placeholder": "Optional",
+      "prompt_tokens": "Prompt Tokens",
+      "completion_tokens": "Completion Tokens",
+      "quota": "Quota",
+      "detail": "Detail"
+    },
+    "buttons": {
+      "query": "Action",
+      "submit": "Query",
+      "refresh": "Refresh"
+    }
+  },
+  "user": {
+    "title": "User Management",
+    "edit": {
+      "title": "Update User Information",
+      "username": "Username",
+      "username_placeholder": "Please enter new username",
+      "password": "Password",
+      "password_placeholder": "Please enter new password, minimum 8 characters",
+      "display_name": "Display Name",
+      "display_name_placeholder": "Please enter new display name",
+      "group": "Group",
+      "group_placeholder": "Please select group",
+      "group_addition": "Please edit group multipliers in system settings to add new group:",
+      "quota": "Remaining Quota",
+      "quota_placeholder": "Please enter new remaining quota",
+      "github_id": "Linked GitHub Account",
+      "github_id_placeholder": "Read-only, user must link through personal settings page, cannot be modified directly",
+      "wechat_id": "Linked WeChat Account",
+      "wechat_id_placeholder": "Read-only, user must link through personal settings page, cannot be modified directly",
+      "email": "Linked Email Account",
+      "email_placeholder": "Read-only, user must link through personal settings page, cannot be modified directly",
+      "buttons": {
+        "submit": "Submit",
+        "cancel": "Cancel"
+      }
+    },
+    "add": {
+      "title": "Create New User Account"
+    },
+    "messages": {
+      "update_success": "User information updated successfully!",
+      "create_success": "User account created successfully!",
+      "operation_success": "Operation completed successfully!"
+    },
+    "search": "Search users...",
+    "table": {
+      "id": "ID",
+      "username": "Username",
+      "group": "Group",
+      "quota": "Quota",
+      "role_text": "Role",
+      "status_text": "Status",
+      "actions": "Actions",
+      "remaining_quota": "Remaining Quota",
+      "used_quota": "Used Quota",
+      "request_count": "Request Count",
+      "role_types": {
+        "normal": "Normal User",
+        "admin": "Admin",
+        "super_admin": "Super Admin",
+        "unknown": "Unknown Role"
+      },
+      "status_types": {
+        "activated": "Activated",
+        "banned": "Banned",
+        "unknown": "Unknown Status"
+      },
+      "sort": {
+        "default": "Default Order",
+        "by_quota": "Sort by Remaining Quota",
+        "by_used_quota": "Sort by Used Quota",
+        "by_request_count": "Sort by Request Count"
+      },
+      "sort_by": "Sort By"
+    },
+    "buttons": {
+      "add": "Add New User",
+      "delete": "Delete",
+      "delete_user": "Delete User",
+      "enable": "Enable",
+      "disable": "Disable",
+      "edit": "Edit",
+      "promote": "Promote",
+      "demote": "Demote"
+    }
+  },
+  "dashboard": {
+    "charts": {
+      "requests": {
+        "title": "Model Request Trend",
+        "tooltip": "Request Count"
+      },
+      "quota": {
+        "title": "Quota Usage Trend",
+        "tooltip": "Quota Used"
+      },
+      "tokens": {
+        "title": "Token Usage Trend",
+        "tooltip": "Token Count"
+      }
+    },
+    "statistics": {
+      "title": "Statistics",
+      "tooltip": {
+        "date": "Date",
+        "value": "Value"
+      }
+    }
+  },
+  "setting": {
+    "title": "System Settings",
+    "tabs": {
+      "personal": "Personal Settings",
+      "operation": "Operation Settings",
+      "system": "System Settings",
+      "other": "Other Settings"
+    },
+    "personal": {
+      "general": {
+        "title": "General Settings",
+        "system_token_notice": "Note: The token generated here is for system management, not for requesting OpenAI related services.",
+        "buttons": {
+          "update_profile": "Update Profile",
+          "generate_token": "Generate System Token",
+          "copy_invite": "Copy Invite Link",
+          "delete_account": "Delete Account"
+        }
+      },
+      "binding": {
+        "title": "Account Binding",
+        "buttons": {
+          "bind_wechat": "Bind WeChat Account",
+          "bind_github": "Bind GitHub Account",
+          "bind_email": "Bind Email Address",
+          "bind_lark": "Bind Lark Account"
+        },
+        "wechat": {
+          "title": "WeChat Binding",
+          "description": "Scan QR code to follow the official account, enter 'verification code' to get the code (valid for 3 minutes)",
+          "verification_code": "Verification Code",
+          "bind": "Bind"
+        },
+        "email": {
+          "title": "Bind Email Address",
+          "email_placeholder": "Enter email address",
+          "code_placeholder": "Verification code",
+          "get_code": "Get Code",
+          "get_code_retry": "Resend({{countdown}})",
+          "bind": "Confirm Binding",
+          "cancel": "Cancel"
+        }
+      },
+      "delete_account": {
+        "title": "Dangerous Operation",
+        "warning": "You are deleting your account. All data will be cleared and cannot be recovered",
+        "confirm_placeholder": "Enter your username {{username}} to confirm deletion",
+        "buttons": {
+          "confirm": "Confirm Delete",
+          "cancel": "Cancel"
+        }
+      }
+    },
+    "system": {
+      "general": {
+        "title": "General Settings",
+        "server_address": "Server Address",
+        "server_address_placeholder": "e.g.: https://yourdomain.com",
+        "buttons": {
+          "update": "Update Server Address"
+        }
+      },
+      "login": {
+        "title": "Login & Registration Settings",
+        "password_login": "Allow Password Login",
+        "password_register": "Allow Password Registration",
+        "email_verification": "Require Email Verification for Password Registration",
+        "github_oauth": "Allow GitHub OAuth Login & Registration",
+        "wechat_login": "Allow WeChat Login & Registration",
+        "registration": "Allow New User Registration (When disabled, new users cannot register by any means)",
+        "turnstile": "Enable Turnstile User Verification"
+      },
+      "email_restriction": {
+        "title": "Email Domain Whitelist",
+        "subtitle": "Used to prevent malicious users from batch registering using temporary emails",
+        "enable": "Enable Email Domain Whitelist",
+        "allowed_domains": "Allowed Email Domains",
+        "add_domain": "Add New Allowed Email Domain",
+        "add_domain_placeholder": "Enter new allowed email domain",
+        "buttons": {
+          "fill": "Fill",
+          "save": "Save Email Domain Whitelist Settings"
+        }
+      },
+      "smtp": {
+        "title": "SMTP Configuration",
+        "subtitle": "Used to support system email sending",
+        "server": "SMTP Server Address",
+        "server_placeholder": "e.g.: smtp.gmail.com",
+        "port": "SMTP Port",
+        "port_placeholder": "Default: 587",
+        "account": "SMTP Account",
+        "account_placeholder": "Usually your email address",
+        "from": "SMTP Sender Email",
+        "from_placeholder": "Usually same as email address",
+        "token": "SMTP Access Token",
+        "token_placeholder": "Sensitive information will not be sent to frontend",
+        "buttons": {
+          "save": "Save SMTP Settings"
+        }
+      },
+      "github": {
+        "title": "GitHub OAuth App Configuration",
+        "subtitle": "Used to support GitHub login and registration",
+        "manage_link": "Click here",
+        "manage_text": "to manage your GitHub OAuth Apps",
+        "url_notice": "Set Homepage URL to {{server_url}}, and Authorization callback URL to {{callback_url}}",
+        "client_id": "GitHub Client ID",
+        "client_id_placeholder": "Enter your registered GitHub OAuth APP ID",
+        "client_secret": "GitHub Client Secret",
+        "client_secret_placeholder": "Sensitive information will not be sent to frontend",
+        "buttons": {
+          "save": "Save GitHub OAuth Settings"
+        }
+      },
+      "lark": {
+        "title": "Lark OAuth Configuration",
+        "subtitle": "Used to support Lark login and registration",
+        "manage_link": "Click here",
+        "manage_text": "to manage your Lark applications",
+        "url_notice": "Set Homepage URL to {{server_url}}, and Redirect URL to {{callback_url}}",
+        "client_id": "App ID",
+        "client_id_placeholder": "Enter App ID",
+        "client_secret": "App Secret",
+        "client_secret_placeholder": "Sensitive information will not be sent to frontend",
+        "buttons": {
+          "save": "Save Lark OAuth Settings"
+        }
+      },
+      "wechat": {
+        "title": "WeChat Server Configuration",
+        "subtitle": "Used to support WeChat login and registration",
+        "learn_more": "Learn about WeChat Server",
+        "server_address": "WeChat Server Address",
+        "server_address_placeholder": "e.g.: https://yourdomain.com",
+        "token": "WeChat Server Access Token",
+        "token_placeholder": "Sensitive information will not be sent to frontend",
+        "qrcode": "WeChat Official Account QR Code Image URL",
+        "qrcode_placeholder": "Enter an image URL",
+        "buttons": {
+          "save": "Save WeChat Server Settings"
+        },
+        "scan_tip": "Scan QR code to follow WeChat Official Account, enter 'code' to get verification code (valid for 3 minutes)",
+        "code_placeholder": "Verification code"
+      },
+      "turnstile": {
+        "title": "Turnstile Configuration",
+        "subtitle": "Used to support user verification",
+        "manage_link": "Click here",
+        "manage_text": "to manage your Turnstile Sites, Invisible Widget Type recommended",
+        "site_key": "Turnstile Site Key",
+        "site_key_placeholder": "Enter your registered Turnstile Site Key",
+        "secret_key": "Turnstile Secret Key",
+        "secret_key_placeholder": "Sensitive information will not be sent to frontend",
+        "buttons": {
+          "save": "Save Turnstile Settings"
+        }
+      },
+      "password_login": {
+        "warning": {
+          "title": "Warning",
+          "content": "Disabling password login will prevent all users (including administrators) who haven't bound other login methods from logging in via password. Confirm disable?",
+          "buttons": {
+            "confirm": "Confirm",
+            "cancel": "Cancel"
+          }
+        }
+      }
+    },
+    "operation": {
+      "quota": {
+        "title": "Quota Settings",
+        "new_user": "Initial Quota for New Users",
+        "new_user_placeholder": "e.g.: 100",
+        "pre_consume": "Pre-consumed Quota per Request",
+        "pre_consume_placeholder": "Refund or charge difference after request",
+        "inviter_reward": "Reward Quota for Inviter",
+        "inviter_reward_placeholder": "e.g.: 2000",
+        "invitee_reward": "Reward Quota for Using Invite Code",
+        "invitee_reward_placeholder": "e.g.: 1000",
+        "buttons": {
+          "save": "Save Quota Settings"
+        }
+      },
+      "ratio": {
+        "title": "Ratio Settings",
+        "model": {
+          "title": "Model Ratio",
+          "placeholder": "A JSON text where keys are model names and values are ratios"
+        },
+        "completion": {
+          "title": "Completion Ratio",
+          "placeholder": "A JSON text where keys are model names and values are ratios. These ratios are the proportion of completion to prompt ratio, which can override One API's internal ratios"
+        },
+        "group": {
+          "title": "Group Ratio",
+          "placeholder": "A JSON text where keys are group names and values are ratios"
+        },
+        "buttons": {
+          "save": "Save Ratio Settings"
+        }
+      },
+      "log": {
+        "title": "Log Settings",
+        "enable_consume": "Enable Quota Consumption Logging",
+        "target_time": "Target Time",
+        "buttons": {
+          "clean": "Clean Historical Logs"
+        }
+      },
+      "monitor": {
+        "title": "Monitor Settings",
+        "max_response_time": "Maximum Response Time",
+        "max_response_time_placeholder": "In seconds, channels exceeding this time during testing will be automatically disabled",
+        "quota_reminder": "Quota Reminder Threshold",
+        "quota_reminder_placeholder": "Users will receive email reminders when quota falls below this value",
+        "auto_disable": "Automatically Disable Channel on Failure",
+        "auto_enable": "Automatically Enable Channel on Success",
+        "buttons": {
+          "save": "Save Monitor Settings"
+        }
+      },
+      "general": {
+        "title": "General Settings",
+        "topup_link": "Top-up Link",
+        "topup_link_placeholder": "e.g.: Card selling website purchase link",
+        "chat_link": "Chat Page Link",
+        "chat_link_placeholder": "e.g.: ChatGPT Next Web deployment address",
+        "quota_per_unit": "Quota per Dollar",
+        "quota_per_unit_placeholder": "Quota exchangeable per unit of currency",
+        "retry_times": "Retry Times on Failure",
+        "retry_times_placeholder": "Number of retry attempts on failure",
+        "display_in_currency": "Display Quota in Currency Format",
+        "display_token_stat": "Show Token Quota Instead of User Quota in Billing APIs",
+        "approximate_token": "Use Approximate Method to Estimate Token Count",
+        "buttons": {
+          "save": "Save General Settings"
+        }
+      }
+    },
+    "other": {
+      "notice": {
+        "title": "Notice Settings",
+        "content": "Notice Content",
+        "content_placeholder": "Enter new notice content here, supports Markdown & HTML code",
+        "buttons": {
+          "save": "Save Notice"
+        }
+      },
+      "system": {
+        "title": "System Settings",
+        "name": "System Name",
+        "name_placeholder": "Please enter system name",
+        "logo": "Logo Image URL",
+        "logo_placeholder": "Enter Logo image URL here",
+        "theme": {
+          "title": "Theme Name",
+          "link": "Available Themes",
+          "placeholder": "Please enter theme name"
+        },
+        "buttons": {
+          "save_name": "Set System Name",
+          "save_logo": "Set Logo",
+          "save_theme": "Set Theme (Restart Required)"
+        }
+      },
+      "content": {
+        "title": "Content Settings",
+        "homepage": {
+          "title": "Homepage Content",
+          "placeholder": "Enter homepage content here, supports Markdown & HTML code. Status information will not be shown after setting. If a link is entered, it will be used as the src attribute of an iframe, allowing you to set any webpage as homepage."
+        },
+        "about": {
+          "title": "About System",
+          "description": "You can set about content in settings page, supports HTML & Markdown",
+          "repository": "Project Repository:",
+          "loading_failed": "Failed to load about content..."
+        },
+        "footer": {
+          "title": "Footer",
+          "placeholder": "Enter new footer here, leave empty to use default footer, supports HTML code"
+        },
+        "buttons": {
+          "save_homepage": "Save Homepage Content",
+          "save_about": "Save About",
+          "save_footer": "Set Footer"
+        }
+      },
+      "copyright": {
+        "notice": "Removing One API's copyright notice requires authorization. Project maintenance requires significant effort, if this project is meaningful to you, please actively support it."
+      }
+    }
+  },
+  "footer": {
+    "built_by": "built by",
+    "built_by_name": "JustSong",
+    "license": ", source code is licensed under the",
+    "mit": "MIT License"
+  },
+  "home": {
+    "welcome": {
+      "title": "Welcome to One API",
+      "description": "One API is a LLM API management and distribution system that helps you better manage and use LLM APIs from various providers.",
+      "login_notice": "To use the service, please login or register first."
+    },
+    "system_status": {
+      "title": "System Status",
+      "info": {
+        "title": "System Information",
+        "name": "Name: ",
+        "version": "Version: ",
+        "source": "Source: ",
+        "source_link": "GitHub Repository",
+        "start_time": "Start Time: "
+      },
+      "config": {
+        "title": "System Configuration",
+        "email_verify": "Email Verification: ",
+        "github_oauth": "GitHub OAuth: ",
+        "wechat_login": "WeChat Login: ",
+        "turnstile": "Turnstile Check: ",
+        "enabled": "Enabled",
+        "disabled": "Disabled"
+      }
+    },
+    "loading_failed": "Failed to load homepage content..."
+  },
+  "auth": {
+    "login": {
+      "title": "User Login",
+      "username": "Username / Email",
+      "password": "Password",
+      "button": "Login",
+      "forgot_password": "Forgot password?",
+      "reset_password": "Reset",
+      "no_account": "No account?",
+      "register": "Register",
+      "other_methods": "Other login methods",
+      "wechat": {
+        "scan_tip": "Scan QR code to follow WeChat Official Account, enter 'code' to get verification code (valid for 3 minutes)",
+        "code_placeholder": "Verification code"
+      }
+    },
+    "register": {
+      "title": "New User Registration",
+      "username": "Username (max 12 characters)",
+      "password": "Password (8-20 characters)",
+      "confirm_password": "Confirm password",
+      "email": "Email address",
+      "verification_code": "Verification code",
+      "get_code": "Get code",
+      "get_code_retry": "Retry ({{countdown}})",
+      "button": "Register",
+      "has_account": "Have an account?",
+      "login": "Login"
+    },
+    "reset": {
+      "title": "Password Reset",
+      "email": "Email address",
+      "button": "Submit",
+      "notice": "The system will send an email containing a reset link to your mailbox. Please check your email.",
+      "confirm": {
+        "title": "Password Reset Confirmation",
+        "new_password": "New password",
+        "button": "Submit",
+        "button_disabled": "Password reset completed",
+        "notice": "New password has been generated, please click the password field or button above to copy. Please login and change your password as soon as possible!"
+      }
+    }
+  },
+  "about": {
+    "title": "About",
+    "description": "One API is an open-source API management and proxy platform.",
+    "repository": "Repository: ",
+    "loading_failed": "Loading failed"
+  },
+  "messages": {
+    "success": {
+      "login": "Login successful!",
+      "register": "Registration successful!",
+      "verification_code": "Verification code sent, please check your email!",
+      "password_reset": "Reset email sent, please check your inbox!"
+    },
+    "error": {
+      "login_expired": "Not logged in or session expired, please login again!",
+      "password_length": "Password must be at least 8 characters!",
+      "password_mismatch": "Passwords do not match",
+      "turnstile_wait": "Please wait a few seconds, Turnstile is checking the environment!",
+      "root_password": "Please change the default password immediately!"
+    },
+    "notice": {
+      "password_copied": "New password copied to clipboard: {{password}}"
+    }
+  }
+}

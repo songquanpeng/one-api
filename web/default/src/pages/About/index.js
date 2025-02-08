@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Header, Segment } from 'semantic-ui-react';
+import { useTranslation } from 'react-i18next';
+import { Card } from 'semantic-ui-react';
 import { API, showError } from '../../helpers';
 import { marked } from 'marked';
 
 const About = () => {
+  const { t } = useTranslation();
   const [about, setAbout] = useState('');
   const [aboutLoaded, setAboutLoaded] = useState(false);
 
@@ -20,7 +22,7 @@ const About = () => {
       localStorage.setItem('about', aboutContent);
     } else {
       showError(message);
-      setAbout('加载关于内容失败...');
+      setAbout(t('about.loading_failed'));
     }
     setAboutLoaded(true);
   };
@@ -31,28 +33,42 @@ const About = () => {
 
   return (
     <>
-      {
-        aboutLoaded && about === '' ? <>
-          <Segment>
-            <Header as='h3'>关于</Header>
-            <p>可在设置页面设置关于内容，支持 HTML & Markdown</p>
-            项目仓库地址：
-            <a href='https://github.com/songquanpeng/one-api'>
-              https://github.com/songquanpeng/one-api
-            </a>
-          </Segment>
-        </> : <>
-          {
-            about.startsWith('https://') ? <iframe
+      {aboutLoaded && about === '' ? (
+        <div className='dashboard-container'>
+          <Card fluid className='chart-card'>
+            <Card.Content>
+              <Card.Header className='header'>{t('about.title')}</Card.Header>
+              <p>{t('about.description')}</p>
+              {t('about.repository')}
+              <a href='https://github.com/songquanpeng/one-api'>
+                https://github.com/songquanpeng/one-api
+              </a>
+            </Card.Content>
+          </Card>
+        </div>
+      ) : (
+        <>
+          {about.startsWith('https://') ? (
+            <iframe
               src={about}
               style={{ width: '100%', height: '100vh', border: 'none' }}
-            /> : <div style={{ fontSize: 'larger' }} dangerouslySetInnerHTML={{ __html: about }}></div>
-          }
+            />
+          ) : (
+            <div className='dashboard-container'>
+              <Card fluid className='chart-card'>
+                <Card.Content>
+                  <div
+                    style={{ fontSize: 'larger' }}
+                    dangerouslySetInnerHTML={{ __html: about }}
+                  ></div>
+                </Card.Content>
+              </Card>
+            </div>
+          )}
         </>
-      }
+      )}
     </>
   );
 };
-
 
 export default About;

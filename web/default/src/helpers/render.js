@@ -1,4 +1,5 @@
 import { Label } from 'semantic-ui-react';
+import { useTranslation } from 'react-i18next';
 
 export function renderText(text, limit) {
   if (text.length > limit) {
@@ -13,16 +14,18 @@ export function renderGroup(group) {
   }
   let groups = group.split(',');
   groups.sort();
-  return <>
-    {groups.map((group) => {
-      if (group === 'vip' || group === 'pro') {
-        return <Label color='yellow'>{group}</Label>;
-      } else if (group === 'svip' || group === 'premium') {
-        return <Label color='red'>{group}</Label>;
-      }
-      return <Label>{group}</Label>;
-    })}
-  </>;
+  return (
+    <>
+      {groups.map((group) => {
+        if (group === 'vip' || group === 'pro') {
+          return <Label color='yellow'>{group}</Label>;
+        } else if (group === 'svip' || group === 'premium') {
+          return <Label color='red'>{group}</Label>;
+        }
+        return <Label>{group}</Label>;
+      })}
+    </>
+  );
 }
 
 export function renderNumber(num) {
@@ -37,22 +40,61 @@ export function renderNumber(num) {
   }
 }
 
-export function renderQuota(quota, digits = 2) {
-  let quotaPerUnit = localStorage.getItem('quota_per_unit');
-  let displayInCurrency = localStorage.getItem('display_in_currency');
-  quotaPerUnit = parseFloat(quotaPerUnit);
-  displayInCurrency = displayInCurrency === 'true';
+export function renderQuota(quota, t, precision = 2) {
+  const displayInCurrency =
+    localStorage.getItem('display_in_currency') === 'true';
+  const quotaPerUnit = parseFloat(
+    localStorage.getItem('quota_per_unit') || '1'
+  );
+
   if (displayInCurrency) {
-    return '$' + (quota / quotaPerUnit).toFixed(digits);
+    const amount = (quota / quotaPerUnit).toFixed(precision);
+    return t('common.quota.display_short', { amount });
   }
+
   return renderNumber(quota);
 }
 
-export function renderQuotaWithPrompt(quota, digits) {
-  let displayInCurrency = localStorage.getItem('display_in_currency');
-  displayInCurrency = displayInCurrency === 'true';
+export function renderQuotaWithPrompt(quota, t) {
+  const displayInCurrency =
+    localStorage.getItem('display_in_currency') === 'true';
+  const quotaPerUnit = parseFloat(
+    localStorage.getItem('quota_per_unit') || '1'
+  );
+
   if (displayInCurrency) {
-    return `（等价金额：${renderQuota(quota, digits)}）`;
+    const amount = (quota / quotaPerUnit).toFixed(2);
+    return ` (${t('common.quota.display', { amount })})`;
   }
+
   return '';
+}
+
+const colors = [
+  'red',
+  'orange',
+  'yellow',
+  'olive',
+  'green',
+  'teal',
+  'blue',
+  'violet',
+  'purple',
+  'pink',
+  'brown',
+  'grey',
+  'black',
+];
+
+export function renderColorLabel(text) {
+  let hash = 0;
+  for (let i = 0; i < text.length; i++) {
+    hash = text.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  let index = Math.abs(hash % colors.length);
+  return (
+    <Label basic color={colors[index]}>
+      {text}
+    </Label>
+  );
 }

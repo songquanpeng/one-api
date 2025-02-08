@@ -8,7 +8,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/songquanpeng/one-api/common/render"
 	"io"
 	"net/http"
 	"strconv"
@@ -16,11 +15,14 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+
 	"github.com/songquanpeng/one-api/common"
 	"github.com/songquanpeng/one-api/common/conv"
+	"github.com/songquanpeng/one-api/common/ctxkey"
 	"github.com/songquanpeng/one-api/common/helper"
 	"github.com/songquanpeng/one-api/common/logger"
 	"github.com/songquanpeng/one-api/common/random"
+	"github.com/songquanpeng/one-api/common/render"
 	"github.com/songquanpeng/one-api/relay/adaptor/openai"
 	"github.com/songquanpeng/one-api/relay/constant"
 	"github.com/songquanpeng/one-api/relay/model"
@@ -44,8 +46,68 @@ func ConvertRequest(request model.GeneralOpenAIRequest) *ChatRequest {
 	}
 }
 
+func ConvertEmbeddingRequest(request model.GeneralOpenAIRequest) *EmbeddingRequest {
+	return &EmbeddingRequest{
+		InputList: request.ParseInput(),
+	}
+}
+
+func EmbeddingHandler(c *gin.Context, resp *http.Response) (*model.ErrorWithStatusCode, *model.Usage) {
+	var tencentResponseP EmbeddingResponseP
+	err := json.NewDecoder(resp.Body).Decode(&tencentResponseP)
+	if err != nil {
+		return openai.ErrorWrapper(err, "unmarshal_response_body_failed", http.StatusInternalServerError), nil
+	}
+
+	err = resp.Body.Close()
+	if err != nil {
+		return openai.ErrorWrapper(err, "close_response_body_failed", http.StatusInternalServerError), nil
+	}
+
+	tencentResponse := tencentResponseP.Response
+	if tencentResponse.Error.Code != "" {
+		return &model.ErrorWithStatusCode{
+			Error: model.Error{
+				Message: tencentResponse.Error.Message,
+				Code:    tencentResponse.Error.Code,
+			},
+			StatusCode: resp.StatusCode,
+		}, nil
+	}
+	requestModel := c.GetString(ctxkey.RequestModel)
+	fullTextResponse := embeddingResponseTencent2OpenAI(&tencentResponse)
+	fullTextResponse.Model = requestModel
+	jsonResponse, err := json.Marshal(fullTextResponse)
+	if err != nil {
+		return openai.ErrorWrapper(err, "marshal_response_body_failed", http.StatusInternalServerError), nil
+	}
+	c.Writer.Header().Set("Content-Type", "application/json")
+	c.Writer.WriteHeader(resp.StatusCode)
+	_, err = c.Writer.Write(jsonResponse)
+	return nil, &fullTextResponse.Usage
+}
+
+func embeddingResponseTencent2OpenAI(response *EmbeddingResponse) *openai.EmbeddingResponse {
+	openAIEmbeddingResponse := openai.EmbeddingResponse{
+		Object: "list",
+		Data:   make([]openai.EmbeddingResponseItem, 0, len(response.Data)),
+		Model:  "hunyuan-embedding",
+		Usage:  model.Usage{TotalTokens: response.EmbeddingUsage.TotalTokens},
+	}
+
+	for _, item := range response.Data {
+		openAIEmbeddingResponse.Data = append(openAIEmbeddingResponse.Data, openai.EmbeddingResponseItem{
+			Object:    item.Object,
+			Index:     item.Index,
+			Embedding: item.Embedding,
+		})
+	}
+	return &openAIEmbeddingResponse
+}
+
 func responseTencent2OpenAI(response *ChatResponse) *openai.TextResponse {
 	fullTextResponse := openai.TextResponse{
+		Id:      response.ReqID,
 		Object:  "chat.completion",
 		Created: helper.GetTimestamp(),
 		Usage: model.Usage{
@@ -148,7 +210,7 @@ func Handler(c *gin.Context, resp *http.Response) (*model.ErrorWithStatusCode, *
 		return openai.ErrorWrapper(err, "unmarshal_response_body_failed", http.StatusInternalServerError), nil
 	}
 	TencentResponse = responseP.Response
-	if TencentResponse.Error.Code != 0 {
+	if TencentResponse.Error.Code != "" {
 		return &model.ErrorWithStatusCode{
 			Error: model.Error{
 				Message: TencentResponse.Error.Message,
@@ -195,7 +257,7 @@ func hmacSha256(s, key string) string {
 	return string(hashed.Sum(nil))
 }
 
-func GetSign(req ChatRequest, adaptor *Adaptor, secId, secKey string) string {
+func GetSign(req any, adaptor *Adaptor, secId, secKey string) string {
 	// build canonical request string
 	host := "hunyuan.tencentcloudapi.com"
 	httpRequestMethod := "POST"

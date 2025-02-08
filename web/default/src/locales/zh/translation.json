@@ -1,0 +1,825 @@
+{
+  "header": {
+    "home": "首页",
+    "channel": "渠道",
+    "token": "令牌",
+    "redemption": "兑换",
+    "topup": "充值",
+    "user": "用户",
+    "dashboard": "总览",
+    "log": "日志",
+    "setting": "设置",
+    "about": "关于",
+    "chat": "聊天",
+    "login": "登录",
+    "logout": "注销",
+    "register": "注册"
+  },
+  "topup": {
+    "title": "充值中心",
+    "get_code": {
+      "title": "获取兑换码",
+      "current_quota": "当前可用额度",
+      "button": "立即获取兑换码"
+    },
+    "redeem_code": {
+      "title": "兑换码充值",
+      "placeholder": "请输入兑换码",
+      "paste": "粘贴",
+      "paste_error": "无法访问剪贴板，请手动粘贴",
+      "submit": "立即兑换",
+      "submitting": "兑换中...",
+      "empty_code": "请输入兑换码！",
+      "success": "充值成功！",
+      "request_failed": "请求失败",
+      "no_link": "超级管理员未设置充值链接！"
+    }
+  },
+  "channel": {
+    "title": "管理渠道",
+    "search": "搜索渠道的 ID，名称和密钥 ...",
+    "balance_notice": "OpenAI 渠道已经不再支持通过 key 获取余额，因此余额显示为 0。对于支持的渠道类型，请点击余额进行刷新。",
+    "test_notice": "渠道测试仅支持 chat 模型，优先使用 gpt-3.5-turbo，如果该模型不可用则使用你所配置的模型列表中的第一个模型。",
+    "detail_notice": "点击下方详情按钮可以显示余额以及设置额外的测试模型。",
+    "table": {
+      "id": "ID",
+      "name": "名称",
+      "group": "分组",
+      "type": "类型",
+      "status": "状态",
+      "response_time": "响应时间",
+      "balance": "余额",
+      "priority": "优先级",
+      "test_model": "测试模型",
+      "actions": "操作",
+      "no_name": "无",
+      "status_enabled": "已启用",
+      "status_disabled": "已禁用",
+      "status_auto_disabled": "已禁用",
+      "status_disabled_tip": "本渠道被手动禁用",
+      "status_auto_disabled_tip": "本渠道被程序自动禁用",
+      "status_unknown": "未知状态",
+      "not_tested": "未测试",
+      "priority_tip": "渠道选择优先级，越高越优先",
+      "select_test_model": "请选择测试模型",
+      "click_to_update": "点击更新",
+      "balance_not_supported": "-"
+    },
+    "buttons": {
+      "test": "测试",
+      "delete": "删除",
+      "confirm_delete": "删除渠道",
+      "enable": "启用",
+      "disable": "禁用",
+      "edit": "编辑",
+      "add": "添加新的渠道",
+      "test_all": "测试所有渠道",
+      "test_disabled": "测试禁用渠道",
+      "delete_disabled": "删除禁用渠道",
+      "confirm_delete_disabled": "确认删除",
+      "refresh": "刷新",
+      "show_detail": "详情",
+      "hide_detail": "隐藏详情"
+    },
+    "messages": {
+      "test_success": "渠道 {{name}} 测试成功，模型 {{model}}，耗时 {{time}} 秒，模型输出：{{message}}",
+      "test_all_started": "已成功开始测试渠道，请刷新页面查看结果。",
+      "delete_disabled_success": "已删除所有禁用渠道，共计 {{count}} 个",
+      "balance_update_success": "渠道 {{name}} 余额更新成功！",
+      "all_balance_updated": "已更新完毕所有已启用渠道余额！",
+      "operation_success": "操作成功完成！"
+    },
+    "edit": {
+      "title_edit": "更新渠道信息",
+      "title_create": "创建新的渠道",
+      "type": "类型",
+      "name": "名称",
+      "name_placeholder": "请输入名称",
+      "group": "分组",
+      "group_placeholder": "请选择可以使用该渠道的分组",
+      "group_addition": "请在系统设置页面编辑分组倍率以添加新的分组：",
+      "models": "模型",
+      "models_placeholder": "请选择该渠道所支持的模型",
+      "model_mapping": "模型重定向",
+      "model_mapping_placeholder": "此项可选，用于修改请求体中的模型名称，为一个 JSON 字符串，键为请求中模型名称，值为要替换的模型名称",
+      "system_prompt": "系统提示词",
+      "system_prompt_placeholder": "此项可选，用于强制设置给定的系统提示词，请配合自定义模型 & 模型重定向使用，首先创建一个唯一的自定义模型名称并在上面填入，之后将该自定义模型重定向映射到该渠道一个原生支持的模型",
+      "base_url": "代理",
+      "base_url_placeholder": "此项可选，用于通过代理站来进行 API 调用，请输入代理站地址，格式为：https://domain.com",
+      "key": "密钥",
+      "key_placeholder": "请输入密钥",
+      "batch": "批量创建",
+      "batch_placeholder": "请输入密钥，一行一个",
+      "buttons": {
+        "cancel": "取消",
+        "submit": "提交",
+        "fill_models": "填入相关模型",
+        "fill_all": "填入所有模型",
+        "clear": "清除所有模型",
+        "add_custom": "填入",
+        "custom_placeholder": "输入自定义模型名称"
+      },
+      "messages": {
+        "name_required": "请填写渠道名称和渠道密钥！",
+        "models_required": "请至少选择一个模型！",
+        "model_mapping_invalid": "模型映射必须是合法的 JSON 格式！",
+        "update_success": "渠道更新成功！",
+        "create_success": "渠道创建成功！"
+      },
+      "spark_version": "模型版本",
+      "spark_version_placeholder": "请输入星火大模型版本，注意是接口地址中的版本号，例如：v2.1",
+      "knowledge_id": "知识库 ID",
+      "knowledge_id_placeholder": "请输入知识库 ID，例如：123456",
+      "plugin_param": "插件参数",
+      "plugin_param_placeholder": "请输入插件参数，即 X-DashScope-Plugin 请求头的取值",
+      "coze_notice": "对于 Coze 而言，模型名称即 Bot ID，你可以添加一个前缀 `bot-`，例如：`bot-123456`。",
+      "douban_notice": "对于豆包而言，需要手动去",
+      "douban_notice_link": "模型推理页面",
+      "douban_notice_2": "创建推理接入点，以接入点名称作为模型名称，例如：`ep-20240608051426-tkxvl`。你可以结合模型重定向功能将其转换为常规的模型名称，例如：doubao-lite-4k -> ep-20240608051426-tkxvl（前者作为 JSON 的 key，后者作为 value）。注意，doubao-lite-4k 和 ep-20240608051426-tkxvl 都需要通过自定义模型的方式填入到本渠道的模型列表中。",
+      "aws_region_placeholder": "region，例如：us-west-2",
+      "aws_ak_placeholder": "AWS IAM Access Key",
+      "aws_sk_placeholder": "AWS IAM Secret Key",
+      "vertex_region_placeholder": "Vertex AI Region，例如：us-east5",
+      "vertex_project_id": "Vertex AI Project ID",
+      "vertex_project_id_placeholder": "Vertex AI Project ID",
+      "vertex_credentials": "Google Cloud Application Default Credentials JSON",
+      "vertex_credentials_placeholder": "Google Cloud Application Default Credentials JSON",
+      "user_id": "User ID",
+      "user_id_placeholder": "生成该密钥的用户 ID",
+      "key_prompts": {
+        "default": "请输入渠道对应的鉴权密钥",
+        "zhipu": "按照如下格式输入：APIKey|SecretKey",
+        "spark": "按照如下格式输入：APPID|APISecret|APIKey",
+        "fastgpt": "按照如下格式输入：APIKey-AppId，例如：fastgpt-0sp2gtvfdgyi4k30jwlgwf1i-64f335d84283f05518e9e041",
+        "tencent": "按照如下格式输入：AppId|SecretId|SecretKey"
+      }
+    }
+  },
+  "token": {
+    "title": "令牌管理",
+    "search": "搜索令牌的名称 ...",
+    "table": {
+      "name": "名称",
+      "status": "状态",
+      "used_quota": "已用额度",
+      "remain_quota": "剩余额度",
+      "created_time": "创建时间",
+      "expired_time": "过期时间",
+      "actions": "操作",
+      "no_name": "无",
+      "never_expire": "永不过期",
+      "unlimited": "无限制",
+      "status_enabled": "已启用",
+      "status_disabled": "已禁用",
+      "status_expired": "已过期",
+      "status_depleted": "已耗尽",
+      "status_unknown": "未知状态"
+    },
+    "buttons": {
+      "copy": "复制",
+      "chat": "聊天",
+      "delete": "删除",
+      "confirm_delete": "删除令牌",
+      "enable": "启用",
+      "disable": "禁用",
+      "edit": "编辑",
+      "add": "添加新的令牌",
+      "refresh": "刷新"
+    },
+    "edit": {
+      "title_edit": "更新令牌信息",
+      "title_create": "创建新的令牌",
+      "name": "名称",
+      "name_placeholder": "请输入名称",
+      "models": "模型范围",
+      "models_placeholder": "请选择允许使用的模型，留空则不进行限制",
+      "ip_limit": "IP 限制",
+      "ip_limit_placeholder": "请输入允许访问的网段，例如：192.168.0.0/24，请使用英文逗号分隔多个网段",
+      "expire_time": "过期时间",
+      "expire_time_placeholder": "请输入过期时间，格式为 yyyy-MM-dd HH:mm:ss，-1 表示无限制",
+      "quota_notice": "注意，令牌的额度仅用于限制令牌本身的最大额度使用量，实际的使用受到账户的剩余额度限制。",
+      "quota": "额度",
+      "quota_placeholder": "请输入额度",
+      "buttons": {
+        "never_expire": "永不过期",
+        "expire_1_month": "一个月后过期",
+        "expire_1_day": "一天后过期",
+        "expire_1_hour": "一小时后过期",
+        "expire_1_minute": "一分钟后过期",
+        "unlimited_quota": "设为无限额度",
+        "cancel_unlimited": "取消无限额度",
+        "submit": "提交",
+        "cancel": "取消"
+      },
+      "messages": {
+        "update_success": "令牌更新成功！",
+        "create_success": "令牌创建成功，请在列表页面点击复制获取令牌！",
+        "expire_time_invalid": "过期时间格式错误！"
+      }
+    },
+    "copy_options": {
+      "raw": "复制原始令牌",
+      "ama": "复制 AMA 链接",
+      "opencat": "复制 OpenCat 链接",
+      "next": "复制 NextChat 链接",
+      "lobe": "复制 LobeChat 链接"
+    },
+    "messages": {
+      "copy_success": "已复制到剪贴板！",
+      "copy_failed": "无法复制到剪贴板，请手动复制，已将令牌填入搜索框。",
+      "operation_success": "操作成功完成！"
+    },
+    "sort": {
+      "placeholder": "排序方式",
+      "default": "默认排序",
+      "by_remain": "按剩余额度排序",
+      "by_used": "按已用额度排序"
+    }
+  },
+  "common": {
+    "quota": {
+      "display": "等价金额：${{amount}}",
+      "display_short": "${{amount}}",
+      "unit": "$"
+    }
+  },
+  "redemption": {
+    "title": "兑换管理",
+    "search": "搜索兑换码的 ID 和名称 ...",
+    "table": {
+      "id": "ID",
+      "name": "名称",
+      "status": "状态",
+      "quota": "额度",
+      "created_time": "创建时间",
+      "redeemed_time": "兑换时间",
+      "actions": "操作",
+      "no_name": "无",
+      "not_redeemed": "尚未兑换"
+    },
+    "buttons": {
+      "copy": "复制",
+      "delete": "删除",
+      "confirm_delete": "确认删除",
+      "enable": "启用",
+      "disable": "禁用",
+      "edit": "编辑",
+      "add": "添加新的兑换码",
+      "refresh": "刷新"
+    },
+    "status": {
+      "unused": "未使用",
+      "disabled": "已禁用",
+      "used": "已使用",
+      "unknown": "未知状态"
+    },
+    "edit": {
+      "title_edit": "更新兑换码信息",
+      "title_create": "创建新的兑换码",
+      "name": "名称",
+      "name_placeholder": "请输入名称",
+      "quota": "额度",
+      "quota_placeholder": "请输入单个兑换码中包含的额度",
+      "count": "生成数量",
+      "count_placeholder": "请输入生成数量",
+      "buttons": {
+        "submit": "提交",
+        "cancel": "取消"
+      }
+    },
+    "messages": {
+      "update_success": "兑换码更新成功！",
+      "create_success": "兑换码创建成功！"
+    }
+  },
+  "log": {
+    "title": "操作日志",
+    "search": "搜索日志...",
+    "usage_details": "使用明细",
+    "total_quota": "总消耗额度",
+    "click_to_view": "点击查看",
+    "type": {
+      "select": "选择明细分类",
+      "all": "全部",
+      "topup": "充值",
+      "usage": "消费",
+      "admin": "管理",
+      "system": "系统",
+      "test": "测试"
+    },
+    "table": {
+      "time": "时间",
+      "channel": "渠道",
+      "type": "类型",
+      "model": "模型",
+      "username": "用户名",
+      "token_name": "令牌名称",
+      "token_name_placeholder": "可选值",
+      "model_name": "模型名称",
+      "model_name_placeholder": "可选值",
+      "start_time": "起始时间",
+      "end_time": "结束时间",
+      "channel_id": "渠道 ID",
+      "channel_id_placeholder": "可选值",
+      "username_placeholder": "可选值",
+      "prompt_tokens": "提示词消耗",
+      "completion_tokens": "补全消耗",
+      "quota": "额度",
+      "detail": "详情"
+    },
+    "buttons": {
+      "query": "操作",
+      "submit": "查询",
+      "refresh": "刷新"
+    }
+  },
+  "user": {
+    "title": "用户管理",
+    "edit": {
+      "title": "更新用户信息",
+      "username": "用户名",
+      "username_placeholder": "请输入新的用户名",
+      "password": "密码",
+      "password_placeholder": "请输入新的密码，最短 8 位",
+      "display_name": "显示名称",
+      "display_name_placeholder": "请输入新的显示名称",
+      "group": "分组",
+      "group_placeholder": "请选择分组",
+      "group_addition": "请在系统设置页面编辑分组倍率以添加新的分组：",
+      "quota": "剩余额度",
+      "quota_placeholder": "请输入新的剩余额度",
+      "github_id": "已绑定的 GitHub 账户",
+      "github_id_placeholder": "此项只读，需要用户通过个人设置页面的相关绑定按钮进行绑定，不可直接修改",
+      "wechat_id": "已绑定的微信账户",
+      "wechat_id_placeholder": "此项只读，需要用户通过个人设置页面的相关绑定按钮进行绑定，不可直接修改",
+      "email": "已绑定的邮箱账户",
+      "email_placeholder": "此项只读，需要用户通过个人设置页面的相关绑定按钮进行绑定，不可直接修改",
+      "buttons": {
+        "submit": "提交",
+        "cancel": "取消"
+      }
+    },
+    "add": {
+      "title": "创建新用户账户"
+    },
+    "messages": {
+      "update_success": "用户信息更新成功！",
+      "create_success": "用户账户创建成功！",
+      "operation_success": "操作成功完成！"
+    },
+    "search": "搜索用户...",
+    "table": {
+      "id": "ID",
+      "username": "用户名",
+      "group": "分组",
+      "quota": "额度",
+      "role_text": "角色",
+      "status_text": "状态",
+      "actions": "操作",
+      "remaining_quota": "剩余额度",
+      "used_quota": "已用额度",
+      "request_count": "请求次数",
+      "role_types": {
+        "normal": "普通用户",
+        "admin": "管理员",
+        "super_admin": "超级管理员",
+        "unknown": "未知身份"
+      },
+      "status_types": {
+        "activated": "已激活",
+        "banned": "已封禁",
+        "unknown": "未知状态"
+      },
+      "sort": {
+        "default": "默认排序",
+        "by_quota": "按剩余额度排序",
+        "by_used_quota": "按已用额度排序",
+        "by_request_count": "按请求次数排序"
+      },
+      "sort_by": "排序方式"
+    },
+    "buttons": {
+      "add": "添加新的用户",
+      "delete": "删除",
+      "delete_user": "删除用户",
+      "enable": "启用",
+      "disable": "禁用",
+      "edit": "编辑",
+      "promote": "提升",
+      "demote": "降级"
+    }
+  },
+  "dashboard": {
+    "charts": {
+      "requests": {
+        "title": "模型请求趋势",
+        "tooltip": "请求次数"
+      },
+      "quota": {
+        "title": "额度消费趋势",
+        "tooltip": "消费额度"
+      },
+      "tokens": {
+        "title": "Token 消费趋势",
+        "tooltip": "Token 数量"
+      }
+    },
+    "statistics": {
+      "title": "统计",
+      "tooltip": {
+        "date": "日期",
+        "value": "数值"
+      }
+    }
+  },
+  "setting": {
+    "title": "系统设置",
+    "tabs": {
+      "personal": "个人设置",
+      "operation": "运营设置",
+      "system": "系统设置",
+      "other": "其他设置"
+    },
+    "personal": {
+      "general": {
+        "title": "通用设置",
+        "system_token_notice": "注意，此处生成的令牌用于系统管理，而非用于请求 OpenAI 相关的服务，请知悉。",
+        "buttons": {
+          "update_profile": "更新个人信息",
+          "generate_token": "生成系统访问令牌",
+          "copy_invite": "复制邀请链接",
+          "delete_account": "删除个人账户"
+        }
+      },
+      "binding": {
+        "title": "账号绑定",
+        "buttons": {
+          "bind_wechat": "绑定微信账号",
+          "bind_github": "绑定 GitHub 账号",
+          "bind_email": "绑定邮箱地址",
+          "bind_lark": "绑定飞书账号"
+        },
+        "wechat": {
+          "title": "微信绑定",
+          "description": "微信扫码关注公众号，输入「验证码」获取验证码（三分钟内有效）",
+          "verification_code": "验证码",
+          "bind": "绑定"
+        },
+        "email": {
+          "title": "绑定邮箱地址",
+          "email_placeholder": "输入邮箱地址",
+          "code_placeholder": "验证码",
+          "get_code": "获取验证码",
+          "get_code_retry": "重新发送({{countdown}})",
+          "bind": "确认绑定",
+          "cancel": "取消"
+        }
+      },
+      "delete_account": {
+        "title": "危险操作",
+        "warning": "您正在删除自己的帐户，将清空所有数据且不可恢复",
+        "confirm_placeholder": "输入你的账户名 {{username}} 以确认删除",
+        "buttons": {
+          "confirm": "确认删除",
+          "cancel": "取消"
+        }
+      }
+    },
+    "system": {
+      "general": {
+        "title": "通用设置",
+        "server_address": "服务器地址",
+        "server_address_placeholder": "例如：https://yourdomain.com",
+        "buttons": {
+          "update": "更新服务器地址"
+        }
+      },
+      "login": {
+        "title": "配置登录注册",
+        "password_login": "允许通过密码进行登录",
+        "password_register": "允许通过密码进行注册",
+        "email_verification": "通过密码注册时需要进行邮箱验证",
+        "github_oauth": "允许通过 GitHub 账户登录 & 注册",
+        "wechat_login": "允许通过微信登录 & 注册",
+        "registration": "允许新用户注册（此项为否时，新用户将无法以任何方式进行注册）",
+        "turnstile": "启用 Turnstile 用户校验"
+      },
+      "email_restriction": {
+        "title": "配置邮箱域名白名单",
+        "subtitle": "用以防止恶意用户利用临时邮箱批量注册",
+        "enable": "启用邮箱域名白名单",
+        "allowed_domains": "允许的邮箱域名",
+        "add_domain": "添加新的允许的邮箱域名",
+        "add_domain_placeholder": "输入新的允许的邮箱域名",
+        "buttons": {
+          "fill": "填入",
+          "save": "保存邮箱域名白名单设置"
+        }
+      },
+      "smtp": {
+        "title": "配置 SMTP",
+        "subtitle": "用以支持系统的邮件发送",
+        "server": "SMTP 服务器地址",
+        "server_placeholder": "例如：smtp.qq.com",
+        "port": "SMTP 端口",
+        "port_placeholder": "默认: 587",
+        "account": "SMTP 账户",
+        "account_placeholder": "通常是邮箱地址",
+        "from": "SMTP 发送者邮箱",
+        "from_placeholder": "通常和邮箱地址保持一致",
+        "token": "SMTP 访问凭证",
+        "token_placeholder": "敏感信息不会发送到前端显示",
+        "buttons": {
+          "save": "保存 SMTP 设置"
+        }
+      },
+      "github": {
+        "title": "配置 GitHub OAuth App",
+        "subtitle": "用以支持通过 GitHub 进行登录注册",
+        "manage_link": "点击此处",
+        "manage_text": "管理你的 GitHub OAuth App",
+        "url_notice": "Homepage URL 填 {{server_url}}，Authorization callback URL 填 {{callback_url}}",
+        "client_id": "GitHub Client ID",
+        "client_id_placeholder": "输入你注册的 GitHub OAuth APP 的 ID",
+        "client_secret": "GitHub Client Secret",
+        "client_secret_placeholder": "敏感信息不会发送到前端显示",
+        "buttons": {
+          "save": "保存 GitHub OAuth 设置"
+        }
+      },
+      "lark": {
+        "title": "配置飞书授权登录",
+        "subtitle": "用以支持通过飞书进行登录注册",
+        "manage_link": "点击此处",
+        "manage_text": "管理你的飞书应用",
+        "url_notice": "主页链接填 {{server_url}}，重定向 URL 填 {{callback_url}}",
+        "client_id": "App ID",
+        "client_id_placeholder": "输入 App ID",
+        "client_secret": "App Secret",
+        "client_secret_placeholder": "敏感信息不会发送到前端显示",
+        "buttons": {
+          "save": "保存飞书 OAuth 设置"
+        }
+      },
+      "wechat": {
+        "title": "配置 WeChat Server",
+        "subtitle": "用以支持通过微信进行登录注册",
+        "learn_more": "了解 WeChat Server",
+        "server_address": "WeChat Server 服务器地址",
+        "server_address_placeholder": "例如：https://yourdomain.com",
+        "token": "WeChat Server 访问凭证",
+        "token_placeholder": "敏感信息不会发送到前端显示",
+        "qrcode": "微信公众号二维码图片链接",
+        "qrcode_placeholder": "输入一个图片链接",
+        "buttons": {
+          "save": "保存 WeChat Server 设置"
+        }
+      },
+      "turnstile": {
+        "title": "配置 Turnstile",
+        "subtitle": "用以支持用户校验",
+        "manage_link": "点击此处",
+        "manage_text": "管理你的 Turnstile Sites，推荐选择 Invisible Widget Type",
+        "site_key": "Turnstile Site Key",
+        "site_key_placeholder": "输入你注册的 Turnstile Site Key",
+        "secret_key": "Turnstile Secret Key",
+        "secret_key_placeholder": "敏感信息不会发送到前端显示",
+        "buttons": {
+          "save": "保存 Turnstile 设置"
+        }
+      },
+      "password_login": {
+        "warning": {
+          "title": "警告",
+          "content": "取消密码登录将导致所有未绑定其他登录方式的用户（包括管理员）无法通过密码登录，确认取消？",
+          "buttons": {
+            "confirm": "确定",
+            "cancel": "取消"
+          }
+        }
+      }
+    },
+    "operation": {
+      "quota": {
+        "title": "额度设置",
+        "new_user": "新用户初始额度",
+        "new_user_placeholder": "例如：100",
+        "pre_consume": "请求预扣费额度",
+        "pre_consume_placeholder": "请求结束后多退少补",
+        "inviter_reward": "邀请新用户奖励额度",
+        "inviter_reward_placeholder": "例如：2000",
+        "invitee_reward": "新用户使用邀请码奖励额度",
+        "invitee_reward_placeholder": "例如：1000",
+        "buttons": {
+          "save": "保存额度设置"
+        }
+      },
+      "ratio": {
+        "title": "倍率设置",
+        "model": {
+          "title": "模型倍率",
+          "placeholder": "为一个 JSON 文本，键为模型名称，值为倍率"
+        },
+        "completion": {
+          "title": "补全倍率",
+          "placeholder": "为一个 JSON 文本，键为模型名称，值为倍率，此处的倍率设置是模型补全倍率相较于提示倍率的比例，使用该设置可强制覆盖 One API 的内部比例"
+        },
+        "group": {
+          "title": "分组倍率",
+          "placeholder": "为一个 JSON 文本，键为分组名称，值为倍率"
+        },
+        "buttons": {
+          "save": "保存倍率设置"
+        }
+      },
+      "log": {
+        "title": "日志设置",
+        "enable_consume": "启用额度消费日志记录",
+        "target_time": "目标时间",
+        "buttons": {
+          "clean": "清理历史日志"
+        }
+      },
+      "monitor": {
+        "title": "监控设置",
+        "max_response_time": "最长响应时间",
+        "max_response_time_placeholder": "单位秒，当运行渠道全部测试时，超过此时间将自动禁用渠道",
+        "quota_reminder": "额度提醒阈值",
+        "quota_reminder_placeholder": "低于此额度时将发送邮件提醒用户",
+        "auto_disable": "失败时自动禁用渠道",
+        "auto_enable": "成功时自动启用渠道",
+        "buttons": {
+          "save": "保存监控设置"
+        }
+      },
+      "general": {
+        "title": "通用设置",
+        "topup_link": "充值链接",
+        "topup_link_placeholder": "例如发卡网站的购买链接",
+        "chat_link": "聊天页面链接",
+        "chat_link_placeholder": "例如 ChatGPT Next Web 的部署地址",
+        "quota_per_unit": "单位美元额度",
+        "quota_per_unit_placeholder": "一单位货币能兑换的额度",
+        "retry_times": "失败重试次数",
+        "retry_times_placeholder": "失败重试次数",
+        "display_in_currency": "以货币形式显示额度",
+        "display_token_stat": "Billing 相关 API 显示令牌额度而非用户额度",
+        "approximate_token": "使用近似的方式估算 token 数以减少计算量",
+        "buttons": {
+          "save": "保存通用设置"
+        }
+      }
+    },
+    "other": {
+      "notice": {
+        "title": "公告设置",
+        "content": "公告内容",
+        "content_placeholder": "在此输入新的公告内容，支持 Markdown & HTML 代码",
+        "buttons": {
+          "save": "保存公告"
+        }
+      },
+      "system": {
+        "title": "系统设置",
+        "name": "系统名称",
+        "name_placeholder": "请输入系统名称",
+        "logo": "Logo 图片地址",
+        "logo_placeholder": "在此输入 Logo 图片地址",
+        "theme": {
+          "title": "主题名称",
+          "link": "当前可用主题",
+          "placeholder": "请输入主题名称"
+        },
+        "buttons": {
+          "save_name": "设置系统名称",
+          "save_logo": "设置 Logo",
+          "save_theme": "设置主题（重启生效）"
+        }
+      },
+      "content": {
+        "title": "内容设置",
+        "homepage": {
+          "title": "首页内容",
+          "placeholder": "在此输入首页内容，支持 Markdown & HTML 代码，设置后首页的状态信息将不再显示。如果输入的是一个链接，则会使用该链接作为 iframe 的 src 属性，这允许你设置任意网页作为首页。"
+        },
+        "about": {
+          "title": "关于",
+          "placeholder": "在此输入新的关于内容，支持 Markdown & HTML 代码。如果输入的是一个链接，则会使用该链接作为 iframe 的 src 属性，这允许你设置任意网页作为关于页面。"
+        },
+        "footer": {
+          "title": "页脚",
+          "placeholder": "在此输入新的页脚，留空则使用默认页脚，支持 HTML 代码"
+        },
+        "buttons": {
+          "save_homepage": "保存首页内容",
+          "save_about": "保存关于",
+          "save_footer": "设置页脚"
+        }
+      },
+      "copyright": {
+        "notice": "移除 One API 的版权标识必须首先获得授权，项目维护需要花费大量精力，如果本项目对你有意义，请主动支持本项目。"
+      }
+    }
+  },
+  "about": {
+    "title": "关于",
+    "description": "One API 是一个开源的接口管理和代理平台。",
+    "repository": "项目地址：",
+    "loading_failed": "加载失败"
+  },
+  "footer": {
+    "built_by": "由",
+    "built_by_name": "JustSong",
+    "license": "构建，源代码遵循",
+    "mit": "MIT 协议"
+  },
+  "home": {
+    "welcome": {
+      "title": "欢迎使用 One API",
+      "description": "One API 是一个 LLM API 接口管理和分发系统，可以帮助您更好地管理和使用各大厂商的 LLM API。",
+      "login_notice": "如需使用，请先登录或注册。"
+    },
+    "system_status": {
+      "title": "系统状况",
+      "info": {
+        "title": "系统信息",
+        "name": "名称：",
+        "version": "版本：",
+        "source": "源码：",
+        "source_link": "GitHub 仓库",
+        "start_time": "启动时间："
+      },
+      "config": {
+        "title": "系统配置",
+        "email_verify": "邮箱验证：",
+        "github_oauth": "GitHub 身份验证：",
+        "wechat_login": "微信身份验证：",
+        "turnstile": "Turnstile 校验：",
+        "enabled": "已启用",
+        "disabled": "未启用"
+      }
+    },
+    "loading_failed": "加载首页内容失败..."
+  },
+  "auth": {
+    "login": {
+      "title": "用户登录",
+      "username": "用户名 / 邮箱地址",
+      "password": "密码",
+      "button": "登录",
+      "forgot_password": "忘记密码？",
+      "reset_password": "点击重置",
+      "no_account": "没有账户？",
+      "register": "点击注册",
+      "other_methods": "使用其他方式登录",
+      "wechat": {
+        "scan_tip": "微信扫码关注公众号，输入「验证码」获取验证码（三分钟内有效）",
+        "code_placeholder": "验证码"
+      }
+    },
+    "register": {
+      "title": "新用户注册",
+      "username": "输入用户名，最长 12 位",
+      "password": "输入密码，最短 8 位，最长 20 位",
+      "confirm_password": "再次输入密码",
+      "email": "输入邮箱地址",
+      "verification_code": "输入验证码",
+      "get_code": "获取验证码",
+      "get_code_retry": "重试 ({{countdown}})",
+      "button": "注册",
+      "has_account": "已有账户？",
+      "login": "点击登录"
+    },
+    "reset": {
+      "title": "密码重置",
+      "email": "邮箱地址",
+      "button": "提交",
+      "notice": "系统将向您的邮箱发送一封包含重置链接的邮件，请注意查收。",
+      "confirm": {
+        "title": "密码重置确认",
+        "new_password": "新密码",
+        "button": "提交",
+        "button_disabled": "密码重置完成",
+        "notice": "新密码已生成，请点击密码框或上方按钮复制。请及时登录并修改密码！"
+      }
+    }
+  },
+  "messages": {
+    "success": {
+      "login": "登录成功！",
+      "register": "注册成功！",
+      "verification_code": "验证码发送成功，请检查你的邮箱！",
+      "password_reset": "重置邮件发送成功，请检查邮箱！"
+    },
+    "error": {
+      "login_expired": "未登录或登录已过期，请重新登录！",
+      "password_length": "密码长度不得小于 8 位！",
+      "password_mismatch": "两次输入的密码不一致",
+      "turnstile_wait": "请稍后几秒重试，Turnstile 正在检查用户环境！",
+      "root_password": "请立刻修改默认密码！"
+    },
+    "notice": {
+      "password_copied": "新密码已复制到剪贴板：{{password}}"
+    }
+  }
+}

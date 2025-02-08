@@ -1,16 +1,29 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Button, Divider, Form, Grid, Header, Image, Message, Modal, Segment } from 'semantic-ui-react';
+import {
+  Button,
+  Divider,
+  Form,
+  Grid,
+  Header,
+  Image,
+  Message,
+  Modal,
+  Segment,
+  Card,
+} from 'semantic-ui-react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { UserContext } from '../context/User';
 import { API, getLogo, showError, showSuccess, showWarning } from '../helpers';
 import { onGitHubOAuthClicked, onLarkOAuthClicked } from './utils';
 import larkIcon from '../images/lark.svg';
 
 const LoginForm = () => {
+  const { t } = useTranslation();
   const [inputs, setInputs] = useState({
     username: '',
     password: '',
-    wechat_verification_code: ''
+    wechat_verification_code: '',
   });
   const [searchParams, setSearchParams] = useSearchParams();
   const [submitted, setSubmitted] = useState(false);
@@ -22,7 +35,7 @@ const LoginForm = () => {
 
   useEffect(() => {
     if (searchParams.get('expired')) {
-      showError('未登录或登录已过期，请重新登录！');
+      showError(t('messages.error.login_expired'));
     }
     let status = localStorage.getItem('status');
     if (status) {
@@ -46,7 +59,7 @@ const LoginForm = () => {
       userDispatch({ type: 'login', payload: data });
       localStorage.setItem('user', JSON.stringify(data));
       navigate('/');
-      showSuccess('登录成功！');
+      showSuccess(t('messages.success.login'));
       setShowWeChatLoginModal(false);
     } else {
       showError(message);
@@ -63,7 +76,7 @@ const LoginForm = () => {
     if (username && password) {
       const res = await API.post(`/api/user/login`, {
         username,
-        password
+        password,
       });
       const { success, message, data } = res.data;
       if (success) {
@@ -71,11 +84,11 @@ const LoginForm = () => {
         localStorage.setItem('user', JSON.stringify(data));
         if (username === 'root' && password === '123456') {
           navigate('/user/edit');
-          showSuccess('登录成功！');
-          showWarning('请立刻修改默认密码！');
+          showSuccess(t('messages.success.login'));
+          showWarning(t('messages.error.root_password'));
         } else {
           navigate('/token');
-          showSuccess('登录成功！');
+          showSuccess(t('messages.success.login'));
         }
       } else {
         showError(message);
@@ -86,95 +99,155 @@ const LoginForm = () => {
   return (
     <Grid textAlign='center' style={{ marginTop: '48px' }}>
       <Grid.Column style={{ maxWidth: 450 }}>
-        <Header as='h2' color='' textAlign='center'>
-          <Image src={logo} /> 用户登录
-        </Header>
-        <Form size='large'>
-          <Segment>
-            <Form.Input
-              fluid
-              icon='user'
-              iconPosition='left'
-              placeholder='用户名 / 邮箱地址'
-              name='username'
-              value={username}
-              onChange={handleChange}
-            />
-            <Form.Input
-              fluid
-              icon='lock'
-              iconPosition='left'
-              placeholder='密码'
-              name='password'
-              type='password'
-              value={password}
-              onChange={handleChange}
-            />
-            <Button color='green' fluid size='large' onClick={handleSubmit}>
-              登录
-            </Button>
-          </Segment>
-        </Form>
-        <Message>
-          忘记密码？
-          <Link to='/reset' className='btn btn-link'>
-            点击重置
-          </Link>
-          ； 没有账户？
-          <Link to='/register' className='btn btn-link'>
-            点击注册
-          </Link>
-        </Message>
-        {status.github_oauth || status.wechat_login || status.lark_client_id ? (
-          <>
-            <Divider horizontal>Or</Divider>
-            <div style={{ display: "flex", justifyContent: "center" }}>
-              {status.github_oauth ? (
-                <Button
-                  circular
-                  color='black'
-                  icon='github'
-                  onClick={() => onGitHubOAuthClicked(status.github_client_id)}
-                />
-              ) : (
-                <></>
-              )}
-              {status.wechat_login ? (
-                <Button
-                  circular
-                  color='green'
-                  icon='wechat'
-                  onClick={onWeChatLoginClicked}
-                />
-              ) : (
-                <></>
-              )}
-              {status.lark_client_id ? (
-                <div style={{
-                  background: "radial-gradient(circle, #FFFFFF, #FFFFFF, #00D6B9, #2F73FF, #0a3A9C)",
-                  width: "36px",
-                  height: "36px",
-                  borderRadius: "10em",
-                  display: "flex",
-                  cursor: "pointer"
+        <Card
+          fluid
+          className='chart-card'
+          style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.12)' }}
+        >
+          <Card.Content>
+            <Card.Header>
+              <Header
+                as='h2'
+                textAlign='center'
+                style={{ marginBottom: '1.5em' }}
+              >
+                <Image src={logo} style={{ marginBottom: '10px' }} />
+                <Header.Content>{t('auth.login.title')}</Header.Content>
+              </Header>
+            </Card.Header>
+            <Form size='large'>
+              <Form.Input
+                fluid
+                icon='user'
+                iconPosition='left'
+                placeholder={t('auth.login.username')}
+                name='username'
+                value={username}
+                onChange={handleChange}
+                style={{ marginBottom: '1em' }}
+              />
+              <Form.Input
+                fluid
+                icon='lock'
+                iconPosition='left'
+                placeholder={t('auth.login.password')}
+                name='password'
+                type='password'
+                value={password}
+                onChange={handleChange}
+                style={{ marginBottom: '1.5em' }}
+              />
+              <Button
+                fluid
+                size='large'
+                style={{
+                  background: '#2F73FF', // 使用更现代的蓝色
+                  color: 'white',
+                  marginBottom: '1.5em',
                 }}
-                  onClick={() => onLarkOAuthClicked(status.lark_client_id)}
-                >
-                  <Image
-                    src={larkIcon}
-                    avatar
-                    style={{ width: "16px", height: "16px", cursor: "pointer", margin: "auto" }}
-                    onClick={() => onLarkOAuthClicked(status.lark_client_id)}
-                  />
+                onClick={handleSubmit}
+              >
+                {t('auth.login.button')}
+              </Button>
+            </Form>
+
+            <Divider />
+            <Message style={{ background: 'transparent', boxShadow: 'none' }}>
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  fontSize: '0.9em',
+                  color: '#666',
+                }}
+              >
+                <div>
+                  {t('auth.login.forgot_password')}
+                  <Link
+                    to='/reset'
+                    style={{ color: '#2185d0', marginLeft: '2px' }}
+                  >
+                    {t('auth.login.reset_password')}
+                  </Link>
                 </div>
-              ) : (
-                <></>
-              )}
-            </div>
-          </>
-        ) : (
-          <></>
-        )}
+                <div>
+                  {t('auth.login.no_account')}
+                  <Link
+                    to='/register'
+                    style={{ color: '#2185d0', marginLeft: '2px' }}
+                  >
+                    {t('auth.login.register')}
+                  </Link>
+                </div>
+              </div>
+            </Message>
+
+            {(status.github_oauth ||
+              status.wechat_login ||
+              status.lark_client_id) && (
+              <>
+                <Divider
+                  horizontal
+                  style={{ color: '#666', fontSize: '0.9em' }}
+                >
+                  {t('auth.login.other_methods')}
+                </Divider>
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    gap: '1em',
+                    marginTop: '1em',
+                  }}
+                >
+                  {status.github_oauth && (
+                    <Button
+                      circular
+                      color='black'
+                      icon='github'
+                      onClick={() =>
+                        onGitHubOAuthClicked(status.github_client_id)
+                      }
+                    />
+                  )}
+                  {status.wechat_login && (
+                    <Button
+                      circular
+                      color='green'
+                      icon='wechat'
+                      onClick={onWeChatLoginClicked}
+                    />
+                  )}
+                  {status.lark_client_id && (
+                    <div
+                      style={{
+                        background:
+                          'radial-gradient(circle, #FFFFFF, #FFFFFF, #FFFFFF, #FFFFFF, #FFFFFF)',
+                        width: '36px',
+                        height: '36px',
+                        borderRadius: '10em',
+                        display: 'flex',
+                        cursor: 'pointer',
+                      }}
+                      onClick={() => onLarkOAuthClicked(status.lark_client_id)}
+                    >
+                      <Image
+                        src={larkIcon}
+                        avatar
+                        style={{
+                          width: '36px',
+                          height: '36px',
+                          cursor: 'pointer',
+                          margin: 'auto',
+                        }}
+                      />
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
+          </Card.Content>
+        </Card>
         <Modal
           onClose={() => setShowWeChatLoginModal(false)}
           onOpen={() => setShowWeChatLoginModal(true)}
@@ -185,25 +258,27 @@ const LoginForm = () => {
             <Modal.Description>
               <Image src={status.wechat_qrcode} fluid />
               <div style={{ textAlign: 'center' }}>
-                <p>
-                  微信扫码关注公众号，输入「验证码」获取验证码（三分钟内有效）
-                </p>
+                <p>{t('auth.login.wechat.scan_tip')}</p>
               </div>
               <Form size='large'>
                 <Form.Input
                   fluid
-                  placeholder='验证码'
+                  placeholder={t('auth.login.wechat.code_placeholder')}
                   name='wechat_verification_code'
                   value={inputs.wechat_verification_code}
                   onChange={handleChange}
                 />
                 <Button
-                  color=''
                   fluid
                   size='large'
+                  style={{
+                    background: '#2F73FF',
+                    color: 'white',
+                    marginBottom: '1.5em',
+                  }}
                   onClick={onSubmitWeChatVerificationCode}
                 >
-                  登录
+                  {t('auth.login.button')}
                 </Button>
               </Form>
             </Modal.Description>

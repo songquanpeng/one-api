@@ -52,8 +52,6 @@ _✨ 標準的な OpenAI API フォーマットを通じてすべての LLM に�
 
 > **警告**: この README は ChatGPT によって翻訳されています。翻訳ミスを発見した場合は遠慮なく PR を投稿してください。
 
-> **警告**： 英語版の Docker イメージは `justsong/one-api-en` です。
-
 > **注**: Docker からプルされた最新のイメージは、`alpha` リリースかもしれません。安定性が必要な場合は、手動でバージョンを指定してください。
 
 ## 特徴
@@ -89,7 +87,9 @@ _✨ 標準的な OpenAI API フォーマットを通じてすべての LLM に�
 
 ## デプロイメント
 ### Docker デプロイメント
-デプロイコマンド: `docker run --name one-api -d --restart always -p 3000:3000 -e TZ=Asia/Shanghai -v /home/ubuntu/data/one-api:/data justsong/one-api-en`。
+
+デプロイコマンド:
+`docker run --name one-api -d --restart always -p 3000:3000 -e TZ=Asia/Shanghai -v /home/ubuntu/data/one-api:/data justsong/one-api`。
 
 コマンドを更新する: `docker run --rm -v /var/run/docker.sock:/var/run/docker.sock containrr/watchtower -cR`。
 
@@ -287,8 +287,8 @@ graph LR
     + インターフェイスアドレスと API Key が正しいか再確認してください。
 
 ## 関連プロジェクト
-[FastGPT](https://github.com/labring/FastGPT): LLM に基づく知識質問応答システム
-
+* [FastGPT](https://github.com/labring/FastGPT): LLM に基づく知識質問応答システム
+* [CherryStudio](https://github.com/CherryHQ/cherry-studio):  マルチプラットフォーム対応のAIクライアント。複数のサービスプロバイダーを統合管理し、ローカル知識ベースをサポートします。
 ## 注
 本プロジェクトはオープンソースプロジェクトです。OpenAI の[利用規約](https://openai.com/policies/terms-of-use)および**適用される法令**を遵守してご利用ください。違法な目的での利用はご遠慮ください。
 

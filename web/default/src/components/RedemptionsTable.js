@@ -1,33 +1,62 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Form, Label, Popup, Pagination, Table } from 'semantic-ui-react';
+import { useTranslation } from 'react-i18next';
+import {
+  Button,
+  Form,
+  Label,
+  Popup,
+  Pagination,
+  Table,
+} from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
-import { API, copy, showError, showInfo, showSuccess, showWarning, timestamp2string } from '../helpers';
+import {
+  API,
+  copy,
+  showError,
+  showInfo,
+  showSuccess,
+  showWarning,
+  timestamp2string,
+} from '../helpers';
 
 import { ITEMS_PER_PAGE } from '../constants';
 import { renderQuota } from '../helpers/render';
 
 function renderTimestamp(timestamp) {
-  return (
-    <>
-      {timestamp2string(timestamp)}
-    </>
-  );
+  return <>{timestamp2string(timestamp)}</>;
 }
 
-function renderStatus(status) {
+function renderStatus(status, t) {
   switch (status) {
     case 1:
-      return <Label basic color='green'>未使用</Label>;
+      return (
+        <Label basic color='green'>
+          {t('redemption.status.unused')}
+        </Label>
+      );
     case 2:
-      return <Label basic color='red'> 已禁用 </Label>;
+      return (
+        <Label basic color='red'>
+          {t('redemption.status.disabled')}
+        </Label>
+      );
     case 3:
-      return <Label basic color='grey'> 已使用 </Label>;
+      return (
+        <Label basic color='grey'>
+          {t('redemption.status.used')}
+        </Label>
+      );
     default:
-      return <Label basic color='black'> 未知状态 </Label>;
+      return (
+        <Label basic color='black'>
+          {t('redemption.status.unknown')}
+        </Label>
+      );
   }
 }
 
 const RedemptionsTable = () => {
+  const { t } = useTranslation();
   const [redemptions, setRedemptions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activePage, setActivePage] = useState(1);
@@ -87,7 +116,7 @@ const RedemptionsTable = () => {
     }
     const { success, message } = res.data;
     if (success) {
-      showSuccess('操作成功完成！');
+      showSuccess(t('token.messages.operation_success'));
       let redemption = res.data.data;
       let newRedemptions = [...redemptions];
       let realIdx = (activePage - 1) * ITEMS_PER_PAGE + idx;
@@ -110,7 +139,9 @@ const RedemptionsTable = () => {
       return;
     }
     setSearching(true);
-    const res = await API.get(`/api/redemption/search?keyword=${searchKeyword}`);
+    const res = await API.get(
+      `/api/redemption/search?keyword=${searchKeyword}`
+    );
     const { success, message, data } = res.data;
     if (success) {
       setRedemptions(data);
@@ -145,6 +176,12 @@ const RedemptionsTable = () => {
     setLoading(false);
   };
 
+  const refresh = async () => {
+    setLoading(true);
+    await loadRedemptions(0);
+    setActivePage(1);
+  };
+
   return (
     <>
       <Form onSubmit={searchRedemptions}>
@@ -152,14 +189,14 @@ const RedemptionsTable = () => {
           icon='search'
           fluid
           iconPosition='left'
-          placeholder='搜索兑换码的 ID 和名称 ...'
+          placeholder={t('redemption.search')}
           value={searchKeyword}
           loading={searching}
           onChange={handleKeywordChange}
         />
       </Form>
 
-      <Table basic compact size='small'>
+      <Table basic={'very'} compact size='small'>
         <Table.Header>
           <Table.Row>
             <Table.HeaderCell
@@ -168,7 +205,7 @@ const RedemptionsTable = () => {
                 sortRedemption('id');
               }}
             >
-              ID
+              {t('redemption.table.id')}
             </Table.HeaderCell>
             <Table.HeaderCell
               style={{ cursor: 'pointer' }}
@@ -176,7 +213,7 @@ const RedemptionsTable = () => {
                 sortRedemption('name');
               }}
             >
-              名称
+              {t('redemption.table.name')}
             </Table.HeaderCell>
             <Table.HeaderCell
               style={{ cursor: 'pointer' }}
@@ -184,7 +221,7 @@ const RedemptionsTable = () => {
                 sortRedemption('status');
               }}
             >
-              状态
+              {t('redemption.table.status')}
             </Table.HeaderCell>
             <Table.HeaderCell
               style={{ cursor: 'pointer' }}
@@ -192,7 +229,7 @@ const RedemptionsTable = () => {
                 sortRedemption('quota');
               }}
             >
-              额度
+              {t('redemption.table.quota')}
             </Table.HeaderCell>
             <Table.HeaderCell
               style={{ cursor: 'pointer' }}
@@ -200,7 +237,7 @@ const RedemptionsTable = () => {
                 sortRedemption('created_time');
               }}
             >
-              创建时间
+              {t('redemption.table.created_time')}
             </Table.HeaderCell>
             <Table.HeaderCell
               style={{ cursor: 'pointer' }}
@@ -208,9 +245,9 @@ const RedemptionsTable = () => {
                 sortRedemption('redeemed_time');
               }}
             >
-              兑换时间
+              {t('redemption.table.redeemed_time')}
             </Table.HeaderCell>
-            <Table.HeaderCell>操作</Table.HeaderCell>
+            <Table.HeaderCell>{t('redemption.table.actions')}</Table.HeaderCell>
           </Table.Row>
         </Table.Header>
 
@@ -225,31 +262,39 @@ const RedemptionsTable = () => {
               return (
                 <Table.Row key={redemption.id}>
                   <Table.Cell>{redemption.id}</Table.Cell>
-                  <Table.Cell>{redemption.name ? redemption.name : '无'}</Table.Cell>
-                  <Table.Cell>{renderStatus(redemption.status)}</Table.Cell>
-                  <Table.Cell>{renderQuota(redemption.quota)}</Table.Cell>
-                  <Table.Cell>{renderTimestamp(redemption.created_time)}</Table.Cell>
-                  <Table.Cell>{redemption.redeemed_time ? renderTimestamp(redemption.redeemed_time) : "尚未兑换"} </Table.Cell>
+                  <Table.Cell>
+                    {redemption.name ? redemption.name : t('redemption.table.no_name')}
+                  </Table.Cell>
+                  <Table.Cell>{renderStatus(redemption.status, t)}</Table.Cell>
+                  <Table.Cell>{renderQuota(redemption.quota, t)}</Table.Cell>
+                  <Table.Cell>
+                    {renderTimestamp(redemption.created_time)}
+                  </Table.Cell>
+                  <Table.Cell>
+                    {redemption.redeemed_time
+                      ? renderTimestamp(redemption.redeemed_time)
+                      : t('redemption.table.not_redeemed')}{' '}
+                  </Table.Cell>
                   <Table.Cell>
                     <div>
                       <Button
-                        size={'small'}
+                        size={'tiny'}
                         positive
                         onClick={async () => {
                           if (await copy(redemption.key)) {
-                            showSuccess('已复制到剪贴板！');
+                            showSuccess(t('token.messages.copy_success'));
                           } else {
-                            showWarning('无法复制到剪贴板，请手动复制，已将兑换码填入搜索框。')
+                            showWarning(t('token.messages.copy_failed'));
                             setSearchKeyword(redemption.key);
                           }
                         }}
                       >
-                        复制
+                        {t('redemption.buttons.copy')}
                       </Button>
                       <Popup
                         trigger={
-                          <Button size='small' negative>
-                            删除
+                          <Button size='tiny' negative>
+                            {t('redemption.buttons.delete')}
                           </Button>
                         }
                         on='click'
@@ -262,12 +307,12 @@ const RedemptionsTable = () => {
                             manageRedemption(redemption.id, 'delete', idx);
                           }}
                         >
-                          确认删除
+                          {t('redemption.buttons.confirm_delete')}
                         </Button>
                       </Popup>
                       <Button
-                        size={'small'}
-                        disabled={redemption.status === 3}  // used
+                        size={'tiny'}
+                        disabled={redemption.status === 3} // used
                         onClick={() => {
                           manageRedemption(
                             redemption.id,
@@ -276,14 +321,16 @@ const RedemptionsTable = () => {
                           );
                         }}
                       >
-                        {redemption.status === 1 ? '禁用' : '启用'}
+                        {redemption.status === 1
+                          ? t('redemption.buttons.disable')
+                          : t('redemption.buttons.enable')}
                       </Button>
                       <Button
-                        size={'small'}
+                        size={'tiny'}
                         as={Link}
                         to={'/redemption/edit/' + redemption.id}
                       >
-                        编辑
+                        {t('redemption.buttons.edit')}
                       </Button>
                     </div>
                   </Table.Cell>
@@ -294,9 +341,17 @@ const RedemptionsTable = () => {
 
         <Table.Footer>
           <Table.Row>
-            <Table.HeaderCell colSpan='8'>
-              <Button size='small' as={Link} to='/redemption/add' loading={loading}>
-                添加新的兑换码
+            <Table.HeaderCell colSpan='7'>
+              <Button
+                size='small'
+                as={Link}
+                to='/redemption/add'
+                loading={loading}
+              >
+                {t('redemption.buttons.add')}
+              </Button>
+              <Button size='small' onClick={refresh} loading={loading}>
+                {t('redemption.buttons.refresh')}
               </Button>
               <Pagination
                 floated='right'

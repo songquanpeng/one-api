@@ -9,9 +9,10 @@ import (
 )
 
 const (
-	USD2RMB = 7
-	USD     = 500 // $0.002 = 1 -> $1 = 500
-	RMB     = USD / USD2RMB
+	USD2RMB   = 7
+	USD       = 500 // $0.002 = 1 -> $1 = 500
+	MILLI_USD = 1.0 / 1000 * USD
+	RMB       = USD / USD2RMB
 )
 
 // ModelRatio
@@ -81,15 +82,17 @@ var ModelRatio = map[string]float64{
 	"text-moderation-latest":  0.1,
 	"dall-e-2":                0.02 * USD, // $0.016 - $0.020 / image
 	"dall-e-3":                0.04 * USD, // $0.040 - $0.120 / image
-	// https://www.anthropic.com/api#pricing
+	// https://docs.anthropic.com/en/docs/about-claude/models
 	"claude-instant-1.2":         0.8 / 1000 * USD,
 	"claude-2.0":                 8.0 / 1000 * USD,
 	"claude-2.1":                 8.0 / 1000 * USD,
 	"claude-3-haiku-20240307":    0.25 / 1000 * USD,
 	"claude-3-5-haiku-20241022":  1.0 / 1000 * USD,
+	"claude-3-5-haiku-latest":    1.0 / 1000 * USD,	
 	"claude-3-sonnet-20240229":   3.0 / 1000 * USD,
 	"claude-3-5-sonnet-20240620": 3.0 / 1000 * USD,
 	"claude-3-5-sonnet-20241022": 3.0 / 1000 * USD,
+	"claude-3-5-sonnet-latest"  : 3.0 / 1000 * USD,	
 	"claude-3-opus-20240229":     15.0 / 1000 * USD,
 	// https://cloud.baidu.com/doc/WENXINWORKSHOP/s/hlrk4akp7
 	"ERNIE-4.0-8K":       0.120 * RMB,
@@ -109,25 +112,40 @@ var ModelRatio = map[string]float64{
 	"bge-large-en":       0.002 * RMB,
 	"tao-8k":             0.002 * RMB,
 	// https://ai.google.dev/pricing
-	"gemini-pro":                    1, // $0.00025 / 1k characters -> $0.001 / 1k tokens
-	"gemini-1.0-pro":                1,
-	"gemini-1.5-pro":                1,
-	"gemini-1.5-pro-001":            1,
-	"gemini-1.5-flash":              1,
-	"gemini-1.5-flash-001":          1,
-	"gemini-2.0-flash-exp":          1,
-	"gemini-2.0-flash-thinking-exp": 1,
-	"aqa":                           1,
+	"gemini-pro":                          1, // $0.00025 / 1k characters -> $0.001 / 1k tokens
+	"gemini-1.0-pro":                      1,
+	"gemini-1.5-pro":                      1,
+	"gemini-1.5-pro-001":                  1,
+	"gemini-1.5-flash":                    1,
+	"gemini-1.5-flash-001":                1,
+	"gemini-2.0-flash-exp":                1,
+	"gemini-2.0-flash-thinking-exp":       1,
+	"gemini-2.0-flash-thinking-exp-01-21": 1,
+	"aqa":                                 1,
 	// https://open.bigmodel.cn/pricing
-	"glm-4":         0.1 * RMB,
-	"glm-4v":        0.1 * RMB,
-	"glm-3-turbo":   0.005 * RMB,
-	"embedding-2":   0.0005 * RMB,
-	"chatglm_turbo": 0.3572, // ￥0.005 / 1k tokens
-	"chatglm_pro":   0.7143, // ￥0.01 / 1k tokens
-	"chatglm_std":   0.3572, // ￥0.005 / 1k tokens
-	"chatglm_lite":  0.1429, // ￥0.002 / 1k tokens
-	"cogview-3":     0.25 * RMB,
+	"glm-zero-preview": 0.01 * RMB,
+	"glm-4-plus":       0.05 * RMB,
+	"glm-4-0520":       0.1 * RMB,
+	"glm-4-airx":       0.01 * RMB,
+	"glm-4-air":        0.0005 * RMB,
+	"glm-4-long":       0.001 * RMB,
+	"glm-4-flashx":     0.0001 * RMB,
+	"glm-4-flash":      0,
+	"glm-4":            0.1 * RMB,   // deprecated model, available until 2025/06
+	"glm-3-turbo":      0.001 * RMB, // deprecated model, available until 2025/06
+	"glm-4v-plus":      0.004 * RMB,
+	"glm-4v":           0.05 * RMB,
+	"glm-4v-flash":     0,
+	"cogview-3-plus":   0.06 * RMB,
+	"cogview-3":        0.1 * RMB,
+	"cogview-3-flash":  0,
+	"cogviewx":         0.5 * RMB,
+	"cogviewx-flash":   0,
+	"charglm-4":        0.001 * RMB,
+	"emohaa":           0.015 * RMB,
+	"codegeex-4":       0.0001 * RMB,
+	"embedding-2":      0.0005 * RMB,
+	"embedding-3":      0.0005 * RMB,
 	// https://help.aliyun.com/zh/dashscope/developer-reference/tongyi-thousand-questions-metering-and-billing
 	"qwen-turbo":                  1.4286, // ￥0.02 / 1k tokens
 	"qwen-turbo-latest":           1.4286,
@@ -214,9 +232,19 @@ var ModelRatio = map[string]float64{
 	"embedding-bert-512-v1":       0.0715, // ¥0.001 / 1k tokens
 	"embedding_s1_v1":             0.0715, // ¥0.001 / 1k tokens
 	"semantic_similarity_s1_v1":   0.0715, // ¥0.001 / 1k tokens
-	"hunyuan":                     7.143,  // ¥0.1 / 1k tokens  // https://cloud.tencent.com/document/product/1729/97731#e0e6be58-60c8-469f-bdeb-6c264ce3b4d0
-	"ChatStd":                     0.01 * RMB,
-	"ChatPro":                     0.1 * RMB,
+	// https://cloud.tencent.com/document/product/1729/97731#e0e6be58-60c8-469f-bdeb-6c264ce3b4d0
+	"hunyuan-turbo":             0.015 * RMB,
+	"hunyuan-large":             0.004 * RMB,
+	"hunyuan-large-longcontext": 0.006 * RMB,
+	"hunyuan-standard":          0.0008 * RMB,
+	"hunyuan-standard-256K":     0.0005 * RMB,
+	"hunyuan-translation-lite":  0.005 * RMB,
+	"hunyuan-role":              0.004 * RMB,
+	"hunyuan-functioncall":      0.004 * RMB,
+	"hunyuan-code":              0.004 * RMB,
+	"hunyuan-turbo-vision":      0.08 * RMB,
+	"hunyuan-vision":            0.018 * RMB,
+	"hunyuan-embedding":         0.0007 * RMB,
 	// https://platform.moonshot.cn/pricing
 	"moonshot-v1-8k":   0.012 * RMB,
 	"moonshot-v1-32k":  0.024 * RMB,
@@ -279,8 +307,8 @@ var ModelRatio = map[string]float64{
 	"command-r":             0.5 / 1000 * USD,
 	"command-r-plus":        3.0 / 1000 * USD,
 	// https://platform.deepseek.com/api-docs/pricing/
-	"deepseek-chat":  1.0 / 1000 * RMB,
-	"deepseek-coder": 1.0 / 1000 * RMB,
+	"deepseek-chat":     0.14 * MILLI_USD,
+	"deepseek-reasoner": 0.55 * MILLI_USD,
 	// https://www.deepl.com/pro?cta=header-prices
 	"deepl-zh": 25.0 / 1000 * USD,
 	"deepl-en": 25.0 / 1000 * USD,
@@ -337,6 +365,11 @@ var CompletionRatio = map[string]float64{
 	// aws llama3
 	"llama3-8b-8192(33)":  0.0006 / 0.0003,
 	"llama3-70b-8192(33)": 0.0035 / 0.00265,
+	// whisper
+	"whisper-1": 0, // only count input tokens
+	// deepseek
+	"deepseek-chat":     0.28 / 0.14,
+	"deepseek-reasoner": 2.19 / 0.55,
 }
 
 var (

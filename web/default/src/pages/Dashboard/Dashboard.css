@@ -1,0 +1,109 @@
+.dashboard-container {
+    padding: 20px 24px 40px;
+    background-color: #ffffff;
+    margin-top: -15px; /* 减小与导航栏的间距 */
+    max-width: 1600px;        /* 设置最大宽度 */
+    margin-left: auto;        /* 水平居中 */
+    margin-right: auto;
+}
+
+.stat-card {
+    background: linear-gradient(135deg, #2185d0 0%, #1678c2 100%) !important;
+    color: white !important;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
+    transition: transform 0.2s ease !important;
+    margin-bottom: 1rem !important;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+}
+
+.stat-card .statistic {
+    color: white !important;
+}
+
+.charts-grid {
+    margin-bottom: 1rem !important;
+}
+
+.charts-grid .column {
+    padding: 0.5rem !important;
+}
+
+.chart-card {
+    height: 100%;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04) !important;
+    border: none !important;
+    border-radius: 16px !important;
+    padding: 8px!important;
+}
+
+.chart-container {
+    margin-top: 2px;
+    padding: 16px;
+    background-color: white;
+    border-radius: 12px;
+}
+
+.ui.card > .content > .header {
+    color: #2B3674;
+    font-size: 1.2em;
+    margin-bottom: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 600;
+    gap: 12px; /* 增加标题和数值之间的间距 */
+}
+
+.stat-value {
+    color: #4318FF;
+    font-weight: bold;
+    font-size: 1.1em;
+    background: rgba(67, 24, 255, 0.1);
+    padding: 4px 12px;
+    border-radius: 8px;
+    white-space: nowrap; /* 防止数值换行 */
+    margin-left: 16px;
+}
+
+/* 优化图表响应式布局 */
+@media (max-width: 768px) {
+    .dashboard-container {
+        padding: 10px 16px;   /* 移动端也相应减小内边距 */
+        max-width: 100%;      /* 移动端占满全宽 */
+    }
+    
+    .chart-container {
+        padding: 12px;
+    }
+    
+    .charts-grid .column {
+        padding: 0.25rem !important;
+    }
+}
+
+/* 设置页面的 Tab 样式 */
+.settings-tab {
+    margin-top: 1rem !important;
+    border-bottom: none !important;
+}
+
+.settings-tab .item {
+    color: #000 !important;
+    font-weight: 500 !important;
+    padding: 0.8rem 1.2rem !important;
+}
+
+.settings-tab .active.item {
+    color: #000 !important;
+    font-weight: 600 !important;
+    border-color: #000 !important;
+}
+
+.ui.tab.segment {
+    border: none !important;
+    box-shadow: none !important;
+    padding: 1rem 0 !important;
+} 

@@ -1,49 +1,84 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Dropdown, Form, Label, Pagination, Popup, Table } from 'semantic-ui-react';
+import { useTranslation } from 'react-i18next';
+import {
+  Button,
+  Dropdown,
+  Form,
+  Label,
+  Pagination,
+  Popup,
+  Table,
+} from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
-import { API, copy, showError, showSuccess, showWarning, timestamp2string } from '../helpers';
+import {
+  API,
+  copy,
+  showError,
+  showSuccess,
+  showWarning,
+  timestamp2string,
+} from '../helpers';
 
 import { ITEMS_PER_PAGE } from '../constants';
 import { renderQuota } from '../helpers/render';
 
-const COPY_OPTIONS = [
-  { key: 'next', text: 'ChatGPT Next Web', value: 'next' },
-  { key: 'ama', text: 'BotGem', value: 'ama' },
-  { key: 'opencat', text: 'OpenCat', value: 'opencat' },
-  { key: 'lobechat', text: 'LobeChat', value: 'lobechat' },
-];
-
-const OPEN_LINK_OPTIONS = [
-  { key: 'next', text: 'ChatGPT Next Web', value: 'next' },
-  { key: 'ama', text: 'BotGem', value: 'ama' },
-  { key: 'opencat', text: 'OpenCat', value: 'opencat' },
-  { key: 'lobechat', text: 'LobeChat', value: 'lobechat' },
-];
-
 function renderTimestamp(timestamp) {
-  return (
-    <>
-      {timestamp2string(timestamp)}
-    </>
-  );
+  return <>{timestamp2string(timestamp)}</>;
 }
 
-function renderStatus(status) {
+function renderStatus(status, t) {
   switch (status) {
     case 1:
-      return <Label basic color='green'>已启用</Label>;
+      return (
+        <Label basic color='green'>
+          {t('token.table.status_enabled')}
+        </Label>
+      );
     case 2:
-      return <Label basic color='red'> 已禁用 </Label>;
+      return (
+        <Label basic color='red'>
+          {t('token.table.status_disabled')}
+        </Label>
+      );
     case 3:
-      return <Label basic color='yellow'> 已过期 </Label>;
+      return (
+        <Label basic color='yellow'>
+          {t('token.table.status_expired')}
+        </Label>
+      );
     case 4:
-      return <Label basic color='grey'> 已耗尽 </Label>;
+      return (
+        <Label basic color='grey'>
+          {t('token.table.status_depleted')}
+        </Label>
+      );
     default:
-      return <Label basic color='black'> 未知状态 </Label>;
+      return (
+        <Label basic color='black'>
+          {t('token.table.status_unknown')}
+        </Label>
+      );
   }
 }
 
 const TokensTable = () => {
+  const { t } = useTranslation();
+
+  const COPY_OPTIONS = [
+    { key: 'raw', text: t('token.copy_options.raw'), value: '' },
+    { key: 'next', text: t('token.copy_options.next'), value: 'next' },
+    { key: 'ama', text: t('token.copy_options.ama'), value: 'ama' },
+    { key: 'opencat', text: t('token.copy_options.opencat'), value: 'opencat' },
+    { key: 'lobe', text: t('token.copy_options.lobe'), value: 'lobechat' },
+  ];
+
+  const OPEN_LINK_OPTIONS = [
+    { key: 'next', text: t('token.copy_options.next'), value: 'next' },
+    { key: 'ama', text: t('token.copy_options.ama'), value: 'ama' },
+    { key: 'opencat', text: t('token.copy_options.opencat'), value: 'opencat' },
+    { key: 'lobe', text: t('token.copy_options.lobe'), value: 'lobechat' },
+  ];
+
   const [tokens, setTokens] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activePage, setActivePage] = useState(1);
@@ -98,9 +133,10 @@ const TokensTable = () => {
     let encodedServerAddress = encodeURIComponent(serverAddress);
     const nextLink = localStorage.getItem('chat_link');
     let nextUrl;
-  
+
     if (nextLink) {
-      nextUrl = nextLink + `/#/?settings={"key":"sk-${key}","url":"${serverAddress}"}`;
+      nextUrl =
+        nextLink + `/#/?settings={"key":"sk-${key}","url":"${serverAddress}"}`;
     } else {
       nextUrl = `https://app.nextchat.dev/#/?settings={"key":"sk-${key}","url":"${serverAddress}"}`;
     }
@@ -117,15 +153,17 @@ const TokensTable = () => {
         url = nextUrl;
         break;
       case 'lobechat':
-        url = nextLink + `/?settings={"keyVaults":{"openai":{"apiKey":"sk-${key}","baseURL":"${serverAddress}/v1"}}}`;
+        url =
+          nextLink +
+          `/?settings={"keyVaults":{"openai":{"apiKey":"sk-${key}","baseURL":"${serverAddress}/v1"}}}`;
         break;
       default:
         url = `sk-${key}`;
     }
     if (await copy(url)) {
-      showSuccess('已复制到剪贴板！');
+      showSuccess(t('token.messages.copy_success'));
     } else {
-      showWarning('无法复制到剪贴板，请手动复制，已将令牌填入搜索框。');
+      showWarning(t('token.messages.copy_failed'));
       setSearchKeyword(url);
     }
   };
@@ -135,7 +173,7 @@ const TokensTable = () => {
     let serverAddress = '';
     if (status) {
       status = JSON.parse(status);
-      serverAddress = status.server_address; 
+      serverAddress = status.server_address;
     }
     if (serverAddress === '') {
       serverAddress = window.location.origin;
@@ -143,9 +181,10 @@ const TokensTable = () => {
     let encodedServerAddress = encodeURIComponent(serverAddress);
     const chatLink = localStorage.getItem('chat_link');
     let defaultUrl;
-  
+
     if (chatLink) {
-      defaultUrl = chatLink + `/#/?settings={"key":"sk-${key}","url":"${serverAddress}"}`;
+      defaultUrl =
+        chatLink + `/#/?settings={"key":"sk-${key}","url":"${serverAddress}"}`;
     } else {
       defaultUrl = `https://app.nextchat.dev/#/?settings={"key":"sk-${key}","url":"${serverAddress}"}`;
     }
@@ -154,21 +193,23 @@ const TokensTable = () => {
       case 'ama':
         url = `ama://set-api-key?server=${encodedServerAddress}&key=sk-${key}`;
         break;
-  
+
       case 'opencat':
         url = `opencat://team/join?domain=${encodedServerAddress}&token=sk-${key}`;
         break;
 
       case 'lobechat':
-        url = chatLink + `/?settings={"keyVaults":{"openai":{"apiKey":"sk-${key}","baseURL":"${serverAddress}/v1"}}}`;
+        url =
+          chatLink +
+          `/?settings={"keyVaults":{"openai":{"apiKey":"sk-${key}","baseURL":"${serverAddress}/v1"}}}`;
         break;
 
       default:
         url = defaultUrl;
     }
-  
+
     window.open(url, '_blank');
-  }
+  };
 
   useEffect(() => {
     loadTokens(0, orderBy)
@@ -196,7 +237,7 @@ const TokensTable = () => {
     }
     const { success, message } = res.data;
     if (success) {
-      showSuccess('操作成功完成！');
+      showSuccess(t('token.messages.operation_success'));
       let token = res.data.data;
       let newTokens = [...tokens];
       let realIdx = (activePage - 1) * ITEMS_PER_PAGE + idx;
@@ -267,14 +308,14 @@ const TokensTable = () => {
           icon='search'
           fluid
           iconPosition='left'
-          placeholder='搜索令牌的名称 ...'
+          placeholder={t('token.search')}
           value={searchKeyword}
           loading={searching}
           onChange={handleKeywordChange}
         />
       </Form>
 
-      <Table basic compact size='small'>
+      <Table basic={'very'} compact size='small'>
         <Table.Header>
           <Table.Row>
             <Table.HeaderCell
@@ -283,7 +324,7 @@ const TokensTable = () => {
                 sortToken('name');
               }}
             >
-              名称
+              {t('token.table.name')}
             </Table.HeaderCell>
             <Table.HeaderCell
               style={{ cursor: 'pointer' }}
@@ -291,7 +332,7 @@ const TokensTable = () => {
                 sortToken('status');
               }}
             >
-              状态
+              {t('token.table.status')}
             </Table.HeaderCell>
             <Table.HeaderCell
               style={{ cursor: 'pointer' }}
@@ -299,7 +340,7 @@ const TokensTable = () => {
                 sortToken('used_quota');
               }}
             >
-              已用额度
+              {t('token.table.used_quota')}
             </Table.HeaderCell>
             <Table.HeaderCell
               style={{ cursor: 'pointer' }}
@@ -307,7 +348,7 @@ const TokensTable = () => {
                 sortToken('remain_quota');
               }}
             >
-              剩余额度
+              {t('token.table.remain_quota')}
             </Table.HeaderCell>
             <Table.HeaderCell
               style={{ cursor: 'pointer' }}
@@ -315,7 +356,7 @@ const TokensTable = () => {
                 sortToken('created_time');
               }}
             >
-              创建时间
+              {t('token.table.created_time')}
             </Table.HeaderCell>
             <Table.HeaderCell
               style={{ cursor: 'pointer' }}
@@ -323,9 +364,9 @@ const TokensTable = () => {
                 sortToken('expired_time');
               }}
             >
-              过期时间
+              {t('token.table.expired_time')}
             </Table.HeaderCell>
-            <Table.HeaderCell>操作</Table.HeaderCell>
+            <Table.HeaderCell>{t('token.table.actions')}</Table.HeaderCell>
           </Table.Row>
         </Table.Header>
 
@@ -337,65 +378,77 @@ const TokensTable = () => {
             )
             .map((token, idx) => {
               if (token.deleted) return <></>;
+
+              const copyOptionsWithHandlers = COPY_OPTIONS.map((option) => ({
+                ...option,
+                onClick: async () => {
+                  await onCopy(option.value, token.key);
+                },
+              }));
+
+              const openLinkOptionsWithHandlers = OPEN_LINK_OPTIONS.map(
+                (option) => ({
+                  ...option,
+                  onClick: async () => {
+                    await onOpenLink(option.value, token.key);
+                  },
+                })
+              );
+
               return (
                 <Table.Row key={token.id}>
-                  <Table.Cell>{token.name ? token.name : '无'}</Table.Cell>
-                  <Table.Cell>{renderStatus(token.status)}</Table.Cell>
-                  <Table.Cell>{renderQuota(token.used_quota)}</Table.Cell>
-                  <Table.Cell>{token.unlimited_quota ? '无限制' : renderQuota(token.remain_quota, 2)}</Table.Cell>
+                  <Table.Cell>
+                    {token.name ? token.name : t('token.table.no_name')}
+                  </Table.Cell>
+                  <Table.Cell>{renderStatus(token.status, t)}</Table.Cell>
+                  <Table.Cell>{renderQuota(token.used_quota, t)}</Table.Cell>
+                  <Table.Cell>
+                    {token.unlimited_quota
+                      ? t('token.table.unlimited')
+                      : renderQuota(token.remain_quota, t, 2)}
+                  </Table.Cell>
                   <Table.Cell>{renderTimestamp(token.created_time)}</Table.Cell>
-                  <Table.Cell>{token.expired_time === -1 ? '永不过期' : renderTimestamp(token.expired_time)}</Table.Cell>
+                  <Table.Cell>
+                    {token.expired_time === -1
+                      ? t('token.table.never_expire')
+                      : renderTimestamp(token.expired_time)}
+                  </Table.Cell>
                   <Table.Cell>
                     <div>
-                    <Button.Group color='green' size={'small'}>
+                      <Button.Group color='green' size={'tiny'}>
                         <Button
-                          size={'small'}
+                          size={'tiny'}
                           positive
-                          onClick={async () => {
-                            await onCopy('', token.key);
-                          }}
+                          onClick={async () => await onCopy('', token.key)}
                         >
-                          复制
+                          {t('token.buttons.copy')}
                         </Button>
                         <Dropdown
                           className='button icon'
                           floating
-                          options={COPY_OPTIONS.map(option => ({
-                            ...option,
-                            onClick: async () => {
-                              await onCopy(option.value, token.key);
-                            }
-                          }))}
+                          options={copyOptionsWithHandlers}
                           trigger={<></>}
                         />
-                      </Button.Group>
-                      {' '}
-                      <Button.Group color='blue' size={'small'}>
+                      </Button.Group>{' '}
+                      <Button.Group color='olive' size={'tiny'}>
                         <Button
-                            size={'small'}
-                            positive
-                            onClick={() => {     
-                              onOpenLink('', token.key);       
-                            }}>
-                            聊天
-                          </Button>
-                          <Dropdown   
-                            className="button icon"       
-                            floating
-                            options={OPEN_LINK_OPTIONS.map(option => ({
-                              ...option,
-                              onClick: async () => {
-                                await onOpenLink(option.value, token.key);
-                              }
-                            }))}       
-                            trigger={<></>}   
-                          />
-                      </Button.Group>
-                      {' '}
+                          size={'tiny'}
+                          positive
+                          onClick={() => onOpenLink('', token.key)}
+                        >
+                          {t('token.buttons.chat')}
+                        </Button>
+                        <Dropdown
+                          className='button icon'
+                          floating
+                          options={openLinkOptionsWithHandlers}
+                          trigger={<></>}
+                        />
+                      </Button.Group>{' '}
                       <Popup
                         trigger={
-                          <Button size='small' negative>
-                            删除
+                          <Button size='mini' negative>
+                            {t('token.buttons.delete')}
                           </Button>
                         }
                         on='click'
@@ -403,16 +456,17 @@ const TokensTable = () => {
                         hoverable
                       >
                         <Button
+                          size={'tiny'}
                           negative
                           onClick={() => {
                             manageToken(token.id, 'delete', idx);
                           }}
                         >
-                          删除令牌 {token.name}
+                          {t('token.buttons.confirm_delete')} {token.name}
                         </Button>
                       </Popup>
                       <Button
-                        size={'small'}
+                        size={'tiny'}
                         onClick={() => {
                           manageToken(
                             token.id,
@@ -421,14 +475,16 @@ const TokensTable = () => {
                           );
                         }}
                       >
-                        {token.status === 1 ? '禁用' : '启用'}
+                        {token.status === 1
+                          ? t('token.buttons.disable')
+                          : t('token.buttons.enable')}
                       </Button>
                       <Button
-                        size={'small'}
+                        size={'tiny'}
                         as={Link}
                         to={'/token/edit/' + token.id}
                       >
-                        编辑
+                        {t('token.buttons.edit')}
                       </Button>
                     </div>
                   </Table.Cell>
@@ -441,16 +497,26 @@ const TokensTable = () => {
           <Table.Row>
             <Table.HeaderCell colSpan='7'>
               <Button size='small' as={Link} to='/token/add' loading={loading}>
-                添加新的令牌
+                {t('token.buttons.add')}
               </Button>
-              <Button size='small' onClick={refresh} loading={loading}>刷新</Button>
+              <Button size='small' onClick={refresh} loading={loading}>
+                {t('token.buttons.refresh')}
+              </Button>
               <Dropdown
-                placeholder='排序方式'
+                placeholder={t('token.sort.placeholder')}
                 selection
                 options={[
-                  { key: '', text: '默认排序', value: '' },
-                  { key: 'remain_quota', text: '按剩余额度排序', value: 'remain_quota' },
-                  { key: 'used_quota', text: '按已用额度排序', value: 'used_quota' },
+                  { key: '', text: t('token.sort.default'), value: '' },
+                  {
+                    key: 'remain_quota',
+                    text: t('token.sort.by_remain'),
+                    value: 'remain_quota',
+                  },
+                  {
+                    key: 'used_quota',
+                    text: t('token.sort.by_used'),
+                    value: 'used_quota',
+                  },
                 ]}
                 value={orderBy}
                 onChange={handleOrderByChange}

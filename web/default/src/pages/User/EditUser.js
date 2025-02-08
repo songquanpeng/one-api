@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Form, Header, Segment } from 'semantic-ui-react';
+import { useTranslation } from 'react-i18next';
+import { Button, Form, Card } from 'semantic-ui-react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { API, showError, showSuccess } from '../../helpers';
 import { renderQuota, renderQuotaWithPrompt } from '../../helpers/render';
 
 const EditUser = () => {
+  const { t } = useTranslation();
   const params = useParams();
   const userId = params.id;
   const [loading, setLoading] = useState(true);
@@ -16,30 +18,40 @@ const EditUser = () => {
     wechat_id: '',
     email: '',
     quota: 0,
-    group: 'default'
+    group: 'default',
   });
   const [groupOptions, setGroupOptions] = useState([]);
-  const { username, display_name, password, github_id, wechat_id, email, quota, group } =
-    inputs;
+  const {
+    username,
+    display_name,
+    password,
+    github_id,
+    wechat_id,
+    email,
+    quota,
+    group,
+  } = inputs;
   const handleInputChange = (e, { name, value }) => {
     setInputs((inputs) => ({ ...inputs, [name]: value }));
   };
   const fetchGroups = async () => {
     try {
       let res = await API.get(`/api/group/`);
-      setGroupOptions(res.data.data.map((group) => ({
-        key: group,
-        text: group,
-        value: group,
-      })));
+      setGroupOptions(
+        res.data.data.map((group) => ({
+          key: group,
+          text: group,
+          value: group,
+        }))
+      );
     } catch (error) {
       showError(error.message);
     }
   };
   const navigate = useNavigate();
   const handleCancel = () => {
-    navigate("/setting");
-  }
+    navigate('/setting');
+  };
   const loadUser = async () => {
     let res = undefined;
     if (userId) {
@@ -76,114 +88,123 @@ const EditUser = () => {
     }
     const { success, message } = res.data;
     if (success) {
-      showSuccess('用户信息更新成功！');
+      showSuccess(t('user.messages.update_success'));
     } else {
       showError(message);
     }
   };
 
   return (
-    <>
-      <Segment loading={loading}>
-        <Header as='h3'>更新用户信息</Header>
-        <Form autoComplete='new-password'>
-          <Form.Field>
-            <Form.Input
-              label='用户名'
-              name='username'
-              placeholder={'请输入新的用户名'}
-              onChange={handleInputChange}
-              value={username}
-              autoComplete='new-password'
-            />
-          </Form.Field>
-          <Form.Field>
-            <Form.Input
-              label='密码'
-              name='password'
-              type={'password'}
-              placeholder={'请输入新的密码，最短 8 位'}
-              onChange={handleInputChange}
-              value={password}
-              autoComplete='new-password'
-            />
-          </Form.Field>
-          <Form.Field>
-            <Form.Input
-              label='显示名称'
-              name='display_name'
-              placeholder={'请输入新的显示名称'}
-              onChange={handleInputChange}
-              value={display_name}
-              autoComplete='new-password'
-            />
-          </Form.Field>
-          {
-            userId && <>
-              <Form.Field>
-                <Form.Dropdown
-                  label='分组'
-                  placeholder={'请选择分组'}
-                  name='group'
-                  fluid
-                  search
-                  selection
-                  allowAdditions
-                  additionLabel={'请在系统设置页面编辑分组倍率以添加新的分组：'}
-                  onChange={handleInputChange}
-                  value={inputs.group}
-                  autoComplete='new-password'
-                  options={groupOptions}
-                />
-              </Form.Field>
-              <Form.Field>
-                <Form.Input
-                  label={`剩余额度${renderQuotaWithPrompt(quota)}`}
-                  name='quota'
-                  placeholder={'请输入新的剩余额度'}
-                  onChange={handleInputChange}
-                  value={quota}
-                  type={'number'}
-                  autoComplete='new-password'
-                />
-              </Form.Field>
-            </>
-          }
-          <Form.Field>
-            <Form.Input
-              label='已绑定的 GitHub 账户'
-              name='github_id'
-              value={github_id}
-              autoComplete='new-password'
-              placeholder='此项只读，需要用户通过个人设置页面的相关绑定按钮进行绑定，不可直接修改'
-              readOnly
-            />
-          </Form.Field>
-          <Form.Field>
-            <Form.Input
-              label='已绑定的微信账户'
-              name='wechat_id'
-              value={wechat_id}
-              autoComplete='new-password'
-              placeholder='此项只读，需要用户通过个人设置页面的相关绑定按钮进行绑定，不可直接修改'
-              readOnly
-            />
-          </Form.Field>
-          <Form.Field>
-            <Form.Input
-              label='已绑定的邮箱账户'
-              name='email'
-              value={email}
-              autoComplete='new-password'
-              placeholder='此项只读，需要用户通过个人设置页面的相关绑定按钮进行绑定，不可直接修改'
-              readOnly
-            />
-          </Form.Field>
-          <Button onClick={handleCancel}>取消</Button>
-          <Button positive onClick={submit}>提交</Button>
-        </Form>
-      </Segment>
-    </>
+    <div className='dashboard-container'>
+      <Card fluid className='chart-card'>
+        <Card.Content>
+          <Card.Header className='header'>{t('user.edit.title')}</Card.Header>
+          <Form loading={loading} autoComplete='new-password'>
+            <Form.Field>
+              <Form.Input
+                label={t('user.edit.username')}
+                name='username'
+                placeholder={t('user.edit.username_placeholder')}
+                onChange={handleInputChange}
+                value={username}
+                autoComplete='new-password'
+              />
+            </Form.Field>
+            <Form.Field>
+              <Form.Input
+                label={t('user.edit.password')}
+                name='password'
+                type={'password'}
+                placeholder={t('user.edit.password_placeholder')}
+                onChange={handleInputChange}
+                value={password}
+                autoComplete='new-password'
+              />
+            </Form.Field>
+            <Form.Field>
+              <Form.Input
+                label={t('user.edit.display_name')}
+                name='display_name'
+                placeholder={t('user.edit.display_name_placeholder')}
+                onChange={handleInputChange}
+                value={display_name}
+                autoComplete='new-password'
+              />
+            </Form.Field>
+            {userId && (
+              <>
+                <Form.Field>
+                  <Form.Dropdown
+                    label={t('user.edit.group')}
+                    placeholder={t('user.edit.group_placeholder')}
+                    name='group'
+                    fluid
+                    search
+                    selection
+                    allowAdditions
+                    additionLabel={t('user.edit.group_addition')}
+                    onChange={handleInputChange}
+                    value={inputs.group}
+                    autoComplete='new-password'
+                    options={groupOptions}
+                  />
+                </Form.Field>
+                <Form.Field>
+                  <Form.Input
+                    label={`${t('user.edit.quota')}${renderQuotaWithPrompt(
+                      quota,
+                      t
+                    )}`}
+                    name='quota'
+                    placeholder={t('user.edit.quota_placeholder')}
+                    onChange={handleInputChange}
+                    value={quota}
+                    type={'number'}
+                    autoComplete='new-password'
+                  />
+                </Form.Field>
+              </>
+            )}
+            <Form.Field>
+              <Form.Input
+                label={t('user.edit.github_id')}
+                name='github_id'
+                value={github_id}
+                autoComplete='new-password'
+                placeholder={t('user.edit.github_id_placeholder')}
+                readOnly
+              />
+            </Form.Field>
+            <Form.Field>
+              <Form.Input
+                label={t('user.edit.wechat_id')}
+                name='wechat_id'
+                value={wechat_id}
+                autoComplete='new-password'
+                placeholder={t('user.edit.wechat_id_placeholder')}
+                readOnly
+              />
+            </Form.Field>
+            <Form.Field>
+              <Form.Input
+                label={t('user.edit.email')}
+                name='email'
+                value={email}
+                autoComplete='new-password'
+                placeholder={t('user.edit.email_placeholder')}
+                readOnly
+              />
+            </Form.Field>
+            <Button onClick={handleCancel}>
+              {t('user.edit.buttons.cancel')}
+            </Button>
+            <Button positive onClick={submit}>
+              {t('user.edit.buttons.submit')}
+            </Button>
+          </Form>
+        </Card.Content>
+      </Card>
+    </div>
   );
 };
 

@@ -3,12 +3,14 @@ package model
 import (
 	"errors"
 	"fmt"
+
+	"gorm.io/gorm"
+
 	"github.com/songquanpeng/one-api/common"
 	"github.com/songquanpeng/one-api/common/config"
 	"github.com/songquanpeng/one-api/common/helper"
 	"github.com/songquanpeng/one-api/common/logger"
 	"github.com/songquanpeng/one-api/common/message"
-	"gorm.io/gorm"
 )
 
 const (
@@ -238,16 +240,31 @@ func PreConsumeTokenQuota(tokenId int, quota int64) (err error) {
 			if err != nil {
 				logger.SysError("failed to fetch user email: " + err.Error())
 			}
-			prompt := "您的额度即将用尽"
+			prompt := "额度提醒"
+			var contentText string
 			if noMoreQuota {
-				prompt = "您的额度已用尽"
+				contentText = "您的额度已用尽"
+			} else {
+				contentText = "您的额度即将用尽"
 			}
 			if email != "" {
 				topUpLink := fmt.Sprintf("%s/topup", config.ServerAddress)
-				err = message.SendEmail(prompt, email,
-					fmt.Sprintf("%s，当前剩余额度为 %d，为了不影响您的使用，请及时充值。<br/>充值链接：<a href='%s'>%s</a>", prompt, userQuota, topUpLink, topUpLink))
+				content := message.EmailTemplate(
+					prompt,
+					fmt.Sprintf(`
+						<p>您好！</p>
+						<p>%s，当前剩余额度为 <strong>%d</strong>。</p>
+						<p>为了不影响您的使用，请及时充值。</p>
+						<p style="text-align: center; margin: 30px 0;">
+							<a href="%s" style="background-color: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block;">立即充值</a>
+						</p>
+						<p style="color: #666;">如果按钮无法点击，请复制以下链接到浏览器中打开：</p>
+						<p style="background-color: #f8f8f8; padding: 10px; border-radius: 4px; word-break: break-all;">%s</p>
+					`, contentText, userQuota, topUpLink, topUpLink),
+				)
+				err = message.SendEmail(prompt, email, content)
 				if err != nil {
-					logger.SysError("failed to send email" + err.Error())
+					logger.SysError("failed to send email: " + err.Error())
 				}
 			}
 		}()

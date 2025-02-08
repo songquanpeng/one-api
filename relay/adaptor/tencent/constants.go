@@ -6,4 +6,5 @@ var ModelList = []string{
 	"hunyuan-standard-256K",
 	"hunyuan-pro",
 	"hunyuan-vision",
+	"hunyuan-embedding",
 }
