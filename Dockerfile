@@ -24,8 +24,7 @@ RUN apk add --no-cache \
 
 ENV GO111MODULE=on \
     CGO_ENABLED=1 \
-    GOOS=linux \
-    GOARCH=$TARGETARCH
+    GOOS=linux
 
 WORKDIR /build
 
