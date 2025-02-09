@@ -1,5 +1,6 @@
-import { Label } from 'semantic-ui-react';
-import { useTranslation } from 'react-i18next';
+import {Label, Message} from 'semantic-ui-react';
+import {getChannelOption} from './helper';
+import React from 'react';
 
 export function renderText(text, limit) {
   if (text.length > limit) {
@@ -96,5 +97,17 @@ export function renderColorLabel(text) {
     <Label basic color={colors[index]}>
       {text}
     </Label>
+  );
+}
+
+export function renderChannelTip(channelId) {
+  let channel = getChannelOption(channelId);
+  if (channel === undefined || channel.tip === undefined) {
+    return <></>;
+  }
+  return (
+      <Message>
+        <div dangerouslySetInnerHTML={{__html: channel.tip}}></div>
+      </Message>
   );
 }

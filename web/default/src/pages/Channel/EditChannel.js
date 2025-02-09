@@ -1,25 +1,10 @@
-import React, { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import {
-  Button,
-  Form,
-  Header,
-  Input,
-  Message,
-  Segment,
-  Card,
-} from 'semantic-ui-react';
-import { useNavigate, useParams } from 'react-router-dom';
-import {
-  API,
-  copy,
-  getChannelModels,
-  showError,
-  showInfo,
-  showSuccess,
-  verifyJSON,
-} from '../../helpers';
-import { CHANNEL_OPTIONS } from '../../constants';
+import React, {useEffect, useState} from 'react';
+import {useTranslation} from 'react-i18next';
+import {Button, Card, Form, Input, Message,} from 'semantic-ui-react';
+import {useNavigate, useParams} from 'react-router-dom';
+import {API, copy, getChannelModels, showError, showInfo, showSuccess, verifyJSON,} from '../../helpers';
+import {CHANNEL_OPTIONS} from '../../constants';
+import {renderChannelTip} from '../../helpers/render';
 
 const MODEL_MAPPING_EXAMPLE = {
   'gpt-3.5-turbo-0301': 'gpt-3.5-turbo',
@@ -310,6 +295,7 @@ const EditChannel = () => {
                 options={groupOptions}
               />
             </Form.Field>
+            {renderChannelTip(inputs.type)}
 
             {/* Azure OpenAI specific fields */}
             {inputs.type === 3 && (
