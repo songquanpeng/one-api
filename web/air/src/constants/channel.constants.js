@@ -7,7 +7,7 @@ export const CHANNEL_OPTIONS = [
   { key: 24, text: 'Google Gemini', value: 24, color: 'orange' },
   { key: 28, text: 'Mistral AI', value: 28, color: 'orange' },
   { key: 41, text: 'Novita', value: 41, color: 'purple' },
-  {key: 40, text: '火山引擎', value: 40, color: 'blue'},
+  {key: 40, text: '字节火山引擎', value: 40, color: 'blue'},
   { key: 15, text: '百度文心千帆', value: 15, color: 'blue' },
   { key: 17, text: '阿里通义千问', value: 17, color: 'orange' },
   { key: 18, text: '讯飞星火认知', value: 18, color: 'blue' },

@@ -9,7 +9,7 @@ export const CHANNEL_OPTIONS = [
   {key: 41, text: 'Novita', value: 41, color: 'purple'},
   {
     key: 40,
-    text: '火山引擎',
+    text: '字节火山引擎',
     value: 40,
     color: 'blue',
     description: '原字节跳动豆包',
