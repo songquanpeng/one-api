@@ -1,11 +1,12 @@
 package model
 
 type Message struct {
-	Role       string  `json:"role,omitempty"`
-	Content    any     `json:"content,omitempty"`
-	Name       *string `json:"name,omitempty"`
-	ToolCalls  []Tool  `json:"tool_calls,omitempty"`
-	ToolCallId string  `json:"tool_call_id,omitempty"`
+	Role             string  `json:"role,omitempty"`
+	Content          any     `json:"content,omitempty"`
+	ReasoningContent any     `json:"reasoning_content,omitempty"`
+	Name             *string `json:"name,omitempty"`
+	ToolCalls        []Tool  `json:"tool_calls,omitempty"`
+	ToolCallId       string  `json:"tool_call_id,omitempty"`
 }
 
 func (m Message) IsStringContent() bool {

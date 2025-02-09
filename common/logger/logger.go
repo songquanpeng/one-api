@@ -93,6 +93,9 @@ func Error(ctx context.Context, msg string) {
 }
 
 func Debugf(ctx context.Context, format string, a ...any) {
+	if !config.DebugEnabled {
+		return
+	}
 	logHelper(ctx, loggerDEBUG, fmt.Sprintf(format, a...))
 }
 
