@@ -3,6 +3,7 @@ package openai
 import (
 	"github.com/songquanpeng/one-api/relay/adaptor/ai360"
 	"github.com/songquanpeng/one-api/relay/adaptor/baichuan"
+	"github.com/songquanpeng/one-api/relay/adaptor/baiduv2"
 	"github.com/songquanpeng/one-api/relay/adaptor/deepseek"
 	"github.com/songquanpeng/one-api/relay/adaptor/doubao"
 	"github.com/songquanpeng/one-api/relay/adaptor/groq"
@@ -34,6 +35,7 @@ var CompatibleChannels = []int{
 	channeltype.Novita,
 	channeltype.SiliconFlow,
 	channeltype.XAI,
+	channeltype.BaiduV2,
 }
 
 func GetCompatibleChannelMeta(channelType int) (string, []string) {
@@ -68,6 +70,8 @@ func GetCompatibleChannelMeta(channelType int) (string, []string) {
 		return "siliconflow", siliconflow.ModelList
 	case channeltype.XAI:
 		return "xai", xai.ModelList
+	case channeltype.BaiduV2:
+		return "baiduv2", baiduv2.ModelList
 	default:
 		return "openai", ModelList
 	}

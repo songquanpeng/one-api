@@ -21,6 +21,13 @@ export const CHANNEL_OPTIONS = [
     color: 'blue',
     tip: '请前往<a href="https://console.bce.baidu.com/qianfan/ais/console/applicationConsole/application/v1" target="_blank">此处</a>获取 AK（API Key）以及 SK（Secret Key）',
   },
+  {
+    key: 47,
+    text: '百度文心千帆 V2',
+    value: 47,
+    color: 'blue',
+    tip: '请前往<a href="https://console.bce.baidu.com/iam/#/iam/apikey/list" target="_blank">此处</a>获取 API Key',
+  },
   {key: 17, text: '阿里通义千问', value: 17, color: 'orange'},
   {key: 18, text: '讯飞星火认知', value: 18, color: 'blue'},
   {key: 16, text: '智谱 ChatGLM', value: 16, color: 'violet'},

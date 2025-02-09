@@ -48,5 +48,6 @@ const (
 	SiliconFlow
 	XAI
 	Replicate
+	BaiduV2
 	Dummy
 )
