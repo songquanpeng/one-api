@@ -490,7 +490,6 @@ const ChannelsTable = () => {
               onClick={() => {
                 sortChannel('balance');
               }}
-              hidden={!showDetail}
             >
               {t('channel.table.balance')}
             </Table.HeaderCell>
@@ -499,6 +498,7 @@ const ChannelsTable = () => {
               onClick={() => {
                 sortChannel('priority');
               }}
+              hidden={!showDetail}
             >
               {t('channel.table.priority')}
             </Table.HeaderCell>
@@ -538,7 +538,7 @@ const ChannelsTable = () => {
                       basic
                     />
                   </Table.Cell>
-                  <Table.Cell hidden={!showDetail}>
+                  <Table.Cell>
                     <Popup
                       trigger={
                         <span
@@ -554,7 +554,7 @@ const ChannelsTable = () => {
                       basic
                     />
                   </Table.Cell>
-                  <Table.Cell>
+                  <Table.Cell hidden={!showDetail}>
                     <Popup
                       trigger={
                         <Input
