@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { Card, Grid } from 'semantic-ui-react';
+import React, {useEffect, useState} from 'react';
+import {useTranslation} from 'react-i18next';
+import {Card, Grid} from 'semantic-ui-react';
 import {
   Bar,
   BarChart,
@@ -122,11 +122,11 @@ const Dashboard = () => {
         ? new Date(Math.min(...dates.map((d) => new Date(d))))
         : new Date();
 
-    // 确保至少显示5天的数据
-    const fiveDaysAgo = new Date();
-    fiveDaysAgo.setDate(fiveDaysAgo.getDate() - 4); // -4是因为包含今天
-    if (minDate > fiveDaysAgo) {
-      minDate = fiveDaysAgo;
+    // 确保至少显示7天的数据
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6); // -6是因为包含今天
+    if (minDate > sevenDaysAgo) {
+      minDate = sevenDaysAgo;
     }
 
     // 生成所有日期
@@ -164,11 +164,11 @@ const Dashboard = () => {
         ? new Date(Math.min(...dates.map((d) => new Date(d))))
         : new Date();
 
-    // 确保至少显示5天的数据
-    const fiveDaysAgo = new Date();
-    fiveDaysAgo.setDate(fiveDaysAgo.getDate() - 4); // -4是因为包含今天
-    if (minDate > fiveDaysAgo) {
-      minDate = fiveDaysAgo;
+    // 确保至少显示7天的数据
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6); // -6是因为包含今天
+    if (minDate > sevenDaysAgo) {
+      minDate = sevenDaysAgo;
     }
 
     // 生成所有日期
