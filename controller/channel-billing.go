@@ -112,6 +112,13 @@ type DeepSeekUsageResponse struct {
 	} `json:"balance_infos"`
 }
 
+type OpenRouterResponse struct {
+	Data struct {
+		TotalCredits float64 `json:"total_credits"`
+		TotalUsage   float64 `json:"total_usage"`
+	} `json:"data"`
+}
+
 // GetAuthHeader get auth header
 func GetAuthHeader(token string) http.Header {
 	h := http.Header{}
@@ -285,6 +292,22 @@ func updateChannelDeepSeekBalance(channel *model.Channel) (float64, error) {
 	return balance, nil
 }
 
+func updateChannelOpenRouterBalance(channel *model.Channel) (float64, error) {
+	url := "https://openrouter.ai/api/v1/credits"
+	body, err := GetResponseBody("GET", url, channel, GetAuthHeader(channel.Key))
+	if err != nil {
+		return 0, err
+	}
+	response := OpenRouterResponse{}
+	err = json.Unmarshal(body, &response)
+	if err != nil {
+		return 0, err
+	}
+	balance := response.Data.TotalCredits - response.Data.TotalUsage
+	channel.UpdateBalance(balance)
+	return balance, nil
+}
+
 func updateChannelBalance(channel *model.Channel) (float64, error) {
 	baseURL := channeltype.ChannelBaseURLs[channel.Type]
 	if channel.GetBaseURL() == "" {
@@ -313,6 +336,8 @@ func updateChannelBalance(channel *model.Channel) (float64, error) {
 		return updateChannelSiliconFlowBalance(channel)
 	case channeltype.DeepSeek:
 		return updateChannelDeepSeekBalance(channel)
+	case channeltype.OpenRouter:
+		return updateChannelOpenRouterBalance(channel)
 	default:
 		return 0, errors.New("尚未实现")
 	}

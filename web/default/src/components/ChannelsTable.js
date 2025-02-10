@@ -57,6 +57,8 @@ function renderBalance(type, balance, t) {
       return <span>¥{balance.toFixed(2)}</span>;
     case 13: // AIGC2D
       return <span>{renderNumber(balance)}</span>;
+    case 20: // OpenRouter
+      return <span>${balance.toFixed(2)}</span>;
     case 36: // DeepSeek
       return <span>¥{balance.toFixed(2)}</span>;
     case 44: // SiliconFlow

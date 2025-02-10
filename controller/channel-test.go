@@ -153,6 +153,7 @@ func testChannel(ctx context.Context, channel *model.Channel, request *relaymode
 	rawResponse := w.Body.String()
 	_, responseMessage, err = parseTestResponse(rawResponse)
 	if err != nil {
+		logger.SysError(fmt.Sprintf("failed to parse error: %s, \nresponse: %s", err.Error(), rawResponse))
 		return "", err, nil
 	}
 	result := w.Result()
