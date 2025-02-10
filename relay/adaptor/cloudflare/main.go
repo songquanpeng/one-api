@@ -19,9 +19,8 @@ import (
 )
 
 func ConvertCompletionsRequest(textRequest model.GeneralOpenAIRequest) *Request {
-	p, _ := textRequest.Prompt.(string)
 	return &Request{
-		Prompt:      p,
+		Prompt:      textRequest.Prompt,
 		MaxTokens:   textRequest.MaxTokens,
 		Stream:      textRequest.Stream,
 		Temperature: textRequest.Temperature,

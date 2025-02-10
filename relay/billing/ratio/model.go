@@ -310,7 +310,7 @@ var ModelRatio = map[string]float64{
 	"command-r":             0.5 / 1000 * USD,
 	"command-r-plus":        3.0 / 1000 * USD,
 	// https://platform.deepseek.com/api-docs/pricing/
-	"deepseek-chat":     0.14 * MILLI_USD,
+	"deepseek-chat":     0.27 * MILLI_USD,
 	"deepseek-reasoner": 0.55 * MILLI_USD,
 	// https://www.deepl.com/pro?cta=header-prices
 	"deepl-zh": 25.0 / 1000 * USD,
@@ -371,7 +371,7 @@ var CompletionRatio = map[string]float64{
 	// whisper
 	"whisper-1": 0, // only count input tokens
 	// deepseek
-	"deepseek-chat":     0.28 / 0.14,
+	"deepseek-chat":     1.1 / 0.27,
 	"deepseek-reasoner": 2.19 / 0.55,
 }
 
@@ -524,9 +524,6 @@ func GetCompletionRatio(name string, channelType int) float64 {
 	}
 	if strings.HasPrefix(name, "gemini-") {
 		return 3
-	}
-	if strings.HasPrefix(name, "deepseek-") {
-		return 2
 	}
 
 	switch name {
