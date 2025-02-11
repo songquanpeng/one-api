@@ -50,6 +50,7 @@ var ChannelBaseURLs = []string{
 	"https://api.replicate.com/v1/models/",      // 46
 	"https://qianfan.baidubce.com",              // 47
 	"https://spark-api-open.xf-yun.com",         // 48
+	"https://dashscope.aliyuncs.com",            // 49
 }
 
 func init() {

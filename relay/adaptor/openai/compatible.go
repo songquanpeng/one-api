@@ -2,6 +2,7 @@ package openai
 
 import (
 	"github.com/songquanpeng/one-api/relay/adaptor/ai360"
+	"github.com/songquanpeng/one-api/relay/adaptor/alibailian"
 	"github.com/songquanpeng/one-api/relay/adaptor/baichuan"
 	"github.com/songquanpeng/one-api/relay/adaptor/baiduv2"
 	"github.com/songquanpeng/one-api/relay/adaptor/deepseek"
@@ -79,6 +80,8 @@ func GetCompatibleChannelMeta(channelType int) (string, []string) {
 		return "xunfeiv2", xunfeiv2.ModelList
 	case channeltype.OpenRouter:
 		return "openrouter", openrouter.ModelList
+	case channeltype.AliBailian:
+		return "alibailian", alibailian.ModelList
 	default:
 		return "openai", ModelList
 	}
