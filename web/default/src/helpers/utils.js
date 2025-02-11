@@ -1,7 +1,7 @@
-import { toast } from 'react-toastify';
-import { toastConstants } from '../constants';
+import {toast} from 'react-toastify';
+import {toastConstants} from '../constants';
 import React from 'react';
-import { API } from './api';
+import {API} from './api';
 
 const HTMLToastContent = ({ htmlContent }) => {
   return <div dangerouslySetInnerHTML={{ __html: htmlContent }} />;
@@ -74,6 +74,7 @@ if (isMobile()) {
 }
 
 export function showError(error) {
+  if (!error) return;
   console.error(error);
   if (error.message) {
     if (error.name === 'AxiosError') {
@@ -158,17 +159,7 @@ export function timestamp2string(timestamp) {
     second = '0' + second;
   }
   return (
-    year +
-    '-' +
-    month +
-    '-' +
-    day +
-    ' ' +
-    hour +
-    ':' +
-    minute +
-    ':' +
-    second
+      year + '-' + month + '-' + day + ' ' + hour + ':' + minute + ':' + second
   );
 }
 
@@ -193,7 +184,6 @@ export const verifyJSON = (str) => {
 export function shouldShowPrompt(id) {
   let prompt = localStorage.getItem(`prompt-${id}`);
   return !prompt;
-
 }
 
 export function setPromptShown(id) {
