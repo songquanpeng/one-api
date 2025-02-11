@@ -1,5 +1,5 @@
-import {Label, Message} from 'semantic-ui-react';
-import {getChannelOption} from './helper';
+import { Label, Message } from 'semantic-ui-react';
+import { getChannelOption } from './helper';
 import React from 'react';
 
 export function renderText(text, limit) {
@@ -16,7 +16,15 @@ export function renderGroup(group) {
   let groups = group.split(',');
   groups.sort();
   return (
-    <>
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        flexWrap: 'wrap',
+        gap: '2px',
+        rowGap: '6px',
+      }}
+    >
       {groups.map((group) => {
         if (group === 'vip' || group === 'pro') {
           return <Label color='yellow'>{group}</Label>;
@@ -25,7 +33,7 @@ export function renderGroup(group) {
         }
         return <Label>{group}</Label>;
       })}
-    </>
+    </div>
   );
 }
 
@@ -106,8 +114,8 @@ export function renderChannelTip(channelId) {
     return <></>;
   }
   return (
-      <Message>
-        <div dangerouslySetInnerHTML={{__html: channel.tip}}></div>
-      </Message>
+    <Message>
+      <div dangerouslySetInnerHTML={{ __html: channel.tip }}></div>
+    </Message>
   );
 }

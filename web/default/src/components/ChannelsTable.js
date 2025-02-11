@@ -1,7 +1,17 @@
-import React, {useEffect, useState} from 'react';
-import {useTranslation} from 'react-i18next';
-import {Button, Dropdown, Form, Input, Label, Message, Pagination, Popup, Table,} from 'semantic-ui-react';
-import {Link} from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import {
+  Button,
+  Dropdown,
+  Form,
+  Input,
+  Label,
+  Message,
+  Pagination,
+  Popup,
+  Table,
+} from 'semantic-ui-react';
+import { Link } from 'react-router-dom';
 import {
   API,
   loadChannelModels,
@@ -13,8 +23,8 @@ import {
   timestamp2string,
 } from '../helpers';
 
-import {CHANNEL_OPTIONS, ITEMS_PER_PAGE} from '../constants';
-import {renderGroup, renderNumber} from '../helpers/render';
+import { CHANNEL_OPTIONS, ITEMS_PER_PAGE } from '../constants';
+import { renderGroup, renderNumber } from '../helpers/render';
 
 function renderTimestamp(timestamp) {
   return <>{timestamp2string(timestamp)}</>;
@@ -108,7 +118,7 @@ const ChannelsTable = () => {
 
   const loadChannels = async (startIdx) => {
     const res = await API.get(`/api/channel/?p=${startIdx}`);
-    const {success, message, data} = res.data;
+    const { success, message, data } = res.data;
     if (success) {
       let localChannels = data.map(processChannelData);
       if (startIdx === 0) {
@@ -588,7 +598,15 @@ const ChannelsTable = () => {
                     />
                   </Table.Cell>
                   <Table.Cell>
-                    <div>
+                    <div
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        flexWrap: 'wrap',
+                        gap: '2px',
+                        rowGap: '6px',
+                      }}
+                    >
                       <Button
                         size={'tiny'}
                         positive
