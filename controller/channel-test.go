@@ -266,7 +266,7 @@ func testChannels(ctx context.Context, notify bool, scope string) error {
 		if notify {
 			err := message.Notify(message.ByAll, "渠道测试完成", "", "渠道测试完成，如果没有收到禁用通知，说明所有渠道都正常")
 			if err != nil {
-				logger.SysError(fmt.Sprintf("failed to send email: %s", err.Error()))
+				logger.SysError(fmt.Sprintf("failed to send notify: %s", err.Error()))
 			}
 		}
 	}()
