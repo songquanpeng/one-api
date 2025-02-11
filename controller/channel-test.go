@@ -251,10 +251,10 @@ func testChannels(ctx context.Context, notify bool, scope string) error {
 					_ = message.Notify(message.ByAll, fmt.Sprintf("渠道 %s （%d）测试超时", channel.Name, channel.Id), "", err.Error())
 				}
 			}
-			if isChannelEnabled && monitor.ShouldDisableChannel(openaiErr, -1) {
+			if isChannelEnabled && (err != nil || monitor.ShouldDisableChannel(openaiErr, -1)) {
 				monitor.DisableChannel(channel.Id, channel.Name, err.Error())
 			}
-			if !isChannelEnabled && monitor.ShouldEnableChannel(err, openaiErr) {
+			if !isChannelEnabled && (err == nil && monitor.ShouldEnableChannel(err, openaiErr)) {
 				monitor.EnableChannel(channel.Id, channel.Name)
 			}
 			channel.UpdateResponseTime(milliseconds)
