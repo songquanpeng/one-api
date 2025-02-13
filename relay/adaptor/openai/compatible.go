@@ -14,6 +14,7 @@ import (
 	"github.com/songquanpeng/one-api/relay/adaptor/moonshot"
 	"github.com/songquanpeng/one-api/relay/adaptor/novita"
 	"github.com/songquanpeng/one-api/relay/adaptor/openrouter"
+	"github.com/songquanpeng/one-api/relay/adaptor/ppio"
 	"github.com/songquanpeng/one-api/relay/adaptor/siliconflow"
 	"github.com/songquanpeng/one-api/relay/adaptor/stepfun"
 	"github.com/songquanpeng/one-api/relay/adaptor/togetherai"
@@ -40,6 +41,7 @@ var CompatibleChannels = []int{
 	channeltype.XAI,
 	channeltype.BaiduV2,
 	channeltype.XunfeiV2,
+	channeltype.PPIO,
 }
 
 func GetCompatibleChannelMeta(channelType int) (string, []string) {
@@ -82,6 +84,8 @@ func GetCompatibleChannelMeta(channelType int) (string, []string) {
 		return "openrouter", openrouter.ModelList
 	case channeltype.AliBailian:
 		return "alibailian", alibailian.ModelList
+	case channeltype.PPIO:
+		return "ppio", ppio.ModelList
 	default:
 		return "openai", ModelList
 	}

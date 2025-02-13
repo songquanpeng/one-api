@@ -3,6 +3,7 @@ package openai
 import (
 	"errors"
 	"fmt"
+	"github.com/songquanpeng/one-api/relay/adaptor/ppio"
 	"io"
 	"net/http"
 	"strings"
@@ -59,6 +60,8 @@ func (a *Adaptor) GetRequestURL(meta *meta.Meta) (string, error) {
 		return baiduv2.GetRequestURL(meta)
 	case channeltype.AliBailian:
 		return alibailian.GetRequestURL(meta)
+	case channeltype.PPIO:
+		return ppio.GetRequestURL(meta)
 	default:
 		return GetFullRequestURL(meta.BaseURL, meta.RequestURLPath, meta.ChannelType), nil
 	}
