@@ -201,7 +201,7 @@ export const CHANNEL_OPTIONS = {
     key: 50,
     text: 'PPIO',
     value: 50,
-    color: '#2874ff',
+    color: 'blue',
   },
   8: {
     key: 8,
