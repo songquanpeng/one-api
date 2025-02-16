@@ -52,5 +52,6 @@ const (
 	XunfeiV2
 	AliBailian
 	OpenAICompatible
+	GeminiOpenAICompatible
 	Dummy
 )
