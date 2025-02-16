@@ -51,5 +51,6 @@ const (
 	BaiduV2
 	XunfeiV2
 	AliBailian
+	OpenAICompatible
 	Dummy
 )

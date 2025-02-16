@@ -51,6 +51,7 @@ var ChannelBaseURLs = []string{
 	"https://qianfan.baidubce.com",              // 47
 	"https://spark-api-open.xf-yun.com",         // 48
 	"https://dashscope.aliyuncs.com",            // 49
+	"",                                          // 50
 }
 
 func init() {
