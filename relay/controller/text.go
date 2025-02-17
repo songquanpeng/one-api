@@ -33,6 +33,10 @@ func RelayTextHelper(c *gin.Context) *model.ErrorWithStatusCode {
 	}
 	meta.IsStream = textRequest.Stream
 
+	if reqBody, ok := c.Get(ctxkey.KeyRequestBody); ok {
+		logger.Debugf(c.Request.Context(), "get text request: %s\n", string(reqBody.([]byte)))
+	}
+
 	// map model name
 	meta.OriginModelName = textRequest.Model
 	textRequest.Model, _ = getMappedModelName(textRequest.Model, meta.ModelMapping)
