@@ -1,7 +1,7 @@
 package auth
 
 import (
-	"bytes"
+	"strings"
 	"encoding/json"
 	"errors"
 	"fmt"
