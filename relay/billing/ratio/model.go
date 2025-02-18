@@ -343,6 +343,9 @@ var ModelRatio = map[string]float64{
 	"deepl-ja": 25.0 / 1000 * USD,
 	// https://console.x.ai/
 	"grok-beta": 5.0 / 1000 * USD,
+	// vertex imagen3
+	// https://cloud.google.com/vertex-ai/generative-ai/pricing#imagen-models
+	"imagen-3.0-generate-001": 0.02 * USD,
 	// replicate charges based on the number of generated images
 	// https://replicate.com/pricing
 	"black-forest-labs/flux-1.1-pro":                0.04 * USD,

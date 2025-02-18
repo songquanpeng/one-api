@@ -38,6 +38,10 @@ type Meta struct {
 }
 
 func GetByContext(c *gin.Context) *Meta {
+	if v, ok := c.Get(ctxkey.Meta); ok {
+		return v.(*Meta)
+	}
+
 	meta := Meta{
 		Mode:               relaymode.GetByPath(c.Request.URL.Path),
 		ChannelType:        c.GetInt(ctxkey.Channel),
@@ -62,5 +66,11 @@ func GetByContext(c *gin.Context) *Meta {
 		meta.BaseURL = channeltype.ChannelBaseURLs[meta.ChannelType]
 	}
 	meta.APIType = channeltype.ToAPIType(meta.ChannelType)
+
+	Set2Context(c, &meta)
 	return &meta
+}
+
+func Set2Context(c *gin.Context, meta *Meta) {
+	c.Set(ctxkey.Meta, meta)
 }

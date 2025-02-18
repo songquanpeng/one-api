@@ -1,18 +1,20 @@
 package vertexai
 
 import (
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
+	"slices"
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/pkg/errors"
 	"github.com/songquanpeng/one-api/relay/adaptor"
 	channelhelper "github.com/songquanpeng/one-api/relay/adaptor"
+	"github.com/songquanpeng/one-api/relay/adaptor/vertexai/imagen"
 	"github.com/songquanpeng/one-api/relay/meta"
 	"github.com/songquanpeng/one-api/relay/model"
-	relaymodel "github.com/songquanpeng/one-api/relay/model"
+	relayModel "github.com/songquanpeng/one-api/relay/model"
 )
 
 var _ adaptor.Adaptor = new(Adaptor)
@@ -24,14 +26,27 @@ type Adaptor struct{}
 func (a *Adaptor) Init(meta *meta.Meta) {
 }
 
-func (a *Adaptor) ConvertRequest(c *gin.Context, relayMode int, request *model.GeneralOpenAIRequest) (any, error) {
-	if request == nil {
-		return nil, errors.New("request is nil")
+func (a *Adaptor) ConvertImageRequest(c *gin.Context, request *model.ImageRequest) (any, error) {
+	meta := meta.GetByContext(c)
+
+	if request.ResponseFormat != "b64_json" {
+		return nil, errors.New("only support b64_json response format")
 	}
 
-	adaptor := GetAdaptor(request.Model)
+	adaptor := GetAdaptor(meta.ActualModelName)
 	if adaptor == nil {
-		return nil, errors.New("adaptor not found")
+		return nil, errors.Errorf("cannot found vertex image adaptor for model %s", meta.ActualModelName)
+	}
+
+	return adaptor.ConvertImageRequest(c, request)
+}
+
+func (a *Adaptor) ConvertRequest(c *gin.Context, relayMode int, request *model.GeneralOpenAIRequest) (any, error) {
+	meta := meta.GetByContext(c)
+
+	adaptor := GetAdaptor(meta.ActualModelName)
+	if adaptor == nil {
+		return nil, errors.Errorf("cannot found vertex chat adaptor for model %s", meta.ActualModelName)
 	}
 
 	return adaptor.ConvertRequest(c, relayMode, request)
@@ -40,9 +55,9 @@ func (a *Adaptor) ConvertRequest(c *gin.Context, relayMode int, request *model.G
 func (a *Adaptor) DoResponse(c *gin.Context, resp *http.Response, meta *meta.Meta) (usage *model.Usage, err *model.ErrorWithStatusCode) {
 	adaptor := GetAdaptor(meta.ActualModelName)
 	if adaptor == nil {
-		return nil, &relaymodel.ErrorWithStatusCode{
+		return nil, &relayModel.ErrorWithStatusCode{
 			StatusCode: http.StatusInternalServerError,
-			Error: relaymodel.Error{
+			Error: relayModel.Error{
 				Message: "adaptor not found",
 			},
 		}
@@ -60,14 +75,19 @@ func (a *Adaptor) GetChannelName() string {
 }
 
 func (a *Adaptor) GetRequestURL(meta *meta.Meta) (string, error) {
-	suffix := ""
-	if strings.HasPrefix(meta.ActualModelName, "gemini") {
+	var suffix string
+	switch {
+	case strings.HasPrefix(meta.ActualModelName, "gemini"):
 		if meta.IsStream {
 			suffix = "streamGenerateContent?alt=sse"
 		} else {
 			suffix = "generateContent"
 		}
-	} else {
+	case slices.Contains(imagen.ModelList, meta.ActualModelName):
+		return fmt.Sprintf("https://%s-aiplatform.googleapis.com/v1/projects/%s/locations/%s/publishers/google/models/imagen-3.0-generate-001:predict",
+			meta.Config.Region, meta.Config.VertexAIProjectID, meta.Config.Region,
+		), nil
+	default:
 		if meta.IsStream {
 			suffix = "streamRawPredict?alt=sse"
 		} else {
@@ -85,6 +105,7 @@ func (a *Adaptor) GetRequestURL(meta *meta.Meta) (string, error) {
 			suffix,
 		), nil
 	}
+
 	return fmt.Sprintf(
 		"https://%s-aiplatform.googleapis.com/v1/projects/%s/locations/%s/publishers/google/models/%s:%s",
 		meta.Config.Region,
@@ -103,13 +124,6 @@ func (a *Adaptor) SetupRequestHeader(c *gin.Context, req *http.Request, meta *me
 	}
 	req.Header.Set("Authorization", "Bearer "+token)
 	return nil
-}
-
-func (a *Adaptor) ConvertImageRequest(request *model.ImageRequest) (any, error) {
-	if request == nil {
-		return nil, errors.New("request is nil")
-	}
-	return request, nil
 }
 
 func (a *Adaptor) DoRequest(c *gin.Context, meta *meta.Meta, requestBody io.Reader) (*http.Response, error) {

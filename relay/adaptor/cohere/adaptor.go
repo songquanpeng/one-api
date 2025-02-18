@@ -15,7 +15,7 @@ import (
 type Adaptor struct{}
 
 // ConvertImageRequest implements adaptor.Adaptor.
-func (*Adaptor) ConvertImageRequest(request *model.ImageRequest) (any, error) {
+func (*Adaptor) ConvertImageRequest(_ *gin.Context, request *model.ImageRequest) (any, error) {
 	return nil, errors.New("not implemented")
 }
 
