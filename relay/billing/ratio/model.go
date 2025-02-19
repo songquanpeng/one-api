@@ -763,7 +763,7 @@ func GetCompletionRatio(name string, channelType int) float64 {
 		}
 		return 2
 	}
-	// including o1, o1-preview, o1-mini
+	// including o1/o1-preview/o1-mini
 	if strings.HasPrefix(name, "o1") {
 		return 4
 	}

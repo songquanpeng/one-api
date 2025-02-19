@@ -33,16 +33,24 @@ func (a *Adaptor) Init(meta *meta.Meta) {
 func (a *Adaptor) GetRequestURL(meta *meta.Meta) (string, error) {
 	switch meta.ChannelType {
 	case channeltype.Azure:
+		defaultVersion := meta.Config.APIVersion
+
+		// https://learn.microsoft.com/en-us/azure/ai-services/openai/how-to/reasoning?tabs=python#api--feature-support
+		if strings.HasPrefix(meta.ActualModelName, "o1") ||
+			strings.HasPrefix(meta.ActualModelName, "o3") {
+			defaultVersion = "2024-12-01-preview"
+		}
+
 		if meta.Mode == relaymode.ImagesGenerations {
 			// https://learn.microsoft.com/en-us/azure/ai-services/openai/dall-e-quickstart?tabs=dalle3%2Ccommand-line&pivots=rest-api
 			// https://{resource_name}.openai.azure.com/openai/deployments/dall-e-3/images/generations?api-version=2024-03-01-preview
-			fullRequestURL := fmt.Sprintf("%s/openai/deployments/%s/images/generations?api-version=%s", meta.BaseURL, meta.ActualModelName, meta.Config.APIVersion)
+			fullRequestURL := fmt.Sprintf("%s/openai/deployments/%s/images/generations?api-version=%s", meta.BaseURL, meta.ActualModelName, defaultVersion)
 			return fullRequestURL, nil
 		}
 
 		// https://learn.microsoft.com/en-us/azure/cognitive-services/openai/chatgpt-quickstart?pivots=rest-api&tabs=command-line#rest-api
 		requestURL := strings.Split(meta.RequestURLPath, "?")[0]
-		requestURL = fmt.Sprintf("%s?api-version=%s", requestURL, meta.Config.APIVersion)
+		requestURL = fmt.Sprintf("%s?api-version=%s", requestURL, defaultVersion)
 		task := strings.TrimPrefix(requestURL, "/v1/")
 		model_ := meta.ActualModelName
 		model_ = strings.Replace(model_, ".", "", -1)
@@ -92,6 +100,23 @@ func (a *Adaptor) ConvertRequest(c *gin.Context, relayMode int, request *model.G
 		}
 		request.StreamOptions.IncludeUsage = true
 	}
+
+	// o1/o1-mini/o1-preview do not support system prompt/max_tokens/temperature
+	if strings.HasPrefix(request.Model, "o1") {
+		temperature := float64(1)
+		request.Temperature = &temperature // Only the default (1) value is supported
+		request.MaxTokens = 0
+		request.Messages = func(raw []model.Message) (filtered []model.Message) {
+			for i := range raw {
+				if raw[i].Role != "system" {
+					filtered = append(filtered, raw[i])
+				}
+			}
+
+			return
+		}(request.Messages)
+	}
+
 	return request, nil
 }
 
