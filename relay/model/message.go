@@ -1,12 +1,35 @@
 package model
 
 type Message struct {
-	Role             string  `json:"role,omitempty"`
-	Content          any     `json:"content,omitempty"`
-	ReasoningContent any     `json:"reasoning_content,omitempty"`
-	Name             *string `json:"name,omitempty"`
-	ToolCalls        []Tool  `json:"tool_calls,omitempty"`
-	ToolCallId       string  `json:"tool_call_id,omitempty"`
+	Role string `json:"role,omitempty"`
+	// Content is a string or a list of objects
+	Content    any           `json:"content,omitempty"`
+	Name       *string       `json:"name,omitempty"`
+	ToolCalls  []Tool        `json:"tool_calls,omitempty"`
+	ToolCallId string        `json:"tool_call_id,omitempty"`
+	Audio      *messageAudio `json:"audio,omitempty"`
+	// -------------------------------------
+	// Deepseek 专有的一些字段
+	// https://api-docs.deepseek.com/api/create-chat-completion
+	// -------------------------------------
+	// Prefix forces the model to begin its answer with the supplied prefix in the assistant message.
+	// To enable this feature, set base_url to "https://api.deepseek.com/beta".
+	Prefix *bool `json:"prefix,omitempty"` // ReasoningContent is Used for the deepseek-reasoner model in the Chat
+	// Prefix Completion feature as the input for the CoT in the last assistant message.
+	// When using this feature, the prefix parameter must be set to true.
+	ReasoningContent *string `json:"reasoning_content,omitempty"`
+	// -------------------------------------
+	// Openrouter
+	// -------------------------------------
+	Reasoning *string `json:"reasoning,omitempty"`
+	Refusal   *bool   `json:"refusal,omitempty"`
+}
+
+type messageAudio struct {
+	Id         string `json:"id"`
+	Data       string `json:"data,omitempty"`
+	ExpiredAt  int    `json:"expired_at,omitempty"`
+	Transcript string `json:"transcript,omitempty"`
 }
 
 func (m Message) IsStringContent() bool {

@@ -1,5 +1,7 @@
 package model
 
+import "github.com/songquanpeng/one-api/relay/adaptor/openrouter"
+
 type ResponseFormat struct {
 	Type       string      `json:"type,omitempty"`
 	JsonSchema *JSONSchema `json:"json_schema,omitempty"`
@@ -66,6 +68,11 @@ type GeneralOpenAIRequest struct {
 	// Others
 	Instruction string `json:"instruction,omitempty"`
 	NumCtx      int    `json:"num_ctx,omitempty"`
+	// -------------------------------------
+	// Openrouter
+	// -------------------------------------
+	Provider         *openrouter.RequestProvider `json:"provider,omitempty"`
+	IncludeReasoning *bool                       `json:"include_reasoning,omitempty"`
 }
 
 func (r GeneralOpenAIRequest) ParseInput() []string {

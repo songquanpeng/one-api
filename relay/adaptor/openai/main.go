@@ -8,12 +8,11 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/songquanpeng/one-api/common/render"
-
 	"github.com/gin-gonic/gin"
 	"github.com/songquanpeng/one-api/common"
 	"github.com/songquanpeng/one-api/common/conv"
 	"github.com/songquanpeng/one-api/common/logger"
+	"github.com/songquanpeng/one-api/common/render"
 	"github.com/songquanpeng/one-api/relay/model"
 	"github.com/songquanpeng/one-api/relay/relaymode"
 )
@@ -26,6 +25,7 @@ const (
 
 func StreamHandler(c *gin.Context, resp *http.Response, relayMode int) (*model.ErrorWithStatusCode, string, *model.Usage) {
 	responseText := ""
+	reasoningText := ""
 	scanner := bufio.NewScanner(resp.Body)
 	scanner.Split(bufio.ScanLines)
 	var usage *model.Usage
@@ -61,6 +61,10 @@ func StreamHandler(c *gin.Context, resp *http.Response, relayMode int) (*model.E
 			}
 			render.StringData(c, data)
 			for _, choice := range streamResponse.Choices {
+				if choice.Delta.Reasoning != nil {
+					reasoningText += *choice.Delta.Reasoning
+				}
+
 				responseText += conv.AsString(choice.Delta.Content)
 			}
 			if streamResponse.Usage != nil {
@@ -93,7 +97,7 @@ func StreamHandler(c *gin.Context, resp *http.Response, relayMode int) (*model.E
 		return ErrorWrapper(err, "close_response_body_failed", http.StatusInternalServerError), "", nil
 	}
 
-	return nil, responseText, usage
+	return nil, reasoningText + responseText, usage
 }
 
 func Handler(c *gin.Context, resp *http.Response, promptTokens int, modelName string) (*model.ErrorWithStatusCode, *model.Usage) {
@@ -147,5 +151,6 @@ func Handler(c *gin.Context, resp *http.Response, promptTokens int, modelName st
 			TotalTokens:      promptTokens + completionTokens,
 		}
 	}
+
 	return nil, &textResponse.Usage
 }
