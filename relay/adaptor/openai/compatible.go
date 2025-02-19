@@ -7,6 +7,7 @@ import (
 	"github.com/songquanpeng/one-api/relay/adaptor/baiduv2"
 	"github.com/songquanpeng/one-api/relay/adaptor/deepseek"
 	"github.com/songquanpeng/one-api/relay/adaptor/doubao"
+	"github.com/songquanpeng/one-api/relay/adaptor/geminiv2"
 	"github.com/songquanpeng/one-api/relay/adaptor/groq"
 	"github.com/songquanpeng/one-api/relay/adaptor/lingyiwanwu"
 	"github.com/songquanpeng/one-api/relay/adaptor/minimax"
@@ -84,6 +85,8 @@ func GetCompatibleChannelMeta(channelType int) (string, []string) {
 		return "openrouter", openrouter.ModelList
 	case channeltype.AliBailian:
 		return "alibailian", alibailian.ModelList
+	case channeltype.GeminiOpenAICompatible:
+		return "geminiv2", geminiv2.ModelList
 	case channeltype.PPIO:
 		return "ppio", ppio.ModelList
 	default:

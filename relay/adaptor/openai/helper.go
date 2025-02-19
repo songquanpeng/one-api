@@ -17,6 +17,9 @@ func ResponseText2Usage(responseText string, modelName string, promptTokens int)
 }
 
 func GetFullRequestURL(baseURL string, requestURL string, channelType int) string {
+	if channelType == channeltype.OpenAICompatible {
+		return fmt.Sprintf("%s%s", strings.TrimSuffix(baseURL, "/"), strings.TrimPrefix(requestURL, "/v1"))
+	}
 	fullRequestURL := fmt.Sprintf("%s%s", baseURL, requestURL)
 
 	if strings.HasPrefix(baseURL, "https://gateway.ai.cloudflare.com") {
