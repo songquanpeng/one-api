@@ -35,6 +35,12 @@ func StreamHandler(c *gin.Context, resp *http.Response, relayMode int) (*model.E
 	doneRendered := false
 	for scanner.Scan() {
 		data := scanner.Text()
+        // 确保前缀是 "data: {"（冒号后有空格）
+        if strings.HasPrefix(data, "data:{") {  // 检测无空格的情况
+            // 替换整个前缀
+            data = "data: {" + strings.TrimPrefix(data, "data:{")
+        }
+
 		if len(data) < dataPrefixLength { // ignore blank line or wrong format
 			continue
 		}
