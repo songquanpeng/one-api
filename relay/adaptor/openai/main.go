@@ -100,12 +100,6 @@ func StreamHandler(c *gin.Context, resp *http.Response, relayMode int) (*model.E
 		return ErrorWrapper(err, "close_response_body_failed", http.StatusInternalServerError), "", nil
 	}
 
-	// If there is no reasoning tokens in the completion, we should count the reasoning tokens in the response.
-	if len(reasoningText) > 0 &&
-		(usage.CompletionTokensDetails == nil || usage.CompletionTokensDetails.ReasoningTokens == 0) {
-		usage.CompletionTokens += CountToken(reasoningText)
-	}
-
 	return nil, reasoningText + responseText, usage
 }
 
@@ -149,10 +143,17 @@ func Handler(c *gin.Context, resp *http.Response, promptTokens int, modelName st
 		return ErrorWrapper(err, "close_response_body_failed", http.StatusInternalServerError), nil
 	}
 
-	if textResponse.Usage.TotalTokens == 0 || (textResponse.Usage.PromptTokens == 0 && textResponse.Usage.CompletionTokens == 0) {
+	if textResponse.Usage.TotalTokens == 0 ||
+		(textResponse.Usage.PromptTokens == 0 && textResponse.Usage.CompletionTokens == 0) {
 		completionTokens := 0
 		for _, choice := range textResponse.Choices {
 			completionTokens += CountTokenText(choice.Message.StringContent(), modelName)
+			if choice.Message.Reasoning != nil {
+				completionTokens += CountToken(*choice.Message.Reasoning)
+			}
+			if choice.ReasoningContent != nil {
+				completionTokens += CountToken(*choice.ReasoningContent)
+			}
 		}
 		textResponse.Usage = model.Usage{
 			PromptTokens:     promptTokens,
