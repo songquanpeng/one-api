@@ -9,6 +9,8 @@ import (
 
 func GetRequestURL(meta *meta.Meta) (string, error) {
 	switch meta.Mode {
+	case relaymode.Completions:
+		return fmt.Sprintf("%s/compatible-mode/v1/completions", meta.BaseURL), nil
 	case relaymode.ChatCompletions:
 		return fmt.Sprintf("%s/compatible-mode/v1/chat/completions", meta.BaseURL), nil
 	case relaymode.Embeddings:
