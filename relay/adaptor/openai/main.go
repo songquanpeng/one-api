@@ -64,6 +64,9 @@ func StreamHandler(c *gin.Context, resp *http.Response, relayMode int) (*model.E
 				if choice.Delta.Reasoning != nil {
 					reasoningText += *choice.Delta.Reasoning
 				}
+				if choice.Delta.ReasoningContent != nil {
+					reasoningText += *choice.Delta.ReasoningContent
+				}
 
 				responseText += conv.AsString(choice.Delta.Content)
 			}
@@ -95,6 +98,12 @@ func StreamHandler(c *gin.Context, resp *http.Response, relayMode int) (*model.E
 	err := resp.Body.Close()
 	if err != nil {
 		return ErrorWrapper(err, "close_response_body_failed", http.StatusInternalServerError), "", nil
+	}
+
+	// If there is no reasoning tokens in the completion, we should count the reasoning tokens in the response.
+	if len(reasoningText) > 0 &&
+		(usage.CompletionTokensDetails == nil || usage.CompletionTokensDetails.ReasoningTokens == 0) {
+		usage.CompletionTokens += CountToken(reasoningText)
 	}
 
 	return nil, reasoningText + responseText, usage
