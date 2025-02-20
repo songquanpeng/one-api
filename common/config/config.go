@@ -164,3 +164,6 @@ var UserContentRequestTimeout = env.Int("USER_CONTENT_REQUEST_TIMEOUT", 30)
 
 var EnforceIncludeUsage = env.Bool("ENFORCE_INCLUDE_USAGE", false)
 var TestPrompt = env.String("TEST_PROMPT", "Output only your specific model name with no additional text.")
+
+// OpenrouterProviderSort is used to determine the order of the providers in the openrouter
+var OpenrouterProviderSort = env.String("OPENROUTER_PROVIDER_SORT", "")

@@ -94,12 +94,13 @@ func (a *Adaptor) ConvertRequest(c *gin.Context, relayMode int, request *model.G
 	case channeltype.OpenRouter:
 		includeReasoning := true
 		request.IncludeReasoning = &includeReasoning
-		if request.Provider == nil || request.Provider.Sort == "" {
+		if request.Provider == nil || request.Provider.Sort == "" &&
+			config.OpenrouterProviderSort != "" {
 			if request.Provider == nil {
 				request.Provider = &openrouter.RequestProvider{}
 			}
 
-			request.Provider.Sort = "throughput"
+			request.Provider.Sort = config.OpenrouterProviderSort
 		}
 	default:
 	}
