@@ -1,11 +1,12 @@
 package auth
 
 import (
-	"bytes"
+	"strings"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
+	"net/url"
 	"strconv"
 	"time"
 
@@ -39,22 +40,18 @@ func getOidcUserInfoByCode(code string) (*OidcUser, error) {
 	if code == "" {
 		return nil, errors.New("无效的参数")
 	}
-	values := map[string]string{
-		"client_id":     config.OidcClientId,
-		"client_secret": config.OidcClientSecret,
-		"code":          code,
-		"grant_type":    "authorization_code",
-		"redirect_uri":  fmt.Sprintf("%s/oauth/oidc", config.ServerAddress),
-	}
-	jsonData, err := json.Marshal(values)
+	values := url.Values{}
+	values.Set("client_id", config.OidcClientId)
+	values.Set("client_secret", config.OidcClientSecret)
+	values.Set("code", code)
+	values.Set("grant_type", "authorization_code")
+	values.Set("redirect_uri", fmt.Sprintf("%s/oauth/oidc", config.ServerAddress))
+	formData := values.Encode()
+	req, err := http.NewRequest("POST", config.OidcTokenEndpoint, strings.NewReader(formData))
 	if err != nil {
 		return nil, err
 	}
-	req, err := http.NewRequest("POST", config.OidcTokenEndpoint, bytes.NewBuffer(jsonData))
-	if err != nil {
-		return nil, err
-	}
-	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	req.Header.Set("Accept", "application/json")
 	client := http.Client{
 		Timeout: 5 * time.Second,
