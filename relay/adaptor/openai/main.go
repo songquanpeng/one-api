@@ -41,9 +41,9 @@ func StreamHandler(c *gin.Context, resp *http.Response, relayMode int) (*model.E
 		if data[:dataPrefixLength] != dataPrefix && data[:dataPrefixLength] != done {
 			continue
         } else {
-            payload := strings.TrimLeft(data[len(dataPrefix):], " ")
+            payload := strings.TrimLeft(data[dataPrefixLength:], " ")
             // 这里处理标准的data:开头，标准化为 data: + 单空格格式
-            data = dataPrefix + " " + strings.TrimLeft(data[len(dataPrefix):], " ")
+            data = dataPrefix + " " + strings.TrimLeft(payload, " ")
             if strings.HasPrefix(payload, done) {
                 render.StringData(c, data)
                 doneRendered = true
