@@ -35,23 +35,20 @@ func StreamHandler(c *gin.Context, resp *http.Response, relayMode int) (*model.E
 	doneRendered := false
 	for scanner.Scan() {
 		data := scanner.Text()
-        // 确保前缀是 "data: {"（冒号后有空格）
-        if strings.HasPrefix(data, "data:{") {  // 检测无空格的情况
-            // 替换整个前缀
-            data = "data: {" + strings.TrimPrefix(data, "data:{")
-        }
-
 		if len(data) < dataPrefixLength { // ignore blank line or wrong format
 			continue
 		}
-		if data[:dataPrefixLength] != dataPrefix && data[:dataPrefixLength] != done {
-			continue
-		}
-		if strings.HasPrefix(data[dataPrefixLength:], done) {
-			render.StringData(c, data)
-			doneRendered = true
-			continue
-		}
+        if data[:dataPrefixLength] != dataPrefix {
+            if strings.HasPrefix(data, done) {
+                render.StringData(c, data)
+                doneRendered = true
+                continue
+            }
+            continue
+        } else {
+            // 这里处理标准的data:开头，标准化为 data: + 单空格格式
+            data = dataPrefix + " " + strings.TrimLeft(data[len(dataPrefix):], " ")
+        }
 		switch relayMode {
 		case relaymode.ChatCompletions:
 			var streamResponse ChatCompletionsStreamResponse
