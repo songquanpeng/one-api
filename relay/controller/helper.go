@@ -102,6 +102,9 @@ func postConsumeQuota(ctx context.Context, usage *relaymodel.Usage, meta *meta.M
 	var quota int64
 	completionRatio := billingratio.GetCompletionRatio(textRequest.Model, meta.ChannelType)
 	promptTokens := usage.PromptTokens
+	// It appears that DeepSeek's official service automatically merges ReasoningTokens into CompletionTokens,
+	// but the behavior of third-party providers may differ, so for now we do not add them manually.
+	// completionTokens := usage.CompletionTokens + usage.CompletionTokensDetails.ReasoningTokens
 	completionTokens := usage.CompletionTokens
 	quota = int64(math.Ceil((float64(promptTokens) + float64(completionTokens)*completionRatio) * ratio))
 	if ratio != 0 && quota <= 0 {
