@@ -2,7 +2,7 @@ version: '3.4'
 
 services:
   one-api:
-    image: "${REGISTRY:-docker.io}/justsong/one-api:latest"
+    image: justsong/one-api:latest
     container_name: one-api
     restart: always
     command: --log-dir /app/logs
@@ -12,7 +12,8 @@ services:
       - ./data/oneapi:/data
       - ./logs:/app/logs
     environment:
-      - SQL_DSN=oneapi:123456@tcp(db:3306)/one-api  # 修改此行，或注释掉以使用 SQLite 作为数据库
+#      - SQL_DSN=oneapi:123456@tcp(db:3306)/one-api  # 修改此行，或注释掉以使用 SQLite 作为数据库
+      - SQL_DSN=postgres://oneapi:123456@db:5432/one-api
       - REDIS_CONN_STRING=redis://redis
       - SESSION_SECRET=random_string  # 修改为随机字符串
       - TZ=Asia/Shanghai
@@ -30,21 +31,20 @@ services:
       retries: 3
 
   redis:
-    image: "${REGISTRY:-docker.io}/redis:latest"
+    image: redis:latest
     container_name: redis
     restart: always
 
   db:
-    image: "${REGISTRY:-docker.io}/mysql:8.2.0"
+    image: postgres:16.1-alpine3.19 # 数据库版本
     restart: always
-    container_name: mysql
+    container_name: postgres  # 容器名
     volumes:
-      - ./data/mysql:/var/lib/mysql  # 挂载目录，持久化存储
+      - ./data/postgres:/var/lib/postgresql/data  #挂载目录，持久化存储
     ports:
-      - '3306:3306'
+      - '5432:5432'
     environment:
-      TZ: Asia/Shanghai   # 设置时区
-      MYSQL_ROOT_PASSWORD: 'OneAPI@justsong' # 设置 root 用户的密码
-      MYSQL_USER: oneapi   # 创建专用用户
-      MYSQL_PASSWORD: '123456'    # 设置专用用户密码
-      MYSQL_DATABASE: one-api   # 自动创建数据库
+      POSTGRES_USER: 'oneapi'
+      POSTGRES_PASSWORD: '123456'   # 设置用户密码
+      POSTGRES_DB: 'one-api'
+      PGDATA: '/var/lib/postgresql/data/pgdata'  # 设置数据目录
