@@ -19,7 +19,7 @@ import (
 )
 
 const (
-	dataPrefix       = "data: "
+	dataPrefix       = "data:"
 	done             = "[DONE]"
 	dataPrefixLength = len(dataPrefix)
 )
@@ -38,15 +38,17 @@ func StreamHandler(c *gin.Context, resp *http.Response, relayMode int) (*model.E
 		if len(data) < dataPrefixLength { // ignore blank line or wrong format
 			continue
 		}
-        if data[:dataPrefixLength] != dataPrefix {
-            if strings.HasPrefix(data, done) {
-                render.StringData(c, data)
-                doneRendered = true
-            }
-            continue
+		if data[:dataPrefixLength] != dataPrefix && data[:dataPrefixLength] != done {
+			continue
         } else {
+            payload := strings.TrimLeft(data[len(dataPrefix):], " ")
             // 这里处理标准的data:开头，标准化为 data: + 单空格格式
             data = dataPrefix + " " + strings.TrimLeft(data[len(dataPrefix):], " ")
+            if strings.HasPrefix(payload, done) {
+                render.StringData(c, data)
+                doneRendered = true
+                continue
+            }
         }
 		switch relayMode {
 		case relaymode.ChatCompletions:
