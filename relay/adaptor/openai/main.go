@@ -42,7 +42,6 @@ func StreamHandler(c *gin.Context, resp *http.Response, relayMode int) (*model.E
             if strings.HasPrefix(data, done) {
                 render.StringData(c, data)
                 doneRendered = true
-                continue
             }
             continue
         } else {
