@@ -21,3 +21,11 @@ func ErrorWrapper(err error, code string, statusCode int) *model.ErrorWithStatus
 		StatusCode: statusCode,
 	}
 }
+
+func NormalizeDataLine(data string) string {
+	if strings.HasPrefix(data, "data:") {
+		content := strings.TrimLeft(data[len("data:"):], " ")
+		return "data: " + content
+	}
+	return data
+}

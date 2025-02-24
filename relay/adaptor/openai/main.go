@@ -34,7 +34,7 @@ func StreamHandler(c *gin.Context, resp *http.Response, relayMode int) (*model.E
 
 	doneRendered := false
 	for scanner.Scan() {
-		data := scanner.Text()
+		data := NormalizeDataLine(scanner.Text())
 		if len(data) < dataPrefixLength { // ignore blank line or wrong format
 			continue
 		}
