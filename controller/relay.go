@@ -96,9 +96,15 @@ func Relay(c *gin.Context) {
 
 		// BUG: bizErr is in race condition
 		bizErr.Error.Message = helper.MessageWithRequestId(bizErr.Error.Message, requestId)
-		c.JSON(bizErr.StatusCode, gin.H{
-			"error": bizErr.Error,
-		})
+		if bizErr.StatusCode < 500 || bizErr.StatusCode >= 100 {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": bizErr.Error,
+			})
+		} else {
+			c.JSON(bizErr.StatusCode, gin.H{
+				"error": bizErr.Error,
+			})
+		}
 	}
 }
 
