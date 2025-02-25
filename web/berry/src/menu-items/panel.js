@@ -8,11 +8,12 @@ import {
   IconKey,
   IconGardenCart,
   IconUser,
-  IconUserScan
+  IconUserScan,
+  IconFileTextAi
 } from '@tabler/icons-react';
 
 // constant
-const icons = { IconDashboard, IconSitemap, IconArticle, IconCoin, IconAdjustments, IconKey, IconGardenCart, IconUser, IconUserScan };
+const icons = { IconDashboard, IconSitemap, IconArticle, IconCoin, IconAdjustments, IconKey, IconGardenCart, IconUser, IconUserScan,IconFileTextAi };
 
 // ==============================|| DASHBOARD MENU ITEMS ||============================== //
 
@@ -28,6 +29,14 @@ const panel = {
       icon: icons.IconDashboard,
       breadcrumbs: false,
       isAdmin: false
+    },
+    {
+      id: 'chat',
+      title: '聊天',
+      type: 'item',
+      url: '/panel/chat',
+      icon: icons.IconFileTextAi,
+      breadcrumbs: false
     },
     {
       id: 'channel',
