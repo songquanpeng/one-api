@@ -19,6 +19,7 @@ var ModelList = []string{
 	"claude-3-5-sonnet@20240620",
 	"claude-3-5-sonnet-v2@20241022",
 	"claude-3-5-haiku@20241022",
+	"claude-3-7-sonnet@20250219",
 }
 
 const anthropicVersion = "vertex-2023-10-16"
