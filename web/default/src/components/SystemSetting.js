@@ -172,12 +172,12 @@ const SystemSetting = () => {
   const submitEmailDomainWhitelist = async () => {
     if (
       originInputs['EmailDomainWhitelist'] !==
-        inputs.EmailDomainWhitelist.join(',') &&
+      EmailDomainWhitelist.map(item => item.key).join(',') &&
       inputs.SMTPToken !== ''
     ) {
       await updateOption(
         'EmailDomainWhitelist',
-        inputs.EmailDomainWhitelist.join(',')
+        EmailDomainWhitelist.map(item => item.key).join(',')
       );
     }
   };
