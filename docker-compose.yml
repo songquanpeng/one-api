@@ -19,6 +19,7 @@ services:
 #      - NODE_TYPE=slave  # 多机部署时从节点取消注释该行
 #      - SYNC_FREQUENCY=60  # 需要定期从数据库加载数据时取消注释该行
 #      - FRONTEND_BASE_URL=https://openai.justsong.cn  # 多机部署时从节点取消注释该行
+      - THEME=berry # 使用berry主题，注销该行使用默认主题
     depends_on:
       - redis
       - db
