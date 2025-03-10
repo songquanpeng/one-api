@@ -131,7 +131,11 @@ const Dashboard = () => {
 
     // 生成所有日期
     for (let d = new Date(minDate); d <= maxDate; d.setDate(d.getDate() + 1)) {
-      const dateStr = d.toISOString().split('T')[0];
+      // 手动提取年月日，确保使用本地时区
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0'); // 月份从 0 开始，需要 +1
+      const day = String(d.getDate()).padStart(2, '0');
+      const dateStr = `${year}-${month}-${day}`;
       dailyData[dateStr] = {
         date: dateStr,
         requests: 0,
@@ -142,9 +146,12 @@ const Dashboard = () => {
 
     // 填充实际数据
     data.forEach((item) => {
-      dailyData[item.Day].requests += item.RequestCount;
-      dailyData[item.Day].quota += item.Quota / 1000000;
-      dailyData[item.Day].tokens += item.PromptTokens + item.CompletionTokens;
+      const data = dailyData[item.Day];
+      if (data) {
+        data.requests += item.RequestCount;
+        data.quota += item.Quota / 1000000;
+        data.tokens += item.PromptTokens + item.CompletionTokens;
+      }
     });
 
     return Object.values(dailyData).sort((a, b) =>
@@ -173,7 +180,11 @@ const Dashboard = () => {
 
     // 生成所有日期
     for (let d = new Date(minDate); d <= maxDate; d.setDate(d.getDate() + 1)) {
-      const dateStr = d.toISOString().split('T')[0];
+       // 手动提取年月日，确保使用 本地时区
+       const year = d.getFullYear();
+       const month = String(d.getMonth() + 1).padStart(2, '0'); // 月份从 0 开始，需要 +1
+       const day = String(d.getDate()).padStart(2, '0');
+       const dateStr = `${year}-${month}-${day}`;
       timeData[dateStr] = {
         date: dateStr,
       };
@@ -187,8 +198,11 @@ const Dashboard = () => {
 
     // 填充实际数据
     data.forEach((item) => {
-      timeData[item.Day][item.ModelName] =
+      const data = timeData[item.Day];
+      if (data) {
+        data[item.ModelName] =
         item.PromptTokens + item.CompletionTokens;
+      }
     });
 
     return Object.values(timeData).sort((a, b) => a.date.localeCompare(b.date));
