@@ -1,6 +1,7 @@
 package client
 
 import (
+	"crypto/tls"
 	"fmt"
 	"github.com/songquanpeng/one-api/common/config"
 	"github.com/songquanpeng/one-api/common/logger"
@@ -14,6 +15,12 @@ var ImpatientHTTPClient *http.Client
 var UserContentRequestHTTPClient *http.Client
 
 func Init() {
+	// skip tls verify
+	unsafeTlsConfig := &tls.Config{InsecureSkipVerify: true}
+	if config.SkipTlsVerify {
+		http.DefaultTransport.(*http.Transport).TLSClientConfig = unsafeTlsConfig
+	}
+
 	if config.UserContentRequestProxy != "" {
 		logger.SysLog(fmt.Sprintf("using %s as proxy to fetch user content", config.UserContentRequestProxy))
 		proxyURL, err := url.Parse(config.UserContentRequestProxy)
@@ -39,6 +46,9 @@ func Init() {
 		}
 		transport = &http.Transport{
 			Proxy: http.ProxyURL(proxyURL),
+		}
+		if config.SkipTlsVerify {
+			transport.(*http.Transport).TLSClientConfig = unsafeTlsConfig
 		}
 	}
 

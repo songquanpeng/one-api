@@ -162,5 +162,7 @@ var RelayProxy = env.String("RELAY_PROXY", "")
 var UserContentRequestProxy = env.String("USER_CONTENT_REQUEST_PROXY", "")
 var UserContentRequestTimeout = env.Int("USER_CONTENT_REQUEST_TIMEOUT", 30)
 
+var SkipTlsVerify = env.Bool("SKIP_TLS_VERIFY", false)
+
 var EnforceIncludeUsage = env.Bool("ENFORCE_INCLUDE_USAGE", false)
 var TestPrompt = env.String("TEST_PROMPT", "Output only your specific model name with no additional text.")
