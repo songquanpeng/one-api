@@ -13,4 +13,5 @@ const (
 	AudioTranslation
 	// Proxy is a special relay mode for proxying requests to custom upstream
 	Proxy
+	Rerank
 )
