@@ -3,7 +3,7 @@ import {useTranslation} from 'react-i18next';
 import {Button, Card, Form, Input, Message} from 'semantic-ui-react';
 import {useNavigate, useParams} from 'react-router-dom';
 import {API, copy, getChannelModels, showError, showInfo, showSuccess, verifyJSON,} from '../../helpers';
-import {CHANNEL_OPTIONS} from '../../constants';
+import {CHANNEL_OPTIONS, COZE_AUTH_OPTIONS} from '../../constants';
 import {renderChannelTip} from '../../helpers/render';
 
 const MODEL_MAPPING_EXAMPLE = {
@@ -11,6 +11,15 @@ const MODEL_MAPPING_EXAMPLE = {
   'gpt-4-0314': 'gpt-4',
   'gpt-4-32k-0314': 'gpt-4-32k',
 };
+
+const OAUTH_JWT_CONFIG_EXAMPLE = {
+  "client_type": "jwt",
+  "client_id": "123456789",
+  "coze_www_base": "https://www.coze.cn",
+  "coze_api_base": "https://api.coze.cn",
+  "private_key": "-----BEGIN PRIVATE KEY-----\n***\n-----END PRIVATE KEY-----",
+  "public_key_id": "***********************************************************"
+}
 
 function type2secretPrompt(type, t) {
   switch (type) {
@@ -64,6 +73,7 @@ const EditChannel = () => {
     user_id: '',
     vertex_ai_project_id: '',
     vertex_ai_adc: '',
+    auth_type: 'personal_access_token',
   });
   const handleInputChange = (e, { name, value }) => {
     setInputs((inputs) => ({ ...inputs, [name]: value }));
@@ -191,6 +201,36 @@ const EditChannel = () => {
       showInfo(t('channel.edit.messages.model_mapping_invalid'));
       return;
     }
+
+    if (inputs.type === 34 && config.auth_type === 'oauth_config') {
+      if (!verifyJSON(inputs.key)) {
+        showInfo(t('channel.edit.messages.oauth_config_invalid_format'));
+        return;
+      }
+      
+      try {
+        const oauthConfig = JSON.parse(inputs.key);
+        const requiredFields = [
+          'client_type',
+          'client_id',
+          'coze_www_base',
+          'coze_api_base',
+          'private_key',
+          'public_key_id'
+        ];
+        
+        for (const field of requiredFields) {
+          if (!oauthConfig.hasOwnProperty(field)) {
+            showInfo(t('channel.edit.messages.oauth_config_missing_field', { field }));
+            return;
+          }
+        }
+      } catch (error) {
+        showInfo(t('channel.edit.messages.oauth_config_parse_error', { error: error.message }));
+        return;
+      }
+    }
+    
     let localInputs = { ...inputs };
     if (localInputs.key === 'undefined|undefined|undefined') {
       localInputs.key = ''; // prevent potential bug
@@ -521,6 +561,55 @@ const EditChannel = () => {
                 </Form.Field>
               </>
             )}
+            {/* Move Coze authentication type selection and input fields here */}
+            {inputs.type === 34 && (
+              <>
+                <Form.Field>
+                  <Form.Select
+                    label={t('channel.edit.coze_auth_type')}
+                    name="auth_type"
+                    options={COZE_AUTH_OPTIONS.map(option => ({
+                      ...option,
+                      text: t(`channel.edit.coze_auth_options.${option.text}`)
+                    }))}
+                    value={config.auth_type}
+                    onChange={(e, { name, value }) => handleConfigChange(e, { name, value })}
+                  />
+                </Form.Field>
+                {config.auth_type === 'personal_access_token' ? (
+                  <Form.Field>
+                    <Form.Input
+                      label={t('channel.edit.key')}
+                      name='key'
+                      required
+                      placeholder={t('channel.edit.key_prompts.default')}
+                      onChange={handleInputChange}
+                      value={inputs.key}
+                      autoComplete='new-password'
+                    />
+                  </Form.Field>
+                ) : (
+                  <Form.Field>
+                    <Form.TextArea
+                      label={t('channel.edit.oauth_jwt_config')}
+                      name="key"
+                      required
+                      placeholder={`${t(
+                          'channel.edit.oauth_jwt_config_placeholder'
+                      )}\n${JSON.stringify(OAUTH_JWT_CONFIG_EXAMPLE, null, 2)}`}
+                      onChange={handleInputChange}
+                      value={inputs.key}
+                      style={{
+                        minHeight: 150,
+                        fontFamily: 'JetBrains Mono, Consolas',
+                      }}
+                      autoComplete='new-password'
+                    />
+                  </Form.Field>
+                )}
+              </>
+            )}
+            
             {inputs.type === 33 && (
               <Form.Field>
                 <Form.Input
@@ -596,6 +685,7 @@ const EditChannel = () => {
             )}
             {inputs.type !== 33 &&
               inputs.type !== 42 &&
+              inputs.type !== 34 &&
               (batch ? (
                 <Form.Field>
                   <Form.TextArea

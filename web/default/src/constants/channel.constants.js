@@ -106,3 +106,8 @@ export const CHANNEL_OPTIONS = [
   { key: 12, text: '代理：API2GPT', value: 12, color: 'blue' },
   { key: 13, text: '代理：AIGC2D', value: 13, color: 'purple' },
 ];
+
+export const COZE_AUTH_OPTIONS = [
+  {key: 'personal_access_token', text: 'personal_access_token', value: 'personal_access_token'},
+  {key: 'oauth_jwt', text: 'oauth_jwt', value: 'oauth_jwt' },
+];

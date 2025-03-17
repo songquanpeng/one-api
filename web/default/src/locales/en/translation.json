@@ -112,6 +112,13 @@
       "key_placeholder": "Please enter key",
       "batch": "Batch Create",
       "batch_placeholder": "Please enter keys, one per line",
+      "coze_auth_type": "Authentication Type",
+      "coze_auth_options": {
+        "personal_access_token": "Personal Access Token",
+        "oauth_jwt": "OAuth JWT"
+      },
+      "oauth_jwt_config": "OAuth JWT Config",
+      "oauth_jwt_config_placeholder": "Please enter OAuth JWT Config information",
       "buttons": {
         "cancel": "Cancel",
         "submit": "Submit",
@@ -126,7 +133,10 @@
         "models_required": "Please select at least one model!",
         "model_mapping_invalid": "Model mapping must be valid JSON format!",
         "update_success": "Channel updated successfully!",
-        "create_success": "Channel created successfully!"
+        "create_success": "Channel created successfully!",
+        "oauth_jwt_config_invalid_format": "OAuth JWT Config must be valid JSON format!",
+        "oauth_jwt_config_missing_field": "OAuth JWT Config is missing required field: {{field}}!",
+        "oauth_jwt_config_parse_error": "OAuth JWT Config parse failed: {{error}}!"
       },
       "spark_version": "Model Version",
       "spark_version_placeholder": "Please enter Spark model version from API URL, e.g.: v2.1",

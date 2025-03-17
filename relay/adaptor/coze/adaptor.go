@@ -26,7 +26,15 @@ func (a *Adaptor) GetRequestURL(meta *meta.Meta) (string, error) {
 
 func (a *Adaptor) SetupRequestHeader(c *gin.Context, req *http.Request, meta *meta.Meta) error {
 	adaptor.SetupCommonRequestHeader(c, req, meta)
-	req.Header.Set("Authorization", "Bearer "+meta.APIKey)
+	var err error
+	APIKey := meta.APIKey
+	if meta.Config.AuthType == OAuthJWT {
+		APIKey, err = getOAuthToken(meta.APIKey)
+		if err != nil {
+			return err
+		}
+	}
+	req.Header.Set("Authorization", "Bearer "+APIKey)
 	return nil
 }
 

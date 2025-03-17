@@ -112,6 +112,13 @@
       "key_placeholder": "请输入密钥",
       "batch": "批量创建",
       "batch_placeholder": "请输入密钥，一行一个",
+      "coze_auth_type": "鉴权方式",
+      "coze_auth_options": {
+        "personal_access_token": "个人访问令牌",
+        "oauth_jwt": "OAuth JWT"
+      },
+      "oauth_jwt_config": "OAuth JWT Config",
+      "oauth_jwt_config_placeholder": "请输入 OAuth JWT Config 配置信息",
       "buttons": {
         "cancel": "取消",
         "submit": "提交",
@@ -126,7 +133,10 @@
         "models_required": "请至少选择一个模型！",
         "model_mapping_invalid": "模型映射必须是合法的 JSON 格式！",
         "update_success": "渠道更新成功！",
-        "create_success": "渠道创建成功！"
+        "create_success": "渠道创建成功！",
+        "oauth_jwt_config_invalid_format": "OAuth JWT Config 必须是是合法的 JSON 格式！",
+        "oauth_jwt_config_missing_field": "OAuth JWT Config 缺少必需的字段: {{field}}",
+        "oauth_jwt_config_parse_error": "OAuth JWT Config 解析失败: {{error}}"
       },
       "spark_version": "模型版本",
       "spark_version_placeholder": "请输入星火大模型版本，注意是接口地址中的版本号，例如：v2.1",
