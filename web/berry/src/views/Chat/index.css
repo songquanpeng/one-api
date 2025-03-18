@@ -1,0 +1,28 @@
+.MuiContainer-root {
+    padding-left: 0;
+    padding-right: 0;
+    height: calc(100% - 1px);
+    max-width: unset;
+}
+
+.css-1xnbu7n-MuiContainer-root {
+    /* 如果有特定样式，请在此处添加 */
+}
+
+.css-9d4wr9 {
+    background-color: #eef2f6;
+    width: 100%;
+    min-height: calc(100vh - 88px);
+    flex-grow: 1;
+    padding: 0;
+    margin-top: 83.746px;
+    margin-right: 0;
+    border-radius: 12px;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    transition: margin 225ms cubic-bezier(0.0, 0, 0.2, 1) 0ms;
+}
+
+.chat-container {
+    height: 100%;
+}

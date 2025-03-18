@@ -3,6 +3,7 @@ import { lazy } from 'react';
 // project imports
 import MainLayout from 'layout/MainLayout';
 import Loadable from 'ui-component/Loadable';
+import Chat from "../views/Chat";
 
 const Channel = Loadable(lazy(() => import('views/Channel')));
 const Log = Loadable(lazy(() => import('views/Log')));
@@ -30,6 +31,10 @@ const MainRoutes = {
     {
       path: 'dashboard',
       element: <Dashboard />
+    },
+    {
+      path: 'chat',
+      element: <Chat />
     },
     {
       path: 'channel',
