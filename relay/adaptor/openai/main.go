@@ -32,6 +32,10 @@ func StreamHandler(c *gin.Context, resp *http.Response, relayMode int) (*model.E
 
 	common.SetEventStreamHeaders(c)
 
+	// Variables to track <think> tag state across chunks
+	inThinkTag := false
+	var reasoningBuilder strings.Builder
+
 	doneRendered := false
 	for scanner.Scan() {
 		data := scanner.Text()
@@ -52,14 +56,50 @@ func StreamHandler(c *gin.Context, resp *http.Response, relayMode int) (*model.E
 			err := json.Unmarshal([]byte(data[dataPrefixLength:]), &streamResponse)
 			if err != nil {
 				logger.SysError("error unmarshalling stream response: " + err.Error())
-				render.StringData(c, data) // if error happened, pass the data to client
-				continue                   // just ignore the error
+				render.StringData(c, data)
+				continue
 			}
 			if len(streamResponse.Choices) == 0 && streamResponse.Usage == nil {
-				// but for empty choice and no usage, we should not pass it to client, this is for azure
-				continue // just ignore empty choice
+				continue
 			}
-			render.StringData(c, data)
+			
+			// Process <think> tags before rendering
+			for i := range streamResponse.Choices {
+				if streamResponse.Choices[i].Delta.Content != nil {
+					content := conv.AsString(streamResponse.Choices[i].Delta.Content)
+					logger.Debugf(c.Request.Context(), "Original content: %s", content)
+					
+					// Process the content for <think> tags
+					cleanContent, reasoningContent, newInThinkTag := processStreamThinkTag(content, inThinkTag, &reasoningBuilder)
+					inThinkTag = newInThinkTag
+					
+					// Update content
+					streamResponse.Choices[i].Delta.Content = cleanContent
+					
+					// If there's reasoning content, add it to reasoning_content
+					if reasoningContent != "" {
+						var reasoningContentAny any = reasoningContent
+						streamResponse.Choices[i].Delta.ReasoningContent = reasoningContentAny
+						logger.Debugf(c.Request.Context(), "Setting reasoning_content: %s", reasoningContent)
+					}
+					
+					logger.Debugf(c.Request.Context(), "Processed content: clean=%s, reasoning=%s, inThinkTag=%v", 
+						cleanContent, reasoningContent, inThinkTag)
+				}
+			}
+			
+			// Re-marshal the modified response
+			modifiedData, err := json.Marshal(streamResponse)
+			if err != nil {
+				logger.SysError("error marshalling modified stream response: " + err.Error())
+				render.StringData(c, data) // if error happened, pass the original data to client
+			} else {
+				modifiedDataStr := dataPrefix + string(modifiedData)
+				logger.Debugf(c.Request.Context(), "Modified response: %s", modifiedDataStr)
+				render.StringData(c, modifiedDataStr)
+			}
+			
+			// Update responseText with cleaned content
 			for _, choice := range streamResponse.Choices {
 				responseText += conv.AsString(choice.Delta.Content)
 			}
@@ -116,8 +156,46 @@ func Handler(c *gin.Context, resp *http.Response, promptTokens int, modelName st
 			StatusCode: resp.StatusCode,
 		}, nil
 	}
-	// Reset response body
-	resp.Body = io.NopCloser(bytes.NewBuffer(responseBody))
+
+	// Process <think> tags in the response
+	modified := false
+	for i := range textResponse.Choices {
+		if textResponse.Choices[i].Message.Content != nil {
+			content := textResponse.Choices[i].Message.StringContent()
+			cleanContent, reasoningContent := extractThinkContent(content)
+			
+			// If content was modified, update it
+			if content != cleanContent || reasoningContent != "" {
+				textResponse.Choices[i].Message.Content = cleanContent
+				
+				// If there's reasoning content, add it to reasoning_content
+				if reasoningContent != "" {
+					// Make sure ReasoningContent is set as a string, not any other type
+					var reasoningContentAny any = reasoningContent
+					textResponse.Choices[i].Message.ReasoningContent = reasoningContentAny
+				}
+				
+				modified = true
+			}
+		}
+	}
+
+	// If the response was modified, re-marshal it
+	if modified {
+		modifiedResponseBody, err := json.Marshal(textResponse)
+		if err != nil {
+			logger.SysError("error marshalling modified response: " + err.Error())
+			// If there's an error, use the original response body
+			resp.Body = io.NopCloser(bytes.NewBuffer(responseBody))
+		} else {
+			// Use the modified response body
+			responseBody = modifiedResponseBody
+			resp.Body = io.NopCloser(bytes.NewBuffer(responseBody))
+		}
+	} else {
+		// Reset response body with original content
+		resp.Body = io.NopCloser(bytes.NewBuffer(responseBody))
+	}
 
 	// We shouldn't set the header before we parse the response body, because the parse part may fail.
 	// And then we will have to send an error response, but in this case, the header has already been set.
