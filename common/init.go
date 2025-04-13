@@ -3,11 +3,12 @@ package common
 import (
 	"flag"
 	"fmt"
-	"github.com/songquanpeng/one-api/common/config"
-	"github.com/songquanpeng/one-api/common/logger"
 	"log"
 	"os"
 	"path/filepath"
+
+	"github.com/songquanpeng/one-api/common/config"
+	"github.com/songquanpeng/one-api/common/logger"
 )
 
 var (
@@ -15,13 +16,15 @@ var (
 	PrintVersion = flag.Bool("version", false, "print version and exit")
 	PrintHelp    = flag.Bool("help", false, "print help and exit")
 	LogDir       = flag.String("log-dir", "./logs", "specify the log directory")
+	TLSCertFile  = flag.String("tls-cert", "", "path to TLS certificate file")
+	TLSKeyFile   = flag.String("tls-key", "", "path to TLS key file")
 )
 
 func printHelp() {
 	fmt.Println("One API " + Version + " - All in one API service for OpenAI API.")
 	fmt.Println("Copyright (C) 2023 JustSong. All rights reserved.")
 	fmt.Println("GitHub: https://github.com/songquanpeng/one-api")
-	fmt.Println("Usage: one-api [--port <port>] [--log-dir <log directory>] [--version] [--help]")
+	fmt.Println("Usage: one-api [--port <port>] [--log-dir <log directory>] [--tls-cert <path>] [--tls-key <path>] [--version] [--help]")
 }
 
 func Init() {

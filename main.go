@@ -116,9 +116,29 @@ func main() {
 	if port == "" {
 		port = strconv.Itoa(*common.Port)
 	}
-	logger.SysLogf("server started on http://localhost:%s", port)
-	err = server.Run(":" + port)
+
+	// Check for TLS configuration - prioritize command line flags over environment variables
+	certFile := *common.TLSCertFile
+	keyFile := *common.TLSKeyFile
+
+	// If flags are not set, fallback to environment variables
+	if certFile == "" {
+		certFile = os.Getenv("TLS_CERT_FILE")
+	}
+	if keyFile == "" {
+		keyFile = os.Getenv("TLS_KEY_FILE")
+	}
+
+	// Start the server with or without TLS
+	if certFile != "" && keyFile != "" {
+		logger.SysLogf("server started with TLS on https://localhost:%s", port)
+		err = server.RunTLS(":"+port, certFile, keyFile)
+	} else {
+		logger.SysLogf("server started on http://localhost:%s", port)
+		err = server.Run(":" + port)
+	}
+
 	if err != nil {
-		logger.FatalLog("failed to start HTTP server: " + err.Error())
+		logger.FatalLog("failed to start server: " + err.Error())
 	}
 }
