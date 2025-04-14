@@ -2,110 +2,135 @@ package message
 
 import (
 	"crypto/rand"
-	"crypto/tls"
-	"encoding/base64"
 	"fmt"
-	"net"
-	"net/smtp"
+	"os"
 	"strings"
-	"time"
 
 	"github.com/songquanpeng/one-api/common/config"
 	"github.com/songquanpeng/one-api/common/logger"
+	"github.com/wneessen/go-mail"
 )
 
+// shouldAuth returns true if SMTP authentication credentials are provided
 func shouldAuth() bool {
 	return config.SMTPAccount != "" || config.SMTPToken != ""
 }
 
-func SendEmail(subject string, receiver string, content string) error {
+// formatHeloName formats a string to be HELO compatible:
+//   - Converts to lowercase (for English compatibility)
+//   - Replaces spaces with hyphens
+func formatHeloName(name string) string {
+	// Convert to lowercase and replace spaces with hyphens
+	return strings.ReplaceAll(strings.ToLower(name), " ", "-")
+}
+
+// getHeloName returns a HELO identifier combining system name and pod name
+func getHeloName() string {
+	// Get pod name from environment (Kubernetes sets this automatically)
+	podName := os.Getenv("HOSTNAME")
+
+	// Format the system name to be HELO compatible
+	formattedName := formatHeloName(config.SystemName)
+
+	if podName != "" {
+		return fmt.Sprintf("%s-%s", formattedName, podName)
+	}
+
+	// Fallback if not running in Kubernetes
+	return formattedName
+}
+
+// SendEmail sends an email with the given subject, receiver, and content
+func SendEmail(subject, receiver, content string) error {
 	if receiver == "" {
 		return fmt.Errorf("receiver is empty")
 	}
-	if config.SMTPFrom == "" { // for compatibility
+
+	// For compatibility
+	if config.SMTPFrom == "" {
 		config.SMTPFrom = config.SMTPAccount
 	}
-	encodedSubject := fmt.Sprintf("=?UTF-8?B?%s?=", base64.StdEncoding.EncodeToString([]byte(subject)))
 
-	// Extract domain from SMTPFrom
-	parts := strings.Split(config.SMTPFrom, "@")
-	var domain string
-	if len(parts) > 1 {
-		domain = parts[1]
+	// Get the improved HELO name
+	heloName := getHeloName()
+
+	// Create a new mail client
+	client, err := mail.NewClient(config.SMTPServer,
+		mail.WithPort(config.SMTPPort),
+		mail.WithSMTPAuth(mail.SMTPAuthPlain),
+		mail.WithHELO(heloName),
+	)
+	if err != nil {
+		return fmt.Errorf("failed to create mail client: %w", err)
 	}
+
+	// Configure TLS policy based on port
+	switch config.SMTPPort {
+	case 465:
+		client.SetTLSPolicy(mail.TLSMandatory) // Implicit TLS/SSL
+	case 587:
+		client.SetTLSPolicy(mail.TLSOpportunistic) // STARTTLS
+	default:
+		// For other ports, decide what's appropriate
+		client.SetTLSPolicy(mail.TLSOpportunistic) // Try STARTTLS if available
+	}
+
+	// Set authentication if credentials are provided
+	if shouldAuth() {
+		client.SetUsername(config.SMTPAccount)
+		client.SetPassword(config.SMTPToken)
+	}
+
+	// Create a new message
+	msg := mail.NewMsg(
+		mail.WithNoDefaultUserAgent(),
+	)
+
+	// Extract domain from SMTPFrom for Message-ID safely
+	var domain string
+	atIndex := strings.LastIndex(config.SMTPFrom, "@")
+	if atIndex >= 0 && atIndex < len(config.SMTPFrom)-1 {
+		domain = config.SMTPFrom[atIndex+1:]
+	} else {
+		// Fallback if no valid domain found
+		domain = "localhost"
+	}
+
 	// Generate a unique Message-ID
 	buf := make([]byte, 16)
-	_, err := rand.Read(buf)
-	if err != nil {
-		return err
+	if _, err := rand.Read(buf); err != nil {
+		return fmt.Errorf("failed to generate message ID: %w", err)
 	}
-	messageId := fmt.Sprintf("<%x@%s>", buf, domain)
+	messageID := fmt.Sprintf("%x@%s", buf, domain)
 
-	mail := []byte(fmt.Sprintf("To: %s\r\n"+
-		"From: %s<%s>\r\n"+
-		"Subject: %s\r\n"+
-		"Message-ID: %s\r\n"+ // add Message-ID header to avoid being treated as spam, RFC 5322
-		"Date: %s\r\n"+
-		"Content-Type: text/html; charset=UTF-8\r\n\r\n%s\r\n",
-		receiver, config.SystemName, config.SMTPFrom, encodedSubject, messageId, time.Now().Format(time.RFC1123Z), content))
+	// Set message headers and content
+	if err := msg.FromFormat(config.SystemName, config.SMTPFrom); err != nil {
+		return fmt.Errorf("failed to set sender: %w", err)
+	}
 
-	auth := smtp.PlainAuth("", config.SMTPAccount, config.SMTPToken, config.SMTPServer)
-	addr := fmt.Sprintf("%s:%d", config.SMTPServer, config.SMTPPort)
-	to := strings.Split(receiver, ";")
-
-	if config.SMTPPort == 465 || !shouldAuth() {
-		// need advanced client
-		var conn net.Conn
-		var err error
-		if config.SMTPPort == 465 {
-			tlsConfig := &tls.Config{
-				InsecureSkipVerify: true,
-				ServerName:         config.SMTPServer,
-			}
-			conn, err = tls.Dial("tcp", fmt.Sprintf("%s:%d", config.SMTPServer, config.SMTPPort), tlsConfig)
-		} else {
-			conn, err = net.Dial("tcp", fmt.Sprintf("%s:%d", config.SMTPServer, config.SMTPPort))
-		}
-		if err != nil {
-			return err
-		}
-		client, err := smtp.NewClient(conn, config.SMTPServer)
-		if err != nil {
-			return err
-		}
-		defer client.Close()
-		if shouldAuth() {
-			if err = client.Auth(auth); err != nil {
-				return err
+	// Handle multiple recipients
+	receivers := strings.Split(receiver, ";")
+	for _, rcv := range receivers {
+		rcv = strings.TrimSpace(rcv)
+		if rcv != "" {
+			if err := msg.AddTo(rcv); err != nil {
+				logger.SysWarnf("Failed to add recipient %s: %v", rcv, err)
 			}
 		}
-		if err = client.Mail(config.SMTPFrom); err != nil {
-			return err
-		}
-		receiverEmails := strings.Split(receiver, ";")
-		for _, receiver := range receiverEmails {
-			if err = client.Rcpt(receiver); err != nil {
-				return err
-			}
-		}
-		w, err := client.Data()
-		if err != nil {
-			return err
-		}
-		_, err = w.Write(mail)
-		if err != nil {
-			return err
-		}
-		err = w.Close()
-		if err != nil {
-			return err
-		}
-		return nil
 	}
-	err = smtp.SendMail(addr, auth, config.SMTPAccount, to, mail)
-	if err != nil && strings.Contains(err.Error(), "short response") { // 部分提供商返回该错误，但实际上邮件已经发送成功
-		logger.SysWarnf("short response from SMTP server, return nil instead of error: %s", err.Error())
-		return nil
+	msg.SetMessageIDWithValue(messageID)
+	msg.Subject(subject)
+	msg.SetBodyString(mail.TypeTextHTML, content)
+
+	// Send the email
+	if err = client.DialAndSend(msg); err != nil {
+		// Check for "short response" error which might indicate successful delivery
+		if strings.Contains(err.Error(), "short response") {
+			logger.SysWarnf("short response from SMTP server, return nil instead of error: %s", err.Error())
+			return nil
+		}
+		return fmt.Errorf("failed to send email: %w", err)
 	}
-	return err
+
+	return nil
 }
