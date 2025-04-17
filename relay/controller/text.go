@@ -20,6 +20,8 @@ import (
 	"github.com/songquanpeng/one-api/relay/channeltype"
 	"github.com/songquanpeng/one-api/relay/meta"
 	"github.com/songquanpeng/one-api/relay/model"
+
+	"github.com/songquanpeng/one-api/common/image"
 )
 
 func RelayTextHelper(c *gin.Context) *model.ErrorWithStatusCode {
@@ -93,6 +95,24 @@ func getRequestBody(c *gin.Context, meta *meta.Meta, textRequest *model.GeneralO
 		meta.OriginModelName == meta.ActualModelName &&
 		meta.ChannelType != channeltype.Baichuan &&
 		meta.ForcedSystemPrompt == "" {
+
+		// Gemini(Openai) compatible
+		if meta.ChannelType == channeltype.GeminiOpenAICompatible {
+			// convert image url to base64
+			for i, message := range textRequest.Messages {
+				openaiContent := message.ParseContent()
+				for _, part := range openaiContent {
+					if part.Type == model.ContentTypeImageURL {
+						mimeType, data, _ := image.GetImageFromUrl(part.ImageURL.Url)
+						part.ImageURL.Url = fmt.Sprintf("data:%s;base64,%s", mimeType, data)
+					}
+				}
+				textRequest.Messages[i].Content = openaiContent
+			}
+			jsonData, _ := json.Marshal(textRequest)
+			return bytes.NewBuffer(jsonData), nil
+		}
+
 		// no need to convert request for openai
 		return c.Request.Body, nil
 	}
