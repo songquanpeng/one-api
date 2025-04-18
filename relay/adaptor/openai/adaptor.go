@@ -16,6 +16,7 @@ import (
 	"github.com/songquanpeng/one-api/relay/adaptor/geminiv2"
 	"github.com/songquanpeng/one-api/relay/adaptor/minimax"
 	"github.com/songquanpeng/one-api/relay/adaptor/novita"
+	"github.com/songquanpeng/one-api/relay/adaptor/xunfeiv2"
 	"github.com/songquanpeng/one-api/relay/channeltype"
 	"github.com/songquanpeng/one-api/relay/meta"
 	"github.com/songquanpeng/one-api/relay/model"
@@ -62,6 +63,8 @@ func (a *Adaptor) GetRequestURL(meta *meta.Meta) (string, error) {
 		return alibailian.GetRequestURL(meta)
 	case channeltype.GeminiOpenAICompatible:
 		return geminiv2.GetRequestURL(meta)
+	case channeltype.XunfeiV2:
+		return xunfeiv2.GetRequestURL(meta)
 	default:
 		return GetFullRequestURL(meta.BaseURL, meta.RequestURLPath, meta.ChannelType), nil
 	}

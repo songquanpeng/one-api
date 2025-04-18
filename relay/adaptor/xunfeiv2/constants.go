@@ -9,4 +9,5 @@ var ModelList = []string{
 	"generalv3.5",
 	"max-32k",
 	"4.0Ultra",
+	"x1",
 }
