@@ -2,6 +2,9 @@ package controller
 
 import (
 	"fmt"
+	"net/http"
+	"strconv"
+
 	"github.com/gin-gonic/gin"
 	"github.com/songquanpeng/one-api/common/config"
 	"github.com/songquanpeng/one-api/common/ctxkey"
@@ -9,8 +12,6 @@ import (
 	"github.com/songquanpeng/one-api/common/network"
 	"github.com/songquanpeng/one-api/common/random"
 	"github.com/songquanpeng/one-api/model"
-	"net/http"
-	"strconv"
 )
 
 func GetAllTokens(c *gin.Context) {
@@ -18,6 +19,14 @@ func GetAllTokens(c *gin.Context) {
 	p, _ := strconv.Atoi(c.Query("p"))
 	if p < 0 {
 		p = 0
+	}
+
+	myRole := c.GetInt(ctxkey.Role)
+	if myRole == model.RoleRootUser {
+		uId, _ := strconv.Atoi(c.Query("user_id"))
+		if uId != 0 {
+			userId = uId
+		}
 	}
 
 	order := c.Query("order")
@@ -41,6 +50,13 @@ func GetAllTokens(c *gin.Context) {
 func SearchTokens(c *gin.Context) {
 	userId := c.GetInt(ctxkey.Id)
 	keyword := c.Query("keyword")
+	myRole := c.GetInt(ctxkey.Role)
+	if myRole == model.RoleRootUser {
+		uId, _ := strconv.Atoi(c.Query("user_id"))
+		if uId != 0 {
+			userId = uId
+		}
+	}
 	tokens, err := model.SearchUserTokens(userId, keyword)
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
@@ -66,6 +82,13 @@ func GetToken(c *gin.Context) {
 			"message": err.Error(),
 		})
 		return
+	}
+	myRole := c.GetInt(ctxkey.Role)
+	if myRole == model.RoleRootUser {
+		uId, _ := strconv.Atoi(c.Query("user_id"))
+		if uId != 0 {
+			userId = uId
+		}
 	}
 	token, err := model.GetTokenByIds(id, userId)
 	if err != nil {
@@ -151,6 +174,15 @@ func AddToken(c *gin.Context) {
 		Models:         token.Models,
 		Subnet:         token.Subnet,
 	}
+	// if the user is root and add the token for other user, set the user id
+	myRole := c.GetInt(ctxkey.Role)
+	if myRole == model.RoleRootUser {
+		if token.UserId == 0 {
+			cleanToken.UserId = c.GetInt(ctxkey.Id)
+		} else {
+			cleanToken.UserId = token.UserId
+		}
+	}
 	err = cleanToken.Insert()
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
@@ -170,6 +202,14 @@ func AddToken(c *gin.Context) {
 func DeleteToken(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
 	userId := c.GetInt(ctxkey.Id)
+	myRole := c.GetInt(ctxkey.Role)
+	// if the user is root and delete the token for other user, set the user id
+	if myRole == model.RoleRootUser {
+		uId, _ := strconv.Atoi(c.Query("user_id"))
+		if uId != 0 {
+			userId = uId
+		}
+	}
 	err := model.DeleteTokenById(id, userId)
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
@@ -205,6 +245,14 @@ func UpdateToken(c *gin.Context) {
 		})
 		return
 	}
+	// if the user is root and update the token for other user, set the user id
+	myRole := c.GetInt(ctxkey.Role)
+	if myRole == model.RoleRootUser {
+		if token.UserId == 0 {
+			userId = token.UserId
+		}
+	}
+
 	cleanToken, err := model.GetTokenByIds(token.Id, userId)
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
