@@ -66,7 +66,7 @@ func RelayErrorHandler(resp *http.Response) (ErrorWithStatusCode *model.ErrorWit
 	ErrorWithStatusCode = &model.ErrorWithStatusCode{
 		StatusCode: resp.StatusCode,
 		Error: model.Error{
-			Message: "",
+			Message: resp.Status,
 			Type:    "upstream_error",
 			Code:    "bad_response_status_code",
 			Param:   strconv.Itoa(resp.StatusCode),
