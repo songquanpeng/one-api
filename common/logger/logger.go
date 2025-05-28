@@ -28,6 +28,30 @@ const (
 	loggerFatal loggerLevel = "FATAL"
 )
 
+// logLevel priority: DEBUG < INFO < WARN < ERROR < FATAL
+func getLevelPriority(level loggerLevel) int {
+	switch level {
+	case loggerDEBUG:
+		return 0
+	case loggerINFO:
+		return 1
+	case loggerWarn:
+		return 2
+	case loggerError:
+		return 3
+	case loggerFatal:
+		return 4
+	default:
+		return 1 // 默认为 INFO 级别
+	}
+}
+
+// shouldLog 检查是否应该输出该等级的日志
+func shouldLog(level loggerLevel) bool {
+	configLevel := loggerLevel(strings.ToUpper(config.LogLevel))
+	return getLevelPriority(level) >= getLevelPriority(configLevel)
+}
+
 var setupLogOnce sync.Once
 
 func SetupLogger() {
@@ -120,6 +144,11 @@ func FatalLogf(format string, a ...any) {
 }
 
 func logHelper(ctx context.Context, level loggerLevel, msg string) {
+	// 检查是否应该输出该等级的日志
+	if !shouldLog(level) {
+		return
+	}
+
 	writer := gin.DefaultErrorWriter
 	if level == loggerINFO {
 		writer = gin.DefaultWriter
