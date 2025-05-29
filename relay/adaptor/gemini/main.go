@@ -435,3 +435,17 @@ func EmbeddingHandler(c *gin.Context, resp *http.Response) (*model.ErrorWithStat
 	_, err = c.Writer.Write(jsonResponse)
 	return nil, &fullTextResponse.Usage
 }
+
+func EmbeddingResponseHandler(c *gin.Context, statusCode int, resp *openai.EmbeddingResponse) (*model.ErrorWithStatusCode, *model.Usage) {
+	jsonResponse, err := json.Marshal(resp)
+	if err != nil {
+		return openai.ErrorWrapper(err, "marshal_response_body_failed", http.StatusInternalServerError), nil
+	}
+	c.Writer.Header().Set("Content-Type", "application/json")
+	c.Writer.WriteHeader(statusCode)
+	_, err = c.Writer.Write(jsonResponse)
+	if err != nil {
+		return openai.ErrorWrapper(err, "write_response_body_failed", http.StatusInternalServerError), nil
+	}
+	return nil, &resp.Usage
+}
