@@ -57,6 +57,17 @@ func getToken(ctx context.Context, channelId int, adcJson string) (string, error
 	}
 	_ = resp
 
-	Cache.Set(cacheKey, resp.AccessToken, cache.DefaultExpiration)
+	// 使用响应中的过期时间，如果获取失败则使用默认时间
+	expiration := cache.DefaultExpiration
+	if resp.ExpireTime != nil {
+		_expiration := time.Until(resp.ExpireTime.AsTime())
+		// 提前10分钟过期，避免边界情况
+		_expiration = _expiration - 10*time.Minute
+		if _expiration > 0 {
+			expiration = _expiration
+		}
+	}
+
+	Cache.Set(cacheKey, resp.AccessToken, expiration)
 	return resp.AccessToken, nil
 }
