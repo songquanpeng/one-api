@@ -470,6 +470,7 @@ https://openai.justsong.cn
 * [VChart](https://github.com/VisActor/VChart):  不只是开箱即用的多端图表库，更是生动灵活的数据故事讲述者。
 * [VMind](https://github.com/VisActor/VMind):  不仅自动，还很智能。开源智能可视化解决方案。
 * [CherryStudio](https://github.com/CherryHQ/cherry-studio):  全平台支持的AI客户端, 多服务商集成管理、本地知识库支持。
+* [AIProxy](https://github.com/labring/aiproxy): 完善的日志系统与监控系统，支持插件零侵入扩展功能，支持联网搜索。
 
 ## 注意
 

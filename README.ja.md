@@ -289,6 +289,8 @@ graph LR
 ## 関連プロジェクト
 * [FastGPT](https://github.com/labring/FastGPT): LLM に基づく知識質問応答システム
 * [CherryStudio](https://github.com/CherryHQ/cherry-studio):  マルチプラットフォーム対応のAIクライアント。複数のサービスプロバイダーを統合管理し、ローカル知識ベースをサポートします。
+* [AIProxy](https://github.com/labring/aiproxy): 完全なロギングシステムと監視システム。プラグインをゼロ侵入で拡張し、オンライン検索をサポートします。
+
 ## 注
 本プロジェクトはオープンソースプロジェクトです。OpenAI の[利用規約](https://openai.com/policies/terms-of-use)および**適用される法令**を遵守してご利用ください。違法な目的での利用はご遠慮ください。
 
