@@ -232,4 +232,7 @@ var ModelList = []string{
 	"x-ai/grok-beta",
 	"x-ai/grok-vision-beta",
 	"xwin-lm/xwin-lm-70b",
+	"z-ai/glm-4.5",
+	"z-ai/glm-4.5-air",
+	"z-ai/glm-4.5-air:free",
 }
