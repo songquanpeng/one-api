@@ -3,6 +3,7 @@ package model
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 
 	"github.com/songquanpeng/one-api/common/config"
 	"github.com/songquanpeng/one-api/common/helper"
@@ -136,13 +137,47 @@ func (channel *Channel) Insert() error {
 
 func (channel *Channel) Update() error {
 	var err error
+
+	// Get old channel info for cache invalidation
+	var oldChannel Channel
+	err = DB.Where("id = ?", channel.Id).First(&oldChannel).Error
+	if err != nil {
+		return err
+	}
+
 	err = DB.Model(channel).Updates(channel).Error
 	if err != nil {
 		return err
 	}
 	DB.Model(channel).First(channel, "id = ?", channel.Id)
 	err = channel.UpdateAbilities()
-	return err
+	if err != nil {
+		return err
+	}
+
+	// Invalidate caches if channel configuration changed
+	InvalidateChannelCache(channel.Id)
+
+	// Invalidate affected group caches
+	allGroups := make(map[string]bool)
+	// Add old groups
+	for _, group := range strings.Split(oldChannel.Group, ",") {
+		allGroups[strings.TrimSpace(group)] = true
+	}
+	// Add new groups
+	for _, group := range strings.Split(channel.Group, ",") {
+		allGroups[strings.TrimSpace(group)] = true
+	}
+
+	// Invalidate all affected groups
+	for group := range allGroups {
+		if group != "" {
+			InvalidateGroupModelCache(group)
+		}
+	}
+
+	logger.SysLog(fmt.Sprintf("updated channel #%d configuration and invalidated caches", channel.Id))
+	return nil
 }
 
 func (channel *Channel) UpdateResponseTime(responseTime int64) {
@@ -188,14 +223,41 @@ func (channel *Channel) LoadConfig() (ChannelConfig, error) {
 }
 
 func UpdateChannelStatusById(id int, status int) {
-	err := UpdateAbilityStatus(id, status == ChannelStatusEnabled)
+	// Get channel info for cache invalidation
+	var channel Channel
+	err := DB.Where("id = ?", id).First(&channel).Error
+	if err != nil {
+		logger.SysError("failed to get channel info: " + err.Error())
+		return
+	}
+
+	// Update abilities status
+	err = UpdateAbilityStatus(id, status == ChannelStatusEnabled)
 	if err != nil {
 		logger.SysError("failed to update ability status: " + err.Error())
 	}
+
+	// Update channel status
 	err = DB.Model(&Channel{}).Where("id = ?", id).Update("status", status).Error
 	if err != nil {
 		logger.SysError("failed to update channel status: " + err.Error())
+		return
 	}
+
+	// Immediately invalidate all related caches
+	InvalidateChannelCache(id)
+
+	// Invalidate affected group model caches
+	groups := strings.Split(channel.Group, ",")
+	for _, group := range groups {
+		InvalidateGroupModelCache(strings.TrimSpace(group))
+	}
+
+	statusStr := "disabled"
+	if status == ChannelStatusEnabled {
+		statusStr = "enabled"
+	}
+	logger.SysLog(fmt.Sprintf("updated channel #%d status to %s and invalidated caches", id, statusStr))
 }
 
 func UpdateChannelUsedQuota(id int, quota int64) {

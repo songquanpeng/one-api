@@ -171,49 +171,66 @@ var group2model2channels map[string]map[string][]*Channel
 var channelSyncLock sync.RWMutex
 
 func InitChannelCache() {
+	start := time.Now()
+
+	// Get all enabled channels
 	newChannelId2channel := make(map[int]*Channel)
 	var channels []*Channel
 	DB.Where("status = ?", ChannelStatusEnabled).Find(&channels)
 	for _, channel := range channels {
 		newChannelId2channel[channel.Id] = channel
 	}
-	var abilities []*Ability
-	DB.Find(&abilities)
-	groups := make(map[string]bool)
-	for _, ability := range abilities {
-		groups[ability.Group] = true
-	}
-	newGroup2model2channels := make(map[string]map[string][]*Channel)
-	for group := range groups {
-		newGroup2model2channels[group] = make(map[string][]*Channel)
-	}
-	for _, channel := range channels {
-		groups := strings.Split(channel.Group, ",")
-		for _, group := range groups {
-			models := strings.Split(channel.Models, ",")
-			for _, model := range models {
-				if _, ok := newGroup2model2channels[group][model]; !ok {
-					newGroup2model2channels[group][model] = make([]*Channel, 0)
-				}
-				newGroup2model2channels[group][model] = append(newGroup2model2channels[group][model], channel)
-			}
-		}
-	}
 
-	// sort by priority
-	for group, model2channels := range newGroup2model2channels {
-		for model, channels := range model2channels {
-			sort.Slice(channels, func(i, j int) bool {
-				return channels[i].GetPriority() > channels[j].GetPriority()
-			})
-			newGroup2model2channels[group][model] = channels
-		}
-	}
+	// Build cache based on abilities table (more accurate)
+	newGroup2model2channels := buildChannelCacheFromAbilities(channels)
 
 	channelSyncLock.Lock()
 	group2model2channels = newGroup2model2channels
 	channelSyncLock.Unlock()
-	logger.SysLog("channels synced from database")
+
+	duration := time.Since(start)
+	logger.SysLog(fmt.Sprintf("channels synced from database in %v, loaded %d channels", duration, len(channels)))
+}
+
+func buildChannelCacheFromAbilities(channels []*Channel) map[string]map[string][]*Channel {
+	// Create channel ID to channel mapping
+	channelMap := make(map[int]*Channel)
+	for _, channel := range channels {
+		channelMap[channel.Id] = channel
+	}
+
+	// Get all enabled abilities
+	var abilities []*Ability
+	DB.Where("enabled = ?", true).Find(&abilities)
+
+	// Build cache based on abilities (ensures consistency)
+	result := make(map[string]map[string][]*Channel)
+
+	for _, ability := range abilities {
+		channel, exists := channelMap[ability.ChannelId]
+		if !exists {
+			// Channel is disabled, skip this ability
+			continue
+		}
+
+		if result[ability.Group] == nil {
+			result[ability.Group] = make(map[string][]*Channel)
+		}
+
+		result[ability.Group][ability.Model] = append(result[ability.Group][ability.Model], channel)
+	}
+
+	// Sort channels by priority within each group-model combination
+	for group, models := range result {
+		for model, channelList := range models {
+			sort.Slice(channelList, func(i, j int) bool {
+				return channelList[i].GetPriority() > channelList[j].GetPriority()
+			})
+			result[group][model] = channelList
+		}
+	}
+
+	return result
 }
 
 func SyncChannelCache(frequency int) {
@@ -221,6 +238,53 @@ func SyncChannelCache(frequency int) {
 		time.Sleep(time.Duration(frequency) * time.Second)
 		logger.SysLog("syncing channels from database")
 		InitChannelCache()
+	}
+}
+
+// InvalidateChannelCache forces immediate cache refresh for a specific channel
+func InvalidateChannelCache(channelId int) {
+	if !config.MemoryCacheEnabled {
+		return
+	}
+
+	logger.SysLog(fmt.Sprintf("invalidating cache for channel #%d", channelId))
+
+	// Force immediate cache rebuild
+	InitChannelCache()
+}
+
+// InvalidateGroupModelCache clears Redis cache for specific group
+func InvalidateGroupModelCache(group string) {
+	if !common.RedisEnabled {
+		return
+	}
+
+	cacheKey := fmt.Sprintf("group_models:%s", group)
+	err := common.RedisDel(cacheKey)
+	if err != nil {
+		logger.SysError(fmt.Sprintf("failed to invalidate group models cache for %s: %s", group, err.Error()))
+	} else {
+		logger.SysLog(fmt.Sprintf("invalidated group models cache for %s", group))
+	}
+}
+
+// InvalidateUserCache clears user-related Redis caches
+func InvalidateUserCache(userId int) {
+	if !common.RedisEnabled {
+		return
+	}
+
+	patterns := []string{
+		fmt.Sprintf("user_group:%d", userId),
+		fmt.Sprintf("user_quota:%d", userId),
+		fmt.Sprintf("user_enabled:%d", userId),
+	}
+
+	for _, pattern := range patterns {
+		err := common.RedisDel(pattern)
+		if err != nil {
+			logger.SysError(fmt.Sprintf("failed to invalidate cache %s: %s", pattern, err.Error()))
+		}
 	}
 }
 
