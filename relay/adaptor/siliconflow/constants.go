@@ -33,4 +33,10 @@ var ModelList = []string{
 	"Pro/internlm/internlm2_5-7b-chat",
 	"Pro/meta-llama/Meta-Llama-3-8B-Instruct",
 	"Pro/mistralai/Mistral-7B-Instruct-v0.2",
+	// Latest models
+	"Qwen/Qwen2.5-72B-Instruct",
+	"Qwen/Qwen2.5-7B-Instruct",
+	"deepseek-ai/DeepSeek-V2.5",
+	"deepseek-ai/DeepSeek-R1",
+	"internlm/InternLM2.5-20B-Chat",
 }

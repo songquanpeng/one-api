@@ -7,4 +7,10 @@ var ModelList = []string{
 	"deepseek-ai/deepseek-coder-33b-instruct",
 	"mistralai/Mixtral-8x22B-Instruct-v0.1",
 	"Qwen/Qwen1.5-72B-Chat",
+	// Updated models
+	"meta-llama/Llama-3.1-70B-Instruct-Turbo",
+	"meta-llama/Llama-3.1-8B-Instruct-Turbo",
+	"meta-llama/Llama-3.2-90B-Vision-Instruct-Turbo",
+	"Qwen/Qwen2.5-72B-Instruct-Turbo",
+	"deepseek-ai/deepseek-r1",
 }

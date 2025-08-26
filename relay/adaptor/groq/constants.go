@@ -24,4 +24,9 @@ var ModelList = []string{
 	"whisper-large-v3-turbo",
 	"deepseek-r1-distill-llama-70b-specdec",
 	"deepseek-r1-distill-llama-70b",
+	// Latest featured models
+	"llama-3.3-70b-versatile",
+	"openai-gpt-oss-20b",
+	"openai-gpt-oss-120b",
+	"meta-llama/llama-guard-4-12b",
 }
