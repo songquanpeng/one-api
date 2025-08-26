@@ -692,6 +692,8 @@ func GetModelRatio(name string, channelType int) float64 {
 	if strings.HasPrefix(name, "command-") && strings.HasSuffix(name, "-internet") {
 		name = strings.TrimSuffix(name, "-internet")
 	}
+
+	// Try channel-specific model ratio first
 	model := fmt.Sprintf("%s(%d)", name, channelType)
 	if ratio, ok := ModelRatio[model]; ok {
 		return ratio
@@ -699,14 +701,79 @@ func GetModelRatio(name string, channelType int) float64 {
 	if ratio, ok := DefaultModelRatio[model]; ok {
 		return ratio
 	}
+
+	// Try direct model name
 	if ratio, ok := ModelRatio[name]; ok {
 		return ratio
 	}
 	if ratio, ok := DefaultModelRatio[name]; ok {
 		return ratio
 	}
+
+	// Try to find standard model name for alias lookup
+	standardName := getStandardModelNameForBilling(name, channelType)
+	if standardName != name {
+		// Try standard model name
+		if ratio, ok := ModelRatio[standardName]; ok {
+			return ratio
+		}
+		if ratio, ok := DefaultModelRatio[standardName]; ok {
+			return ratio
+		}
+
+		// Try standard model with channel type
+		standardModel := fmt.Sprintf("%s(%d)", standardName, channelType)
+		if ratio, ok := ModelRatio[standardModel]; ok {
+			return ratio
+		}
+		if ratio, ok := DefaultModelRatio[standardModel]; ok {
+			return ratio
+		}
+	}
+
 	logger.SysError("model ratio not found: " + name)
 	return 30
+}
+
+// getStandardModelNameForBilling returns the standard model name for billing lookup
+func getStandardModelNameForBilling(actualName string, channelType int) string {
+	// Reverse alias mapping for billing
+	aliasMap := getBillingAliasMap(channelType)
+
+	for standard, actual := range aliasMap {
+		if actual == actualName {
+			return standard
+		}
+	}
+
+	return actualName
+}
+
+// getBillingAliasMap returns alias mapping for billing purposes
+func getBillingAliasMap(channelType int) map[string]string {
+	switch channelType {
+	case 24: // OpenRouter
+		return map[string]string{
+			"gpt-4o":            "openai/gpt-4o",
+			"gpt-4o-mini":       "openai/gpt-4o-mini",
+			"gpt-4":             "openai/gpt-4",
+			"gpt-4-turbo":       "openai/gpt-4-turbo",
+			"gpt-3.5-turbo":     "openai/gpt-3.5-turbo",
+			"claude-3-haiku":    "anthropic/claude-3-haiku",
+			"claude-3-sonnet":   "anthropic/claude-3-sonnet",
+			"claude-3-opus":     "anthropic/claude-3-opus",
+			"claude-3.5-sonnet": "anthropic/claude-3.5-sonnet",
+		}
+	case 18: // Anthropic
+		return map[string]string{
+			"claude-3-haiku":    "claude-3-haiku-20240307",
+			"claude-3-sonnet":   "claude-3-sonnet-20240229",
+			"claude-3-opus":     "claude-3-opus-20240229",
+			"claude-3.5-sonnet": "claude-3-5-sonnet-20241022",
+		}
+	default:
+		return map[string]string{}
+	}
 }
 
 func CompletionRatio2JSONString() string {

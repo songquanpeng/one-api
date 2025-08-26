@@ -54,8 +54,12 @@ func (channel *Channel) AddAbilities() error {
 	models_ := strings.Split(channel.Models, ",")
 	models_ = utils.DeDuplication(models_)
 	groups_ := strings.Split(channel.Group, ",")
-	abilities := make([]Ability, 0, len(models_))
-	for _, model := range models_ {
+
+	// Expand models to include aliases for standard names
+	expandedModels := expandModelsWithAliases(models_, channel.Type)
+
+	abilities := make([]Ability, 0, len(expandedModels))
+	for _, model := range expandedModels {
 		for _, group := range groups_ {
 			ability := Ability{
 				Group:     group,
@@ -68,6 +72,73 @@ func (channel *Channel) AddAbilities() error {
 		}
 	}
 	return DB.Create(&abilities).Error
+}
+
+// expandModelsWithAliases expands model list to include standard names for channel-specific models
+func expandModelsWithAliases(models []string, channelType int) []string {
+	expandedModels := make([]string, 0)
+	modelSet := make(map[string]bool)
+
+	for _, model := range models {
+		model = strings.TrimSpace(model)
+		if model == "" {
+			continue
+		}
+
+		// Add original model
+		if !modelSet[model] {
+			expandedModels = append(expandedModels, model)
+			modelSet[model] = true
+		}
+
+		// Try to find standard name for this channel-specific model
+		standardName := getStandardModelNameForChannel(model, channelType)
+		if standardName != model && !modelSet[standardName] {
+			expandedModels = append(expandedModels, standardName)
+			modelSet[standardName] = true
+		}
+	}
+
+	return expandedModels
+}
+
+// getStandardModelNameForChannel returns the standard name for a channel-specific model
+func getStandardModelNameForChannel(actualName string, channelType int) string {
+	// Import alias mapping (we'll create a lightweight version here to avoid circular imports)
+	aliasMap := getModelAliasesForChannelType(channelType)
+
+	for standard, actual := range aliasMap {
+		if actual == actualName {
+			return standard
+		}
+	}
+
+	return actualName
+}
+
+// getModelAliasesForChannelType returns model aliases for specific channel type
+// This is a lightweight version to avoid importing the full alias module
+func getModelAliasesForChannelType(channelType int) map[string]string {
+	switch channelType {
+	case 24: // OpenRouter
+		return map[string]string{
+			"gpt-4o":            "openai/gpt-4o",
+			"gpt-4o-mini":       "openai/gpt-4o-mini",
+			"gpt-4":             "openai/gpt-4",
+			"gpt-4-turbo":       "openai/gpt-4-turbo",
+			"gpt-3.5-turbo":     "openai/gpt-3.5-turbo",
+			"o1":                "openai/o1",
+			"o1-mini":           "openai/o1-mini",
+			"o1-preview":        "openai/o1-preview",
+			"claude-3-haiku":    "anthropic/claude-3-haiku",
+			"claude-3-sonnet":   "anthropic/claude-3-sonnet",
+			"claude-3-opus":     "anthropic/claude-3-opus",
+			"claude-3.5-sonnet": "anthropic/claude-3.5-sonnet",
+			"claude-3.5-haiku":  "anthropic/claude-3.5-haiku",
+		}
+	default:
+		return map[string]string{}
+	}
 }
 
 func (channel *Channel) DeleteAbilities() error {

@@ -35,6 +35,11 @@ func RelayTextHelper(c *gin.Context) *model.ErrorWithStatusCode {
 
 	// map model name
 	meta.OriginModelName = textRequest.Model
+
+	// First resolve model alias (standard name to channel-specific name)
+	textRequest.Model = resolveModelAlias(textRequest.Model, meta.ChannelType)
+
+	// Then apply channel-specific model mapping (if configured)
 	textRequest.Model, _ = getMappedModelName(textRequest.Model, meta.ModelMapping)
 	meta.ActualModelName = textRequest.Model
 	// set system prompt if not empty

@@ -151,6 +151,64 @@ func getMappedModelName(modelName string, mapping map[string]string) (string, bo
 	return modelName, false
 }
 
+// resolveModelAlias resolves standard model names to channel-specific names
+func resolveModelAlias(modelName string, channelType int) string {
+	// Lightweight alias resolution to avoid circular imports
+	aliasMap := getChannelModelAliases(channelType)
+
+	if actualName, exists := aliasMap[modelName]; exists {
+		return actualName
+	}
+
+	return modelName
+}
+
+// getChannelModelAliases returns model aliases for specific channel type
+func getChannelModelAliases(channelType int) map[string]string {
+	switch channelType {
+	case 24: // OpenRouter
+		return map[string]string{
+			"gpt-4o":             "openai/gpt-4o",
+			"gpt-4o-mini":        "openai/gpt-4o-mini",
+			"gpt-4":              "openai/gpt-4",
+			"gpt-4-turbo":        "openai/gpt-4-turbo",
+			"gpt-3.5-turbo":      "openai/gpt-3.5-turbo",
+			"gpt-3.5-turbo-0125": "openai/gpt-3.5-turbo-0125",
+			"o1":                 "openai/o1",
+			"o1-mini":            "openai/o1-mini",
+			"o1-preview":         "openai/o1-preview",
+			"claude-3-haiku":     "anthropic/claude-3-haiku",
+			"claude-3-sonnet":    "anthropic/claude-3-sonnet",
+			"claude-3-opus":      "anthropic/claude-3-opus",
+			"claude-3.5-sonnet":  "anthropic/claude-3.5-sonnet",
+			"claude-3.5-haiku":   "anthropic/claude-3.5-haiku",
+		}
+	case 18: // Anthropic
+		return map[string]string{
+			"claude-3-haiku":    "claude-3-haiku-20240307",
+			"claude-3-sonnet":   "claude-3-sonnet-20240229",
+			"claude-3-opus":     "claude-3-opus-20240229",
+			"claude-3.5-sonnet": "claude-3-5-sonnet-20241022",
+			"claude-3.5-haiku":  "claude-3-5-haiku-20241022",
+		}
+	case 28: // Gemini
+		return map[string]string{
+			"gemini-pro":       "gemini-pro",
+			"gemini-pro-1.5":   "gemini-1.5-pro-latest",
+			"gemini-flash-1.5": "gemini-1.5-flash-latest",
+		}
+	case 33: // Groq
+		return map[string]string{
+			"llama-3-8b-instruct":    "llama3-8b-8192",
+			"llama-3-70b-instruct":   "llama3-70b-8192",
+			"llama-3.1-8b-instruct":  "llama-3.1-8b-instant",
+			"llama-3.1-70b-instruct": "llama-3.1-70b-versatile",
+		}
+	default:
+		return map[string]string{}
+	}
+}
+
 func isErrorHappened(meta *meta.Meta, resp *http.Response) bool {
 	if resp == nil {
 		if meta.ChannelType == channeltype.AwsClaude {
