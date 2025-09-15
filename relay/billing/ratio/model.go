@@ -27,6 +27,7 @@ var modelRatioLock sync.RWMutex
 var ModelRatio = map[string]float64{
 	// https://openai.com/pricing
 	"gpt-4":                   15,
+	"gpt-4.1":                 15,
 	"gpt-4-0314":              15,
 	"gpt-4-0613":              15,
 	"gpt-4-32k":               30,
@@ -71,6 +72,8 @@ var ModelRatio = map[string]float64{
 	"text-davinci-edit-001":   10,
 	"code-davinci-edit-001":   10,
 	"whisper-1":               15,  // $0.006 / minute -> $0.006 / 150 words -> $0.006 / 200 tokens -> $0.03 / 1k tokens
+	"gpt-4o-mini-transcribe":  15,  // $0.006 / minute -> $0.006 / 150 words -> $0.006 / 200 tokens -> $0.03 / 1k tokens
+	"gpt-4o-transcribe":       15,  // $0.006 / minute -> $0.006 / 150 words -> $0.006 / 200 tokens -> $0.03 / 1k tokens
 	"tts-1":                   7.5, // $0.015 / 1K characters
 	"tts-1-1106":              7.5,
 	"tts-1-hd":                15, // $0.030 / 1K characters
@@ -626,7 +629,9 @@ var CompletionRatio = map[string]float64{
 	"llama3-8b-8192(33)":  0.0006 / 0.0003,
 	"llama3-70b-8192(33)": 0.0035 / 0.00265,
 	// whisper
-	"whisper-1": 0, // only count input tokens
+	"whisper-1":              0, // only count input tokens
+	"gpt-4o-mini-transcribe": 0,
+	"gpt-4o-transcribe":      0,
 	// deepseek
 	"deepseek-chat":     0.28 / 0.14,
 	"deepseek-reasoner": 2.19 / 0.55,

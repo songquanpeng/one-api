@@ -137,6 +137,12 @@ export const CHANNEL_OPTIONS = {
     value: 34,
     color: 'primary'
   },
+  52: {
+    key: 52,
+    text: 'CozeV3',
+    value: 52,
+    color: 'primary'
+  },
   35: {
     key: 35,
     text: 'Cohere',
@@ -185,7 +191,7 @@ export const CHANNEL_OPTIONS = {
     value: 45,
     color: 'primary'
   },
-  45: {
+  46: {
     key: 46,
     text: 'Replicate',
     value: 46,

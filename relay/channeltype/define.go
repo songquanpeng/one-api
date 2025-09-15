@@ -53,5 +53,6 @@ const (
 	AliBailian
 	OpenAICompatible
 	GeminiOpenAICompatible
+	CozeV3
 	Dummy
 )

@@ -4,7 +4,7 @@ type ChatRequest struct {
 	Contents          []ChatContent        `json:"contents"`
 	SafetySettings    []ChatSafetySettings `json:"safety_settings,omitempty"`
 	GenerationConfig  ChatGenerationConfig `json:"generation_config,omitempty"`
-	Tools             []ChatTools          `json:"tools,omitempty"`
+	Tools             interface{}          `json:"tools,omitempty"`
 	SystemInstruction *ChatContent         `json:"system_instruction,omitempty"`
 }
 
@@ -40,6 +40,11 @@ type InlineData struct {
 	Data     string `json:"data"`
 }
 
+type FileData struct {
+	MimeType string `json:"mime_type"`
+	FileUri  string `json:"file_uri"`
+}
+
 type FunctionCall struct {
 	FunctionName string `json:"name"`
 	Arguments    any    `json:"args"`
@@ -49,6 +54,8 @@ type Part struct {
 	Text         string        `json:"text,omitempty"`
 	InlineData   *InlineData   `json:"inlineData,omitempty"`
 	FunctionCall *FunctionCall `json:"functionCall,omitempty"`
+	Thought      bool          `json:"thought,omitempty"`
+	FileData     *FileData     `json:"fileData,omitempty"`
 }
 
 type ChatContent struct {
@@ -66,12 +73,18 @@ type ChatTools struct {
 }
 
 type ChatGenerationConfig struct {
-	ResponseMimeType string   `json:"responseMimeType,omitempty"`
-	ResponseSchema   any      `json:"responseSchema,omitempty"`
-	Temperature      *float64 `json:"temperature,omitempty"`
-	TopP             *float64 `json:"topP,omitempty"`
-	TopK             float64  `json:"topK,omitempty"`
-	MaxOutputTokens  int      `json:"maxOutputTokens,omitempty"`
-	CandidateCount   int      `json:"candidateCount,omitempty"`
-	StopSequences    []string `json:"stopSequences,omitempty"`
+	ResponseMimeType string          `json:"responseMimeType,omitempty"`
+	ResponseSchema   any             `json:"responseSchema,omitempty"`
+	Temperature      *float64        `json:"temperature,omitempty"`
+	TopP             *float64        `json:"topP,omitempty"`
+	TopK             float64         `json:"topK,omitempty"`
+	MaxOutputTokens  int             `json:"maxOutputTokens,omitempty"`
+	CandidateCount   int             `json:"candidateCount,omitempty"`
+	StopSequences    []string        `json:"stopSequences,omitempty"`
+	ThinkingConfig   *ThinkingConfig `json:"thinkingConfig,omitempty"`
+}
+
+type ThinkingConfig struct {
+	ThinkingBudget  int  `json:"thinkingBudget"`
+	IncludeThoughts bool `json:"includeThoughts"`
 }
