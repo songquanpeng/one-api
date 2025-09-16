@@ -36,6 +36,12 @@ func ConvertRequest(request model.GeneralOpenAIRequest) *ChatRequest {
 		enableSearch = true
 		aliModel = strings.TrimSuffix(aliModel, EnableSearchModelSuffix)
 	}
+
+	enableThinking := false
+	if request.ReasoningEffort != nil {
+		enableThinking = true
+	}
+
 	request.TopP = helper.Float64PtrMax(request.TopP, 0.9999)
 	return &ChatRequest{
 		Model: aliModel,
@@ -52,6 +58,7 @@ func ConvertRequest(request model.GeneralOpenAIRequest) *ChatRequest {
 			TopK:              request.TopK,
 			ResultFormat:      "message",
 			Tools:             request.Tools,
+			EnableThinking:    enableThinking,
 		},
 	}
 }

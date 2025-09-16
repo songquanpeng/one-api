@@ -1,5 +1,7 @@
 package model
 
+import "encoding/json"
+
 type Message struct {
 	Role             string  `json:"role,omitempty"`
 	Content          any     `json:"content,omitempty"`
@@ -32,6 +34,53 @@ func (m Message) StringContent() string {
 					contentStr += subStr
 				}
 			}
+		}
+		return contentStr
+	}
+	return ""
+}
+
+func (m Message) CozeV3StringContent() string {
+	content, ok := m.Content.(string)
+	if ok {
+		return content
+	}
+	contentList, ok := m.Content.([]any)
+	if ok {
+		contents := make([]map[string]any, 0)
+		var contentStr string
+		for _, contentItem := range contentList {
+			contentMap, ok := contentItem.(map[string]any)
+			if !ok {
+				continue
+			}
+			switch contentMap["type"] {
+			case "text":
+				if subStr, ok := contentMap["text"].(string); ok {
+					contents = append(contents, map[string]any{
+						"type": "text",
+						"text": subStr,
+					})
+				}
+			case "image_url":
+				if subStr, ok := contentMap["image_url"].(string); ok {
+					contents = append(contents, map[string]any{
+						"type":     "image",
+						"file_url": subStr,
+					})
+				}
+			case "file":
+				if subStr, ok := contentMap["image_url"].(string); ok {
+					contents = append(contents, map[string]any{
+						"type":     "file",
+						"file_url": subStr,
+					})
+				}
+			}
+		}
+		if len(contents) > 0 {
+			b, _ := json.Marshal(contents)
+			return string(b)
 		}
 		return contentStr
 	}
@@ -72,6 +121,15 @@ func (m Message) ParseContent() []MessageContent {
 						},
 					})
 				}
+			case ContentTypeInputFile:
+				if subObj, ok := contentMap["file"].(map[string]any); ok {
+					contentList = append(contentList, MessageContent{
+						Type: ContentTypeInputFile,
+						File: &File{
+							FileData: subObj["file_data"].(string),
+						},
+					})
+				}
 			}
 		}
 		return contentList
@@ -88,4 +146,10 @@ type MessageContent struct {
 	Type     string    `json:"type,omitempty"`
 	Text     string    `json:"text"`
 	ImageURL *ImageURL `json:"image_url,omitempty"`
+	File     *File     `json:"file,omitempty"`
+}
+
+type File struct {
+	FileData string `json:"file_data,omitempty"`
+	FileName string `json:"filename,omitempty"`
 }

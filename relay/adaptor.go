@@ -64,6 +64,9 @@ func GetAdaptor(apiType int) adaptor.Adaptor {
 		return &proxy.Adaptor{}
 	case apitype.Replicate:
 		return &replicate.Adaptor{}
+	case apitype.CozeV3:
+		return &coze.AdaptorV3{}
+
 	}
 	return nil
 }

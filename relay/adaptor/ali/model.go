@@ -25,6 +25,7 @@ type Parameters struct {
 	Temperature       *float64     `json:"temperature,omitempty"`
 	ResultFormat      string       `json:"result_format,omitempty"`
 	Tools             []model.Tool `json:"tools,omitempty"`
+	EnableThinking    bool         `json:"enable_thinking,omitempty"`
 }
 
 type ChatRequest struct {

@@ -17,4 +17,5 @@ var ModelList = []string{
 
 	"deepseek-r1",
 	"deepseek-v3",
+	"deepseek-v3.1",
 }

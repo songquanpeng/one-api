@@ -206,6 +206,20 @@ const typeConfig = {
     },
     modelGroup: 'Coze'
   },
+  52: {
+    inputLabel: {
+      config: {
+        user_id: 'User ID'
+      }
+    },
+    prompt: {
+      models: '对于 CozeV3 而言，模型名称即 Bot ID，你可以添加一个前缀 `bot-`，例如：`bot-123456`',
+      config: {
+        user_id: '生成该密钥的用户 ID'
+      }
+    },
+    modelGroup: 'CozeV3'
+  },
   42: {
     inputLabel: {
       key: '',
