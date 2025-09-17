@@ -214,6 +214,17 @@ func decreaseTokenQuota(id int, quota int64) (err error) {
 	return err
 }
 
+// AddUsedQuota only increase used_quota, won't change remain_quota
+func AddUsedQuota(id int, quota int64) (err error) {
+	err = DB.Model(&Token{}).Where("id = ?", id).Updates(
+		map[string]interface{}{
+			"used_quota":    gorm.Expr("used_quota + ?", quota),
+			"accessed_time": helper.GetTimestamp(),
+		},
+	).Error
+	return fmt.Errorf("AddUserQuota failed: %w", err)
+}
+
 func PreConsumeTokenQuota(tokenId int, quota int64) (err error) {
 	if quota < 0 {
 		return errors.New("quota 不能为负数！")
@@ -289,15 +300,17 @@ func PostConsumeTokenQuota(tokenId int, quota int64) (err error) {
 	} else {
 		err = IncreaseUserQuota(token.UserId, -quota)
 	}
-	if !token.UnlimitedQuota {
-		if quota > 0 {
-			err = DecreaseTokenQuota(tokenId, quota)
-		} else {
-			err = IncreaseTokenQuota(tokenId, -quota)
-		}
-		if err != nil {
-			return err
-		}
+	if err != nil {
+		return err
 	}
-	return nil
+	// if the token has unlimited quota, we don't need to change its quota
+	if token.UnlimitedQuota {
+		return AddUsedQuota(tokenId, quota)
+	}
+	if quota > 0 {
+		err = DecreaseTokenQuota(tokenId, quota)
+	} else {
+		err = IncreaseTokenQuota(tokenId, -quota)
+	}
+	return err
 }
