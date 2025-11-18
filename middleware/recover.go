@@ -9,6 +9,12 @@ import (
 	"runtime/debug"
 )
 
+const (
+	// MaxRequestBodyLogLength is the maximum length of request body to log
+	// 2KB is sufficient for debugging while keeping logs readable
+	MaxRequestBodyLogLength = 2 * 1024
+)
+
 func RelayPanicRecover() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		defer func() {
@@ -18,7 +24,11 @@ func RelayPanicRecover() gin.HandlerFunc {
 				logger.Errorf(ctx, fmt.Sprintf("stacktrace from panic: %s", string(debug.Stack())))
 				logger.Errorf(ctx, fmt.Sprintf("request: %s %s", c.Request.Method, c.Request.URL.Path))
 				body, _ := common.GetRequestBody(c)
-				logger.Errorf(ctx, fmt.Sprintf("request body: %s", string(body)))
+				bodyStr := string(body)
+				if len(bodyStr) > MaxRequestBodyLogLength {
+					bodyStr = bodyStr[:MaxRequestBodyLogLength] + "... (truncated)"
+				}
+				logger.Errorf(ctx, fmt.Sprintf("request body: %s", bodyStr))
 				c.JSON(http.StatusInternalServerError, gin.H{
 					"error": gin.H{
 						"message": fmt.Sprintf("Panic detected, error: %v. Please submit an issue with the related log here: https://github.com/songquanpeng/one-api", err),

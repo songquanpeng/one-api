@@ -71,4 +71,16 @@ func SetRelayRouter(router *gin.Engine) {
 		relayV1Router.GET("/threads/:id/runs/:runsId/steps/:stepId", controller.RelayNotImplemented)
 		relayV1Router.GET("/threads/:id/runs/:runsId/steps", controller.RelayNotImplemented)
 	}
+
+	// Anthropic API compatibility - https://docs.anthropic.com/claude/reference/
+	anthropicRouter := router.Group("/anthropic")
+	anthropicRouter.Use(middleware.RelayPanicRecover(), middleware.TokenAuth(), middleware.Distribute())
+	{
+		// Models API
+		anthropicRouter.GET("/v1/models", controller.ListModels)
+		anthropicRouter.GET("/v1/models/:model", controller.RetrieveModel)
+
+		// Messages API - main endpoint for chat completions
+		anthropicRouter.POST("/v1/messages", controller.Relay)
+	}
 }

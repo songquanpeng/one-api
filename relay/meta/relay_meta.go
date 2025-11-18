@@ -8,6 +8,7 @@ import (
 
 	"github.com/songquanpeng/one-api/common/ctxkey"
 	"github.com/songquanpeng/one-api/model"
+	"github.com/songquanpeng/one-api/relay/apitype"
 	"github.com/songquanpeng/one-api/relay/channeltype"
 	"github.com/songquanpeng/one-api/relay/relaymode"
 )
@@ -62,5 +63,11 @@ func GetByContext(c *gin.Context) *Meta {
 		meta.BaseURL = channeltype.ChannelBaseURLs[meta.ChannelType]
 	}
 	meta.APIType = channeltype.ToAPIType(meta.ChannelType)
+
+	// Force Anthropic API type for native Anthropic protocol requests
+	if meta.Mode == relaymode.AnthropicMessages {
+		meta.APIType = apitype.Anthropic
+	}
+
 	return &meta
 }

@@ -1,9 +1,9 @@
-version: '3.4'
-
 services:
   one-api:
-    image: "${REGISTRY:-docker.io}/justsong/one-api:latest"
+    # image: "${REGISTRY:-docker.io}/justsong/one-api:latest"
+    build: .
     container_name: one-api
+    platform: linux/amd64
     restart: always
     command: --log-dir /app/logs
     ports:

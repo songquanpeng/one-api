@@ -13,4 +13,6 @@ const (
 	AudioTranslation
 	// Proxy is a special relay mode for proxying requests to custom upstream
 	Proxy
+	// AnthropicMessages is for native Anthropic API messages endpoint
+	AnthropicMessages
 )

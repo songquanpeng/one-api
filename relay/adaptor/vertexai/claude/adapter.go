@@ -36,7 +36,7 @@ func (a *Adaptor) ConvertRequest(c *gin.Context, relayMode int, request *model.G
 		AnthropicVersion: anthropicVersion,
 		// Model:            claudeReq.Model,
 		Messages:    claudeReq.Messages,
-		System:      claudeReq.System,
+		System:      claudeReq.System.String(), // Convert SystemPrompt to string
 		MaxTokens:   claudeReq.MaxTokens,
 		Temperature: claudeReq.Temperature,
 		TopP:        claudeReq.TopP,
