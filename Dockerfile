@@ -16,15 +16,21 @@ RUN DISABLE_ESLINT_PLUGIN='true' REACT_APP_VERSION=$(cat ./VERSION) npm run buil
 
 FROM golang:alpine AS builder2
 
-RUN apk add --no-cache \
-    gcc \
-    musl-dev \
-    sqlite-dev \
-    build-base
+# 替换为国内源（解决卡住问题）
+RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories && \
+    apk add --no-cache gcc musl-dev sqlite-dev build-base
 
-ENV GO111MODULE=on \
-    CGO_ENABLED=1 \
-    GOOS=linux
+# RUN apk add --no-cache \
+#     gcc \
+#     musl-dev \
+#     sqlite-dev \
+#     build-base
+
+# 设置 Go 环境 + 国内代理
+ENV CGO_ENABLED=1 \
+    GOOS=linux \
+    GO111MODULE=on \
+    GOPROXY=https://goproxy.cn,direct
 
 WORKDIR /build
 

@@ -134,9 +134,15 @@ func ConvertEmbeddingRequest(request model.GeneralOpenAIRequest) (*EmbeddingRequ
 	if len(inputs) != 1 {
 		return nil, errors.New("invalid input length, zhipu only support one input")
 	}
+
+	if request.Dimensions == 0 {
+		return nil, errors.New("dimensions is required for zhipu embedding request")
+	}
+
 	return &EmbeddingRequest{
 		Model: request.Model,
 		Input: inputs[0],
+		Dimensions: request.Dimensions,
 	}, nil
 }
 
