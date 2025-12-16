@@ -34,7 +34,9 @@ services:
     restart: always
 
   db:
-    image: "${REGISTRY:-docker.io}/mysql:8.2.0"
+    #image: "${REGISTRY:-docker.io}/mysql:8.2.0"
+    image: yobasystems/alpine-mariadb:11
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
     restart: always
     container_name: mysql
     volumes:
