@@ -164,3 +164,23 @@ var UserContentRequestTimeout = env.Int("USER_CONTENT_REQUEST_TIMEOUT", 30)
 
 var EnforceIncludeUsage = env.Bool("ENFORCE_INCLUDE_USAGE", false)
 var TestPrompt = env.String("TEST_PROMPT", "Output only your specific model name with no additional text.")
+
+// SSRF Protection Configuration
+var (
+	// SSRFProtectionEnabled 是否启用SSRF防护
+	SSRFProtectionEnabled = true
+	// SSRFAllowPrivateIP 是否允许访问私有IP地址
+	SSRFAllowPrivateIP = false
+	// SSRFApplyIPFilterForDomain 对域名启用IP过滤（DNS解析后检查）
+	SSRFApplyIPFilterForDomain = false
+	// SSRFDomainListMode 域名列表模式（whitelist/blacklist）
+	SSRFDomainListMode = "blacklist"
+	// SSRFDomainList 统一域名列表（逗号分隔，支持通配符如 *.example.com）
+	SSRFDomainList = []string{}
+	// SSRFIPListMode IP列表模式（whitelist/blacklist）
+	SSRFIPListMode = "blacklist"
+	// SSRFIPList 统一IP列表（逗号分隔，支持CIDR格式如 192.168.1.0/24）
+	SSRFIPList = []string{}
+	// SSRFAllowedPorts 允许的端口列表
+	SSRFAllowedPorts = []int{80, 443, 8080, 8443}
+)

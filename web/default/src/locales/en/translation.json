@@ -440,6 +440,7 @@
       "personal": "Personal Settings",
       "operation": "Operation Settings",
       "system": "System Settings",
+      "ssrf": "Security",
       "other": "Other Settings"
     },
     "personal": {
@@ -724,6 +725,54 @@
       },
       "copyright": {
         "notice": "Removing One API's copyright notice requires authorization. Project maintenance requires significant effort, if this project is meaningful to you, please actively support it."
+      }
+    },
+    "ssrf": {
+      "title": "SSRF Protection Settings",
+      "description": "Configure Server-Side Request Forgery (SSRF) protection to secure internal network resources",
+      "enable": "Enable SSRF Protection (Recommended for server security)",
+      "enable_description": "When enabled, the system will perform security checks on all external requests, blocking access to internal network addresses, private IPs, and unauthorized domains to effectively prevent SSRF attacks. It is recommended to always enable this option in production environments.",
+      "allow_private_ip": "Allow access to private IP addresses (127.0.0.1, 192.168.x.x, etc.)",
+      "allow_private_ip_description": "Warning: Enabling this option will allow the system to access private internal addresses, including: 127.0.0.0/8 (loopback), 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16 (RFC1918 private addresses), 169.254.0.0/16 (link-local addresses), etc. This may expose internal services to probing or attacks. Only enable when absolutely necessary.",
+      "apply_ip_filter_for_domain": "Apply IP filter for domains (Experimental)",
+      "apply_ip_filter_for_domain_description": "When enabled, the system will perform secondary validation on IP addresses obtained from DNS resolution to prevent DNS rebinding attacks. Attackers may control DNS servers to first resolve a domain to a public IP to pass checks, then resolve to an internal IP for attacks. This feature effectively defends against such attacks but may slightly increase request latency.",
+      "mode_label": "List Mode",
+      "mode": {
+        "blacklist": "Blacklist Mode",
+        "whitelist": "Whitelist Mode",
+        "blacklist_description": "Blacklist Mode: Domains in the list will be blocked, all other domains are allowed.",
+        "whitelist_description": "Whitelist Mode: Only domains in the list are allowed, all other domains will be blocked. Use with caution and ensure all required domains are added.",
+        "blacklist_ip_description": "Blacklist Mode: IP addresses in the list will be blocked, all other IPs are allowed.",
+        "whitelist_ip_description": "Whitelist Mode: Only IP addresses in the list are allowed, all other IPs will be blocked. Use with caution and ensure all required IPs are added."
+      },
+      "list_empty": "List is empty",
+      "domain_list": {
+        "title": "Domain Access Control",
+        "description": "Configure domain access rules. Supports wildcard format, e.g.: example.com, *.api.example.com",
+        "add_placeholder": "Add Domain",
+        "input_placeholder": "Enter domain and press Enter, e.g.: example.com"
+      },
+      "ip_list": {
+        "title": "IP Access Control",
+        "description": "Configure IP access rules. Supports CIDR format, e.g.: 8.8.8.8, 192.168.1.0/24",
+        "add_placeholder": "Add IP Address",
+        "input_placeholder": "Enter IP address and press Enter, e.g.: 8.8.8.8"
+      },
+      "ports": {
+        "title": "Allowed Ports",
+        "description": "Supports single ports and port ranges, e.g.: 80, 443, 8000-8999",
+        "add_placeholder": "Add Port",
+        "input_placeholder": "Enter port and press Enter",
+        "config_description": "Restrict the system to only access specified ports. Leave empty to allow all ports. It is recommended to only open common HTTP/HTTPS ports (80, 443, 8080, 8443) to reduce the attack surface. Port range format is supported, e.g., 8000-9000 means all ports between 8000 and 9000."
+      },
+      "buttons": {
+        "add": "Add",
+        "save_domain": "Save Domain Settings",
+        "save_ip": "Save IP Settings",
+        "save_ports": "Save Port Settings"
+      },
+      "messages": {
+        "save_success": "SSRF protection settings updated"
       }
     }
   },

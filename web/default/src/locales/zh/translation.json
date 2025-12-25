@@ -440,6 +440,7 @@
       "personal": "个人设置",
       "operation": "运营设置",
       "system": "系统设置",
+      "ssrf": "安全防护",
       "other": "其他设置"
     },
     "personal": {
@@ -720,6 +721,54 @@
       },
       "copyright": {
         "notice": "移除 One API 的版权标识必须首先获得授权，项目维护需要花费大量精力，如果本项目对你有意义，请主动支持本项目。"
+      }
+    },
+    "ssrf": {
+      "title": "SSRF防护设置",
+      "description": "配置服务器端请求伪造(SSRF)防护，用于保护内网资源安全",
+      "enable": "启用SSRF防护（推荐开启以保护服务器安全）",
+      "enable_description": "启用后，系统会对所有外部请求进行安全检查，阻止对内网地址、私有IP和未授权域名的访问，有效防止SSRF攻击。建议在生产环境中始终开启此选项。",
+      "allow_private_ip": "允许访问私有IP地址（127.0.0.1、192.168.x.x等内网地址）",
+      "allow_private_ip_description": "警告：开启此选项将允许系统访问内网私有地址，包括：127.0.0.0/8（本地回环）、10.0.0.0/8、172.16.0.0/12、192.168.0.0/16（RFC1918私有地址）、169.254.0.0/16（链路本地地址）等。这可能导致内网服务被探测或攻击，请仅在确实需要时开启。",
+      "apply_ip_filter_for_domain": "对域名启用 IP 过滤（实验性）",
+      "apply_ip_filter_for_domain_description": "启用后，系统会在DNS解析域名后，对解析得到的IP地址进行二次验证，以防止DNS重绑定攻击。攻击者可能通过控制DNS服务器，使域名先解析为公网IP通过检查，再解析为内网IP进行攻击。此功能可有效防御此类攻击，但可能略微增加请求延迟。",
+      "mode_label": "列表模式",
+      "mode": {
+        "blacklist": "黑名单模式",
+        "whitelist": "白名单模式",
+        "blacklist_description": "黑名单模式：列表中的域名将被禁止访问，其他域名允许访问。",
+        "whitelist_description": "白名单模式：仅允许访问列表中的域名，其他所有域名将被拦截。请谨慎使用，确保已添加所有需要访问的域名。",
+        "blacklist_ip_description": "黑名单模式：列表中的IP地址将被禁止访问，其他IP允许访问。",
+        "whitelist_ip_description": "白名单模式：仅允许访问列表中的IP地址，其他所有IP将被拦截。请谨慎使用，确保已添加所有需要访问的IP。"
+      },
+      "list_empty": "列表为空",
+      "domain_list": {
+        "title": "域名访问控制",
+        "description": "配置域名访问规则，支持通配符格式，如：example.com, *.api.example.com",
+        "add_placeholder": "添加域名",
+        "input_placeholder": "输入域名后回车，如：example.com"
+      },
+      "ip_list": {
+        "title": "IP访问控制",
+        "description": "配置IP访问规则，支持CIDR格式，如：8.8.8.8, 192.168.1.0/24",
+        "add_placeholder": "添加IP地址",
+        "input_placeholder": "输入IP地址后回车，如：8.8.8.8"
+      },
+      "ports": {
+        "title": "允许的端口",
+        "description": "支持单个端口和端口范围，如：80, 443, 8000-8999",
+        "add_placeholder": "添加端口",
+        "input_placeholder": "输入端口后回车",
+        "config_description": "限制系统只能访问指定的端口。留空表示允许所有端口。建议仅开放常用的HTTP/HTTPS端口（80、443、8080、8443），以减少攻击面。支持端口范围格式，如 8000-9000 表示8000到9000之间的所有端口。"
+      },
+      "buttons": {
+        "add": "添加",
+        "save_domain": "保存域名设置",
+        "save_ip": "保存IP设置",
+        "save_ports": "保存端口设置"
+      },
+      "messages": {
+        "save_success": "SSRF防护设置已更新"
       }
     }
   },
