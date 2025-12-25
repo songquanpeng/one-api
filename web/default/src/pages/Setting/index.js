@@ -6,6 +6,7 @@ import { isRoot } from '../../helpers';
 import OtherSetting from '../../components/OtherSetting';
 import PersonalSetting from '../../components/PersonalSetting';
 import OperationSetting from '../../components/OperationSetting';
+import SSRFSetting from '../../components/SSRFSetting';
 
 const Setting = () => {
   const { t } = useTranslation();
@@ -35,6 +36,14 @@ const Setting = () => {
       render: () => (
         <Tab.Pane attached={false}>
           <SystemSetting />
+        </Tab.Pane>
+      ),
+    });
+    panes.push({
+      menuItem: t('setting.tabs.ssrf'),
+      render: () => (
+        <Tab.Pane attached={false}>
+          <SSRFSetting />
         </Tab.Pane>
       ),
     });

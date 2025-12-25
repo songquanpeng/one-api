@@ -3,7 +3,6 @@ package image
 import (
 	"bytes"
 	"encoding/base64"
-	"github.com/songquanpeng/one-api/common/client"
 	"image"
 	_ "image/gif"
 	_ "image/jpeg"
@@ -12,6 +11,8 @@ import (
 	"regexp"
 	"strings"
 	"sync"
+
+	"github.com/songquanpeng/one-api/common/client"
 
 	_ "golang.org/x/image/webp"
 )

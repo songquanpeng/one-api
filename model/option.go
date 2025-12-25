@@ -1,12 +1,15 @@
 package model
 
 import (
-	"github.com/songquanpeng/one-api/common/config"
-	"github.com/songquanpeng/one-api/common/logger"
-	billingratio "github.com/songquanpeng/one-api/relay/billing/ratio"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/songquanpeng/one-api/common/client"
+	"github.com/songquanpeng/one-api/common/config"
+	"github.com/songquanpeng/one-api/common/logger"
+	"github.com/songquanpeng/one-api/common/ssrf"
+	billingratio "github.com/songquanpeng/one-api/relay/billing/ratio"
 )
 
 type Option struct {
@@ -75,8 +78,80 @@ func InitOptionMap() {
 	config.OptionMap["QuotaPerUnit"] = strconv.FormatFloat(config.QuotaPerUnit, 'f', -1, 64)
 	config.OptionMap["RetryTimes"] = strconv.Itoa(config.RetryTimes)
 	config.OptionMap["Theme"] = config.Theme
+
+	// SSRF Protection Options
+	config.OptionMap["SSRFProtectionEnabled"] = strconv.FormatBool(config.SSRFProtectionEnabled)
+	config.OptionMap["SSRFAllowPrivateIP"] = strconv.FormatBool(config.SSRFAllowPrivateIP)
+	config.OptionMap["SSRFApplyIPFilterForDomain"] = strconv.FormatBool(config.SSRFApplyIPFilterForDomain)
+	config.OptionMap["SSRFDomainListMode"] = config.SSRFDomainListMode
+	config.OptionMap["SSRFDomainList"] = strings.Join(config.SSRFDomainList, ",")
+	config.OptionMap["SSRFIPListMode"] = config.SSRFIPListMode
+	config.OptionMap["SSRFIPList"] = strings.Join(config.SSRFIPList, ",")
+	config.OptionMap["SSRFAllowedPorts"] = intSliceToString(config.SSRFAllowedPorts)
+
 	config.OptionMapRWMutex.Unlock()
 	loadOptionsFromDatabase()
+}
+
+// intSliceToString 将整数切片转换为逗号分隔的字符串
+func intSliceToString(slice []int) string {
+	strSlice := make([]string, len(slice))
+	for i, v := range slice {
+		strSlice[i] = strconv.Itoa(v)
+	}
+	return strings.Join(strSlice, ",")
+}
+
+// stringToIntSlice 将逗号分隔的字符串转换为整数切片
+func stringToIntSlice(s string) []int {
+	if s == "" {
+		return []int{}
+	}
+	parts := strings.Split(s, ",")
+	result := make([]int, 0, len(parts))
+	for _, part := range parts {
+		part = strings.TrimSpace(part)
+		if part == "" {
+			continue
+		}
+		if v, err := strconv.Atoi(part); err == nil {
+			result = append(result, v)
+		}
+	}
+	return result
+}
+
+// splitStringList 将逗号分隔的字符串转换为字符串切片
+func splitStringList(s string) []string {
+	if s == "" {
+		return []string{}
+	}
+	parts := strings.Split(s, ",")
+	result := make([]string, 0, len(parts))
+	for _, part := range parts {
+		part = strings.TrimSpace(part)
+		if part != "" {
+			result = append(result, part)
+		}
+	}
+	return result
+}
+
+func updateSSRFProtectionConfig() {
+	ssrfConfig := &ssrf.SSRFProtectionConfig{
+		Enabled:                config.SSRFProtectionEnabled,
+		AllowPrivateIP:         config.SSRFAllowPrivateIP,
+		ApplyIPFilterForDomain: config.SSRFApplyIPFilterForDomain,
+		DomainListMode:         ssrf.ListMode(config.SSRFDomainListMode),
+		DomainList:             config.SSRFDomainList,
+		IPListMode:             ssrf.ListMode(config.SSRFIPListMode),
+		IPList:                 config.SSRFIPList,
+		AllowedPorts:           config.SSRFAllowedPorts,
+		DNSCacheTTL:            60,
+		MaxRedirects:           10,
+	}
+	ssrf.UpdateGlobalConfig(ssrfConfig)
+	client.CloseUserContentIdleConnections()
 }
 
 func loadOptionsFromDatabase() {
@@ -239,6 +314,39 @@ func updateOptionMap(key string, value string) (err error) {
 		config.QuotaPerUnit, _ = strconv.ParseFloat(value, 64)
 	case "Theme":
 		config.Theme = value
+	// SSRF Protection Options
+	case "SSRFProtectionEnabled":
+		config.SSRFProtectionEnabled = value == "true"
+		updateSSRFProtectionConfig()
+	case "SSRFAllowPrivateIP":
+		config.SSRFAllowPrivateIP = value == "true"
+		updateSSRFProtectionConfig()
+	case "SSRFApplyIPFilterForDomain":
+		config.SSRFApplyIPFilterForDomain = value == "true"
+		updateSSRFProtectionConfig()
+	case "SSRFDomainListMode":
+		if value == "whitelist" || value == "blacklist" {
+			config.SSRFDomainListMode = value
+		} else {
+			config.SSRFDomainListMode = "blacklist"
+		}
+		updateSSRFProtectionConfig()
+	case "SSRFDomainList":
+		config.SSRFDomainList = splitStringList(value)
+		updateSSRFProtectionConfig()
+	case "SSRFIPListMode":
+		if value == "whitelist" || value == "blacklist" {
+			config.SSRFIPListMode = value
+		} else {
+			config.SSRFIPListMode = "blacklist"
+		}
+		updateSSRFProtectionConfig()
+	case "SSRFIPList":
+		config.SSRFIPList = splitStringList(value)
+		updateSSRFProtectionConfig()
+	case "SSRFAllowedPorts":
+		config.SSRFAllowedPorts = stringToIntSlice(value)
+		updateSSRFProtectionConfig()
 	}
 	return err
 }
