@@ -149,6 +149,12 @@ export const CHANNEL_OPTIONS = {
     value: 36,
     color: 'primary'
   },
+  52: {
+    key: 52,
+    text: 'Avian',
+    value: 52,
+    color: 'success'
+  },
   38: {
     key: 38,
     text: 'DeepL',

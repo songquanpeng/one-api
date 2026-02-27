@@ -337,6 +337,11 @@ var ModelRatio = map[string]float64{
 	// https://platform.deepseek.com/api-docs/pricing/
 	"deepseek-chat":     0.14 * MILLI_USD,
 	"deepseek-reasoner": 0.55 * MILLI_USD,
+	// https://avian.io/models
+	"deepseek/deepseek-v3.2": 0.26 / 1000 * USD,
+	"moonshotai/kimi-k2.5":   0.45 / 1000 * USD,
+	"z-ai/glm-5":             0.30 / 1000 * USD,
+	"minimax/minimax-m2.5":   0.30 / 1000 * USD,
 	// https://www.deepl.com/pro?cta=header-prices
 	"deepl-zh": 25.0 / 1000 * USD,
 	"deepl-en": 25.0 / 1000 * USD,
@@ -630,6 +635,11 @@ var CompletionRatio = map[string]float64{
 	// deepseek
 	"deepseek-chat":     0.28 / 0.14,
 	"deepseek-reasoner": 2.19 / 0.55,
+	// avian
+	"deepseek/deepseek-v3.2": 0.38 / 0.26,
+	"moonshotai/kimi-k2.5":   2.20 / 0.45,
+	"z-ai/glm-5":             2.55 / 0.30,
+	"minimax/minimax-m2.5":   1.10 / 0.30,
 }
 
 var (

@@ -24,6 +24,7 @@ export const CHANNEL_OPTIONS = [
   { key: 34, text: 'Coze', value: 34, color: 'blue' },
   { key: 35, text: 'Cohere', value: 35, color: 'blue' },
   { key: 36, text: 'DeepSeek', value: 36, color: 'black' },
+  { key: 52, text: 'Avian', value: 52, color: 'green' },
   { key: 37, text: 'Cloudflare', value: 37, color: 'orange' },
   { key: 38, text: 'DeepL', value: 38, color: 'black' },
   { key: 39, text: 'together.ai', value: 39, color: 'blue' },
