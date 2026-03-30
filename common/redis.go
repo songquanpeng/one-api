@@ -15,6 +15,7 @@ var RedisEnabled = true
 
 // InitRedisClient This function is called after init()
 func InitRedisClient() (err error) {
+	// Check if Redis connection string is set?
 	if os.Getenv("REDIS_CONN_STRING") == "" {
 		RedisEnabled = false
 		logger.SysLog("REDIS_CONN_STRING not set, Redis is not enabled")
@@ -25,17 +26,25 @@ func InitRedisClient() (err error) {
 		logger.SysLog("SYNC_FREQUENCY not set, Redis is disabled")
 		return nil
 	}
+	//connect to Redis
 	redisConnString := os.Getenv("REDIS_CONN_STRING")
 	if os.Getenv("REDIS_MASTER_NAME") == "" {
-		logger.SysLog("Redis is enabled")
-		opt, err := redis.ParseURL(redisConnString)
-		if err != nil {
-			logger.FatalLog("failed to parse Redis connection string: " + err.Error())
+		if os.Getenv("IS_CLUSTER") == "true" {
+			logger.SysLog("Redis-cluster model is enabled")
+			RDB = redis.NewClusterClient(&redis.ClusterOptions{
+				Addrs:    strings.Split(redisConnString, ","),
+				Password: os.Getenv("REDIS_PASSWORD"),
+			})
+		} else {
+			logger.SysLog("Redis-standalone model is enabled")
+			opt, err := redis.ParseURL(redisConnString)
+			if err != nil {
+				logger.FatalLog("failed to parse Redis connection string: " + err.Error())
+			}
+			RDB = redis.NewClient(opt)
 		}
-		RDB = redis.NewClient(opt)
 	} else {
-		// cluster mode
-		logger.SysLog("Redis cluster mode enabled")
+		logger.SysLog("Redis sentinel model is enabled")
 		RDB = redis.NewUniversalClient(&redis.UniversalOptions{
 			Addrs:      strings.Split(redisConnString, ","),
 			Password:   os.Getenv("REDIS_PASSWORD"),
