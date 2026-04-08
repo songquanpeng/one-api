@@ -445,6 +445,7 @@ https://openai.justsong.cn
 3. 提示无可用渠道？
    + 请检查的用户分组和渠道分组设置。
    + 以及渠道的模型设置。
+   + 如果你刚新增、编辑或删除渠道，当前版本会立即刷新渠道缓存和分组模型缓存；如果仍然报错，优先检查分组和模型配置是否匹配。
 4. 渠道测试报错：`invalid character '<' looking for beginning of value`
    + 这是因为返回值不是合法的 JSON，而是一个 HTML 页面。
    + 大概率是你的部署站的 IP 或代理的节点被 CloudFlare 封禁了。

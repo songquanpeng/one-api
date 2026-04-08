@@ -304,6 +304,7 @@ If the channel ID is not provided, load balancing will be used to distribute the
 3. It says "No available channels" when trying to use a channel. What should I do?
     + Please check the user and channel group settings.
     + Also check the channel model settings.
+    + Channel changes now refresh the channel cache and per-group model cache immediately. If the error still appears after adding or editing a channel, double-check that the group and model assignments match the token you are using.
 4. Channel testing reports an error: "invalid character '<' looking for beginning of value"
     + This error occurs when the returned value is not valid JSON but an HTML page.
     + Most likely, the IP of your deployment site or the node of the proxy has been blocked by CloudFlare.
