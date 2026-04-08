@@ -54,6 +54,7 @@ var ChannelBaseURLs = []string{
 	"",                                          // 50
 
 	"https://generativelanguage.googleapis.com/v1beta/openai/", // 51
+	"https://coding.dashscope.aliyuncs.com/v1",                 // 52
 }
 
 func init() {

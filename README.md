@@ -75,6 +75,7 @@ _✨ 通过标准的 OpenAI API 格式访问所有的大模型，开箱即用 �
    + [x] [字节跳动豆包大模型（火山引擎）](https://www.volcengine.com/experience/ark?utm_term=202502dsinvite&ac=DSASUQY5&rc=2QXCA1VI)
    + [x] [百度文心一言系列模型](https://cloud.baidu.com/doc/WENXINWORKSHOP/index.html)
    + [x] [阿里通义千问系列模型](https://help.aliyun.com/document_detail/2400395.html)
+   + [x] [阿里云百炼 OpenAI 兼容模型](https://help.aliyun.com/zh/model-studio/qwen-api-via-openai-chat-completions)
    + [x] [讯飞星火认知大模型](https://www.xfyun.cn/doc/spark/Web.html)
    + [x] [智谱 ChatGLM 系列模型](https://bigmodel.cn)
    + [x] [360 智脑](https://ai.360.cn)
@@ -349,6 +350,13 @@ graph LR
 注意，需要是管理员用户创建的令牌才能指定渠道 ID。
 
 不加的话将会使用负载均衡的方式使用多个渠道。
+
+### 阿里云百炼渠道说明
+- `阿里云百炼` 渠道使用普通百炼 API Key（`sk-` 开头），默认 Base URL 为 `https://dashscope.aliyuncs.com`。
+- `阿里云百炼` 通过百炼 OpenAI 兼容接口支持聊天模型和 embedding 模型。
+- `阿里云百炼 Coding Plan` 渠道使用 Coding Plan 专属 API Key（`sk-sp-` 开头），默认 Base URL 为 `https://coding.dashscope.aliyuncs.com/v1`。
+- `阿里云百炼 Coding Plan` 当前仅支持 `chat/completions`，不支持 `embeddings`。
+- 根据阿里云官方文档，Coding Plan 仅适用于个人交互式编码场景，请在使用前确认符合上游条款：[Coding Plan 文档](https://help.aliyun.com/zh/model-studio/coding-plan)。
 
 ### 环境变量
 > One API 支持从 `.env` 文件中读取环境变量，请参照 `.env.example` 文件，使用时请将其重命名为 `.env`。
