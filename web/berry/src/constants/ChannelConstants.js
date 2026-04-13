@@ -179,6 +179,12 @@ export const CHANNEL_OPTIONS = {
     value: 44,
     color: 'primary'
   },
+  52: {
+    key: 52,
+    text: '七牛云',
+    value: 52,
+    color: 'primary'
+  },
   45: {
     key: 45,
     text: 'xAI',

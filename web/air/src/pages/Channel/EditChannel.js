@@ -118,6 +118,9 @@ const EditChannel = (props) => {
                         'mj_pan',
                     ];
                     break;
+                case 52:
+                    localModels = ['deepseek-v3'];
+                    break;
             }
             setInputs((inputs) => ({...inputs, models: localModels}));
         }
