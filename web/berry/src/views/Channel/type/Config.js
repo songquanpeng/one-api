@@ -228,6 +228,12 @@ const typeConfig = {
   45: {
     modelGroup: 'xai'
   },
+  52: {
+    input: {
+      models: ['deepseek-v3']
+    },
+    modelGroup: 'qiniu'
+  },
 };
 
 export { defaultConfig, typeConfig };

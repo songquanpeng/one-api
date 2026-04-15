@@ -86,6 +86,12 @@ export const CHANNEL_OPTIONS = [
   { key: 45, text: 'xAI', value: 45, color: 'blue' },
   { key: 46, text: 'Replicate', value: 46, color: 'blue' },
   {
+    key: 52,
+    text: '七牛云',
+    value: 52,
+    color: 'blue',
+  },
+  {
     key: 8,
     text: '自定义渠道',
     value: 8,
