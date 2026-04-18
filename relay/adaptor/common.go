@@ -27,6 +27,13 @@ func DoRequestHelper(a Adaptor, c *gin.Context, meta *meta.Meta, requestBody io.
 	if err != nil {
 		return nil, fmt.Errorf("new request failed: %w", err)
 	}
+	// When the request body is passed through from the original request (e.g., OpenAI pass-through),
+	// Go cannot determine the content length and sets it to -1, which causes chunked transfer encoding.
+	// Some upstream APIs (e.g., Azure grok models) require an explicit Content-Length header.
+	// Inherit the content length from the original request as a fallback.
+	if req.ContentLength == -1 {
+		req.ContentLength = c.Request.ContentLength
+	}
 	err = a.SetupRequestHeader(c, req, meta)
 	if err != nil {
 		return nil, fmt.Errorf("setup request header failed: %w", err)
