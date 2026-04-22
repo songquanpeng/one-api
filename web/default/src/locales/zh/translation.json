@@ -575,7 +575,9 @@
         "qrcode_placeholder": "输入一个图片链接",
         "buttons": {
           "save": "保存 WeChat Server 设置"
-        }
+        },
+        "code_placeholder": "验证码",
+        "scan_tip": "微信扫码关注公众号后，发送「验证码」获取验证码（3 分钟内有效）。"
       },
       "turnstile": {
         "title": "配置 Turnstile",
@@ -705,8 +707,10 @@
           "placeholder": "在此输入首页内容，支持 Markdown & HTML 代码，设置后首页的状态信息将不再显示。如果输入的是一个链接，则会使用该链接作为 iframe 的 src 属性，这允许你设置任意网页作为首页。"
         },
         "about": {
-          "title": "关于",
-          "placeholder": "在此输入新的关于内容，支持 Markdown & HTML 代码。如果输入的是一个链接，则会使用该链接作为 iframe 的 src 属性，这允许你设置任意网页作为关于页面。"
+          "title": "关于系统",
+          "description": "你可以在设置页面编辑关于内容，支持 Markdown 与 HTML。",
+          "loading_failed": "关于内容加载失败...",
+          "repository": "项目仓库："
         },
         "footer": {
           "title": "页脚",
@@ -737,8 +741,8 @@
   },
   "home": {
     "welcome": {
-      "title": "欢迎使用 One API",
-      "description": "One API 是一个 LLM API 接口管理和分发系统，可以帮助您更好地管理和使用各大厂商的 LLM API。",
+      "title": "欢迎使用 DereineRing",
+      "description": "DereineRing 是一个统一的 LLM API 管理与编排平台，可同时协调本地与云端模型提供方。",
       "login_notice": "如需使用，请先登录或注册。"
     },
     "system_status": {

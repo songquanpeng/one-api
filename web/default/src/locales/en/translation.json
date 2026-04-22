@@ -137,7 +137,7 @@
       "coze_notice": "For Coze, model name is the Bot ID. You can add prefix `bot-`, e.g.: `bot-123456`.",
       "douban_notice": "For Douban, you need to go to",
       "douban_notice_link": "Model Inference Page",
-      "douban_notice_2": "to create an inference endpoint, and use the endpoint name as model name, e.g.: `ep-20240608051426-tkxvl`.",
+      "douban_notice_2": "to create an inference endpoint, then use the endpoint name as the model name, e.g. `ep-20240608051426-tkxvl`. You can combine this with model mapping to map a friendly model name (key) to the endpoint name (value). Note: both names should be added to this channel's model list via custom models.",
       "aws_region_placeholder": "region, e.g.: us-west-2",
       "aws_ak_placeholder": "AWS IAM Access Key",
       "aws_sk_placeholder": "AWS IAM Secret Key",
@@ -576,7 +576,7 @@
         "buttons": {
           "save": "Save WeChat Server Settings"
         },
-        "scan_tip": "Scan QR code to follow WeChat Official Account, enter 'code' to get verification code (valid for 3 minutes)",
+        "scan_tip": "Scan the QR code to follow the WeChat Official Account, then send \"verification code\" to receive a code (valid for 3 minutes).",
         "code_placeholder": "Verification code"
       },
       "turnstile": {
@@ -708,9 +708,9 @@
         },
         "about": {
           "title": "About System",
-          "description": "You can set about content in settings page, supports HTML & Markdown",
+          "description": "You can edit the About page content in Settings. Markdown and HTML are supported.",
           "repository": "Project Repository:",
-          "loading_failed": "Failed to load about content..."
+          "loading_failed": "Failed to load About content..."
         },
         "footer": {
           "title": "Footer",
@@ -735,8 +735,8 @@
   },
   "home": {
     "welcome": {
-      "title": "Welcome to One API",
-      "description": "One API is a LLM API management and distribution system that helps you better manage and use LLM APIs from various providers.",
+      "title": "Welcome to DereineRing",
+      "description": "DereineRing is a unified LLM API management and orchestration platform for local and cloud providers.",
       "login_notice": "To use the service, please login or register first."
     },
     "system_status": {

@@ -1,4 +1,4 @@
-FROM --platform=$BUILDPLATFORM node:16 AS builder
+FROM node:16 AS builder
 
 WORKDIR /web
 COPY ./VERSION .
@@ -24,7 +24,8 @@ RUN apk add --no-cache \
 
 ENV GO111MODULE=on \
     CGO_ENABLED=1 \
-    GOOS=linux
+    GOOS=linux \
+    GOARCH=arm64
 
 WORKDIR /build
 

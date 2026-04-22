@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { UserContext } from '../context/User';
 import { useTranslation } from 'react-i18next';
@@ -142,11 +142,34 @@ const Header = () => {
   const languageOptions = [
     { key: 'zh', text: '中文', value: 'zh' },
     { key: 'en', text: 'English', value: 'en' },
+    { key: 'de', text: 'Deutsch', value: 'de' },
+    { key: 'sr', text: 'Srpski', value: 'sr' },
   ];
 
   const changeLanguage = (language) => {
     i18n.changeLanguage(language);
   };
+
+  const themeOptions = [
+    { key: 'dereinering', text: 'DereineRing', value: 'dereinering' },
+    { key: 'hermes', text: 'Hermes Overlay', value: 'hermes' },
+    { key: 'matrix', text: 'Matrix Overlay', value: 'matrix' },
+    { key: 'openclaw', text: 'OpenClaw Overlay', value: 'openclaw' },
+    { key: 'default', text: 'Default OneAPI', value: 'default' },
+  ];
+
+  const applyTheme = (themeName) => {
+    document.documentElement.setAttribute('data-ui-theme', themeName);
+    localStorage.setItem('ui_theme', themeName);
+  };
+
+  const [uiTheme, setUiTheme] = useState(
+    localStorage.getItem('ui_theme') || 'dereinering'
+  );
+
+  useEffect(() => {
+    applyTheme(uiTheme);
+  }, [uiTheme]);
 
   if (isMobile()) {
     return (
@@ -201,6 +224,17 @@ const Header = () => {
                   options={languageOptions}
                   value={i18n.language}
                   onChange={(_, { value }) => changeLanguage(value)}
+                />
+              </Menu.Item>
+              <Menu.Item>
+                <Dropdown
+                  selection
+                  trigger={
+                    <Icon name='paint brush' style={{ margin: 0, fontSize: '18px' }} />
+                  }
+                  options={themeOptions}
+                  value={uiTheme}
+                  onChange={(_, { value }) => setUiTheme(value)}
                 />
               </Menu.Item>
               <Menu.Item>
@@ -277,6 +311,21 @@ const Header = () => {
               options={languageOptions}
               value={i18n.language}
               onChange={(_, { value }) => changeLanguage(value)}
+              style={{
+                fontSize: '16px',
+                fontWeight: '400',
+                color: '#666',
+                padding: '0 10px',
+              }}
+            />
+            <Dropdown
+              item
+              trigger={
+                <Icon name='paint brush' style={{ margin: 0, fontSize: '18px' }} />
+              }
+              options={themeOptions}
+              value={uiTheme}
+              onChange={(_, { value }) => setUiTheme(value)}
               style={{
                 fontSize: '16px',
                 fontWeight: '400',

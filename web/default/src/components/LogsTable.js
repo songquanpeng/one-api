@@ -30,9 +30,9 @@ function renderTimestamp(timestamp, request_id) {
     <code
       onClick={async () => {
         if (await copy(request_id)) {
-          showSuccess(`已复制请求 ID：${request_id}`);
+          showSuccess(`Copied request ID: ${request_id}`);
         } else {
-          showWarning(`请求 ID 复制失败：${request_id}`);
+          showWarning(`Failed to copy request ID: ${request_id}`);
         }
       }}
       style={{ cursor: 'pointer' }}
@@ -43,8 +43,8 @@ function renderTimestamp(timestamp, request_id) {
 }
 
 const MODE_OPTIONS = [
-  { key: 'all', text: '全部用户', value: 'all' },
-  { key: 'self', text: '当前用户', value: 'self' },
+  { key: 'all', text: 'All users', value: 'all' },
+  { key: 'self', text: 'Current user', value: 'self' },
 ];
 
 function renderType(type) {
@@ -52,37 +52,37 @@ function renderType(type) {
     case 1:
       return (
         <Label basic color='green'>
-          充值
+          Top Up
         </Label>
       );
     case 2:
       return (
         <Label basic color='olive'>
-          消费
+          Usage
         </Label>
       );
     case 3:
       return (
         <Label basic color='orange'>
-          管理
+          Admin
         </Label>
       );
     case 4:
       return (
         <Label basic color='purple'>
-          系统
+          System
         </Label>
       );
     case 5:
       return (
         <Label basic color='violet'>
-          测试
+          Test
         </Label>
       );
     default:
       return (
         <Label basic color='black'>
-          未知
+          Unknown
         </Label>
       );
   }
@@ -98,9 +98,16 @@ function getColorByElapsedTime(elapsedTime) {
 }
 
 function renderDetail(log) {
+  const localizedContent = (log.content || '')
+    .replaceAll('模型倍率', 'Model ratio')
+    .replaceAll('分组倍率', 'Group ratio')
+    .replaceAll('补全倍率', 'Completion ratio')
+    .replaceAll('消费', 'Usage')
+    .replaceAll('充值', 'Top up');
+
   return (
     <>
-      {log.content}
+      {localizedContent}
       <br />
       {log.elapsed_time && (
         <Label

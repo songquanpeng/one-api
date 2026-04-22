@@ -1,0 +1,831 @@
+{
+  "header": {
+    "home": "Startseite",
+    "channel": "Kanal",
+    "token": "Token",
+    "redemption": "Einlösung",
+    "topup": "Aufladen",
+    "user": "Benutzer",
+    "dashboard": "Dashboard",
+    "log": "Protokoll",
+    "setting": "Einstellungen",
+    "about": "Über",
+    "chat": "Chat",
+    "login": "Anmelden",
+    "logout": "Abmelden",
+    "register": "Registrieren"
+  },
+  "topup": {
+    "title": "Aufladezentrum",
+    "get_code": {
+      "title": "Holen Sie sich den Einlösungscode",
+      "current_quota": "Derzeit verfügbares Kontingent",
+      "button": "Holen Sie sich jetzt Code"
+    },
+    "redeem_code": {
+      "title": "Code einlösen",
+      "placeholder": "Bitte geben Sie den Einlösecode ein",
+      "paste": "Einfügen",
+      "paste_error": "Auf die Zwischenablage kann nicht zugegriffen werden. Bitte manuell einfügen",
+      "submit": "Jetzt einlösen",
+      "submitting": "Einlösen...",
+      "empty_code": "Bitte geben Sie den Einlösecode ein!",
+      "success": "Aufladen erfolgreich!",
+      "request_failed": "Die Anfrage ist fehlgeschlagen",
+      "no_link": "Der Administrator hat den Aufladelink nicht eingerichtet!"
+    }
+  },
+  "channel": {
+    "title": "Kanalmanagement",
+    "search": "Suchen Sie nach Kanälen nach ID, Name und Schlüssel ...",
+    "balance_notice": "OpenAI-Kanäle unterstützen das Abrufen des Guthabens über den Schlüssel nicht mehr, daher wird das Guthaben als 0 angezeigt. Klicken Sie für unterstützte Kanaltypen auf Guthaben, um es zu aktualisieren.",
+    "test_notice": "Kanaltests unterstützen nur Chat-Modelle und bevorzugen gpt-3.5-turbo. Wenn nicht verfügbar, wird das erste Modell in Ihrer konfigurierten Liste verwendet.",
+    "detail_notice": "Klicken Sie unten auf „Details“, um das Guthaben anzuzeigen und weitere Testmodelle festzulegen.",
+    "table": {
+      "id": "ID",
+      "name": "Name",
+      "group": "Gruppe",
+      "type": "Typ",
+      "status": "Status",
+      "response_time": "Ansprechzeit",
+      "balance": "Guthaben",
+      "priority": "Priorität",
+      "test_model": "Testmodell",
+      "actions": "Aktionen",
+      "no_name": "Keine",
+      "status_enabled": "Ermöglicht",
+      "status_disabled": "Deaktiviert",
+      "status_auto_disabled": "Deaktiviert",
+      "status_disabled_tip": "Dieser Kanal ist manuell deaktiviert",
+      "status_auto_disabled_tip": "Dieser Kanal wird automatisch deaktiviert",
+      "status_unknown": "Unbekannter Status",
+      "not_tested": "Nicht getestet",
+      "priority_tip": "Kanalauswahlpriorität, höher wird bevorzugt",
+      "select_test_model": "Bitte Testmodell auswählen",
+      "click_to_update": "Klicken Sie zum Aktualisieren",
+      "balance_not_supported": "-"
+    },
+    "buttons": {
+      "test": "Testen",
+      "delete": "Löschen",
+      "confirm_delete": "Kanal löschen",
+      "enable": "Aktivieren",
+      "disable": "Deaktivieren",
+      "edit": "Bearbeiten",
+      "add": "Neuen Kanal hinzufügen",
+      "test_all": "Testen Sie alle Kanäle",
+      "test_disabled": "Testen Sie deaktivierte Kanäle",
+      "delete_disabled": "Deaktivierte Kanäle löschen",
+      "confirm_delete_disabled": "Bestätigen Sie Löschen",
+      "refresh": "Aktualisieren",
+      "show_detail": "Details",
+      "hide_detail": "Details ausblenden"
+    },
+    "messages": {
+      "test_success": "Kanal {{name}} Test erfolgreich, Modell {{model}}, Zeit {{time}}s, Ausgabe: {{message}}",
+      "test_all_started": "Der Kanaltest wurde erfolgreich gestartet. Bitte aktualisieren Sie die Seite, um die Ergebnisse anzuzeigen.",
+      "delete_disabled_success": "Alle deaktivierten Kanäle gelöscht, Gesamtzahl: {{count}}",
+      "balance_update_success": "Der Kontostand des Kanals {{name}} wurde erfolgreich aktualisiert!",
+      "all_balance_updated": "Alle aktivierten Kanalguthaben wurden aktualisiert!",
+      "operation_success": "Vorgang erfolgreich abgeschlossen!"
+    },
+    "edit": {
+      "title_edit": "Kanalinformationen aktualisieren",
+      "title_create": "Neuen Kanal erstellen",
+      "type": "Typ",
+      "name": "Name",
+      "name_placeholder": "Bitte Namen eingeben",
+      "group": "Gruppe",
+      "group_placeholder": "Bitte wählen Sie Gruppen aus, die diesen Kanal nutzen können",
+      "group_addition": "Bitte bearbeiten Sie die Gruppenmultiplikatoren in den Systemeinstellungen, um eine neue Gruppe hinzuzufügen:",
+      "models": "Modelle",
+      "models_placeholder": "Bitte wählen Sie die von diesem Kanal unterstützten Modelle aus",
+      "model_mapping": "Modellzuordnung",
+      "model_mapping_placeholder": "Optional, wird zum Ändern von Modellnamen im Anfragetext verwendet. Eine JSON-Zeichenfolge, in der Schlüssel Anforderungsmodellnamen und Werte Zielmodellnamen sind",
+      "system_prompt": "Systemaufforderung",
+      "system_prompt_placeholder": "Optional, wird verwendet, um die Festlegung der Systemaufforderung zu erzwingen. Verwendung mit benutzerdefiniertem Modell und Modellzuordnung. Erstellen Sie oben zunächst einen eindeutigen benutzerdefinierten Modellnamen und ordnen Sie ihn dann einem nativ unterstützten Modell zu",
+      "proxy_url": "Proxy",
+      "proxy_url_placeholder": "Dies ist optional und wird für API-Aufrufe über einen Proxy verwendet. Bitte geben Sie die Proxy-URL im Format https://domain.com ein",
+      "base_url": "Basis-URL",
+      "base_url_placeholder": "Die vom OpenAPI SDK benötigte Basis-URL",
+      "key": "Schlüssel",
+      "key_placeholder": "Bitte Schlüssel eingeben",
+      "batch": "Stapelerstellung",
+      "batch_placeholder": "Bitte geben Sie Schlüssel ein, einen pro Zeile",
+      "buttons": {
+        "cancel": "Abbrechen",
+        "submit": "Speichern",
+        "fill_models": "Füllen Sie verwandte Modelle aus",
+        "fill_all": "Füllen Sie alle Modelle aus",
+        "clear": "Alle Modelle löschen",
+        "add_custom": "Hinzufügen",
+        "custom_placeholder": "Geben Sie einen benutzerdefinierten Modellnamen ein"
+      },
+      "messages": {
+        "name_required": "Bitte Kanalnamen und Schlüssel eingeben!",
+        "models_required": "Bitte wählen Sie mindestens ein Modell aus!",
+        "model_mapping_invalid": "Die Modellzuordnung muss ein gültiges JSON-Format sein!",
+        "update_success": "Kanal erfolgreich aktualisiert!",
+        "create_success": "Kanal erfolgreich erstellt!"
+      },
+      "spark_version": "Modellversion",
+      "spark_version_placeholder": "Bitte geben Sie die Spark-Modellversion über die API-URL ein, z. B.: v2.1",
+      "knowledge_id": "Wissensdatenbank-ID",
+      "knowledge_id_placeholder": "Bitte geben Sie die Wissensdatenbank-ID ein, z. B.: 123456",
+      "plugin_param": "Plugin-Parameter",
+      "plugin_param_placeholder": "Bitte geben Sie den Plugin-Parameter ein (X-DashScope-Plugin-Header-Wert).",
+      "coze_notice": "Für Coze ist der Modellname die Bot-ID. Sie können das Präfix `bot-` hinzufügen, z. B.: `bot-123456`.",
+      "douban_notice": "Für Douban müssen Sie gehen",
+      "douban_notice_link": "Seite „Modellinferenz“.",
+      "douban_notice_2": "Um einen Inferenzendpunkt zu erstellen, verwenden Sie dann den Endpunktnamen als Modellnamen, z. B. `ep-20240608051426-tkxvl`. Sie können dies mit der Modellzuordnung kombinieren, um dem Endpunktnamen (Wert) einen benutzerfreundlichen Modellnamen (Schlüssel) zuzuordnen. Hinweis: Beide Namen sollten über benutzerdefinierte Modelle zur Modellliste dieses Kanals hinzugefügt werden.",
+      "aws_region_placeholder": "Region, z. B.: us-west-2",
+      "aws_ak_placeholder": "AWS IAM-Zugriffsschlüssel",
+      "aws_sk_placeholder": "Geheimer AWS IAM-Schlüssel",
+      "vertex_region_placeholder": "Vertex AI-Region, z. B.: us-east5",
+      "vertex_project_id": "Vertex AI-Projekt-ID",
+      "vertex_project_id_placeholder": "Vertex AI-Projekt-ID",
+      "vertex_credentials": "Standardanmeldeinformationen für die Google Cloud-Anwendung JSON",
+      "vertex_credentials_placeholder": "Standardanmeldeinformationen für die Google Cloud-Anwendung JSON",
+      "user_id": "Benutzer-ID",
+      "user_id_placeholder": "Benutzer-ID, die diesen Schlüssel generiert hat",
+      "key_prompts": {
+        "default": "Bitte geben Sie den Authentifizierungsschlüssel für diesen Kanal ein",
+        "zhipu": "Geben Sie das folgende Format ein: APIKey|SecretKey",
+        "spark": "Geben Sie das folgende Format ein: APPID|APISecret|APIKey",
+        "fastgpt": "Geben Sie das folgende Format ein: APIKey-AppId, z. B.: fastgpt-0sp2gtvfdgyi4k30jwlgwf1i-64f335d84283f05518e9e041",
+        "tencent": "Geben Sie das folgende Format ein: AppId|SecretId|SecretKey"
+      }
+    }
+  },
+  "token": {
+    "title": "Token-Management",
+    "search": "Token nach Namen suchen ...",
+    "table": {
+      "name": "Name",
+      "status": "Status",
+      "used_quota": "Verwendetes Kontingent",
+      "remain_quota": "Verbleibendes Kontingent",
+      "created_time": "Erstellte Zeit",
+      "expired_time": "Ablaufzeit",
+      "actions": "Aktionen",
+      "no_name": "Keine",
+      "never_expire": "niemals",
+      "unlimited": "Unbegrenzt",
+      "status_enabled": "Ermöglicht",
+      "status_disabled": "Deaktiviert",
+      "status_expired": "Abgelaufen",
+      "status_depleted": "Erschöpft",
+      "status_unknown": "Unbekannter Status"
+    },
+    "buttons": {
+      "copy": "Kopie",
+      "chat": "Chatten",
+      "delete": "Löschen",
+      "confirm_delete": "Token löschen",
+      "enable": "Aktivieren",
+      "disable": "Deaktivieren",
+      "edit": "Bearbeiten",
+      "add": "Neues Token hinzufügen",
+      "refresh": "Aktualisieren"
+    },
+    "edit": {
+      "title_edit": "Token-Informationen aktualisieren",
+      "title_create": "Neues Token erstellen",
+      "name": "Name",
+      "name_placeholder": "Bitte Namen eingeben",
+      "models": "Modellumfang",
+      "models_placeholder": "Bitte wählen Sie zulässige Modelle aus und lassen Sie das Feld leer, um keine Einschränkungen zu erhalten",
+      "ip_limit": "IP-Einschränkung",
+      "ip_limit_placeholder": "Bitte geben Sie zulässige Subnetze ein, z. B.: 192.168.0.0/24, verwenden Sie Kommas, um mehrere Subnetze zu trennen",
+      "expire_time": "Ablaufzeit",
+      "expire_time_placeholder": "Bitte geben Sie die Ablaufzeit im Format jjjj-MM-tt HH:mm:ss ein, -1 für keine Begrenzung",
+      "quota_notice": "Hinweis: Das Token-Kontingent begrenzt nur die maximale Nutzung des Tokens selbst, die tatsächliche Nutzung hängt vom verbleibenden Kontingent des Kontos ab.",
+      "quota": "Quote",
+      "quota_placeholder": "Bitte geben Sie das Kontingent ein",
+      "buttons": {
+        "never_expire": "Läuft niemals ab",
+        "expire_1_month": "Läuft in 1 Monat ab",
+        "expire_1_day": "Läuft in 1 Tag ab",
+        "expire_1_hour": "Läuft in 1 Stunde ab",
+        "expire_1_minute": "Läuft in 1 Minute ab",
+        "unlimited_quota": "Legen Sie ein unbegrenztes Kontingent fest",
+        "cancel_unlimited": "Unbegrenztes Kontingent kündigen",
+        "submit": "Einreichen",
+        "cancel": "Stornieren"
+      },
+      "messages": {
+        "update_success": "Token erfolgreich aktualisiert!",
+        "create_success": "Token erfolgreich erstellt, bitte kopieren Sie es von der Listenseite!",
+        "expire_time_invalid": "Ungültiges Ablaufzeitformat!"
+      }
+    },
+    "copy_options": {
+      "raw": "Raw-Token kopieren",
+      "ama": "AMA-Link kopieren",
+      "opencat": "OpenCat-Link kopieren",
+      "next": "Kopieren Sie den NextChat-Link",
+      "lobe": "LobeChat-Link kopieren"
+    },
+    "messages": {
+      "copy_success": "In die Zwischenablage kopiert!",
+      "copy_failed": "Kopieren in die Zwischenablage nicht möglich, bitte manuell kopieren. Token wurde in das Suchfeld eingetragen.",
+      "operation_success": "Vorgang erfolgreich abgeschlossen!"
+    },
+    "sort": {
+      "placeholder": "Sortieren nach",
+      "default": "Standardreihenfolge",
+      "by_remain": "Sortieren nach verbleibendem Kontingent",
+      "by_used": "Sortieren nach genutztem Kontingent"
+    }
+  },
+  "common": {
+    "quota": {
+      "display": "Äquivalent: ${{amount}}",
+      "display_short": "${{amount}}",
+      "unit": "$"
+    }
+  },
+  "redemption": {
+    "title": "Rücknahmemanagement",
+    "search": "Einlösecodes nach ID und Name suchen ...",
+    "table": {
+      "id": "AUSWEIS",
+      "name": "Name",
+      "status": "Status",
+      "quota": "Quote",
+      "created_time": "Erstellte Zeit",
+      "redeemed_time": "Eingelöste Zeit",
+      "actions": "Aktionen",
+      "no_name": "Keiner",
+      "not_redeemed": "Nicht eingelöst"
+    },
+    "buttons": {
+      "copy": "Kopie",
+      "delete": "Löschen",
+      "confirm_delete": "Bestätigen Sie Löschen",
+      "enable": "Aktivieren",
+      "disable": "Deaktivieren",
+      "edit": "Bearbeiten",
+      "add": "Neuen Code hinzufügen",
+      "refresh": "Aktualisieren"
+    },
+    "status": {
+      "unused": "Unbenutzt",
+      "disabled": "Deaktiviert",
+      "used": "Gebraucht",
+      "unknown": "Unbekannt"
+    },
+    "edit": {
+      "title_edit": "Einlösecode aktualisieren",
+      "title_create": "Erstellen Sie einen neuen Einlösungscode",
+      "name": "Name",
+      "name_placeholder": "Bitte Namen eingeben",
+      "quota": "Quote",
+      "quota_placeholder": "Bitte geben Sie das Kontingent pro Einlösecode ein",
+      "count": "Anzahl generieren",
+      "count_placeholder": "Bitte geben Sie die Anzahl der zu generierenden Codes ein",
+      "buttons": {
+        "submit": "Einreichen",
+        "cancel": "Stornieren"
+      }
+    },
+    "messages": {
+      "update_success": "Einlösecode erfolgreich aktualisiert!",
+      "create_success": "Einlösecode erfolgreich erstellt!"
+    }
+  },
+  "log": {
+    "title": "Betriebsprotokoll",
+    "search": "Protokolle durchsuchen...",
+    "usage_details": "Nutzungsdetails",
+    "total_quota": "Gesamtkontingent verwendet",
+    "click_to_view": "Klicken Sie zum Anzeigen",
+    "type": {
+      "select": "Wählen Sie Protokolltyp aus",
+      "all": "Alle",
+      "topup": "Nachfüllen",
+      "usage": "Verwendung",
+      "admin": "Admin",
+      "system": "System",
+      "test": "Prüfen"
+    },
+    "table": {
+      "time": "Zeit",
+      "channel": "Kanal",
+      "type": "Typ",
+      "model": "Modell",
+      "username": "Benutzername",
+      "token_name": "Tokenname",
+      "token_name_placeholder": "Optional",
+      "model_name": "Modellname",
+      "model_name_placeholder": "Optional",
+      "start_time": "Startzeit",
+      "end_time": "Endzeit",
+      "channel_id": "Kanal-ID",
+      "channel_id_placeholder": "Optional",
+      "username_placeholder": "Optional",
+      "prompt_tokens": "Prompt-Tokens",
+      "completion_tokens": "Abschlusstoken",
+      "quota": "Quote",
+      "detail": "Detail"
+    },
+    "buttons": {
+      "query": "Aktion",
+      "submit": "Abfrage",
+      "refresh": "Aktualisieren"
+    }
+  },
+  "user": {
+    "title": "Benutzerverwaltung",
+    "edit": {
+      "title": "Benutzerinformationen aktualisieren",
+      "username": "Benutzername",
+      "username_placeholder": "Bitte geben Sie einen neuen Benutzernamen ein",
+      "password": "Passwort",
+      "password_placeholder": "Bitte geben Sie ein neues Passwort ein, mindestens 8 Zeichen",
+      "display_name": "Anzeigename",
+      "display_name_placeholder": "Bitte geben Sie einen neuen Anzeigenamen ein",
+      "group": "Gruppe",
+      "group_placeholder": "Bitte Gruppe auswählen",
+      "group_addition": "Bitte bearbeiten Sie die Gruppenmultiplikatoren in den Systemeinstellungen, um eine neue Gruppe hinzuzufügen:",
+      "quota": "Verbleibendes Kontingent",
+      "quota_placeholder": "Bitte geben Sie ein neues Restkontingent ein",
+      "github_id": "Verknüpftes GitHub-Konto",
+      "github_id_placeholder": "Schreibgeschützt, der Benutzer muss über die Seite mit den persönlichen Einstellungen verlinken und kann nicht direkt geändert werden",
+      "wechat_id": "Verknüpftes WeChat-Konto",
+      "wechat_id_placeholder": "Schreibgeschützt, der Benutzer muss über die Seite mit den persönlichen Einstellungen verlinken und kann nicht direkt geändert werden",
+      "email": "Verknüpftes E-Mail-Konto",
+      "email_placeholder": "Schreibgeschützt, der Benutzer muss über die Seite mit den persönlichen Einstellungen verlinken und kann nicht direkt geändert werden",
+      "buttons": {
+        "submit": "Einreichen",
+        "cancel": "Stornieren"
+      }
+    },
+    "add": {
+      "title": "Erstellen Sie ein neues Benutzerkonto"
+    },
+    "messages": {
+      "update_success": "Benutzerinformationen erfolgreich aktualisiert!",
+      "create_success": "Benutzerkonto erfolgreich erstellt!",
+      "operation_success": "Vorgang erfolgreich abgeschlossen!"
+    },
+    "search": "Benutzer suchen...",
+    "table": {
+      "id": "AUSWEIS",
+      "username": "Benutzername",
+      "group": "Gruppe",
+      "quota": "Quote",
+      "role_text": "Rolle",
+      "status_text": "Status",
+      "actions": "Aktionen",
+      "remaining_quota": "Verbleibendes Kontingent",
+      "used_quota": "Verwendetes Kontingent",
+      "request_count": "Anzahl der Anfragen",
+      "role_types": {
+        "normal": "Normaler Benutzer",
+        "admin": "Admin",
+        "super_admin": "Super Admin",
+        "unknown": "Unbekannte Rolle"
+      },
+      "status_types": {
+        "activated": "Aktiviert",
+        "banned": "Verboten",
+        "unknown": "Unbekannter Status"
+      },
+      "sort": {
+        "default": "Standardreihenfolge",
+        "by_quota": "Sortieren nach verbleibendem Kontingent",
+        "by_used_quota": "Sortieren nach genutztem Kontingent",
+        "by_request_count": "Nach Anzahl der Anfragen sortieren"
+      },
+      "sort_by": "Sortieren nach"
+    },
+    "buttons": {
+      "add": "Neuen Benutzer hinzufügen",
+      "delete": "Löschen",
+      "delete_user": "Benutzer löschen",
+      "enable": "Aktivieren",
+      "disable": "Deaktivieren",
+      "edit": "Bearbeiten",
+      "promote": "Fördern",
+      "demote": "Degradieren"
+    }
+  },
+  "dashboard": {
+    "charts": {
+      "requests": {
+        "title": "Modellanfragetrend",
+        "tooltip": "Anzahl der Anfragen"
+      },
+      "quota": {
+        "title": "Kontingentnutzungstrend",
+        "tooltip": "Kontingent verwendet"
+      },
+      "tokens": {
+        "title": "Trend zur Token-Nutzung",
+        "tooltip": "Token-Anzahl"
+      }
+    },
+    "statistics": {
+      "title": "Statistiken",
+      "tooltip": {
+        "date": "Datum",
+        "value": "Wert"
+      }
+    }
+  },
+  "setting": {
+    "title": "Systemeinstellungen",
+    "tabs": {
+      "personal": "Persönliche Einstellungen",
+      "operation": "Betriebseinstellungen",
+      "system": "Systemeinstellungen",
+      "other": "Andere Einstellungen"
+    },
+    "personal": {
+      "general": {
+        "title": "Allgemeine Einstellungen",
+        "system_token_notice": "Hinweis: Das hier generierte Token dient der Systemverwaltung und nicht der Anforderung von OpenAI-bezogenen Diensten.",
+        "buttons": {
+          "update_profile": "Profil aktualisieren",
+          "generate_token": "System-Token generieren",
+          "copy_invite": "Einladungslink kopieren",
+          "delete_account": "Konto löschen"
+        }
+      },
+      "binding": {
+        "title": "Kontobindung",
+        "buttons": {
+          "bind_wechat": "WeChat-Konto verknüpfen",
+          "bind_github": "GitHub-Konto binden",
+          "bind_email": "E-Mail-Adresse binden",
+          "bind_lark": "Lark-Konto verknüpfen"
+        },
+        "wechat": {
+          "title": "WeChat-Bindung",
+          "description": "Scannen Sie den QR-Code, um dem offiziellen Konto zu folgen, und geben Sie den „Bestätigungscode“ ein, um den Code zu erhalten (gültig für 3 Minuten).",
+          "verification_code": "Bestätigungscode",
+          "bind": "Binden"
+        },
+        "email": {
+          "title": "E-Mail-Adresse binden",
+          "email_placeholder": "Geben Sie die E-Mail-Adresse ein",
+          "code_placeholder": "Bestätigungscode",
+          "get_code": "Code abrufen",
+          "get_code_retry": "Erneut senden({{countdown}})",
+          "bind": "Bindung bestätigen",
+          "cancel": "Stornieren"
+        }
+      },
+      "delete_account": {
+        "title": "Kritische Aktion",
+        "warning": "Sie löschen Ihr Konto. Alle Daten werden gelöscht und können nicht wiederhergestellt werden",
+        "confirm_placeholder": "Geben Sie Ihren Benutzernamen {{username}} ein, um den Löschvorgang zu bestätigen",
+        "buttons": {
+          "confirm": "Bestätigen Sie Löschen",
+          "cancel": "Stornieren"
+        }
+      }
+    },
+    "system": {
+      "general": {
+        "title": "Allgemeine Einstellungen",
+        "server_address": "Serveradresse",
+        "server_address_placeholder": "z.B.: https://yourdomain.com",
+        "buttons": {
+          "update": "Serveradresse aktualisieren"
+        }
+      },
+      "login": {
+        "title": "Anmelde- und Registrierungseinstellungen",
+        "password_login": "Passwortanmeldung zulassen",
+        "password_register": "Passwortregistrierung zulassen",
+        "email_verification": "Für die Passwortregistrierung ist eine E-Mail-Bestätigung erforderlich",
+        "github_oauth": "GitHub OAuth-Anmeldung und -Registrierung zulassen",
+        "wechat_login": "WeChat-Anmeldung und -Registrierung zulassen",
+        "registration": "Registrierung neuer Benutzer zulassen (Wenn diese Option deaktiviert ist, können sich neue Benutzer auf keinen Fall registrieren.)",
+        "turnstile": "Turnstile-Benutzerprüfung aktivieren"
+      },
+      "email_restriction": {
+        "title": "E-Mail-Domain-Whitelist",
+        "subtitle": "Wird verwendet, um zu verhindern, dass böswillige Benutzer sich mit temporären E-Mails stapelweise registrieren",
+        "enable": "Aktivieren Sie die Whitelist für E-Mail-Domänen",
+        "allowed_domains": "Zulässige E-Mail-Domänen",
+        "add_domain": "Neue zulässige E-Mail-Domäne hinzufügen",
+        "add_domain_placeholder": "Geben Sie die neue zulässige E-Mail-Domäne ein",
+        "buttons": {
+          "fill": "Füllen",
+          "save": "Speichern Sie die Einstellungen der E-Mail-Domain-Whitelist"
+        }
+      },
+      "smtp": {
+        "title": "SMTP-Konfiguration",
+        "subtitle": "Wird zur Unterstützung des System-E-Mail-Versands verwendet",
+        "server": "SMTP-Serveradresse",
+        "server_placeholder": "z.B.: smtp.gmail.com",
+        "port": "SMTP-Port",
+        "port_placeholder": "Standard: 587",
+        "account": "SMTP-Konto",
+        "account_placeholder": "Normalerweise Ihre E-Mail-Adresse",
+        "from": "SMTP-Absender-E-Mail",
+        "from_placeholder": "Normalerweise identisch mit der E-Mail-Adresse",
+        "token": "SMTP-Zugriffstoken",
+        "token_placeholder": "Sensible Informationen werden nicht an das Frontend gesendet",
+        "buttons": {
+          "save": "Speichern Sie die SMTP-Einstellungen"
+        }
+      },
+      "github": {
+        "title": "GitHub OAuth-App-Konfiguration",
+        "subtitle": "Wird zur Unterstützung der GitHub-Anmeldung und -Registrierung verwendet",
+        "manage_link": "klicken Sie hier",
+        "manage_text": "um Ihre GitHub OAuth Apps zu verwalten",
+        "url_notice": "Legen Sie die Homepage-URL auf {{server_url}} und die Autorisierungs-Callback-URL auf {{callback_url}} fest",
+        "client_id": "GitHub-Client-ID",
+        "client_id_placeholder": "Geben Sie Ihre registrierte GitHub OAuth-APP-ID ein",
+        "client_secret": "GitHub-Client-Geheimnis",
+        "client_secret_placeholder": "Sensible Informationen werden nicht an das Frontend gesendet",
+        "buttons": {
+          "save": "Speichern Sie die GitHub-OAuth-Einstellungen"
+        }
+      },
+      "lark": {
+        "title": "Lark OAuth-Konfiguration",
+        "subtitle": "Wird zur Unterstützung der Lark-Anmeldung und -Registrierung verwendet",
+        "manage_link": "klicken Sie hier",
+        "manage_text": "um Ihre Lark-Anwendungen zu verwalten",
+        "url_notice": "Legen Sie die Homepage-URL auf {{server_url}} und die Umleitungs-URL auf {{callback_url}} fest",
+        "client_id": "App-ID",
+        "client_id_placeholder": "Geben Sie die App-ID ein",
+        "client_secret": "App-Geheimnis",
+        "client_secret_placeholder": "Sensible Informationen werden nicht an das Frontend gesendet",
+        "buttons": {
+          "save": "Speichern Sie die Lark OAuth-Einstellungen"
+        }
+      },
+      "wechat": {
+        "title": "WeChat-Serverkonfiguration",
+        "subtitle": "Wird zur Unterstützung der WeChat-Anmeldung und -Registrierung verwendet",
+        "learn_more": "Erfahren Sie mehr über den WeChat-Server",
+        "server_address": "WeChat-Serveradresse",
+        "server_address_placeholder": "z.B.: https://yourdomain.com",
+        "token": "WeChat-Serverzugriffstoken",
+        "token_placeholder": "Sensible Informationen werden nicht an das Frontend gesendet",
+        "qrcode": "QR-Code-Bild-URL des offiziellen WeChat-Kontos",
+        "qrcode_placeholder": "Geben Sie eine Bild-URL ein",
+        "buttons": {
+          "save": "Speichern Sie die WeChat-Servereinstellungen"
+        },
+        "scan_tip": "Scannen Sie den QR-Code, um dem offiziellen WeChat-Konto zu folgen, und senden Sie dann den „Bestätigungscode“, um einen Code zu erhalten (gültig für 3 Minuten).",
+        "code_placeholder": "Bestätigungscode"
+      },
+      "turnstile": {
+        "title": "Drehkreuzkonfiguration",
+        "subtitle": "Wird zur Unterstützung der Benutzerüberprüfung verwendet",
+        "manage_link": "klicken Sie hier",
+        "manage_text": "Zur Verwaltung Ihrer Drehkreuzstandorte wird der unsichtbare Widget-Typ empfohlen",
+        "site_key": "Drehkreuz-Standortschlüssel",
+        "site_key_placeholder": "Geben Sie Ihren registrierten Drehkreuz-Standortschlüssel ein",
+        "secret_key": "Geheimer Drehkreuzschlüssel",
+        "secret_key_placeholder": "Sensible Informationen werden nicht an das Frontend gesendet",
+        "buttons": {
+          "save": "Drehkreuzeinstellungen speichern"
+        }
+      },
+      "password_login": {
+        "warning": {
+          "title": "Warnung",
+          "content": "Durch die Deaktivierung der Passwortanmeldung wird verhindert, dass sich alle Benutzer (einschließlich Administratoren), die keine anderen Anmeldemethoden festgelegt haben, über ein Passwort anmelden können. Deaktivierung bestätigen?",
+          "buttons": {
+            "confirm": "Bestätigen",
+            "cancel": "Stornieren"
+          }
+        }
+      }
+    },
+    "operation": {
+      "quota": {
+        "title": "Kontingenteinstellungen",
+        "new_user": "Anfängliches Kontingent für neue Benutzer",
+        "new_user_placeholder": "z.B.: 100",
+        "pre_consume": "Vorab verbrauchtes Kontingent pro Anfrage",
+        "pre_consume_placeholder": "Rückerstattung oder Differenzberechnung nach Anfrage",
+        "inviter_reward": "Prämienkontingent für Einladende",
+        "inviter_reward_placeholder": "z.B.: 2000",
+        "invitee_reward": "Belohnungskontingent für die Verwendung des Einladungscodes",
+        "invitee_reward_placeholder": "z.B.: 1000",
+        "buttons": {
+          "save": "Kontingenteinstellungen speichern"
+        }
+      },
+      "ratio": {
+        "title": "Verhältniseinstellungen",
+        "model": {
+          "title": "Modellverhältnis",
+          "placeholder": "Ein JSON-Text, in dem Schlüssel Modellnamen und Werte Verhältnisse sind"
+        },
+        "completion": {
+          "title": "Abschlussquote",
+          "placeholder": "Ein JSON-Text, in dem Schlüssel Modellnamen und Werte Verhältnisse sind. Bei diesen Verhältnissen handelt es sich um das Verhältnis von Fertigstellung zu Eingabeaufforderung, das die internen Verhältnisse von One API überschreiben kann"
+        },
+        "group": {
+          "title": "Gruppenverhältnis",
+          "placeholder": "Ein JSON-Text, in dem Schlüssel Gruppennamen und Werte Verhältnisse sind"
+        },
+        "buttons": {
+          "save": "Verhältniseinstellungen speichern"
+        }
+      },
+      "log": {
+        "title": "Protokolleinstellungen",
+        "enable_consume": "Aktivieren Sie die Protokollierung des Kontingentverbrauchs",
+        "target_time": "Zielzeit",
+        "buttons": {
+          "clean": "Bereinigen Sie historische Protokolle"
+        }
+      },
+      "monitor": {
+        "title": "Monitoreinstellungen",
+        "max_response_time": "Maximale Reaktionszeit",
+        "max_response_time_placeholder": "Innerhalb von Sekunden werden Kanäle, die diese Zeit während des Tests überschreiten, automatisch deaktiviert",
+        "quota_reminder": "Kontingent-Erinnerungsschwelle",
+        "quota_reminder_placeholder": "Benutzer erhalten E-Mail-Erinnerungen, wenn das Kontingent unter diesen Wert fällt",
+        "auto_disable": "Kanal bei Fehler automatisch deaktivieren",
+        "auto_enable": "Kanal bei Erfolg automatisch aktivieren",
+        "buttons": {
+          "save": "Monitoreinstellungen speichern"
+        }
+      },
+      "general": {
+        "title": "Allgemeine Einstellungen",
+        "topup_link": "Aufladelink",
+        "topup_link_placeholder": "Beispiel: Kauflink für die Kartenverkaufs-Website",
+        "chat_link": "Link zur Chat-Seite",
+        "chat_link_placeholder": "Beispiel: ChatGPT Next Web-Bereitstellungsadresse",
+        "quota_per_unit": "Quote pro Dollar",
+        "quota_per_unit_placeholder": "Kontingent pro Währungseinheit umtauschbar",
+        "retry_times": "Wiederholungszeiten bei Fehler",
+        "retry_times_placeholder": "Anzahl der Wiederholungsversuche bei einem Fehler",
+        "display_in_currency": "Kontingent im Währungsformat anzeigen",
+        "display_token_stat": "Zeigen Sie in Abrechnungs-APIs das Token-Kontingent anstelle des Benutzerkontingents an",
+        "approximate_token": "Verwenden Sie die Näherungsmethode, um die Anzahl der Token zu schätzen",
+        "buttons": {
+          "save": "Allgemeine Einstellungen speichern"
+        }
+      }
+    },
+    "other": {
+      "notice": {
+        "title": "Hinweiseinstellungen",
+        "content": "Hinweisinhalt",
+        "content_placeholder": "Geben Sie hier neue Benachrichtigungsinhalte ein, unterstützt Markdown und HTML-Code",
+        "buttons": {
+          "save": "Hinweis speichern"
+        }
+      },
+      "system": {
+        "title": "Systemeinstellungen",
+        "name": "Systemname",
+        "name_placeholder": "Bitte geben Sie den Systemnamen ein",
+        "logo": "Logo-Bild-URL",
+        "logo_placeholder": "Geben Sie hier die Logo-Bild-URL ein",
+        "theme": {
+          "title": "Themenname",
+          "link": "Verfügbare Themen",
+          "placeholder": "Bitte geben Sie den Themennamen ein"
+        },
+        "buttons": {
+          "save_name": "Legen Sie den Systemnamen fest",
+          "save_logo": "Logo festlegen",
+          "save_theme": "Thema festlegen (Neustart erforderlich)"
+        }
+      },
+      "content": {
+        "title": "Inhaltseinstellungen",
+        "homepage": {
+          "title": "Homepage-Inhalt",
+          "placeholder": "Geben Sie hier Homepage-Inhalte ein, unterstützt Markdown und HTML-Code. Statusinformationen werden nach der Einstellung nicht angezeigt. Wenn ein Link eingegeben wird, wird dieser als src-Attribut eines Iframes verwendet, sodass Sie jede beliebige Webseite als Startseite festlegen können."
+        },
+        "about": {
+          "title": "Über das System",
+          "description": "Sie können den Inhalt der Info-Seite in den Einstellungen bearbeiten. Markdown und HTML werden unterstützt.",
+          "repository": "Projekt-Repository:",
+          "loading_failed": "Über den Inhalt konnte nicht geladen werden..."
+        },
+        "footer": {
+          "title": "Fußzeile",
+          "placeholder": "Geben Sie hier eine neue Fußzeile ein. Lassen Sie das Feld leer, um die Standardfußzeile zu verwenden. Unterstützt HTML-Code"
+        },
+        "buttons": {
+          "save_homepage": "Homepage-Inhalt speichern",
+          "save_about": "Speichern Sie ungefähr",
+          "save_footer": "Fußzeile festlegen"
+        }
+      },
+      "copyright": {
+        "notice": "Das Entfernen des Urheberrechtsvermerks von One API erfordert eine Genehmigung. Die Projektpflege erfordert einen erheblichen Aufwand. Wenn dieses Projekt für Sie von Bedeutung ist, unterstützen Sie es bitte aktiv."
+      }
+    }
+  },
+  "footer": {
+    "built_by": "gebaut von",
+    "built_by_name": "JustSong",
+    "license": "Der Quellcode ist unter der Lizenz lizenziert",
+    "mit": "MIT-Lizenz"
+  },
+  "home": {
+    "welcome": {
+      "title": "Willkommen bei DereineRing",
+      "description": "DereineRing ist eine einheitliche LLM-API-Management- und Orchestrierungsplattform für lokale und Cloud-Anbieter.",
+      "login_notice": "Um den Service nutzen zu können, melden Sie sich bitte zunächst an oder registrieren Sie sich."
+    },
+    "system_status": {
+      "title": "Systemstatus",
+      "info": {
+        "title": "Systeminformationen",
+        "name": "Name:",
+        "version": "Version:",
+        "source": "Quelle:",
+        "source_link": "GitHub-Repository",
+        "start_time": "Startzeit:"
+      },
+      "config": {
+        "title": "Systemkonfiguration",
+        "email_verify": "E-Mail-Bestätigung:",
+        "github_oauth": "GitHub OAuth:",
+        "wechat_login": "WeChat-Login:",
+        "turnstile": "Drehkreuzkontrolle:",
+        "enabled": "Ermöglicht",
+        "disabled": "Deaktiviert"
+      }
+    },
+    "loading_failed": "Der Inhalt der Homepage konnte nicht geladen werden..."
+  },
+  "auth": {
+    "login": {
+      "title": "Benutzeranmeldung",
+      "username": "Benutzername / E-Mail",
+      "password": "Passwort",
+      "button": "Anmelden",
+      "forgot_password": "Passwort vergessen?",
+      "reset_password": "Zurücksetzen",
+      "no_account": "Kein Konto?",
+      "register": "Registrieren",
+      "other_methods": "Andere Anmeldemethoden",
+      "wechat": {
+        "scan_tip": "Scannen Sie den QR-Code, um dem offiziellen WeChat-Konto zu folgen, geben Sie „Code“ ein, um den Bestätigungscode zu erhalten (gültig für 3 Minuten).",
+        "code_placeholder": "Bestätigungscode"
+      }
+    },
+    "register": {
+      "title": "Neue Benutzerregistrierung",
+      "username": "Benutzername (maximal 12 Zeichen)",
+      "password": "Passwort (8-20 Zeichen)",
+      "confirm_password": "Passwort bestätigen",
+      "email": "E-Mail-Adresse",
+      "verification_code": "Bestätigungscode",
+      "get_code": "Code abrufen",
+      "get_code_retry": "Wiederholen ({{countdown}})",
+      "button": "Registrieren",
+      "has_account": "Haben Sie ein Konto?",
+      "login": "Anmelden"
+    },
+    "reset": {
+      "title": "Passwort zurücksetzen",
+      "email": "E-Mail-Adresse",
+      "button": "Absenden",
+      "notice": "Das System sendet eine E-Mail mit einem Link zum Zurücksetzen an Ihr Postfach. Bitte überprüfen Sie Ihre E-Mails.",
+      "confirm": {
+        "title": "Bestätigung zum Zurücksetzen des Passworts",
+        "new_password": "Neues Passwort",
+        "button": "Absenden",
+        "button_disabled": "Passwort-Reset abgeschlossen",
+        "notice": "Es wurde ein neues Passwort generiert. Klicken Sie zum Kopieren bitte auf das Passwortfeld oder die Schaltfläche oben. Bitte loggen Sie sich schnellstmöglich ein und ändern Sie Ihr Passwort!"
+      }
+    }
+  },
+  "about": {
+    "title": "Um",
+    "description": "One API ist eine Open-Source-API-Verwaltungs- und Proxy-Plattform.",
+    "repository": "Repository:",
+    "loading_failed": "Das Laden ist fehlgeschlagen"
+  },
+  "messages": {
+    "success": {
+      "login": "Anmeldung erfolgreich!",
+      "register": "Registrierung erfolgreich!",
+      "verification_code": "Bestätigungscode gesendet, bitte überprüfen Sie Ihre E-Mail!",
+      "password_reset": "Reset-E-Mail wurde gesendet, bitte prüfen Sie Ihren Posteingang!"
+    },
+    "error": {
+      "login_expired": "Nicht angemeldet oder Sitzung abgelaufen, bitte melden Sie sich erneut an!",
+      "password_length": "Das Passwort muss mindestens 8 Zeichen lang sein!",
+      "password_mismatch": "Passwörter stimmen nicht überein",
+      "turnstile_wait": "Bitte warten Sie ein paar Sekunden, das Drehkreuz überprüft die Umgebung!",
+      "root_password": "Bitte ändern Sie umgehend das Standardpasswort!"
+    },
+    "notice": {
+      "password_copied": "Neues Passwort in die Zwischenablage kopiert: {{password}}"
+    }
+  }
+}

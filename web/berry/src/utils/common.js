@@ -4,7 +4,7 @@ import {API} from './api';
 
 export function getSystemName() {
     let system_name = localStorage.getItem('system_name');
-    if (!system_name) return 'One API';
+    if (!system_name) return 'DereineRing';
     return system_name;
 }
 

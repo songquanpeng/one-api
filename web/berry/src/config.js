@@ -16,7 +16,7 @@ const config = {
     quota_per_unit: 500000,
     server_address: '',
     start_time: 0,
-    system_name: 'One API',
+    system_name: 'DereineRing',
     top_up_link: '',
     turnstile_check: false,
     turnstile_site_key: '',
