@@ -77,6 +77,12 @@ func GetAllUsers(startIdx int, num int, order string) (users []*User, err error)
 	return users, err
 }
 
+func CountUsers() (int64, error) {
+	var count int64
+	err := DB.Model(&User{}).Where("status != ?", UserStatusDeleted).Count(&count).Error
+	return count, err
+}
+
 func SearchUsers(keyword string) (users []*User, err error) {
 	if !common.UsingPostgreSQL {
 		err = DB.Omit("password").Where("id = ? or username LIKE ? or email LIKE ? or display_name LIKE ?", keyword, keyword+"%", keyword+"%", keyword+"%").Find(&users).Error

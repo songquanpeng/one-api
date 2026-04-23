@@ -28,6 +28,7 @@ export default function ChannelPage() {
   const [activePage, setActivePage] = useState(0);
   const [searching, setSearching] = useState(false);
   const [searchKeyword, setSearchKeyword] = useState('');
+  const [channelCount, setChannelCount] = useState(0);
   const theme = useTheme();
   const matchUpMd = useMediaQuery(theme.breakpoints.up('sm'));
   const [openModal, setOpenModal] = useState(false);
@@ -36,7 +37,7 @@ export default function ChannelPage() {
   const loadChannels = async (startIdx) => {
     setSearching(true);
     const res = await API.get(`/api/channel/?p=${startIdx}`);
-    const { success, message, data } = res.data;
+    const { success, message, data, total } = res.data;
     if (success) {
       if (startIdx === 0) {
         setChannels(data);
@@ -45,19 +46,24 @@ export default function ChannelPage() {
         newChannels.splice(startIdx * ITEMS_PER_PAGE, data.length, ...data);
         setChannels(newChannels);
       }
+      if (total !== undefined) {
+        setChannelCount(total);
+      }
     } else {
       showError(message);
     }
     setSearching(false);
   };
 
-  const onPaginationChange = (event, activePage) => {
+  const onPaginationChange = (event, newPage) => {
     (async () => {
-      if (activePage === Math.ceil(channels.length / ITEMS_PER_PAGE)) {
-        // In this case we have to load more data and then append them.
-        await loadChannels(activePage);
+      const pageStart = newPage * ITEMS_PER_PAGE;
+      const pageEnd = pageStart + ITEMS_PER_PAGE;
+      if (channels.slice(pageStart, pageEnd).length < ITEMS_PER_PAGE && pageStart < channelCount) {
+        // Page data not yet loaded, fetch it from the backend.
+        await loadChannels(newPage);
       }
-      setActivePage(activePage);
+      setActivePage(newPage);
     })();
   };
 
@@ -73,6 +79,7 @@ export default function ChannelPage() {
     const { success, message, data } = res.data;
     if (success) {
       setChannels(data);
+      setChannelCount(data.length);
       setActivePage(0);
     } else {
       showError(message);
@@ -274,7 +281,7 @@ export default function ChannelPage() {
         <TablePagination
           page={activePage}
           component="div"
-          count={channels.length + (channels.length % ITEMS_PER_PAGE === 0 ? 1 : 0)}
+          count={channelCount}
           rowsPerPage={ITEMS_PER_PAGE}
           onPageChange={onPaginationChange}
           rowsPerPageOptions={[ITEMS_PER_PAGE]}

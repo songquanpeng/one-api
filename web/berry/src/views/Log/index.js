@@ -34,6 +34,7 @@ export default function Log() {
   const [activePage, setActivePage] = useState(0);
   const [searching, setSearching] = useState(false);
   const [searchKeyword, setSearchKeyword] = useState(originalKeyword);
+  const [logCount, setLogCount] = useState(0);
   const [initPage, setInitPage] = useState(true);
   const userIsAdmin = isAdmin();
 
@@ -48,7 +49,7 @@ export default function Log() {
       delete query.channel;
     }
     const res = await API.get(url, { params: query });
-    const { success, message, data } = res.data;
+    const { success, message, data, total } = res.data;
     if (success) {
       if (startIdx === 0) {
         setLogs(data);
@@ -57,19 +58,24 @@ export default function Log() {
         newLogs.splice(startIdx * ITEMS_PER_PAGE, data.length, ...data);
         setLogs(newLogs);
       }
+      if (total !== undefined) {
+        setLogCount(total);
+      }
     } else {
       showError(message);
     }
     setSearching(false);
   };
 
-  const onPaginationChange = (event, activePage) => {
+  const onPaginationChange = (event, newPage) => {
     (async () => {
-      if (activePage === Math.ceil(logs.length / ITEMS_PER_PAGE)) {
-        // In this case we have to load more data and then append them.
-        await loadLogs(activePage);
+      const pageStart = newPage * ITEMS_PER_PAGE;
+      const pageEnd = pageStart + ITEMS_PER_PAGE;
+      if (logs.slice(pageStart, pageEnd).length < ITEMS_PER_PAGE && pageStart < logCount) {
+        // Page data not yet loaded, fetch it from the backend.
+        await loadLogs(newPage);
       }
-      setActivePage(activePage);
+      setActivePage(newPage);
     })();
   };
 
@@ -146,7 +152,7 @@ export default function Log() {
         <TablePagination
           page={activePage}
           component="div"
-          count={logs.length + (logs.length % ITEMS_PER_PAGE === 0 ? 1 : 0)}
+          count={logCount}
           rowsPerPage={ITEMS_PER_PAGE}
           onPageChange={onPaginationChange}
           rowsPerPageOptions={[ITEMS_PER_PAGE]}

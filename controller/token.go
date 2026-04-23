@@ -30,10 +30,21 @@ func GetAllTokens(c *gin.Context) {
 		})
 		return
 	}
+
+	total, err := model.CountUserTokens(userId)
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"message": "",
 		"data":    tokens,
+		"total":   total,
 	})
 	return
 }

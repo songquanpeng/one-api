@@ -26,6 +26,7 @@ export default function Token() {
   const [activePage, setActivePage] = useState(0);
   const [searching, setSearching] = useState(false);
   const [searchKeyword, setSearchKeyword] = useState('');
+  const [tokenCount, setTokenCount] = useState(0);
   const [openModal, setOpenModal] = useState(false);
   const [editTokenId, setEditTokenId] = useState(0);
   const siteInfo = useSelector((state) => state.siteInfo);
@@ -33,7 +34,7 @@ export default function Token() {
   const loadTokens = async (startIdx) => {
     setSearching(true);
     const res = await API.get(`/api/token/?p=${startIdx}`);
-    const { success, message, data } = res.data;
+    const { success, message, data, total } = res.data;
     if (success) {
       if (startIdx === 0) {
         setTokens(data);
@@ -41,6 +42,9 @@ export default function Token() {
         let newTokens = [...tokens];
         newTokens.splice(startIdx * ITEMS_PER_PAGE, data.length, ...data);
         setTokens(newTokens);
+      }
+      if (total !== undefined) {
+        setTokenCount(total);
       }
     } else {
       showError(message);
@@ -56,13 +60,15 @@ export default function Token() {
       });
   }, []);
 
-  const onPaginationChange = (event, activePage) => {
+  const onPaginationChange = (event, newPage) => {
     (async () => {
-      if (activePage === Math.ceil(tokens.length / ITEMS_PER_PAGE)) {
-        // In this case we have to load more data and then append them.
-        await loadTokens(activePage);
+      const pageStart = newPage * ITEMS_PER_PAGE;
+      const pageEnd = pageStart + ITEMS_PER_PAGE;
+      if (tokens.slice(pageStart, pageEnd).length < ITEMS_PER_PAGE && pageStart < tokenCount) {
+        // Page data not yet loaded, fetch it from the backend.
+        await loadTokens(newPage);
       }
-      setActivePage(activePage);
+      setActivePage(newPage);
     })();
   };
 
@@ -78,6 +84,7 @@ export default function Token() {
     const { success, message, data } = res.data;
     if (success) {
       setTokens(data);
+      setTokenCount(data.length);
       setActivePage(0);
     } else {
       showError(message);
@@ -202,7 +209,7 @@ export default function Token() {
         <TablePagination
           page={activePage}
           component="div"
-          count={tokens.length + (tokens.length % ITEMS_PER_PAGE === 0 ? 1 : 0)}
+          count={tokenCount}
           rowsPerPage={ITEMS_PER_PAGE}
           onPageChange={onPaginationChange}
           rowsPerPageOptions={[ITEMS_PER_PAGE]}

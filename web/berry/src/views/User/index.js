@@ -25,13 +25,14 @@ export default function Users() {
   const [activePage, setActivePage] = useState(0);
   const [searching, setSearching] = useState(false);
   const [searchKeyword, setSearchKeyword] = useState('');
+  const [userCount, setUserCount] = useState(0);
   const [openModal, setOpenModal] = useState(false);
   const [editUserId, setEditUserId] = useState(0);
 
   const loadUsers = async (startIdx) => {
     setSearching(true);
     const res = await API.get(`/api/user/?p=${startIdx}`);
-    const { success, message, data } = res.data;
+    const { success, message, data, total } = res.data;
     if (success) {
       if (startIdx === 0) {
         setUsers(data);
@@ -40,19 +41,24 @@ export default function Users() {
         newUsers.splice(startIdx * ITEMS_PER_PAGE, data.length, ...data);
         setUsers(newUsers);
       }
+      if (total !== undefined) {
+        setUserCount(total);
+      }
     } else {
       showError(message);
     }
     setSearching(false);
   };
 
-  const onPaginationChange = (event, activePage) => {
+  const onPaginationChange = (event, newPage) => {
     (async () => {
-      if (activePage === Math.ceil(users.length / ITEMS_PER_PAGE)) {
-        // In this case we have to load more data and then append them.
-        await loadUsers(activePage);
+      const pageStart = newPage * ITEMS_PER_PAGE;
+      const pageEnd = pageStart + ITEMS_PER_PAGE;
+      if (users.slice(pageStart, pageEnd).length < ITEMS_PER_PAGE && pageStart < userCount) {
+        // Page data not yet loaded, fetch it from the backend.
+        await loadUsers(newPage);
       }
-      setActivePage(activePage);
+      setActivePage(newPage);
     })();
   };
 
@@ -68,6 +74,7 @@ export default function Users() {
     const { success, message, data } = res.data;
     if (success) {
       setUsers(data);
+      setUserCount(data.length);
       setActivePage(0);
     } else {
       showError(message);
@@ -193,7 +200,7 @@ export default function Users() {
         <TablePagination
           page={activePage}
           component="div"
-          count={users.length + (users.length % ITEMS_PER_PAGE === 0 ? 1 : 0)}
+          count={userCount}
           rowsPerPage={ITEMS_PER_PAGE}
           onPageChange={onPaginationChange}
           rowsPerPageOptions={[ITEMS_PER_PAGE]}

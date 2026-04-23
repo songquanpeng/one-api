@@ -29,10 +29,19 @@ func GetAllLogs(c *gin.Context) {
 		})
 		return
 	}
+	total, err := model.CountAllLogs(logType, startTimestamp, endTimestamp, modelName, username, tokenName, channel)
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"message": "",
 		"data":    logs,
+		"total":   total,
 	})
 	return
 }
@@ -56,10 +65,19 @@ func GetUserLogs(c *gin.Context) {
 		})
 		return
 	}
+	total, err := model.CountUserLogs(userId, logType, startTimestamp, endTimestamp, modelName, tokenName)
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"message": "",
 		"data":    logs,
+		"total":   total,
 	})
 	return
 }

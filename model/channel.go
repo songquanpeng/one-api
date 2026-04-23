@@ -66,6 +66,12 @@ func GetAllChannels(startIdx int, num int, scope string) ([]*Channel, error) {
 	return channels, err
 }
 
+func CountChannels() (int64, error) {
+	var count int64
+	err := DB.Model(&Channel{}).Count(&count).Error
+	return count, err
+}
+
 func SearchChannels(keyword string) (channels []*Channel, err error) {
 	err = DB.Omit("key").Where("id = ? or name LIKE ?", helper.String2Int(keyword), keyword+"%").Find(&channels).Error
 	return channels, err

@@ -25,13 +25,14 @@ export default function Redemption() {
   const [activePage, setActivePage] = useState(0);
   const [searching, setSearching] = useState(false);
   const [searchKeyword, setSearchKeyword] = useState('');
+  const [redemptionCount, setRedemptionCount] = useState(0);
   const [openModal, setOpenModal] = useState(false);
   const [editRedemptionId, setEditRedemptionId] = useState(0);
 
   const loadRedemptions = async (startIdx) => {
     setSearching(true);
     const res = await API.get(`/api/redemption/?p=${startIdx}`);
-    const { success, message, data } = res.data;
+    const { success, message, data, total } = res.data;
     if (success) {
       if (startIdx === 0) {
         setRedemptions(data);
@@ -40,19 +41,24 @@ export default function Redemption() {
         newRedemptions.splice(startIdx * ITEMS_PER_PAGE, data.length, ...data);
         setRedemptions(newRedemptions);
       }
+      if (total !== undefined) {
+        setRedemptionCount(total);
+      }
     } else {
       showError(message);
     }
     setSearching(false);
   };
 
-  const onPaginationChange = (event, activePage) => {
+  const onPaginationChange = (event, newPage) => {
     (async () => {
-      if (activePage === Math.ceil(redemptions.length / ITEMS_PER_PAGE)) {
-        // In this case we have to load more data and then append them.
-        await loadRedemptions(activePage);
+      const pageStart = newPage * ITEMS_PER_PAGE;
+      const pageEnd = pageStart + ITEMS_PER_PAGE;
+      if (redemptions.slice(pageStart, pageEnd).length < ITEMS_PER_PAGE && pageStart < redemptionCount) {
+        // Page data not yet loaded, fetch it from the backend.
+        await loadRedemptions(newPage);
       }
-      setActivePage(activePage);
+      setActivePage(newPage);
     })();
   };
 
@@ -68,6 +74,7 @@ export default function Redemption() {
     const { success, message, data } = res.data;
     if (success) {
       setRedemptions(data);
+      setRedemptionCount(data.length);
       setActivePage(0);
     } else {
       showError(message);
@@ -191,7 +198,7 @@ export default function Redemption() {
         <TablePagination
           page={activePage}
           component="div"
-          count={redemptions.length + (redemptions.length % ITEMS_PER_PAGE === 0 ? 1 : 0)}
+          count={redemptionCount}
           rowsPerPage={ITEMS_PER_PAGE}
           onPageChange={onPaginationChange}
           rowsPerPageOptions={[ITEMS_PER_PAGE]}

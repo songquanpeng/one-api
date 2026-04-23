@@ -54,6 +54,12 @@ func GetAllUserTokens(userId int, startIdx int, num int, order string) ([]*Token
 	return tokens, err
 }
 
+func CountUserTokens(userId int) (int64, error) {
+	var count int64
+	err := DB.Model(&Token{}).Where("user_id = ?", userId).Count(&count).Error
+	return count, err
+}
+
 func SearchUserTokens(userId int, keyword string) (tokens []*Token, err error) {
 	err = DB.Where("user_id = ?", userId).Where("name LIKE ?", keyword+"%").Find(&tokens).Error
 	return tokens, err

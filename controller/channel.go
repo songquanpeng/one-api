@@ -23,10 +23,19 @@ func GetAllChannels(c *gin.Context) {
 		})
 		return
 	}
+	total, err := model.CountChannels()
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"message": "",
 		"data":    channels,
+		"total":   total,
 	})
 	return
 }
