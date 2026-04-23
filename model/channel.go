@@ -3,7 +3,9 @@ package model
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 
+	"github.com/songquanpeng/one-api/common"
 	"github.com/songquanpeng/one-api/common/config"
 	"github.com/songquanpeng/one-api/common/helper"
 	"github.com/songquanpeng/one-api/common/logger"
@@ -195,6 +197,15 @@ func UpdateChannelStatusById(id int, status int) {
 	err = DB.Model(&Channel{}).Where("id = ?", id).Update("status", status).Error
 	if err != nil {
 		logger.SysError("failed to update channel status: " + err.Error())
+	}
+	// Invalidate the group models cache so users immediately see the updated model list.
+	groupCol := "`group`"
+	if common.UsingPostgreSQL {
+		groupCol = `"group"`
+	}
+	var groupStr string
+	if dbErr := DB.Model(&Channel{}).Where("id = ?", id).Select(groupCol).Pluck(groupCol, &groupStr).Error; dbErr == nil && groupStr != "" {
+		ClearGroupModelsCacheByGroups(strings.Split(groupStr, ","))
 	}
 }
 

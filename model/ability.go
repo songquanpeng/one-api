@@ -67,11 +67,19 @@ func (channel *Channel) AddAbilities() error {
 			abilities = append(abilities, ability)
 		}
 	}
-	return DB.Create(&abilities).Error
+	err := DB.Create(&abilities).Error
+	if err == nil {
+		ClearGroupModelsCacheByGroups(groups_)
+	}
+	return err
 }
 
 func (channel *Channel) DeleteAbilities() error {
-	return DB.Where("channel_id = ?", channel.Id).Delete(&Ability{}).Error
+	err := DB.Where("channel_id = ?", channel.Id).Delete(&Ability{}).Error
+	if err == nil {
+		ClearGroupModelsCacheByGroups(strings.Split(channel.Group, ","))
+	}
+	return err
 }
 
 // UpdateAbilities updates abilities of this channel.

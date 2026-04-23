@@ -167,6 +167,23 @@ func CacheGetGroupModels(ctx context.Context, group string) ([]string, error) {
 	return models, nil
 }
 
+// ClearGroupModelsCacheByGroups deletes the cached group model lists for the
+// given group names so the next query fetches fresh data from the database.
+func ClearGroupModelsCacheByGroups(groups []string) {
+	if !common.RedisEnabled {
+		return
+	}
+	for _, group := range groups {
+		if group == "" {
+			continue
+		}
+		err := common.RedisDel(fmt.Sprintf("group_models:%s", group))
+		if err != nil {
+			logger.SysError(fmt.Sprintf("Redis delete group_models cache error for group %s: %s", group, err.Error()))
+		}
+	}
+}
+
 var group2model2channels map[string]map[string][]*Channel
 var channelSyncLock sync.RWMutex
 
