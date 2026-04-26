@@ -80,10 +80,10 @@ const EditChannel = (props) => {
                     localModels = ["qwen-turbo", "qwen-plus", "qwen-max", "qwen-max-longcontext", 'text-embedding-v1'];
                     break;
                 case 49:
-                    localModels = ['qwen-plus', 'qwen3.6-plus', 'qwen3-coder-next', 'qwen3-coder-plus', 'deepseek-r1', 'deepseek-v3', 'text-embedding-v3'];
+                    localModels = ['qwen3.6-max-preview', 'qwen3.6-plus', 'qwen3.6-flash', 'qwen3-coder-plus', 'qwen3-coder-flash', 'deepseek-v4-pro', 'deepseek-v4-flash', 'deepseek-v3.2', 'kimi-k2.6', 'glm-5.1', 'text-embedding-v4'];
                     break;
                 case 52:
-                    localModels = ['qwen3.6-plus', 'qwen3.5-plus', 'qwen3-coder-next', 'qwen3-coder-plus', 'kimi-k2.5', 'glm-5', 'MiniMax-M2.5'];
+                    localModels = ['qwen3.6-max-preview', 'qwen3.6-plus', 'qwen3.6-flash', 'qwen3-coder-next', 'qwen3-coder-plus', 'qwen3-coder-flash', 'kimi-k2.6', 'glm-5.1', 'MiniMax/MiniMax-M2.7'];
                     break;
                 case 16:
                     localModels = ['chatglm_pro', 'chatglm_std', 'chatglm_lite'];

@@ -27,6 +27,7 @@ type GeneralOpenAIRequest struct {
 	Model               string          `json:"model,omitempty"`
 	Store               *bool           `json:"store,omitempty"`
 	ReasoningEffort     *string         `json:"reasoning_effort,omitempty"`
+	Thinking            any             `json:"thinking,omitempty"`
 	Metadata            any             `json:"metadata,omitempty"`
 	FrequencyPenalty    *float64        `json:"frequency_penalty,omitempty"`
 	LogitBias           any             `json:"logit_bias,omitempty"`

@@ -91,7 +91,7 @@ const typeConfig = {
   49: {
     prompt: {
       key: '请输入百炼 API Key（sk- 开头）',
-      base_url: '可空，默认使用 https://dashscope.aliyuncs.com'
+      base_url: '可空，默认使用 https://dashscope.aliyuncs.com/compatible-mode/v1'
     },
     modelGroup: 'alibailian'
   },

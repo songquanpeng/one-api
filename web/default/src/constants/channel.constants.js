@@ -54,7 +54,7 @@ export const CHANNEL_OPTIONS = [
     text: '阿里云百炼',
     value: 49,
     color: 'orange',
-    tip: '适用于按量计费的百炼 OpenAI 兼容接口，默认地址为 <strong>https://dashscope.aliyuncs.com</strong>',
+    tip: '适用于按量计费的百炼 OpenAI 兼容接口，默认地址为 <strong>https://dashscope.aliyuncs.com/compatible-mode/v1</strong>',
   },
   {
     key: 52,
