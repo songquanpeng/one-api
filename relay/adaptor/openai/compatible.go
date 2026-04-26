@@ -3,6 +3,7 @@ package openai
 import (
 	"github.com/songquanpeng/one-api/relay/adaptor/ai360"
 	"github.com/songquanpeng/one-api/relay/adaptor/alibailian"
+	"github.com/songquanpeng/one-api/relay/adaptor/alibailiancodingplan"
 	"github.com/songquanpeng/one-api/relay/adaptor/baichuan"
 	"github.com/songquanpeng/one-api/relay/adaptor/baiduv2"
 	"github.com/songquanpeng/one-api/relay/adaptor/deepseek"
@@ -41,6 +42,8 @@ var CompatibleChannels = []int{
 	channeltype.XAI,
 	channeltype.BaiduV2,
 	channeltype.XunfeiV2,
+	channeltype.AliBailian,
+	channeltype.AliBailianCodingPlan,
 }
 
 func GetCompatibleChannelMeta(channelType int) (string, []string) {
@@ -83,6 +86,8 @@ func GetCompatibleChannelMeta(channelType int) (string, []string) {
 		return "openrouter", openrouter.ModelList
 	case channeltype.AliBailian:
 		return "alibailian", alibailian.ModelList
+	case channeltype.AliBailianCodingPlan:
+		return "alibailian-coding-plan", alibailiancodingplan.ModelList
 	case channeltype.GeminiOpenAICompatible:
 		return "geminiv2", geminiv2.ModelList
 	default:

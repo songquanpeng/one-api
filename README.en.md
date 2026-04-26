@@ -61,6 +61,7 @@ _✨ Access all LLM through the standard OpenAI API format, easy to deploy & use
    + [x] [Google PaLM2 and Gemini Series Models](https://developers.generativeai.google)
    + [x] [Baidu Wenxin Yiyuan Series Models](https://cloud.baidu.com/doc/WENXINWORKSHOP/index.html)
    + [x] [Alibaba Tongyi Qianwen Series Models](https://help.aliyun.com/document_detail/2400395.html)
+   + [x] [Alibaba Bailian OpenAI-compatible models](https://help.aliyun.com/zh/model-studio/models)
    + [x] [Zhipu ChatGLM Series Models](https://bigmodel.cn)
 2. Supports access to multiple channels through **load balancing**.
 3. Supports **stream mode** that enables typewriter-like effect through stream transmission.
@@ -234,6 +235,14 @@ Note that the token needs to be created by an administrator to specify the chann
 
 If the channel ID is not provided, load balancing will be used to distribute the requests to multiple channels.
 
+### Alibaba Bailian Channel Notes
+- The `Alibaba Bailian` channel uses regular Bailian API keys (`sk-` prefix) and defaults to `https://dashscope.aliyuncs.com/compatible-mode/v1`; the legacy root URL `https://dashscope.aliyuncs.com` is also accepted.
+- The `Alibaba Bailian` channel uses Bailian's OpenAI-compatible API for both chat and embedding models.
+- Model Studio Base URLs are region-specific. Use the OpenAI-compatible endpoint for the region that owns your API key.
+- The `Alibaba Bailian Coding Plan` channel uses Coding Plan specific API keys (`sk-sp-` prefix) and defaults to `https://coding.dashscope.aliyuncs.com/v1`.
+- `Alibaba Bailian Coding Plan` currently supports `chat/completions` only and does not expose `embeddings`.
+- According to Alibaba Cloud's documentation, Coding Plan is intended for interactive coding scenarios. Review the upstream terms before using it: [Coding Plan documentation](https://help.aliyun.com/zh/model-studio/coding-plan).
+
 ### Environment Variables
 1. `REDIS_CONN_STRING`: When set, Redis will be used as the storage for request rate limiting instead of memory.
     + Example: `REDIS_CONN_STRING=redis://default:redispw@localhost:49153`
@@ -304,6 +313,7 @@ If the channel ID is not provided, load balancing will be used to distribute the
 3. It says "No available channels" when trying to use a channel. What should I do?
     + Please check the user and channel group settings.
     + Also check the channel model settings.
+    + Channel changes now refresh the channel cache and per-group model cache immediately. If the error still appears after adding or editing a channel, double-check that the group and model assignments match the token you are using.
 4. Channel testing reports an error: "invalid character '<' looking for beginning of value"
     + This error occurs when the returned value is not valid JSON but an HTML page.
     + Most likely, the IP of your deployment site or the node of the proxy has been blocked by CloudFlare.

@@ -49,7 +49,20 @@ export const CHANNEL_OPTIONS = [
     color: 'orange',
     tip: '如需使用阿里云百炼，请使用<strong>阿里云百炼</strong>渠道',
   },
-  { key: 49, text: '阿里云百炼', value: 49, color: 'orange' },
+  {
+    key: 49,
+    text: '阿里云百炼',
+    value: 49,
+    color: 'orange',
+    tip: '适用于按量计费的百炼 OpenAI 兼容接口，默认地址为 <strong>https://dashscope.aliyuncs.com/compatible-mode/v1</strong>',
+  },
+  {
+    key: 52,
+    text: '阿里云百炼 Coding Plan',
+    value: 52,
+    color: 'orange',
+    tip: '仅适用于 Coding Plan 专属 Key（<strong>sk-sp-</strong> 开头），默认地址为 <strong>https://coding.dashscope.aliyuncs.com/v1</strong>。根据阿里云官方文档，该套餐仅限个人交互式编码场景使用。',
+  },
   {
     key: 18,
     text: '讯飞星火认知',

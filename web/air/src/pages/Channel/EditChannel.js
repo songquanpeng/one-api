@@ -14,6 +14,10 @@ const MODEL_MAPPING_EXAMPLE = {
 function type2secretPrompt(type) {
     // inputs.type === 15 ? '按照如下格式输入：APIKey|SecretKey' : (inputs.type === 18 ? '按照如下格式输入：APPID|APISecret|APIKey' : '请输入渠道对应的鉴权密钥')
     switch (type) {
+        case 49:
+            return '请输入百炼 API Key（sk- 开头）';
+        case 52:
+            return '请输入 Coding Plan 专属 API Key（sk-sp- 开头）';
         case 15:
             return '按照如下格式输入：APIKey|SecretKey';
         case 18:
@@ -74,6 +78,12 @@ const EditChannel = (props) => {
                     break;
                 case 17:
                     localModels = ["qwen-turbo", "qwen-plus", "qwen-max", "qwen-max-longcontext", 'text-embedding-v1'];
+                    break;
+                case 49:
+                    localModels = ['qwen3.6-max-preview', 'qwen3.6-plus', 'qwen3.6-flash', 'qwen3-coder-plus', 'qwen3-coder-flash', 'deepseek-v4-pro', 'deepseek-v4-flash', 'deepseek-v3.2', 'kimi-k2.6', 'glm-5.1', 'text-embedding-v4'];
+                    break;
+                case 52:
+                    localModels = ['qwen3.6-max-preview', 'qwen3.6-plus', 'qwen3.6-flash', 'qwen3-coder-next', 'qwen3-coder-plus', 'qwen3-coder-flash', 'kimi-k2.6', 'glm-5.1', 'MiniMax/MiniMax-M2.7'];
                     break;
                 case 16:
                     localModels = ['chatglm_pro', 'chatglm_std', 'chatglm_lite'];

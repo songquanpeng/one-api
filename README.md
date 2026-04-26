@@ -75,6 +75,7 @@ _✨ 通过标准的 OpenAI API 格式访问所有的大模型，开箱即用 �
    + [x] [字节跳动豆包大模型（火山引擎）](https://www.volcengine.com/experience/ark?utm_term=202502dsinvite&ac=DSASUQY5&rc=2QXCA1VI)
    + [x] [百度文心一言系列模型](https://cloud.baidu.com/doc/WENXINWORKSHOP/index.html)
    + [x] [阿里通义千问系列模型](https://help.aliyun.com/document_detail/2400395.html)
+   + [x] [阿里云百炼 OpenAI 兼容模型](https://help.aliyun.com/zh/model-studio/models)
    + [x] [讯飞星火认知大模型](https://www.xfyun.cn/doc/spark/Web.html)
    + [x] [智谱 ChatGLM 系列模型](https://bigmodel.cn)
    + [x] [360 智脑](https://ai.360.cn)
@@ -88,7 +89,7 @@ _✨ 通过标准的 OpenAI API 格式访问所有的大模型，开箱即用 �
    + [x] [阶跃星辰](https://platform.stepfun.com/)
    + [x] [Coze](https://www.coze.com/)
    + [x] [Cohere](https://cohere.com/)
-   + [x] [DeepSeek](https://www.deepseek.com/)
+   + [x] [DeepSeek](https://api-docs.deepseek.com/zh-cn/)
    + [x] [Cloudflare Workers AI](https://developers.cloudflare.com/workers-ai/)
    + [x] [DeepL](https://www.deepl.com/)
    + [x] [together.ai](https://www.together.ai/)
@@ -350,6 +351,14 @@ graph LR
 
 不加的话将会使用负载均衡的方式使用多个渠道。
 
+### 阿里云百炼渠道说明
+- `阿里云百炼` 渠道使用普通百炼 API Key（`sk-` 开头），默认 Base URL 为 `https://dashscope.aliyuncs.com/compatible-mode/v1`；也兼容填写旧版根地址 `https://dashscope.aliyuncs.com`。
+- `阿里云百炼` 通过百炼 OpenAI 兼容接口支持聊天模型和 embedding 模型。
+- 中国内地、美国和新加坡地域的 Base URL 不通用，请根据百炼官方文档选择对应地域的 OpenAI 兼容地址。
+- `阿里云百炼 Coding Plan` 渠道使用 Coding Plan 专属 API Key（`sk-sp-` 开头），默认 Base URL 为 `https://coding.dashscope.aliyuncs.com/v1`。
+- `阿里云百炼 Coding Plan` 当前仅支持 `chat/completions`，不支持 `embeddings`。
+- 根据阿里云官方文档，Coding Plan 仅适用于个人交互式编码场景，请在使用前确认符合上游条款：[Coding Plan 文档](https://help.aliyun.com/zh/model-studio/coding-plan)。
+
 ### 环境变量
 > One API 支持从 `.env` 文件中读取环境变量，请参照 `.env.example` 文件，使用时请将其重命名为 `.env`。
 1. `REDIS_CONN_STRING`：设置之后将使用 Redis 作为缓存使用。
@@ -445,6 +454,7 @@ https://openai.justsong.cn
 3. 提示无可用渠道？
    + 请检查的用户分组和渠道分组设置。
    + 以及渠道的模型设置。
+   + 如果你刚新增、编辑或删除渠道，当前版本会立即刷新渠道缓存和分组模型缓存；如果仍然报错，优先检查分组和模型配置是否匹配。
 4. 渠道测试报错：`invalid character '<' looking for beginning of value`
    + 这是因为返回值不是合法的 JSON，而是一个 HTML 页面。
    + 大概率是你的部署站的 IP 或代理的节点被 CloudFlare 封禁了。

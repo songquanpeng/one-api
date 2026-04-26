@@ -88,6 +88,20 @@ const typeConfig = {
     },
     modelGroup: 'ali'
   },
+  49: {
+    prompt: {
+      key: '请输入百炼 API Key（sk- 开头）',
+      base_url: '可空，默认使用 https://dashscope.aliyuncs.com/compatible-mode/v1'
+    },
+    modelGroup: 'alibailian'
+  },
+  52: {
+    prompt: {
+      key: '请输入 Coding Plan 专属 API Key（sk-sp- 开头）',
+      base_url: '可空，默认使用 https://coding.dashscope.aliyuncs.com/v1'
+    },
+    modelGroup: 'alibailian-coding-plan'
+  },
   18: {
     inputLabel: {
       other: '版本号'

@@ -170,6 +170,42 @@ func CacheGetGroupModels(ctx context.Context, group string) ([]string, error) {
 var group2model2channels map[string]map[string][]*Channel
 var channelSyncLock sync.RWMutex
 
+func RefreshChannelCaches() {
+	if config.MemoryCacheEnabled {
+		InitChannelCache()
+	}
+	InvalidateGroupModelsCache()
+}
+
+// Channel writes are infrequent, so clearing the per-group model cache
+// wholesale is the simplest way to avoid stale entries after adds, edits,
+// deletions, or group/model moves.
+func InvalidateGroupModelsCache() {
+	if !common.RedisEnabled || common.RDB == nil {
+		return
+	}
+	ctx := context.Background()
+	var cursor uint64
+	for {
+		keys, nextCursor, err := common.RDB.Scan(ctx, cursor, "group_models:*", 100).Result()
+		if err != nil {
+			logger.SysError("Redis scan group models cache error: " + err.Error())
+			return
+		}
+		if len(keys) > 0 {
+			err = common.RDB.Del(ctx, keys...).Err()
+			if err != nil {
+				logger.SysError("Redis delete group models cache error: " + err.Error())
+				return
+			}
+		}
+		if nextCursor == 0 {
+			return
+		}
+		cursor = nextCursor
+	}
+}
+
 func InitChannelCache() {
 	newChannelId2channel := make(map[int]*Channel)
 	var channels []*Channel

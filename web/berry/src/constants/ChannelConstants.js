@@ -65,6 +65,18 @@ export const CHANNEL_OPTIONS = {
     value: 17,
     color: 'primary'
   },
+  49: {
+    key: 49,
+    text: '阿里云百炼',
+    value: 49,
+    color: 'warning'
+  },
+  52: {
+    key: 52,
+    text: '阿里云百炼 Coding Plan',
+    value: 52,
+    color: 'warning'
+  },
   18: {
     key: 18,
     text: '讯飞星火认知',
@@ -185,7 +197,19 @@ export const CHANNEL_OPTIONS = {
     value: 45,
     color: 'primary'
   },
-  45: {
+  50: {
+    key: 50,
+    text: 'OpenAI 兼容',
+    value: 50,
+    color: 'success'
+  },
+  51: {
+    key: 51,
+    text: 'Gemini (OpenAI)',
+    value: 51,
+    color: 'warning'
+  },
+  46: {
     key: 46,
     text: 'Replicate',
     value: 46,

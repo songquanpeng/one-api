@@ -14,6 +14,10 @@ const MODEL_MAPPING_EXAMPLE = {
 
 function type2secretPrompt(type, t) {
   switch (type) {
+    case 49:
+      return '请输入百炼 API Key（sk- 开头）';
+    case 52:
+      return '请输入 Coding Plan 专属 API Key（sk-sp- 开头）';
     case 15:
       return t('channel.edit.key_prompts.zhipu');
     case 18:

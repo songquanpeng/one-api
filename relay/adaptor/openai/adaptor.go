@@ -11,6 +11,7 @@ import (
 
 	"github.com/songquanpeng/one-api/relay/adaptor"
 	"github.com/songquanpeng/one-api/relay/adaptor/alibailian"
+	"github.com/songquanpeng/one-api/relay/adaptor/alibailiancodingplan"
 	"github.com/songquanpeng/one-api/relay/adaptor/baiduv2"
 	"github.com/songquanpeng/one-api/relay/adaptor/doubao"
 	"github.com/songquanpeng/one-api/relay/adaptor/geminiv2"
@@ -60,6 +61,8 @@ func (a *Adaptor) GetRequestURL(meta *meta.Meta) (string, error) {
 		return baiduv2.GetRequestURL(meta)
 	case channeltype.AliBailian:
 		return alibailian.GetRequestURL(meta)
+	case channeltype.AliBailianCodingPlan:
+		return alibailiancodingplan.GetRequestURL(meta)
 	case channeltype.GeminiOpenAICompatible:
 		return geminiv2.GetRequestURL(meta)
 	default:
