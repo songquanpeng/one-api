@@ -9,6 +9,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	"github.com/songquanpeng/one-api/common"
 	"github.com/songquanpeng/one-api/common/config"
 	"github.com/songquanpeng/one-api/common/logger"
 	"github.com/songquanpeng/one-api/relay"
@@ -90,11 +91,28 @@ func RelayTextHelper(c *gin.Context) *model.ErrorWithStatusCode {
 func getRequestBody(c *gin.Context, meta *meta.Meta, textRequest *model.GeneralOpenAIRequest, adaptor adaptor.Adaptor) (io.Reader, error) {
 	if !config.EnforceIncludeUsage &&
 		meta.APIType == apitype.OpenAI &&
-		meta.OriginModelName == meta.ActualModelName &&
 		meta.ChannelType != channeltype.Baichuan &&
 		meta.ForcedSystemPrompt == "" {
-		// no need to convert request for openai
-		return c.Request.Body, nil
+		if meta.OriginModelName == meta.ActualModelName {
+			// no need to convert request for openai
+			return c.Request.Body, nil
+		}
+		// Only the model name was remapped; patch the original body so that any
+		// extra fields sent by the client (e.g. enable_search, extra_body params)
+		// are preserved instead of being dropped by the struct round-trip.
+		if originalBody, err := common.GetRequestBody(c); err == nil {
+			var bodyMap map[string]json.RawMessage
+			if jsonErr := json.Unmarshal(originalBody, &bodyMap); jsonErr == nil {
+				if modelJSON, marshalErr := json.Marshal(meta.ActualModelName); marshalErr == nil {
+					bodyMap["model"] = json.RawMessage(modelJSON)
+					if patchedBody, marshalErr := json.Marshal(bodyMap); marshalErr == nil {
+						logger.Debugf(c.Request.Context(), "patched model in request body: %s -> %s", meta.OriginModelName, meta.ActualModelName)
+						return bytes.NewBuffer(patchedBody), nil
+					}
+				}
+			}
+		}
+		// fallthrough to full conversion if patching fails
 	}
 
 	// get request body
