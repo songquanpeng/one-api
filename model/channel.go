@@ -196,6 +196,9 @@ func UpdateChannelStatusById(id int, status int) {
 	if err != nil {
 		logger.SysError("failed to update channel status: " + err.Error())
 	}
+	if config.MemoryCacheEnabled {
+		InitChannelCache()
+	}
 }
 
 func UpdateChannelUsedQuota(id int, quota int64) {
