@@ -50,3 +50,37 @@ func IsIpInSubnets(ctx context.Context, ip string, subnets string) bool {
 	}
 	return false
 }
+
+// IsPrivateIP checks if an IP address is in a private or reserved range
+// (loopback, link-local, RFC 1918, IPv6 unique local, etc.)
+func IsPrivateIP(ip net.IP) bool {
+	if ip.IsLoopback() || ip.IsLinkLocalUnicast() || ip.IsLinkLocalMulticast() {
+		return true
+	}
+	if ip.IsUnspecified() {
+		return true
+	}
+	// IPv4 private ranges (RFC 1918)
+	privateRanges := []string{
+		"10.0.0.0/8",
+		"172.16.0.0/12",
+		"192.168.0.0/16",
+		"127.0.0.0/8",
+		"169.254.0.0/16",
+		"0.0.0.0/8",
+	}
+	for _, cidr := range privateRanges {
+		_, network, _ := net.ParseCIDR(cidr)
+		if network.Contains(ip) {
+			return true
+		}
+	}
+	// IPv6 unique local and loopback
+	if ip.To4() == nil {
+		_, network, _ := net.ParseCIDR("fc00::/7")
+		if network.Contains(ip) {
+			return true
+		}
+	}
+	return false
+}
