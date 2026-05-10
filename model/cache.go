@@ -171,12 +171,8 @@ var group2model2channels map[string]map[string][]*Channel
 var channelSyncLock sync.RWMutex
 
 func InitChannelCache() {
-	newChannelId2channel := make(map[int]*Channel)
 	var channels []*Channel
 	DB.Where("status = ?", ChannelStatusEnabled).Find(&channels)
-	for _, channel := range channels {
-		newChannelId2channel[channel.Id] = channel
-	}
 	var abilities []*Ability
 	DB.Find(&abilities)
 	groups := make(map[string]bool)
