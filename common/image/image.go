@@ -3,12 +3,15 @@ package image
 import (
 	"bytes"
 	"encoding/base64"
+	"fmt"
 	"github.com/songquanpeng/one-api/common/client"
+	"github.com/songquanpeng/one-api/common/network"
 	"image"
 	_ "image/gif"
 	_ "image/jpeg"
 	_ "image/png"
-	"net/http"
+	"net"
+	"net/url"
 	"regexp"
 	"strings"
 	"sync"
@@ -18,6 +21,34 @@ import (
 
 // Regex to match data URL pattern
 var dataURLPattern = regexp.MustCompile(`data:image/([^;]+);base64,(.*)`)
+
+// validateImageUrl checks that a URL does not resolve to a private/reserved IP
+// to prevent Server-Side Request Forgery (SSRF) attacks.
+func validateImageUrl(rawUrl string) error {
+	parsedUrl, err := url.Parse(rawUrl)
+	if err != nil {
+		return fmt.Errorf("invalid URL: %w", err)
+	}
+	// Only allow http and https schemes
+	if parsedUrl.Scheme != "http" && parsedUrl.Scheme != "https" {
+		return fmt.Errorf("unsupported URL scheme: %s", parsedUrl.Scheme)
+	}
+	host := parsedUrl.Hostname()
+	if host == "" {
+		return fmt.Errorf("empty host in URL")
+	}
+	// Resolve hostname and check against private IP ranges
+	ips, err := net.LookupIP(host)
+	if err != nil {
+		return fmt.Errorf("failed to resolve host: %w", err)
+	}
+	for _, ip := range ips {
+		if network.IsPrivateIP(ip) {
+			return fmt.Errorf("URL resolves to a private/reserved IP address: %s", ip)
+		}
+	}
+	return nil
+}
 
 func IsImageUrl(url string) (bool, error) {
 	resp, err := client.UserContentRequestHTTPClient.Head(url)
@@ -57,11 +88,16 @@ func GetImageFromUrl(url string) (mimeType string, data string, err error) {
 		return
 	}
 
+	// Validate URL to prevent SSRF attacks
+	if err = validateImageUrl(url); err != nil {
+		return
+	}
+
 	isImage, err := IsImageUrl(url)
 	if !isImage {
 		return
 	}
-	resp, err := http.Get(url)
+	resp, err := client.UserContentRequestHTTPClient.Get(url)
 	if err != nil {
 		return
 	}
