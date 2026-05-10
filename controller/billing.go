@@ -69,7 +69,9 @@ func GetUsage(c *gin.Context) {
 	if config.DisplayTokenStatEnabled {
 		tokenId := c.GetInt(ctxkey.TokenId)
 		token, err = model.GetTokenById(tokenId)
-		quota = token.UsedQuota
+		if err == nil && token != nil {
+			quota = token.UsedQuota
+		}
 	} else {
 		userId := c.GetInt(ctxkey.Id)
 		quota, err = model.GetUserUsedQuota(userId)
