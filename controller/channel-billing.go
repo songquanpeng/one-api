@@ -112,11 +112,18 @@ type DeepSeekUsageResponse struct {
 	} `json:"balance_infos"`
 }
 
-type OpenRouterResponse struct {
+type OpenRouterCreditResponse struct {
 	Data struct {
 		TotalCredits float64 `json:"total_credits"`
 		TotalUsage   float64 `json:"total_usage"`
 	} `json:"data"`
+}
+
+type OpenRouterKeyResponse struct {
+	Data struct {
+		LimitRemaining float64 `json:"limit_remaining"`
+		TotalUsage     float64 `json:"usage"`
+	}
 }
 
 // GetAuthHeader get auth header
@@ -293,19 +300,34 @@ func updateChannelDeepSeekBalance(channel *model.Channel) (float64, error) {
 }
 
 func updateChannelOpenRouterBalance(channel *model.Channel) (float64, error) {
+	authHeader := GetAuthHeader(channel.Key)
+
 	url := "https://openrouter.ai/api/v1/credits"
-	body, err := GetResponseBody("GET", url, channel, GetAuthHeader(channel.Key))
-	if err != nil {
-		return 0, err
+	body, err := GetResponseBody("GET", url, channel, authHeader)
+	if err == nil {
+		response := OpenRouterCreditResponse{}
+		err = json.Unmarshal(body, &response)
+		if err != nil {
+			return 0, err
+		}
+		balance := response.Data.TotalCredits - response.Data.TotalUsage
+		channel.UpdateBalance(balance)
+		return balance, nil
 	}
-	response := OpenRouterResponse{}
-	err = json.Unmarshal(body, &response)
-	if err != nil {
-		return 0, err
+
+	url = "https://openrouter.ai/api/v1/key"
+	body, err = GetResponseBody("GET", url, channel, authHeader)
+	if err == nil {
+		response := OpenRouterKeyResponse{}
+		err = json.Unmarshal(body, &response)
+		if err != nil {
+			return 0, err
+		}
+		balance := response.Data.LimitRemaining
+		channel.UpdateBalance(balance)
+		return balance, nil
 	}
-	balance := response.Data.TotalCredits - response.Data.TotalUsage
-	channel.UpdateBalance(balance)
-	return balance, nil
+	return 0, err
 }
 
 func updateChannelBalance(channel *model.Channel) (float64, error) {
