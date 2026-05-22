@@ -2,8 +2,11 @@ package controller
 
 import (
 	"encoding/json"
+	"errors"
+	"fmt"
 	"time"
 
+	"github.com/songquanpeng/one-api/common/logger"
 	"github.com/songquanpeng/one-api/model"
 )
 
@@ -47,6 +50,28 @@ func normalizeCreateVideoTaskRequest(req *createVideoTaskRequest) {
 	}
 }
 
+func logFakeVideoTaskTransitionError(taskID string, nextStatus string, err error) {
+	if err == nil || errors.Is(err, model.ErrVideoTaskStateConflict) {
+		return
+	}
+	logger.SysError(fmt.Sprintf("fake video task %s transition to %s failed: %s", taskID, nextStatus, err.Error()))
+}
+
+func fakeVideoTaskErrorResponse(code string, message string, details string) string {
+	response := map[string]any{
+		"error": map[string]string{
+			"code":    code,
+			"message": message,
+			"details": details,
+		},
+	}
+	raw, err := json.Marshal(response)
+	if err != nil {
+		return fmt.Sprintf(`{"error":{"code":%q,"message":%q}}`, code, message)
+	}
+	return string(raw)
+}
+
 func runFakeVideoTask(taskID string, timings fakeVideoTaskTimings) {
 	time.Sleep(timings.StartDelay)
 	task, err := model.GetVideoTaskByTaskID(taskID)
@@ -54,6 +79,7 @@ func runFakeVideoTask(taskID string, timings fakeVideoTaskTimings) {
 		return
 	}
 	if err := model.TransitionVideoTask(taskID, model.VideoTaskStatusRunning, "task.started", "fake worker started", map[string]any{"provider": "fake"}); err != nil {
+		logFakeVideoTaskTransitionError(taskID, model.VideoTaskStatusRunning, err)
 		return
 	}
 	time.Sleep(timings.CompleteDelay)
@@ -63,21 +89,32 @@ func runFakeVideoTask(taskID string, timings fakeVideoTaskTimings) {
 	}
 
 	var params createVideoTaskRequest
-	_ = json.Unmarshal([]byte(task.ParamsJSON), &params)
+	if err := json.Unmarshal([]byte(task.ParamsJSON), &params); err != nil {
+		errorResponse := fakeVideoTaskErrorResponse("invalid_video_task_request", "invalid video task params", err.Error())
+		err = model.TransitionVideoTask(taskID, model.VideoTaskStatusFailed, "task.failed", "fake worker failed", map[string]any{
+			"error_code":             "invalid_video_task_request",
+			"error_message":          "invalid video task params",
+			"provider_response_json": errorResponse,
+		})
+		logFakeVideoTaskTransitionError(taskID, model.VideoTaskStatusFailed, err)
+		return
+	}
 	if params.TestMode == "fail" {
 		errorResponse := `{"error":{"code":"fake_upstream_error","message":"Fake provider simulated failure"}}`
-		_ = model.TransitionVideoTask(taskID, model.VideoTaskStatusFailed, "task.failed", "fake worker failed", map[string]any{
+		err = model.TransitionVideoTask(taskID, model.VideoTaskStatusFailed, "task.failed", "fake worker failed", map[string]any{
 			"error_code":             "fake_upstream_error",
 			"error_message":          "Fake provider simulated failure",
 			"provider_response_json": errorResponse,
 		})
+		logFakeVideoTaskTransitionError(taskID, model.VideoTaskStatusFailed, err)
 		return
 	}
 
 	resultJSON := `{"video_url":"https://example.com/fake-video.mp4","cover_url":"https://example.com/fake-cover.jpg","duration":5,"metadata":{"fake":true}}`
-	_ = model.TransitionVideoTask(taskID, model.VideoTaskStatusSucceeded, "task.succeeded", "fake worker succeeded", map[string]any{
+	err = model.TransitionVideoTask(taskID, model.VideoTaskStatusSucceeded, "task.succeeded", "fake worker succeeded", map[string]any{
 		"result_json":            resultJSON,
 		"provider_response_json": resultJSON,
 		"video_url":              "https://example.com/fake-video.mp4",
 	})
+	logFakeVideoTaskTransitionError(taskID, model.VideoTaskStatusSucceeded, err)
 }
