@@ -14,3 +14,4 @@ cmd.md
 temp
 .DS_Store
 .superpowers/
+.worktrees/
