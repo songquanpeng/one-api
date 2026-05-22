@@ -1,7 +1,7 @@
 # 帧桥 API 项目实施进度跟踪
 
-最后更新：2026-05-21
-当前阶段：本地 demo 已跑通，进入 Seedance 视频任务 MVP 设计与开发准备阶段。
+最后更新：2026-05-22
+当前阶段：M1 视频任务骨架已完成，进入 M2 账本和扣费退款设计与开发准备阶段。
 
 ## 项目目标
 
@@ -45,8 +45,8 @@ MVP 验收目标：
 
 | 里程碑 | 时间 | 目标 | 验收标准 | 状态 |
 |---|---:|---|---|---|
-| M0 本地 demo 和二开基线 | 2026-05-20 至 2026-05-24 | 本地环境、README、基础启动链路稳定 | 本地后台可访问，MySQL / Redis 可用，源码服务可启动 | 进行中 |
-| M1 视频任务骨架 | 2026-05-25 至 2026-06-05 | 新增视频任务 API、表结构、状态机和 fake provider | fake 任务可完成 `pending -> running -> succeeded` | 未开始 |
+| M0 本地 demo 和二开基线 | 2026-05-20 至 2026-05-24 | 本地环境、README、基础启动链路稳定 | 本地后台可访问，MySQL / Redis 可用，源码服务可启动 | 已完成 |
+| M1 视频任务骨架 | 2026-05-25 至 2026-06-05 | 新增视频任务 API、表结构、状态机和 fake provider | fake 任务可完成 `queued -> running -> succeeded`，并支持失败、取消和管理端调试查看 | 已完成 |
 | M2 账本和扣费退款 | 2026-06-01 至 2026-06-12 | 完成预扣、结算、退款、账本记录 | 成功扣费，失败退款，后台可追溯 | 未开始 |
 | M3 Seedance 上游接入 | 2026-06-08 至 2026-06-19 | 接入真实 Seedance 上游，支持文生视频 / 图生视频 | API 可创建真实任务并轮询到结果 | 未开始 |
 | M4 产品化后台 | 2026-06-15 至 2026-06-26 | 任务面板、Playground、价格页、文档示例 | 用户可在页面测试任务并查看记录 | 未开始 |
@@ -68,10 +68,10 @@ gantt
     品牌化基础配置                       :         m0_brand,     2026-05-22, 1d
 
     section M1 视频任务骨架
-    路由和 API 合约设计                  :         m1_api,       2026-05-25, 2d
-    数据表和 GORM 模型                   :         m1_schema,    2026-05-27, 3d
-    任务状态机                           :         m1_state,     2026-06-01, 3d
-    fake Seedance provider               :         m1_fake,      2026-06-03, 3d
+    路由和 API 合约设计                  :done,    m1_api,       2026-05-25, 2d
+    数据表和 GORM 模型                   :done,    m1_schema,    2026-05-27, 3d
+    任务状态机                           :done,    m1_state,     2026-06-01, 3d
+    fake Seedance provider               :done,    m1_fake,      2026-06-03, 3d
 
     section M2 账本与计费
     价格模型和额度换算                   :         m2_price,     2026-06-01, 2d
@@ -108,10 +108,10 @@ gantt
 | T01 | 基线 | 源码服务启动和前端 build 修复 | 2026-05-20 | 2026-05-20 | TBD | `http://localhost:3000` 可访问 | 已完成 |
 | T02 | 文档 | README、本地启动、开发测试流程 | 2026-05-20 | 2026-05-21 | TBD | README 二开指南 | 已完成 |
 | T03 | 品牌 | 系统名称、logo、文案调整为帧桥 API | 2026-05-22 | 2026-05-22 | TBD | 基础品牌化页面 | 已完成 |
-| T04 | API | 视频任务 API 合约和错误码草案 | 2026-05-25 | 2026-05-26 | TBD | API 设计文档 / 路由草案 | 未开始 |
-| T05 | 数据 | `video_tasks`、`video_task_events`、`provider_jobs` 模型 | 2026-05-27 | 2026-05-29 | TBD | GORM model 和迁移 | 未开始 |
-| T06 | Worker | 任务状态机和后台 Worker | 2026-06-01 | 2026-06-03 | TBD | 状态流转和队列消费 | 未开始 |
-| T07 | Provider | fake Seedance provider | 2026-06-03 | 2026-06-05 | TBD | 本地假任务闭环 | 未开始 |
+| T04 | API | 视频任务 API 合约、公共 API 和管理端调试 API | 2026-05-25 | 2026-05-26 | TBD | `/v1/videos/generations`、查询、取消、`/api/video_task` | 已完成 |
+| T05 | 数据 | `video_tasks`、`video_task_events` 模型，`provider_jobs` 延后到 M3 | 2026-05-27 | 2026-05-29 | TBD | GORM model、状态事件和筛选查询 | 已完成 |
+| T06 | Worker | 任务状态机和后台 fake worker | 2026-06-01 | 2026-06-03 | TBD | queued / running / succeeded / failed / canceled 流转 | 已完成 |
+| T07 | Provider | fake Seedance provider 和管理端调试入口 | 2026-06-03 | 2026-06-05 | TBD | 本地假任务成功、失败、慢任务取消闭环 | 已完成 |
 | T08 | 计费 | 定价模型和额度换算 | 2026-06-01 | 2026-06-02 | TBD | 模型 / 时长 / 分辨率价格表 | 未开始 |
 | T09 | 计费 | 预扣、成功结算、失败退款 | 2026-06-03 | 2026-06-10 | TBD | 计费服务和单测 | 未开始 |
 | T10 | 账本 | `ledger_entries` append-only 账本 | 2026-06-08 | 2026-06-12 | TBD | 可审计账本记录 | 未开始 |
@@ -125,6 +125,15 @@ gantt
 | T18 | 文档 | curl、Python、Node.js API 示例 | 2026-06-24 | 2026-06-26 | TBD | 开发者接入文档 | 未开始 |
 | T19 | 测试 | API、Worker、账本、退款测试 | 2026-07-06 | 2026-07-10 | TBD | 自动化测试和冒烟清单 | 未开始 |
 | T20 | 发布 | 生产部署、监控、备份、灰度试用 | 2026-07-08 | 2026-07-17 | TBD | beta 发布 | 未开始 |
+
+## M1 验证记录
+
+2026-05-22 完成视频任务骨架验证：
+
+- 后端 M1 涉及包通过：`go test ./model ./controller ./router ./relay ./relay/channeltype ./middleware`。
+- 前端测试通过：`cd web/default && npm test -- --watchAll=false`。
+- 前端生产构建通过：`cd web/default && npm run build`。
+- 全量 `go test ./...` 仍受既有 `common/image` JPEG decode 测试失败阻塞；该问题不属于 M1 视频任务改动范围，需要单独排查。
 
 ## 每周节奏
 
