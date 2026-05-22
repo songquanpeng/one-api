@@ -64,7 +64,7 @@ gantt
 
     section M0 基线
     本地 demo 跑通                      :done,    m0_demo,      2026-05-20, 2d
-    README / 环境说明 / TODO 文档        :active,  m0_docs,      2026-05-20, 3d
+    README / 环境说明 / 进度文档        :active,  m0_docs,      2026-05-20, 3d
     品牌化基础配置                       :         m0_brand,     2026-05-22, 1d
 
     section M1 视频任务骨架

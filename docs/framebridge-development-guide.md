@@ -4,7 +4,6 @@
 
 ## 相关文档
 
-- [Demo 启动 TODO](./framebridge-demo-todo.md)
 - [项目实施进度跟踪](./framebridge-implementation-progress.md)
 - [One API 当前架构文档](./framebridge-one-api-architecture.md)
 - [One API 管理 API 文档](./API.md)
