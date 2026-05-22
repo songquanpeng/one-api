@@ -1,5 +1,7 @@
 import React, { lazy, Suspense, useContext, useEffect } from 'react';
 import { Route, Routes } from 'react-router-dom';
+import { Message } from 'semantic-ui-react';
+import { useTranslation } from 'react-i18next';
 import Loading from './components/Loading';
 import User from './pages/User';
 import { PrivateRoute } from './components/PrivateRoute';
@@ -9,7 +11,14 @@ import NotFound from './pages/NotFound';
 import Setting from './pages/Setting';
 import EditUser from './pages/User/EditUser';
 import AddUser from './pages/User/AddUser';
-import { API, getLogo, getSystemName, showError, showNotice } from './helpers';
+import {
+  API,
+  getLogo,
+  getSystemName,
+  isAdmin,
+  showError,
+  showNotice,
+} from './helpers';
 import PasswordResetForm from './components/PasswordResetForm';
 import GitHubOAuth from './components/GitHubOAuth';
 import PasswordResetConfirm from './components/PasswordResetConfirm';
@@ -31,6 +40,18 @@ import VideoTaskDetail from './pages/VideoTask/VideoTaskDetail';
 
 const Home = lazy(() => import('./pages/Home'));
 const About = lazy(() => import('./pages/About'));
+
+export function AdminRoute({ children }) {
+  const { t } = useTranslation();
+  if (!isAdmin()) {
+    return (
+      <Message negative>
+        <Message.Header>{t('video_task.messages.no_access')}</Message.Header>
+      </Message>
+    );
+  }
+  return children;
+}
 
 function App() {
   const [userState, userDispatch] = useContext(UserContext);
@@ -293,7 +314,9 @@ function App() {
         path='/video-task'
         element={
           <PrivateRoute>
-            <VideoTask />
+            <AdminRoute>
+              <VideoTask />
+            </AdminRoute>
           </PrivateRoute>
         }
       />
@@ -301,7 +324,9 @@ function App() {
         path='/video-task/:id'
         element={
           <PrivateRoute>
-            <VideoTaskDetail />
+            <AdminRoute>
+              <VideoTaskDetail />
+            </AdminRoute>
           </PrivateRoute>
         }
       />

@@ -38,7 +38,46 @@ function isCancelable(status) {
   return status === 'queued' || status === 'running';
 }
 
-function renderStatus(status) {
+export function getTranslatedStatus(status, t) {
+  if (!status) return '-';
+  const translation = t(`video_task.status.${status}`);
+  if (!translation || translation === `video_task.status.${status}`) {
+    return status;
+  }
+  return translation;
+}
+
+export function getStatusOptions(t) {
+  return [
+    { key: 'all', text: t('video_task.status.all'), value: '' },
+    { key: 'queued', text: getTranslatedStatus('queued', t), value: 'queued' },
+    {
+      key: 'running',
+      text: getTranslatedStatus('running', t),
+      value: 'running',
+    },
+    {
+      key: 'succeeded',
+      text: getTranslatedStatus('succeeded', t),
+      value: 'succeeded',
+    },
+    { key: 'failed', text: getTranslatedStatus('failed', t), value: 'failed' },
+    {
+      key: 'canceled',
+      text: getTranslatedStatus('canceled', t),
+      value: 'canceled',
+    },
+  ];
+}
+
+export function getTestModeOptions(t) {
+  return TEST_MODE_OPTIONS.map((option) => ({
+    ...option,
+    text: t(`video_task.debug.test_modes.${option.value}`),
+  }));
+}
+
+function renderStatus(status, t) {
   const colorMap = {
     queued: 'grey',
     running: 'blue',
@@ -49,7 +88,7 @@ function renderStatus(status) {
 
   return (
     <Label basic color={colorMap[status] || 'grey'}>
-      {status || '-'}
+      {getTranslatedStatus(status, t)}
     </Label>
   );
 }
@@ -84,14 +123,8 @@ const VideoTasksTable = () => {
     end_timestamp: '',
   });
   const [debugForm, setDebugForm] = useState(DEFAULT_DEBUG_FORM);
-  const statusOptions = [
-    { key: 'all', text: t('video_task.status.all'), value: '' },
-    { key: 'queued', text: 'queued', value: 'queued' },
-    { key: 'running', text: 'running', value: 'running' },
-    { key: 'succeeded', text: 'succeeded', value: 'succeeded' },
-    { key: 'failed', text: 'failed', value: 'failed' },
-    { key: 'canceled', text: 'canceled', value: 'canceled' },
-  ];
+  const statusOptions = getStatusOptions(t);
+  const testModeOptions = getTestModeOptions(t);
 
   const updateFilter = (name, value) => {
     setFilters((filters) => ({ ...filters, [name]: value }));
@@ -115,20 +148,34 @@ const VideoTasksTable = () => {
 
   const loadTasks = async (page) => {
     setLoading(true);
-    const res = await API.get(`/api/video_task/?${buildQuery(page)}`);
-    const { success, message, data } = res.data;
-    if (success) {
-      if (page === 0) {
-        setTasks(data || []);
-      } else {
-        let newTasks = [...tasks];
-        newTasks.splice(page * ITEMS_PER_PAGE, data.length, ...(data || []));
-        setTasks(newTasks);
+    try {
+      const res = await API.get(`/api/video_task/?${buildQuery(page)}`);
+      if (!res || !res.data) {
+        showError(t('video_task.messages.request_failed'));
+        return;
       }
-    } else {
-      showError(message);
+      const { success, message, data } = res.data;
+      if (success) {
+        const pageData = data || [];
+        if (page === 0) {
+          setTasks(pageData);
+        } else {
+          let newTasks = [...tasks];
+          newTasks.splice(
+            page * ITEMS_PER_PAGE,
+            pageData.length,
+            ...pageData
+          );
+          setTasks(newTasks);
+        }
+      } else {
+        showError(message || t('video_task.messages.request_failed'));
+      }
+    } catch (error) {
+      showError(error?.message || t('video_task.messages.request_failed'));
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const refresh = async () => {
@@ -152,13 +199,24 @@ const VideoTasksTable = () => {
   };
 
   const cancelTask = async (taskId) => {
-    const res = await API.post(`/api/video_task/${taskId}/cancel`);
-    const { success, message } = res.data;
-    if (success) {
-      showSuccess(t('video_task.messages.cancel_success'));
-      await refresh();
-    } else {
-      showError(message);
+    setLoading(true);
+    try {
+      const res = await API.post(`/api/video_task/${taskId}/cancel`);
+      if (!res || !res.data) {
+        showError(t('video_task.messages.request_failed'));
+        return;
+      }
+      const { success, message } = res.data;
+      if (success) {
+        showSuccess(t('video_task.messages.cancel_success'));
+        await refresh();
+      } else {
+        showError(message || t('video_task.messages.request_failed'));
+      }
+    } catch (error) {
+      showError(error?.message || t('video_task.messages.request_failed'));
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -168,21 +226,30 @@ const VideoTasksTable = () => {
       return;
     }
     setCreating(true);
-    const res = await API.post('/api/video_task/debug', {
-      ...debugForm,
-      prompt: debugForm.prompt.trim(),
-      input_image_url: debugForm.input_image_url.trim(),
-      duration: Number(debugForm.duration),
-    });
-    const { success, message, data } = res.data;
-    setCreating(false);
-    if (success) {
-      showSuccess(t('video_task.messages.create_success'));
-      setCreateOpen(false);
-      setDebugForm(DEFAULT_DEBUG_FORM);
-      navigate(`/video-task/${data.id}`);
-    } else {
-      showError(message);
+    try {
+      const res = await API.post('/api/video_task/debug', {
+        ...debugForm,
+        prompt: debugForm.prompt.trim(),
+        input_image_url: debugForm.input_image_url.trim(),
+        duration: Number(debugForm.duration),
+      });
+      if (!res || !res.data) {
+        showError(t('video_task.messages.request_failed'));
+        return;
+      }
+      const { success, message, data } = res.data;
+      if (success) {
+        showSuccess(t('video_task.messages.create_success'));
+        setCreateOpen(false);
+        setDebugForm(DEFAULT_DEBUG_FORM);
+        navigate(`/video-task/${data.id}`);
+      } else {
+        showError(message || t('video_task.messages.request_failed'));
+      }
+    } catch (error) {
+      showError(error?.message || t('video_task.messages.request_failed'));
+    } finally {
+      setCreating(false);
     }
   };
 
@@ -298,7 +365,7 @@ const VideoTasksTable = () => {
                 <Table.Cell>
                   <code>{task.id}</code>
                 </Table.Cell>
-                <Table.Cell>{renderStatus(task.status)}</Table.Cell>
+                <Table.Cell>{renderStatus(task.status, t)}</Table.Cell>
                 <Table.Cell>{task.model || '-'}</Table.Cell>
                 <Table.Cell>{task.user_id || '-'}</Table.Cell>
                 <Table.Cell>{task.token_id || '-'}</Table.Cell>
@@ -393,7 +460,7 @@ const VideoTasksTable = () => {
               <label>{t('video_task.debug.test_mode')}</label>
               <Dropdown
                 selection
-                options={TEST_MODE_OPTIONS}
+                options={testModeOptions}
                 value={debugForm.test_mode}
                 onChange={(_, { value }) => updateDebugForm('test_mode', value)}
               />

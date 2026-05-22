@@ -348,7 +348,12 @@
       "optional": "Optional"
     },
     "status": {
-      "all": "All"
+      "all": "All",
+      "queued": "Queued",
+      "running": "Running",
+      "succeeded": "Succeeded",
+      "failed": "Failed",
+      "canceled": "Canceled"
     },
     "table": {
       "task_id": "Task ID",
@@ -381,7 +386,12 @@
       "duration": "Duration",
       "aspect_ratio": "Aspect Ratio",
       "resolution": "Resolution",
-      "test_mode": "Test Mode"
+      "test_mode": "Test Mode",
+      "test_modes": {
+        "success": "Success",
+        "fail": "Fail",
+        "slow": "Slow"
+      }
     },
     "detail": {
       "title": "Video Task Detail",
@@ -423,7 +433,9 @@
       "cancel_success": "Video task canceled.",
       "copy_success": "Copied to clipboard.",
       "copy_failed": "Unable to copy to clipboard.",
-      "prompt_required": "Prompt is required."
+      "prompt_required": "Prompt is required.",
+      "request_failed": "Request failed. Please try again.",
+      "no_access": "You do not have permission to access this page."
     }
   },
   "user": {

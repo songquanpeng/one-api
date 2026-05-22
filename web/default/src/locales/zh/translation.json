@@ -348,7 +348,12 @@
       "optional": "可选值"
     },
     "status": {
-      "all": "全部"
+      "all": "全部",
+      "queued": "排队中",
+      "running": "运行中",
+      "succeeded": "已成功",
+      "failed": "已失败",
+      "canceled": "已取消"
     },
     "table": {
       "task_id": "任务 ID",
@@ -381,7 +386,12 @@
       "duration": "时长",
       "aspect_ratio": "画幅比例",
       "resolution": "分辨率",
-      "test_mode": "测试模式"
+      "test_mode": "测试模式",
+      "test_modes": {
+        "success": "成功",
+        "fail": "失败",
+        "slow": "慢速"
+      }
     },
     "detail": {
       "title": "视频任务详情",
@@ -423,7 +433,9 @@
       "cancel_success": "视频任务已取消。",
       "copy_success": "已复制到剪贴板。",
       "copy_failed": "无法复制到剪贴板。",
-      "prompt_required": "Prompt 不能为空。"
+      "prompt_required": "Prompt 不能为空。",
+      "request_failed": "请求失败，请稍后重试。",
+      "no_access": "你没有权限访问此页面。"
     }
   },
   "user": {
