@@ -1,6 +1,7 @@
 package model
 
 import (
+	"errors"
 	"testing"
 
 	"gorm.io/driver/sqlite"
@@ -119,6 +120,24 @@ func TestVideoTaskTerminalStateIsImmutable(t *testing.T) {
 	if err == nil {
 		t.Fatalf("expected terminal state transition error")
 	}
+	events, err := GetVideoTaskEvents(task.TaskID)
+	if err != nil {
+		t.Fatalf("get events: %v", err)
+	}
+	if len(events) != 3 {
+		t.Fatalf("events len after rejected terminal transition = %d, want 3", len(events))
+	}
+	err = CancelVideoTask(task.TaskID, "admin")
+	if !errors.Is(err, ErrVideoTaskNotCancelable) {
+		t.Fatalf("cancel error = %v, want %v", err, ErrVideoTaskNotCancelable)
+	}
+	events, err = GetVideoTaskEvents(task.TaskID)
+	if err != nil {
+		t.Fatalf("get events after cancel: %v", err)
+	}
+	if len(events) != 3 {
+		t.Fatalf("events len after rejected terminal cancel = %d, want 3", len(events))
+	}
 }
 
 func TestCancelVideoTaskOnlyAllowsQueuedOrRunning(t *testing.T) {
@@ -173,5 +192,73 @@ func TestCancelVideoTaskOnlyAllowsQueuedOrRunning(t *testing.T) {
 	}
 	if reloadedRunning.Status != VideoTaskStatusCanceled {
 		t.Fatalf("running status = %s, want %s", reloadedRunning.Status, VideoTaskStatusCanceled)
+	}
+}
+
+func TestVideoTaskTransitionConflictDoesNotWriteEvent(t *testing.T) {
+	setupVideoTaskTestDB(t)
+
+	task := &VideoTask{
+		TaskID:        "task_transition_conflict",
+		UserID:        1,
+		TokenID:       2,
+		Model:         "fake-seedance-lite",
+		Prompt:        "hello video",
+		Status:        VideoTaskStatusQueued,
+		Provider:      VideoTaskProviderFake,
+		BillingStatus: VideoTaskBillingPending,
+	}
+	if err := CreateVideoTask(task); err != nil {
+		t.Fatalf("create task: %v", err)
+	}
+	if err := TransitionVideoTask(task.TaskID, VideoTaskStatusRunning, "task.started", "fake worker started", nil); err != nil {
+		t.Fatalf("transition running: %v", err)
+	}
+
+	callbackName := "video_task_test_conflict_before_update"
+	triggered := false
+	if err := DB.Callback().Update().Before("gorm:update").Register(callbackName, func(tx *gorm.DB) {
+		if triggered || tx.Statement.Table != "video_tasks" {
+			return
+		}
+		triggered = true
+		if err := tx.Session(&gorm.Session{NewDB: true, SkipHooks: true}).
+			Model(&VideoTask{}).
+			Where("task_id = ?", task.TaskID).
+			Updates(map[string]any{
+				"status":          VideoTaskStatusSucceeded,
+				"provider_status": VideoTaskStatusSucceeded,
+			}).Error; err != nil {
+			tx.AddError(err)
+		}
+	}); err != nil {
+		t.Fatalf("register update callback: %v", err)
+	}
+	t.Cleanup(func() {
+		_ = DB.Callback().Update().Remove(callbackName)
+	})
+
+	err := TransitionVideoTask(task.TaskID, VideoTaskStatusCanceled, "task.canceled", "late cancel", nil)
+	if !errors.Is(err, ErrVideoTaskStateConflict) {
+		t.Fatalf("transition error = %v, want %v", err, ErrVideoTaskStateConflict)
+	}
+	events, err := GetVideoTaskEvents(task.TaskID)
+	if err != nil {
+		t.Fatalf("get events: %v", err)
+	}
+	if len(events) != 2 {
+		t.Fatalf("events len after conflicted transition = %d, want 2", len(events))
+	}
+	for _, event := range events {
+		if event.EventType == "task.canceled" {
+			t.Fatalf("unexpected canceled event after conflicted transition: %#v", events)
+		}
+	}
+	reloaded, err := GetVideoTaskByTaskID(task.TaskID)
+	if err != nil {
+		t.Fatalf("get task: %v", err)
+	}
+	if reloaded.Status != VideoTaskStatusRunning {
+		t.Fatalf("status after conflicted transition = %s, want %s", reloaded.Status, VideoTaskStatusRunning)
 	}
 }

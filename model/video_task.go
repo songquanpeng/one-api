@@ -208,22 +208,29 @@ func TransitionVideoTask(taskID string, nextStatus string, eventType string, mes
 		if responseJSON, ok := metadata["provider_response_json"].(string); ok {
 			updates["provider_response_json"] = responseJSON
 		}
-		if err := tx.Model(&VideoTask{}).Where("task_id = ?", taskID).Updates(updates).Error; err != nil {
-			return err
+		result := tx.Model(&VideoTask{}).Where("task_id = ? AND status = ?", taskID, task.Status).Updates(updates)
+		if result.Error != nil {
+			return result.Error
+		}
+		if result.RowsAffected != 1 {
+			return fmt.Errorf("%w: %s -> %s", ErrVideoTaskStateConflict, task.Status, nextStatus)
 		}
 		return createVideoTaskEvent(tx, taskID, eventType, task.Status, nextStatus, message, metadata)
 	})
 }
 
 func CancelVideoTask(taskID string, actor string) error {
-	task, err := GetVideoTaskByTaskID(taskID)
+	err := TransitionVideoTask(taskID, VideoTaskStatusCanceled, "task.canceled", "video task canceled", map[string]any{"actor": actor})
+	if errors.Is(err, ErrVideoTaskStateConflict) {
+		return ErrVideoTaskNotCancelable
+	}
+	if errors.Is(err, ErrVideoTaskNotFound) {
+		return err
+	}
 	if err != nil {
 		return err
 	}
-	if task.Status != VideoTaskStatusQueued && task.Status != VideoTaskStatusRunning {
-		return ErrVideoTaskNotCancelable
-	}
-	return TransitionVideoTask(taskID, VideoTaskStatusCanceled, "task.canceled", "video task canceled", map[string]any{"actor": actor})
+	return nil
 }
 
 func isAllowedVideoTaskTransition(current string, next string) bool {
