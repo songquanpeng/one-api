@@ -41,6 +41,11 @@ func getRequestModel(c *gin.Context) (string, error) {
 			modelRequest.Model = "dall-e-2"
 		}
 	}
+	if strings.HasPrefix(c.Request.URL.Path, "/v1/videos/generations") {
+		if modelRequest.Model == "" {
+			modelRequest.Model = "fake-seedance-lite"
+		}
+	}
 	if strings.HasPrefix(c.Request.URL.Path, "/v1/audio/transcriptions") || strings.HasPrefix(c.Request.URL.Path, "/v1/audio/translations") {
 		if modelRequest.Model == "" {
 			modelRequest.Model = "whisper-1"
