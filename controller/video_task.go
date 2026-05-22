@@ -4,10 +4,15 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net/http"
 	"time"
 
+	"github.com/gin-gonic/gin"
+	"github.com/songquanpeng/one-api/common/ctxkey"
+	"github.com/songquanpeng/one-api/common/helper"
 	"github.com/songquanpeng/one-api/common/logger"
 	"github.com/songquanpeng/one-api/model"
+	relaymodel "github.com/songquanpeng/one-api/relay/model"
 )
 
 type createVideoTaskRequest struct {
@@ -48,6 +53,120 @@ func normalizeCreateVideoTaskRequest(req *createVideoTaskRequest) {
 	if req.TestMode == "" {
 		req.TestMode = "success"
 	}
+}
+
+func CreateVideoTask(c *gin.Context) {
+	var req createVideoTaskRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		respondVideoTaskError(c, http.StatusBadRequest, "invalid_video_task_request", err.Error())
+		return
+	}
+	normalizeCreateVideoTaskRequest(&req)
+	if req.Prompt == "" {
+		respondVideoTaskError(c, http.StatusBadRequest, "invalid_video_task_request", "prompt is required")
+		return
+	}
+	paramsJSON, _ := json.Marshal(req)
+	providerJobID := "fake_job_" + model.NewVideoTaskID()[5:]
+	task := &model.VideoTask{
+		UserID:              c.GetInt(ctxkey.Id),
+		TokenID:             c.GetInt(ctxkey.TokenId),
+		RequestID:           c.GetString(helper.RequestIdKey),
+		Model:               req.Model,
+		Prompt:              req.Prompt,
+		InputImageURL:       req.InputImageURL,
+		ParamsJSON:          string(paramsJSON),
+		Status:              model.VideoTaskStatusQueued,
+		Provider:            model.VideoTaskProviderFake,
+		ProviderJobID:       providerJobID,
+		ProviderStatus:      model.VideoTaskStatusQueued,
+		ProviderRequestJSON: string(paramsJSON),
+		BillingStatus:       model.VideoTaskBillingPending,
+	}
+	if err := model.CreateVideoTask(task); err != nil {
+		respondVideoTaskError(c, http.StatusInternalServerError, "video_task_create_failed", err.Error())
+		return
+	}
+	go runFakeVideoTask(task.TaskID, defaultFakeVideoTaskTimings(req.TestMode))
+	c.JSON(http.StatusOK, buildVideoTaskResponse(task))
+}
+
+func GetVideoTask(c *gin.Context) {
+	taskID := c.Param("id")
+	task, err := model.GetUserVideoTask(taskID, c.GetInt(ctxkey.Id))
+	if err != nil {
+		respondVideoTaskError(c, http.StatusNotFound, "video_task_not_found", "video task not found")
+		return
+	}
+	c.JSON(http.StatusOK, buildVideoTaskResponse(task))
+}
+
+func CancelVideoTask(c *gin.Context) {
+	taskID := c.Param("id")
+	task, err := model.GetUserVideoTask(taskID, c.GetInt(ctxkey.Id))
+	if err != nil {
+		respondVideoTaskError(c, http.StatusNotFound, "video_task_not_found", "video task not found")
+		return
+	}
+	if err := model.CancelVideoTask(task.TaskID, "api"); err != nil {
+		status := http.StatusConflict
+		code := "video_task_state_conflict"
+		if errors.Is(err, model.ErrVideoTaskNotCancelable) {
+			code = "video_task_not_cancelable"
+		}
+		respondVideoTaskError(c, status, code, err.Error())
+		return
+	}
+	task, _ = model.GetVideoTaskByTaskID(taskID)
+	c.JSON(http.StatusOK, buildVideoTaskResponse(task))
+}
+
+func buildVideoTaskResponse(task *model.VideoTask) gin.H {
+	resp := gin.H{
+		"id":              task.TaskID,
+		"object":          "video.task",
+		"status":          task.Status,
+		"model":           task.Model,
+		"prompt":          task.Prompt,
+		"provider":        task.Provider,
+		"provider_job_id": task.ProviderJobID,
+		"estimated_quota": task.EstimatedQuota,
+		"billing_status":  task.BillingStatus,
+		"created_at":      task.CreatedAt,
+		"updated_at":      task.UpdatedAt,
+		"started_at":      nullableTimestamp(task.StartedAt),
+		"completed_at":    nullableTimestamp(task.CompletedAt),
+		"canceled_at":     nullableTimestamp(task.CanceledAt),
+		"result":          nil,
+		"error":           nil,
+	}
+	if task.ResultJSON != "" {
+		var result map[string]any
+		if json.Unmarshal([]byte(task.ResultJSON), &result) == nil {
+			resp["result"] = result
+		}
+	}
+	if task.ErrorCode != "" {
+		resp["error"] = gin.H{"code": task.ErrorCode, "message": task.ErrorMessage}
+	}
+	return resp
+}
+
+func nullableTimestamp(value int64) any {
+	if value == 0 {
+		return nil
+	}
+	return value
+}
+
+func respondVideoTaskError(c *gin.Context, status int, code string, message string) {
+	c.JSON(status, gin.H{
+		"error": relaymodel.Error{
+			Message: message,
+			Type:    "framebridge_video_task_error",
+			Code:    code,
+		},
+	})
 }
 
 func logFakeVideoTaskTransitionError(taskID string, nextStatus string, err error) {

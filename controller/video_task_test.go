@@ -26,6 +26,47 @@ func setupControllerVideoTaskDB(t *testing.T) {
 	model.DB = db
 }
 
+func TestBuildVideoTaskResponseMapsResultAndError(t *testing.T) {
+	task := &model.VideoTask{
+		TaskID:        "task_response",
+		Status:        model.VideoTaskStatusSucceeded,
+		Model:         "fake-seedance-lite",
+		Prompt:        "prompt",
+		Provider:      "fake",
+		ProviderJobID: "fake_job_response",
+		ResultJSON:    `{"video_url":"https://example.com/fake-video.mp4","cover_url":"https://example.com/fake-cover.jpg"}`,
+		CreatedAt:     1,
+		UpdatedAt:     2,
+		StartedAt:     3,
+		CompletedAt:   4,
+	}
+	resp := buildVideoTaskResponse(task)
+	if resp["id"] != "task_response" {
+		t.Fatalf("id = %v", resp["id"])
+	}
+	if resp["object"] != "video.task" {
+		t.Fatalf("object = %v", resp["object"])
+	}
+	if resp["result"] == nil {
+		t.Fatalf("result must be present")
+	}
+	if resp["error"] != nil {
+		t.Fatalf("error must be nil")
+	}
+
+	task.Status = model.VideoTaskStatusFailed
+	task.ResultJSON = ""
+	task.ErrorCode = "fake_upstream_error"
+	task.ErrorMessage = "Fake provider simulated failure"
+	resp = buildVideoTaskResponse(task)
+	if resp["result"] != nil {
+		t.Fatalf("result must be nil for failed task")
+	}
+	if resp["error"] == nil {
+		t.Fatalf("error must be present")
+	}
+}
+
 func TestRunFakeVideoTaskSuccess(t *testing.T) {
 	setupControllerVideoTaskDB(t)
 

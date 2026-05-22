@@ -17,6 +17,13 @@ func SetRelayRouter(router *gin.Engine) {
 		modelsRouter.GET("", controller.ListModels)
 		modelsRouter.GET("/:model", controller.RetrieveModel)
 	}
+	videoRouter := router.Group("/v1/videos")
+	videoRouter.Use(middleware.TokenAuth())
+	{
+		videoRouter.POST("/generations", controller.CreateVideoTask)
+		videoRouter.GET("/tasks/:id", controller.GetVideoTask)
+		videoRouter.POST("/tasks/:id/cancel", controller.CancelVideoTask)
+	}
 	relayV1Router := router.Group("/v1")
 	relayV1Router.Use(middleware.RelayPanicRecover(), middleware.TokenAuth(), middleware.Distribute())
 	{
