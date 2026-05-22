@@ -5,9 +5,11 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/songquanpeng/one-api/common/config"
 	"github.com/songquanpeng/one-api/common/ctxkey"
 	"github.com/songquanpeng/one-api/common/helper"
 	"github.com/songquanpeng/one-api/common/logger"
@@ -119,6 +121,138 @@ func CancelVideoTask(c *gin.Context) {
 	}
 	task, _ = model.GetVideoTaskByTaskID(taskID)
 	c.JSON(http.StatusOK, buildVideoTaskResponse(task))
+}
+
+func GetAllVideoTasks(c *gin.Context) {
+	p, _ := strconv.Atoi(c.Query("p"))
+	if p < 0 {
+		p = 0
+	}
+	userID, _ := strconv.Atoi(c.Query("user_id"))
+	startTimestamp, _ := strconv.ParseInt(c.Query("start_timestamp"), 10, 64)
+	endTimestamp, _ := strconv.ParseInt(c.Query("end_timestamp"), 10, 64)
+	tasks, err := model.ListVideoTasks(model.VideoTaskFilter{
+		Status:         c.Query("status"),
+		Model:          c.Query("model"),
+		UserID:         userID,
+		TaskID:         c.Query("task_id"),
+		StartTimestamp: startTimestamp,
+		EndTimestamp:   endTimestamp,
+		Offset:         p * config.ItemsPerPage,
+		Limit:          config.ItemsPerPage,
+	})
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "",
+		"data":    tasks,
+	})
+}
+
+func GetAdminVideoTask(c *gin.Context) {
+	task, err := model.GetVideoTaskByTaskID(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": "视频任务不存在",
+		})
+		return
+	}
+	events, err := model.GetVideoTaskEvents(task.TaskID)
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "",
+		"data": gin.H{
+			"task":   task,
+			"events": events,
+		},
+	})
+}
+
+func CreateAdminDebugVideoTask(c *gin.Context) {
+	var req createVideoTaskRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+	normalizeCreateVideoTaskRequest(&req)
+	if req.Prompt == "" {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": "prompt is required",
+		})
+		return
+	}
+	paramsJSON, _ := json.Marshal(req)
+	providerJobID := "fake_job_" + model.NewVideoTaskID()[5:]
+	task := &model.VideoTask{
+		UserID:              c.GetInt(ctxkey.Id),
+		TokenID:             c.GetInt(ctxkey.TokenId),
+		RequestID:           c.GetString(helper.RequestIdKey),
+		Model:               req.Model,
+		Prompt:              req.Prompt,
+		InputImageURL:       req.InputImageURL,
+		ParamsJSON:          string(paramsJSON),
+		Status:              model.VideoTaskStatusQueued,
+		Provider:            model.VideoTaskProviderFake,
+		ProviderJobID:       providerJobID,
+		ProviderStatus:      model.VideoTaskStatusQueued,
+		ProviderRequestJSON: string(paramsJSON),
+		BillingStatus:       model.VideoTaskBillingPending,
+	}
+	if err := model.CreateVideoTask(task); err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+	go runFakeVideoTask(task.TaskID, defaultFakeVideoTaskTimings(req.TestMode))
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "",
+		"data":    task,
+	})
+}
+
+func CancelAdminVideoTask(c *gin.Context) {
+	taskID := c.Param("id")
+	if err := model.CancelVideoTask(taskID, "admin"); err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+	task, err := model.GetVideoTaskByTaskID(taskID)
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "",
+		"data":    task,
+	})
 }
 
 func buildVideoTaskResponse(task *model.VideoTask) gin.H {

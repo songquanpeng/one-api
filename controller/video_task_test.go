@@ -1,9 +1,15 @@
 package controller
 
 import (
+	"bytes"
+	"encoding/json"
+	"net/http"
+	"net/http/httptest"
 	"testing"
 	"time"
 
+	"github.com/gin-gonic/gin"
+	"github.com/songquanpeng/one-api/common/ctxkey"
 	"github.com/songquanpeng/one-api/model"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
@@ -24,6 +30,191 @@ func setupControllerVideoTaskDB(t *testing.T) {
 	}
 	sqlDB.SetMaxOpenConns(1)
 	model.DB = db
+}
+
+func decodeVideoTaskAdminResponse(t *testing.T, body *bytes.Buffer) map[string]any {
+	t.Helper()
+	var resp map[string]any
+	if err := json.Unmarshal(body.Bytes(), &resp); err != nil {
+		t.Fatalf("decode response: %v", err)
+	}
+	return resp
+}
+
+func TestGetAllVideoTasksFiltersAndNormalizesPage(t *testing.T) {
+	setupControllerVideoTaskDB(t)
+	gin.SetMode(gin.TestMode)
+
+	matching := &model.VideoTask{
+		TaskID:        "task_admin_list_match",
+		UserID:        7,
+		Model:         "fake-admin-model",
+		Prompt:        "matching prompt",
+		Status:        model.VideoTaskStatusQueued,
+		Provider:      model.VideoTaskProviderFake,
+		BillingStatus: model.VideoTaskBillingPending,
+	}
+	if err := model.CreateVideoTask(matching); err != nil {
+		t.Fatalf("create matching task: %v", err)
+	}
+	other := &model.VideoTask{
+		TaskID:        "task_admin_list_other",
+		UserID:        8,
+		Model:         "fake-admin-model",
+		Prompt:        "other prompt",
+		Status:        model.VideoTaskStatusQueued,
+		Provider:      model.VideoTaskProviderFake,
+		BillingStatus: model.VideoTaskBillingPending,
+	}
+	if err := model.CreateVideoTask(other); err != nil {
+		t.Fatalf("create other task: %v", err)
+	}
+
+	router := gin.New()
+	router.GET("/api/video_task/", GetAllVideoTasks)
+	req := httptest.NewRequest(http.MethodGet, "/api/video_task/?p=-1&status=queued&model=fake-admin-model&user_id=7&task_id=task_admin_list_match", nil)
+	rec := httptest.NewRecorder()
+	router.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusOK {
+		t.Fatalf("status = %d", rec.Code)
+	}
+	resp := decodeVideoTaskAdminResponse(t, rec.Body)
+	if resp["success"] != true {
+		t.Fatalf("success = %v, message = %v", resp["success"], resp["message"])
+	}
+	data, ok := resp["data"].([]any)
+	if !ok {
+		t.Fatalf("data type = %T", resp["data"])
+	}
+	if len(data) != 1 {
+		t.Fatalf("task count = %d, want 1", len(data))
+	}
+	task := data[0].(map[string]any)
+	if task["id"] != matching.TaskID {
+		t.Fatalf("task id = %v, want %s", task["id"], matching.TaskID)
+	}
+}
+
+func TestGetAdminVideoTaskReturnsTaskAndEvents(t *testing.T) {
+	setupControllerVideoTaskDB(t)
+	gin.SetMode(gin.TestMode)
+
+	task := &model.VideoTask{
+		TaskID:        "task_admin_detail",
+		UserID:        7,
+		Model:         "fake-admin-model",
+		Prompt:        "detail prompt",
+		Status:        model.VideoTaskStatusQueued,
+		Provider:      model.VideoTaskProviderFake,
+		BillingStatus: model.VideoTaskBillingPending,
+	}
+	if err := model.CreateVideoTask(task); err != nil {
+		t.Fatalf("create task: %v", err)
+	}
+
+	router := gin.New()
+	router.GET("/api/video_task/:id", GetAdminVideoTask)
+	req := httptest.NewRequest(http.MethodGet, "/api/video_task/"+task.TaskID, nil)
+	rec := httptest.NewRecorder()
+	router.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusOK {
+		t.Fatalf("status = %d", rec.Code)
+	}
+	resp := decodeVideoTaskAdminResponse(t, rec.Body)
+	if resp["success"] != true {
+		t.Fatalf("success = %v, message = %v", resp["success"], resp["message"])
+	}
+	data := resp["data"].(map[string]any)
+	if data["task"].(map[string]any)["id"] != task.TaskID {
+		t.Fatalf("task id = %v, want %s", data["task"].(map[string]any)["id"], task.TaskID)
+	}
+	events := data["events"].([]any)
+	if len(events) == 0 {
+		t.Fatalf("events must include task.created")
+	}
+}
+
+func TestCreateAdminDebugVideoTaskCreatesQueuedFakeTask(t *testing.T) {
+	setupControllerVideoTaskDB(t)
+	gin.SetMode(gin.TestMode)
+
+	router := gin.New()
+	router.POST("/api/video_task/debug", func(c *gin.Context) {
+		c.Set(ctxkey.Id, 42)
+		CreateAdminDebugVideoTask(c)
+	})
+	body := bytes.NewBufferString(`{"prompt":"debug prompt","test_mode":"slow"}`)
+	req := httptest.NewRequest(http.MethodPost, "/api/video_task/debug", body)
+	req.Header.Set("Content-Type", "application/json")
+	rec := httptest.NewRecorder()
+	router.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusOK {
+		t.Fatalf("status = %d", rec.Code)
+	}
+	resp := decodeVideoTaskAdminResponse(t, rec.Body)
+	if resp["success"] != true {
+		t.Fatalf("success = %v, message = %v", resp["success"], resp["message"])
+	}
+	taskData := resp["data"].(map[string]any)
+	taskID := taskData["id"].(string)
+	task, err := model.GetVideoTaskByTaskID(taskID)
+	if err != nil {
+		t.Fatalf("get task: %v", err)
+	}
+	if task.UserID != 42 {
+		t.Fatalf("user_id = %d, want 42", task.UserID)
+	}
+	if task.TokenID != 0 {
+		t.Fatalf("token_id = %d, want 0", task.TokenID)
+	}
+	if task.Status != model.VideoTaskStatusQueued {
+		t.Fatalf("status = %s, want queued", task.Status)
+	}
+	if task.Provider != model.VideoTaskProviderFake {
+		t.Fatalf("provider = %s, want fake", task.Provider)
+	}
+	if err := model.CancelVideoTask(taskID, "test"); err != nil {
+		t.Fatalf("cancel created task: %v", err)
+	}
+}
+
+func TestCancelAdminVideoTaskReturnsRefreshedTask(t *testing.T) {
+	setupControllerVideoTaskDB(t)
+	gin.SetMode(gin.TestMode)
+
+	task := &model.VideoTask{
+		TaskID:        "task_admin_cancel",
+		UserID:        7,
+		Model:         "fake-admin-model",
+		Prompt:        "cancel prompt",
+		Status:        model.VideoTaskStatusQueued,
+		Provider:      model.VideoTaskProviderFake,
+		BillingStatus: model.VideoTaskBillingPending,
+	}
+	if err := model.CreateVideoTask(task); err != nil {
+		t.Fatalf("create task: %v", err)
+	}
+
+	router := gin.New()
+	router.POST("/api/video_task/:id/cancel", CancelAdminVideoTask)
+	req := httptest.NewRequest(http.MethodPost, "/api/video_task/"+task.TaskID+"/cancel", nil)
+	rec := httptest.NewRecorder()
+	router.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusOK {
+		t.Fatalf("status = %d", rec.Code)
+	}
+	resp := decodeVideoTaskAdminResponse(t, rec.Body)
+	if resp["success"] != true {
+		t.Fatalf("success = %v, message = %v", resp["success"], resp["message"])
+	}
+	taskData := resp["data"].(map[string]any)
+	if taskData["status"] != model.VideoTaskStatusCanceled {
+		t.Fatalf("status = %v, want canceled", taskData["status"])
+	}
 }
 
 func TestBuildVideoTaskResponseMapsResultAndError(t *testing.T) {

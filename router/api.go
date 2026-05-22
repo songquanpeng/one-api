@@ -112,6 +112,14 @@ func SetApiRouter(router *gin.Engine) {
 		logRoute.GET("/search", middleware.AdminAuth(), controller.SearchAllLogs)
 		logRoute.GET("/self", middleware.UserAuth(), controller.GetUserLogs)
 		logRoute.GET("/self/search", middleware.UserAuth(), controller.SearchUserLogs)
+		videoTaskRoute := apiRouter.Group("/video_task")
+		videoTaskRoute.Use(middleware.AdminAuth())
+		{
+			videoTaskRoute.GET("/", controller.GetAllVideoTasks)
+			videoTaskRoute.GET("/:id", controller.GetAdminVideoTask)
+			videoTaskRoute.POST("/debug", controller.CreateAdminDebugVideoTask)
+			videoTaskRoute.POST("/:id/cancel", controller.CancelAdminVideoTask)
+		}
 		groupRoute := apiRouter.Group("/group")
 		groupRoute.Use(middleware.AdminAuth())
 		{
