@@ -7,6 +7,7 @@
     "topup": "充值",
     "user": "用户",
     "dashboard": "总览",
+    "video_task": "视频任务",
     "log": "日志",
     "setting": "设置",
     "about": "关于",
@@ -333,6 +334,96 @@
       "query": "操作",
       "submit": "查询",
       "refresh": "刷新"
+    }
+  },
+  "video_task": {
+    "title": "视频任务",
+    "filters": {
+      "status": "状态",
+      "model": "模型",
+      "user_id": "用户 ID",
+      "task_id": "任务 ID",
+      "start_time": "起始时间",
+      "end_time": "结束时间",
+      "optional": "可选值"
+    },
+    "status": {
+      "all": "全部"
+    },
+    "table": {
+      "task_id": "任务 ID",
+      "status": "状态",
+      "model": "模型",
+      "user": "用户",
+      "token": "令牌",
+      "provider": "Provider",
+      "created_at": "创建时间",
+      "actions": "操作"
+    },
+    "buttons": {
+      "query": "操作",
+      "submit": "查询",
+      "refresh": "刷新",
+      "view": "查看",
+      "cancel": "取消",
+      "create_debug": "新建调试任务",
+      "create": "创建",
+      "close": "关闭",
+      "copy_task_id": "复制任务 ID",
+      "copy_query": "复制查询 Curl",
+      "back": "返回"
+    },
+    "debug": {
+      "title": "新建调试任务",
+      "prompt": "Prompt",
+      "input_image_url": "输入图片 URL",
+      "model": "模型",
+      "duration": "时长",
+      "aspect_ratio": "画幅比例",
+      "resolution": "分辨率",
+      "test_mode": "测试模式"
+    },
+    "detail": {
+      "title": "视频任务详情",
+      "basic": "基础字段",
+      "timestamps": "时间戳",
+      "request_json": "请求 JSON",
+      "result_json": "结果 JSON",
+      "provider_response_json": "Provider 响应 JSON",
+      "error": "错误",
+      "events": "事件时间线"
+    },
+    "fields": {
+      "task_id": "任务 ID",
+      "status": "状态",
+      "model": "模型",
+      "user_id": "用户 ID",
+      "token_id": "令牌 ID",
+      "prompt": "Prompt",
+      "input_image_url": "输入图片 URL",
+      "provider": "Provider",
+      "provider_job_id": "Provider Job ID",
+      "billing_status": "计费状态",
+      "created_at": "创建时间",
+      "updated_at": "更新时间",
+      "started_at": "开始时间",
+      "completed_at": "完成时间",
+      "canceled_at": "取消时间"
+    },
+    "events": {
+      "created_at": "时间",
+      "event_type": "事件类型",
+      "from_status": "来源状态",
+      "to_status": "目标状态",
+      "message": "消息",
+      "metadata_json": "Metadata JSON"
+    },
+    "messages": {
+      "create_success": "视频任务已创建。",
+      "cancel_success": "视频任务已取消。",
+      "copy_success": "已复制到剪贴板。",
+      "copy_failed": "无法复制到剪贴板。",
+      "prompt_required": "Prompt 不能为空。"
     }
   },
   "user": {

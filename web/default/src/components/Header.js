@@ -57,6 +57,12 @@ let headerButtons = [
     icon: 'chart bar',
   },
   {
+    name: 'header.video_task',
+    to: '/video-task',
+    icon: 'film',
+    admin: true,
+  },
+  {
     name: 'header.log',
     to: '/log',
     icon: 'book',

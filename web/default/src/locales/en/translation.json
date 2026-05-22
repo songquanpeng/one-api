@@ -7,6 +7,7 @@
     "topup": "Top Up",
     "user": "User",
     "dashboard": "Dashboard",
+    "video_task": "Video Task",
     "log": "Log",
     "setting": "Settings",
     "about": "About",
@@ -333,6 +334,96 @@
       "query": "Action",
       "submit": "Query",
       "refresh": "Refresh"
+    }
+  },
+  "video_task": {
+    "title": "Video Tasks",
+    "filters": {
+      "status": "Status",
+      "model": "Model",
+      "user_id": "User ID",
+      "task_id": "Task ID",
+      "start_time": "Start Time",
+      "end_time": "End Time",
+      "optional": "Optional"
+    },
+    "status": {
+      "all": "All"
+    },
+    "table": {
+      "task_id": "Task ID",
+      "status": "Status",
+      "model": "Model",
+      "user": "User",
+      "token": "Token",
+      "provider": "Provider",
+      "created_at": "Created Time",
+      "actions": "Actions"
+    },
+    "buttons": {
+      "query": "Action",
+      "submit": "Query",
+      "refresh": "Refresh",
+      "view": "View",
+      "cancel": "Cancel",
+      "create_debug": "Create Debug Task",
+      "create": "Create",
+      "close": "Close",
+      "copy_task_id": "Copy Task ID",
+      "copy_query": "Copy Query Curl",
+      "back": "Back"
+    },
+    "debug": {
+      "title": "Create Debug Task",
+      "prompt": "Prompt",
+      "input_image_url": "Input Image URL",
+      "model": "Model",
+      "duration": "Duration",
+      "aspect_ratio": "Aspect Ratio",
+      "resolution": "Resolution",
+      "test_mode": "Test Mode"
+    },
+    "detail": {
+      "title": "Video Task Detail",
+      "basic": "Basic Fields",
+      "timestamps": "Timestamps",
+      "request_json": "Request JSON",
+      "result_json": "Result JSON",
+      "provider_response_json": "Provider Response JSON",
+      "error": "Error",
+      "events": "Event Timeline"
+    },
+    "fields": {
+      "task_id": "Task ID",
+      "status": "Status",
+      "model": "Model",
+      "user_id": "User ID",
+      "token_id": "Token ID",
+      "prompt": "Prompt",
+      "input_image_url": "Input Image URL",
+      "provider": "Provider",
+      "provider_job_id": "Provider Job ID",
+      "billing_status": "Billing Status",
+      "created_at": "Created Time",
+      "updated_at": "Updated Time",
+      "started_at": "Started Time",
+      "completed_at": "Completed Time",
+      "canceled_at": "Canceled Time"
+    },
+    "events": {
+      "created_at": "Time",
+      "event_type": "Event Type",
+      "from_status": "From",
+      "to_status": "To",
+      "message": "Message",
+      "metadata_json": "Metadata JSON"
+    },
+    "messages": {
+      "create_success": "Video task created.",
+      "cancel_success": "Video task canceled.",
+      "copy_success": "Copied to clipboard.",
+      "copy_failed": "Unable to copy to clipboard.",
+      "prompt_required": "Prompt is required."
     }
   },
   "user": {
