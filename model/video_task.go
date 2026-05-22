@@ -92,15 +92,11 @@ func CreateVideoTask(task *VideoTask) error {
 	if task.TaskID == "" {
 		task.TaskID = NewVideoTaskID()
 	}
-	if task.Status == "" {
-		task.Status = VideoTaskStatusQueued
-	}
+	task.Status = VideoTaskStatusQueued
 	if task.Provider == "" {
 		task.Provider = VideoTaskProviderFake
 	}
-	if task.ProviderStatus == "" {
-		task.ProviderStatus = task.Status
-	}
+	task.ProviderStatus = VideoTaskStatusQueued
 	if task.BillingStatus == "" {
 		task.BillingStatus = VideoTaskBillingPending
 	}

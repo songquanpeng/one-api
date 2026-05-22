@@ -62,6 +62,36 @@ func TestVideoTaskStateTransitionsWriteEvents(t *testing.T) {
 	}
 }
 
+func TestVideoTaskCreateForcesQueuedStatus(t *testing.T) {
+	setupVideoTaskTestDB(t)
+
+	task := &VideoTask{
+		TaskID:         "task_create_forces_queued",
+		UserID:         1,
+		TokenID:        2,
+		Model:          "fake-seedance-lite",
+		Prompt:         "hello video",
+		Status:         VideoTaskStatusSucceeded,
+		Provider:       VideoTaskProviderFake,
+		ProviderStatus: VideoTaskStatusSucceeded,
+		BillingStatus:  VideoTaskBillingPending,
+	}
+	if err := CreateVideoTask(task); err != nil {
+		t.Fatalf("create task: %v", err)
+	}
+
+	reloaded, err := GetVideoTaskByTaskID(task.TaskID)
+	if err != nil {
+		t.Fatalf("get task: %v", err)
+	}
+	if reloaded.Status != VideoTaskStatusQueued {
+		t.Fatalf("status = %s, want %s", reloaded.Status, VideoTaskStatusQueued)
+	}
+	if reloaded.ProviderStatus != VideoTaskStatusQueued {
+		t.Fatalf("provider status = %s, want %s", reloaded.ProviderStatus, VideoTaskStatusQueued)
+	}
+}
+
 func TestVideoTaskTerminalStateIsImmutable(t *testing.T) {
 	setupVideoTaskTestDB(t)
 
@@ -71,12 +101,18 @@ func TestVideoTaskTerminalStateIsImmutable(t *testing.T) {
 		TokenID:       2,
 		Model:         "fake-seedance-lite",
 		Prompt:        "hello video",
-		Status:        VideoTaskStatusSucceeded,
+		Status:        VideoTaskStatusQueued,
 		Provider:      VideoTaskProviderFake,
 		BillingStatus: VideoTaskBillingPending,
 	}
 	if err := CreateVideoTask(task); err != nil {
 		t.Fatalf("create task: %v", err)
+	}
+	if err := TransitionVideoTask(task.TaskID, VideoTaskStatusRunning, "task.started", "fake worker started", nil); err != nil {
+		t.Fatalf("transition running: %v", err)
+	}
+	if err := TransitionVideoTask(task.TaskID, VideoTaskStatusSucceeded, "task.succeeded", "fake worker succeeded", nil); err != nil {
+		t.Fatalf("transition succeeded: %v", err)
 	}
 
 	err := TransitionVideoTask(task.TaskID, VideoTaskStatusCanceled, "task.canceled", "late cancel", nil)
@@ -110,5 +146,32 @@ func TestCancelVideoTaskOnlyAllowsQueuedOrRunning(t *testing.T) {
 	}
 	if reloaded.Status != VideoTaskStatusCanceled {
 		t.Fatalf("status = %s, want %s", reloaded.Status, VideoTaskStatusCanceled)
+	}
+
+	runningTask := &VideoTask{
+		TaskID:        "task_cancel_running",
+		UserID:        1,
+		TokenID:       2,
+		Model:         "fake-seedance-lite",
+		Prompt:        "hello video",
+		Status:        VideoTaskStatusQueued,
+		Provider:      VideoTaskProviderFake,
+		BillingStatus: VideoTaskBillingPending,
+	}
+	if err := CreateVideoTask(runningTask); err != nil {
+		t.Fatalf("create running task: %v", err)
+	}
+	if err := TransitionVideoTask(runningTask.TaskID, VideoTaskStatusRunning, "task.started", "fake worker started", nil); err != nil {
+		t.Fatalf("transition running task: %v", err)
+	}
+	if err := CancelVideoTask(runningTask.TaskID, "admin"); err != nil {
+		t.Fatalf("cancel running task: %v", err)
+	}
+	reloadedRunning, err := GetVideoTaskByTaskID(runningTask.TaskID)
+	if err != nil {
+		t.Fatalf("get running task: %v", err)
+	}
+	if reloadedRunning.Status != VideoTaskStatusCanceled {
+		t.Fatalf("running status = %s, want %s", reloadedRunning.Status, VideoTaskStatusCanceled)
 	}
 }
