@@ -38,7 +38,7 @@ func Init() {
 	}
 
 	if os.Getenv("SESSION_SECRET") != "" {
-		if os.Getenv("SESSION_SECRET") == "random_string" {
+		if os.Getenv("SESSION_SECRET") == "change-me" {
 			logger.SysError("SESSION_SECRET is set to an example value, please change it to a random string.")
 		} else {
 			config.SessionSecret = os.Getenv("SESSION_SECRET")
