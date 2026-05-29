@@ -32,7 +32,8 @@ func stopReasonClaude2OpenAI(reason *string) string {
 	case "tool_use":
 		return "tool_calls"
 	default:
-		return *reason
+		// unknown stop reason, map to "stop" to avoid client errors
+		return "stop"
 	}
 }
 
@@ -157,6 +158,10 @@ func StreamResponseClaude2OpenAI(claudeResponse *StreamResponse) (*openai.ChatCo
 		return nil, claudeResponse.Message
 	case "content_block_start":
 		if claudeResponse.ContentBlock != nil {
+			// skip thinking blocks, OpenAI doesn't support them
+			if claudeResponse.ContentBlock.Type == "thinking" {
+				return nil, nil
+			}
 			responseText = claudeResponse.ContentBlock.Text
 			if claudeResponse.ContentBlock.Type == "tool_use" {
 				tools = append(tools, model.Tool{
@@ -171,6 +176,10 @@ func StreamResponseClaude2OpenAI(claudeResponse *StreamResponse) (*openai.ChatCo
 		}
 	case "content_block_delta":
 		if claudeResponse.Delta != nil {
+			// skip thinking deltas, OpenAI doesn't support them
+			if claudeResponse.Delta.Type == "thinking_delta" || claudeResponse.Delta.Type == "signature_delta" {
+				return nil, nil
+			}
 			responseText = claudeResponse.Delta.Text
 			if claudeResponse.Delta.Type == "input_json_delta" {
 				tools = append(tools, model.Tool{
@@ -189,6 +198,9 @@ func StreamResponseClaude2OpenAI(claudeResponse *StreamResponse) (*openai.ChatCo
 		if claudeResponse.Delta != nil && claudeResponse.Delta.StopReason != nil {
 			stopReason = *claudeResponse.Delta.StopReason
 		}
+	default:
+		// content_block_stop, message_stop and other control events produce no OpenAI chunk
+		return nil, nil
 	}
 	var choice openai.ChatCompletionsStreamResponseChoice
 	choice.Delta.Content = responseText
@@ -197,8 +209,8 @@ func StreamResponseClaude2OpenAI(claudeResponse *StreamResponse) (*openai.ChatCo
 		choice.Delta.ToolCalls = tools
 	}
 	choice.Delta.Role = "assistant"
-	finishReason := stopReasonClaude2OpenAI(&stopReason)
-	if finishReason != "null" {
+	if stopReason != "" {
+		finishReason := stopReasonClaude2OpenAI(&stopReason)
 		choice.FinishReason = &finishReason
 	}
 	var openaiResponse openai.ChatCompletionsStreamResponse
