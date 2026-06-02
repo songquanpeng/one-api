@@ -281,12 +281,17 @@ var ModelRatio = map[string]float64{
 	"Baichuan2-Turbo":      0.008 * RMB,
 	"Baichuan2-Turbo-192k": 0.016 * RMB,
 	"Baichuan2-53B":        0.02 * RMB,
-	// https://api.minimax.chat/document/price
-	"abab6.5-chat":  0.03 * RMB,
-	"abab6.5s-chat": 0.01 * RMB,
-	"abab6-chat":    0.1 * RMB,
-	"abab5.5-chat":  0.015 * RMB,
-	"abab5.5s-chat": 0.005 * RMB,
+	// https://platform.minimax.io/docs/api-reference/text-openai-api
+	"MiniMax-M3":             0.6 / 1000 * USD, // $0.6 / M input tokens
+	"MiniMax-M2.7":           0.3 / 1000 * USD, // $0.3 / M input tokens
+	"MiniMax-M2.7-highspeed": 0.6 / 1000 * USD, // $0.6 / M input tokens
+	"MiniMax-VL-01":          0.3 / 1000 * USD,
+	"MiniMax-Text-01":        0.3 / 1000 * USD,
+	"abab6.5-chat":           0.03 * RMB,
+	"abab6.5s-chat":          0.01 * RMB,
+	"abab6-chat":             0.1 * RMB,
+	"abab5.5-chat":           0.015 * RMB,
+	"abab5.5s-chat":          0.005 * RMB,
 	// https://docs.mistral.ai/platform/pricing/
 	"open-mistral-7b":       0.25 / 1000 * USD,
 	"open-mixtral-8x7b":     0.7 / 1000 * USD,
@@ -630,6 +635,10 @@ var CompletionRatio = map[string]float64{
 	// deepseek
 	"deepseek-chat":     0.28 / 0.14,
 	"deepseek-reasoner": 2.19 / 0.55,
+	// minimax
+	"MiniMax-M3":             2.4 / 0.6, // $2.4 / $0.6
+	"MiniMax-M2.7":           1.2 / 0.3, // $1.2 / $0.3
+	"MiniMax-M2.7-highspeed": 2.4 / 0.6, // $2.4 / $0.6
 }
 
 var (

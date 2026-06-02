@@ -28,7 +28,7 @@ var ChannelBaseURLs = []string{
 	"https://generativelanguage.googleapis.com", // 24
 	"https://api.moonshot.cn",                   // 25
 	"https://api.baichuan-ai.com",               // 26
-	"https://api.minimax.chat",                  // 27
+	"https://api.minimax.io",                    // 27
 	"https://api.mistral.ai",                    // 28
 	"https://api.groq.com/openai",               // 29
 	"http://localhost:11434",                    // 30

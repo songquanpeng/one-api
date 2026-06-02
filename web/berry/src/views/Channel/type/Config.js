@@ -147,7 +147,7 @@ const typeConfig = {
   },
   27: {
     input: {
-      models: ['abab5.5s-chat', 'abab5.5-chat', 'abab6-chat']
+      models: ['MiniMax-M3', 'MiniMax-M2.7', 'MiniMax-M2.7-highspeed', 'MiniMax-VL-01', 'MiniMax-Text-01', 'abab6.5-chat', 'abab6.5s-chat', 'abab6-chat', 'abab5.5-chat', 'abab5.5s-chat']
     },
     modelGroup: 'minimax'
   },

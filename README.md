@@ -81,7 +81,7 @@ _✨ 通过标准的 OpenAI API 格式访问所有的大模型，开箱即用 �
    + [x] [腾讯混元大模型](https://cloud.tencent.com/document/product/1729)
    + [x] [Moonshot AI](https://platform.moonshot.cn/)
    + [x] [百川大模型](https://platform.baichuan-ai.com)
-   + [x] [MINIMAX](https://api.minimax.chat/)
+   + [x] [MiniMax](https://platform.minimax.io/)
    + [x] [Groq](https://wow.groq.com/)
    + [x] [Ollama](https://github.com/ollama/ollama)
    + [x] [零一万物](https://platform.lingyiwanwu.com/)

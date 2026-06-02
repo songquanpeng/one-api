@@ -14,7 +14,6 @@ import (
 	"github.com/songquanpeng/one-api/relay/adaptor/baiduv2"
 	"github.com/songquanpeng/one-api/relay/adaptor/doubao"
 	"github.com/songquanpeng/one-api/relay/adaptor/geminiv2"
-	"github.com/songquanpeng/one-api/relay/adaptor/minimax"
 	"github.com/songquanpeng/one-api/relay/adaptor/novita"
 	"github.com/songquanpeng/one-api/relay/channeltype"
 	"github.com/songquanpeng/one-api/relay/meta"
@@ -50,8 +49,6 @@ func (a *Adaptor) GetRequestURL(meta *meta.Meta) (string, error) {
 		// {your endpoint}/openai/deployments/{your azure_model}/chat/completions?api-version={api_version}
 		requestURL = fmt.Sprintf("/openai/deployments/%s/%s", model_, task)
 		return GetFullRequestURL(meta.BaseURL, requestURL, meta.ChannelType), nil
-	case channeltype.Minimax:
-		return minimax.GetRequestURL(meta)
 	case channeltype.Doubao:
 		return doubao.GetRequestURL(meta)
 	case channeltype.Novita:
