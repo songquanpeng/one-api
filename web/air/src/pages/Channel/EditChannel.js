@@ -118,6 +118,9 @@ const EditChannel = (props) => {
                         'mj_pan',
                     ];
                     break;
+                case 52:
+                    localModels = ['openai/GPT-5.5/c6fbe', 'anthropic/Claude-opus-4.7/a4d5d', 'deepseek/deepseek-v4-pro/d3462'];
+                    break;
             }
             setInputs((inputs) => ({...inputs, models: localModels}));
         }
