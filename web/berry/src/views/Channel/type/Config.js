@@ -228,6 +228,12 @@ const typeConfig = {
   45: {
     modelGroup: 'xai'
   },
+  52: {
+    input: {
+      models: ['openai/GPT-5.5/c6fbe', 'anthropic/Claude-opus-4.7/a4d5d', 'deepseek/deepseek-v4-pro/d3462']
+    },
+    modelGroup: 'agione'
+  },
 };
 
 export { defaultConfig, typeConfig };
