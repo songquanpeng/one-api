@@ -1,5 +1,7 @@
 package pinstripes
 
+// https://pinstripes.io
+
 var ModelList = []string{
 	"ps/deepseek-v4-flash",
 	"ps/qwen3.6-35b-a3b",
