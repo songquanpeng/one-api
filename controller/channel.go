@@ -4,7 +4,9 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/songquanpeng/one-api/common/config"
 	"github.com/songquanpeng/one-api/common/helper"
+	"github.com/songquanpeng/one-api/common/logger"
 	"github.com/songquanpeng/one-api/model"
+	"github.com/songquanpeng/one-api/monitor"
 	"net/http"
 	"strconv"
 	"strings"
@@ -169,4 +171,31 @@ func UpdateChannel(c *gin.Context) {
 		"data":    channel,
 	})
 	return
+}
+
+// channelQuotaExhausted reports whether a channel has used up its configured
+// quota. A Quota of 0 (or negative) means the channel has no quota limit and is
+// therefore never considered exhausted.
+func channelQuotaExhausted(channel *model.Channel) bool {
+	if channel.Quota <= 0 {
+		return false
+	}
+	return channel.UsedQuota >= channel.Quota
+}
+
+// DisableChannelOnQuotaExhausted auto-disables an enabled channel once it has
+// consumed all of its configured quota (used_quota >= quota). It is a no-op for
+// channels without a quota limit or that are already disabled.
+func DisableChannelOnQuotaExhausted(channelId int) {
+	channel, err := model.GetChannelById(channelId, true)
+	if err != nil {
+		logger.SysError("failed to load channel for quota check: " + err.Error())
+		return
+	}
+	if channel.Status != model.ChannelStatusEnabled {
+		return
+	}
+	if channelQuotaExhausted(channel) {
+		monitor.DisableChannel(channel.Id, channel.Name, "渠道额度已用尽")
+	}
 }

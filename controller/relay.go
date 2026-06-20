@@ -54,6 +54,8 @@ func Relay(c *gin.Context) {
 	bizErr := relayHelper(c, relayMode)
 	if bizErr == nil {
 		monitor.Emit(channelId, true)
+		// auto-disable the channel once it has used up its configured quota
+		go DisableChannelOnQuotaExhausted(channelId)
 		return
 	}
 	lastFailedChannelId := channelId
