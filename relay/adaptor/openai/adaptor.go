@@ -31,6 +31,12 @@ func (a *Adaptor) Init(meta *meta.Meta) {
 }
 
 func (a *Adaptor) GetRequestURL(meta *meta.Meta) (string, error) {
+	if meta.ChannelType == channeltype.OpenRouter && meta.Mode == relaymode.ImagesGenerations {
+		// OpenRouter's image generation endpoint is POST {base}/v1/images
+		// (https://openrouter.ai/docs/features/multimodal/image-generation-api),
+		// not the OpenAI-style /v1/images/generations.
+		return fmt.Sprintf("%s/v1/images", meta.BaseURL), nil
+	}
 	switch meta.ChannelType {
 	case channeltype.Azure:
 		if meta.Mode == relaymode.ImagesGenerations {
