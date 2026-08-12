@@ -107,6 +107,12 @@ export const CHANNEL_OPTIONS = {
     value: 27,
     color: 'primary'
   },
+  52: {
+    key: 52,
+    text: 'SiftQ',
+    value: 52,
+    color: 'primary'
+  },
   29: {
     key: 29,
     text: 'Groq',

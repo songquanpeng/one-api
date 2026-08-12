@@ -17,6 +17,15 @@ func SetRelayRouter(router *gin.Engine) {
 		modelsRouter.GET("", controller.ListModels)
 		modelsRouter.GET("/:model", controller.RetrieveModel)
 	}
+	videosRouter := router.Group("/v1/videos")
+	videosRouter.Use(middleware.RelayPanicRecover(), middleware.TokenAuth())
+	{
+		videosRouter.POST("", controller.CreateVideo)
+		videosRouter.GET("", controller.ListVideos)
+		videosRouter.GET("/:video_id", controller.RetrieveVideo)
+		videosRouter.GET("/:video_id/content", controller.RetrieveVideoContent)
+		videosRouter.DELETE("/:video_id", controller.DeleteVideo)
+	}
 	relayV1Router := router.Group("/v1")
 	relayV1Router.Use(middleware.RelayPanicRecover(), middleware.TokenAuth(), middleware.Distribute())
 	{

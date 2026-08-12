@@ -287,6 +287,8 @@ var ModelRatio = map[string]float64{
 	"abab6-chat":    0.1 * RMB,
 	"abab5.5-chat":  0.015 * RMB,
 	"abab5.5s-chat": 0.005 * RMB,
+	// SiftQ video quota is normalized per requested second and remains admin-configurable.
+	"MiniMax-H3": 1,
 	// https://docs.mistral.ai/platform/pricing/
 	"open-mistral-7b":       0.25 / 1000 * USD,
 	"open-mixtral-8x7b":     0.7 / 1000 * USD,
