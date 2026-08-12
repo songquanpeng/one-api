@@ -70,6 +70,13 @@ export const CHANNEL_OPTIONS = [
   { key: 23, text: '腾讯混元', value: 23, color: 'teal' },
   { key: 26, text: '百川大模型', value: 26, color: 'orange' },
   { key: 27, text: 'MiniMax', value: 27, color: 'red' },
+  {
+    key: 52,
+    text: 'SiftQ',
+    value: 52,
+    color: 'violet',
+    description: 'SiftQ MiniMax-H3 V2 视频生成',
+  },
   { key: 29, text: 'Groq', value: 29, color: 'orange' },
   { key: 30, text: 'Ollama', value: 30, color: 'black' },
   { key: 31, text: '零一万物', value: 31, color: 'green' },

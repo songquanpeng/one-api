@@ -151,6 +151,17 @@ const typeConfig = {
     },
     modelGroup: 'minimax'
   },
+  52: {
+    input: {
+      models: ['MiniMax-H3']
+    },
+    prompt: {
+      base_url: '可空，默认 https://siftq.com/api/minimax/',
+      key: '请输入 SiftQ API Key',
+      models: 'SiftQ 原生支持 MiniMax-H3'
+    },
+    modelGroup: 'siftq'
+  },
   29: {
     modelGroup: 'groq'
   },

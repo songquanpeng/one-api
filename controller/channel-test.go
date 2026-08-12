@@ -17,6 +17,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	commonclient "github.com/songquanpeng/one-api/common/client"
 	"github.com/songquanpeng/one-api/common/config"
 	"github.com/songquanpeng/one-api/common/ctxkey"
 	"github.com/songquanpeng/one-api/common/helper"
@@ -27,6 +28,7 @@ import (
 	"github.com/songquanpeng/one-api/monitor"
 	"github.com/songquanpeng/one-api/relay"
 	"github.com/songquanpeng/one-api/relay/adaptor/openai"
+	"github.com/songquanpeng/one-api/relay/adaptor/siftq"
 	"github.com/songquanpeng/one-api/relay/channeltype"
 	"github.com/songquanpeng/one-api/relay/controller"
 	"github.com/songquanpeng/one-api/relay/meta"
@@ -66,6 +68,9 @@ func parseTestResponse(resp string) (*openai.TextResponse, string, error) {
 }
 
 func testChannel(ctx context.Context, channel *model.Channel, request *relaymodel.GeneralOpenAIRequest) (responseMessage string, err error, openaiErr *relaymodel.Error) {
+	if channel.Type == channeltype.SiftQ {
+		return testSiftQChannel(ctx, channel)
+	}
 	startTime := time.Now()
 	w := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(w)
@@ -164,6 +169,52 @@ func testChannel(ctx context.Context, channel *model.Channel, request *relaymode
 	}
 	logger.SysLog(fmt.Sprintf("testing channel #%d, response: \n%s", channel.Id, string(respBody)))
 	return responseMessage, nil, nil
+}
+
+func testSiftQChannel(ctx context.Context, channel *model.Channel) (string, error, *relaymodel.Error) {
+	target, err := siftq.BuildURL(channel.GetBaseURL(), siftq.QueryVideoPath)
+	if err != nil {
+		return "", err, nil
+	}
+	parsed, err := url.Parse(target)
+	if err != nil {
+		return "", err, nil
+	}
+	query := parsed.Query()
+	query.Set("page_num", "1")
+	query.Set("page_size", "1")
+	query.Set("filter.model", siftq.ModelName)
+	parsed.RawQuery = query.Encode()
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, parsed.String(), nil)
+	if err != nil {
+		return "", err, nil
+	}
+	req.Header.Set("Authorization", "Bearer "+channel.Key)
+	req.Header.Set("Accept", "application/json")
+	resp, err := commonclient.HTTPClient.Do(req)
+	if err != nil {
+		return "", err, nil
+	}
+	defer resp.Body.Close()
+	body, err := io.ReadAll(io.LimitReader(resp.Body, 1<<20))
+	if err != nil {
+		return "", err, nil
+	}
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		var envelope siftq.ErrorEnvelope
+		_ = json.Unmarshal(body, &envelope)
+		message := envelope.Error.Message
+		if message == "" {
+			message = fmt.Sprintf("SiftQ returned HTTP %d", resp.StatusCode)
+		}
+		providerError := &relaymodel.Error{Message: message, Type: envelope.Error.Type, Code: envelope.Error.HTTPCode}
+		return "", errors.New(message), providerError
+	}
+	var list siftq.ListResponse
+	if err := json.Unmarshal(body, &list); err != nil {
+		return "", errors.New("SiftQ returned a malformed task list"), nil
+	}
+	return "SiftQ API reachable", nil, nil
 }
 
 func TestChannel(c *gin.Context) {

@@ -62,6 +62,7 @@ _✨ Access all LLM through the standard OpenAI API format, easy to deploy & use
    + [x] [Baidu Wenxin Yiyuan Series Models](https://cloud.baidu.com/doc/WENXINWORKSHOP/index.html)
    + [x] [Alibaba Tongyi Qianwen Series Models](https://help.aliyun.com/document_detail/2400395.html)
    + [x] [Zhipu ChatGLM Series Models](https://bigmodel.cn)
+   + [x] [SiftQ MiniMax-H3 V2 video generation](./docs/siftq.md)
 2. Supports access to multiple channels through **load balancing**.
 3. Supports **stream mode** that enables typewriter-like effect through stream transmission.
 4. Supports **multi-machine deployment**. [See here](#multi-machine-deployment) for more details.

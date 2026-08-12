@@ -1,0 +1,74 @@
+{
+  "repository": "https://github.com/siftq/one-api.git",
+  "profile": ["gateway", "web"],
+  "branch": "feat/siftq-provider",
+  "base_head": "8df4a2670b98266bd287c698243fff327d9748cf",
+  "criteria": {
+    "native-integration": {
+      "required": true,
+      "status": "passed",
+      "evidence": [
+        {"kind": "inspection", "target": "controller/video.go and relay/adaptor/siftq", "result": "Provider-neutral /v1/videos resources translate internally to the independent SiftQ MiniMax-H3 V2 create, query and delete operations; no native /v2 ingress route is registered."},
+        {"kind": "automated", "target": "router/video_test.go and controller/video_test.go", "result": "Public route shape, absence of native /v2 ingress, request mapping, reference-image mapping, validation and task-status normalization are covered."}
+      ],
+      "limitation": "OpenAI video remix, edit, extend and character operations are outside the SiftQ V2 capability set and are not advertised."
+    },
+    "repository-completeness": {
+      "required": true,
+      "status": "passed",
+      "evidence": [
+        {"kind": "inspection", "target": "relay/channeltype, relay/apitype, relay/adaptor.go, model/siftq_task.go, web/*, README*.md, docs/siftq.md", "result": "Channel/API registries, model discovery, persistent task metadata and ownership, all three channel UIs, documentation, and migration are wired."}
+      ],
+      "limitation": null
+    },
+    "automated-verification": {
+      "required": true,
+      "status": "passed",
+      "evidence": [
+        {"kind": "automated", "target": "go test ./router ./controller ./middleware ./model ./relay/adaptor/siftq", "result": "Exit 0 after the provider-neutral video-route conversion."},
+        {"kind": "automated", "target": "go test ./relay ./relay/channeltype and go build ./...", "result": "Exit 0 on the final route conversion tree."},
+        {"kind": "historical", "target": "go test ./...", "result": "The earlier full run reached and passed SiftQ packages; the repository's pre-existing common/image TestDecode failed after its Wikimedia fixture timed out and hit a pre-existing nil dereference."},
+        {"kind": "historical", "target": "default frontend production compile", "result": "react-scripts compiled successfully under Node 16 before the route-only backend revision."}
+      ],
+      "limitation": "The repository's pre-existing network-dependent common/image full-suite failure remains outside this provider change."
+    },
+    "live-verification": {
+      "required": true,
+      "status": "blocked",
+      "evidence": [
+        {"kind": "connectivity", "target": "https://siftq.com/api/minimax/v2/query/video_generation", "result": "The provider was reachable outside the sandbox and returned the expected structured HTTP 401 response without a key."},
+        {"kind": "runtime", "target": "http://127.0.0.1:3000/v1/videos", "result": "The rebuilt server is running; the new route returned the expected One API HTTP 401 envelope without a token, and router inspection confirms native /v2 ingress is absent."}
+      ],
+      "limitation": "A successful generation through the new /v1/videos ingress still needs a user-owned runtime token test."
+    },
+    "ui-verification": {
+      "required": true,
+      "status": "passed",
+      "evidence": [
+        {"kind": "ui", "target": "http://127.0.0.1:3001/channel/add", "result": "The default-theme channel form displayed SiftQ, MiniMax-H3, the SiftQ API-key field and exact default Base URL."}
+      ],
+      "limitation": null
+    },
+    "safety-handoff": {
+      "required": true,
+      "status": "passed",
+      "evidence": [
+        {"kind": "security", "target": "diff and source scans", "result": "No credential, private provider response, legacy V1 route or native /v2 public ingress is introduced."},
+        {"kind": "inspection", "target": "git status and git diff --check", "result": "No commit or push occurred; the working tree remains available for human review."}
+      ],
+      "limitation": "The provider workflow requires a human commit/push action before a PR can be created."
+    }
+  },
+  "capabilities": [
+    {"name": "video_create", "advertised": true, "implementation_path": "controller/video.go:CreateVideo", "automated_positive": "JSON/multipart model extraction, text and first-frame mapping tests", "automated_negative": "prompt, model, seconds, size and input file validation", "live_evidence": "pending user runtime test", "status": "blocked"},
+    {"name": "video_retrieve_list", "advertised": true, "implementation_path": "controller/video.go:RetrieveVideo/ListVideos", "automated_positive": "route and status normalization tests", "automated_negative": "user-scoped persisted binding and malformed provider task validation", "live_evidence": "pending user runtime test", "status": "blocked"},
+    {"name": "video_download", "advertised": true, "implementation_path": "controller/video.go:RetrieveVideoContent", "automated_positive": "completed task URL mapping", "automated_negative": "not-ready and invalid/download-failure handling", "live_evidence": "pending user runtime test", "status": "blocked"},
+    {"name": "video_delete", "advertised": true, "implementation_path": "controller/video.go:DeleteVideo", "automated_positive": "SiftQ cancelled/deleted contract validation", "automated_negative": "ownership, upstream and malformed-response handling", "live_evidence": "pending user runtime test", "status": "blocked"}
+  ],
+  "blocking_findings": [
+    "Successful live generation through /v1/videos requires the user's configured One API token and SiftQ channel.",
+    "The full Go suite has a pre-existing external Wikimedia fixture failure.",
+    "The provider workflow requires human commit/push authorization before PR creation."
+  ],
+  "status": "blocked"
+}

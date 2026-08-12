@@ -22,6 +22,8 @@ function type2secretPrompt(type, t) {
       return t('channel.edit.key_prompts.fastgpt');
     case 23:
       return t('channel.edit.key_prompts.tencent');
+    case 52:
+      return '请输入 SiftQ API Key';
     default:
       return t('channel.edit.key_prompts.default');
   }
@@ -69,6 +71,9 @@ const EditChannel = () => {
     setInputs((inputs) => ({ ...inputs, [name]: value }));
     if (name === 'type') {
       let localModels = getChannelModels(value);
+      if (value === 52 && localModels.length === 0) {
+        localModels = ['MiniMax-H3'];
+      }
       if (inputs.models.length === 0) {
         setInputs((inputs) => ({ ...inputs, models: localModels }));
       }
@@ -414,6 +419,12 @@ const EditChannel = () => {
                 {t('channel.edit.douban_notice_2')}
               </Message>
             )}
+            {inputs.type === 52 && (
+              <Message>
+                SiftQ 使用 MiniMax-H3 V2 视频协议；Base URL 留空时默认使用{' '}
+                <code>https://siftq.com/api/minimax/</code>。
+              </Message>
+            )}
             {inputs.type !== 43 && (
               <Form.Field>
                 <Form.Dropdown
@@ -657,7 +668,11 @@ const EditChannel = () => {
                   <Form.Input
                       label={t('channel.edit.proxy_url')}
                     name='base_url'
-                      placeholder={t('channel.edit.proxy_url_placeholder')}
+                    placeholder={
+                      inputs.type === 52
+                        ? '可空，默认 https://siftq.com/api/minimax/'
+                        : t('channel.edit.proxy_url_placeholder')
+                    }
                     onChange={handleInputChange}
                     value={inputs.base_url}
                     autoComplete='new-password'

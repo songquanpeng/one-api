@@ -21,6 +21,16 @@ func abortWithMessage(c *gin.Context, statusCode int, message string) {
 }
 
 func getRequestModel(c *gin.Context) (string, error) {
+	if c.Request.Method == "POST" && c.Request.URL.Path == "/v1/videos" && strings.HasPrefix(c.ContentType(), "multipart/form-data") {
+		if err := c.Request.ParseMultipartForm(64 << 20); err != nil {
+			return "", fmt.Errorf("parse multipart video request failed: %w", err)
+		}
+		modelName := c.PostForm("model")
+		if modelName == "" {
+			modelName = "MiniMax-H3"
+		}
+		return modelName, nil
+	}
 	var modelRequest ModelRequest
 	err := common.UnmarshalBodyReusable(c, &modelRequest)
 	if err != nil {
@@ -45,6 +55,9 @@ func getRequestModel(c *gin.Context) (string, error) {
 		if modelRequest.Model == "" {
 			modelRequest.Model = "whisper-1"
 		}
+	}
+	if c.Request.Method == "POST" && c.Request.URL.Path == "/v1/videos" && modelRequest.Model == "" {
+		modelRequest.Model = "MiniMax-H3"
 	}
 	return modelRequest.Model, nil
 }
