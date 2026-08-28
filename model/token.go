@@ -204,14 +204,20 @@ func DecreaseTokenQuota(id int, quota int64) (err error) {
 }
 
 func decreaseTokenQuota(id int, quota int64) (err error) {
-	err = DB.Model(&Token{}).Where("id = ?", id).Updates(
+	result := DB.Model(&Token{}).Where("id = ? and (unlimited_quota = 1 or remain_quota >= ?)", id, quota).Updates(
 		map[string]interface{}{
 			"remain_quota":  gorm.Expr("remain_quota - ?", quota),
 			"used_quota":    gorm.Expr("used_quota + ?", quota),
 			"accessed_time": helper.GetTimestamp(),
 		},
-	).Error
-	return err
+	)
+	if result.Error != nil {
+		return result.Error
+	}
+	if result.RowsAffected == 0 {
+		return errors.New("token quota is insufficient")
+	}
+	return nil
 }
 
 func PreConsumeTokenQuota(tokenId int, quota int64) (err error) {

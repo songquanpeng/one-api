@@ -399,8 +399,14 @@ func DecreaseUserQuota(id int, quota int64) (err error) {
 }
 
 func decreaseUserQuota(id int, quota int64) (err error) {
-	err = DB.Model(&User{}).Where("id = ?", id).Update("quota", gorm.Expr("quota - ?", quota)).Error
-	return err
+	result := DB.Model(&User{}).Where("id = ? and quota >= ?", id, quota).Update("quota", gorm.Expr("quota - ?", quota))
+	if result.Error != nil {
+		return result.Error
+	}
+	if result.RowsAffected == 0 {
+		return errors.New("user quota is insufficient")
+	}
+	return nil
 }
 
 func GetRootUserEmail() (email string) {
