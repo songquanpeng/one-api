@@ -391,16 +391,18 @@ func DecreaseUserQuota(id int, quota int64) (err error) {
 	if quota < 0 {
 		return errors.New("quota 不能为负数！")
 	}
-	if config.BatchUpdateEnabled {
-		addNewRecord(BatchUpdateTypeUserQuota, id, -quota)
-		return nil
-	}
-	return decreaseUserQuota(id, quota)
+	return decreaseUserQuota(DB, id, quota)
 }
 
-func decreaseUserQuota(id int, quota int64) (err error) {
-	err = DB.Model(&User{}).Where("id = ?", id).Update("quota", gorm.Expr("quota - ?", quota)).Error
-	return err
+func decreaseUserQuota(db *gorm.DB, id int, quota int64) (err error) {
+	result := db.Model(&User{}).Where("id = ? and quota >= ?", id, quota).Update("quota", gorm.Expr("quota - ?", quota))
+	if result.Error != nil {
+		return result.Error
+	}
+	if result.RowsAffected == 0 {
+		return errors.New("user quota is insufficient")
+	}
+	return nil
 }
 
 func GetRootUserEmail() (email string) {
