@@ -196,15 +196,11 @@ func DecreaseTokenQuota(id int, quota int64) (err error) {
 	if quota < 0 {
 		return errors.New("quota 不能为负数！")
 	}
-	if config.BatchUpdateEnabled {
-		addNewRecord(BatchUpdateTypeTokenQuota, id, -quota)
-		return nil
-	}
-	return decreaseTokenQuota(id, quota)
+	return decreaseTokenQuota(DB, id, quota)
 }
 
-func decreaseTokenQuota(id int, quota int64) (err error) {
-	result := DB.Model(&Token{}).Where("id = ? and (unlimited_quota = 1 or remain_quota >= ?)", id, quota).Updates(
+func decreaseTokenQuota(db *gorm.DB, id int, quota int64) (err error) {
+	result := db.Model(&Token{}).Where("id = ? and (unlimited_quota = ? or remain_quota >= ?)", id, true, quota).Updates(
 		map[string]interface{}{
 			"remain_quota":  gorm.Expr("remain_quota - ?", quota),
 			"used_quota":    gorm.Expr("used_quota + ?", quota),
@@ -275,14 +271,14 @@ func PreConsumeTokenQuota(tokenId int, quota int64) (err error) {
 			}
 		}()
 	}
-	if !token.UnlimitedQuota {
-		err = DecreaseTokenQuota(tokenId, quota)
-		if err != nil {
-			return err
+	return DB.Transaction(func(tx *gorm.DB) error {
+		if !token.UnlimitedQuota {
+			if err := decreaseTokenQuota(tx, tokenId, quota); err != nil {
+				return err
+			}
 		}
-	}
-	err = DecreaseUserQuota(token.UserId, quota)
-	return err
+		return decreaseUserQuota(tx, token.UserId, quota)
+	})
 }
 
 func PostConsumeTokenQuota(tokenId int, quota int64) (err error) {
@@ -291,19 +287,21 @@ func PostConsumeTokenQuota(tokenId int, quota int64) (err error) {
 		return err
 	}
 	if quota > 0 {
-		err = DecreaseUserQuota(token.UserId, quota)
-	} else {
-		err = IncreaseUserQuota(token.UserId, -quota)
+		return DB.Transaction(func(tx *gorm.DB) error {
+			if err := decreaseUserQuota(tx, token.UserId, quota); err != nil {
+				return err
+			}
+			if !token.UnlimitedQuota {
+				return decreaseTokenQuota(tx, tokenId, quota)
+			}
+			return nil
+		})
 	}
-	if !token.UnlimitedQuota {
-		if quota > 0 {
-			err = DecreaseTokenQuota(tokenId, quota)
-		} else {
-			err = IncreaseTokenQuota(tokenId, -quota)
-		}
-		if err != nil {
-			return err
-		}
+	if err := IncreaseUserQuota(token.UserId, -quota); err != nil {
+		return err
 	}
-	return nil
+	if token.UnlimitedQuota {
+		return nil
+	}
+	return IncreaseTokenQuota(tokenId, -quota)
 }
