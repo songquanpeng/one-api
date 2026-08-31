@@ -119,6 +119,12 @@ export const CHANNEL_OPTIONS = {
     value: 30,
     color: 'primary'
   },
+  52: {
+    key: 52,
+    text: 'llmman',
+    value: 52,
+    color: 'primary'
+  },
   31: {
     key: 31,
     text: '零一万物',

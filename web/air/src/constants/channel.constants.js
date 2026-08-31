@@ -19,6 +19,7 @@ export const CHANNEL_OPTIONS = [
   { key: 27, text: 'MiniMax', value: 27, color: 'red' },
   { key: 29, text: 'Groq', value: 29, color: 'orange' },
   { key: 30, text: 'Ollama', value: 30, color: 'black' },
+  { key: 52, text: 'llmman', value: 52, color: 'black' },
   { key: 31, text: '零一万物', value: 31, color: 'green' },
   { key: 32, text: '阶跃星辰', value: 32, color: 'blue' },
   { key: 34, text: 'Coze', value: 34, color: 'blue' },

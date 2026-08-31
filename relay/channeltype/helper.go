@@ -23,7 +23,8 @@ func ToAPIType(channelType int) int {
 		apiType = apitype.Tencent
 	case Gemini:
 		apiType = apitype.Gemini
-	case Ollama:
+	case Ollama, Llmman:
+		// llmman serves the Ollama API, so it uses the same adaptor.
 		apiType = apitype.Ollama
 	case AwsClaude:
 		apiType = apitype.AwsClaude
