@@ -147,7 +147,19 @@ const typeConfig = {
   },
   27: {
     input: {
-      models: ['abab5.5s-chat', 'abab5.5-chat', 'abab6-chat']
+      models: [
+        'speech-2.8-hd',
+        'speech-2.8-turbo',
+        'speech-2.6-hd',
+        'speech-2.6-turbo',
+        'speech-02-hd',
+        'speech-02-turbo',
+        'speech-01-hd',
+        'speech-01-turbo',
+        'abab5.5s-chat',
+        'abab5.5-chat',
+        'abab6-chat'
+      ]
     },
     modelGroup: 'minimax'
   },
