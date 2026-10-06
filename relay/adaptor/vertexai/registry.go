@@ -2,6 +2,7 @@ package vertexai
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	claude "github.com/songquanpeng/one-api/relay/adaptor/vertexai/claude"
@@ -39,6 +40,14 @@ type innerAIAdapter interface {
 
 func GetAdaptor(model string) innerAIAdapter {
 	adaptorType := modelMapping[model]
+	if adaptorType == 0 {
+		lower := strings.ToLower(strings.TrimSpace(model))
+		if strings.Contains(lower, "gemini") {
+			adaptorType = VerterAIGemini
+		} else if strings.Contains(lower, "claude") {
+			adaptorType = VerterAIClaude
+		}
+	}
 	switch adaptorType {
 	case VerterAIClaude:
 		return &claude.Adaptor{}

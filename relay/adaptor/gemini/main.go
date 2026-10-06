@@ -34,6 +34,93 @@ var mimeTypeMap = map[string]string{
 	"text":        "text/plain",
 }
 
+func isGemini3OrNewer(baseModel string) bool {
+	if !strings.HasPrefix(baseModel, "gemini-") {
+		return false
+	}
+	if baseModel == "gemini-flash-latest" || baseModel == "gemini-flash-lite-latest" || baseModel == "gemini-pro-latest" {
+		return true
+	}
+	if baseModel == "gemini-pro" || baseModel == "gemini-pro-vision" {
+		return false
+	}
+	return !strings.HasPrefix(baseModel, "gemini-1") && !strings.HasPrefix(baseModel, "gemini-2")
+}
+
+func buildThinkingConfig(modelName string, reasoningEffort *string) *ThinkingConfig {
+	if reasoningEffort == nil {
+		return nil
+	}
+	effort := strings.ToLower(strings.TrimSpace(*reasoningEffort))
+	if effort == "" {
+		return nil
+	}
+	base := ExtractGeminiBaseModel(modelName)
+	isPro := strings.Contains(base, "-pro")
+	if isGemini3OrNewer(base) {
+		is30Pro := strings.HasPrefix(base, "gemini-3-pro") && !strings.HasPrefix(base, "gemini-3.1-pro")
+		minLevel := "minimal"
+		if isPro {
+			minLevel = "low"
+		}
+		if effort == "none" || effort == "disabled" {
+			includeThoughts := false
+			return &ThinkingConfig{
+				IncludeThoughts: &includeThoughts,
+				ThinkingLevel:   minLevel,
+			}
+		}
+		includeThoughts := true
+		level := effort
+		switch effort {
+		case "minimal":
+			level = minLevel
+		case "low":
+			level = "low"
+		case "medium":
+			if is30Pro {
+				level = "high"
+			} else {
+				level = "medium"
+			}
+		case "high", "xhigh", "max":
+			level = "high"
+		}
+		return &ThinkingConfig{
+			IncludeThoughts: &includeThoughts,
+			ThinkingLevel:   level,
+		}
+	}
+	if strings.HasPrefix(base, "gemini-2.5") {
+		if effort == "none" || effort == "disabled" {
+			includeThoughts := false
+			budget := 0
+			if isPro {
+				budget = 128
+			}
+			return &ThinkingConfig{
+				IncludeThoughts: &includeThoughts,
+				ThinkingBudget:  &budget,
+			}
+		}
+		includeThoughts := true
+		budget := 8192
+		switch effort {
+		case "minimal", "low":
+			budget = 1024
+		case "medium":
+			budget = 8192
+		case "high", "xhigh", "max":
+			budget = 24576
+		}
+		return &ThinkingConfig{
+			IncludeThoughts: &includeThoughts,
+			ThinkingBudget:  &budget,
+		}
+	}
+	return nil
+}
+
 // Setting safety to the lowest possible values since Gemini is already powerless enough
 func ConvertRequest(textRequest model.GeneralOpenAIRequest) *ChatRequest {
 	geminiRequest := ChatRequest{
@@ -64,6 +151,7 @@ func ConvertRequest(textRequest model.GeneralOpenAIRequest) *ChatRequest {
 			Temperature:     textRequest.Temperature,
 			TopP:            textRequest.TopP,
 			MaxOutputTokens: textRequest.MaxTokens,
+			ThinkingConfig:  buildThinkingConfig(textRequest.Model, textRequest.ReasoningEffort),
 		},
 	}
 	if textRequest.ResponseFormat != nil {
@@ -187,16 +275,64 @@ func ConvertEmbeddingRequest(request model.GeneralOpenAIRequest) *BatchEmbedding
 type ChatResponse struct {
 	Candidates     []ChatCandidate    `json:"candidates"`
 	PromptFeedback ChatPromptFeedback `json:"promptFeedback"`
+	UsageMetadata  *UsageMetadata     `json:"usageMetadata,omitempty"`
 }
 
 func (g *ChatResponse) GetResponseText() string {
 	if g == nil {
 		return ""
 	}
-	if len(g.Candidates) > 0 && len(g.Candidates[0].Content.Parts) > 0 {
-		return g.Candidates[0].Content.Parts[0].Text
+	var builder strings.Builder
+	for _, candidate := range g.Candidates {
+		for _, part := range candidate.Content.Parts {
+			if !part.Thought && part.Text != "" {
+				builder.WriteString(part.Text)
+			}
+		}
 	}
-	return ""
+	return builder.String()
+}
+
+func (g *ChatResponse) GetReasoningText() string {
+	if g == nil {
+		return ""
+	}
+	var builder strings.Builder
+	for _, candidate := range g.Candidates {
+		for _, part := range candidate.Content.Parts {
+			if part.Thought && part.Text != "" {
+				builder.WriteString(part.Text)
+			}
+		}
+	}
+	return builder.String()
+}
+
+func ConvertUsageMetadata(meta *UsageMetadata) *model.Usage {
+	if meta == nil || (meta.PromptTokenCount == 0 && meta.CandidatesTokenCount == 0 && meta.TotalTokenCount == 0 && meta.ThoughtsTokenCount == 0 && meta.CachedContentTokenCount == 0) {
+		return nil
+	}
+	completionTokens := meta.CandidatesTokenCount + meta.ThoughtsTokenCount
+	totalTokens := meta.TotalTokenCount
+	if totalTokens == 0 {
+		totalTokens = meta.PromptTokenCount + completionTokens
+	}
+	usage := &model.Usage{
+		PromptTokens:     meta.PromptTokenCount,
+		CompletionTokens: completionTokens,
+		TotalTokens:      totalTokens,
+	}
+	if meta.CachedContentTokenCount > 0 {
+		usage.PromptTokensDetails = &model.PromptTokensDetails{
+			CachedTokens: meta.CachedContentTokenCount,
+		}
+	}
+	if meta.ThoughtsTokenCount > 0 {
+		usage.CompletionTokensDetails = &model.CompletionTokensDetails{
+			ReasoningTokens: meta.ThoughtsTokenCount,
+		}
+	}
+	return usage
 }
 
 type ChatCandidate struct {
@@ -218,24 +354,25 @@ type ChatPromptFeedback struct {
 func getToolCalls(candidate *ChatCandidate) []model.Tool {
 	var toolCalls []model.Tool
 
-	item := candidate.Content.Parts[0]
-	if item.FunctionCall == nil {
-		return toolCalls
+	for _, item := range candidate.Content.Parts {
+		if item.FunctionCall == nil {
+			continue
+		}
+		argsBytes, err := json.Marshal(item.FunctionCall.Arguments)
+		if err != nil {
+			logger.FatalLog("getToolCalls failed: " + err.Error())
+			continue
+		}
+		toolCall := model.Tool{
+			Id:   fmt.Sprintf("call_%s", random.GetUUID()),
+			Type: "function",
+			Function: model.Function{
+				Arguments: string(argsBytes),
+				Name:      item.FunctionCall.FunctionName,
+			},
+		}
+		toolCalls = append(toolCalls, toolCall)
 	}
-	argsBytes, err := json.Marshal(item.FunctionCall.Arguments)
-	if err != nil {
-		logger.FatalLog("getToolCalls failed: " + err.Error())
-		return toolCalls
-	}
-	toolCall := model.Tool{
-		Id:   fmt.Sprintf("call_%s", random.GetUUID()),
-		Type: "function",
-		Function: model.Function{
-			Arguments: string(argsBytes),
-			Name:      item.FunctionCall.FunctionName,
-		},
-	}
-	toolCalls = append(toolCalls, toolCall)
 	return toolCalls
 }
 
@@ -255,17 +392,34 @@ func responseGeminiChat2OpenAI(response *ChatResponse) *openai.TextResponse {
 			FinishReason: constant.StopFinishReason,
 		}
 		if len(candidate.Content.Parts) > 0 {
-			if candidate.Content.Parts[0].FunctionCall != nil {
-				choice.Message.ToolCalls = getToolCalls(&candidate)
-			} else {
-				var builder strings.Builder
-				for _, part := range candidate.Content.Parts {
-					if i > 0 {
-						builder.WriteString("\n")
-					}
-					builder.WriteString(part.Text)
+			toolCalls := getToolCalls(&candidate)
+			var textBuilder strings.Builder
+			var reasoningBuilder strings.Builder
+			for _, part := range candidate.Content.Parts {
+				if part.FunctionCall != nil {
+					continue
 				}
-				choice.Message.Content = builder.String()
+				if part.Thought {
+					if reasoningBuilder.Len() > 0 && part.Text != "" {
+						reasoningBuilder.WriteString("\n")
+					}
+					reasoningBuilder.WriteString(part.Text)
+					continue
+				}
+				if textBuilder.Len() > 0 && part.Text != "" {
+					textBuilder.WriteString("\n")
+				}
+				textBuilder.WriteString(part.Text)
+			}
+			if len(toolCalls) > 0 {
+				choice.Message.ToolCalls = toolCalls
+				choice.FinishReason = "tool_calls"
+			}
+			if len(toolCalls) == 0 || textBuilder.Len() > 0 {
+				choice.Message.Content = textBuilder.String()
+			}
+			if reasoningBuilder.Len() > 0 {
+				choice.Message.ReasoningContent = reasoningBuilder.String()
 			}
 		} else {
 			choice.Message.Content = ""
@@ -279,6 +433,9 @@ func responseGeminiChat2OpenAI(response *ChatResponse) *openai.TextResponse {
 func streamResponseGeminiChat2OpenAI(geminiResponse *ChatResponse) *openai.ChatCompletionsStreamResponse {
 	var choice openai.ChatCompletionsStreamResponseChoice
 	choice.Delta.Content = geminiResponse.GetResponseText()
+	if reasoningText := geminiResponse.GetReasoningText(); reasoningText != "" {
+		choice.Delta.ReasoningContent = reasoningText
+	}
 	//choice.FinishReason = &constant.StopFinishReason
 	var response openai.ChatCompletionsStreamResponse
 	response.Id = fmt.Sprintf("chatcmpl-%s", random.GetUUID())
@@ -286,6 +443,9 @@ func streamResponseGeminiChat2OpenAI(geminiResponse *ChatResponse) *openai.ChatC
 	response.Object = "chat.completion.chunk"
 	response.Model = "gemini"
 	response.Choices = []openai.ChatCompletionsStreamResponseChoice{choice}
+	if usage := ConvertUsageMetadata(geminiResponse.UsageMetadata); usage != nil {
+		response.Usage = usage
+	}
 	return &response
 }
 
@@ -306,8 +466,9 @@ func embeddingResponseGemini2OpenAI(response *EmbeddingResponse) *openai.Embeddi
 	return &openAIEmbeddingResponse
 }
 
-func StreamHandler(c *gin.Context, resp *http.Response) (*model.ErrorWithStatusCode, string) {
+func StreamHandler(c *gin.Context, resp *http.Response) (*model.ErrorWithStatusCode, string, *model.Usage) {
 	responseText := ""
+	var streamUsage *model.Usage
 	scanner := bufio.NewScanner(resp.Body)
 	scanner.Split(bufio.ScanLines)
 
@@ -327,6 +488,9 @@ func StreamHandler(c *gin.Context, resp *http.Response) (*model.ErrorWithStatusC
 		if err != nil {
 			logger.SysError("error unmarshalling stream response: " + err.Error())
 			continue
+		}
+		if u := ConvertUsageMetadata(geminiResponse.UsageMetadata); u != nil {
+			streamUsage = u
 		}
 
 		response := streamResponseGeminiChat2OpenAI(&geminiResponse)
@@ -350,10 +514,10 @@ func StreamHandler(c *gin.Context, resp *http.Response) (*model.ErrorWithStatusC
 
 	err := resp.Body.Close()
 	if err != nil {
-		return openai.ErrorWrapper(err, "close_response_body_failed", http.StatusInternalServerError), ""
+		return openai.ErrorWrapper(err, "close_response_body_failed", http.StatusInternalServerError), "", streamUsage
 	}
 
-	return nil, responseText
+	return nil, responseText, streamUsage
 }
 
 func Handler(c *gin.Context, resp *http.Response, promptTokens int, modelName string) (*model.ErrorWithStatusCode, *model.Usage) {
@@ -383,13 +547,16 @@ func Handler(c *gin.Context, resp *http.Response, promptTokens int, modelName st
 	}
 	fullTextResponse := responseGeminiChat2OpenAI(&geminiResponse)
 	fullTextResponse.Model = modelName
-	completionTokens := openai.CountTokenText(geminiResponse.GetResponseText(), modelName)
-	usage := model.Usage{
-		PromptTokens:     promptTokens,
-		CompletionTokens: completionTokens,
-		TotalTokens:      promptTokens + completionTokens,
+	usage := ConvertUsageMetadata(geminiResponse.UsageMetadata)
+	if usage == nil {
+		completionTokens := openai.CountTokenText(geminiResponse.GetResponseText(), modelName)
+		usage = &model.Usage{
+			PromptTokens:     promptTokens,
+			CompletionTokens: completionTokens,
+			TotalTokens:      promptTokens + completionTokens,
+		}
 	}
-	fullTextResponse.Usage = usage
+	fullTextResponse.Usage = *usage
 	jsonResponse, err := json.Marshal(fullTextResponse)
 	if err != nil {
 		return openai.ErrorWrapper(err, "marshal_response_body_failed", http.StatusInternalServerError), nil
@@ -397,7 +564,7 @@ func Handler(c *gin.Context, resp *http.Response, promptTokens int, modelName st
 	c.Writer.Header().Set("Content-Type", "application/json")
 	c.Writer.WriteHeader(resp.StatusCode)
 	_, err = c.Writer.Write(jsonResponse)
-	return nil, &usage
+	return nil, usage
 }
 
 func EmbeddingHandler(c *gin.Context, resp *http.Response) (*model.ErrorWithStatusCode, *model.Usage) {

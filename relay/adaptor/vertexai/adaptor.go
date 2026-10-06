@@ -61,7 +61,7 @@ func (a *Adaptor) GetChannelName() string {
 
 func (a *Adaptor) GetRequestURL(meta *meta.Meta) (string, error) {
 	suffix := ""
-	if strings.HasPrefix(meta.ActualModelName, "gemini") {
+	if strings.Contains(strings.ToLower(meta.ActualModelName), "gemini") {
 		if meta.IsStream {
 			suffix = "streamGenerateContent?alt=sse"
 		} else {
