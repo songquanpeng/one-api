@@ -75,6 +75,7 @@ func InitOptionMap() {
 	config.OptionMap["QuotaPerUnit"] = strconv.FormatFloat(config.QuotaPerUnit, 'f', -1, 64)
 	config.OptionMap["RetryTimes"] = strconv.Itoa(config.RetryTimes)
 	config.OptionMap["Theme"] = config.Theme
+	config.OptionMap["PlaygroundConfig"] = `{"enabled":false,"search_provider":"","search_keys":{},"search_endpoints":{},"search_max_results":5,"session_ttl_minutes":120,"max_image_size_mb":5,"groups":["default"]}`
 	config.OptionMapRWMutex.Unlock()
 	loadOptionsFromDatabase()
 }

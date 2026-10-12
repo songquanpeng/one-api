@@ -219,7 +219,7 @@ var testAllChannelsRunning bool = false
 // ChannelTestResult 单个渠道的批量测试结果
 type ChannelTestResult struct {
 	Id           int     `json:"id"`
-	Name         string `json:"name"`
+	Name         string  `json:"name"`
 	Success      bool    `json:"success"`
 	Time         float64 `json:"time"` // 秒
 	Error        string  `json:"error,omitempty"`

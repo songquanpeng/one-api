@@ -13,7 +13,8 @@
     "chat": "聊天",
     "login": "登录",
     "logout": "注销",
-    "register": "注册"
+    "register": "注册",
+    "playground": "游乐场"
   },
   "topup": {
     "title": "充值中心",
@@ -700,6 +701,26 @@
         "buttons": {
           "save": "保存通用设置"
         }
+      },
+      "playground": {
+        "title": "模型游乐场",
+        "enabled": "开启游乐场",
+        "enabled_hint": "开启后，登录用户即可在游乐场中体验各模型（不消耗额度），支持临时会话、图片上传与联网搜索",
+        "search_title": "联网搜索",
+        "provider": "搜索服务",
+        "provider_none": "不使用联网搜索",
+        "provider_hint": "选择搜索服务并填写对应密钥，用户在游乐场中即可开启联网搜索；SearXNG 请填写自建实例地址",
+        "key": "API Key / 实例地址",
+        "endpoint": "接口地址（可选）",
+        "endpoint_hint": "留空使用默认官方接口",
+        "max_results": "搜索结果数量",
+        "session_ttl": "临时会话保留时间（分钟）",
+        "max_image_size": "单张图片大小限制（MB）",
+        "groups": "可用分组",
+        "groups_hint": "逗号分隔，游乐场中仅可选择这些分组下的模型",
+        "save": "保存配置",
+        "saved": "保存成功",
+        "key_required": "选择搜索服务后，请先填写对应的 API Key / 实例地址"
       }
     },
     "other": {
@@ -853,5 +874,35 @@
     "notice": {
       "password_copied": "新密码已复制到剪贴板：{{password}}"
     }
+  },
+  "playground": {
+    "title": "模型游乐场",
+    "hint_free": "游乐场调用不消耗额度",
+    "disabled": "模型游乐场未开启",
+    "disabled_hint": "管理员可在「设置 → 运营设置 → 模型游乐场」中开启并配置联网搜索。",
+    "model": "模型",
+    "group": "分组",
+    "search": "联网搜索",
+    "search_configured": "已配置搜索服务",
+    "no_provider": "管理员尚未配置搜索服务，联网搜索不可用",
+    "new_session": "新会话",
+    "input_placeholder": "输入消息，Enter 发送，Shift+Enter 换行",
+    "attach": "上传图片",
+    "uploading": "上传中…",
+    "send": "发送",
+    "sending": "正在生成…",
+    "searching": "正在联网搜索…",
+    "search_results": "联网搜索结果",
+    "search_failed": "联网搜索失败（{msg}），本次未使用搜索结果",
+    "no_models": "当前没有可用模型，请先检查渠道与分组配置",
+    "image_too_large": "图片超过大小限制（最大 {n}MB）",
+    "upload_failed": "图片上传失败",
+    "session_restored": "已恢复上次的临时会话",
+    "you": "我",
+    "assistant": "助手",
+    "error_prefix": "出错啦：",
+    "stream_interrupted": "生成已中断",
+    "remove_image": "移除图片",
+    "session_info": "临时会话将在 {n} 分钟后自动过期"
   }
 }

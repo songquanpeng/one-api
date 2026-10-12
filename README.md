@@ -135,6 +135,7 @@ _✨ 通过标准的 OpenAI API 格式访问所有的大模型，开箱即用 �
 23. 支持主题切换，设置环境变量 `THEME` 即可，默认为 `default`，欢迎 PR 更多主题，具体参考[此处](./web/README.md)。
 24. 配合 [Message Pusher](https://github.com/songquanpeng/message-pusher) 可将报警信息推送到多种 App 上。
 25. 支持 OpenAI 最新的 Responses API（`/v1/responses` 端点），可直接使用 OpenAI 官方 SDK 的 Responses 调用方式，非流式与流式（SSE）均支持。
+26. 支持**模型游乐场**：管理员可在「设置 → 运营设置 → 模型游乐场」中开启，登录用户即可免费体验（不消耗额度）各分组下的模型，支持临时会话、图片上传与联网搜索（内置 Tavily / Serper / Brave / Exa / Bing / 博查 / SearXNG / Perplexity 八种搜索服务）。
 
 ## 部署
 ### 基于 Docker 进行部署

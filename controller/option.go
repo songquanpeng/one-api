@@ -10,6 +10,7 @@ import (
 	"github.com/songquanpeng/one-api/common/helper"
 	"github.com/songquanpeng/one-api/common/i18n"
 	"github.com/songquanpeng/one-api/model"
+	"github.com/songquanpeng/one-api/playground"
 	billingratio "github.com/songquanpeng/one-api/relay/billing/ratio"
 
 	"github.com/gin-gonic/gin"
@@ -87,6 +88,14 @@ func UpdateOption(c *gin.Context) {
 			})
 			return
 		}
+	case "PlaygroundConfig":
+		if err := playground.ValidateConfigJSON(option.Value); err != nil {
+			c.JSON(http.StatusOK, gin.H{
+				"success": false,
+				"message": "游乐场配置无效：" + err.Error(),
+			})
+			return
+		}
 	}
 	err = model.UpdateOption(option.Key, option.Value)
 	if err != nil {
@@ -96,6 +105,8 @@ func UpdateOption(c *gin.Context) {
 		})
 		return
 	}
+	// 配置缓存失效，使游乐场开关/搜索配置即时生效
+	playground.InvalidateConfigCache()
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"message": "",

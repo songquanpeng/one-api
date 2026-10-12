@@ -122,4 +122,24 @@ func SetApiRouter(router *gin.Engine) {
 			groupRoute.GET("/", controller.GetGroups)
 		}
 	}
+
+	// 模型游乐场：独立分组（不使用 gzip，避免 SSE 流式响应被缓冲）
+	playgroundRouter := router.Group("/api/playground")
+	playgroundRouter.Use(middleware.GlobalAPIRateLimit())
+	{
+		// 配置查询不校验开关状态（页面需要据此展示「未开启」提示）
+		playgroundRouter.GET("/config", middleware.UserAuth(), controller.GetPlaygroundConfig)
+
+		authedPlaygroundRoute := playgroundRouter.Group("/")
+		authedPlaygroundRoute.Use(middleware.UserAuth())
+		authedPlaygroundRoute.Use(middleware.PlaygroundEnabled())
+		{
+			authedPlaygroundRoute.POST("/session", controller.CreatePlaygroundSession)
+			authedPlaygroundRoute.GET("/session/:id", controller.GetPlaygroundSession)
+			authedPlaygroundRoute.DELETE("/session/:id", controller.DeletePlaygroundSession)
+			authedPlaygroundRoute.POST("/upload", controller.UploadPlaygroundImage)
+			authedPlaygroundRoute.GET("/uploads/:name", controller.ServePlaygroundUpload)
+			authedPlaygroundRoute.POST("/chat", controller.PlaygroundChat)
+		}
+	}
 }

@@ -1,6 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Divider, Form, Grid, Header } from 'semantic-ui-react';
+import {
+  Divider,
+  Dropdown,
+  Form,
+  Grid,
+  Header,
+} from 'semantic-ui-react';
 import {
   API,
   showError,
@@ -8,6 +14,18 @@ import {
   timestamp2string,
   verifyJSON,
 } from '../helpers';
+
+// 游乐场支持的联网搜索服务商（与后端 playground 包保持一致）
+const PLAYGROUND_SEARCH_PROVIDERS = [
+  { id: 'tavily', name: 'Tavily' },
+  { id: 'serper', name: 'Serper（Google）' },
+  { id: 'brave', name: 'Brave Search' },
+  { id: 'exa', name: 'Exa' },
+  { id: 'bing', name: 'Bing Web Search' },
+  { id: 'bocha', name: '博查搜索' },
+  { id: 'searxng', name: 'SearXNG（自建）' },
+  { id: 'perplexity', name: 'Perplexity（Sonar）' },
+];
 
 const OperationSetting = () => {
   const { t } = useTranslation();
@@ -42,6 +60,17 @@ const OperationSetting = () => {
     group: '',
   });
   const [batchRatioLoading, setBatchRatioLoading] = useState(false);
+  const [playgroundConfig, setPlaygroundConfig] = useState({
+    enabled: false,
+    search_provider: '',
+    search_keys: {},
+    search_endpoints: {},
+    search_max_results: 5,
+    session_ttl_minutes: 120,
+    max_image_size_mb: 5,
+    groups: 'default',
+  });
+  const [playgroundSaving, setPlaygroundSaving] = useState(false);
   let [historyTimestamp, setHistoryTimestamp] = useState(
     timestamp2string(now.getTime() / 1000 - 30 * 24 * 3600)
   ); // a month ago
@@ -58,6 +87,20 @@ const OperationSetting = () => {
           item.key === 'CompletionRatio'
         ) {
           item.value = JSON.stringify(JSON.parse(item.value), null, 2);
+        }
+        if (item.key === 'PlaygroundConfig') {
+          try {
+            const parsed = JSON.parse(item.value || '{}');
+            setPlaygroundConfig((prev) => ({
+              ...prev,
+              ...parsed,
+              search_keys: parsed.search_keys || {},
+              search_endpoints: parsed.search_endpoints || {},
+              groups: (parsed.groups || ['default']).join(', '),
+            }));
+          } catch (e) {
+            // 配置损坏时保留默认值
+          }
         }
         if (item.value === '{}') {
           item.value = '';
@@ -233,6 +276,46 @@ const OperationSetting = () => {
     setBatchRatioLoading(false);
   };
 
+  const submitPlaygroundConfig = async () => {
+    const provider = playgroundConfig.search_provider || '';
+    const key = (playgroundConfig.search_keys || {})[provider] || '';
+    if (provider && !key.trim()) {
+      showError(t('setting.operation.playground.key_required'));
+      return;
+    }
+    const groups = (playgroundConfig.groups || '')
+      .split(',')
+      .map((s) => s.trim())
+      .filter((s) => s.length > 0);
+    const cfg = {
+      enabled: !!playgroundConfig.enabled,
+      search_provider: provider,
+      search_keys: playgroundConfig.search_keys || {},
+      search_endpoints: playgroundConfig.search_endpoints || {},
+      search_max_results: parseInt(playgroundConfig.search_max_results) || 5,
+      session_ttl_minutes:
+        parseInt(playgroundConfig.session_ttl_minutes) || 120,
+      max_image_size_mb: parseInt(playgroundConfig.max_image_size_mb) || 5,
+      groups: groups.length > 0 ? groups : ['default'],
+    };
+    setPlaygroundSaving(true);
+    try {
+      const res = await API.put('/api/option/', {
+        key: 'PlaygroundConfig',
+        value: JSON.stringify(cfg),
+      });
+      const { success, message } = res.data;
+      if (success) {
+        showSuccess(t('setting.operation.playground.saved'));
+      } else {
+        showError(message);
+      }
+    } catch (error) {
+      showError(error.message);
+    }
+    setPlaygroundSaving(false);
+  };
+
   return (
     <Grid columns={1}>
       <Grid.Column>
@@ -383,6 +466,152 @@ const OperationSetting = () => {
           </Form.Group>
           <Form.Button loading={batchRatioLoading} onClick={submitBatchRatio}>
             {t('setting.operation.ratio.batch.apply')}
+          </Form.Button>
+          <Divider />
+          <Header as='h3'>{t('setting.operation.playground.title')}</Header>
+          <Form.Group inline>
+            <Form.Checkbox
+              checked={!!playgroundConfig.enabled}
+              label={t('setting.operation.playground.enabled')}
+              onChange={(e, { checked }) =>
+                setPlaygroundConfig({ ...playgroundConfig, enabled: checked })
+              }
+            />
+          </Form.Group>
+          <div className='playground-config-hint'>
+            {t('setting.operation.playground.enabled_hint')}
+          </div>
+          <Header as='h4' style={{ marginTop: 12 }}>
+            {t('setting.operation.playground.search_title')}
+          </Header>
+          <Form.Group widths='equal'>
+            <Form.Field>
+              <label>{t('setting.operation.playground.provider')}</label>
+              <Dropdown
+                fluid
+                selection
+                options={[
+                  {
+                    key: '',
+                    text: t('setting.operation.playground.provider_none'),
+                    value: '',
+                  },
+                  ...PLAYGROUND_SEARCH_PROVIDERS.map((p) => ({
+                    key: p.id,
+                    text: p.name,
+                    value: p.id,
+                  })),
+                ]}
+                value={playgroundConfig.search_provider || ''}
+                onChange={(_, { value }) =>
+                  setPlaygroundConfig({
+                    ...playgroundConfig,
+                    search_provider: value,
+                  })
+                }
+              />
+              <div className='playground-config-hint'>
+                {t('setting.operation.playground.provider_hint')}
+              </div>
+            </Form.Field>
+            <Form.Input
+              fluid
+              label={t('setting.operation.playground.key')}
+              type='password'
+              autoComplete='new-password'
+              placeholder={t('setting.operation.playground.key')}
+              value={
+                (playgroundConfig.search_keys || {})[
+                  playgroundConfig.search_provider
+                ] || ''
+              }
+              onChange={(e, { value }) =>
+                setPlaygroundConfig({
+                  ...playgroundConfig,
+                  search_keys: {
+                    ...(playgroundConfig.search_keys || {}),
+                    [playgroundConfig.search_provider]: value,
+                  },
+                })
+              }
+            />
+            <Form.Input
+              fluid
+              label={t('setting.operation.playground.endpoint')}
+              autoComplete='new-password'
+              placeholder='https://'
+              value={
+                (playgroundConfig.search_endpoints || {})[
+                  playgroundConfig.search_provider
+                ] || ''
+              }
+              onChange={(e, { value }) =>
+                setPlaygroundConfig({
+                  ...playgroundConfig,
+                  search_endpoints: {
+                    ...(playgroundConfig.search_endpoints || {}),
+                    [playgroundConfig.search_provider]: value,
+                  },
+                })
+              }
+            />
+          </Form.Group>
+          <div className='playground-config-hint'>
+            {t('setting.operation.playground.endpoint_hint')}
+          </div>
+          <Form.Group widths='equal'>
+            <Form.Input
+              label={t('setting.operation.playground.max_results')}
+              type='number'
+              min='1'
+              max='20'
+              value={playgroundConfig.search_max_results}
+              onChange={(e, { value }) =>
+                setPlaygroundConfig({
+                  ...playgroundConfig,
+                  search_max_results: value,
+                })
+              }
+            />
+            <Form.Input
+              label={t('setting.operation.playground.session_ttl')}
+              type='number'
+              min='1'
+              value={playgroundConfig.session_ttl_minutes}
+              onChange={(e, { value }) =>
+                setPlaygroundConfig({
+                  ...playgroundConfig,
+                  session_ttl_minutes: value,
+                })
+              }
+            />
+            <Form.Input
+              label={t('setting.operation.playground.max_image_size')}
+              type='number'
+              min='1'
+              max='50'
+              value={playgroundConfig.max_image_size_mb}
+              onChange={(e, { value }) =>
+                setPlaygroundConfig({
+                  ...playgroundConfig,
+                  max_image_size_mb: value,
+                })
+              }
+            />
+            <Form.Input
+              label={t('setting.operation.playground.groups')}
+              placeholder='default, vip'
+              value={playgroundConfig.groups}
+              onChange={(e, { value }) =>
+                setPlaygroundConfig({ ...playgroundConfig, groups: value })
+              }
+            />
+          </Form.Group>
+          <div className='playground-config-hint'>
+            {t('setting.operation.playground.groups_hint')}
+          </div>
+          <Form.Button loading={playgroundSaving} onClick={submitPlaygroundConfig}>
+            {t('setting.operation.playground.save')}
           </Form.Button>
           <Divider />
           <Header as='h3'>{t('setting.operation.log.title')}</Header>

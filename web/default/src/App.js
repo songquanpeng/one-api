@@ -24,6 +24,7 @@ import EditRedemption from './pages/Redemption/EditRedemption';
 import TopUp from './pages/TopUp';
 import Log from './pages/Log';
 import Chat from './pages/Chat';
+import Playground from './pages/Playground';
 import LarkOAuth from './components/LarkOAuth';
 import Dashboard from './pages/Dashboard';
 
@@ -58,6 +59,11 @@ function App() {
           localStorage.setItem('chat_link', data.chat_link);
         } else {
           localStorage.removeItem('chat_link');
+        }
+        if (data.playground_enabled) {
+          localStorage.setItem('playground_enabled', 'true');
+        } else {
+          localStorage.removeItem('playground_enabled');
         }
         if (
           data.version !== process.env.REACT_APP_VERSION &&
@@ -296,6 +302,16 @@ function App() {
           <Suspense fallback={<Loading></Loading>}>
             <Chat />
           </Suspense>
+        }
+      />
+      <Route
+        path='/playground'
+        element={
+          <PrivateRoute>
+            <Suspense fallback={<Loading></Loading>}>
+              <Playground />
+            </Suspense>
+          </PrivateRoute>
         }
       />
       <Route
