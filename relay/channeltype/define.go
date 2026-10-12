@@ -62,5 +62,6 @@ const (
 	InternLM
 	ModelScope
 	AMDTokenFactory
+	NetlifyAIGateway
 	Dummy
 )

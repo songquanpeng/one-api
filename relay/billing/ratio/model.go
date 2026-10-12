@@ -708,6 +708,21 @@ var ModelRatio = map[string]float64{
 	"xai/grok-4":                  1.5,   // $3.00 / 1M input tokens
 	"meta/llama-4-maverick":       0.075, // $0.15 / 1M input tokens
 	"mistral/mistral-large":       1.0,   // $2.00 / 1M input tokens
+	// netlify ai gateway（OpenAI/Anthropic/Gemini 直托管模型复用基名条目，
+	// 仅补基名缺失项；OpenRouter 段模型按上游官方价透传登记）
+	"claude-opus-4-5(61)":             5.0 / 1000 * USD,  // $5.00 / 1M input tokens
+	"claude-haiku-4-5(61)":            1.0 / 1000 * USD,  // $1.00 / 1M input tokens
+	"gpt-5-pro(61)":                   15.0 / 1000 * USD, // $15.00 / 1M input tokens
+	"meta-llama/llama-4-maverick(61)": 0.11,              // $0.22 / 1M input tokens
+	"qwen/qwen3-235b-a22b-2507(61)":   0.1,               // $0.20 / 1M input tokens
+	"mistralai/mistral-large-4-0(61)": 1.0,               // $2.00 / 1M input tokens
+	"x-ai/grok-4.7(61)":               1.5,               // 暂按 Grok-4 档位 $3.00 / 1M input tokens 估算
+	"z-ai/glm-5.3(61)":                0.3,               // 暂按 GLM-4.6 档位 $0.60 / 1M input tokens 估算
+	"perplexity/sonar-pro(61)":        1.5,               // $3.00 / 1M input tokens
+	// netlify ai gateway：OpenRouter 段模型按 OpenRouter 官方价透传
+	"deepseek/deepseek-chat(61)": 0.15,             // $0.30 / 1M input tokens
+	"deepseek/deepseek-r1(61)":   0.55 * MILLI_USD, // $0.55 / 1M input tokens
+	"moonshotai/kimi-k2(61)":     0.3,              // $0.60 / 1M input tokens
 	// 美团龙猫（限时折扣价：输入 $0.30 / 输出 $1.20 每 1M tokens）
 	"LongCat-2.5-Preview": 0.15,
 	"LongCat-2.0":         0.15,
@@ -823,6 +838,20 @@ var CompletionRatio = map[string]float64{
 	"xai/grok-4":                  15.0 / 3.0,
 	"meta/llama-4-maverick":       0.6 / 0.15,
 	"mistral/mistral-large":       6.0 / 2.0,
+	// netlify ai gateway（同上，仅补基名缺失项与 OpenRouter 段透传价）
+	"claude-opus-4-5(61)":             25.0 / 5.0,
+	"claude-haiku-4-5(61)":            5.0 / 1.0,
+	"gpt-5-pro(61)":                   120.0 / 15.0,
+	"meta-llama/llama-4-maverick(61)": 0.85 / 0.22,
+	"qwen/qwen3-235b-a22b-2507(61)":   0.6 / 0.2,
+	"mistralai/mistral-large-4-0(61)": 6.0 / 2.0,
+	"x-ai/grok-4.7(61)":               15.0 / 3.0,
+	"z-ai/glm-5.3(61)":                2.2 / 0.6,
+	"perplexity/sonar-pro(61)":        15.0 / 3.0,
+	// netlify ai gateway：OpenRouter 段模型按 OpenRouter 官方价透传
+	"deepseek/deepseek-chat(61)": 1.2 / 0.3,
+	"deepseek/deepseek-r1(61)":   2.19 / 0.55,
+	"moonshotai/kimi-k2(61)":     2.5 / 0.6,
 	// 美团龙猫（限时折扣价：输出 $1.20 / 1M tokens）
 	"LongCat-2.5-Preview": 1.2 / 0.3,
 	"LongCat-2.0":         1.2 / 0.3,

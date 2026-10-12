@@ -105,6 +105,7 @@ _✨ 通过标准的 OpenAI API 格式访问所有的大模型，开箱即用 �
    + [x] [书生 InternLM 系列模型](https://internlm.intern-ai.org.cn/api/document)
    + [x] [魔搭社区 ModelScope API-Inference](https://www.modelscope.cn/docs/model-service/API-Inference/intro)
    + [x] [AMD TokenFactory](https://developer.amd.com.cn/radeon/tokenfactory)（Radeon Cloud 免费模型 API）
+   + [x] [Netlify AI Gateway](https://docs.netlify.com/build/ai-gateway/overview/)（OpenAI/Anthropic/Gemini 直托管 + OpenRouter 段模型）
 2. 支持配置镜像以及众多[第三方代理服务](https://iamazing.cn/page/openai-api-third-party-services)。
 3. 支持通过**负载均衡**的方式访问多个渠道。
 4. 支持 **stream 模式**，可以通过流式传输实现打字机效果。

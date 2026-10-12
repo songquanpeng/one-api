@@ -19,6 +19,7 @@ import (
 	"github.com/songquanpeng/one-api/relay/adaptor/moark"
 	"github.com/songquanpeng/one-api/relay/adaptor/modelscope"
 	"github.com/songquanpeng/one-api/relay/adaptor/moonshot"
+	"github.com/songquanpeng/one-api/relay/adaptor/netlifygateway"
 	"github.com/songquanpeng/one-api/relay/adaptor/novita"
 	"github.com/songquanpeng/one-api/relay/adaptor/opencodezen"
 	"github.com/songquanpeng/one-api/relay/adaptor/openrouter"
@@ -57,6 +58,7 @@ var CompatibleChannels = []int{
 	channeltype.InternLM,
 	channeltype.ModelScope,
 	channeltype.AMDTokenFactory,
+	channeltype.NetlifyAIGateway,
 }
 
 func GetCompatibleChannelMeta(channelType int) (string, []string) {
@@ -117,6 +119,8 @@ func GetCompatibleChannelMeta(channelType int) (string, []string) {
 		return "modelscope", modelscope.ModelList
 	case channeltype.AMDTokenFactory:
 		return "amd-tokenfactory", amdtokenfactory.ModelList
+	case channeltype.NetlifyAIGateway:
+		return "netlify-ai-gateway", netlifygateway.ModelList
 	default:
 		return "openai", ModelList
 	}

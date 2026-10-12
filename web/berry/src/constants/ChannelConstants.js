@@ -328,5 +328,11 @@ export const CHANNEL_OPTIONS = {
     text: 'AMD TokenFactory',
     value: 60,
     color: 'danger'
+  },
+  61: {
+    key: 61,
+    text: 'Netlify AI Gateway',
+    value: 61,
+    color: 'primary'
   }
 };

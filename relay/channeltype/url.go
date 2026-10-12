@@ -64,6 +64,7 @@ var ChannelBaseURLs = []string{
 	"https://chat.intern-ai.org.cn/api",       // 58
 	"https://api-inference.modelscope.cn",     // 59
 	"https://developer.amd.com.cn/radeon/api", // 60
+	"https://ai-gateway.netlify.com",          // 61
 }
 
 func init() {

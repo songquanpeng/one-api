@@ -114,4 +114,5 @@ export const CHANNEL_OPTIONS = [
   { key: 58, text: '书生 InternLM', value: 58, color: 'green' },
   { key: 59, text: '魔搭社区', value: 59, color: 'orange' },
   { key: 60, text: 'AMD TokenFactory', value: 60, color: 'red' },
+  { key: 61, text: 'Netlify AI Gateway', value: 61, color: 'teal' },
 ];
