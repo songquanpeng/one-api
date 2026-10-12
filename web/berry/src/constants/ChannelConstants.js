@@ -286,5 +286,47 @@ export const CHANNEL_OPTIONS = {
     text: 'OpenCode Zen',
     value: 53,
     color: 'info'
+  },
+  54: {
+    key: 54,
+    text: 'Vercel AI Gateway',
+    value: 54,
+    color: 'primary'
+  },
+  55: {
+    key: 55,
+    text: '美团龙猫',
+    value: 55,
+    color: 'warning'
+  },
+  56: {
+    key: 56,
+    text: 'LM Studio',
+    value: 56,
+    color: 'info'
+  },
+  57: {
+    key: 57,
+    text: '模力方舟',
+    value: 57,
+    color: 'secondary'
+  },
+  58: {
+    key: 58,
+    text: '书生 InternLM',
+    value: 58,
+    color: 'success'
+  },
+  59: {
+    key: 59,
+    text: '魔搭社区',
+    value: 59,
+    color: 'warning'
+  },
+  60: {
+    key: 60,
+    text: 'AMD TokenFactory',
+    value: 60,
+    color: 'danger'
   }
 };

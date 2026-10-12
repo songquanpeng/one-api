@@ -98,6 +98,13 @@ _✨ 通过标准的 OpenAI API 格式访问所有的大模型，开箱即用 �
    + [x] [OpenRouter](https://openrouter.ai/)
    + [x] [Xiaomi MiMo 系列模型](https://platform.xiaomimimo.com/)
    + [x] [OpenCode Zen](https://opencode.ai/docs/zen/)
+   + [x] [Vercel AI Gateway](https://vercel.com/docs/ai-gateway)
+   + [x] [美团龙猫 LongCat 系列模型](https://longcat.chat/platform/)
+   + [x] [LM Studio](https://lmstudio.ai/)（本地推理，默认 `http://localhost:1234`）
+   + [x] [模力方舟 Moark](https://moark.com/)
+   + [x] [书生 InternLM 系列模型](https://internlm.intern-ai.org.cn/api/document)
+   + [x] [魔搭社区 ModelScope API-Inference](https://www.modelscope.cn/docs/model-service/API-Inference/intro)
+   + [x] [AMD TokenFactory](https://developer.amd.com.cn/radeon/tokenfactory)（Radeon Cloud 免费模型 API）
 2. 支持配置镜像以及众多[第三方代理服务](https://iamazing.cn/page/openai-api-third-party-services)。
 3. 支持通过**负载均衡**的方式访问多个渠道。
 4. 支持 **stream 模式**，可以通过流式传输实现打字机效果。

@@ -3,15 +3,21 @@ package openai
 import (
 	"github.com/songquanpeng/one-api/relay/adaptor/ai360"
 	"github.com/songquanpeng/one-api/relay/adaptor/alibailian"
+	"github.com/songquanpeng/one-api/relay/adaptor/amdtokenfactory"
 	"github.com/songquanpeng/one-api/relay/adaptor/baichuan"
 	"github.com/songquanpeng/one-api/relay/adaptor/baiduv2"
 	"github.com/songquanpeng/one-api/relay/adaptor/deepseek"
 	"github.com/songquanpeng/one-api/relay/adaptor/doubao"
 	"github.com/songquanpeng/one-api/relay/adaptor/geminiv2"
 	"github.com/songquanpeng/one-api/relay/adaptor/groq"
+	"github.com/songquanpeng/one-api/relay/adaptor/internlm"
 	"github.com/songquanpeng/one-api/relay/adaptor/lingyiwanwu"
+	"github.com/songquanpeng/one-api/relay/adaptor/lmstudio"
+	"github.com/songquanpeng/one-api/relay/adaptor/longcat"
 	"github.com/songquanpeng/one-api/relay/adaptor/minimax"
 	"github.com/songquanpeng/one-api/relay/adaptor/mistral"
+	"github.com/songquanpeng/one-api/relay/adaptor/moark"
+	"github.com/songquanpeng/one-api/relay/adaptor/modelscope"
 	"github.com/songquanpeng/one-api/relay/adaptor/moonshot"
 	"github.com/songquanpeng/one-api/relay/adaptor/novita"
 	"github.com/songquanpeng/one-api/relay/adaptor/opencodezen"
@@ -19,6 +25,7 @@ import (
 	"github.com/songquanpeng/one-api/relay/adaptor/siliconflow"
 	"github.com/songquanpeng/one-api/relay/adaptor/stepfun"
 	"github.com/songquanpeng/one-api/relay/adaptor/togetherai"
+	"github.com/songquanpeng/one-api/relay/adaptor/vercelgateway"
 	"github.com/songquanpeng/one-api/relay/adaptor/xai"
 	"github.com/songquanpeng/one-api/relay/adaptor/xunfeiv2"
 	"github.com/songquanpeng/one-api/relay/channeltype"
@@ -43,6 +50,13 @@ var CompatibleChannels = []int{
 	channeltype.BaiduV2,
 	channeltype.XunfeiV2,
 	channeltype.OpenCodeZen,
+	channeltype.VercelAIGateway,
+	channeltype.MeituanLongCat,
+	channeltype.LMStudio,
+	channeltype.Moark,
+	channeltype.InternLM,
+	channeltype.ModelScope,
+	channeltype.AMDTokenFactory,
 }
 
 func GetCompatibleChannelMeta(channelType int) (string, []string) {
@@ -89,6 +103,20 @@ func GetCompatibleChannelMeta(channelType int) (string, []string) {
 		return "geminiv2", geminiv2.ModelList
 	case channeltype.OpenCodeZen:
 		return "opencode-zen", opencodezen.ModelList
+	case channeltype.VercelAIGateway:
+		return "vercel-ai-gateway", vercelgateway.ModelList
+	case channeltype.MeituanLongCat:
+		return "meituan-longcat", longcat.ModelList
+	case channeltype.LMStudio:
+		return "lm-studio", lmstudio.ModelList
+	case channeltype.Moark:
+		return "moark", moark.ModelList
+	case channeltype.InternLM:
+		return "internlm", internlm.ModelList
+	case channeltype.ModelScope:
+		return "modelscope", modelscope.ModelList
+	case channeltype.AMDTokenFactory:
+		return "amd-tokenfactory", amdtokenfactory.ModelList
 	default:
 		return "openai", ModelList
 	}

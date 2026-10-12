@@ -697,6 +697,55 @@ var ModelRatio = map[string]float64{
 	"x-ai/grok-beta":                                  7.5,
 	"x-ai/grok-vision-beta":                           7.5,
 	"xwin-lm/xwin-lm-70b":                             1.875,
+	// vercel ai gateway（openai/* 与 google/* 系列 OpenRouter 段已登记，此处补充 anthropic 新模型）
+	"anthropic/claude-sonnet-5": 3.0 / 1000 * USD, // $3.00 / 1M input tokens
+	"anthropic/claude-opus-5":   5.0 / 1000 * USD, // $5.00 / 1M input tokens
+	"deepseek/deepseek-r1(54)":  0.55 * MILLI_USD, // Vercel 按 DeepSeek 官方价透传
+	// vercel ai gateway：其余透传官方价（$1/M = 0.5）
+	"openai/gpt-5-nano":           0.025, // $0.05 / 1M input tokens
+	"anthropic/claude-sonnet-4.5": 1.5,   // $3.00 / 1M input tokens
+	"anthropic/claude-haiku-4.5":  0.5,   // $1.00 / 1M input tokens
+	"xai/grok-4":                  1.5,   // $3.00 / 1M input tokens
+	"meta/llama-4-maverick":       0.075, // $0.15 / 1M input tokens
+	"mistral/mistral-large":       1.0,   // $2.00 / 1M input tokens
+	// 美团龙猫（限时折扣价：输入 $0.30 / 输出 $1.20 每 1M tokens）
+	"LongCat-2.5-Preview": 0.15,
+	"LongCat-2.0":         0.15,
+	"LongCat-Flash-Chat":  0.15,
+	"LongCat-Flash-Lite":  0.05,
+	// 模力方舟 moark（人民币价，¥1/M = RMB/1000）
+	"DeepSeek-V4-Pro":               12.0 / 1000 * RMB, // ¥12 / 1M input tokens
+	"DeepSeek-V4-Pro-0813":          9.0 / 1000 * RMB,  // ¥9 / 1M input tokens
+	"DeepSeek-V4-Flash":             1.0 / 1000 * RMB,  // ¥1 / 1M input tokens
+	"DeepSeek-V4-Flash-0731":        3.0 / 1000 * RMB,  // ¥3 / 1M input tokens
+	"DeepSeek-R1-Distill-Qwen-1.5B": 0,                 // moark 免费层
+	// 书生 internlm（官方 API 价）
+	"intern-s1":          0.5, // $1.00 / 1M input tokens
+	"internlm3-latest":   0.1, // $0.20 / 1M input tokens
+	"intern-s1-pro":      0.5, // 官方未公布，暂按 intern-s1
+	"intern-latest":      0.1, // 暂按 internlm3-latest
+	"internvl2.5-latest": 0.5, // 官方未公布，暂按 intern-s1 档
+	// modelscope api-inference（按模型官方价格）
+	"deepseek-ai/DeepSeek-R1":         0.55 * MILLI_USD, // $0.55 / 1M input tokens
+	"ZhipuAI/GLM-5.1":                 1.4 * MILLI_USD,  // $1.40 / 1M input tokens
+	"Qwen/Qwen2.5-Coder-32B-Instruct": 0.002 * RMB,      // ¥0.002 / 1K input tokens
+	// modelscope api-inference：免费层模型（渠道 59 单独计 0）
+	"Qwen/Qwen3.5-35B-A3B(59)":         0,
+	"Qwen/Qwen2.5-VL-72B-Instruct(59)": 0,
+	"deepseek-ai/DeepSeek-V4-Pro(59)":  0,
+	// amd tokenfactory：Public Free Model APIs 免费（渠道 60 单独计 0）
+	"DeepSeek-V4-Flash(60)":            0,
+	"DeepSeek-V4-Flash-Vision-Exp(60)": 0,
+	"Qwen3.8-Flash-Next(60)":           0,
+	"MiniCPM5-1B(60)":                  0,
+	"GLM-5.3-Flash(60)":                0,
+	// lm studio：本地推理免费（渠道 56 单独计 0）
+	"openai/gpt-oss-20b(56)":                0,
+	"openai/gpt-oss-120b(56)":               0,
+	"qwen/qwen3-coder-30b(56)":              0,
+	"qwen/qwen3-32b(56)":                    0,
+	"google/gemma-3-27b-it(56)":             0,
+	"meta-llama/llama-3.3-70b-instruct(56)": 0,
 }
 
 var CompletionRatio = map[string]float64{
@@ -757,6 +806,44 @@ var CompletionRatio = map[string]float64{
 	"mimo-v2.5-pro":            0.87 / 0.435,
 	// opencode zen
 	"qwen3-coder-480b": 7.5 / 1.5,
+	// vercel ai gateway
+	"openai/gpt-5":              10.0 / 1.25,
+	"openai/gpt-5-mini":         2.0 / 0.25,
+	"openai/gpt-4.1":            8.0 / 2.0,
+	"openai/o3":                 8.0 / 2.0,
+	"anthropic/claude-sonnet-5": 15.0 / 3.0,
+	"anthropic/claude-opus-5":   25.0 / 5.0,
+	"google/gemini-2.5-pro":     10.0 / 1.25,
+	"google/gemini-2.5-flash":   2.5 / 0.3,
+	"deepseek/deepseek-r1(54)":  2.19 / 0.55, // Vercel 按 DeepSeek 官方价透传
+	// vercel ai gateway：其余透传官方价
+	"openai/gpt-5-nano":           0.4 / 0.05,
+	"anthropic/claude-sonnet-4.5": 15.0 / 3.0,
+	"anthropic/claude-haiku-4.5":  5.0 / 1.0,
+	"xai/grok-4":                  15.0 / 3.0,
+	"meta/llama-4-maverick":       0.6 / 0.15,
+	"mistral/mistral-large":       6.0 / 2.0,
+	// 美团龙猫（限时折扣价：输出 $1.20 / 1M tokens）
+	"LongCat-2.5-Preview": 1.2 / 0.3,
+	"LongCat-2.0":         1.2 / 0.3,
+	"LongCat-Flash-Chat":  1.2 / 0.3,
+	"LongCat-Flash-Lite":  0.4 / 0.1,
+	// 模力方舟 moark（人民币价）
+	"DeepSeek-V4-Pro":               24.0 / 12.0,
+	"DeepSeek-V4-Pro-0813":          27.0 / 9.0,
+	"DeepSeek-V4-Flash":             2.0 / 1.0,
+	"DeepSeek-V4-Flash-0731":        9.0 / 3.0,
+	"DeepSeek-R1-Distill-Qwen-1.5B": 0, // moark 免费层
+	// 书生 internlm
+	"intern-s1":          5.0 / 1.0,
+	"internlm3-latest":   0.6 / 0.2,
+	"intern-s1-pro":      5.0 / 1.0,
+	"intern-latest":      0.6 / 0.2,
+	"internvl2.5-latest": 5.0 / 1.0,
+	// modelscope api-inference
+	"deepseek-ai/DeepSeek-R1":         2.19 / 0.55,
+	"ZhipuAI/GLM-5.1":                 4.4 / 1.4,
+	"Qwen/Qwen2.5-Coder-32B-Instruct": 8.0 / 2.0, // ¥8 / 1M output tokens
 }
 
 var (
