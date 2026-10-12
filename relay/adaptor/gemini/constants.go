@@ -1,6 +1,8 @@
 package gemini
 
 import (
+	"strings"
+
 	"github.com/songquanpeng/one-api/relay/adaptor/geminiv2"
 )
 
@@ -25,6 +27,9 @@ var ModelsSupportSystemInstruction = []string{
 //
 // Because the main version of Go is 1.20, slice.Contains cannot be used
 func IsModelSupportSystemInstruction(model string) bool {
+	if strings.HasPrefix(model, "gemini-1.5-") || strings.HasPrefix(model, "gemini-2.") || strings.HasPrefix(model, "gemini-3.") {
+		return true
+	}
 	for _, m := range ModelsSupportSystemInstruction {
 		if m == model {
 			return true
