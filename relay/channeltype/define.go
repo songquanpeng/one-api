@@ -53,5 +53,7 @@ const (
 	AliBailian
 	OpenAICompatible
 	GeminiOpenAICompatible
+	XiaomiMiMo
+	OpenCodeZen
 	Dummy
 )

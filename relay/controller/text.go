@@ -20,18 +20,32 @@ import (
 	"github.com/songquanpeng/one-api/relay/channeltype"
 	"github.com/songquanpeng/one-api/relay/meta"
 	"github.com/songquanpeng/one-api/relay/model"
+	"github.com/songquanpeng/one-api/relay/relaymode"
 )
 
 func RelayTextHelper(c *gin.Context) *model.ErrorWithStatusCode {
 	ctx := c.Request.Context()
 	meta := meta.GetByContext(c)
 	// get & validate textRequest
-	textRequest, err := getAndValidateTextRequest(c, meta.Mode)
+	var textRequest *model.GeneralOpenAIRequest
+	var err error
+	if meta.Mode == relaymode.Responses {
+		// Responses API 请求需转换为内部 Chat Completions 请求
+		textRequest, err = getAndValidateResponsesRequest(c)
+	} else {
+		textRequest, err = getAndValidateTextRequest(c, meta.Mode)
+	}
 	if err != nil {
 		logger.Errorf(ctx, "getAndValidateTextRequest failed: %s", err.Error())
 		return openai.ErrorWrapper(err, "invalid_text_request", http.StatusBadRequest)
 	}
 	meta.IsStream = textRequest.Stream
+
+	if meta.Mode == relaymode.Responses {
+		// Responses 请求已转换为 Chat Completions 请求体，同步修正上游请求路径，
+		// 避免 adaptor 仍按 /v1/responses 路径向上游转发
+		meta.RequestURLPath = "/v1/chat/completions"
+	}
 
 	// map model name
 	meta.OriginModelName = textRequest.Model
@@ -76,7 +90,13 @@ func RelayTextHelper(c *gin.Context) *model.ErrorWithStatusCode {
 	}
 
 	// do response
-	usage, respErr := adaptor.DoResponse(c, resp, meta)
+	var usage *model.Usage
+	var respErr *model.ErrorWithStatusCode
+	if meta.Mode == relaymode.Responses {
+		usage, respErr = responsesDoResponse(c, resp, meta)
+	} else {
+		usage, respErr = adaptor.DoResponse(c, resp, meta)
+	}
 	if respErr != nil {
 		logger.Errorf(ctx, "respErr is not nil: %+v", respErr)
 		billing.ReturnPreConsumedQuota(ctx, preConsumedQuota, meta.TokenId)
@@ -88,7 +108,11 @@ func RelayTextHelper(c *gin.Context) *model.ErrorWithStatusCode {
 }
 
 func getRequestBody(c *gin.Context, meta *meta.Meta, textRequest *model.GeneralOpenAIRequest, adaptor adaptor.Adaptor) (io.Reader, error) {
-	if !config.EnforceIncludeUsage &&
+	convertMode := meta.Mode
+	if meta.Mode == relaymode.Responses {
+		// Responses 模式的请求体为 Responses 格式，必须转换为 Chat Completions 格式后发送
+		convertMode = relaymode.ChatCompletions
+	} else if !config.EnforceIncludeUsage &&
 		meta.APIType == apitype.OpenAI &&
 		meta.OriginModelName == meta.ActualModelName &&
 		meta.ChannelType != channeltype.Baichuan &&
@@ -99,7 +123,7 @@ func getRequestBody(c *gin.Context, meta *meta.Meta, textRequest *model.GeneralO
 
 	// get request body
 	var requestBody io.Reader
-	convertedRequest, err := adaptor.ConvertRequest(c, meta.Mode, textRequest)
+	convertedRequest, err := adaptor.ConvertRequest(c, convertMode, textRequest)
 	if err != nil {
 		logger.Debugf(c.Request.Context(), "converted request failed: %s\n", err.Error())
 		return nil, err

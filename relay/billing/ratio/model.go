@@ -61,6 +61,24 @@ var ModelRatio = map[string]float64{
 	"o1-mini-2024-09-12":      1.5,
 	"o3-mini":                 1.5, // $3.00 / 1M input tokens
 	"o3-mini-2025-01-31":      1.5,
+	"gpt-4.1":                 2 * MILLI_USD, // $2.00 / 1M input tokens
+	"gpt-4.1-2025-04-14":      2 * MILLI_USD,
+	"gpt-4.1-mini":            0.4 * MILLI_USD, // $0.40 / 1M input tokens
+	"gpt-4.1-mini-2025-04-14": 0.4 * MILLI_USD,
+	"gpt-4.1-nano":            0.1 * MILLI_USD, // $0.10 / 1M input tokens
+	"gpt-4.1-nano-2025-04-14": 0.1 * MILLI_USD,
+	"o3":                      2 * MILLI_USD, // $2.00 / 1M input tokens
+	"o3-2025-04-16":           2 * MILLI_USD,
+	"o4-mini":                 1.1 * MILLI_USD, // $1.10 / 1M input tokens
+	"o4-mini-2025-04-16":      1.1 * MILLI_USD,
+	"gpt-5":                   1.25 * MILLI_USD, // $1.25 / 1M input tokens
+	"gpt-5-2025-08-07":        1.25 * MILLI_USD,
+	"gpt-5-mini":              0.25 * MILLI_USD, // $0.25 / 1M input tokens
+	"gpt-5-mini-2025-08-07":   0.25 * MILLI_USD,
+	"gpt-5-nano":              0.05 * MILLI_USD, // $0.05 / 1M input tokens
+	"gpt-5-nano-2025-08-07":   0.05 * MILLI_USD,
+	"gpt-5-codex":             1.25 * MILLI_USD,
+	"gpt-5-chat-latest":       1.25 * MILLI_USD,
 	"davinci-002":             1,   // $0.002 / 1K tokens
 	"babbage-002":             0.2, // $0.0004 / 1K tokens
 	"text-ada-001":            0.2,
@@ -98,6 +116,12 @@ var ModelRatio = map[string]float64{
 	"claude-3-5-sonnet-20240620": 3.0 / 1000 * USD,
 	"claude-3-5-sonnet-20241022": 3.0 / 1000 * USD,
 	"claude-3-5-sonnet-latest":   3.0 / 1000 * USD,
+	"claude-sonnet-4-20250514":   3.0 / 1000 * USD,
+	"claude-sonnet-4-5":          3.0 / 1000 * USD,
+	"claude-opus-4-20250514":     15.0 / 1000 * USD,
+	"claude-opus-4-1-20250805":   15.0 / 1000 * USD,
+	"claude-opus-4-5-20251101":   5.0 / 1000 * USD,
+	"claude-haiku-4-5-20251001":  1.0 / 1000 * USD,
 	"claude-3-opus-20240229":     15.0 / 1000 * USD,
 	// https://cloud.baidu.com/doc/WENXINWORKSHOP/s/hlrk4akp7
 	"ERNIE-4.0-8K":       0.120 * RMB,
@@ -135,6 +159,11 @@ var ModelRatio = map[string]float64{
 	"gemini-2.0-flash-lite-preview-02-05": 0.075 * MILLI_USD,
 	"gemini-2.0-flash-thinking-exp-01-21": 0.075 * MILLI_USD,
 	"gemini-2.0-pro-exp-02-05":            1.25 * MILLI_USD,
+	"gemini-2.5-flash":                    0.3 * MILLI_USD,  // $0.30 / 1M input tokens
+	"gemini-2.5-flash-lite":               0.1 * MILLI_USD,  // $0.10 / 1M input tokens
+	"gemini-2.5-pro":                      1.25 * MILLI_USD, // $1.25 / 1M input tokens
+	"gemini-2.5-flash-preview-05-20":      0.3 * MILLI_USD,
+	"gemini-2.5-pro-preview-06-05":        1.25 * MILLI_USD,
 	"aqa":                                 1,
 	// https://open.bigmodel.cn/pricing
 	"glm-zero-preview": 0.01 * RMB,
@@ -160,6 +189,27 @@ var ModelRatio = map[string]float64{
 	"codegeex-4":       0.0001 * RMB,
 	"embedding-2":      0.0005 * RMB,
 	"embedding-3":      0.0005 * RMB,
+	// GLM-4.5 / 4.6 / 4.7 / 5 系列，价格来自 z.ai 官方定价页（2026-10）
+	"glm-4.6":         0.6 * MILLI_USD,
+	"glm-4.5":         0.6 * MILLI_USD,
+	"glm-4.5-air":     0.2 * MILLI_USD,
+	"glm-4.5-x":       2.2 * MILLI_USD,
+	"glm-4.5-airx":    1.1 * MILLI_USD,
+	"glm-4.5-flash":   0, // 免费
+	"glm-4.5v":        2.0 / 1000 * RMB,
+	"glm-4.6v":        1.0 / 1000 * RMB,
+	"glm-4.6v-flashx": 0.15 / 1000 * RMB,
+	"glm-4.6v-flash":  0, // 免费
+	"glm-4.7":         0.6 * MILLI_USD,
+	"glm-4.7-flashx":  0.07 * MILLI_USD,
+	"glm-4.7-flash":   0, // 免费
+	"glm-5":           1.0 * MILLI_USD,
+	"glm-5.1":         1.4 * MILLI_USD,
+	"glm-5.2":         1.4 * MILLI_USD,
+	"glm-5.3":         1.4 * MILLI_USD,
+	"glm-5.3-flash":   0.15 * MILLI_USD,
+	"glm-5.3-flashx":  0.37 * MILLI_USD,
+	"cogview-4":       0.01 * USD, // $0.01 / image
 	// https://help.aliyun.com/zh/dashscope/developer-reference/tongyi-thousand-questions-metering-and-billing
 	"qwen-turbo":                    0.0003 * RMB,
 	"qwen-turbo-latest":             0.0003 * RMB,
@@ -274,9 +324,12 @@ var ModelRatio = map[string]float64{
 	"hunyuan-vision":            0.018 * RMB,
 	"hunyuan-embedding":         0.0007 * RMB,
 	// https://platform.moonshot.cn/pricing
-	"moonshot-v1-8k":   0.012 * RMB,
-	"moonshot-v1-32k":  0.024 * RMB,
-	"moonshot-v1-128k": 0.06 * RMB,
+	"moonshot-v1-8k":       0.012 * RMB,
+	"moonshot-v1-32k":      0.024 * RMB,
+	"moonshot-v1-128k":     0.06 * RMB,
+	"kimi-k2":              4.0 / 1000 * RMB, // ¥4 / 1M input tokens
+	"kimi-k2-0905-preview": 4.0 / 1000 * RMB,
+	"kimi-k2-thinking":     4.0 / 1000 * RMB,
 	// https://platform.baichuan-ai.com/price
 	"Baichuan2-Turbo":      0.008 * RMB,
 	"Baichuan2-Turbo-192k": 0.016 * RMB,
@@ -343,6 +396,20 @@ var ModelRatio = map[string]float64{
 	"deepl-ja": 25.0 / 1000 * USD,
 	// https://console.x.ai/
 	"grok-beta": 5.0 / 1000 * USD,
+	// https://platform.xiaomimimo.com/docs/price/pay-as-you-go
+	"mimo-v2.6-pro":            0.435 * MILLI_USD, // $0.435 / 1M input tokens
+	"mimo-v2.6-flash":          0.14 * MILLI_USD,  // $0.14 / 1M input tokens
+	"mimo-v2.6-pro-ultraspeed": 4.35 * MILLI_USD,  // $4.35 / 1M input tokens
+	"mimo-v2.5-pro":            0.435 * MILLI_USD, // 即将下线（2026-10-21）
+	// https://opencode.ai/docs/zen/ ，付费模型参照各厂商官方定价，以 Zen 控制台实际价格为准
+	"qwen3-coder-480b":            1.5 * MILLI_USD,
+	"minimax-m2.1-free":           0,
+	"big-pickle":                  0,
+	"mimo-v2.5-flash-free":        0,
+	"ling-3.0-flash-fin-free":     0,
+	"nemotron-3-ultra-free":       0,
+	"nemotron-3.5-lightning-free": 0,
+	"glm-4.7-free":                0,
 	// replicate charges based on the number of generated images
 	// https://replicate.com/pricing
 	"black-forest-labs/flux-1.1-pro":                0.04 * USD,
@@ -573,6 +640,17 @@ var ModelRatio = map[string]float64{
 	"openai/o1-preview-2024-09-12":                    30.0,
 	"openai/o3-mini":                                  2.2,
 	"openai/o3-mini-high":                             2.2,
+	"openai/gpt-4.1":                                  1.0,
+	"openai/o3":                                       1.0,
+	"openai/gpt-5":                                    0.625,
+	"openai/gpt-5-mini":                               0.125,
+	"anthropic/claude-sonnet-4":                       1.5,
+	"anthropic/claude-opus-4":                         7.5,
+	"google/gemini-2.5-pro":                           0.625,
+	"google/gemini-2.5-flash":                         0.15,
+	"z-ai/glm-4.6":                                    0.3,
+	"moonshotai/kimi-k2":                              0.3,
+	"deepseek/deepseek-v3":                            0.07,
 	"openchat/openchat-7b":                            0.0275,
 	"openchat/openchat-7b:free":                       0.0,
 	"openrouter/auto":                                 -500000.0,
@@ -630,6 +708,55 @@ var CompletionRatio = map[string]float64{
 	// deepseek
 	"deepseek-chat":     0.28 / 0.14,
 	"deepseek-reasoner": 2.19 / 0.55,
+	// openai
+	"gpt-4.1":      8.0 / 2.0,
+	"gpt-4.1-mini": 1.6 / 0.4,
+	"gpt-4.1-nano": 0.4 / 0.1,
+	"o3":           8.0 / 2.0,
+	"o4-mini":      4.4 / 1.1,
+	"gpt-5":        10.0 / 1.25,
+	"gpt-5-mini":   2.0 / 0.25,
+	"gpt-5-nano":   0.4 / 0.05,
+	"gpt-5-codex":  10.0 / 1.25,
+	// anthropic
+	"claude-sonnet-4-20250514":  15.0 / 3.0,
+	"claude-sonnet-4-5":         15.0 / 3.0,
+	"claude-opus-4-20250514":    75.0 / 15.0,
+	"claude-opus-4-1-20250805":  75.0 / 15.0,
+	"claude-opus-4-5-20251101":  25.0 / 5.0,
+	"claude-haiku-4-5-20251001": 5.0 / 1.0,
+	// gemini
+	"gemini-2.5-flash":      2.5 / 0.3,
+	"gemini-2.5-flash-lite": 0.4 / 0.1,
+	"gemini-2.5-pro":        10.0 / 1.25,
+	// zhipu
+	"glm-4.6":         2.2 / 0.6,
+	"glm-4.5":         2.2 / 0.6,
+	"glm-4.5-air":     1.1 / 0.2,
+	"glm-4.5-x":       8.9 / 2.2,
+	"glm-4.5-airx":    4.5 / 1.1,
+	"glm-4.5v":        6.0 / 2.0,
+	"glm-4.6v":        3.0 / 1.0,
+	"glm-4.6v-flashx": 1.5 / 0.15,
+	"glm-4.7":         2.2 / 0.6,
+	"glm-4.7-flashx":  0.4 / 0.07,
+	"glm-5":           3.2 / 1.0,
+	"glm-5.1":         4.4 / 1.4,
+	"glm-5.2":         4.4 / 1.4,
+	"glm-5.3":         4.4 / 1.4,
+	"glm-5.3-flash":   0.5 / 0.15,
+	"glm-5.3-flashx":  1.25 / 0.37,
+	// moonshot
+	"kimi-k2":              16.0 / 4.0,
+	"kimi-k2-0905-preview": 16.0 / 4.0,
+	"kimi-k2-thinking":     16.0 / 4.0,
+	// xiaomi mimo
+	"mimo-v2.6-pro":            0.87 / 0.435,
+	"mimo-v2.6-flash":          0.28 / 0.14,
+	"mimo-v2.6-pro-ultraspeed": 8.7 / 4.35,
+	"mimo-v2.5-pro":            0.87 / 0.435,
+	// opencode zen
+	"qwen3-coder-480b": 7.5 / 1.5,
 }
 
 var (

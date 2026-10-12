@@ -54,6 +54,9 @@ var ChannelBaseURLs = []string{
 	"",                                          // 50
 
 	"https://generativelanguage.googleapis.com/v1beta/openai/", // 51
+
+	"https://api.xiaomimimo.com/v1", // 52
+	"https://opencode.ai/zen/v1",    // 53
 }
 
 func init() {

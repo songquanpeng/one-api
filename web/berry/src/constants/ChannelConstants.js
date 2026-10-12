@@ -274,5 +274,17 @@ export const CHANNEL_OPTIONS = {
     text: '代理：AIGC2D',
     value: 13,
     color: 'success'
+  },
+  52: {
+    key: 52,
+    text: 'Xiaomi MiMo',
+    value: 52,
+    color: 'warning'
+  },
+  53: {
+    key: 53,
+    text: 'OpenCode Zen',
+    value: 53,
+    color: 'info'
   }
 };
