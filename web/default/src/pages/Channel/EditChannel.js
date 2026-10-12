@@ -45,6 +45,7 @@ const EditChannel = () => {
     base_url: '',
     other: '',
     model_mapping: '',
+    model_ratio: '',
     system_prompt: '',
     models: [],
     groups: ['default'],
@@ -57,6 +58,7 @@ const EditChannel = () => {
   const [basicModels, setBasicModels] = useState([]);
   const [fullModels, setFullModels] = useState([]);
   const [customModel, setCustomModel] = useState('');
+  const [fetchingModels, setFetchingModels] = useState(false);
   const [config, setConfig] = useState({
     region: '',
     sk: '',
@@ -101,6 +103,17 @@ const EditChannel = () => {
           2
         );
       }
+      if (data.model_ratio) {
+        try {
+          data.model_ratio = JSON.stringify(
+            JSON.parse(data.model_ratio),
+            null,
+            2
+          );
+        } catch (e) {
+          // 保留原始值，提交时会校验
+        }
+      }
       setInputs(data);
       if (data.config !== '') {
         setConfig(JSON.parse(data.config));
@@ -140,6 +153,46 @@ const EditChannel = () => {
     } catch (error) {
       showError(error.message);
     }
+  };
+
+  // 从上游 API 拉取模型列表（OpenAI 兼容 /models），合并去重后填入模型选择
+  const fetchUpstreamModels = async () => {
+    if (inputs.type === 43) return;
+    setFetchingModels(true);
+    try {
+      let res = await API.post(`/api/channel/fetch_models`, {
+        base_url: inputs.base_url || '',
+        key: inputs.key || '',
+        type: inputs.type,
+      });
+      const { success, message, data } = res.data;
+      if (success && Array.isArray(data) && data.length > 0) {
+        let localModels = [...inputs.models];
+        data.forEach((model) => {
+          if (model && !localModels.includes(model)) {
+            localModels.push(model);
+          }
+        });
+        let localModelOptions = [...modelOptions];
+        data.forEach((model) => {
+          if (model && !localModelOptions.find((option) => option.key === model)) {
+            localModelOptions.push({
+              key: model,
+              text: model,
+              value: model,
+            });
+          }
+        });
+        setModelOptions(localModelOptions);
+        handleInputChange(null, { name: 'models', value: localModels });
+        showSuccess(t('channel.edit.messages.fetch_models_success', { count: data.length }));
+      } else {
+        showError(t('channel.edit.messages.fetch_models_error') + (message || '上游返回空模型列表'));
+      }
+    } catch (error) {
+      showError(t('channel.edit.messages.fetch_models_error') + error.message);
+    }
+    setFetchingModels(false);
   };
 
   useEffect(() => {
@@ -189,6 +242,10 @@ const EditChannel = () => {
     }
     if (inputs.model_mapping !== '' && !verifyJSON(inputs.model_mapping)) {
       showInfo(t('channel.edit.messages.model_mapping_invalid'));
+      return;
+    }
+    if (inputs.model_ratio !== '' && !verifyJSON(inputs.model_ratio)) {
+      showInfo(t('channel.edit.messages.model_ratio_invalid'));
       return;
     }
     let localInputs = { ...inputs };
@@ -467,6 +524,13 @@ const EditChannel = () => {
                 >
                   {t('channel.edit.buttons.clear')}
                 </Button>
+                <Button
+                  type={'button'}
+                  loading={fetchingModels}
+                  onClick={fetchUpstreamModels}
+                >
+                  {t('channel.edit.buttons.fetch_models')}
+                </Button>
                 <Input
                   action={
                     <Button type={'button'} onClick={addCustomModel}>
@@ -498,6 +562,20 @@ const EditChannel = () => {
                     name='model_mapping'
                     onChange={handleInputChange}
                     value={inputs.model_mapping}
+                    style={{
+                      minHeight: 150,
+                      fontFamily: 'JetBrains Mono, Consolas',
+                    }}
+                    autoComplete='new-password'
+                  />
+                </Form.Field>
+                <Form.Field>
+                  <Form.TextArea
+                    label={t('channel.edit.model_ratio')}
+                    placeholder={t('channel.edit.model_ratio_placeholder')}
+                    name='model_ratio'
+                    onChange={handleInputChange}
+                    value={inputs.model_ratio}
                     style={{
                       minHeight: 150,
                       fontFamily: 'JetBrains Mono, Consolas',

@@ -35,6 +35,13 @@ const OperationSetting = () => {
   });
   const [originInputs, setOriginInputs] = useState({});
   let [loading, setLoading] = useState(false);
+  const [batchRatio, setBatchRatio] = useState({
+    models: '',
+    input: '',
+    output: '',
+    group: '',
+  });
+  const [batchRatioLoading, setBatchRatioLoading] = useState(false);
   let [historyTimestamp, setHistoryTimestamp] = useState(
     timestamp2string(now.getTime() / 1000 - 30 * 24 * 3600)
   ); // a month ago
@@ -182,6 +189,50 @@ const OperationSetting = () => {
     showError('日志清理失败：' + message);
   };
 
+  const submitBatchRatio = async () => {
+    const models = batchRatio.models
+      .split(/[\n,]/)
+      .map((s) => s.trim())
+      .filter((s) => s.length > 0);
+    if (models.length === 0) {
+      showError(t('setting.operation.ratio.batch.models_required'));
+      return;
+    }
+    const input = parseFloat(batchRatio.input);
+    const output =
+      batchRatio.output === '' ? input : parseFloat(batchRatio.output);
+    if (!(input > 0)) {
+      showError(t('setting.operation.ratio.batch.input_required'));
+      return;
+    }
+    if (!(output >= 0)) {
+      showError(t('setting.operation.ratio.batch.output_invalid'));
+      return;
+    }
+    setBatchRatioLoading(true);
+    try {
+      const res = await API.post('/api/option/batch_ratio', {
+        models,
+        input,
+        output,
+        group: batchRatio.group.trim(),
+      });
+      const { success, message, data } = res.data;
+      if (success) {
+        showSuccess(
+          t('setting.operation.ratio.batch.success', { count: data })
+        );
+        setBatchRatio({ models: '', input: '', output: '', group: '' });
+        await getOptions();
+      } else {
+        showError(message);
+      }
+    } catch (error) {
+      showError(error.message);
+    }
+    setBatchRatioLoading(false);
+  };
+
   return (
     <Grid columns={1}>
       <Grid.Column>
@@ -281,6 +332,57 @@ const OperationSetting = () => {
             }}
           >
             {t('setting.operation.ratio.buttons.save')}
+          </Form.Button>
+          <Divider />
+          <Header as='h4'>{t('setting.operation.ratio.batch.title')}</Header>
+          <Form.Group widths='equal'>
+            <Form.TextArea
+              label={t('setting.operation.ratio.batch.models')}
+              placeholder={t('setting.operation.ratio.batch.models_placeholder')}
+              value={batchRatio.models}
+              onChange={(e, { value }) =>
+                setBatchRatio({ ...batchRatio, models: value })
+              }
+              style={{ minHeight: 120, fontFamily: 'JetBrains Mono, Consolas' }}
+            />
+            <div>
+              <Form.Input
+                fluid
+                label={t('setting.operation.ratio.batch.input')}
+                type='number'
+                step='0.0001'
+                min='0'
+                placeholder={t('setting.operation.ratio.batch.input_placeholder')}
+                value={batchRatio.input}
+                onChange={(e, { value }) =>
+                  setBatchRatio({ ...batchRatio, input: value })
+                }
+              />
+              <Form.Input
+                fluid
+                label={t('setting.operation.ratio.batch.output')}
+                type='number'
+                step='0.0001'
+                min='0'
+                placeholder={t('setting.operation.ratio.batch.output_placeholder')}
+                value={batchRatio.output}
+                onChange={(e, { value }) =>
+                  setBatchRatio({ ...batchRatio, output: value })
+                }
+              />
+              <Form.Input
+                fluid
+                label={t('setting.operation.ratio.batch.group')}
+                placeholder={t('setting.operation.ratio.batch.group_placeholder')}
+                value={batchRatio.group}
+                onChange={(e, { value }) =>
+                  setBatchRatio({ ...batchRatio, group: value })
+                }
+              />
+            </div>
+          </Form.Group>
+          <Form.Button loading={batchRatioLoading} onClick={submitBatchRatio}>
+            {t('setting.operation.ratio.batch.apply')}
           </Form.Button>
           <Divider />
           <Header as='h3'>{t('setting.operation.log.title')}</Header>

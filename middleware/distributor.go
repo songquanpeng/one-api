@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -69,6 +70,14 @@ func SetupContextForSelectedChannel(c *gin.Context, channel *model.Channel, mode
 		c.Set(ctxkey.SystemPrompt, *channel.SystemPrompt)
 	}
 	c.Set(ctxkey.ModelMapping, channel.GetModelMapping())
+	if ratioMap := channel.GetModelRatioMap(); ratioMap != nil {
+		c.Set(ctxkey.ChannelModelRatio, ratioMap)
+		// 同时桥接进 request context：postConsumeQuota 等仅持有
+		// c.Request.Context() 的计费路径才能读到渠道级倍率
+		c.Request = c.Request.WithContext(
+			context.WithValue(c.Request.Context(), ctxkey.ChannelModelRatio, ratioMap),
+		)
+	}
 	c.Set(ctxkey.OriginalModel, modelName) // for retry
 	c.Request.Header.Set("Authorization", fmt.Sprintf("Bearer %s", channel.Key))
 	c.Set(ctxkey.BaseURL, channel.GetBaseURL())

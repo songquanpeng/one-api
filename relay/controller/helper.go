@@ -15,6 +15,7 @@ import (
 
 	"github.com/songquanpeng/one-api/common"
 	"github.com/songquanpeng/one-api/common/config"
+	"github.com/songquanpeng/one-api/common/ctxkey"
 	"github.com/songquanpeng/one-api/common/logger"
 	"github.com/songquanpeng/one-api/model"
 	"github.com/songquanpeng/one-api/relay/adaptor/openai"
@@ -55,6 +56,27 @@ func getPromptTokens(textRequest *relaymodel.GeneralOpenAIRequest, relayMode int
 		return openai.CountTokenInput(textRequest.Input, textRequest.Model)
 	}
 	return 0
+}
+
+// getEffectiveModelRatio 计算生效的模型倍率：渠道级每模型独立定价优先，回退全局倍率。
+// 返回 (modelRatio, completionRatio)，completionRatio 为输出价相对输入价的倍数。
+func getEffectiveModelRatio(ctx context.Context, modelName string, channelType int) (float64, float64) {
+	if ctx != nil {
+		if ratioMap, ok := ctx.Value(ctxkey.ChannelModelRatio).(map[string]*model.ModelRatioEntry); ok && ratioMap != nil {
+			if entry, exists := ratioMap[modelName]; exists && entry != nil {
+				completion := entry.Output
+				if completion == 0 && entry.Completed != 0 {
+					completion = entry.Completed
+				}
+				if completion == 0 || entry.Input == 0 {
+					// 未指定输出倍率或输入为 0（免费）时，输出按输入同价
+					return entry.Input, 1.0
+				}
+				return entry.Input, completion / entry.Input
+			}
+		}
+	}
+	return billingratio.GetModelRatio(modelName, channelType), billingratio.GetCompletionRatio(modelName, channelType)
 }
 
 func getPreConsumedQuota(textRequest *relaymodel.GeneralOpenAIRequest, promptTokens int, ratio float64) int64 {
@@ -100,7 +122,7 @@ func postConsumeQuota(ctx context.Context, usage *relaymodel.Usage, meta *meta.M
 		return
 	}
 	var quota int64
-	completionRatio := billingratio.GetCompletionRatio(textRequest.Model, meta.ChannelType)
+	_, completionRatio := getEffectiveModelRatio(ctx, textRequest.Model, meta.ChannelType)
 	promptTokens := usage.PromptTokens
 	completionTokens := usage.CompletionTokens
 	quota = int64(math.Ceil((float64(promptTokens) + float64(completionTokens)*completionRatio) * ratio))

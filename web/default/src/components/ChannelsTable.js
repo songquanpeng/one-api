@@ -1,6 +1,18 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {useTranslation} from 'react-i18next';
-import {Button, Dropdown, Form, Input, Label, Message, Pagination, Popup, Table,} from 'semantic-ui-react';
+import {
+  Button,
+  Checkbox,
+  Dropdown,
+  Form,
+  Input,
+  Label,
+  Loader,
+  Message,
+  Pagination,
+  Popup,
+  Table,
+} from 'semantic-ui-react';
 import {Link} from 'react-router-dom';
 import {
   API,
@@ -87,6 +99,11 @@ const ChannelsTable = () => {
   const [updatingBalance, setUpdatingBalance] = useState(false);
   const [showPrompt, setShowPrompt] = useState(shouldShowPrompt(promptID));
   const [showDetail, setShowDetail] = useState(isShowDetail());
+  const [selectedIds, setSelectedIds] = useState(new Set());
+  const [batchTesting, setBatchTesting] = useState(false);
+  const [batchTestStatus, setBatchTestStatus] = useState(null);
+  const [deleting, setDeleting] = useState(false);
+  const batchTestTimer = useRef(null);
 
   const processChannelData = (channel) => {
     if (channel.models === '') {
@@ -158,6 +175,14 @@ const ChannelsTable = () => {
         showError(reason);
       });
     loadChannelModels().then();
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (batchTestTimer.current) {
+        clearTimeout(batchTestTimer.current);
+      }
+    };
   }, []);
 
   const manageChannel = async (id, action, idx, value) => {
@@ -336,14 +361,120 @@ const ChannelsTable = () => {
     setChannels(newChannels);
   };
 
-  const testChannels = async (scope) => {
+  const onBatchTestFinished = (status) => {
+    const results = status?.results || [];
+    const failed = results.filter((r) => !r.success).map((r) => r.id);
+    const passed = results.length - failed.length;
+    if (failed.length > 0) {
+      // 自动勾选测试不通过的渠道，便于一键批量删除
+      setSelectedIds((prev) => {
+        const next = new Set(prev);
+        failed.forEach((id) => next.add(id));
+        return next;
+      });
+      showInfo(
+        t('channel.messages.batch_test_finished', {
+          passed,
+          failed: failed.length,
+        })
+      );
+    } else if (results.length > 0) {
+      showSuccess(
+        t('channel.messages.batch_test_all_passed', { passed })
+      );
+    }
+    refresh();
+  };
+
+  const startBatchTest = async (scope) => {
+    if (batchTesting) return;
+    setBatchTesting(true);
+    setBatchTestStatus(null);
+    setSelectedIds(new Set());
     const res = await API.get(`/api/channel/test?scope=${scope}`);
     const { success, message } = res.data;
-    if (success) {
-      showInfo(t('channel.messages.test_all_started'));
-    } else {
+    if (!success) {
       showError(message);
+      setBatchTesting(false);
+      return;
     }
+    showInfo(t('channel.messages.test_all_started'));
+    const poll = async () => {
+      try {
+        const statusRes = await API.get('/api/channel/batch_test/status');
+        const status = statusRes.data?.data;
+        if (status) {
+          setBatchTestStatus(status);
+          if (status.running) {
+            batchTestTimer.current = setTimeout(poll, 2000);
+            return;
+          }
+          setBatchTesting(false);
+          onBatchTestFinished(status);
+          return;
+        }
+      } catch (error) {
+        // 网络异常时继续轮询
+      }
+      batchTestTimer.current = setTimeout(poll, 2000);
+    };
+    poll();
+  };
+
+  const toggleSelect = (id) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    const visibleIds = channels
+      .slice(
+        (activePage - 1) * ITEMS_PER_PAGE,
+        activePage * ITEMS_PER_PAGE
+      )
+      .filter((channel) => !channel.deleted)
+      .map((channel) => channel.id);
+    const allSelected = visibleIds.every((id) => selectedIds.has(id));
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (allSelected) {
+        visibleIds.forEach((id) => next.delete(id));
+      } else {
+        visibleIds.forEach((id) => next.add(id));
+      }
+      return next;
+    });
+  };
+
+  const deleteSelectedChannels = async () => {
+    if (selectedIds.size === 0) return;
+    setDeleting(true);
+    try {
+      const res = await API.post('/api/channel/batch_delete', {
+        ids: Array.from(selectedIds),
+      });
+      const { success, message, data } = res.data;
+      if (success) {
+        showSuccess(
+          t('channel.messages.batch_delete_success', { count: data })
+        );
+        setSelectedIds(new Set());
+        setBatchTestStatus(null);
+        await refresh();
+      } else {
+        showError(message);
+      }
+    } catch (error) {
+      showError(error.message);
+    }
+    setDeleting(false);
   };
 
   const deleteAllDisabledChannels = async () => {
@@ -440,6 +571,27 @@ const ChannelsTable = () => {
       <Table basic={'very'} compact size='small'>
         <Table.Header>
           <Table.Row>
+            <Table.HeaderCell>
+              <Checkbox
+                checked={
+                  channels
+                    .slice(
+                      (activePage - 1) * ITEMS_PER_PAGE,
+                      activePage * ITEMS_PER_PAGE
+                    )
+                    .filter((channel) => !channel.deleted)
+                    .length > 0 &&
+                  channels
+                    .slice(
+                      (activePage - 1) * ITEMS_PER_PAGE,
+                      activePage * ITEMS_PER_PAGE
+                    )
+                    .filter((channel) => !channel.deleted)
+                    .every((channel) => selectedIds.has(channel.id))
+                }
+                onChange={toggleSelectAll}
+              />
+            </Table.HeaderCell>
             <Table.HeaderCell
               style={{ cursor: 'pointer' }}
               onClick={() => {
@@ -522,6 +674,12 @@ const ChannelsTable = () => {
               if (channel.deleted) return <></>;
               return (
                 <Table.Row key={channel.id}>
+                  <Table.Cell>
+                    <Checkbox
+                      checked={selectedIds.has(channel.id)}
+                      onChange={() => toggleSelect(channel.id)}
+                    />
+                  </Table.Cell>
                   <Table.Cell>{channel.id}</Table.Cell>
                   <Table.Cell>
                     {channel.name ? channel.name : t('channel.table.no_name')}
@@ -664,24 +822,24 @@ const ChannelsTable = () => {
 
         <Table.Footer>
           <Table.Row>
-            <Table.HeaderCell colSpan={showDetail ? '10' : '8'}>
+            <Table.HeaderCell colSpan={showDetail ? '11' : '9'}>
               <Button size='tiny' as={Link} to='/channel/add' loading={loading}>
                 {t('channel.buttons.add')}
               </Button>
               <Button
                 size='tiny'
-                loading={loading}
+                loading={loading || batchTesting}
                 onClick={() => {
-                  testChannels('all');
+                  startBatchTest('all');
                 }}
               >
                 {t('channel.buttons.test_all')}
               </Button>
               <Button
                 size='tiny'
-                loading={loading}
+                loading={loading || batchTesting}
                 onClick={() => {
-                  testChannels('disabled');
+                  startBatchTest('disabled');
                 }}
               >
                 {t('channel.buttons.test_disabled')}
@@ -705,6 +863,55 @@ const ChannelsTable = () => {
                   {t('channel.buttons.confirm_delete_disabled')}
                 </Button>
               </Popup>
+              <Popup
+                trigger={
+                  <Button
+                    size='tiny'
+                    negative
+                    loading={deleting}
+                    disabled={selectedIds.size === 0}
+                  >
+                    {t('channel.buttons.delete_selected')} ({selectedIds.size})
+                  </Button>
+                }
+                on='click'
+                flowing
+                hoverable
+              >
+                <Button
+                  size='tiny'
+                  loading={deleting}
+                  negative
+                  disabled={selectedIds.size === 0}
+                  onClick={deleteSelectedChannels}
+                >
+                  {t('channel.buttons.confirm_delete_selected')}{' '}
+                  {selectedIds.size}
+                </Button>
+              </Popup>
+              {batchTesting && batchTestStatus && (
+                <span style={{ marginLeft: '8px', color: 'grey' }}>
+                  <Loader active inline size='tiny' />
+                  {t('channel.messages.batch_testing', {
+                    done: batchTestStatus.done,
+                    total: batchTestStatus.total,
+                  })}
+                </span>
+              )}
+              {!batchTesting &&
+                batchTestStatus &&
+                batchTestStatus.results.length > 0 && (
+                  <span style={{ marginLeft: '8px', color: 'grey' }}>
+                    {t('channel.messages.batch_test_result_summary', {
+                      passed: batchTestStatus.results.filter(
+                        (r) => r.success
+                      ).length,
+                      failed: batchTestStatus.results.filter(
+                        (r) => !r.success
+                      ).length,
+                    })}
+                  </span>
+                )}
               <Pagination
                 floated='right'
                 activePage={activePage}

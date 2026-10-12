@@ -38,6 +38,7 @@ type Channel struct {
 	Priority           *int64  `json:"priority" gorm:"bigint;default:0"`
 	Config             string  `json:"config"`
 	SystemPrompt       *string `json:"system_prompt" gorm:"type:text"`
+	ModelRatio         string  `json:"model_ratio" gorm:"type:text"` // per-model pricing: {"model": {"input": 1.25, "output": 10}}
 }
 
 type ChannelConfig struct {
@@ -124,6 +125,70 @@ func (channel *Channel) GetModelMapping() map[string]string {
 	return modelMapping
 }
 
+// ModelRatioEntry 单模型独立定价（单位与全局 ModelRatio 一致：1 === $0.002 / 1K tokens）
+type ModelRatioEntry struct {
+	Input     float64 `json:"input"`
+	Output    float64 `json:"output,omitempty"` // 缺省时按 input 计
+	Completed float64 `json:"completed,omitempty"`
+}
+
+// GetModelRatioMap 解析渠道级每模型倍率；非法 JSON 返回 nil
+func (channel *Channel) GetModelRatioMap() map[string]*ModelRatioEntry {
+	if channel.ModelRatio == "" || channel.ModelRatio == "{}" {
+		return nil
+	}
+	ratioMap := make(map[string]*ModelRatioEntry)
+	if err := json.Unmarshal([]byte(channel.ModelRatio), &ratioMap); err != nil {
+		logger.SysError(fmt.Sprintf("failed to unmarshal model ratio for channel %d, error: %s", channel.Id, err.Error()))
+		return nil
+	}
+	return ratioMap
+}
+
+// GetModelRatio 返回该渠道对指定模型的独立倍率（input, completion, ok）
+func (channel *Channel) GetModelRatio(name string) (float64, float64, bool) {
+	ratioMap := channel.GetModelRatioMap()
+	if ratioMap == nil {
+		return 0, 0, false
+	}
+	entry, ok := ratioMap[name]
+	if !ok || entry == nil {
+		return 0, 0, false
+	}
+	completion := entry.Output
+	if completion == 0 && entry.Completed != 0 {
+		completion = entry.Completed
+	}
+	return entry.Input, completion, true
+}
+
+// BatchDeleteChannels 按 id 批量删除渠道及其能力记录
+func BatchDeleteChannels(ids []int) (int64, error) {
+	if len(ids) == 0 {
+		return 0, nil
+	}
+	tx := DB.Begin()
+	var count int64
+	for _, id := range ids {
+		channel := Channel{Id: id}
+		result := tx.Delete(&channel)
+		if result.Error != nil {
+			tx.Rollback()
+			return count, result.Error
+		}
+		count += result.RowsAffected
+	}
+	if err := tx.Commit().Error; err != nil {
+		return count, err
+	}
+	// 清理 ability 表残留
+	for _, id := range ids {
+		channel := Channel{Id: id}
+		_ = channel.DeleteAbilities()
+	}
+	return count, nil
+}
+
 func (channel *Channel) Insert() error {
 	var err error
 	err = DB.Create(channel).Error
@@ -138,6 +203,10 @@ func (channel *Channel) Update() error {
 	var err error
 	err = DB.Model(channel).Updates(channel).Error
 	if err != nil {
+		return err
+	}
+	// ModelRatio 可能被清空为零值，struct 更新会被 gorm 跳过，需显式写入
+	if err := DB.Model(channel).Update("model_ratio", channel.ModelRatio).Error; err != nil {
 		return err
 	}
 	DB.Model(channel).First(channel, "id = ?", channel.Id)

@@ -79,7 +79,10 @@
       "confirm_delete_disabled": "确认删除",
       "refresh": "刷新",
       "show_detail": "详情",
-      "hide_detail": "隐藏详情"
+      "hide_detail": "隐藏详情",
+      "delete_selected": "删除勾选",
+      "confirm_delete_selected": "确认删除勾选的",
+      "fetch_models": "获取上游模型"
     },
     "messages": {
       "test_success": "渠道 {{name}} 测试成功，模型 {{model}}，耗时 {{time}} 秒，模型输出：{{message}}",
@@ -87,7 +90,12 @@
       "delete_disabled_success": "已删除所有禁用渠道，共计 {{count}} 个",
       "balance_update_success": "渠道 {{name}} 余额更新成功！",
       "all_balance_updated": "已更新完毕所有已启用渠道余额！",
-      "operation_success": "操作成功完成！"
+      "operation_success": "操作成功完成！",
+      "batch_testing": "批量测试进行中：{{done}}/{{total}}",
+      "batch_test_finished": "批量测试完成：{{passed}} 个通过，{{failed}} 个未通过（已自动勾选）",
+      "batch_test_all_passed": "批量测试完成：{{passed}} 个渠道全部通过",
+      "batch_delete_success": "已删除 {{count}} 个渠道",
+      "batch_test_result_summary": "上次测试：{{passed}} 个通过 / {{failed}} 个失败"
     },
     "edit": {
       "title_edit": "更新渠道信息",
@@ -119,14 +127,18 @@
         "fill_all": "填入所有模型",
         "clear": "清除所有模型",
         "add_custom": "填入",
-        "custom_placeholder": "输入自定义模型名称"
+        "custom_placeholder": "输入自定义模型名称",
+        "fetch_models": "获取上游模型"
       },
       "messages": {
         "name_required": "请填写渠道名称和渠道密钥！",
         "models_required": "请至少选择一个模型！",
         "model_mapping_invalid": "模型映射必须是合法的 JSON 格式！",
         "update_success": "渠道更新成功！",
-        "create_success": "渠道创建成功！"
+        "create_success": "渠道创建成功！",
+        "model_ratio_invalid": "模型倍率必须是合法的 JSON 格式！",
+        "fetch_models_success": "成功获取 {{count}} 个上游模型！",
+        "fetch_models_error": "获取上游模型失败："
       },
       "spark_version": "模型版本",
       "spark_version_placeholder": "请输入星火大模型版本，注意是接口地址中的版本号，例如：v2.1",
@@ -154,7 +166,9 @@
         "spark": "按照如下格式输入：APPID|APISecret|APIKey",
         "fastgpt": "按照如下格式输入：APIKey-AppId，例如：fastgpt-0sp2gtvfdgyi4k30jwlgwf1i-64f335d84283f05518e9e041",
         "tencent": "按照如下格式输入：AppId|SecretId|SecretKey"
-      }
+      },
+      "model_ratio": "模型倍率（每模型独立定价）",
+      "model_ratio_placeholder": "JSON 格式：{\"模型名\": {\"input\": 输入倍率, \"output\": 输出倍率}}。input/output 为绝对倍率（1 === $0.002/1K tokens），未填写 output 时输出按 input 同价。例：{\"gpt-4\": {\"input\": 2, \"output\": 4}}"
     }
   },
   "token": {
@@ -629,6 +643,22 @@
         "group": {
           "title": "分组倍率",
           "placeholder": "为一个 JSON 文本，键为分组名称，值为倍率"
+        },
+        "batch": {
+          "title": "批量调价（统一调整一组模型的倍率）",
+          "models": "模型列表",
+          "models_placeholder": "每行一个模型名称，或用逗号分隔。支持 name(group) 复合键直接指定定价分组",
+          "models_required": "请至少填写一个模型名称",
+          "input": "输入倍率",
+          "input_placeholder": "绝对倍率，1 === $0.002/1K tokens",
+          "input_required": "输入倍率必须为大于 0 的数值",
+          "output": "输出倍率",
+          "output_placeholder": "留空表示与输入同价",
+          "output_invalid": "输出倍率必须为非负数值",
+          "group": "定价分组（可选）",
+          "group_placeholder": "填写分组名时，倍率仅对该分组生效，键名为 模型名(分组名)",
+          "apply": "应用批量调价",
+          "success": "已更新 {{count}} 个模型的倍率"
         },
         "buttons": {
           "save": "保存倍率设置"

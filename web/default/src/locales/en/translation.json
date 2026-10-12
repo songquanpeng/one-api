@@ -79,7 +79,10 @@
       "confirm_delete_disabled": "Confirm Delete",
       "refresh": "Refresh",
       "show_detail": "Details",
-      "hide_detail": "Hide Details"
+      "hide_detail": "Hide Details",
+      "delete_selected": "Delete Selected",
+      "confirm_delete_selected": "Confirm delete selected",
+      "fetch_models": "Fetch Upstream Models"
     },
     "messages": {
       "test_success": "Channel {{name}} test successful, model {{model}}, time {{time}}s, output: {{message}}",
@@ -87,7 +90,12 @@
       "delete_disabled_success": "Deleted all disabled channels, total: {{count}}",
       "balance_update_success": "Channel {{name}} balance updated successfully!",
       "all_balance_updated": "All enabled channel balances have been updated!",
-      "operation_success": "Operation completed successfully!"
+      "operation_success": "Operation completed successfully!",
+      "batch_testing": "Batch testing: {{done}}/{{total}}",
+      "batch_test_finished": "Batch test done: {{passed}} passed, {{failed}} failed (auto-selected)",
+      "batch_test_all_passed": "Batch test done: all {{passed}} channels passed",
+      "batch_delete_success": "Deleted {{count}} channels",
+      "batch_test_result_summary": "Last run: {{passed}} passed / {{failed}} failed"
     },
     "edit": {
       "title_edit": "Update Channel Information",
@@ -119,14 +127,18 @@
         "fill_all": "Fill All Models",
         "clear": "Clear All Models",
         "add_custom": "Add",
-        "custom_placeholder": "Enter custom model name"
+        "custom_placeholder": "Enter custom model name",
+        "fetch_models": "Fetch Upstream Models"
       },
       "messages": {
         "name_required": "Please enter channel name and key!",
         "models_required": "Please select at least one model!",
         "model_mapping_invalid": "Model mapping must be valid JSON format!",
         "update_success": "Channel updated successfully!",
-        "create_success": "Channel created successfully!"
+        "create_success": "Channel created successfully!",
+        "model_ratio_invalid": "Model ratio must be valid JSON!",
+        "fetch_models_success": "Fetched {{count}} upstream models!",
+        "fetch_models_error": "Failed to fetch upstream models: "
       },
       "spark_version": "Model Version",
       "spark_version_placeholder": "Please enter Spark model version from API URL, e.g.: v2.1",
@@ -154,7 +166,9 @@
         "spark": "Enter in format: APPID|APISecret|APIKey",
         "fastgpt": "Enter in format: APIKey-AppId, e.g.: fastgpt-0sp2gtvfdgyi4k30jwlgwf1i-64f335d84283f05518e9e041",
         "tencent": "Enter in format: AppId|SecretId|SecretKey"
-      }
+      },
+      "model_ratio": "Model Ratio (per-model pricing)",
+      "model_ratio_placeholder": "JSON: {\"model\": {\"input\": input_ratio, \"output\": output_ratio}}. Absolute ratios (1 === $0.002/1K tokens); output defaults to input if omitted. E.g. {\"gpt-4\": {\"input\": 2, \"output\": 4}}"
     }
   },
   "token": {
@@ -631,6 +645,22 @@
         "group": {
           "title": "Group Ratio",
           "placeholder": "A JSON text where keys are group names and values are ratios"
+        },
+        "batch": {
+          "title": "Batch Ratio (adjust a group of models at once)",
+          "models": "Models",
+          "models_placeholder": "One model per line, or comma-separated. Supports name(group) composite keys to target a pricing group directly",
+          "models_required": "Please enter at least one model name",
+          "input": "Input Ratio",
+          "input_placeholder": "Absolute ratio, 1 === $0.002/1K tokens",
+          "input_required": "Input ratio must be a number greater than 0",
+          "output": "Output Ratio",
+          "output_placeholder": "Leave empty to use the same price as input",
+          "output_invalid": "Output ratio must be a non-negative number",
+          "group": "Pricing Group (optional)",
+          "group_placeholder": "When set, the ratio only applies to this group; key becomes model(group)",
+          "apply": "Apply Batch Ratio",
+          "success": "Updated ratios for {{count}} models"
         },
         "buttons": {
           "save": "Save Ratio Settings"
