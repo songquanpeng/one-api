@@ -132,12 +132,12 @@ func ConvertRequest(textRequest model.GeneralOpenAIRequest) *ChatRequest {
 		}
 		// Converting system prompt to prompt from user for the same reason
 		if content.Role == "system" {
-			shouldAddDummyModelMessage = true
 			if IsModelSupportSystemInstruction(textRequest.Model) {
 				geminiRequest.SystemInstruction = &content
 				geminiRequest.SystemInstruction.Role = ""
 				continue
 			} else {
+				shouldAddDummyModelMessage = true
 				content.Role = "user"
 			}
 		}
