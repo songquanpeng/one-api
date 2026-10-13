@@ -21,4 +21,5 @@ const (
 	AvailableModels   = "available_models"
 	KeyRequestBody    = "key_request_body"
 	SystemPrompt      = "system_prompt"
+	ChannelModelRatio = "channel_model_ratio"
 )

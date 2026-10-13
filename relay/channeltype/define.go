@@ -53,5 +53,15 @@ const (
 	AliBailian
 	OpenAICompatible
 	GeminiOpenAICompatible
+	XiaomiMiMo
+	OpenCodeZen
+	VercelAIGateway
+	MeituanLongCat
+	LMStudio
+	Moark
+	InternLM
+	ModelScope
+	AMDTokenFactory
+	NetlifyAIGateway
 	Dummy
 )

@@ -44,7 +44,17 @@ export const CHANNEL_OPTIONS = [
   { key: 6, text: '代理：OpenAI Max', value: 6, color: 'violet' },
   { key: 9, text: '代理：AI.LS', value: 9, color: 'yellow' },
   { key: 12, text: '代理：API2GPT', value: 12, color: 'blue' },
-  { key: 13, text: '代理：AIGC2D', value: 13, color: 'purple' }
+  { key: 13, text: '代理：AIGC2D', value: 13, color: 'purple' },
+  { key: 52, text: 'Xiaomi MiMo', value: 52, color: 'orange' },
+  { key: 53, text: 'OpenCode Zen', value: 53, color: 'violet' },
+  { key: 54, text: 'Vercel AI Gateway', value: 54, color: 'blue' },
+  { key: 55, text: '美团龙猫', value: 55, color: 'yellow' },
+  { key: 56, text: 'LM Studio', value: 56, color: 'teal' },
+  { key: 57, text: '模力方舟', value: 57, color: 'purple' },
+  { key: 58, text: '书生 InternLM', value: 58, color: 'green' },
+  { key: 59, text: '魔搭社区', value: 59, color: 'orange' },
+  { key: 60, text: 'AMD TokenFactory', value: 60, color: 'red' },
+  { key: 61, text: 'Netlify AI Gateway', value: 61, color: 'teal' }
 ];
 
 for (let i = 0; i < CHANNEL_OPTIONS.length; i++) {

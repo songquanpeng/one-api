@@ -2,6 +2,7 @@ package controller
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strings"
 
@@ -9,6 +10,8 @@ import (
 	"github.com/songquanpeng/one-api/common/helper"
 	"github.com/songquanpeng/one-api/common/i18n"
 	"github.com/songquanpeng/one-api/model"
+	"github.com/songquanpeng/one-api/playground"
+	billingratio "github.com/songquanpeng/one-api/relay/billing/ratio"
 
 	"github.com/gin-gonic/gin"
 )
@@ -85,6 +88,14 @@ func UpdateOption(c *gin.Context) {
 			})
 			return
 		}
+	case "PlaygroundConfig":
+		if err := playground.ValidateConfigJSON(option.Value); err != nil {
+			c.JSON(http.StatusOK, gin.H{
+				"success": false,
+				"message": "游乐场配置无效：" + err.Error(),
+			})
+			return
+		}
 	}
 	err = model.UpdateOption(option.Key, option.Value)
 	if err != nil {
@@ -94,9 +105,117 @@ func UpdateOption(c *gin.Context) {
 		})
 		return
 	}
+	// 配置缓存失效，使游乐场开关/搜索配置即时生效
+	playground.InvalidateConfigCache()
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"message": "",
+	})
+	return
+}
+
+// BatchUpdateModelRatio 批量调价：把一组模型的倍率合并进 ModelRatio / CompletionRatio。
+// 请求体：{"models": ["a","b"], "input": 1.25, "output": 10.0, "group": "vip"(可选，登记为 model(group) 复合键)}
+func BatchUpdateModelRatio(c *gin.Context) {
+	var body struct {
+		Models []string `json:"models"`
+		Input  float64  `json:"input"`
+		Output float64  `json:"output"`
+		Group  string   `json:"group"`
+	}
+	if err := c.ShouldBindJSON(&body); err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": i18n.Translate(c, "invalid_parameter"),
+		})
+		return
+	}
+	if len(body.Models) == 0 {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": "模型列表不能为空",
+		})
+		return
+	}
+	if body.Input <= 0 || body.Output < 0 {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": "倍率必须为非负数值，且输入倍率大于 0",
+		})
+		return
+	}
+	completionRatio := 1.0
+	if body.Input > 0 {
+		completionRatio = body.Output / body.Input
+	}
+
+	// 读取当前倍率表并合并（不影响其他模型键）
+	modelRatioMap := map[string]float64{}
+	if err := json.Unmarshal([]byte(billingratio.ModelRatio2JSONString()), &modelRatioMap); err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+	completionRatioMap := map[string]float64{}
+	if err := json.Unmarshal([]byte(billingratio.CompletionRatio2JSONString()), &completionRatioMap); err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	updated := 0
+	for _, name := range body.Models {
+		name = strings.TrimSpace(name)
+		if name == "" {
+			continue
+		}
+		key := name
+		if body.Group != "" {
+			key = fmt.Sprintf("%s(%s)", name, body.Group)
+		}
+		modelRatioMap[key] = body.Input
+		completionRatioMap[key] = completionRatio
+		updated++
+	}
+
+	modelRatioJSON, err := json.Marshal(modelRatioMap)
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+	if err := model.UpdateOption("ModelRatio", string(modelRatioJSON)); err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+	completionRatioJSON, err := json.Marshal(completionRatioMap)
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+	if err := model.UpdateOption("CompletionRatio", string(completionRatioJSON)); err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "",
+		"data":    updated,
 	})
 	return
 }

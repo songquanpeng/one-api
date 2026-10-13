@@ -54,6 +54,17 @@ var ChannelBaseURLs = []string{
 	"",                                          // 50
 
 	"https://generativelanguage.googleapis.com/v1beta/openai/", // 51
+
+	"https://api.xiaomimimo.com",              // 52
+	"https://opencode.ai/zen",                 // 53
+	"https://ai-gateway.vercel.sh",            // 54
+	"https://api.longcat.chat/openai",         // 55
+	"http://localhost:1234",                   // 56
+	"https://api.moark.com",                   // 57
+	"https://chat.intern-ai.org.cn/api",       // 58
+	"https://api-inference.modelscope.cn",     // 59
+	"https://developer.amd.com.cn/radeon/api", // 60
+	"https://ai-gateway.netlify.com",          // 61
 }
 
 func init() {

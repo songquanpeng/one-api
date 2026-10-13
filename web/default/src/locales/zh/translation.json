@@ -13,7 +13,8 @@
     "chat": "聊天",
     "login": "登录",
     "logout": "注销",
-    "register": "注册"
+    "register": "注册",
+    "playground": "游乐场"
   },
   "topup": {
     "title": "充值中心",
@@ -79,7 +80,10 @@
       "confirm_delete_disabled": "确认删除",
       "refresh": "刷新",
       "show_detail": "详情",
-      "hide_detail": "隐藏详情"
+      "hide_detail": "隐藏详情",
+      "delete_selected": "删除勾选",
+      "confirm_delete_selected": "确认删除勾选的",
+      "fetch_models": "获取上游模型"
     },
     "messages": {
       "test_success": "渠道 {{name}} 测试成功，模型 {{model}}，耗时 {{time}} 秒，模型输出：{{message}}",
@@ -87,7 +91,12 @@
       "delete_disabled_success": "已删除所有禁用渠道，共计 {{count}} 个",
       "balance_update_success": "渠道 {{name}} 余额更新成功！",
       "all_balance_updated": "已更新完毕所有已启用渠道余额！",
-      "operation_success": "操作成功完成！"
+      "operation_success": "操作成功完成！",
+      "batch_testing": "批量测试进行中：{{done}}/{{total}}",
+      "batch_test_finished": "批量测试完成：{{passed}} 个通过，{{failed}} 个未通过（已自动勾选）",
+      "batch_test_all_passed": "批量测试完成：{{passed}} 个渠道全部通过",
+      "batch_delete_success": "已删除 {{count}} 个渠道",
+      "batch_test_result_summary": "上次测试：{{passed}} 个通过 / {{failed}} 个失败"
     },
     "edit": {
       "title_edit": "更新渠道信息",
@@ -119,14 +128,18 @@
         "fill_all": "填入所有模型",
         "clear": "清除所有模型",
         "add_custom": "填入",
-        "custom_placeholder": "输入自定义模型名称"
+        "custom_placeholder": "输入自定义模型名称",
+        "fetch_models": "获取上游模型"
       },
       "messages": {
         "name_required": "请填写渠道名称和渠道密钥！",
         "models_required": "请至少选择一个模型！",
         "model_mapping_invalid": "模型映射必须是合法的 JSON 格式！",
         "update_success": "渠道更新成功！",
-        "create_success": "渠道创建成功！"
+        "create_success": "渠道创建成功！",
+        "model_ratio_invalid": "模型倍率必须是合法的 JSON 格式！",
+        "fetch_models_success": "成功获取 {{count}} 个上游模型！",
+        "fetch_models_error": "获取上游模型失败："
       },
       "spark_version": "模型版本",
       "spark_version_placeholder": "请输入星火大模型版本，注意是接口地址中的版本号，例如：v2.1",
@@ -154,7 +167,9 @@
         "spark": "按照如下格式输入：APPID|APISecret|APIKey",
         "fastgpt": "按照如下格式输入：APIKey-AppId，例如：fastgpt-0sp2gtvfdgyi4k30jwlgwf1i-64f335d84283f05518e9e041",
         "tencent": "按照如下格式输入：AppId|SecretId|SecretKey"
-      }
+      },
+      "model_ratio": "模型倍率（每模型独立定价）",
+      "model_ratio_placeholder": "JSON 格式：{\"模型名\": {\"input\": 输入倍率, \"output\": 输出倍率}}。input/output 为绝对倍率（1 === $0.002/1K tokens），未填写 output 时输出按 input 同价。例：{\"gpt-4\": {\"input\": 2, \"output\": 4}}"
     }
   },
   "token": {
@@ -630,6 +645,22 @@
           "title": "分组倍率",
           "placeholder": "为一个 JSON 文本，键为分组名称，值为倍率"
         },
+        "batch": {
+          "title": "批量调价（统一调整一组模型的倍率）",
+          "models": "模型列表",
+          "models_placeholder": "每行一个模型名称，或用逗号分隔。支持 name(group) 复合键直接指定定价分组",
+          "models_required": "请至少填写一个模型名称",
+          "input": "输入倍率",
+          "input_placeholder": "绝对倍率，1 === $0.002/1K tokens",
+          "input_required": "输入倍率必须为大于 0 的数值",
+          "output": "输出倍率",
+          "output_placeholder": "留空表示与输入同价",
+          "output_invalid": "输出倍率必须为非负数值",
+          "group": "定价分组（可选）",
+          "group_placeholder": "填写分组名时，倍率仅对该分组生效，键名为 模型名(分组名)",
+          "apply": "应用批量调价",
+          "success": "已更新 {{count}} 个模型的倍率"
+        },
         "buttons": {
           "save": "保存倍率设置"
         }
@@ -670,6 +701,26 @@
         "buttons": {
           "save": "保存通用设置"
         }
+      },
+      "playground": {
+        "title": "模型游乐场",
+        "enabled": "开启游乐场",
+        "enabled_hint": "开启后，登录用户即可在游乐场中体验各模型（不消耗额度），支持临时会话、图片上传与联网搜索",
+        "search_title": "联网搜索",
+        "provider": "搜索服务",
+        "provider_none": "不使用联网搜索",
+        "provider_hint": "选择搜索服务并填写对应密钥，用户在游乐场中即可开启联网搜索；SearXNG 请填写自建实例地址",
+        "key": "API Key / 实例地址",
+        "endpoint": "接口地址（可选）",
+        "endpoint_hint": "留空使用默认官方接口",
+        "max_results": "搜索结果数量",
+        "session_ttl": "临时会话保留时间（分钟）",
+        "max_image_size": "单张图片大小限制（MB）",
+        "groups": "可用分组",
+        "groups_hint": "逗号分隔，游乐场中仅可选择这些分组下的模型",
+        "save": "保存配置",
+        "saved": "保存成功",
+        "key_required": "选择搜索服务后，请先填写对应的 API Key / 实例地址"
       }
     },
     "other": {
@@ -823,5 +874,35 @@
     "notice": {
       "password_copied": "新密码已复制到剪贴板：{{password}}"
     }
+  },
+  "playground": {
+    "title": "模型游乐场",
+    "hint_free": "游乐场调用不消耗额度",
+    "disabled": "模型游乐场未开启",
+    "disabled_hint": "管理员可在「设置 → 运营设置 → 模型游乐场」中开启并配置联网搜索。",
+    "model": "模型",
+    "group": "分组",
+    "search": "联网搜索",
+    "search_configured": "已配置搜索服务",
+    "no_provider": "管理员尚未配置搜索服务，联网搜索不可用",
+    "new_session": "新会话",
+    "input_placeholder": "输入消息，Enter 发送，Shift+Enter 换行",
+    "attach": "上传图片",
+    "uploading": "上传中…",
+    "send": "发送",
+    "sending": "正在生成…",
+    "searching": "正在联网搜索…",
+    "search_results": "联网搜索结果",
+    "search_failed": "联网搜索失败（{msg}），本次未使用搜索结果",
+    "no_models": "当前没有可用模型，请先检查渠道与分组配置",
+    "image_too_large": "图片超过大小限制（最大 {n}MB）",
+    "upload_failed": "图片上传失败",
+    "session_restored": "已恢复上次的临时会话",
+    "you": "我",
+    "assistant": "助手",
+    "error_prefix": "出错啦：",
+    "stream_interrupted": "生成已中断",
+    "remove_image": "移除图片",
+    "session_info": "临时会话将在 {n} 分钟后自动过期"
   }
 }

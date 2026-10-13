@@ -76,7 +76,7 @@ _✨ 通过标准的 OpenAI API 格式访问所有的大模型，开箱即用 �
    + [x] [百度文心一言系列模型](https://cloud.baidu.com/doc/WENXINWORKSHOP/index.html)
    + [x] [阿里通义千问系列模型](https://help.aliyun.com/document_detail/2400395.html)
    + [x] [讯飞星火认知大模型](https://www.xfyun.cn/doc/spark/Web.html)
-   + [x] [智谱 ChatGLM 系列模型](https://bigmodel.cn)
+   + [x] [智谱 ChatGLM 系列模型](https://bigmodel.cn)（GLM-4/GLM-5 系列，支持 v4 接口）
    + [x] [360 智脑](https://ai.360.cn)
    + [x] [腾讯混元大模型](https://cloud.tencent.com/document/product/1729)
    + [x] [Moonshot AI](https://platform.moonshot.cn/)
@@ -95,6 +95,17 @@ _✨ 通过标准的 OpenAI API 格式访问所有的大模型，开箱即用 �
    + [x] [novita.ai](https://www.novita.ai/)
    + [x] [硅基流动 SiliconCloud](https://cloud.siliconflow.cn/i/rKXmRobW)
    + [x] [xAI](https://x.ai/)
+   + [x] [OpenRouter](https://openrouter.ai/)
+   + [x] [Xiaomi MiMo 系列模型](https://platform.xiaomimimo.com/)
+   + [x] [OpenCode Zen](https://opencode.ai/docs/zen/)
+   + [x] [Vercel AI Gateway](https://vercel.com/docs/ai-gateway)
+   + [x] [美团龙猫 LongCat 系列模型](https://longcat.chat/platform/)
+   + [x] [LM Studio](https://lmstudio.ai/)（本地推理，默认 `http://localhost:1234`）
+   + [x] [模力方舟 Moark](https://moark.com/)
+   + [x] [书生 InternLM 系列模型](https://internlm.intern-ai.org.cn/api/document)
+   + [x] [魔搭社区 ModelScope API-Inference](https://www.modelscope.cn/docs/model-service/API-Inference/intro)
+   + [x] [AMD TokenFactory](https://developer.amd.com.cn/radeon/tokenfactory)（Radeon Cloud 免费模型 API）
+   + [x] [Netlify AI Gateway](https://docs.netlify.com/build/ai-gateway/overview/)（OpenAI/Anthropic/Gemini 直托管 + OpenRouter 段模型）
 2. 支持配置镜像以及众多[第三方代理服务](https://iamazing.cn/page/openai-api-third-party-services)。
 3. 支持通过**负载均衡**的方式访问多个渠道。
 4. 支持 **stream 模式**，可以通过流式传输实现打字机效果。
@@ -124,6 +135,8 @@ _✨ 通过标准的 OpenAI API 格式访问所有的大模型，开箱即用 �
     + 微信公众号授权（需要额外部署 [WeChat Server](https://github.com/songquanpeng/wechat-server)）。
 23. 支持主题切换，设置环境变量 `THEME` 即可，默认为 `default`，欢迎 PR 更多主题，具体参考[此处](./web/README.md)。
 24. 配合 [Message Pusher](https://github.com/songquanpeng/message-pusher) 可将报警信息推送到多种 App 上。
+25. 支持 OpenAI 最新的 Responses API（`/v1/responses` 端点），可直接使用 OpenAI 官方 SDK 的 Responses 调用方式，非流式与流式（SSE）均支持。
+26. 支持**模型游乐场**：管理员可在「设置 → 运营设置 → 模型游乐场」中开启，登录用户即可免费体验（不消耗额度）各分组下的模型，支持临时会话、图片上传与联网搜索（内置 Tavily / Serper / Brave / Exa / Bing / 博查 / SearXNG / Perplexity 八种搜索服务）。
 
 ## 部署
 ### 基于 Docker 进行部署
@@ -350,6 +363,27 @@ graph LR
 
 不加的话将会使用负载均衡的方式使用多个渠道。
 
+#### OpenAI Responses API
+
+One API 同时兼容 OpenAI 最新的 Responses API（`/v1/responses` 端点），非流式与流式（SSE）调用均支持，使用方式与官方一致：
+
+```python
+from openai import OpenAI
+
+client = OpenAI(
+    api_key="sk-xxxxxx",
+    base_url="https://<HOST>:<PORT>/v1",
+)
+
+response = client.responses.create(
+    model="gpt-4o",
+    input="你好",
+)
+print(response.output_text)
+```
+
+One API 会将 Responses 格式的请求转换为上游渠道的 Chat Completions 请求，并将上游响应（含流式事件）翻译回 Responses 事件序列（`response.created` → `output_text.delta` → `response.completed`）。
+
 ### 环境变量
 > One API 支持从 `.env` 文件中读取环境变量，请参照 `.env.example` 文件，使用时请将其重命名为 `.env`。
 1. `REDIS_CONN_STRING`：设置之后将使用 Redis 作为缓存使用。
@@ -405,6 +439,7 @@ graph LR
 18. `USER_CONTENT_REQUEST_TIMEOUT`：用户上传内容下载超时时间，单位为秒。
 19. `USER_CONTENT_REQUEST_PROXY`：设置后使用该代理来请求用户上传的内容，例如图片。
 20. `SQLITE_BUSY_TIMEOUT`：SQLite 锁等待超时设置，单位为毫秒，默认 `3000`。
+    + `SQLITE_PATH`：SQLite 数据库文件路径，未设置 `SQL_DSN` 时生效，默认为程序同目录下的 `one-api.db`。
 21. `GEMINI_SAFETY_SETTING`：Gemini 的安全设置，默认 `BLOCK_NONE`。
 22. `GEMINI_VERSION`：One API 所使用的 Gemini 版本，默认为 `v1`。
 23. `THEME`：系统的主题设置，默认为 `default`，具体可选值参考[此处](./web/README.md)。

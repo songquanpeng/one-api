@@ -81,6 +81,14 @@ if (localStorage.getItem('chat_link')) {
   });
 }
 
+if (localStorage.getItem('playground_enabled') === 'true') {
+  headerButtons.splice(1, 0, {
+    name: 'header.playground',
+    to: '/playground',
+    icon: 'gamepad',
+  });
+}
+
 const Header = () => {
   const { t, i18n } = useTranslation();
   const [userState, userDispatch] = useContext(UserContext);

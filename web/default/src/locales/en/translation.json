@@ -13,7 +13,8 @@
     "chat": "Chat",
     "login": "Login",
     "logout": "Logout",
-    "register": "Register"
+    "register": "Register",
+    "playground": "Playground"
   },
   "topup": {
     "title": "Top Up Center",
@@ -79,7 +80,10 @@
       "confirm_delete_disabled": "Confirm Delete",
       "refresh": "Refresh",
       "show_detail": "Details",
-      "hide_detail": "Hide Details"
+      "hide_detail": "Hide Details",
+      "delete_selected": "Delete Selected",
+      "confirm_delete_selected": "Confirm delete selected",
+      "fetch_models": "Fetch Upstream Models"
     },
     "messages": {
       "test_success": "Channel {{name}} test successful, model {{model}}, time {{time}}s, output: {{message}}",
@@ -87,7 +91,12 @@
       "delete_disabled_success": "Deleted all disabled channels, total: {{count}}",
       "balance_update_success": "Channel {{name}} balance updated successfully!",
       "all_balance_updated": "All enabled channel balances have been updated!",
-      "operation_success": "Operation completed successfully!"
+      "operation_success": "Operation completed successfully!",
+      "batch_testing": "Batch testing: {{done}}/{{total}}",
+      "batch_test_finished": "Batch test done: {{passed}} passed, {{failed}} failed (auto-selected)",
+      "batch_test_all_passed": "Batch test done: all {{passed}} channels passed",
+      "batch_delete_success": "Deleted {{count}} channels",
+      "batch_test_result_summary": "Last run: {{passed}} passed / {{failed}} failed"
     },
     "edit": {
       "title_edit": "Update Channel Information",
@@ -119,14 +128,18 @@
         "fill_all": "Fill All Models",
         "clear": "Clear All Models",
         "add_custom": "Add",
-        "custom_placeholder": "Enter custom model name"
+        "custom_placeholder": "Enter custom model name",
+        "fetch_models": "Fetch Upstream Models"
       },
       "messages": {
         "name_required": "Please enter channel name and key!",
         "models_required": "Please select at least one model!",
         "model_mapping_invalid": "Model mapping must be valid JSON format!",
         "update_success": "Channel updated successfully!",
-        "create_success": "Channel created successfully!"
+        "create_success": "Channel created successfully!",
+        "model_ratio_invalid": "Model ratio must be valid JSON!",
+        "fetch_models_success": "Fetched {{count}} upstream models!",
+        "fetch_models_error": "Failed to fetch upstream models: "
       },
       "spark_version": "Model Version",
       "spark_version_placeholder": "Please enter Spark model version from API URL, e.g.: v2.1",
@@ -154,7 +167,9 @@
         "spark": "Enter in format: APPID|APISecret|APIKey",
         "fastgpt": "Enter in format: APIKey-AppId, e.g.: fastgpt-0sp2gtvfdgyi4k30jwlgwf1i-64f335d84283f05518e9e041",
         "tencent": "Enter in format: AppId|SecretId|SecretKey"
-      }
+      },
+      "model_ratio": "Model Ratio (per-model pricing)",
+      "model_ratio_placeholder": "JSON: {\"model\": {\"input\": input_ratio, \"output\": output_ratio}}. Absolute ratios (1 === $0.002/1K tokens); output defaults to input if omitted. E.g. {\"gpt-4\": {\"input\": 2, \"output\": 4}}"
     }
   },
   "token": {
@@ -632,6 +647,22 @@
           "title": "Group Ratio",
           "placeholder": "A JSON text where keys are group names and values are ratios"
         },
+        "batch": {
+          "title": "Batch Ratio (adjust a group of models at once)",
+          "models": "Models",
+          "models_placeholder": "One model per line, or comma-separated. Supports name(group) composite keys to target a pricing group directly",
+          "models_required": "Please enter at least one model name",
+          "input": "Input Ratio",
+          "input_placeholder": "Absolute ratio, 1 === $0.002/1K tokens",
+          "input_required": "Input ratio must be a number greater than 0",
+          "output": "Output Ratio",
+          "output_placeholder": "Leave empty to use the same price as input",
+          "output_invalid": "Output ratio must be a non-negative number",
+          "group": "Pricing Group (optional)",
+          "group_placeholder": "When set, the ratio only applies to this group; key becomes model(group)",
+          "apply": "Apply Batch Ratio",
+          "success": "Updated ratios for {{count}} models"
+        },
         "buttons": {
           "save": "Save Ratio Settings"
         }
@@ -672,6 +703,26 @@
         "buttons": {
           "save": "Save General Settings"
         }
+      },
+      "playground": {
+        "title": "Model Playground",
+        "enabled": "Enable playground",
+        "enabled_hint": "When enabled, logged-in users can try models in the playground (no quota consumed), with temporary sessions, image upload and web search",
+        "search_title": "Web search",
+        "provider": "Search provider",
+        "provider_none": "Disable web search",
+        "provider_hint": "Pick a provider and fill in its key so users can enable web search in the playground; for SearXNG use your self-hosted instance URL",
+        "key": "API Key / Instance URL",
+        "endpoint": "Endpoint (optional)",
+        "endpoint_hint": "Leave empty to use the default official endpoint",
+        "max_results": "Max search results",
+        "session_ttl": "Temporary session TTL (minutes)",
+        "max_image_size": "Max image size (MB)",
+        "groups": "Available groups",
+        "groups_hint": "Comma separated; only models under these groups are selectable in the playground",
+        "save": "Save configuration",
+        "saved": "Saved successfully",
+        "key_required": "Please fill in the API Key / instance URL for the selected search provider"
       }
     },
     "other": {
@@ -827,5 +878,35 @@
     "notice": {
       "password_copied": "New password copied to clipboard: {{password}}"
     }
+  },
+  "playground": {
+    "title": "Model Playground",
+    "hint_free": "Playground calls do not consume quota",
+    "disabled": "Model Playground is disabled",
+    "disabled_hint": "An administrator can enable it and configure web search under Setting → Operation → Model Playground.",
+    "model": "Model",
+    "group": "Group",
+    "search": "Web search",
+    "search_configured": "Search provider configured",
+    "no_provider": "No search provider configured by the administrator",
+    "new_session": "New session",
+    "input_placeholder": "Type a message. Enter to send, Shift+Enter for new line",
+    "attach": "Upload image",
+    "uploading": "Uploading…",
+    "send": "Send",
+    "sending": "Generating…",
+    "searching": "Searching the web…",
+    "search_results": "Web search results",
+    "search_failed": "Web search failed ({msg}); continuing without search results",
+    "no_models": "No available models. Please check channel and group configuration",
+    "image_too_large": "Image exceeds the size limit (max {n}MB)",
+    "upload_failed": "Image upload failed",
+    "session_restored": "Restored your previous temporary session",
+    "you": "You",
+    "assistant": "Assistant",
+    "error_prefix": "Error: ",
+    "stream_interrupted": "Generation interrupted",
+    "remove_image": "Remove image",
+    "session_info": "Temporary session expires after {n} minutes"
   }
 }

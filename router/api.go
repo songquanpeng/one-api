@@ -67,6 +67,7 @@ func SetApiRouter(router *gin.Engine) {
 		{
 			optionRoute.GET("/", controller.GetOptions)
 			optionRoute.PUT("/", controller.UpdateOption)
+			optionRoute.POST("/batch_ratio", controller.BatchUpdateModelRatio)
 		}
 		channelRoute := apiRouter.Group("/channel")
 		channelRoute.Use(middleware.AdminAuth())
@@ -77,6 +78,9 @@ func SetApiRouter(router *gin.Engine) {
 			channelRoute.GET("/:id", controller.GetChannel)
 			channelRoute.GET("/test", controller.TestChannels)
 			channelRoute.GET("/test/:id", controller.TestChannel)
+			channelRoute.GET("/batch_test/status", controller.GetBatchTestStatus)
+			channelRoute.POST("/batch_delete", controller.BatchDeleteChannels)
+			channelRoute.POST("/fetch_models", controller.FetchUpstreamModels)
 			channelRoute.GET("/update_balance", controller.UpdateAllChannelsBalance)
 			channelRoute.GET("/update_balance/:id", controller.UpdateChannelBalance)
 			channelRoute.POST("/", controller.AddChannel)
@@ -116,6 +120,26 @@ func SetApiRouter(router *gin.Engine) {
 		groupRoute.Use(middleware.AdminAuth())
 		{
 			groupRoute.GET("/", controller.GetGroups)
+		}
+	}
+
+	// 模型游乐场：独立分组（不使用 gzip，避免 SSE 流式响应被缓冲）
+	playgroundRouter := router.Group("/api/playground")
+	playgroundRouter.Use(middleware.GlobalAPIRateLimit())
+	{
+		// 配置查询不校验开关状态（页面需要据此展示「未开启」提示）
+		playgroundRouter.GET("/config", middleware.UserAuth(), controller.GetPlaygroundConfig)
+
+		authedPlaygroundRoute := playgroundRouter.Group("/")
+		authedPlaygroundRoute.Use(middleware.UserAuth())
+		authedPlaygroundRoute.Use(middleware.PlaygroundEnabled())
+		{
+			authedPlaygroundRoute.POST("/session", controller.CreatePlaygroundSession)
+			authedPlaygroundRoute.GET("/session/:id", controller.GetPlaygroundSession)
+			authedPlaygroundRoute.DELETE("/session/:id", controller.DeletePlaygroundSession)
+			authedPlaygroundRoute.POST("/upload", controller.UploadPlaygroundImage)
+			authedPlaygroundRoute.GET("/uploads/:name", controller.ServePlaygroundUpload)
+			authedPlaygroundRoute.POST("/chat", controller.PlaygroundChat)
 		}
 	}
 }

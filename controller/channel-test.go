@@ -216,6 +216,28 @@ func TestChannel(c *gin.Context) {
 var testAllChannelsLock sync.Mutex
 var testAllChannelsRunning bool = false
 
+// ChannelTestResult 单个渠道的批量测试结果
+type ChannelTestResult struct {
+	Id           int     `json:"id"`
+	Name         string  `json:"name"`
+	Success      bool    `json:"success"`
+	Time         float64 `json:"time"` // 秒
+	Error        string  `json:"error,omitempty"`
+	Disabled     bool    `json:"disabled"` // 测试后是否被自动禁用
+	ResponseTime int     `json:"response_time"`
+}
+
+// batchTestState 最近一次批量测试的运行状态与结果快照
+var batchTestState struct {
+	sync.RWMutex
+	Running    bool                `json:"-"`
+	StartedAt  int64               `json:"-"`
+	FinishedAt int64               `json:"-"`
+	Total      int                 `json:"-"`
+	Done       int                 `json:"-"`
+	Results    []ChannelTestResult `json:"-"`
+}
+
 func testChannels(ctx context.Context, notify bool, scope string) error {
 	if config.RootUserEmail == "" {
 		config.RootUserEmail = model.GetRootUserEmail()
@@ -229,12 +251,23 @@ func testChannels(ctx context.Context, notify bool, scope string) error {
 	testAllChannelsLock.Unlock()
 	channels, err := model.GetAllChannels(0, 0, scope)
 	if err != nil {
+		testAllChannelsLock.Lock()
+		testAllChannelsRunning = false
+		testAllChannelsLock.Unlock()
 		return err
 	}
 	var disableThreshold = int64(config.ChannelDisableThreshold * 1000)
 	if disableThreshold == 0 {
 		disableThreshold = 10000000 // a impossible value
 	}
+	batchTestState.Lock()
+	batchTestState.Running = true
+	batchTestState.StartedAt = helper.GetTimestamp()
+	batchTestState.FinishedAt = 0
+	batchTestState.Total = len(channels)
+	batchTestState.Done = 0
+	batchTestState.Results = make([]ChannelTestResult, 0, len(channels))
+	batchTestState.Unlock()
 	go func() {
 		for _, channel := range channels {
 			isChannelEnabled := channel.Status == model.ChannelStatusEnabled
@@ -243,26 +276,48 @@ func testChannels(ctx context.Context, notify bool, scope string) error {
 			_, err, openaiErr := testChannel(ctx, channel, testRequest)
 			tok := time.Now()
 			milliseconds := tok.Sub(tik).Milliseconds()
+			disabled := false
 			if isChannelEnabled && milliseconds > disableThreshold {
 				err = fmt.Errorf("响应时间 %.2fs 超过阈值 %.2fs", float64(milliseconds)/1000.0, float64(disableThreshold)/1000.0)
 				if config.AutomaticDisableChannelEnabled {
 					monitor.DisableChannel(channel.Id, channel.Name, err.Error())
+					disabled = true
 				} else {
 					_ = message.Notify(message.ByAll, fmt.Sprintf("渠道 %s （%d）测试超时", channel.Name, channel.Id), "", err.Error())
 				}
 			}
 			if isChannelEnabled && monitor.ShouldDisableChannel(openaiErr, -1) {
 				monitor.DisableChannel(channel.Id, channel.Name, err.Error())
+				disabled = true
 			}
 			if !isChannelEnabled && monitor.ShouldEnableChannel(err, openaiErr) {
 				monitor.EnableChannel(channel.Id, channel.Name)
 			}
 			channel.UpdateResponseTime(milliseconds)
+			result := ChannelTestResult{
+				Id:           channel.Id,
+				Name:         channel.Name,
+				Success:      err == nil,
+				Time:         float64(milliseconds) / 1000.0,
+				Disabled:     disabled,
+				ResponseTime: int(milliseconds),
+			}
+			if err != nil {
+				result.Error = err.Error()
+			}
+			batchTestState.Lock()
+			batchTestState.Results = append(batchTestState.Results, result)
+			batchTestState.Done++
+			batchTestState.Unlock()
 			time.Sleep(config.RequestInterval)
 		}
 		testAllChannelsLock.Lock()
 		testAllChannelsRunning = false
 		testAllChannelsLock.Unlock()
+		batchTestState.Lock()
+		batchTestState.Running = false
+		batchTestState.FinishedAt = helper.GetTimestamp()
+		batchTestState.Unlock()
 		if notify {
 			err := message.Notify(message.ByAll, "渠道测试完成", "", "渠道测试完成，如果没有收到禁用通知，说明所有渠道都正常")
 			if err != nil {
@@ -271,6 +326,25 @@ func testChannels(ctx context.Context, notify bool, scope string) error {
 		}
 	}()
 	return nil
+}
+
+// GetBatchTestStatus 返回最近一次批量测试的状态与逐渠道结果（供前端轮询）
+func GetBatchTestStatus(c *gin.Context) {
+	batchTestState.RLock()
+	results := make([]ChannelTestResult, len(batchTestState.Results))
+	copy(results, batchTestState.Results)
+	payload := gin.H{
+		"success":     true,
+		"message":     "",
+		"running":     batchTestState.Running,
+		"total":       batchTestState.Total,
+		"done":        batchTestState.Done,
+		"started_at":  batchTestState.StartedAt,
+		"finished_at": batchTestState.FinishedAt,
+		"results":     results,
+	}
+	batchTestState.RUnlock()
+	c.JSON(http.StatusOK, payload)
 }
 
 func TestChannels(c *gin.Context) {

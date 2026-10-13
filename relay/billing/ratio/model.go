@@ -61,6 +61,24 @@ var ModelRatio = map[string]float64{
 	"o1-mini-2024-09-12":      1.5,
 	"o3-mini":                 1.5, // $3.00 / 1M input tokens
 	"o3-mini-2025-01-31":      1.5,
+	"gpt-4.1":                 2 * MILLI_USD, // $2.00 / 1M input tokens
+	"gpt-4.1-2025-04-14":      2 * MILLI_USD,
+	"gpt-4.1-mini":            0.4 * MILLI_USD, // $0.40 / 1M input tokens
+	"gpt-4.1-mini-2025-04-14": 0.4 * MILLI_USD,
+	"gpt-4.1-nano":            0.1 * MILLI_USD, // $0.10 / 1M input tokens
+	"gpt-4.1-nano-2025-04-14": 0.1 * MILLI_USD,
+	"o3":                      2 * MILLI_USD, // $2.00 / 1M input tokens
+	"o3-2025-04-16":           2 * MILLI_USD,
+	"o4-mini":                 1.1 * MILLI_USD, // $1.10 / 1M input tokens
+	"o4-mini-2025-04-16":      1.1 * MILLI_USD,
+	"gpt-5":                   1.25 * MILLI_USD, // $1.25 / 1M input tokens
+	"gpt-5-2025-08-07":        1.25 * MILLI_USD,
+	"gpt-5-mini":              0.25 * MILLI_USD, // $0.25 / 1M input tokens
+	"gpt-5-mini-2025-08-07":   0.25 * MILLI_USD,
+	"gpt-5-nano":              0.05 * MILLI_USD, // $0.05 / 1M input tokens
+	"gpt-5-nano-2025-08-07":   0.05 * MILLI_USD,
+	"gpt-5-codex":             1.25 * MILLI_USD,
+	"gpt-5-chat-latest":       1.25 * MILLI_USD,
 	"davinci-002":             1,   // $0.002 / 1K tokens
 	"babbage-002":             0.2, // $0.0004 / 1K tokens
 	"text-ada-001":            0.2,
@@ -98,6 +116,12 @@ var ModelRatio = map[string]float64{
 	"claude-3-5-sonnet-20240620": 3.0 / 1000 * USD,
 	"claude-3-5-sonnet-20241022": 3.0 / 1000 * USD,
 	"claude-3-5-sonnet-latest":   3.0 / 1000 * USD,
+	"claude-sonnet-4-20250514":   3.0 / 1000 * USD,
+	"claude-sonnet-4-5":          3.0 / 1000 * USD,
+	"claude-opus-4-20250514":     15.0 / 1000 * USD,
+	"claude-opus-4-1-20250805":   15.0 / 1000 * USD,
+	"claude-opus-4-5-20251101":   5.0 / 1000 * USD,
+	"claude-haiku-4-5-20251001":  1.0 / 1000 * USD,
 	"claude-3-opus-20240229":     15.0 / 1000 * USD,
 	// https://cloud.baidu.com/doc/WENXINWORKSHOP/s/hlrk4akp7
 	"ERNIE-4.0-8K":       0.120 * RMB,
@@ -135,6 +159,11 @@ var ModelRatio = map[string]float64{
 	"gemini-2.0-flash-lite-preview-02-05": 0.075 * MILLI_USD,
 	"gemini-2.0-flash-thinking-exp-01-21": 0.075 * MILLI_USD,
 	"gemini-2.0-pro-exp-02-05":            1.25 * MILLI_USD,
+	"gemini-2.5-flash":                    0.3 * MILLI_USD,  // $0.30 / 1M input tokens
+	"gemini-2.5-flash-lite":               0.1 * MILLI_USD,  // $0.10 / 1M input tokens
+	"gemini-2.5-pro":                      1.25 * MILLI_USD, // $1.25 / 1M input tokens
+	"gemini-2.5-flash-preview-05-20":      0.3 * MILLI_USD,
+	"gemini-2.5-pro-preview-06-05":        1.25 * MILLI_USD,
 	"aqa":                                 1,
 	// https://open.bigmodel.cn/pricing
 	"glm-zero-preview": 0.01 * RMB,
@@ -160,6 +189,27 @@ var ModelRatio = map[string]float64{
 	"codegeex-4":       0.0001 * RMB,
 	"embedding-2":      0.0005 * RMB,
 	"embedding-3":      0.0005 * RMB,
+	// GLM-4.5 / 4.6 / 4.7 / 5 系列，价格来自 z.ai 官方定价页（2026-10）
+	"glm-4.6":         0.6 * MILLI_USD,
+	"glm-4.5":         0.6 * MILLI_USD,
+	"glm-4.5-air":     0.2 * MILLI_USD,
+	"glm-4.5-x":       2.2 * MILLI_USD,
+	"glm-4.5-airx":    1.1 * MILLI_USD,
+	"glm-4.5-flash":   0, // 免费
+	"glm-4.5v":        2.0 / 1000 * RMB,
+	"glm-4.6v":        1.0 / 1000 * RMB,
+	"glm-4.6v-flashx": 0.15 / 1000 * RMB,
+	"glm-4.6v-flash":  0, // 免费
+	"glm-4.7":         0.6 * MILLI_USD,
+	"glm-4.7-flashx":  0.07 * MILLI_USD,
+	"glm-4.7-flash":   0, // 免费
+	"glm-5":           1.0 * MILLI_USD,
+	"glm-5.1":         1.4 * MILLI_USD,
+	"glm-5.2":         1.4 * MILLI_USD,
+	"glm-5.3":         1.4 * MILLI_USD,
+	"glm-5.3-flash":   0.15 * MILLI_USD,
+	"glm-5.3-flashx":  0.37 * MILLI_USD,
+	"cogview-4":       0.01 * USD, // $0.01 / image
 	// https://help.aliyun.com/zh/dashscope/developer-reference/tongyi-thousand-questions-metering-and-billing
 	"qwen-turbo":                    0.0003 * RMB,
 	"qwen-turbo-latest":             0.0003 * RMB,
@@ -274,9 +324,12 @@ var ModelRatio = map[string]float64{
 	"hunyuan-vision":            0.018 * RMB,
 	"hunyuan-embedding":         0.0007 * RMB,
 	// https://platform.moonshot.cn/pricing
-	"moonshot-v1-8k":   0.012 * RMB,
-	"moonshot-v1-32k":  0.024 * RMB,
-	"moonshot-v1-128k": 0.06 * RMB,
+	"moonshot-v1-8k":       0.012 * RMB,
+	"moonshot-v1-32k":      0.024 * RMB,
+	"moonshot-v1-128k":     0.06 * RMB,
+	"kimi-k2":              4.0 / 1000 * RMB, // ¥4 / 1M input tokens
+	"kimi-k2-0905-preview": 4.0 / 1000 * RMB,
+	"kimi-k2-thinking":     4.0 / 1000 * RMB,
 	// https://platform.baichuan-ai.com/price
 	"Baichuan2-Turbo":      0.008 * RMB,
 	"Baichuan2-Turbo-192k": 0.016 * RMB,
@@ -343,6 +396,20 @@ var ModelRatio = map[string]float64{
 	"deepl-ja": 25.0 / 1000 * USD,
 	// https://console.x.ai/
 	"grok-beta": 5.0 / 1000 * USD,
+	// https://platform.xiaomimimo.com/docs/price/pay-as-you-go
+	"mimo-v2.6-pro":            0.435 * MILLI_USD, // $0.435 / 1M input tokens
+	"mimo-v2.6-flash":          0.14 * MILLI_USD,  // $0.14 / 1M input tokens
+	"mimo-v2.6-pro-ultraspeed": 4.35 * MILLI_USD,  // $4.35 / 1M input tokens
+	"mimo-v2.5-pro":            0.435 * MILLI_USD, // 即将下线（2026-10-21）
+	// https://opencode.ai/docs/zen/ ，付费模型参照各厂商官方定价，以 Zen 控制台实际价格为准
+	"qwen3-coder-480b":            1.5 * MILLI_USD,
+	"minimax-m2.1-free":           0,
+	"big-pickle":                  0,
+	"mimo-v2.5-flash-free":        0,
+	"ling-3.0-flash-fin-free":     0,
+	"nemotron-3-ultra-free":       0,
+	"nemotron-3.5-lightning-free": 0,
+	"glm-4.7-free":                0,
 	// replicate charges based on the number of generated images
 	// https://replicate.com/pricing
 	"black-forest-labs/flux-1.1-pro":                0.04 * USD,
@@ -573,6 +640,17 @@ var ModelRatio = map[string]float64{
 	"openai/o1-preview-2024-09-12":                    30.0,
 	"openai/o3-mini":                                  2.2,
 	"openai/o3-mini-high":                             2.2,
+	"openai/gpt-4.1":                                  1.0,
+	"openai/o3":                                       1.0,
+	"openai/gpt-5":                                    0.625,
+	"openai/gpt-5-mini":                               0.125,
+	"anthropic/claude-sonnet-4":                       1.5,
+	"anthropic/claude-opus-4":                         7.5,
+	"google/gemini-2.5-pro":                           0.625,
+	"google/gemini-2.5-flash":                         0.15,
+	"z-ai/glm-4.6":                                    0.3,
+	"moonshotai/kimi-k2":                              0.3,
+	"deepseek/deepseek-v3":                            0.07,
 	"openchat/openchat-7b":                            0.0275,
 	"openchat/openchat-7b:free":                       0.0,
 	"openrouter/auto":                                 -500000.0,
@@ -619,6 +697,70 @@ var ModelRatio = map[string]float64{
 	"x-ai/grok-beta":                                  7.5,
 	"x-ai/grok-vision-beta":                           7.5,
 	"xwin-lm/xwin-lm-70b":                             1.875,
+	// vercel ai gateway（openai/* 与 google/* 系列 OpenRouter 段已登记，此处补充 anthropic 新模型）
+	"anthropic/claude-sonnet-5": 3.0 / 1000 * USD, // $3.00 / 1M input tokens
+	"anthropic/claude-opus-5":   5.0 / 1000 * USD, // $5.00 / 1M input tokens
+	"deepseek/deepseek-r1(54)":  0.55 * MILLI_USD, // Vercel 按 DeepSeek 官方价透传
+	// vercel ai gateway：其余透传官方价（$1/M = 0.5）
+	"openai/gpt-5-nano":           0.025, // $0.05 / 1M input tokens
+	"anthropic/claude-sonnet-4.5": 1.5,   // $3.00 / 1M input tokens
+	"anthropic/claude-haiku-4.5":  0.5,   // $1.00 / 1M input tokens
+	"xai/grok-4":                  1.5,   // $3.00 / 1M input tokens
+	"meta/llama-4-maverick":       0.075, // $0.15 / 1M input tokens
+	"mistral/mistral-large":       1.0,   // $2.00 / 1M input tokens
+	// netlify ai gateway（OpenAI/Anthropic/Gemini 直托管模型复用基名条目，
+	// 仅补基名缺失项；OpenRouter 段模型按上游官方价透传登记）
+	"claude-opus-4-5(61)":             5.0 / 1000 * USD,  // $5.00 / 1M input tokens
+	"claude-haiku-4-5(61)":            1.0 / 1000 * USD,  // $1.00 / 1M input tokens
+	"gpt-5-pro(61)":                   15.0 / 1000 * USD, // $15.00 / 1M input tokens
+	"meta-llama/llama-4-maverick(61)": 0.11,              // $0.22 / 1M input tokens
+	"qwen/qwen3-235b-a22b-2507(61)":   0.1,               // $0.20 / 1M input tokens
+	"mistralai/mistral-large-4-0(61)": 1.0,               // $2.00 / 1M input tokens
+	"x-ai/grok-4.7(61)":               1.5,               // 暂按 Grok-4 档位 $3.00 / 1M input tokens 估算
+	"z-ai/glm-5.3(61)":                0.3,               // 暂按 GLM-4.6 档位 $0.60 / 1M input tokens 估算
+	"perplexity/sonar-pro(61)":        1.5,               // $3.00 / 1M input tokens
+	// netlify ai gateway：OpenRouter 段模型按 OpenRouter 官方价透传
+	"deepseek/deepseek-chat(61)": 0.15,             // $0.30 / 1M input tokens
+	"deepseek/deepseek-r1(61)":   0.55 * MILLI_USD, // $0.55 / 1M input tokens
+	"moonshotai/kimi-k2(61)":     0.3,              // $0.60 / 1M input tokens
+	// 美团龙猫（限时折扣价：输入 $0.30 / 输出 $1.20 每 1M tokens）
+	"LongCat-2.5-Preview": 0.15,
+	"LongCat-2.0":         0.15,
+	"LongCat-Flash-Chat":  0.15,
+	"LongCat-Flash-Lite":  0.05,
+	// 模力方舟 moark（人民币价，¥1/M = RMB/1000）
+	"DeepSeek-V4-Pro":               12.0 / 1000 * RMB, // ¥12 / 1M input tokens
+	"DeepSeek-V4-Pro-0813":          9.0 / 1000 * RMB,  // ¥9 / 1M input tokens
+	"DeepSeek-V4-Flash":             1.0 / 1000 * RMB,  // ¥1 / 1M input tokens
+	"DeepSeek-V4-Flash-0731":        3.0 / 1000 * RMB,  // ¥3 / 1M input tokens
+	"DeepSeek-R1-Distill-Qwen-1.5B": 0,                 // moark 免费层
+	// 书生 internlm（官方 API 价）
+	"intern-s1":          0.5, // $1.00 / 1M input tokens
+	"internlm3-latest":   0.1, // $0.20 / 1M input tokens
+	"intern-s1-pro":      0.5, // 官方未公布，暂按 intern-s1
+	"intern-latest":      0.1, // 暂按 internlm3-latest
+	"internvl2.5-latest": 0.5, // 官方未公布，暂按 intern-s1 档
+	// modelscope api-inference（按模型官方价格）
+	"deepseek-ai/DeepSeek-R1":         0.55 * MILLI_USD, // $0.55 / 1M input tokens
+	"ZhipuAI/GLM-5.1":                 1.4 * MILLI_USD,  // $1.40 / 1M input tokens
+	"Qwen/Qwen2.5-Coder-32B-Instruct": 0.002 * RMB,      // ¥0.002 / 1K input tokens
+	// modelscope api-inference：免费层模型（渠道 59 单独计 0）
+	"Qwen/Qwen3.5-35B-A3B(59)":         0,
+	"Qwen/Qwen2.5-VL-72B-Instruct(59)": 0,
+	"deepseek-ai/DeepSeek-V4-Pro(59)":  0,
+	// amd tokenfactory：Public Free Model APIs 免费（渠道 60 单独计 0）
+	"DeepSeek-V4-Flash(60)":            0,
+	"DeepSeek-V4-Flash-Vision-Exp(60)": 0,
+	"Qwen3.8-Flash-Next(60)":           0,
+	"MiniCPM5-1B(60)":                  0,
+	"GLM-5.3-Flash(60)":                0,
+	// lm studio：本地推理免费（渠道 56 单独计 0）
+	"openai/gpt-oss-20b(56)":                0,
+	"openai/gpt-oss-120b(56)":               0,
+	"qwen/qwen3-coder-30b(56)":              0,
+	"qwen/qwen3-32b(56)":                    0,
+	"google/gemma-3-27b-it(56)":             0,
+	"meta-llama/llama-3.3-70b-instruct(56)": 0,
 }
 
 var CompletionRatio = map[string]float64{
@@ -630,6 +772,107 @@ var CompletionRatio = map[string]float64{
 	// deepseek
 	"deepseek-chat":     0.28 / 0.14,
 	"deepseek-reasoner": 2.19 / 0.55,
+	// openai
+	"gpt-4.1":      8.0 / 2.0,
+	"gpt-4.1-mini": 1.6 / 0.4,
+	"gpt-4.1-nano": 0.4 / 0.1,
+	"o3":           8.0 / 2.0,
+	"o4-mini":      4.4 / 1.1,
+	"gpt-5":        10.0 / 1.25,
+	"gpt-5-mini":   2.0 / 0.25,
+	"gpt-5-nano":   0.4 / 0.05,
+	"gpt-5-codex":  10.0 / 1.25,
+	// anthropic
+	"claude-sonnet-4-20250514":  15.0 / 3.0,
+	"claude-sonnet-4-5":         15.0 / 3.0,
+	"claude-opus-4-20250514":    75.0 / 15.0,
+	"claude-opus-4-1-20250805":  75.0 / 15.0,
+	"claude-opus-4-5-20251101":  25.0 / 5.0,
+	"claude-haiku-4-5-20251001": 5.0 / 1.0,
+	// gemini
+	"gemini-2.5-flash":      2.5 / 0.3,
+	"gemini-2.5-flash-lite": 0.4 / 0.1,
+	"gemini-2.5-pro":        10.0 / 1.25,
+	// zhipu
+	"glm-4.6":         2.2 / 0.6,
+	"glm-4.5":         2.2 / 0.6,
+	"glm-4.5-air":     1.1 / 0.2,
+	"glm-4.5-x":       8.9 / 2.2,
+	"glm-4.5-airx":    4.5 / 1.1,
+	"glm-4.5v":        6.0 / 2.0,
+	"glm-4.6v":        3.0 / 1.0,
+	"glm-4.6v-flashx": 1.5 / 0.15,
+	"glm-4.7":         2.2 / 0.6,
+	"glm-4.7-flashx":  0.4 / 0.07,
+	"glm-5":           3.2 / 1.0,
+	"glm-5.1":         4.4 / 1.4,
+	"glm-5.2":         4.4 / 1.4,
+	"glm-5.3":         4.4 / 1.4,
+	"glm-5.3-flash":   0.5 / 0.15,
+	"glm-5.3-flashx":  1.25 / 0.37,
+	// moonshot
+	"kimi-k2":              16.0 / 4.0,
+	"kimi-k2-0905-preview": 16.0 / 4.0,
+	"kimi-k2-thinking":     16.0 / 4.0,
+	// xiaomi mimo
+	"mimo-v2.6-pro":            0.87 / 0.435,
+	"mimo-v2.6-flash":          0.28 / 0.14,
+	"mimo-v2.6-pro-ultraspeed": 8.7 / 4.35,
+	"mimo-v2.5-pro":            0.87 / 0.435,
+	// opencode zen
+	"qwen3-coder-480b": 7.5 / 1.5,
+	// vercel ai gateway
+	"openai/gpt-5":              10.0 / 1.25,
+	"openai/gpt-5-mini":         2.0 / 0.25,
+	"openai/gpt-4.1":            8.0 / 2.0,
+	"openai/o3":                 8.0 / 2.0,
+	"anthropic/claude-sonnet-5": 15.0 / 3.0,
+	"anthropic/claude-opus-5":   25.0 / 5.0,
+	"google/gemini-2.5-pro":     10.0 / 1.25,
+	"google/gemini-2.5-flash":   2.5 / 0.3,
+	"deepseek/deepseek-r1(54)":  2.19 / 0.55, // Vercel 按 DeepSeek 官方价透传
+	// vercel ai gateway：其余透传官方价
+	"openai/gpt-5-nano":           0.4 / 0.05,
+	"anthropic/claude-sonnet-4.5": 15.0 / 3.0,
+	"anthropic/claude-haiku-4.5":  5.0 / 1.0,
+	"xai/grok-4":                  15.0 / 3.0,
+	"meta/llama-4-maverick":       0.6 / 0.15,
+	"mistral/mistral-large":       6.0 / 2.0,
+	// netlify ai gateway（同上，仅补基名缺失项与 OpenRouter 段透传价）
+	"claude-opus-4-5(61)":             25.0 / 5.0,
+	"claude-haiku-4-5(61)":            5.0 / 1.0,
+	"gpt-5-pro(61)":                   120.0 / 15.0,
+	"meta-llama/llama-4-maverick(61)": 0.85 / 0.22,
+	"qwen/qwen3-235b-a22b-2507(61)":   0.6 / 0.2,
+	"mistralai/mistral-large-4-0(61)": 6.0 / 2.0,
+	"x-ai/grok-4.7(61)":               15.0 / 3.0,
+	"z-ai/glm-5.3(61)":                2.2 / 0.6,
+	"perplexity/sonar-pro(61)":        15.0 / 3.0,
+	// netlify ai gateway：OpenRouter 段模型按 OpenRouter 官方价透传
+	"deepseek/deepseek-chat(61)": 1.2 / 0.3,
+	"deepseek/deepseek-r1(61)":   2.19 / 0.55,
+	"moonshotai/kimi-k2(61)":     2.5 / 0.6,
+	// 美团龙猫（限时折扣价：输出 $1.20 / 1M tokens）
+	"LongCat-2.5-Preview": 1.2 / 0.3,
+	"LongCat-2.0":         1.2 / 0.3,
+	"LongCat-Flash-Chat":  1.2 / 0.3,
+	"LongCat-Flash-Lite":  0.4 / 0.1,
+	// 模力方舟 moark（人民币价）
+	"DeepSeek-V4-Pro":               24.0 / 12.0,
+	"DeepSeek-V4-Pro-0813":          27.0 / 9.0,
+	"DeepSeek-V4-Flash":             2.0 / 1.0,
+	"DeepSeek-V4-Flash-0731":        9.0 / 3.0,
+	"DeepSeek-R1-Distill-Qwen-1.5B": 0, // moark 免费层
+	// 书生 internlm
+	"intern-s1":          5.0 / 1.0,
+	"internlm3-latest":   0.6 / 0.2,
+	"intern-s1-pro":      5.0 / 1.0,
+	"intern-latest":      0.6 / 0.2,
+	"internvl2.5-latest": 5.0 / 1.0,
+	// modelscope api-inference
+	"deepseek-ai/DeepSeek-R1":         2.19 / 0.55,
+	"ZhipuAI/GLM-5.1":                 4.4 / 1.4,
+	"Qwen/Qwen2.5-Coder-32B-Instruct": 8.0 / 2.0, // ¥8 / 1M output tokens
 }
 
 var (
