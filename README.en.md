@@ -204,6 +204,21 @@ If you encounter a blank page after deployment, refer to [#97](https://github.co
 </div>
 </details>
 
+<details>
+<summary><strong>Deploy on ZopDay</strong></summary>
+<div>
+
+> ZopDay deploys One API to managed ZopCloud, or into an AWS or GCP account you already own.
+
+Click the button below to deploy. The deploy screen opens with the `justsong/one-api` image and port `3000` already set:
+
+[![Deploy to ZopDay](https://zop.dev/deploytozopday-inkhard.svg)](https://zop.dev/zopday/app/deploy?image=justsong/one-api:latest&port=3000&name=one-api&utm_source=github&utm_medium=one_click&utm_content=one-api)
+
+By default it uses SQLite inside the container, so data is lost on redeploy. To keep data, add a `SQL_DSN` environment variable pointing at MySQL (see Environment Variables below for the format).
+
+</div>
+</details>
+
 ## Configuration
 The system is ready to use out of the box.
 

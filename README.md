@@ -311,6 +311,21 @@ Render 可以直接部署 docker 镜像，不需要 fork 仓库：https://dashbo
 </div>
 </details>
 
+<details>
+<summary><strong>部署到 ZopDay</strong></summary>
+<div>
+
+> ZopDay 可以把 One API 部署到托管的 ZopCloud，或部署到你自己已有的 AWS / GCP 账号中。
+
+点击以下按钮一键部署，部署页面会预先填好 `justsong/one-api` 镜像和 `3000` 端口：
+
+[![Deploy to ZopDay](https://zop.dev/deploytozopday-inkhard.svg)](https://zop.dev/zopday/app/deploy?image=justsong/one-api:latest&port=3000&name=one-api&utm_source=github&utm_medium=one_click&utm_content=one-api)
+
+默认使用容器内的 SQLite，重新部署后数据会丢失。如需持久化，请添加 `SQL_DSN` 环境变量连接 MySQL（格式见下方环境变量一节）。
+
+</div>
+</details>
+
 ## 配置
 系统本身开箱即用。
 

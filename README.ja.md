@@ -205,6 +205,21 @@ Please refer to the [environment variables](#environment-variables) section for 
 </div>
 </details>
 
+<details>
+<summary><strong>ZopDay へのデプロイ</strong></summary>
+<div>
+
+> ZopDay は One API をマネージドの ZopCloud、またはお持ちの AWS / GCP アカウントにデプロイします。
+
+下のボタンをクリックしてデプロイします。デプロイ画面には `justsong/one-api` イメージとポート `3000` があらかじめ設定されています：
+
+[![Deploy to ZopDay](https://zop.dev/deploytozopday-inkhard.svg)](https://zop.dev/zopday/app/deploy?image=justsong/one-api:latest&port=3000&name=one-api&utm_source=github&utm_medium=one_click&utm_content=one-api)
+
+デフォルトではコンテナ内の SQLite を使用するため、再デプロイするとデータは失われます。データを保持するには、MySQL を指す `SQL_DSN` 環境変数を追加してください。
+
+</div>
+</details>
+
 ## コンフィグ
 システムは箱から出してすぐに使えます。
 
