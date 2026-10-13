@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/songquanpeng/one-api/common"
@@ -49,6 +50,7 @@ func Relay(c *gin.Context) {
 		requestBody, _ := common.GetRequestBody(c)
 		logger.Debugf(ctx, "request body: %s", string(requestBody))
 	}
+	startTime := time.Now()
 	channelId := c.GetInt(ctxkey.ChannelId)
 	userId := c.GetInt(ctxkey.Id)
 	bizErr := relayHelper(c, relayMode)
@@ -94,12 +96,71 @@ func Relay(c *gin.Context) {
 			bizErr.Error.Message = "当前分组上游负载已饱和，请稍后再试"
 		}
 
+		if shouldRecordErrorLog(relayMode, bizErr) {
+			recordRelayErrorLog(c, *bizErr, startTime)
+		}
+
 		// BUG: bizErr is in race condition
 		bizErr.Error.Message = helper.MessageWithRequestId(bizErr.Error.Message, requestId)
 		c.JSON(bizErr.StatusCode, gin.H{
 			"error": bizErr.Error,
 		})
 	}
+}
+
+// shouldRecordErrorLog 判断一次失败是否应计入模型调用成功率。
+//
+// 统计口径：一次用户调用在分母中计 1 次，重试后成功不计失败（失败日志只在
+// 重试全部结束后记录一次）。两类失败不计入分母：
+//  1. 未到达上游的本地错误（请求校验、额度预扣、请求体转换等），
+//     它们是用户侧请求/账户问题，并非模型调用失败；
+//  2. Proxy 模式不记录成功日志（无计费点），为保持分子分母同源亦不记录。
+func shouldRecordErrorLog(relayMode int, bizErr *model.ErrorWithStatusCode) bool {
+	if relayMode == relaymode.Proxy {
+		return false
+	}
+	switch bizErr.Error.Code {
+	case "invalid_text_request",
+		"invalid_image_request",
+		"invalid_json",
+		"text_too_long",
+		"prompt_missing",
+		"prompt_too_long",
+		"size_not_supported",
+		"n_not_within_range",
+		"insufficient_user_quota",
+		"get_user_quota_failed",
+		"decrease_user_quota_failed",
+		"pre_consume_token_quota_failed",
+		"convert_request_failed",
+		"convert_image_request_failed",
+		"new_request_body_failed",
+		"new_request_failed",
+		"marshal_image_request_failed",
+		"get_image_cost_ratio_failed",
+		"invalid_api_type":
+		return false
+	}
+	return true
+}
+
+// recordRelayErrorLog 记录一次最终失败的模型调用（LogTypeError），
+// 与成功路径的 RecordConsumeLog（LogTypeConsume）共同构成调用成功率。
+func recordRelayErrorLog(c *gin.Context, bizErr model.ErrorWithStatusCode, startTime time.Time) {
+	ctx := c.Request.Context()
+	modelName := c.GetString(ctxkey.ActualModel)
+	if modelName == "" {
+		modelName = c.GetString(ctxkey.OriginalModel)
+	}
+	dbmodel.RecordErrorLog(ctx, &dbmodel.Log{
+		UserId:       c.GetInt(ctxkey.Id),
+		ChannelId:    c.GetInt(ctxkey.ChannelId),
+		ModelName:    modelName,
+		TokenName:    c.GetString(ctxkey.TokenName),
+		Content:      bizErr.Message,
+		IsStream:     c.GetBool(ctxkey.IsStream),
+		ElapsedTime:  helper.CalcElapsedTime(startTime),
+	})
 }
 
 func shouldRetry(c *gin.Context, statusCode int) bool {

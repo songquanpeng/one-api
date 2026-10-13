@@ -315,6 +315,10 @@
     "usage_details": "Usage Details",
     "total_quota": "Total Quota Used",
     "click_to_view": "Click to View",
+    "success_rate": "Success Rate",
+    "success_count": "Success",
+    "error_count": "Error",
+    "no_records": "No records",
     "type": {
       "select": "Select Log Type",
       "all": "All",
@@ -322,7 +326,8 @@
       "usage": "Usage",
       "admin": "Admin",
       "system": "System",
-      "test": "Test"
+      "test": "Test",
+      "error": "Error"
     },
     "table": {
       "time": "Time",
@@ -447,6 +452,13 @@
         "date": "Date",
         "value": "Value"
       }
+    },
+    "success_rate": {
+      "title": "Success Rate",
+      "last_24h": "Last 24 Hours",
+      "success": "Success",
+      "error": "Error",
+      "empty": "No calls in the last 24 hours"
     }
   },
   "setting": {

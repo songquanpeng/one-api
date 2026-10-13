@@ -38,6 +38,9 @@ const (
 	LogTypeManage
 	LogTypeSystem
 	LogTypeTest
+	// LogTypeError 记录一次失败的模型调用（成功调用由 LogTypeConsume 记录），
+	// 二者共同构成调用成功率统计的分母。注意：不可改为 5，5 已被 LogTypeTest 占用。
+	LogTypeError
 )
 
 func recordLogHelper(ctx context.Context, log *Log) {
@@ -90,6 +93,21 @@ func RecordConsumeLog(ctx context.Context, log *Log) {
 func RecordTestLog(ctx context.Context, log *Log) {
 	log.CreatedAt = helper.GetTimestamp()
 	log.Type = LogTypeTest
+	recordLogHelper(ctx, log)
+}
+
+// RecordErrorLog 记录一次失败的模型调用。
+// 与 RecordConsumeLog 共用 LogConsumeEnabled 开关：关闭后成功/失败日志均不记录，
+// 成功率统计随之停用（分子分母同源，避免只记失败导致成功率虚低）。
+// 仅应在请求真正到达上游后失败时调用；参数校验、额度预扣等未到达上游的本地错误
+// 不计入调用成功率（见 controller.shouldRecordErrorLog）。
+func RecordErrorLog(ctx context.Context, log *Log) {
+	if !config.LogConsumeEnabled {
+		return
+	}
+	log.Username = GetUsernameById(log.UserId)
+	log.CreatedAt = helper.GetTimestamp()
+	log.Type = LogTypeError
 	recordLogHelper(ctx, log)
 }
 
@@ -248,4 +266,51 @@ func SearchLogsByDayAndModel(userId, start, end int) (LogStatistics []*LogStatis
 	`, userId, start, end).Scan(&LogStatistics).Error
 
 	return LogStatistics, err
+}
+
+// SuccessRateStatistic 单个模型的调用成功率统计。
+// SuccessCount 来自 LogTypeConsume 日志，ErrorCount 来自 LogTypeError 日志。
+type SuccessRateStatistic struct {
+	ModelName    string `gorm:"column:model_name" json:"model_name"`
+	SuccessCount int64  `gorm:"column:success_count" json:"success_count"`
+	ErrorCount   int64  `gorm:"column:error_count" json:"error_count"`
+}
+
+// GetSuccessRateStatistics 按模型聚合调用成功率。
+// 仅统计 LogTypeConsume（成功）与 LogTypeError（失败）两类日志；
+// userId 为 0 时不限制用户（管理员视角），否则仅统计指定用户。
+func GetSuccessRateStatistics(userId int, startTimestamp int64, endTimestamp int64, modelName string, username string, tokenName string, channel int) (stats []*SuccessRateStatistic, err error) {
+	tx := LOG_DB.Table("logs").
+		Select("model_name, " +
+			"SUM(CASE WHEN type = ? THEN 1 ELSE 0 END) as success_count, " +
+			"SUM(CASE WHEN type = ? THEN 1 ELSE 0 END) as error_count",
+			LogTypeConsume, LogTypeError).
+		Where("type IN ?", []int{LogTypeConsume, LogTypeError})
+	if userId != 0 {
+		tx = tx.Where("user_id = ?", userId)
+	}
+	if username != "" {
+		tx = tx.Where("username = ?", username)
+	}
+	if tokenName != "" {
+		tx = tx.Where("token_name = ?", tokenName)
+	}
+	if startTimestamp != 0 {
+		tx = tx.Where("created_at >= ?", startTimestamp)
+	}
+	if endTimestamp != 0 {
+		tx = tx.Where("created_at <= ?", endTimestamp)
+	}
+	if modelName != "" {
+		tx = tx.Where("model_name = ?", modelName)
+	}
+	if channel != 0 {
+		tx = tx.Where("channel_id = ?", channel)
+	}
+	err = tx.Group("model_name").
+		// 已限定 type IN (2, 6)，count(1) 即该模型总调用次数；
+		// 不能用 "success_count + error_count"（PostgreSQL 不允许 ORDER BY 引用输出列别名）
+		Order("count(1) DESC").
+		Scan(&stats).Error
+	return stats, err
 }

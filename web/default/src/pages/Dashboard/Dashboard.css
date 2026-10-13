@@ -46,6 +46,80 @@
     border-radius: 12px;
 }
 
+/* 调用成功率面板 */
+.success-rate-panel {
+    padding: 8px 16px 16px;
+}
+
+.success-rate-summary {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.success-rate-value {
+    font-size: 2.2em;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.success-rate-detail {
+    color: #A3AED0;
+    font-size: 0.9em;
+}
+
+.success-rate-models {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.success-rate-model-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.success-rate-model-name {
+    width: 180px;
+    flex-shrink: 0;
+    font-size: 0.85em;
+    color: #2B3674;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.success-rate-bar-track {
+    flex: 1;
+    height: 8px;
+    background: rgba(163, 174, 208, 0.2);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.success-rate-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.3s ease;
+}
+
+.success-rate-model-value {
+    width: 64px;
+    flex-shrink: 0;
+    text-align: right;
+    font-size: 0.85em;
+    font-weight: 600;
+}
+
+.success-rate-empty {
+    padding: 24px 0;
+    text-align: center;
+    color: #A3AED0;
+    font-size: 0.9em;
+}
+
 .ui.card > .content > .header {
     color: #2B3674;
     font-size: 1.2em;

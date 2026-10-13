@@ -61,10 +61,31 @@ const Dashboard = () => {
     todayQuota: 0,
     todayTokens: 0,
   });
+  const [successRateData, setSuccessRateData] = useState({
+    total: { success_count: 0, error_count: 0, success_rate: 0 },
+    models: [],
+  });
 
   useEffect(() => {
     fetchDashboardData();
+    fetchSuccessRate();
   }, []);
+
+  // 最近 24 小时的模型调用成功率（当前用户视角）
+  const fetchSuccessRate = async () => {
+    try {
+      const now = Math.floor(Date.now() / 1000);
+      const oneDayAgo = now - 24 * 60 * 60;
+      const response = await axios.get(
+        `/api/log/self/success_rate?start_timestamp=${oneDayAgo}&end_timestamp=${now}`
+      );
+      if (response.data.success) {
+        setSuccessRateData(response.data.data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch success rate:', error);
+    }
+  };
 
   const fetchDashboardData = async () => {
     try {
@@ -215,6 +236,14 @@ const Dashboard = () => {
       month: 'numeric',
       day: 'numeric',
     });
+  };
+
+  // 成功率分级配色（参考 new-api 的健康度阈值：100/90/70）
+  const getSuccessRateColor = (rate) => {
+    if (rate >= 100) return '#05CD99';
+    if (rate >= 90) return '#6C63FF';
+    if (rate >= 70) return '#FFB547';
+    return '#FF5E7D';
   };
 
   // 修改所有 XAxis 配置
@@ -451,6 +480,83 @@ const Dashboard = () => {
               </BarChart>
             </ResponsiveContainer>
           </div>
+        </Card.Content>
+      </Card>
+
+      {/* 调用成功率（最近 24 小时） */}
+      <Card fluid className='chart-card'>
+        <Card.Content>
+          <Card.Header>
+            {t('dashboard.success_rate.title')}
+            <span
+              style={{
+                float: 'right',
+                fontSize: '14px',
+                fontWeight: 'normal',
+                color: '#A3AED0',
+              }}
+            >
+              {t('dashboard.success_rate.last_24h')}
+            </span>
+          </Card.Header>
+          {(() => {
+            const total = successRateData.total || {};
+            const success = total.success_count || 0;
+            const errorCount = total.error_count || 0;
+            const rate = total.success_rate || 0;
+            const totalCount = success + errorCount;
+            const topModels = (successRateData.models || []).slice(0, 5);
+            return (
+              <div className='success-rate-panel'>
+                {totalCount > 0 ? (
+                  <>
+                    <div className='success-rate-summary'>
+                      <span
+                        className='success-rate-value'
+                        style={{ color: getSuccessRateColor(rate) }}
+                      >
+                        {rate.toFixed(2)}%
+                      </span>
+                      <span className='success-rate-detail'>
+                        {t('dashboard.success_rate.success')} {success} /{' '}
+                        {t('dashboard.success_rate.error')} {errorCount}
+                      </span>
+                    </div>
+                    {topModels.length > 0 && (
+                      <div className='success-rate-models'>
+                        {topModels.map((item) => (
+                          <div className='success-rate-model-row' key={item.model_name}>
+                            <span className='success-rate-model-name' title={item.model_name}>
+                              {item.model_name}
+                            </span>
+                            <div className='success-rate-bar-track'>
+                              <div
+                                className='success-rate-bar-fill'
+                                style={{
+                                  width: `${item.success_rate}%`,
+                                  background: getSuccessRateColor(item.success_rate),
+                                }}
+                              />
+                            </div>
+                            <span
+                              className='success-rate-model-value'
+                              style={{ color: getSuccessRateColor(item.success_rate) }}
+                            >
+                              {item.success_rate.toFixed(2)}%
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <div className='success-rate-empty'>
+                    {t('dashboard.success_rate.empty')}
+                  </div>
+                )}
+              </div>
+            );
+          })()}
         </Card.Content>
       </Card>
     </div>

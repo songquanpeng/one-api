@@ -10,6 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/songquanpeng/one-api/common/config"
+	"github.com/songquanpeng/one-api/common/ctxkey"
 	"github.com/songquanpeng/one-api/common/logger"
 	"github.com/songquanpeng/one-api/relay"
 	"github.com/songquanpeng/one-api/relay/adaptor"
@@ -40,6 +41,7 @@ func RelayTextHelper(c *gin.Context) *model.ErrorWithStatusCode {
 		return openai.ErrorWrapper(err, "invalid_text_request", http.StatusBadRequest)
 	}
 	meta.IsStream = textRequest.Stream
+	c.Set(ctxkey.IsStream, textRequest.Stream)
 
 	if meta.Mode == relaymode.Responses {
 		// Responses 请求已转换为 Chat Completions 请求体，同步修正上游请求路径，
@@ -51,6 +53,8 @@ func RelayTextHelper(c *gin.Context) *model.ErrorWithStatusCode {
 	meta.OriginModelName = textRequest.Model
 	textRequest.Model, _ = getMappedModelName(textRequest.Model, meta.ModelMapping)
 	meta.ActualModelName = textRequest.Model
+	// 实际（映射后）模型名同步到 context，供失败日志按同一模型名口径统计成功率
+	c.Set(ctxkey.ActualModel, textRequest.Model)
 	// set system prompt if not empty
 	systemPromptReset := setSystemPrompt(ctx, textRequest, meta.ForcedSystemPrompt)
 	// get model ratio & group ratio（渠道级每模型独立定价优先）

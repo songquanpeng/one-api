@@ -22,4 +22,6 @@ const (
 	KeyRequestBody    = "key_request_body"
 	SystemPrompt      = "system_prompt"
 	ChannelModelRatio = "channel_model_ratio"
+	ActualModel       = "actual_model"
+	IsStream          = "is_stream"
 )

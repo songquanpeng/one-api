@@ -3,6 +3,7 @@ import { Grid, Typography } from '@mui/material';
 import { gridSpacing } from 'store/constant';
 import StatisticalLineChartCard from './component/StatisticalLineChartCard';
 import StatisticalBarChart from './component/StatisticalBarChart';
+import SuccessRateCard from './component/SuccessRateCard';
 import { generateChartOptions, getLastSevenDays } from 'utils/chart';
 import { API } from 'utils/api';
 import { showError, calculateQuota, renderNumber } from 'utils/common';
@@ -15,6 +16,7 @@ const Dashboard = () => {
   const [quotaChart, setQuotaChart] = useState(null);
   const [tokenChart, setTokenChart] = useState(null);
   const [users, setUsers] = useState([]);
+  const [successRateData, setSuccessRateData] = useState(null);
 
   const userDashboard = async () => {
     const res = await API.get('/api/user/dashboard');
@@ -33,6 +35,21 @@ const Dashboard = () => {
     setLoading(false);
   };
 
+  // 最近 24 小时的模型调用成功率（当前用户视角）
+  const loadSuccessRate = async () => {
+    const now = Math.floor(Date.now() / 1000);
+    const oneDayAgo = now - 24 * 60 * 60;
+    const res = await API.get(
+      `/api/log/self/success_rate?start_timestamp=${oneDayAgo}&end_timestamp=${now}`
+    );
+    const { success, message, data } = res.data;
+    if (success) {
+      setSuccessRateData(data);
+    } else {
+      showError(message);
+    }
+  };
+
   const loadUser = async () => {
     let res = await API.get(`/api/user/self`);
     const { success, message, data } = res.data;
@@ -46,6 +63,7 @@ const Dashboard = () => {
   useEffect(() => {
     userDashboard();
     loadUser();
+    loadSuccessRate();
   }, []);
 
   return (
@@ -83,6 +101,13 @@ const Dashboard = () => {
           <Grid item lg={8} xs={12}>
             <StatisticalBarChart isLoading={isLoading} chartDatas={statisticalData} />
           </Grid>
+          <Grid item lg={4} xs={12}>
+            <SuccessRateCard isLoading={isLoading} data={successRateData} />
+          </Grid>
+        </Grid>
+      </Grid>
+      <Grid item xs={12}>
+        <Grid container spacing={gridSpacing}>
           <Grid item lg={4} xs={12}>
             <UserCard>
               <Grid container spacing={gridSpacing} justifyContent="center" alignItems="center" paddingTop={'20px'}>

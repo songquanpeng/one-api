@@ -315,6 +315,10 @@
     "usage_details": "使用明细",
     "total_quota": "总消耗额度",
     "click_to_view": "点击查看",
+    "success_rate": "调用成功率",
+    "success_count": "成功",
+    "error_count": "失败",
+    "no_records": "暂无调用记录",
     "type": {
       "select": "选择明细分类",
       "all": "全部",
@@ -322,7 +326,8 @@
       "usage": "消费",
       "admin": "管理",
       "system": "系统",
-      "test": "测试"
+      "test": "测试",
+      "error": "错误"
     },
     "table": {
       "time": "时间",
@@ -447,6 +452,13 @@
         "date": "日期",
         "value": "数值"
       }
+    },
+    "success_rate": {
+      "title": "调用成功率",
+      "last_24h": "最近 24 小时",
+      "success": "成功",
+      "error": "失败",
+      "empty": "最近 24 小时内暂无调用记录"
     }
   },
   "setting": {

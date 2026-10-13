@@ -30,9 +30,19 @@ function renderType(type) {
       return <Tag color="purple" size="large"> 系统 </Tag>;
     case 5:
       return <Tag color="violet" size="large"> 测试 </Tag>;
+    case 6:
+      return <Tag color="red" size="large"> 错误 </Tag>;
     default:
       return <Tag color="black" size="large"> 未知 </Tag>;
   }
+}
+
+// 成功率分级配色（参考 new-api 的健康度阈值：100/90/70）
+function getSuccessRateColor(rate) {
+  if (rate >= 100) return 'green';
+  if (rate >= 90) return 'lime';
+  if (rate >= 70) return 'yellow';
+  return 'red';
 }
 
 function renderIsStream(bool) {
@@ -166,8 +176,36 @@ const LogsTable = () => {
     quota: 0, token: 0
   });
 
+  const [successRate, setSuccessRate] = useState({
+    total: { success_count: 0, error_count: 0, success_rate: 0 }
+  });
+
   const handleInputChange = (value, name) => {
     setInputs((inputs) => ({ ...inputs, [name]: value }));
+  };
+
+  const getLogSelfSuccessRate = async () => {
+    let localStartTimestamp = Date.parse(start_timestamp) / 1000;
+    let localEndTimestamp = Date.parse(end_timestamp) / 1000;
+    let res = await API.get(`/api/log/self/success_rate?token_name=${token_name}&model_name=${model_name}&start_timestamp=${localStartTimestamp}&end_timestamp=${localEndTimestamp}`);
+    const { success, message, data } = res.data;
+    if (success) {
+      setSuccessRate(data);
+    } else {
+      showError(message);
+    }
+  };
+
+  const getLogSuccessRate = async () => {
+    let localStartTimestamp = Date.parse(start_timestamp) / 1000;
+    let localEndTimestamp = Date.parse(end_timestamp) / 1000;
+    let res = await API.get(`/api/log/success_rate?username=${username}&token_name=${token_name}&model_name=${model_name}&start_timestamp=${localStartTimestamp}&end_timestamp=${localEndTimestamp}&channel=${channel}`);
+    const { success, message, data } = res.data;
+    if (success) {
+      setSuccessRate(data);
+    } else {
+      showError(message);
+    }
   };
 
   const getLogSelfStat = async () => {
@@ -198,8 +236,10 @@ const LogsTable = () => {
     setLoadingStat(true);
     if (isAdminUser) {
       await getLogStat();
+      await getLogSuccessRate();
     } else {
       await getLogSelfStat();
+      await getLogSelfSuccessRate();
     }
     setShowStat(true);
     setLoadingStat(false);
@@ -338,6 +378,12 @@ const LogsTable = () => {
             <span onClick={handleEyeClick} style={{
               cursor: 'pointer', color: 'gray'
             }}>{showStat ? renderQuota(stat.quota) : '点击查看'}</span>
+            {showStat && successRate.total.success_count + successRate.total.error_count > 0 && <>
+              ，调用成功率：
+              <Tag color={getSuccessRateColor(successRate.total.success_rate)} size="large">
+                {successRate.total.success_rate.toFixed(2)}%（成功 {successRate.total.success_count} / 失败 {successRate.total.error_count}）
+              </Tag>
+            </>}
             ）
           </h3>
         </Spin>
@@ -395,6 +441,7 @@ const LogsTable = () => {
         <Select.Option value="2">消费</Select.Option>
         <Select.Option value="3">管理</Select.Option>
         <Select.Option value="4">系统</Select.Option>
+        <Select.Option value="6">错误</Select.Option>
       </Select>
     </Layout>
   </>);

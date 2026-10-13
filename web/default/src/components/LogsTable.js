@@ -79,6 +79,12 @@ function renderType(type) {
           测试
         </Label>
       );
+    case 6:
+      return (
+        <Label basic color='red'>
+          错误
+        </Label>
+      );
     default:
       return (
         <Label basic color='black'>
@@ -162,6 +168,11 @@ const LogsTable = () => {
     token: 0,
   });
 
+  const [successRate, setSuccessRate] = useState({
+    total: { success_count: 0, error_count: 0, success_rate: 0 },
+    models: [],
+  });
+
   const LOG_OPTIONS = [
     { key: '0', text: t('log.type.all'), value: 0 },
     { key: '1', text: t('log.type.topup'), value: 1 },
@@ -169,6 +180,7 @@ const LogsTable = () => {
     { key: '3', text: t('log.type.admin'), value: 3 },
     { key: '4', text: t('log.type.system'), value: 4 },
     { key: '5', text: t('log.type.test'), value: 5 },
+    { key: '6', text: t('log.type.error'), value: 6 },
   ];
 
   const handleInputChange = (e, { name, value }) => {
@@ -203,19 +215,84 @@ const LogsTable = () => {
     }
   };
 
+  const getLogSelfSuccessRate = async () => {
+    let localStartTimestamp = Date.parse(start_timestamp) / 1000;
+    let localEndTimestamp = Date.parse(end_timestamp) / 1000;
+    let res = await API.get(
+      `/api/log/self/success_rate?token_name=${token_name}&model_name=${model_name}&start_timestamp=${localStartTimestamp}&end_timestamp=${localEndTimestamp}`
+    );
+    const { success, message, data } = res.data;
+    if (success) {
+      setSuccessRate(data);
+    } else {
+      showError(message);
+    }
+  };
+
+  const getLogSuccessRate = async () => {
+    let localStartTimestamp = Date.parse(start_timestamp) / 1000;
+    let localEndTimestamp = Date.parse(end_timestamp) / 1000;
+    let res = await API.get(
+      `/api/log/success_rate?username=${username}&token_name=${token_name}&model_name=${model_name}&start_timestamp=${localStartTimestamp}&end_timestamp=${localEndTimestamp}&channel=${channel}`
+    );
+    const { success, message, data } = res.data;
+    if (success) {
+      setSuccessRate(data);
+    } else {
+      showError(message);
+    }
+  };
+
   const handleEyeClick = async () => {
     if (!showStat) {
       if (isAdminUser) {
         await getLogStat();
+        await getLogSuccessRate();
       } else {
         await getLogSelfStat();
+        await getLogSelfSuccessRate();
       }
     }
     setShowStat(!showStat);
   };
 
   const showUserTokenQuota = () => {
-    return logType !== 5;
+    return logType !== 5 && logType !== 6;
+  };
+
+  // 成功率分级配色（参考 new-api 的健康度阈值：100/90/70）
+  const getSuccessRateColor = (rate) => {
+    if (rate >= 100) return 'green';
+    if (rate >= 90) return 'olive';
+    if (rate >= 70) return 'yellow';
+    return 'red';
+  };
+
+  const renderSuccessRate = () => {
+    if (!showStat) return null;
+    const total = successRate.total || {};
+    const success = total.success_count || 0;
+    const errorCount = total.error_count || 0;
+    const rate = total.success_rate || 0;
+    return (
+      <>
+        {'，'}
+        {t('log.success_rate')}：
+        {success + errorCount > 0 ? (
+          <Label
+            basic
+            size='small'
+            color={getSuccessRateColor(rate)}
+            style={{ marginLeft: '4px' }}
+          >
+            {rate.toFixed(2)}%（{t('log.success_count')} {success} /{' '}
+            {t('log.error_count')} {errorCount}）
+          </Label>
+        ) : (
+          <span>{t('log.no_records')}</span>
+        )}
+      </>
+    );
   };
 
   const loadLogs = async (startIdx) => {
@@ -321,6 +398,7 @@ const LogsTable = () => {
             {t('log.click_to_view')}
           </span>
         )}
+        {renderSuccessRate()}
         ）
       </Header>
       <Form>

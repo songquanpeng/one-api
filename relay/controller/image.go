@@ -117,6 +117,8 @@ func RelayImageHelper(c *gin.Context, relayMode int) *relaymodel.ErrorWithStatus
 	meta.OriginModelName = imageRequest.Model
 	imageRequest.Model, isModelMapped = getMappedModelName(imageRequest.Model, meta.ModelMapping)
 	meta.ActualModelName = imageRequest.Model
+	// 实际（映射后）模型名同步到 context，供失败日志按同一模型名口径统计成功率
+	c.Set(ctxkey.ActualModel, imageRequest.Model)
 
 	// model validation
 	bizErr := validateImageRequest(imageRequest, meta)

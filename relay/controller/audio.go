@@ -114,6 +114,8 @@ func RelayAudioHelper(c *gin.Context, relayMode int) *relaymodel.ErrorWithStatus
 	if modelMapping != nil && modelMapping[audioModel] != "" {
 		audioModel = modelMapping[audioModel]
 	}
+	// 实际（映射后）模型名同步到 context，供失败日志按同一模型名口径统计成功率
+	c.Set(ctxkey.ActualModel, audioModel)
 
 	baseURL := channeltype.ChannelBaseURLs[channelType]
 	requestURL := c.Request.URL.String()
