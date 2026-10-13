@@ -320,7 +320,17 @@ docker run --name chatgpt-web -d -p 3002:3002 -e OPENAI_API_BASE_URL=https://ope
 
 > Render 提供免费额度，绑卡后可以进一步提升额度
 
-Render 可以直接部署 docker 镜像，不需要 fork 仓库：https://dashboard.render.com
+本仓库根目录提供了 [`render.yaml`](render.yaml)（Render Blueprint），一键完成全部配置：
+
+1. 将本仓库 push 到你的 GitHub（Render 通过 GitHub 拉取代码，暂不支持 Gitee）。
+2. 打开 [Render Dashboard](https://dashboard.render.com)，首次使用需先授权 GitHub 账号。
+3. 点击 **New → Blueprint**，选择本仓库的 `main` 分支，Render 会自动读取 `render.yaml`。
+4. 点击 **Apply**，等待构建完成（首次约 10~15 分钟，含前端三主题编译）。
+5. 访问 Render 分配的 `<name>.onrender.com` 域名，按提示创建管理员账号。
+
+Blueprint 默认配置：区域**新加坡**（国内延迟最低）、免费档（0.1 CPU / 512MB）、健康检查 `/api/status`、自动生成 `SESSION_SECRET`。
+
+> 注意：免费档 15 分钟无流量会休眠，且**没有持久磁盘**——重新部署后 SQLite 数据（渠道、令牌、用户）会丢失。需要持久化时，将 `render.yaml` 中 `plan` 改为 `0.5c-512mb` 并取消 `disk` 注释（约 $7.25/月）。
 
 </div>
 </details>

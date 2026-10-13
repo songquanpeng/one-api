@@ -1,0 +1,31 @@
+# Render Blueprint — one-api 部署配置
+# 文档: https://render.com/docs/yaml-spec
+# 使用方式: Render Dashboard → New → Blueprint → 选择本仓库(main 分支) → Apply
+services:
+  - type: web
+    runtime: docker              # 使用仓库根目录的 Dockerfile 多阶段构建（前端三主题 + Go 二进制）
+    name: one-api
+    plan: free                   # 0.1 CPU / 512MB。注意：免费档 15 分钟无流量会休眠，且文件系统不持久
+    region: singapore            # 新加坡，国内访问延迟最低的 Render 区域
+    branch: main
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /api/status # one-api 内置健康检查端点，返回 200
+    autoDeployTrigger: commit    # 关联 GitHub 后，每次 push 自动重新部署
+    envVars:
+      - key: PORT
+        value: "10000"           # Render 默认端口；one-api 通过 PORT 环境变量监听（0.0.0.0）
+      - key: TZ
+        value: Asia/Shanghai     # 日志时间戳使用北京时间
+      - key: SQLITE_PATH
+        value: /data/one-api.db  # 默认 SQLite；改 MySQL/PostgreSQL 请设置 SQL_DSN
+      - key: SESSION_SECRET
+        generateValue: true      # Render 自动生成随机 256-bit 密钥，不写入仓库明文
+
+    # ---- 数据持久化（需付费套餐，按需取消注释）----
+    # 免费档没有持久磁盘：容器重启或重新部署后，SQLite 数据（渠道、令牌、用户、日志）会全部丢失。
+    # 需要持久化时：将上方 plan 改为 0.5c-512mb（约 $7/月），并取消下面三行注释：
+    # disk:
+    #   name: one-api-data
+    #   mountPath: /data
+    #   sizeGB: 1                 # 约 $0.25/GB/月，只能增大不能缩小

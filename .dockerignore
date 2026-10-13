@@ -1,0 +1,13 @@
+# 依赖与构建产物（Dockerfile 内会重新安装/构建）
+**/node_modules
+**/dist
+web/build
+
+# 版本库与本地二进制
+.git
+one-api
+
+# 日志与临时文件
+logs
+*.log
+**/.DS_Store
