@@ -1,0 +1,35 @@
+// One API → Cloudflare Containers 部署配置
+// 文档: https://developers.cloudflare.com/containers/
+// 部署: npx wrangler deploy（需要 Workers Paid 计划 + 本地 Docker，或用 GitHub Actions）
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "oneapi",
+  "main": "worker/src/index.ts",
+  "compatibility_date": "2026-10-01",
+  "observability": { "enabled": true },
+
+  "containers": [
+    {
+      // 请求路由到 class OneAPIContainer（见 worker/src/index.ts）
+      "class_name": "OneAPIContainer",
+      // wrangler deploy 时用本地 Docker 从根目录 Dockerfile 构建；
+      // GitHub Actions 的 ubuntu-latest 自带 Docker，推荐用它部署
+      "image": "./Dockerfile",
+      "max_instances": 1,
+      // 自定义规格: 0.5 vCPU / 1GB 内存 / 4GB 磁盘（SQLite 或临时文件够用）
+      "instance_type": { "vcpu": 0.5, "memory_mib": 1024, "disk_mb": 4000 }
+    }
+  ],
+
+  "durable_objects": {
+    "bindings": [
+      { "name": "ONEAPI_CONTAINER", "class_name": "OneAPIContainer" }
+    ]
+  },
+  "migrations": [
+    { "new_sqlite_classes": ["OneAPIContainer"], "tag": "v1" }
+  ]
+  // Secrets（不在仓库里，部署时执行）:
+  //   npx wrangler secret put SQL_DSN          ← Supabase Postgres 连接串
+  //   npx wrangler secret put SESSION_SECRET   ← 随机字符串
+}

@@ -1,0 +1,16 @@
+{
+  "name": "oneapi-worker",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "deploy": "wrangler deploy",
+    "dev": "wrangler dev"
+  },
+  "dependencies": {
+    "@cloudflare/containers": "^0.0.14"
+  },
+  "devDependencies": {
+    "wrangler": "^4.60.0",
+    "@cloudflare/workers-types": "^4.20260101.0"
+  }
+}

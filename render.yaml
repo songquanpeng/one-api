@@ -18,7 +18,9 @@ services:
       - key: TZ
         value: Asia/Shanghai     # 日志时间戳使用北京时间
       - key: SQLITE_PATH
-        value: /data/one-api.db  # 默认 SQLite；改 MySQL/PostgreSQL 请设置 SQL_DSN
+        value: /data/one-api.db  # 默认 SQLite（免费档容器文件系统不持久：重新部署后数据重置）
+                                 # 如需持久化: Supabase Postgres 连接串填到 SQL_DSN 即可切换:
+                                 # postgres://postgres.<项目ref>:<密码>@aws-0-us-east-1.pooler.supabase.com:6543/postgres
       - key: SESSION_SECRET
         generateValue: true      # Render 自动生成随机 256-bit 密钥，不写入仓库明文
 

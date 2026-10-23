@@ -1,0 +1,37 @@
+# Cloudflare Containers 自动部署
+# 前置条件（GitHub 仓库 Settings → Secrets and variables → Actions）:
+#   CLOUDFLARE_API_TOKEN — 权限: Workers Scripts:Edit, Containers:Edit, Durable Objects:Edit,
+#                          Account Resources: Include - 全部账号
+# 前置条件（一次性，本地或 Actions 内执行）:
+#   npx wrangler secret put SQL_DSN          # Supabase Postgres 连接串
+#   npx wrangler secret put SESSION_SECRET   # 随机字符串
+name: Deploy Cloudflare Containers
+
+on:
+  push:
+    branches: [main]
+    paths-ignore: ["**.md", "docs/**"]
+  workflow_dispatch:
+
+concurrency:
+  group: cf-containers-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest   # 自带 Docker daemon，wrangler 直接构建镜像
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install wrangler
+        run: npm i -g wrangler@latest
+
+      - name: Build & deploy container
+        run: wrangler deploy --config wrangler.jsonc
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
