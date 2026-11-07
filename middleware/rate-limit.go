@@ -72,7 +72,10 @@ func memoryRateLimiter(c *gin.Context, maxRequestNum int, duration int64, mark s
 }
 
 func rateLimitFactory(maxRequestNum int, duration int64, mark string) func(c *gin.Context) {
-	if maxRequestNum == 0 || config.DebugEnabled {
+	// Only an explicit maxRequestNum of 0 disables the limiter. Debug mode must not:
+	// these limits (CriticalRateLimit in particular) are security controls, not a
+	// convenience, so DEBUG=true must not turn login throttling into a no-op.
+	if maxRequestNum == 0 {
 		return func(c *gin.Context) {
 			c.Next()
 		}
