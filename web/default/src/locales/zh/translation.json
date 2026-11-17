@@ -186,6 +186,8 @@
       "disable": "禁用",
       "edit": "编辑",
       "add": "添加新的令牌",
+      "ai_switch": "导入 AI Switch",
+      "ai_switch_tip": "一键把本站点地址与密钥导入 AI Switch 桌面端（OpenAI 兼容协议）",
       "refresh": "刷新"
     },
     "edit": {

@@ -186,6 +186,8 @@
       "disable": "Disable",
       "edit": "Edit",
       "add": "Add New Token",
+      "ai_switch": "AI Switch",
+      "ai_switch_tip": "Import this site address and key into the AI Switch desktop app with one click (OpenAI-compatible protocol)",
       "refresh": "Refresh"
     },
     "edit": {

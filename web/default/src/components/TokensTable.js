@@ -211,6 +211,29 @@ const TokensTable = () => {
     window.open(url, '_blank');
   };
 
+  const onImportAiSwitch = (token) => {
+    let status = localStorage.getItem('status');
+    let serverAddress = '';
+    if (status) {
+      status = JSON.parse(status);
+      serverAddress = status.server_address;
+    }
+    if (serverAddress === '') {
+      serverAddress = window.location.origin;
+    }
+    // one-api only exposes the OpenAI-compatible chat completions endpoint,
+    // which maps to AI Switch's "grok" app dialect. The base URL carries /v1;
+    // AI Switch appends /chat/completions itself.
+    const params = new URLSearchParams();
+    params.set('resource', 'provider');
+    params.set('app', 'grok');
+    params.set('name', (token.name || '').trim() || 'one-api');
+    params.set('endpoint', serverAddress.replace(/\/+$/, '') + '/v1');
+    params.set('apiKey', 'sk-' + token.key);
+    params.set('homepage', serverAddress);
+    window.open(`aiswitch://v1/import?${params.toString()}`, '_blank');
+  };
+
   useEffect(() => {
     loadTokens(0, orderBy)
       .then()
@@ -445,6 +468,16 @@ const TokensTable = () => {
                           trigger={<></>}
                         />
                       </Button.Group>{' '}
+                      <Popup
+                        trigger={
+                          <Button size='tiny' color='violet'>
+                            {t('token.buttons.ai_switch')}
+                          </Button>
+                        }
+                        content={t('token.buttons.ai_switch_tip')}
+                        on='hover'
+                      />
+                      {' '}
                       <Popup
                         trigger={
                           <Button size='mini' negative>
