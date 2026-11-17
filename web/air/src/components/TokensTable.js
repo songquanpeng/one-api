@@ -197,6 +197,9 @@ const TokensTable = () => {
                       icon={<IconTreeTriangleDown />}></Button>
             </Dropdown>
           </SplitButtonGroup>
+          <Button theme="light" type="primary" style={{ marginRight: 1 }} onClick={() => {
+            onImportAiSwitch(record);
+          }}>AI Switch</Button>
           <Popconfirm
             title="确定是否要删除此令牌？"
             content="此修改将不可逆"
@@ -406,6 +409,29 @@ const TokensTable = () => {
     }
 
     window.open(url, '_blank');
+  };
+
+  const onImportAiSwitch = (record) => {
+    let status = localStorage.getItem('status');
+    let serverAddress = '';
+    if (status) {
+      status = JSON.parse(status);
+      serverAddress = status.server_address;
+    }
+    if (serverAddress === '') {
+      serverAddress = window.location.origin;
+    }
+    // one-api only exposes the OpenAI-compatible chat completions endpoint,
+    // which maps to AI Switch's "grok" app dialect. The base URL carries /v1;
+    // AI Switch appends /chat/completions itself.
+    const params = new URLSearchParams();
+    params.set('resource', 'provider');
+    params.set('app', 'grok');
+    params.set('name', (record.name || '').trim() || 'one-api');
+    params.set('endpoint', serverAddress.replace(/\/+$/, '') + '/v1');
+    params.set('apiKey', 'sk-' + record.key);
+    params.set('homepage', serverAddress);
+    window.open(`aiswitch://v1/import?${params.toString()}`, '_blank');
   };
 
   useEffect(() => {

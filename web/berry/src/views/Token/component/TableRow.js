@@ -147,6 +147,26 @@ export default function TokensTableRow({ item, manageToken, handleOpenModal, set
     handleCloseMenu();
   };
 
+  // one-api only exposes the OpenAI-compatible chat completions endpoint,
+  // which maps to AI Switch's "grok" app dialect. The base URL carries /v1;
+  // AI Switch appends /chat/completions itself.
+  const handleImportAiSwitch = () => {
+    let serverAddress = '';
+    if (siteInfo?.server_address) {
+      serverAddress = siteInfo.server_address;
+    } else {
+      serverAddress = window.location.origin;
+    }
+    const params = new URLSearchParams();
+    params.set('resource', 'provider');
+    params.set('app', 'grok');
+    params.set('name', (item.name || '').trim() || 'one-api');
+    params.set('endpoint', serverAddress.replace(/\/+$/, '') + '/v1');
+    params.set('apiKey', 'sk-' + item.key);
+    params.set('homepage', serverAddress);
+    window.open(`aiswitch://v1/import?${params.toString()}`, '_blank');
+  };
+
   const copyItems = createMenu(
     COPY_OPTIONS.map((option) => ({
       text: option.text,
@@ -228,6 +248,11 @@ export default function TokensTableRow({ item, manageToken, handleOpenModal, set
                 <IconCaretDownFilled size={'16px'} />
               </Button>
             </ButtonGroup>
+            <Tooltip title="一键导入到 AI Switch（OpenAI 兼容协议）" placement="top">
+              <Button size="small" color="primary" onClick={handleImportAiSwitch}>
+                AI Switch
+              </Button>
+            </Tooltip>
             <IconButton onClick={(e) => handleOpenMenu(e, 'action')} sx={{ color: 'rgb(99, 115, 129)' }}>
               <IconDotsVertical />
             </IconButton>
